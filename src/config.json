@@ -1,0 +1,19 @@
+{
+	"ethereum": 
+	{
+		"node_url_ROPSTEN": "https://ropsten.infura.io/BQBjfSi5EKSCQQpXebOe",
+		"node_url": "http://localhost:8545",
+		"contracts": 
+		{
+			"requestEthereum": "0x0ee92af81ca2c970e69b36b0b0c414801f965621",
+			"requestSynchronEscrow": "0x58cfa58c66a6910a24bb294967c87c6133b52d7d"
+		},
+		"gasPriceDefault": "5",
+		"gasPriceDefaultUnit": "gwei",
+		"from": "0xcd0c889fcb1ef722237f7719d66e5464d3e9e972"
+	},
+	"ipfs": 
+	{
+		"node_url": "http://localhost:5001"
+	}
+}
