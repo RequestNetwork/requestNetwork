@@ -1,8 +1,7 @@
 import config from '../config';
 import * as Types from '../types';
 
-import Web3 = require("web3");
-// import Web3 from 'web3'; 
+import Web3 from 'web3'; 
 
 declare var require:(moduleId:string) => any;
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
