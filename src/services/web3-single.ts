@@ -48,6 +48,19 @@ export class Web3Single {
 		});
 	}
 
+	// public callMethod(_method:any) : Promise<any>
+	// {
+	// 	return new Promise((resolve, reject) => {
+	// 		_method.call(function(err:Error,data:any) {
+	// 			if(err) return reject(err)
+	// 	   		resolve(data);
+	// 		})
+	// 	});
+	// }
+	
+
+
+
 	public arrayToBytes32 (array:any[], length:number) : any[]
 	{
 		let ret:any[] = [];
