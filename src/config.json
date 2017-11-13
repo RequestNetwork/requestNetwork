@@ -6,7 +6,7 @@
 		"contracts": 
 		{
 			"requestEthereum": "0x0ee92af81ca2c970e69b36b0b0c414801f965621",
-			"requestSynchronEscrow": "0x58cfa58c66a6910a24bb294967c87c6133b52d7d"
+			"requestSyncEscrow": "0x58cfa58c66a6910a24bb294967c87c6133b52d7d"
 		},
 		"gasPriceDefault": "5",
 		"gasPriceDefaultUnit": "gwei",

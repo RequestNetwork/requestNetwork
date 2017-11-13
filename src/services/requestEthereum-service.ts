@@ -1,5 +1,7 @@
 import * as Types from '../types';
-import requestEthereum_Artifact from '../artifacts/RequestEthereum.json';
+// import requestEthereum_Artifact from '../artifacts/RequestEthereum.json';
+const requestEthereum_Artifact = require('../artifacts/RequestEthereum.json');
+const requestCore_Artifact = require('../artifacts/RequestCore.json');
 import config from '../config';
 
 import * as Web3Sgl from './web3-Single';
@@ -8,6 +10,8 @@ export default class requestEthereumService {
     protected web3Single: any;
 
     // RequestEthereum on blockchain
+    protected abiRequestCore: string;
+
     protected abiRequestEthereum: string;
     protected addressRequestEthereum: string;
     protected instanceRequestEthereum: any;
@@ -15,10 +19,56 @@ export default class requestEthereumService {
     constructor() {
         this.web3Single = Web3Sgl.Web3Single.getInstance();
 
+        this.abiRequestCore = requestCore_Artifact.abi;
+
         this.abiRequestEthereum = requestEthereum_Artifact.abi;
         this.addressRequestEthereum = config.ethereum.contracts.requestEthereum;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
+
+    public createRequestAsPayeeAsync = function(
+        _payer: string,
+        _amountInitial: any,
+        _extension: string,
+        _extensionParams: Array < any > ,
+        _details: string,
+        _numberOfConfirmation: number = 0)
+        : Promise<any> 
+    {
+        var myThis = this;
+        return new Promise(function(resolve, reject) {
+            if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/ ) return reject(Error("_amountInitial must a positive integer"));
+            if (!myThis.web3Single.isAddressNoChecksum(_payer)) return reject(Error("_payer must be a valid eth address"));
+            if (!myThis.web3Single.isAddressNoChecksum(_extension)) return reject(Error("_extension must be a valid eth address"));
+            if (_extensionParams.length > 9) return reject(Error("_extensionParams length must be less than 9"));
+
+            var method = myThis.instanceRequestEthereum.methods.createRequestAsPayee(
+                _payer,
+                _amountInitial,
+                _extension,
+                myThis.web3Single.arrayToBytes32(_extensionParams, 9),
+                _details);
+
+            myThis.web3Single.broadcastMethod(
+                method,
+                (transactionHash:string) => {
+                    // we do nothing here!
+                },
+                (receipt:any) => {
+                    // we do nothing here!
+                },
+                (confirmationNumber:number, receipt:any) => {
+                    if(confirmationNumber==_numberOfConfirmation) {
+                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Created", receipt.events[0]);
+                        return resolve({requestId:event.requestId, transactionHash:receipt.transactionHash});
+                    }
+                },
+                (error:Error) => {
+                    return reject(error);
+                });
+          });
+    }
+
 
     public createRequestAsPayee = function(
         _payer: string,
@@ -49,7 +99,6 @@ export default class requestEthereumService {
             _callbackTransactionConfirmation,
             _callbackTransactionError, );
     }
-
 
     public accept = function(
         _requestId: string,
@@ -200,5 +249,4 @@ export default class requestEthereumService {
             _callbackTransactionConfirmation,
             _callbackTransactionError);
     }
-
 }
