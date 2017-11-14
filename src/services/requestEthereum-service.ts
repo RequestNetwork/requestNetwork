@@ -2,6 +2,8 @@ import * as Types from '../types';
 // import requestEthereum_Artifact from '../artifacts/RequestEthereum.json';
 const requestEthereum_Artifact = require('../artifacts/RequestEthereum.json');
 const requestCore_Artifact = require('../artifacts/RequestCore.json');
+import RequestSynchroneExtensionEscrowService from './requestSynchroneExtensionEscrow-service';
+
 import config from '../config';
 
 import * as Web3Sgl from './web3-Single';
@@ -535,11 +537,12 @@ export default class requestEthereumService {
 						extension: data.extension,
 						details: data.details,
 					};
+        
+        if(data.extension.toLowerCase() == config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+          let extensionDetails = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(_requestId);
+          dataResult.extension = Object.assign(extensionDetails, {address:dataResult.extension});
+				}
 
-				// if(data.extension == this.addressRequestSyncEscrow) {
-
-				// }
-				// instanceRequestSyncEscrow.escrows
 				if(dataResult.details)
 				{
 					try {
@@ -565,7 +568,7 @@ export default class requestEthereumService {
 		// var method = await this.instanceRequestCore.methods.requests(_requestId);
 		// console.log(await this.web3Single.callMethod(method));
 		// console.log(this.instanceRequestCore);
-		this.instanceRequestCore.methods.requests(_requestId).call( (err:Error,data:any) => {
+		this.instanceRequestCore.methods.requests(_requestId).call( async (err:Error,data:any) => {
 			if(err) return _callbackGetRequest(err, data);
 
 			let dataResult:any = {
@@ -582,10 +585,10 @@ export default class requestEthereumService {
 					details: data.details,
 				};
 
-			// if(data.extension == this.addressRequestSyncEscrow) {
-
-			// }
-			// instanceRequestSyncEscrow.escrows
+      if(data.extension.toLowerCase() == config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+        let extensionDetails = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(_requestId);
+        dataResult.extension = Object.assign(extensionDetails, {address:dataResult.extension});
+      }
 
 			if(dataResult.details)
 			{

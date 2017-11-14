@@ -3,7 +3,7 @@ import RequestSynchroneExtensionEscrowService from "../src/services/requestSynch
 const config = require('../src/config.json');
 
 var requestEthereumService = new RequestEthereumService();
-var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
+// var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
 
 
 // console.log("1111111111111111111111111");
@@ -39,28 +39,28 @@ async function foo() {
         let result = await requestEthereumService.createRequestAsPayeeAsync( 
 					"0x4ef9E4721BBF02b84D0E73822EE4E26e95076b9D", // 1
 					100000000000,
-					"",//config.ethereum.contracts.requestSynchroneExtensionEscrow,
-					[], // ["0x4222ec932c5a68b80e71f4ddebb069fa02518b8a"], // 3
+					config.ethereum.contracts.requestSynchroneExtensionEscrow,
+					["0x4222ec932c5a68b80e71f4ddebb069fa02518b8a"], // 3
 					'{"reason":"wine purchased"}');
 
-		console.log("result createRequestAsPayeeAsync********************");
-		console.log(result);
+				console.log("result createRequestAsPayeeAsync********************");
+				console.log(result);
 
-		// let result1 = await requestEthereumService.getRequestAsync(result.requestId);
-		// console.log("result requestEthereumService getRequestAsync********************");
-		// console.log(result1);
+				let result1 = await requestEthereumService.getRequestAsync(result.requestId);
+				console.log("result requestEthereumService getRequestAsync********************");
+				console.log(result1);
 
-		// let resultExtension = await requestSynchroneExtensionEscrowService.getRequestAsync(result.requestId);
-		// console.log("result requestSynchroneExtensionEscrowService getRequestAsync********************");
-		// console.log(resultExtension);
+				let resultExtension = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(result.requestId);
+				console.log("result requestSynchroneExtensionEscrowService getRequestAsync********************");
+				console.log(resultExtension);
 
-		let resultCancel = await requestEthereumService.cancelAsync(result.requestId);
-		console.log("result cancelAsync********************");
-		console.log(resultCancel);
+				// let resultCancel = await requestEthereumService.cancelAsync(result.requestId);
+				// console.log("result cancelAsync********************");
+				// console.log(resultCancel);
 
-		let result2 = await requestEthereumService.getRequestAsync(result.requestId);
-		console.log("result requestEthereumService getRequestAsync********************");
-		console.log(result2);
+				// let result2 = await requestEthereumService.getRequestAsync(result.requestId);
+				// console.log("result requestEthereumService getRequestAsync********************");
+				// console.log(result2);
     }
     catch(err) {
         console.log('Error: ', err.message);
