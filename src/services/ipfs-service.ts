@@ -23,7 +23,18 @@ export default class Ipfs {
 					_callbackIpfs:Types.CallbackIpfsAddFile) 
 	{
 		this.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
-			return _callbackIpfs(err,result[0].hash);
+			return _callbackIpfs(err,result?result[0].hash:null);
+		});
+	}
+
+	public addFileAsync(_data:any) : Promise<any>
+	{
+        var myThis = this;
+        return new Promise(function(resolve, reject) {
+			myThis.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
+				if(err) return reject(err);
+				return resolve(result[0].hash);
+			});
 		});
 	}
 

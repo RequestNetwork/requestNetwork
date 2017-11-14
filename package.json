@@ -1,0 +1,21 @@
+{
+  "name": "requestnetwork.js",
+  "version": "0.0.1",
+  "description": "A JavaScript library for interacting with the Request Network protocol",
+  "keywords": [
+    "requestnetwork.js",
+    "requestnetwork",
+    "ethereum"
+  ],
+  "devDependencies": {
+    "@types/node": "^8.0.50"
+  },
+  "dependencies": {
+    "truffle-contract": "^3.0.1",
+    "web3": "^1.0.0-beta.24"
+  },
+  "scripts": {
+    "build": "tsc && cp -r ./src/artifacts ./lib/src/ && cp ./src/*.json ./lib/src/ && cp -r ./src/lib ./lib/src/",
+    "test": "npm run build && tsc test/test && node test/test"
+  }
+}

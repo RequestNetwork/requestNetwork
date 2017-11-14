@@ -1,8 +1,8 @@
 import config from '../config';
 import * as Types from '../types';
 
-import Web3 = require("web3");
 // import Web3 from 'web3'; 
+const Web3 = require('web3');
 
 declare var require:(moduleId:string) => any;
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
@@ -33,7 +33,7 @@ export class Web3Single {
 							_gasLimit:number ) 
 	{
 		_method.estimateGas((err:any,estimateGas:number) => {
-			if(err) throw err;
+			if(err) return _callbackTransactionError(err);
 
 			_method.send({
 				from: 		_from ? _from : config.ethereum.from,
@@ -96,4 +96,19 @@ export class Web3Single {
 	{
 		return this.web3.utils.isHexStrict(hex) && hex.length == 66; // "0x" + 32 bytes * 2 characters = 66
 	}
+
+	public decodeLog(abi:Array<any>, event:string, log:any) : any 
+	{
+		let eventInput:any;
+		abi.some((o:any) => {
+			if(o.name==event) {
+				eventInput=o.inputs;
+				return true;
+			}
+			return false;
+		});
+
+		return this.web3.eth.abi.decodeLog(eventInput, log.raw.data, log.raw.topics[0]);
+	}
+	
 }
