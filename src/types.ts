@@ -5,6 +5,8 @@ export type CallbackTransactionReceipt = (receipt:Object) => void;
 export type CallbackTransactionConfirmation = (confirmationNumber:number, receipt:Object) => void;
 export type CallbackTransactionError = (error:Error) => void;
 
+export type CallbackGetRequest = (err:Error, request:any) => void;
+
 export interface Artifact {
     abi: any;
     networks: {[networkId: number]: {

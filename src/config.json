@@ -5,6 +5,7 @@
 		"node_url": "http://localhost:8545",
 		"contracts": 
 		{
+			"requestCore": "0x60a7058151df00632cac64f2c7959f088d6f6c71",
 			"requestEthereum": "0x0ee92af81ca2c970e69b36b0b0c414801f965621",
 			"requestSyncEscrow": "0x58cfa58c66a6910a24bb294967c87c6133b52d7d"
 		},

@@ -40,8 +40,20 @@ async function foo() {
 		["0x4222ec932c5a68b80e71f4ddebb069fa02518b8a"], // 3
 		'{"reason":"wine purchased"}');
 
-		console.log("result µ********************");
+		console.log("result createRequestAsPayeeAsync********************");
 		console.log(result);
+
+		let result1 = await requestEthereumService.getRequestAsync(result.requestId);
+		console.log("result getRequestAsync********************");
+		console.log(result1);
+
+		let resultCancel = await requestEthereumService.cancelAsync(result.requestId);
+		console.log("result cancelAsync********************");
+		console.log(resultCancel);
+
+		let result2 = await requestEthereumService.getRequestAsync(result.requestId);
+		console.log("result getRequestAsync********************");
+		console.log(result2);
     }
     catch(err) {
         console.log('Error: ', err.message);
