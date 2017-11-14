@@ -5,9 +5,11 @@ const requestCore_Artifact = require('../artifacts/RequestCore.json');
 import config from '../config';
 
 import * as Web3Sgl from './web3-Single';
+import Ipfs from "./ipfs-service";
 
 export default class requestEthereumService {
     protected web3Single: any;
+    protected ipfs: any;
 
     // RequestEthereum on blockchain
     protected abiRequestCore: string;
@@ -20,6 +22,7 @@ export default class requestEthereumService {
 
     constructor() {
         this.web3Single = Web3Sgl.Web3Single.getInstance();
+        this.ipfs = Ipfs.getInstance();
 
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config.ethereum.contracts.requestCore;
@@ -41,36 +44,41 @@ export default class requestEthereumService {
     {
         var myThis = this;
         return new Promise(function(resolve, reject) {
+            // check _details is a proper JSON
             if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/ ) return reject(Error("_amountInitial must a positive integer"));
             if (!myThis.web3Single.isAddressNoChecksum(_payer)) return reject(Error("_payer must be a valid eth address"));
             if (!myThis.web3Single.isAddressNoChecksum(_extension)) return reject(Error("_extension must be a valid eth address"));
             if (_extensionParams.length > 9) return reject(Error("_extensionParams length must be less than 9"));
 
-            var method = myThis.instanceRequestEthereum.methods.createRequestAsPayee(
-                _payer,
-                _amountInitial,
-                _extension,
-                myThis.web3Single.arrayToBytes32(_extensionParams, 9),
-                _details);
+            myThis.ipfs.addFile(JSON.parse(_details), (err:Error,hash:string) => {
+                if(err) return reject(err);
 
-            myThis.web3Single.broadcastMethod(
-                method,
-                (transactionHash:string) => {
-                    // we do nothing here!
-                },
-                (receipt:any) => {
-                    // we do nothing here!
-                },
-                (confirmationNumber:number, receipt:any) => {
-                    if(confirmationNumber==_numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Created", receipt.events[0]);
-                        return resolve({requestId:event.requestId, transactionHash:receipt.transactionHash});
-                    }
-                },
-                (error:Error) => {
-                    return reject(error);
-                });
-          });
+                var method = myThis.instanceRequestEthereum.methods.createRequestAsPayee(
+                    _payer,
+                    _amountInitial,
+                    _extension,
+                    myThis.web3Single.arrayToBytes32(_extensionParams, 9),
+                    hash);
+
+                myThis.web3Single.broadcastMethod(
+                    method,
+                    (transactionHash:string) => {
+                        // we do nothing here!
+                    },
+                    (receipt:any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber:number, receipt:any) => {
+                        if(confirmationNumber==_numberOfConfirmation) {
+                            var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Created", receipt.events[0]);
+                            return resolve({requestId:event.requestId, transactionHash:receipt.transactionHash, ipfsHash:hash});
+                        }
+                    },
+                    (error:Error) => {
+                        return reject(error);
+                    });
+            });
+        });
     }
 
     public createRequestAsPayee = function(
@@ -83,24 +91,29 @@ export default class requestEthereumService {
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError): void {
+
         if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/ ) throw Error("_amountInitial must a positive integer");
         if (!this.web3Single.isAddressNoChecksum(_payer)) throw Error("_payer must be a valid eth address");
         if (!this.web3Single.isAddressNoChecksum(_extension)) throw Error("_extension must be a valid eth address");
         if (_extensionParams.length > 9) throw Error("_extensionParams length must be less than 9");
 
-        var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
-            _payer,
-            _amountInitial,
-            _extension,
-            this.web3Single.arrayToBytes32(_extensionParams, 9),
-            _details);
+        this.ipfs.addFile(JSON.parse(_details), (err:Error,hash:string) => {
+            if(err) return _callbackTransactionError(err);
 
-        this.web3Single.broadcastMethod(
-            method,
-            _callbackTransactionHash,
-            _callbackTransactionReceipt,
-            _callbackTransactionConfirmation,
-            _callbackTransactionError, );
+            var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
+                _payer,
+                _amountInitial,
+                _extension,
+                this.web3Single.arrayToBytes32(_extensionParams, 9),
+                hash);
+
+            this.web3Single.broadcastMethod(
+                method,
+                _callbackTransactionHash,
+                _callbackTransactionReceipt,
+                _callbackTransactionConfirmation,
+                _callbackTransactionError);
+        });
     }
 
 
@@ -532,19 +545,19 @@ export default class requestEthereumService {
                 // }
                 // instanceRequestSyncEscrow.escrows
 
-                // if(dataResult.details)
-                // {
-                //     // get IPFS data :
-                //     this.ipfs.getFile(dataResult.details, (err:Error, data:string) => {
-                //         if(err) return _callbackGetRequest(err, dataResult);
-                //         dataResult.details = JSON.parse(data);
-                //         return _callbackGetRequest(err, dataResult);
-                //     });    
-                // } 
-                // else 
-                // {
+                if(dataResult.details)
+                {
+                    // get IPFS data :
+                    myThis.ipfs.getFile(dataResult.details, (err:Error, data:string) => {
+                        if(err) return reject(err);
+                        dataResult.details = JSON.parse(data);
+                        return resolve(dataResult);
+                    });    
+                } 
+                else 
+                {
                     return resolve(dataResult);
-                // }
+                }
             });
         });
     }
@@ -583,19 +596,19 @@ export default class requestEthereumService {
             // }
             // instanceRequestSyncEscrow.escrows
 
-            // if(dataResult.details)
-            // {
-            //     // get IPFS data :
-            //     this.ipfs.getFile(dataResult.details, (err:Error, data:string) => {
-            //         if(err) return _callbackGetRequest(err, dataResult);
-            //         dataResult.details = JSON.parse(data);
-            //         return _callbackGetRequest(err, dataResult);
-            //     });    
-            // } 
-            // else 
-            // {
+            if(dataResult.details)
+            {
+                // get IPFS data :
+                this.ipfs.getFile(dataResult.details, (err:Error, data:string) => {
+                    if(err) return _callbackGetRequest(err, dataResult);
+                    dataResult.details = JSON.parse(data);
+                    return _callbackGetRequest(err, dataResult);
+                });    
+            } 
+            else 
+            {
                 return _callbackGetRequest(err, dataResult);
-            // }
+            }
         });
     }
 }

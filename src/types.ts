@@ -7,6 +7,9 @@ export type CallbackTransactionError = (error:Error) => void;
 
 export type CallbackGetRequest = (err:Error, request:any) => void;
 
+export type CallbackIpfsAddFile = (err:Error, hash:string) => void;
+export type CallbackIpfsGetFile = (err:Error, data:string) => void;
+
 export interface Artifact {
     abi: any;
     networks: {[networkId: number]: {
