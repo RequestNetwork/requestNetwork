@@ -38,6 +38,27 @@ export default class Ipfs {
 		});
 	}
 
+	public getFileAsync(_hash:string) : Promise<string>
+	{
+        var myThis = this;
+        return new Promise(function(resolve, reject) {
+			let data = "";
+			myThis.ipfs.cat(_hash, (err:Error, stream:any) => {
+				stream.on('data', function(chunk:string) {
+				   data += chunk;
+				});
+
+				stream.on('end',function(){
+				   return resolve(data);
+				});
+
+				stream.on('error',function(err:Error){
+				   return reject(err);
+				});
+			});
+		});
+	}
+
 	public getFile(	_hash:string, 
 					_callbackIpfs:Types.CallbackIpfsGetFile) 
 	{
