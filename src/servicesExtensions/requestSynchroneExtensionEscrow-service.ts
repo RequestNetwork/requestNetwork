@@ -1,14 +1,14 @@
-import * as Types from '../types';
-// import requestEthereum_Artifact from '../artifacts/RequestEthereum.json';
-const requestCore_Artifact = require('../artifacts/RequestCore.json');
-const requestSynchroneExtensionEscrow_Artifact = require('../artifacts/RequestSynchroneExtensionEscrow.json');
-
 import config from '../config';
+import * as Types from '../types';
+import Artifacts from '../artifacts';
 
-import * as Web3Sgl from './web3-Single';
+const requestCore_Artifact = Artifacts.RequestCoreArtifact;
+const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExtensionEscrowArtifact;
+
+import * as Web3Sgl from '../servicesExternal/web3-Single';
 
 export default class RequestSynchroneExtensionEscrowService {
-		private static _instance:RequestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
+	private static _instance:RequestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
 
 	protected web3Single: any;
 
@@ -33,10 +33,26 @@ export default class RequestSynchroneExtensionEscrowService {
 		this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
 	}
 
-		public static getInstance()
+	public static getInstance()
+	{
+		return this._instance || (this._instance = new this());
+	}
+
+	public parseParameters = function(_extensionParams:any[]) : any[]	
+	{
+		let ret:any[] = [];
+
+		// parse escrow 
+		ret.push(this.web3Single.toSolidityBytes32("address", _extensionParams[0]));
+
+		for(let i=1; i<9; i++)
 		{
-			return this._instance || (this._instance = new this());
+			ret.push(this.web3Single.toSolidityBytes32("bytes32", 0) );
 		}
+		return ret;
+	}
+
+
 
 	public releaseToPayeeAsync = function(
 		_requestId: string,

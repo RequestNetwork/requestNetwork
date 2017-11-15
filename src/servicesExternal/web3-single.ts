@@ -61,14 +61,17 @@ export class Web3Single {
 	// }
 	
 
-
+	public toSolidityBytes32 (type:string,value:any) : any
+	{
+		return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(type,value));
+	}
 
 	public arrayToBytes32 (array:any[], length:number) : any[]
 	{
 		let ret:any[] = [];
 		console.log("this")
 		array.forEach(function(o:any) {
-			ret.push(this.web3.utils.bytesToHex( ethABI.toSolidityBytes32("bytes32", o) ));
+			ret.push(this.web3.utils.bytesToHex( ethABI.toSolidityBytes32("address", o) ));
 		}.bind(this));
 
 		for(let i=array.length; i<length; i++)
@@ -77,16 +80,6 @@ export class Web3Single {
 		}
 
 		return ret;
-		// const requestParts = [
-		// 	{value: extParams, type: "bytes32[9]"}
-		// ];
-		// let types: any[] = [];
-		// let values: any[] = [];
-		// requestParts.forEach(function(o,i) {
-		// 	types.push(o.type);
-		// 	values.push(o.value);
-		// });
-		// return ethABI.solidityPack(types, values);
 	}
 
 	public isAddressNoChecksum (address:string) : boolean 

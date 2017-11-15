@@ -16,6 +16,3 @@ export interface Artifact {
         address: string;
     }};
 }
-
-/* Synchrone Extension */
-export enum EscrowState { Created, Refunded, Released }

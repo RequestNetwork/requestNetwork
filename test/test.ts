@@ -1,5 +1,5 @@
-import RequestEthereumService from "../src/services/requestEthereum-service";
-import RequestSynchroneExtensionEscrowService from "../src/services/requestSynchroneExtensionEscrow-service";
+import RequestEthereumService from "../src/servicesContracts/requestEthereum-service";
+import RequestSynchroneExtensionEscrowService from "../src/servicesExtensions/requestSynchroneExtensionEscrow-service";
 const config = require('../src/config.json');
 
 var requestEthereumService = new RequestEthereumService();

@@ -1,13 +1,13 @@
-import * as Types from '../types';
-// import requestEthereum_Artifact from '../artifacts/RequestEthereum.json';
-const requestEthereum_Artifact = require('../artifacts/RequestEthereum.json');
-const requestCore_Artifact = require('../artifacts/RequestCore.json');
-import RequestSynchroneExtensionEscrowService from './requestSynchroneExtensionEscrow-service';
-
 import config from '../config';
+import * as Types from '../types';
+import Artifacts from '../artifacts';
+import * as ServiceExtensions from '../servicesExtensions';
 
-import * as Web3Sgl from './web3-Single';
-import Ipfs from "./ipfs-service";
+const requestEthereum_Artifact = Artifacts.RequestEthereumArtifact;
+const requestCore_Artifact = Artifacts.RequestCoreArtifact;
+
+import * as Web3Sgl from '../servicesExternal/web3-Single';
+import Ipfs from "../servicesExternal/ipfs-service";
 
 export default class requestEthereumService {
 	protected web3Single: any;
@@ -55,6 +55,15 @@ export default class requestEthereumService {
 			if (_extension!="" && !myThis.web3Single.isAddressNoChecksum(_extension)) return reject(Error("_extension must be a valid eth address"));
 			if (_extensionParams.length > 9) return reject(Error("_extensionParams length must be less than 9"));
 
+			let paramsParsed:any[];
+			if(ServiceExtensions.getServiceFromAddress(_extension)) {
+				paramsParsed = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+			}
+			else 
+			{
+				paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+			}
+
 			myThis.ipfs.addFile(JSON.parse(_details), (err:Error,hash:string) => {
 				if(err) return reject(err);
 
@@ -62,7 +71,7 @@ export default class requestEthereumService {
 					_payer,
 					_amountInitial,
 					_extension,
-					myThis.web3Single.arrayToBytes32(_extensionParams, 9),
+					paramsParsed,
 					hash);
 
 				myThis.web3Single.broadcastMethod(
@@ -109,6 +118,15 @@ export default class requestEthereumService {
 		if (_extension!="" && !this.web3Single.isAddressNoChecksum(_extension)) throw Error("_extension must be a valid eth address");
 		if (_extensionParams.length > 9) throw Error("_extensionParams length must be less than 9");
 
+		let paramsParsed:any[];
+		if(ServiceExtensions.getServiceFromAddress(_extension)) {
+			paramsParsed = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+		}
+		else 
+		{
+			paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+		}
+
 		this.ipfs.addFile(JSON.parse(_details), (err:Error,hash:string) => {
 			if(err) return _callbackTransactionError(err);
 
@@ -116,7 +134,7 @@ export default class requestEthereumService {
 				_payer,
 				_amountInitial,
 				_extension,
-				this.web3Single.arrayToBytes32(_extensionParams, 9),
+				paramsParsed,
 				hash);
 
 			this.web3Single.broadcastMethod(
@@ -644,10 +662,10 @@ export default class requestEthereumService {
 						extension: data.extension,
 						details: data.details,
 					};
-        
-        if(data.extension.toLowerCase() == config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
-          let extensionDetails = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(_requestId);
-          dataResult.extension = Object.assign(extensionDetails, {address:dataResult.extension});
+
+				if(ServiceExtensions.getServiceFromAddress(data.extension)) {
+					let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getInstance().getRequestAsync(_requestId);
+					dataResult.extension = Object.assign(extensionDetails, {address:dataResult.extension});
 				}
 
 				if(dataResult.details)
@@ -692,10 +710,10 @@ export default class requestEthereumService {
 					details: data.details,
 				};
 
-      if(data.extension.toLowerCase() == config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
-        let extensionDetails = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(_requestId);
-        dataResult.extension = Object.assign(extensionDetails, {address:dataResult.extension});
-      }
+			if(ServiceExtensions.getServiceFromAddress(data.extension)) {
+				let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getInstance().getRequestAsync(_requestId);
+				dataResult.extension = Object.assign(extensionDetails, {address:dataResult.extension});
+			}
 
 			if(dataResult.details)
 			{
