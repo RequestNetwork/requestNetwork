@@ -1,7 +1,11 @@
 import RequestEthereumService from '../src/services/requestEthereum-service';
+import RequestSynchroneExtensionEscrowService from '../src/services/requestSynchroneExtensionEscrow-service';
+
 const config = require('../src/config.json');
 
 var requestEthereumService = new RequestEthereumService();
+// var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
+
 
 // console.log('1111111111111111111111111');
 // 	requestEthereumService.createRequestAsPayee( 
@@ -33,29 +37,31 @@ var requestEthereumService = new RequestEthereumService();
 
 async function foo() {
     try {
-        let result = await requestEthereumService.createRequestAsPayeeAsync( 
-		'0x4ef9E4721BBF02b84D0E73822EE4E26e95076b9D', // 1
-		1,
-		config.ethereum.contracts.requestSyncEscrow,
-		['0x4222ec932c5a68b80e71f4ddebb069fa02518b8a'], // 3
-		'{"reason":"wine purchased"}');
+        let result = await requestEthereumService.createRequestAsPayeeAsync(
+            '0x4ef9E4721BBF02b84D0E73822EE4E26e95076b9D', // 1
+            100000000000,
+            config.ethereum.contracts.requestSynchroneExtensionEscrow, ['0x4222ec932c5a68b80e71f4ddebb069fa02518b8a'], // 3
+            '{reason:"wine purchased"}');
 
-		console.log('result createRequestAsPayeeAsync********************');
-		console.log(result);
+        console.log('result createRequestAsPayeeAsync********************');
+        console.log(result);
 
-		let result1 = await requestEthereumService.getRequestAsync(result.requestId);
-		console.log('result getRequestAsync********************');
-		console.log(result1);
+        let result1 = await requestEthereumService.getRequestAsync(result.requestId);
+        console.log('result requestEthereumService getRequestAsync********************');
+        console.log(result1);
 
-		let resultCancel = await requestEthereumService.cancelAsync(result.requestId);
-		console.log('result cancelAsync********************');
-		console.log(resultCancel);
+        let resultExtension = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(result.requestId);
+        console.log('result requestSynchroneExtensionEscrowService getRequestAsync********************');
+        console.log(resultExtension);
 
-		let result2 = await requestEthereumService.getRequestAsync(result.requestId);
-		console.log('result getRequestAsync********************');
-		console.log(result2);
-    }
-    catch(err) {
+        // let resultCancel = await requestEthereumService.cancelAsync(result.requestId);
+        // console.log('result cancelAsync********************');
+        // console.log(resultCancel);
+
+        // let result2 = await requestEthereumService.getRequestAsync(result.requestId);
+        // console.log('result requestEthereumService getRequestAsync********************');
+        // console.log(result2);
+    } catch (err) {
         console.log('Error: ', err.message);
     }
 }
@@ -138,4 +144,4 @@ foo();
 // })
 
 // // QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz
-//    
+//
