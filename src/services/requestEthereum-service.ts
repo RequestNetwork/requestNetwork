@@ -41,7 +41,10 @@ export default class requestEthereumService {
 		_extension: string,
 		_extensionParams: Array < any > ,
 		_details: string,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -78,7 +81,11 @@ export default class requestEthereumService {
 					},
 					(error:Error) => {
 						return reject(error);
-					});
+					},
+					undefined,
+					_from,
+					_gasPrice,
+					_gasLimit);
 			});
 		});
 	}
@@ -92,7 +99,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 
 		if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/ ) throw Error("_amountInitial must a positive integer");
 		if (!this.web3Single.isAddressNoChecksum(_payer)) throw Error("_payer must be a valid eth address");
@@ -114,23 +124,30 @@ export default class requestEthereumService {
 				_callbackTransactionHash,
 				_callbackTransactionReceipt,
 				_callbackTransactionConfirmation,
-				_callbackTransactionError);
+				_callbackTransactionError,
+				undefined,
+				_from,
+				_gasPrice,
+				_gasLimit);
 		});
 	}
 
 
 	public acceptAsync = function(
 		_requestId: string,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
 		return new Promise(function(resolve, reject) {
 		// TODO check from == payer ?
 		// TODO check if this is possible ? (quid if other tx pending)
-		if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+		if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
 
-		var method = this.instanceRequestEthereum.methods.accept(_requestId);
+		var method = myThis.instanceRequestEthereum.methods.accept(_requestId);
 
 		myThis.web3Single.broadcastMethod(
 			method,
@@ -148,7 +165,11 @@ export default class requestEthereumService {
 			},
 			(error:Error) => {
 				return reject(error);
-			});
+			},
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 		});
 	}
 
@@ -157,7 +178,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		// TODO check from == payer ?
 		// TODO check if this is possible ? (quid if other tx pending)
 		if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
@@ -169,12 +193,19 @@ export default class requestEthereumService {
 			_callbackTransactionHash,
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
-			_callbackTransactionError);
+			_callbackTransactionError,
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 	public declineAsync = function(
 		_requestId: string,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -201,7 +232,11 @@ export default class requestEthereumService {
 			},
 			(error:Error) => {
 				return reject(error);
-			});
+			},
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 		});
 	}
 
@@ -210,7 +245,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		// TODO check from == payer ?
 		// TODO check if this is possible ? (quid if other tx pending)
 		if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
@@ -222,12 +260,19 @@ export default class requestEthereumService {
 			_callbackTransactionHash,
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
-			_callbackTransactionError);
+			_callbackTransactionError,
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 	public cancelAsync = function(
 		_requestId: string,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -254,7 +299,11 @@ export default class requestEthereumService {
 			},
 			(error:Error) => {
 				return reject(error);
-			});
+			},
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 		});
 	}
 
@@ -263,7 +312,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		// TODO check from == payee ?
 		// TODO check if this is possible ? (quid if other tx pending)
 		if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
@@ -275,14 +327,21 @@ export default class requestEthereumService {
 			_callbackTransactionHash,
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
-			_callbackTransactionError);
+			_callbackTransactionError,
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 	public payAsync = function(
 		_requestId: string,
 		_amount: any,
 		_tips: any,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -314,7 +373,10 @@ export default class requestEthereumService {
 				(error:Error) => {
 					return reject(error);
 				},
-				_amount);
+				_amount,
+				_from,
+				_gasPrice,
+				_gasLimit);
 		});
 	}
 
@@ -325,7 +387,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		// TODO check from == payer ?
 		// TODO check if this is possible ? (quid if other tx pending)
 		if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
@@ -342,14 +407,20 @@ export default class requestEthereumService {
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
 			_callbackTransactionError,
-			_amount);
+			_amount,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 
 	public paybackAsync = function(
 		_requestId: string,
 		_amount: any,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -379,7 +450,10 @@ export default class requestEthereumService {
 				(error:Error) => {
 					return reject(error);
 				},
-				_amount);
+				_amount,
+				_from,
+				_gasPrice,
+				_gasLimit);
 		});
 	}
 
@@ -389,7 +463,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		// TODO check from == payee ?
 		// TODO check if this is possible ? (quid if other tx pending)
 		if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
@@ -404,14 +481,20 @@ export default class requestEthereumService {
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
 			_callbackTransactionError,
-			_amount);
+			_amount,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 
 	public discountAsync = function(
 		_requestId: string,
 		_amount: any,
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -441,7 +524,10 @@ export default class requestEthereumService {
 				(error:Error) => {
 					return reject(error);
 				},
-				_amount);
+				_amount,
+				_from,
+				_gasPrice,
+				_gasLimit);
 		});
 	}
 
@@ -451,7 +537,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		// TODO check from == payee ?
 		// TODO check if this is possible ? (quid if other tx pending)
 		if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
@@ -465,12 +554,19 @@ export default class requestEthereumService {
 			_callbackTransactionHash,
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
-			_callbackTransactionError);
+			_callbackTransactionError,
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 
 	public withdrawAsync = function(
-		_numberOfConfirmation: number = 0)
+		_numberOfConfirmation: number = 0,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined)
 		: Promise<any> 
 	{
 		var myThis = this;
@@ -492,7 +588,11 @@ export default class requestEthereumService {
 				},
 				(error:Error) => {
 					return reject(error);
-				});
+				},
+				undefined,
+				_from,
+				_gasPrice,
+				_gasLimit);
 		});
 	}
 
@@ -500,7 +600,10 @@ export default class requestEthereumService {
 		_callbackTransactionHash: Types.CallbackTransactionHash,
 		_callbackTransactionReceipt: Types.CallbackTransactionReceipt,
 		_callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-		_callbackTransactionError: Types.CallbackTransactionError): void {
+		_callbackTransactionError: Types.CallbackTransactionError,
+		_from:string = undefined,
+		_gasPrice:number = undefined,
+		_gasLimit:number = undefined): void {
 		var method = this.instanceRequestEthereum.methods.withdraw();
 
 		this.web3Single.broadcastMethod(
@@ -508,7 +611,11 @@ export default class requestEthereumService {
 			_callbackTransactionHash,
 			_callbackTransactionReceipt,
 			_callbackTransactionConfirmation,
-			_callbackTransactionError);
+			_callbackTransactionError,
+			undefined,
+			_from,
+			_gasPrice,
+			_gasLimit);
 	}
 
 	public getRequestAsync = function( 

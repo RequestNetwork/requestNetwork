@@ -32,9 +32,11 @@ export class Web3Single {
 							_gasPrice:number,
 							_gasLimit:number ) 
 	{
-		_method.estimateGas({gas: 90000000}, (err:any,estimateGas:number) => {
+		_method.estimateGas({
+			from: 	_from	? _from	: config.ethereum.from, 
+			value:	_value 	? _value : 0,
+			gas: 	_gasLimit ? _gasLimit : 90000000}, (err:any,estimateGas:number) => {
 			if(err) return _callbackTransactionError(err);
-
 			_method.send({
 				from: 		_from ? _from : config.ethereum.from,
 				gasPrice:	_gasPrice ? _gasPrice : this.web3.utils.toWei(config.ethereum.gasPriceDefault,config.ethereum.gasPriceDefaultUnit),
