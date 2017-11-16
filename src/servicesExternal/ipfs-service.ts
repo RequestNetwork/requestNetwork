@@ -1,7 +1,7 @@
 import config from '../config';
 import * as Types from '../types';
 // import ipfs from 'ipfs-api';
-import ipfsAPI = require("ipfs-api");
+import ipfsAPI = require('ipfs-api');
 //QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz
 
 
@@ -62,7 +62,7 @@ export default class Ipfs {
 	public getFile(	_hash:string, 
 					_callbackIpfs:Types.CallbackIpfsGetFile) 
 	{
-		let data = "";
+		let data = '';
 		this.ipfs.cat(_hash, (err:Error, stream:any) => {
 			stream.on('data', function(chunk:string) {
 			   data += chunk;

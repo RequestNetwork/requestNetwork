@@ -21,7 +21,6 @@ var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrow
 // 			console.log("receipt")
 // 			console.log(receipt)
 // 			console.log(receipt.events[0].raw)
-
 // 		},
 // 		(confirmationNumber:number, receipt:any) => {
 // 			console.log("confirmationNumber")
@@ -31,7 +30,6 @@ var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrow
 // 		(error:Error) => console.error
 // 	);
 // console.log("2222222222222222222222222222");
-
 
 
 async function foo() {
@@ -54,15 +52,12 @@ async function foo() {
 				// let resultExtension = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(requestID);
 				// console.log("result requestSynchroneExtensionEscrowService getRequestAsync********************");
 				// console.log(resultExtension);
-
 				// let resultCancel = await requestEthereumService.cancelAsync(requestID);
 				// console.log("result cancelAsync********************");
 				// console.log(resultCancel);
-
 				// let result2 = await requestEthereumService.getRequestAsync(requestID);
 				// console.log("result requestEthereumService getRequestAsync********************");
 				// console.log(result2);
-
 				let resultAccept = await requestEthereumService.acceptAsync(requestID,0,"0x172c93ebe3873e45dfdc58448de62762b944e8d9");
 				console.log("result acceptAsync********************");
 				console.log(resultAccept);
@@ -129,11 +124,8 @@ foo();
 
 
 
-
 // import Ipfs from "./src/services/ipfs-service";
-
 // let ipfs:any = Ipfs.getInstance();
-
 // ipfs.addFile('{reason:"weed purchase"}', (err:Error,hash:string) => {
 // 	if(err) {
 // 		console.log("err 0");
@@ -141,7 +133,6 @@ foo();
 // 	}
 // 	console.log("hash");
 // 	console.log(hash);
-
 // 	ipfs.getFile(hash, (err:Error,data:any) => {
 // 		if(err) {
 // 			console.log("err");
@@ -151,7 +142,6 @@ foo();
 // 		console.log(data);
 // 	});
 // });
-
 
 // ipfs.getFile('QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz', (err:Error,data:any) => {
 // 	if(err) {
@@ -173,23 +163,17 @@ foo();
 
 
 
-
 // var ipfsAPI = require('ipfs-api')
-
 // var ipfs = ipfsAPI('localhost', '5001', {protocol: 'http'})
-
 // ipfs.files.add(Buffer.from('{reason:"beers"}'), (err, result) => {
 // 	if (err) { throw err }
-
 // 	console.log("err")
 // 	console.log(err)
 // 	console.log("result")
 // 	console.log(result)
 // 	console.log("result")
-
 // 	console.log('\nAdded file:', result[0].path, result[0].hash)
 // 	// process.exit()
 // })
-
 // // QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz
 //    

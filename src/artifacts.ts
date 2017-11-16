@@ -1,9 +1,9 @@
 import config from './config';
 import {Artifact} from './types';
 
-var RequestCoreArtifact = require("./artifacts/RequestCore.json");
-var RequestEthereumArtifact = require("./artifacts/RequestEthereum.json");
-var RequestSynchroneExtensionEscrowArtifact = require("./artifacts/RequestSynchroneExtensionEscrow.json");
+const RequestCoreArtifact = require("./artifacts/RequestCore.json");
+const RequestEthereumArtifact = require("./artifacts/RequestEthereum.json");
+const RequestSynchroneExtensionEscrowArtifact = require("./artifacts/RequestSynchroneExtensionEscrow.json");
 
 export default {
     RequestCoreArtifact: 		RequestCoreArtifact as any as Artifact,
