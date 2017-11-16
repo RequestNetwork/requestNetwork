@@ -88,6 +88,26 @@ async function foo() {
 				result = await requestEthereumService.getRequestAsync(requestID);
 				console.log("result requestEthereumService getRequestAsync********************");
 				console.log(result);
+
+				console.log("######################################### paybackAsync #########################################");
+				let resultPayBack = await requestEthereumService.paybackAsync(requestID,100,0);
+				console.log("result paybackAsync********************");
+				console.log(resultPayBack);
+
+				result = await requestEthereumService.getRequestAsync(requestID);
+				console.log("result requestEthereumService getRequestAsync********************");
+				console.log(result);
+
+
+				console.log("######################################### discountAsync #########################################");
+				let resultdiscount = await requestEthereumService.discountAsync(requestID,100);
+				console.log("result discountAsync********************");
+				console.log(resultdiscount);
+
+				result = await requestEthereumService.getRequestAsync(requestID);
+				console.log("result requestEthereumService getRequestAsync********************");
+				console.log(result);
+				
     }
     catch(err) {
         console.log('Error: ', err.message);

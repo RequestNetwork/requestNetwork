@@ -37,10 +37,11 @@ export class Web3Single {
 			value:	_value 	? _value : 0,
 			gas: 	_gasLimit ? _gasLimit : 90000000}, (err:any,estimateGas:number) => {
 			if(err) return _callbackTransactionError(err);
+
 			_method.send({
 				from: 		_from ? _from : config.ethereum.from,
 				gasPrice:	_gasPrice ? _gasPrice : this.web3.utils.toWei(config.ethereum.gasPriceDefault,config.ethereum.gasPriceDefaultUnit),
-				gas: 		_gasLimit ? _gasLimit : Math.floor(estimateGas*1.1),
+				gas: 		_gasLimit ? _gasLimit : Math.floor(estimateGas*2),
 				value:		_value ? _value : 0
 			})
 			.on('transactionHash', _callbackTransactionHash)

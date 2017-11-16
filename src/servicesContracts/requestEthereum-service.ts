@@ -461,8 +461,8 @@ export default class requestEthereumService {
 				},
 				(confirmationNumber:number, receipt:any) => {
 					if(confirmationNumber==_numberOfConfirmation) {
-						var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Refund", receipt.events[0]);
-						return resolve({requestId:event.requestId, transactionHash:receipt.transactionHash});
+						var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Refunded", receipt.events[0]);					
+						return resolve({requestId:event.requestId, amountRefunded:event.amountRefunded, transactionHash:receipt.transactionHash});
 					}
 				},
 				(error:Error) => {
@@ -542,7 +542,7 @@ export default class requestEthereumService {
 				(error:Error) => {
 					return reject(error);
 				},
-				_amount,
+				undefined,
 				_from,
 				_gasPrice,
 				_gasLimit);
