@@ -43,11 +43,11 @@ export default class RequestSynchroneExtensionEscrowService {
 		let ret:any[] = [];
 
 		// parse escrow 
-		ret.push(this.web3Single.toSolidityBytes32("address", _extensionParams[0]));
+		ret.push(this.web3Single.toSolidityBytes32('address', _extensionParams[0]));
 
 		for(let i=1; i<9; i++)
 		{
-			ret.push(this.web3Single.toSolidityBytes32("bytes32", 0) );
+			ret.push(this.web3Single.toSolidityBytes32('bytes32', 0) );
 		}
 		return ret;
 	}
@@ -147,7 +147,7 @@ export default class RequestSynchroneExtensionEscrowService {
 			},
 			(confirmationNumber:number, receipt:any) => {
 				if(confirmationNumber==_numberOfConfirmation) {
-					var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "EscrowRefundRequest", receipt.events[0]);
+					var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
 					return resolve({requestId:event.requestId, transactionHash:receipt.transactionHash});
 				}
 			},

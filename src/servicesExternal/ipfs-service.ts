@@ -42,7 +42,7 @@ export default class Ipfs {
 	{
         var myThis = this;
         return new Promise(function(resolve, reject) {
-			let data = "";
+			let data = '';
 			myThis.ipfs.cat(_hash, (err:Error, stream:any) => {
 				stream.on('data', function(chunk:string) {
 				   data += chunk;

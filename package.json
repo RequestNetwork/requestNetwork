@@ -7,17 +7,20 @@
     "requestnetwork",
     "ethereum"
   ],
+  "scripts": {
+    "build": "tsc && cp -r ./src/artifacts ./lib/src/ && cp ./src/*.json ./lib/src/ && cp -r ./src/lib ./lib/src/",
+    "test": "npm run build && node ./lib/test/test",
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"${npm_package_config_mnemonic}\""
+  },
+  "config": {
+    "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  },
   "devDependencies": {
     "@types/node": "^8.0.50"
   },
   "dependencies": {
     "ethereumjs-util": "^5.1.2",
     "ipfs-api": "^15.1.0",
-    "truffle-contract": "^3.0.1",
     "web3": "^1.0.0-beta.26"
-  },
-  "scripts": {
-    "build": "tsc && cp -r ./src/artifacts ./lib/src/ && cp ./src/*.json ./lib/src/ && cp -r ./src/lib ./lib/src/",
-    "test": "npm run build && node ./lib/test/test"
   }
 }

@@ -7,7 +7,7 @@ const requestEthereum_Artifact = Artifacts.RequestEthereumArtifact;
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 
 import * as Web3Sgl from '../servicesExternal/web3-Single';
-import Ipfs from "../servicesExternal/ipfs-service";
+import Ipfs from '../servicesExternal/ipfs-service';
 
 export default class requestEthereumService {
 	protected web3Single: any;
