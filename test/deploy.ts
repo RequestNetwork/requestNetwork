@@ -15,6 +15,11 @@ let instanceRequestEthereum = new web3Single.web3.eth.Contract(RequestEthereumJs
 let instanceSynchroneExtensionEscrow = new web3Single.web3.eth.Contract(RequestSynchroneExtensionEscrowJson.abi);
 
 let addressRequestCore;
+let addressRequestEthereum;
+let addressRequestExtensionEscrow;
+let newContractInstanceRequestCore;
+let newContractInstanceRequestEthereum;
+let newContractInstanceRequestExtensionEscrow;
 
 console.log("creator: "+config.ethereum.from);
 
@@ -41,6 +46,7 @@ instanceRequestCore.deploy({
 })
 .then(function(newContractInstance){
 	addressRequestCore = newContractInstance.options.address;
+	newContractInstanceRequestCore = newContractInstance;
     console.log('RequestCore - address : '+newContractInstance.options.address) // instance with the new contract address
     
     instanceRequestEthereum.deploy({
@@ -66,7 +72,9 @@ instanceRequestCore.deploy({
 	})
 	.then(function(newContractInstance){
 	    console.log('RequestEthereum - address : '+newContractInstance.options.address) // instance with the new contract address
-    
+		addressRequestEthereum = newContractInstance.options.address;
+	    newContractInstanceRequestEthereum = newContractInstance;
+
         instanceSynchroneExtensionEscrow.deploy({
 		    data: RequestSynchroneExtensionEscrowJson.bytecode,
 		    arguments: [addressRequestCore]
@@ -89,7 +97,49 @@ instanceRequestCore.deploy({
 				console.log('ExtensionEscrow - error transactionHash ##########################') 
 		})
 		.then(function(newContractInstance){
-		    console.log('ExtensionEscrow - address : '+newContractInstance.options.address) // instance with the new contract address
+	    console.log('ExtensionEscrow - address : '+newContractInstance.options.address) // instance with the new contract address
+	    addressRequestExtensionEscrow = newContractInstance.options.address;
+	    newContractInstanceRequestExtensionEscrow = newContractInstance;
+
+			web3Single.broadcastMethod(
+				newContractInstanceRequestCore.methods.adminAddTrustedSubContract(addressRequestEthereum),
+				(transactionHash:string) => {
+					// we do nothing here!
+				},
+				(receipt:any) => {
+					if(receipt.status==1) {
+						console.log('adminAddTrustedSubContract: '+addressRequestEthereum);
+					}
+				},
+				(confirmationNumber:number, receipt:any) => {
+					// we do nothing here!
+				},
+				(error:Error) => {
+					console.log('adminAddTrustedSubContract - error ##########################')
+					console.log(error)
+					console.log('adminAddTrustedSubContract - error ##########################')
+				},undefined,undefined,undefined,undefined);
+
+
+			web3Single.broadcastMethod(
+				newContractInstanceRequestCore.methods.adminAddTrustedExtension(addressRequestExtensionEscrow),
+				(transactionHash:string) => {
+					// we do nothing here!
+				},
+				(receipt:any) => {
+					if(receipt.status==1) {
+						console.log('adminAddTrustedExtension: '+addressRequestExtensionEscrow);
+					}
+				},
+				(confirmationNumber:number, receipt:any) => {
+					// we do nothing here!
+				},
+				(error:Error) => {
+					console.log('adminAddTrustedExtension - error ##########################')
+					console.log(error)
+					console.log('adminAddTrustedExtension - error ##########################')
+				},undefined,undefined,undefined,undefined);
+
 		});
 	});
 
