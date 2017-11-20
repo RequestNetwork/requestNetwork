@@ -8,16 +8,14 @@
     "ethereum"
   ],
   "scripts": {
-    "build": "tsc && cp -r ./src/artifacts ./lib/src/ && cp ./src/*.json ./lib/src/ && cp -r ./src/lib ./lib/src/",
-    "test": "npm run build && node ./lib/test/test",
-    "testdeploy": "npm run build && node ./lib/test/deploy",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && tsc && cp -r ./src/artifacts ./dist/src/ && cp ./src/*.json ./dist/src/ && cp -r ./src/lib ./dist/src/",
+    "test": "npm run build && node ./dist/test/test",
+    "testdeploy": "npm run build && node ./dist/test/deploy",
     "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
-  "config": {
-    "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-  },
   "devDependencies": {
-    "@types/node": "^8.0.50"
+    "@types/node": "^8.0.53"
   },
   "dependencies": {
     "ethereumjs-util": "^5.1.2",
