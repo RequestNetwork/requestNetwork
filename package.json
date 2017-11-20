@@ -14,9 +14,6 @@
     "testdeploy": "npm run build && node ./dist/test/deploy",
     "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
-  "config": {
-    "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-  },
   "devDependencies": {
     "@types/node": "^8.0.53"
   },
