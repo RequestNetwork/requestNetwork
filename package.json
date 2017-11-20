@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc && cp -r ./src/artifacts ./lib/src/ && cp ./src/*.json ./lib/src/ && cp -r ./src/lib ./lib/src/",
     "test": "npm run build && node ./lib/test/test",
-    "testrpc": "testrpc -l 90000000 -p 8545 -m \"${npm_package_config_mnemonic}\""
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
   "config": {
     "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
