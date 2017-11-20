@@ -8,10 +8,11 @@
     "ethereum"
   ],
   "scripts": {
-    "clean": "rm -rf ./dist", 
+    "clean": "rm -rf ./dist",
     "build": "npm run clean && tsc && cp -r ./src/artifacts ./dist/src/ && cp ./src/*.json ./dist/src/ && cp -r ./src/lib ./dist/src/",
     "test": "npm run build && node ./dist/test/test",
-    "testrpc": "testrpc -l 90000000 -p 8545 -m \"${npm_package_config_mnemonic}\""
+    "testdeploy": "npm run build && node ./dist/test/deploy",
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
   "config": {
     "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
