@@ -1,4 +1,3 @@
-import config from './config';
 import { Artifact } from './types';
 
 const RequestCoreArtifact = require('./artifacts/RequestCore.json');
