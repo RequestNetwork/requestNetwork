@@ -1,27 +1,16 @@
 import config from '../config';
 import * as Types from '../types';
-
-// import Web3 from 'web3';
-const Web3 = require('web3');
+var Web3 = require('web3');
+// const Web3 = require('web3');
 
 // declare var require: (moduleId: string) => any;
-var ethABI = require('../lib/ethereumjs-abi-perso.js');
+const ethABI = require('../lib/ethereumjs-abi-perso.js');
 
 export class Web3Single {
-    private static _instance: Web3Single = new Web3Single();
-
     public web3: any;
 
-    private constructor() {
-        // if (typeof this.web3 !== 'undefined') {
-        //     this.web3 = new Web3(this.web3.currentProvider);
-        // } else {
-            this.web3 = new Web3(new Web3.providers.HttpProvider(config.ethereum.node_url));
-        // }
-    }
-
-    public static getInstance() {
-        return this._instance || (this._instance = new this());
+    constructor(web3Provider?: any) {
+        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config.ethereum.node_url));
     }
 
     public broadcastMethod(_method: any,
@@ -55,12 +44,12 @@ export class Web3Single {
 
     // public callMethod(_method:any) : Promise<any>
     // {
-    // 	return new Promise((resolve, reject) => {
-    // 		_method.call(function(err:Error,data:any) {
-    // 			if(err) return reject(err)
-    // 	   		resolve(data);
-    // 		})
-    // 	});
+    //     return new Promise((resolve, reject) => {
+    //         _method.call(function(err:Error,data:any) {
+    //             if(err) return reject(err)
+    //                resolve(data);
+    //         })
+    //     });
     // }
 
 

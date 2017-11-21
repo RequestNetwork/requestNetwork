@@ -40,10 +40,10 @@ var artifacts_1 = require("../artifacts");
 var ServiceExtensions = require("../servicesExtensions");
 var requestEthereum_Artifact = artifacts_1.default.RequestEthereumArtifact;
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
-var Web3Sgl = require("../servicesExternal/web3-Single");
+var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var requestEthereumService = /** @class */ (function () {
-    function requestEthereumService() {
+    function requestEthereumService(web3Provider) {
         this.createRequestAsPayeeAsync = function (_payer, _amountInitial, _extension, _extensionParams, _details, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
             if (_from === void 0) { _from = undefined; }
@@ -494,7 +494,7 @@ var requestEthereumService = /** @class */ (function () {
                 });
             }); });
         };
-        this.web3Single = Web3Sgl.Web3Single.getInstance();
+        this.web3Single = new web3_single_1.Web3Single(web3Provider);
         this.ipfs = ipfs_service_1.default.getInstance();
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;

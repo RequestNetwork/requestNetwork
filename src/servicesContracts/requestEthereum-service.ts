@@ -1,4 +1,5 @@
 import config from '../config';
+
 import * as Types from '../types';
 import Artifacts from '../artifacts';
 import * as ServiceExtensions from '../servicesExtensions';
@@ -6,11 +7,11 @@ import * as ServiceExtensions from '../servicesExtensions';
 const requestEthereum_Artifact = Artifacts.RequestEthereumArtifact;
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 
-import * as Web3Sgl from '../servicesExternal/web3-Single';
+import { Web3Single } from '../servicesExternal/web3-single';
 import Ipfs from '../servicesExternal/ipfs-service';
 
 export default class requestEthereumService {
-    protected web3Single: any;
+    private web3Single: Web3Single;
     protected ipfs: any;
 
     // RequestEthereum on blockchain
@@ -21,9 +22,8 @@ export default class requestEthereumService {
     protected abiRequestEthereum: string;
     protected addressRequestEthereum: string;
     protected instanceRequestEthereum: any;
-
-    constructor() {
-        this.web3Single = Web3Sgl.Web3Single.getInstance();
+    constructor(web3Provider?: any) {
+        this.web3Single = new Web3Single(web3Provider);
         this.ipfs = Ipfs.getInstance();
 
         this.abiRequestCore = requestCore_Artifact.abi;

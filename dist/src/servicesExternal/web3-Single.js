@@ -1,21 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
-// import Web3 from 'web3';
 var Web3 = require('web3');
+// const Web3 = require('web3');
 // declare var require: (moduleId: string) => any;
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
 var Web3Single = /** @class */ (function () {
-    function Web3Single() {
-        // if (typeof this.web3 !== 'undefined') {
-        //     this.web3 = new Web3(this.web3.currentProvider);
-        // } else {
-        this.web3 = new Web3(new Web3.providers.HttpProvider(config_1.default.ethereum.node_url));
-        // }
+    function Web3Single(web3Provider) {
+        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.node_url));
     }
-    Web3Single.getInstance = function () {
-        return this._instance || (this._instance = new this());
-    };
     Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _value, _from, _gasPrice, _gasLimit) {
         var _this = this;
         _method.estimateGas({
@@ -39,12 +32,12 @@ var Web3Single = /** @class */ (function () {
     };
     // public callMethod(_method:any) : Promise<any>
     // {
-    // 	return new Promise((resolve, reject) => {
-    // 		_method.call(function(err:Error,data:any) {
-    // 			if(err) return reject(err)
-    // 	   		resolve(data);
-    // 		})
-    // 	});
+    //     return new Promise((resolve, reject) => {
+    //         _method.call(function(err:Error,data:any) {
+    //             if(err) return reject(err)
+    //                resolve(data);
+    //         })
+    //     });
     // }
     Web3Single.prototype.toSolidityBytes32 = function (type, value) {
         return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(type, value));
@@ -77,8 +70,7 @@ var Web3Single = /** @class */ (function () {
         });
         return this.web3.eth.abi.decodeLog(eventInput, log.raw.data, log.raw.topics[0]);
     };
-    Web3Single._instance = new Web3Single();
     return Web3Single;
 }());
 exports.Web3Single = Web3Single;
-//# sourceMappingURL=web3-Single.js.map
+//# sourceMappingURL=web3-single.js.map
