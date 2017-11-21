@@ -5,8 +5,6 @@ const config = require('../src/config.json');
 var requestEthereumService = new RequestEthereumService();
 var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
 
-
-
 async function foo() {
     try {
         let result = await requestEthereumService.createRequestAsPayeeAsync( 

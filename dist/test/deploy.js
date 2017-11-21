@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Web3Sgl = require("../src/servicesExternal/web3-Single");
+var web3_Single_1 = require("../src/servicesExternal/web3-Single");
 var RequestCoreJson = require("../src/artifacts/RequestCore.json");
 var RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
 var RequestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
 var config = require('../src/config.json');
-var web3Single = Web3Sgl.Web3Single.getInstance();
+var web3Single = new web3_Single_1.Web3Single();
+// let web3Single = Web3Sgl.Web3Single.getInstance();
 var instanceRequestCore = new web3Single.web3.eth.Contract(RequestCoreJson.abi);
 var instanceRequestEthereum = new web3Single.web3.eth.Contract(RequestEthereumJson.abi);
 var instanceSynchroneExtensionEscrow = new web3Single.web3.eth.Contract(RequestSynchroneExtensionEscrowJson.abi);
