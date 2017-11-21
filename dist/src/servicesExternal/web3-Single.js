@@ -73,4 +73,4 @@ var Web3Single = /** @class */ (function () {
     return Web3Single;
 }());
 exports.Web3Single = Web3Single;
-//# sourceMappingURL=web3-Single.js.map
+//# sourceMappingURL=web3-single.js.map

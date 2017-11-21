@@ -4,7 +4,7 @@ var config_1 = require("../config");
 var artifacts_1 = require("../artifacts");
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var requestSynchroneExtensionEscrow_Artifact = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact;
-var web3_Single_1 = require("../servicesExternal/web3-Single");
+var web3_single_1 = require("../servicesExternal/web3-single");
 var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
     function RequestSynchroneExtensionEscrowService(web3Provider) {
         this.parseParameters = function (_extensionParams) {
@@ -129,7 +129,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                 return _callbackGetRequest(err, dataResult);
             });
         };
-        this.web3Single = new web3_Single_1.Web3Single(web3Provider);
+        this.web3Single = new web3_single_1.Web3Single(web3Provider);
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);

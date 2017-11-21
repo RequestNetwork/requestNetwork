@@ -2,7 +2,6 @@ import config from '../config';
 
 import * as Types from '../types';
 import Artifacts from '../artifacts';
-import Web3 from 'web3';
 import * as ServiceExtensions from '../servicesExtensions';
 
 const requestEthereum_Artifact = Artifacts.RequestEthereumArtifact;

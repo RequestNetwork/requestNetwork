@@ -5,7 +5,7 @@ import Artifacts from '../artifacts';
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExtensionEscrowArtifact;
 
-import { Web3Single } from '../servicesExternal/web3-Single';
+import { Web3Single } from '../servicesExternal/web3-single';
 
 export default class RequestSynchroneExtensionEscrowService {
     private static _instance: RequestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
