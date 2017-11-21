@@ -15,11 +15,11 @@ export default class requestEthereumService {
     protected ipfs: any;
 
     // RequestEthereum on blockchain
-    protected abiRequestCore: string;
+    protected abiRequestCore: any;
     protected addressRequestCore: string;
     protected instanceRequestCore: any;
 
-    protected abiRequestEthereum: string;
+    protected abiRequestEthereum: any;
     protected addressRequestEthereum: string;
     protected instanceRequestEthereum: any;
 
@@ -36,7 +36,7 @@ export default class requestEthereumService {
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
 
-    public createRequestAsPayeeAsync = function(
+    public createRequestAsPayeeAsync(
         _payer: string,
         _amountInitial: any,
         _extension: string,
@@ -95,7 +95,7 @@ export default class requestEthereumService {
         });
     }
 
-    public createRequestAsPayee = function(
+    public createRequestAsPayee(
         _payer: string,
         _amountInitial: any,
         _extension: string,
@@ -145,7 +145,7 @@ export default class requestEthereumService {
     }
 
 
-    public acceptAsync = function(
+    public acceptAsync(
         _requestId: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
@@ -183,7 +183,7 @@ export default class requestEthereumService {
         });
     }
 
-    public accept = function(
+    public accept(
         _requestId: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -210,7 +210,7 @@ export default class requestEthereumService {
             _gasLimit);
     }
 
-    public cancelAsync = function(
+    public cancelAsync(
         _requestId: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
@@ -247,7 +247,7 @@ export default class requestEthereumService {
         });
     }
 
-    public cancel = function(
+    public cancel(
         _requestId: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -274,7 +274,7 @@ export default class requestEthereumService {
             _gasLimit);
     }
 
-    public payAsync = function(
+    public payAsync(
         _requestId: string,
         _amount: any,
         _tips: any,
@@ -317,7 +317,7 @@ export default class requestEthereumService {
         });
     }
 
-    public pay = function(
+    public pay(
         _requestId: string,
         _amount: any,
         _tips: any,
@@ -351,7 +351,7 @@ export default class requestEthereumService {
     }
 
 
-    public paybackAsync = function(
+    public paybackAsync(
         _requestId: string,
         _amount: any,
         _numberOfConfirmation: number = 0,
@@ -391,7 +391,7 @@ export default class requestEthereumService {
         });
     }
 
-    public payback = function(
+    public payback(
         _requestId: string,
         _amount: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
@@ -422,7 +422,7 @@ export default class requestEthereumService {
     }
 
 
-    public discountAsync = function(
+    public discountAsync(
         _requestId: string,
         _amount: any,
         _numberOfConfirmation: number = 0,
@@ -462,7 +462,7 @@ export default class requestEthereumService {
         });
     }
 
-    public discount = function(
+    public discount(
         _requestId: string,
         _amount: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
@@ -493,7 +493,7 @@ export default class requestEthereumService {
     }
 
 
-    public withdrawAsync = function(
+    public withdrawAsync(
         _numberOfConfirmation: number = 0,
         _from ? : string,
         _gasPrice ? : number,
@@ -524,7 +524,7 @@ export default class requestEthereumService {
         });
     }
 
-    public withdraw = function(
+    public withdraw(
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
@@ -546,7 +546,7 @@ export default class requestEthereumService {
             _gasLimit);
     }
 
-    public getRequestAsync = function(
+    public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise((resolve, reject) => {
             // TODO check from == payer ?
@@ -587,7 +587,7 @@ export default class requestEthereumService {
         });
     }
 
-    public getRequest = function(
+    public getRequest(
         _requestId: string,
         _callbackGetRequest: Types.CallbackGetRequest) {
         // TODO check from == payer ?
