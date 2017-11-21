@@ -13,7 +13,7 @@ export class Web3Single {
         this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config.ethereum.node_url));
     }
 
-    public broadcastMethod(_method: any,
+    public async broadcastMethod(_method: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
@@ -22,15 +22,25 @@ export class Web3Single {
         _from: string,
         _gasPrice: number,
         _gasLimit: number) {
+
+        if(!_from) {
+            try {
+                let accounts = await this.web3.eth.getAccounts();
+                _from = accounts[0];
+            } catch(e) {
+                return _callbackTransactionError(e);
+            }
+        }
+
         _method.estimateGas({
-            from: _from ? _from : config.ethereum.from,
+            from: _from,
             value: _value ? _value : 0,
             gas: _gasLimit ? _gasLimit : 90000000
         }, (err: any, estimateGas: number) => {
             if (err) return _callbackTransactionError(err);
 
             _method.send({
-                    from: _from ? _from : config.ethereum.from,
+                    from: _from,
                     gasPrice: _gasPrice ? _gasPrice : this.web3.utils.toWei(config.ethereum.gasPriceDefault, config.ethereum.gasPriceDefaultUnit),
                     gas: _gasLimit ? _gasLimit : Math.floor(estimateGas * 2),
                     value: _value ? _value : 0
