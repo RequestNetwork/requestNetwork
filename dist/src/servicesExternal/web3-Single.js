@@ -65,7 +65,7 @@ var Web3Single = /** @class */ (function () {
                         return [2 /*return*/, _callbackTransactionError(e_1)];
                     case 4:
                         _method.estimateGas({
-                            from: _from ? _from : config_1.default.ethereum.from,
+                            from: _from,
                             value: _value ? _value : 0,
                             gas: _gasLimit ? _gasLimit : 90000000
                         }, function (err, estimateGas) {
