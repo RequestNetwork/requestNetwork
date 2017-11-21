@@ -45,15 +45,15 @@ var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var requestEthereumService = /** @class */ (function () {
     function requestEthereumService(web3Provider) {
         this.createRequestAsPayeeAsync = function (_payer, _amountInitial, _extension, _extensionParams, _details, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
                 // check _details is a proper JSON
                 if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/)
                     return reject(Error("_amountInitial must a positive integer"));
-                if (!myThis.web3Single.isAddressNoChecksum(_payer))
+                if (!_this.web3Single.isAddressNoChecksum(_payer))
                     return reject(Error("_payer must be a valid eth address"));
-                if (_extension != "" && !myThis.web3Single.isAddressNoChecksum(_extension))
+                if (_extension != "" && !_this.web3Single.isAddressNoChecksum(_extension))
                     return reject(Error("_extension must be a valid eth address"));
                 if (_extensionParams.length > 9)
                     return reject(Error("_extensionParams length must be less than 9"));
@@ -62,19 +62,19 @@ var requestEthereumService = /** @class */ (function () {
                     paramsParsed = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
                 }
                 else {
-                    paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                    paramsParsed = _this.web3Single.arrayToBytes32(_extensionParams, 9);
                 }
-                myThis.ipfs.addFile(JSON.parse(_details), function (err, hash) {
+                _this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
                     if (err)
                         return reject(err);
-                    var method = myThis.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
-                    myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                    var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                    _this.web3Single.broadcastMethod(method, function (transactionHash) {
                         // we do nothing here!
                     }, function (receipt) {
                         // we do nothing here!
                     }, function (confirmationNumber, receipt) {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Created", receipt.events[0]);
+                            var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Created", receipt.events[0]);
                             return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash, ipfsHash: hash });
                         }
                     }, function (error) {
@@ -108,21 +108,21 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.acceptAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
+                if (!_this.web3Single.isHexStrictBytes32(_requestId))
                     return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
-                var method = myThis.instanceRequestEthereum.methods.accept(_requestId);
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                var method = _this.instanceRequestEthereum.methods.accept(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Accepted", receipt.events[0]);
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Accepted", receipt.events[0]);
                         return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                     }
                 }, function (error) {
@@ -139,21 +139,21 @@ var requestEthereumService = /** @class */ (function () {
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
         };
         this.cancelAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
+                if (!_this.web3Single.isHexStrictBytes32(_requestId))
                     return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
-                var method = myThis.instanceRequestEthereum.methods.cancel(_requestId);
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                var method = _this.instanceRequestEthereum.methods.cancel(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Canceled", receipt.events[0]);
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Canceled", receipt.events[0]);
                         return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                     }
                 }, function (error) {
@@ -170,12 +170,12 @@ var requestEthereumService = /** @class */ (function () {
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
         };
         this.payAsync = function (_requestId, _amount, _tips, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
+                if (!_this.web3Single.isHexStrictBytes32(_requestId))
                     throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
                 // TODO use bigNumber
                 if (_amount < 0 /* || !_amount.isInteger()*/)
@@ -183,14 +183,14 @@ var requestEthereumService = /** @class */ (function () {
                 // TODO use bigNumber
                 if (_tips < 0 /* || !_tips.isInteger()*/)
                     throw Error("_tips must a positive integer");
-                var method = myThis.instanceRequestEthereum.methods.pay(_requestId, _tips);
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                var method = _this.instanceRequestEthereum.methods.pay(_requestId, _tips);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Payment", receipt.events[0]);
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Payment", receipt.events[0]);
                         return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                     }
                 }, function (error) {
@@ -213,24 +213,24 @@ var requestEthereumService = /** @class */ (function () {
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _amount, _from, _gasPrice, _gasLimit);
         };
         this.paybackAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
+                if (!_this.web3Single.isHexStrictBytes32(_requestId))
                     throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
                 // TODO use bigNumber
                 if (_amount < 0 /* || !_amount.isInteger()*/)
                     throw Error("_amount must a positive integer");
-                var method = myThis.instanceRequestEthereum.methods.payback(_requestId);
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                var method = _this.instanceRequestEthereum.methods.payback(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Refunded", receipt.events[0]);
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Refunded", receipt.events[0]);
                         return resolve({ requestId: event.requestId, amountRefunded: event.amountRefunded, transactionHash: receipt.transactionHash });
                     }
                 }, function (error) {
@@ -250,24 +250,24 @@ var requestEthereumService = /** @class */ (function () {
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _amount, _from, _gasPrice, _gasLimit);
         };
         this.discountAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
+                if (!_this.web3Single.isHexStrictBytes32(_requestId))
                     throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
                 // TODO use bigNumber
                 if (_amount < 0 /* || !_amount.isInteger()*/)
                     throw Error("_amount must a positive integer");
-                var method = myThis.instanceRequestEthereum.methods.discount(_requestId, _amount);
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                var method = _this.instanceRequestEthereum.methods.discount(_requestId, _amount);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "AddSubtract", receipt.events[0]);
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, "AddSubtract", receipt.events[0]);
                         return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                     }
                 }, function (error) {
@@ -287,11 +287,11 @@ var requestEthereumService = /** @class */ (function () {
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
         };
         this.withdrawAsync = function (_numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+            var _this = this;
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            var myThis = this;
             return new Promise(function (resolve, reject) {
-                var method = myThis.instanceRequestEthereum.methods.withdraw();
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
+                var method = _this.instanceRequestEthereum.methods.withdraw();
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
                     // we do nothing here!
@@ -309,14 +309,13 @@ var requestEthereumService = /** @class */ (function () {
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
         };
         this.getRequestAsync = function (_requestId) {
-            var myThis = this;
+            var _this = this;
             return new Promise(function (resolve, reject) {
-                var _this = this;
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
+                if (!_this.web3Single.isHexStrictBytes32(_requestId))
                     return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
-                myThis.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
                     var dataResult, extensionDetails, _a, _b, _c, e_1;
                     return __generator(this, function (_d) {
                         switch (_d.label) {
@@ -349,7 +348,7 @@ var requestEthereumService = /** @class */ (function () {
                                 _d.trys.push([3, 5, , 6]);
                                 _a = dataResult;
                                 _c = (_b = JSON).parse;
-                                return [4 /*yield*/, myThis.ipfs.getFileAsync(dataResult.details)];
+                                return [4 /*yield*/, this.ipfs.getFileAsync(dataResult.details)];
                             case 4:
                                 _a.details = _c.apply(_b, [_d.sent()]);
                                 return [3 /*break*/, 6];
