@@ -46,9 +46,6 @@ var requestEthereumService = /** @class */ (function () {
     function requestEthereumService(web3Provider) {
         this.createRequestAsPayeeAsync = function (_payer, _amountInitial, _extension, _extensionParams, _details, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 // check _details is a proper JSON
@@ -88,9 +85,6 @@ var requestEthereumService = /** @class */ (function () {
         };
         this.createRequestAsPayee = function (_payer, _amountInitial, _extension, _extensionParams, _details, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
             var _this = this;
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/)
                 throw Error("_amountInitial must a positive integer");
             if (!this.web3Single.isAddressNoChecksum(_payer))
@@ -115,9 +109,6 @@ var requestEthereumService = /** @class */ (function () {
         };
         this.acceptAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
@@ -140,9 +131,6 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.accept = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             // TODO check from == payer ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId))
@@ -150,48 +138,8 @@ var requestEthereumService = /** @class */ (function () {
             var method = this.instanceRequestEthereum.methods.accept(_requestId);
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
         };
-        this.declineAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
-            if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
-            var myThis = this;
-            return new Promise(function (resolve, reject) {
-                // TODO check from == payer ?
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!myThis.web3Single.isHexStrictBytes32(_requestId))
-                    return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
-                var method = myThis.instanceRequestEthereum.methods.decline(_requestId);
-                myThis.web3Single.broadcastMethod(method, function (transactionHash) {
-                    // we do nothing here!
-                }, function (receipt) {
-                    // we do nothing here!
-                }, function (confirmationNumber, receipt) {
-                    if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, "Declined", receipt.events[0]);
-                        return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                    }
-                }, function (error) {
-                    return reject(error);
-                }, undefined, _from, _gasPrice, _gasLimit);
-            });
-        };
-        this.decline = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId))
-                throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-            var method = this.instanceRequestEthereum.methods.decline(_requestId);
-            this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
-        };
         this.cancelAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
@@ -214,9 +162,6 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.cancel = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             // TODO check from == payee ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId))
@@ -226,9 +171,6 @@ var requestEthereumService = /** @class */ (function () {
         };
         this.payAsync = function (_requestId, _amount, _tips, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
@@ -257,9 +199,6 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.pay = function (_requestId, _amount, _tips, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             // TODO check from == payer ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId))
@@ -275,9 +214,6 @@ var requestEthereumService = /** @class */ (function () {
         };
         this.paybackAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
@@ -303,9 +239,6 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.payback = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             // TODO check from == payee ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId))
@@ -318,9 +251,6 @@ var requestEthereumService = /** @class */ (function () {
         };
         this.discountAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 // TODO check from == payer ?
@@ -346,9 +276,6 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.discount = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             // TODO check from == payee ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId))
@@ -361,9 +288,6 @@ var requestEthereumService = /** @class */ (function () {
         };
         this.withdrawAsync = function (_numberOfConfirmation, _from, _gasPrice, _gasLimit) {
             if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var myThis = this;
             return new Promise(function (resolve, reject) {
                 var method = myThis.instanceRequestEthereum.methods.withdraw();
@@ -381,9 +305,6 @@ var requestEthereumService = /** @class */ (function () {
             });
         };
         this.withdraw = function (_callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-            if (_from === void 0) { _from = undefined; }
-            if (_gasPrice === void 0) { _gasPrice = undefined; }
-            if (_gasLimit === void 0) { _gasLimit = undefined; }
             var method = this.instanceRequestEthereum.methods.withdraw();
             this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
         };

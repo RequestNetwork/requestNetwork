@@ -1,13 +1,12 @@
-import RequestEthereumService from "../src/servicesContracts/requestEthereum-service";
-import RequestSynchroneExtensionEscrowService from "../src/servicesExtensions/requestSynchroneExtensionEscrow-service";
 const config = require('../src/config.json');
 
-var requestEthereumService = new RequestEthereumService();
-var requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
+import RequestNetwork from "../src/requestNetwork";
+var rn = new RequestNetwork();
+
 
 async function foo() {
     try {
-        let result = await requestEthereumService.createRequestAsPayeeAsync( 
+        let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
 					"0xf17f52151ebef6c7334fad080c5704d77216b732", // 1
 					1000,
 					/* "", */ config.ethereum.contracts.requestSynchroneExtensionEscrow,
@@ -18,61 +17,61 @@ async function foo() {
 				console.log(result);
 
 				let requestID = result.requestId;
-				result = await requestEthereumService.getRequestAsync(requestID);
-				console.log("result requestEthereumService getRequestAsync********************");
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
+				console.log("result rn.requestEthereumService getRequestAsync********************");
 				console.log(result);
 
 				// let resultExtension = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(requestID);
 				// console.log("result requestSynchroneExtensionEscrowService getRequestAsync********************");
 				// console.log(resultExtension);
-				// let resultCancel = await requestEthereumService.cancelAsync(requestID);
+				// let resultCancel = await rn.requestEthereumService.cancelAsync(requestID);
 				// console.log("result cancelAsync********************");
 				// console.log(resultCancel);
-				// let result2 = await requestEthereumService.getRequestAsync(requestID);
-				// console.log("result requestEthereumService getRequestAsync********************");
+				// let result2 = await rn.requestEthereumService.getRequestAsync(requestID);
+				// console.log("result rn.requestEthereumService getRequestAsync********************");
 				// console.log(result2);
-				let resultAccept = await requestEthereumService.acceptAsync(requestID,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
+				let resultAccept = await rn.requestEthereumService.acceptAsync(requestID,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
 				console.log("result acceptAsync********************");
 				console.log(resultAccept);
 
-				result = await requestEthereumService.getRequestAsync(requestID);
-				console.log("result requestEthereumService getRequestAsync********************");
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
+				console.log("result rn.requestEthereumService getRequestAsync********************");
 				console.log(result);
 
 				console.log("######################################### payAsync #########################################");
-				let resultPay = await requestEthereumService.payAsync(requestID,1000,0,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
+				let resultPay = await rn.requestEthereumService.payAsync(requestID,1000,0,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
 				console.log("result resultPay********************");
 				console.log(resultPay);
 
-				result = await requestEthereumService.getRequestAsync(requestID);
-				console.log("result requestEthereumService getRequestAsync********************");
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
+				console.log("result rn.requestEthereumService getRequestAsync********************");
 				console.log(result);
 
 				console.log("######################################### releaseToPayeeAsync #########################################");
-				let resultReleaseToPayee = await requestSynchroneExtensionEscrowService.releaseToPayeeAsync(requestID,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
+				let resultReleaseToPayee = await rn.requestSynchroneExtensionEscrowService.releaseToPayeeAsync(requestID,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
 				console.log("result releaseToPayeeAsync********************");
 				console.log(resultReleaseToPayee);
 
-				result = await requestEthereumService.getRequestAsync(requestID);
-				console.log("result requestEthereumService getRequestAsync********************");
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
+				console.log("result rn.requestEthereumService getRequestAsync********************");
 				console.log(result);
 
 				console.log("######################################### paybackAsync #########################################");
-				let resultPayBack = await requestEthereumService.paybackAsync(requestID,100,0);
+				let resultPayBack = await rn.requestEthereumService.paybackAsync(requestID,100,0);
 				console.log("result paybackAsync********************");
 				console.log(resultPayBack);
 
-				result = await requestEthereumService.getRequestAsync(requestID);
-				console.log("result requestEthereumService getRequestAsync********************");
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
+				console.log("result rn.requestEthereumService getRequestAsync********************");
 				console.log(result);
 
 
 				console.log("######################################### discountAsync #########################################");
-				let resultdiscount = await requestEthereumService.discountAsync(requestID,100);
+				let resultdiscount = await rn.requestEthereumService.discountAsync(requestID,100);
 				console.log("result discountAsync********************");
 				console.log(resultdiscount);
 
-				result = await requestEthereumService.getRequestAsync(requestID);
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
 				console.log("result requestEthereumService getRequestAsync********************");
 				console.log(result);
 				
