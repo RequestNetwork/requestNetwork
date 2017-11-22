@@ -18,6 +18,7 @@
     "@types/node": "^8.0.53"
   },
   "dependencies": {
+    "bignumber.js": "^4.1.0",
     "ethereumjs-util": "^5.1.2",
     "ipfs-api": "^15.1.0",
     "web3": "^1.0.0-beta.26"
