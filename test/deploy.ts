@@ -23,14 +23,14 @@ let newContractInstanceRequestCore;
 let newContractInstanceRequestEthereum;
 let newContractInstanceRequestExtensionEscrow;
 
-console.log("creator: " + config.ethereum.from);
+web3Single.getDefaultAccount().then(function(creator) {
+    console.log("creator: " + creator);
 
-instanceRequestCore.deploy({
-        data: RequestCoreJson.bytecode,
-        // arguments: [123, 'My String']
+    instanceRequestCore.deploy({
+        data: RequestCoreJson.bytecode
     })
     .send({
-        from: config.ethereum.from,
+        from: creator,
         gas: 15000000
     }, function(error, transactionHash) {
         if (error) {
@@ -56,7 +56,7 @@ instanceRequestCore.deploy({
                 arguments: [addressRequestCore]
             })
             .send({
-                from: config.ethereum.from,
+                from: creator,
                 gas: 15000000
             }, function(error, transactionHash) {
                 if (error) {
@@ -82,7 +82,7 @@ instanceRequestCore.deploy({
                         arguments: [addressRequestCore]
                     })
                     .send({
-                        from: config.ethereum.from,
+                        from: creator,
                         gas: 15000000
                     }, function(error, transactionHash) {
                         if (error) {
@@ -146,3 +146,5 @@ instanceRequestCore.deploy({
             });
 
     });
+});
+

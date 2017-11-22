@@ -2,7 +2,6 @@ import config from '../config';
 import * as Types from '../types';
 // import ipfs from 'ipfs-api';
 import ipfsAPI = require('ipfs-api');
-//QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz
 
 
 export default class Ipfs {

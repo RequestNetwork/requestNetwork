@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
 // import ipfs from 'ipfs-api';
 var ipfsAPI = require("ipfs-api");
-//QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz
 var Ipfs = /** @class */ (function () {
     function Ipfs() {
         this.ipfs = ipfsAPI(config_1.default.ipfs.node_url);
