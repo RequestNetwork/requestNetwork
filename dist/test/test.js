@@ -60,6 +60,16 @@ function foo() {
                     result = _a.sent();
                     console.log("result rn.requestEthereumService getRequestAsync********************");
                     console.log(result);
+                    // let resultExtension = await RequestSynchroneExtensionEscrowService.getInstance().getRequestAsync(requestID);
+                    // console.log("result requestSynchroneExtensionEscrowService getRequestAsync********************");
+                    // console.log(resultExtension);
+                    // let resultCancel = await rn.requestEthereumService.cancelAsync(requestID);
+                    // console.log("result cancelAsync********************");
+                    // console.log(resultCancel);
+                    // let result2 = await rn.requestEthereumService.getRequestAsync(requestID);
+                    // console.log("result rn.requestEthereumService getRequestAsync********************");
+                    // console.log(result2);
+                    console.log("######################################### accept #########################################");
                     return [4 /*yield*/, rn.requestEthereumService.acceptAsync(requestID, 0, "0xf17f52151ebef6c7334fad080c5704d77216b732")];
                 case 3:
                     resultAccept = _a.sent();
@@ -71,7 +81,7 @@ function foo() {
                     console.log("result rn.requestEthereumService getRequestAsync********************");
                     console.log(result);
                     console.log("######################################### payAsync #########################################");
-                    return [4 /*yield*/, rn.requestEthereumService.payAsync(requestID, 900, 0, 0, "0xf17f52151ebef6c7334fad080c5704d77216b732")];
+                    return [4 /*yield*/, rn.requestEthereumService.payAsync(requestID, 1000, 0, 0, "0xf17f52151ebef6c7334fad080c5704d77216b732")];
                 case 5:
                     resultPay = _a.sent();
                     console.log("result resultPay********************");

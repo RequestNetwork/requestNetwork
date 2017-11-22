@@ -1,4 +1,5 @@
 export enum State { Created, Accepted, Declined, Canceled }
+export enum EscrowState { Created, Refunded, Released }
 
 export type CallbackTransactionHash = (transactionHash:string) => void;
 export type CallbackTransactionReceipt = (receipt:any) => void;

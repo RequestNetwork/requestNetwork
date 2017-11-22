@@ -2,13 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("./config");
 var requestSynchroneExtensionEscrow_service_1 = require("./servicesExtensions/requestSynchroneExtensionEscrow-service");
-exports.services = {
-    RequestSynchroneExtensionEscrowService: requestSynchroneExtensionEscrow_service_1.default,
-};
-exports.getServiceFromAddress = function (address) {
+exports.getServiceFromAddress = function (address, web3Provider) {
     switch (address.toLowerCase()) {
         case config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase():
-            return exports.services.RequestSynchroneExtensionEscrowService;
+            return new requestSynchroneExtensionEscrow_service_1.default(web3Provider);
         default:
             return undefined;
     }

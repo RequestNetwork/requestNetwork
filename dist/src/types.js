@@ -7,4 +7,10 @@ var State;
     State[State["Declined"] = 2] = "Declined";
     State[State["Canceled"] = 3] = "Canceled";
 })(State = exports.State || (exports.State = {}));
+var EscrowState;
+(function (EscrowState) {
+    EscrowState[EscrowState["Created"] = 0] = "Created";
+    EscrowState[EscrowState["Refunded"] = 1] = "Refunded";
+    EscrowState[EscrowState["Released"] = 2] = "Released";
+})(EscrowState = exports.EscrowState || (exports.EscrowState = {}));
 //# sourceMappingURL=types.js.map

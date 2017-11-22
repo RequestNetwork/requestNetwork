@@ -11,7 +11,7 @@ const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 import { Web3Single } from '../servicesExternal/web3-single';
 import Ipfs from '../servicesExternal/ipfs-service';
 
-export default class requestEthereumService {
+export default class RequestEthereumService {
     private web3Single: Web3Single;
     protected ipfs: any;
 
@@ -58,13 +58,13 @@ export default class requestEthereumService {
             if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
             if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
             if (_extensionParams.length > 9) return reject(Error('_extensionParams length must be less than 9'));
-            if ( account == _payer ) {
+            if ( this.web3Single.areSameAddressesNoChecksum(account,_payer) ) {
                 return reject(Error('_from must be different than _payer'));
             }
 
             let paramsParsed: any[];
             if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                let parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+                let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                 if(parsing.error) {
                   return reject(parsing.error);
                 }
@@ -131,13 +131,13 @@ export default class requestEthereumService {
         if (!this.web3Single.isAddressNoChecksum(_payer)) return _callbackTransactionError(Error('_payer must be a valid eth address'));
         if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callbackTransactionError(Error('_extension must be a valid eth address'));
         if (_extensionParams.length > 9) return _callbackTransactionError(Error('_extensionParams length must be less than 9'));
-        if ( account == _payer ) {
+        if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
             return _callbackTransactionError(Error('account must be different than _payer'));
         }
 
         let paramsParsed: any[];
         if (ServiceExtensions.getServiceFromAddress(_extension)) {
-            let parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+            let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
             if(parsing.error) {
                 return _callbackTransactionError(Error(parsing.error));
             }
@@ -181,11 +181,11 @@ export default class requestEthereumService {
         return new Promise(async (resolve, reject) => {
             try {
                 let request = await this.getRequestAsync(_requestId);    
-                let account = await this.web3Single.getDefaultAccount();
+                let account = _from || await this.web3Single.getDefaultAccount();
                 if ( request.state != Types.State.Created) {
                     return reject(Error('request state is not \'created\''));
                 }
-                if ( account == request.payer ) {
+                if ( !this.web3Single.areSameAddressesNoChecksum(account,request.payer) ) {
                     return reject(Error('account must be the payer'));
                 }
 
@@ -239,7 +239,7 @@ export default class requestEthereumService {
             if ( request.state != Types.State.Created) {
                 return _callbackTransactionError(Error('request state is not \'created\''));
             }
-            if ( account != request.payer ) {
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
                 return _callbackTransactionError(Error('from must be the payer'));
             }
             // TODO check if this is possible ? (quid if other tx pending)
@@ -275,13 +275,13 @@ export default class requestEthereumService {
             try {
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _from || await this.web3Single.getDefaultAccount();
-                if ( account != request.payer && account != request.payee ) {
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                     return reject(Error('account must be the payer or the payee'));
                 }
-                if ( account == request.payer && request.state != Types.State.Created ) {
+                if ( this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created ) {
                     return reject(Error('payer can cancel request in state \'created\''));
                 }
-                if ( account == request.payee && request.state == Types.State.Canceled ) {
+                if ( this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled ) {
                     return reject(Error('payer cannot cancel request already canceled'));
                 }
                 if ( request.amountPaid != 0 ) {
@@ -334,13 +334,13 @@ export default class requestEthereumService {
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
-            if ( account != request.payer && account != request.payee ) {
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                return _callbackTransactionError(Error('account must be the payer or the payee'));
             }
-            if ( account == request.payer && request.state != Types.State.Created ) {
+            if ( this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created ) {
                 return _callbackTransactionError(Error('payer can cancel request in state \'created\''));
             }
-            if ( account == request.payee && request.state == Types.State.Canceled ) {
+            if ( this.web3Single.areSameAddressesNoChecksum(account, request.paye) && request.state == Types.State.Canceled ) {
                 return _callbackTransactionError(Error('payer cannot cancel request already \'canceled\''));
             }
             if ( request.amountPaid != 0 ) {
@@ -388,9 +388,9 @@ export default class requestEthereumService {
                 // TODO check if this is possible ? (quid if other tx pending)
                 if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
                 // TODO use bigNumber
-                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error('_amount must a positive integer'));
+                if (_amount.lt(0)) return reject(Error('_amount must a positive integer'));
                 // TODO use bigNumber
-                if (_tips.lt(0) /* || !_tips.isInteger()*/ ) return reject(Error('_tips must a positive integer'));
+                if (_tips.lt(0)) return reject(Error('_tips must a positive integer'));
 
                 if ( request.state != Types.State.Accepted ) {
                     return reject(Error('request must be accepted'));
@@ -509,7 +509,7 @@ export default class requestEthereumService {
                 if ( request.state != Types.State.Accepted ) {
                     return reject(Error('request must be accepted'));
                 }
-                if ( account != request.payee ) {
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                     return reject(Error('account must be payee'));
                 }
                 if ( _amount > request.amountPaid ) {
@@ -566,12 +566,12 @@ export default class requestEthereumService {
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             // TODO use bigNumber
-            if (_amount.lt(0) /*|| !_amount.isInteger()*/ ) return _callbackTransactionError(Error('_amount must a positive integer'));
+            if (_amount.lt(0)) return _callbackTransactionError(Error('_amount must a positive integer'));
 
             if ( request.state != Types.State.Accepted ) {
                 return _callbackTransactionError(Error('request must be accepted'));
             }
-            if ( account != request.payee ) {
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                 return _callbackTransactionError(Error('account must be payee'));
             }
             if ( _amount > request.amountPaid ) {
@@ -615,12 +615,12 @@ export default class requestEthereumService {
                 // TODO check if this is possible ? (quid if other tx pending)
                 if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
                 // TODO use bigNumber
-                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error('_amount must a positive integer'));
+                if (_amount.lt(0)) return reject(Error('_amount must a positive integer'));
 
                 if ( request.state == Types.State.Canceled ) {
                     return reject(Error('request must be accepted or created'));
                 }
-                if ( account != request.payee ) {
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                     return reject(Error('account must be payee'));
                 }
 
@@ -683,7 +683,7 @@ export default class requestEthereumService {
             if ( request.state == Types.State.Canceled ) {
                 return _callbackTransactionError(Error('request must be accepted or created'));
             }
-            if ( account != request.payee ) {
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                 return _callbackTransactionError(Error('account must be payee'));
             }
             if ( _amount.add(request.amountPaid).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
@@ -790,7 +790,7 @@ export default class requestEthereumService {
                 };
 
                 if (ServiceExtensions.getServiceFromAddress(data.extension)) {
-                    let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getInstance().getRequestAsync(_requestId);
+                    let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestAsync(_requestId);
                     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                 }
 
@@ -829,7 +829,7 @@ export default class requestEthereumService {
             };
 
             if (ServiceExtensions.getServiceFromAddress(data.extension)) {
-                let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getInstance().getRequestAsync(_requestId);
+                let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestAsync(_requestId);
                 dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
             }
 

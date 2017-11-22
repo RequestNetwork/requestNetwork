@@ -3,14 +3,11 @@ import {Artifact} from './types';
 
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
 
-export const services = {
-    RequestEthereumService: 	RequestEthereumService as any,
-};
 
-export const getServiceFromAddress = function(address:string) : any{
+export const getServiceFromAddress = function(address:string, web3Provider ? : any) : any{
 	switch(address.toLowerCase()) {
 		case config.ethereum.contracts.requestEthereum.toLowerCase():
-			return services.RequestEthereumService;
+			return new RequestEthereumService(web3Provider);
 		default:
 			return undefined;
 	}

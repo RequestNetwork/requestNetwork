@@ -44,8 +44,8 @@ var requestEthereum_Artifact = artifacts_1.default.RequestEthereumArtifact;
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
-var requestEthereumService = /** @class */ (function () {
-    function requestEthereumService(web3Provider) {
+var RequestEthereumService = /** @class */ (function () {
+    function RequestEthereumService(web3Provider) {
         this.web3Single = new web3_single_1.Web3Single(web3Provider);
         this.ipfs = ipfs_service_1.default.getInstance();
         this.abiRequestCore = requestCore_Artifact.abi;
@@ -55,7 +55,7 @@ var requestEthereumService = /** @class */ (function () {
         this.addressRequestEthereum = config_1.default.ethereum.contracts.requestEthereum;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
-    requestEthereumService.prototype.createRequestAsPayeeAsync = function (_payer, _amountInitial, _extension, _extensionParams, _details, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.createRequestAsPayeeAsync = function (_payer, _amountInitial, _extension, _extensionParams, _details, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -88,11 +88,11 @@ var requestEthereumService = /** @class */ (function () {
                                         return [2 /*return*/, reject(Error('_extension must be a valid eth address'))];
                                     if (_extensionParams.length > 9)
                                         return [2 /*return*/, reject(Error('_extensionParams length must be less than 9'))];
-                                    if (account == _payer) {
+                                    if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                                         return [2 /*return*/, reject(Error('_from must be different than _payer'))];
                                     }
                                     if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                                        parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+                                        parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                                         if (parsing.error) {
                                             return [2 /*return*/, reject(parsing.error)];
                                         }
@@ -125,7 +125,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _extension, _extensionParams, _details, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _extension, _extensionParams, _details, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             var account, _a, paramsParsed, parsing;
@@ -153,11 +153,11 @@ var requestEthereumService = /** @class */ (function () {
                             return [2 /*return*/, _callbackTransactionError(Error('_extension must be a valid eth address'))];
                         if (_extensionParams.length > 9)
                             return [2 /*return*/, _callbackTransactionError(Error('_extensionParams length must be less than 9'))];
-                        if (account == _payer) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be different than _payer'))];
                         }
                         if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                            parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+                            parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                             if (parsing.error) {
                                 return [2 /*return*/, _callbackTransactionError(Error(parsing.error))];
                             }
@@ -177,7 +177,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.acceptAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.acceptAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         if (_gasPrice)
@@ -186,21 +186,26 @@ var requestEthereumService = /** @class */ (function () {
             _gasLimit = new bignumber_js_1.default(_gasLimit);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
-            var request, account, method, e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var request, account, _a, method, e_1;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _b.trys.push([0, 4, , 5]);
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 1:
-                        request = _a.sent();
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 2:
-                        account = _a.sent();
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
+                        account = _a;
                         if (request.state != Types.State.Created) {
                             return [2 /*return*/, reject(Error('request state is not \'created\''))];
                         }
-                        if (account == request.payer) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
                             return [2 /*return*/, reject(Error('account must be the payer'))];
                         }
                         // TODO check if this is possible ? (quid if other tx pending)
@@ -219,16 +224,16 @@ var requestEthereumService = /** @class */ (function () {
                         }, function (error) {
                             return reject(error);
                         }, undefined, _from, _gasPrice, _gasLimit);
-                        return [3 /*break*/, 4];
-                    case 3:
-                        e_1 = _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_1 = _b.sent();
                         return [2 /*return*/, reject(e_1)];
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         }); });
     };
-    requestEthereumService.prototype.accept = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.accept = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
             var request, account, _a, method, e_2;
             return __generator(this, function (_b) {
@@ -255,7 +260,7 @@ var requestEthereumService = /** @class */ (function () {
                         if (request.state != Types.State.Created) {
                             return [2 /*return*/, _callbackTransactionError(Error('request state is not \'created\''))];
                         }
-                        if (account != request.payer) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
                             return [2 /*return*/, _callbackTransactionError(Error('from must be the payer'))];
                         }
                         // TODO check if this is possible ? (quid if other tx pending)
@@ -272,7 +277,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.cancelAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.cancelAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         if (_gasPrice)
@@ -297,13 +302,13 @@ var requestEthereumService = /** @class */ (function () {
                         _b.label = 3;
                     case 3:
                         account = _a;
-                        if (account != request.payer && account != request.payee) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                             return [2 /*return*/, reject(Error('account must be the payer or the payee'))];
                         }
-                        if (account == request.payer && request.state != Types.State.Created) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created) {
                             return [2 /*return*/, reject(Error('payer can cancel request in state \'created\''))];
                         }
-                        if (account == request.payee && request.state == Types.State.Canceled) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled) {
                             return [2 /*return*/, reject(Error('payer cannot cancel request already canceled'))];
                         }
                         if (request.amountPaid != 0) {
@@ -334,7 +339,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         }); });
     };
-    requestEthereumService.prototype.cancel = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.cancel = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
             var request, account, _a, method, e_4;
             return __generator(this, function (_b) {
@@ -358,13 +363,13 @@ var requestEthereumService = /** @class */ (function () {
                         _b.label = 4;
                     case 4:
                         account = _a;
-                        if (account != request.payer && account != request.payee) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be the payer or the payee'))];
                         }
-                        if (account == request.payer && request.state != Types.State.Created) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created) {
                             return [2 /*return*/, _callbackTransactionError(Error('payer can cancel request in state \'created\''))];
                         }
-                        if (account == request.payee && request.state == Types.State.Canceled) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, request.paye) && request.state == Types.State.Canceled) {
                             return [2 /*return*/, _callbackTransactionError(Error('payer cannot cancel request already \'canceled\''))];
                         }
                         if (request.amountPaid != 0) {
@@ -384,7 +389,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.payAsync = function (_requestId, _amount, _tips, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.payAsync = function (_requestId, _amount, _tips, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         _amount = new bignumber_js_1.default(_amount);
@@ -416,10 +421,10 @@ var requestEthereumService = /** @class */ (function () {
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         // TODO use bigNumber
-                        if (_amount.lt(0) /* || !_amount.isInteger()*/)
+                        if (_amount.lt(0))
                             return [2 /*return*/, reject(Error('_amount must a positive integer'))];
                         // TODO use bigNumber
-                        if (_tips.lt(0) /* || !_tips.isInteger()*/)
+                        if (_tips.lt(0))
                             return [2 /*return*/, reject(Error('_tips must a positive integer'))];
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, reject(Error('request must be accepted'))];
@@ -452,7 +457,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         }); });
     };
-    requestEthereumService.prototype.pay = function (_requestId, _amount, _tips, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.pay = function (_requestId, _amount, _tips, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
             var request, account, _a, method, e_6;
             return __generator(this, function (_b) {
@@ -507,7 +512,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.paybackAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.paybackAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -544,7 +549,7 @@ var requestEthereumService = /** @class */ (function () {
                                     if (request.state != Types.State.Accepted) {
                                         return [2 /*return*/, reject(Error('request must be accepted'))];
                                     }
-                                    if (account != request.payee) {
+                                    if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                                         return [2 /*return*/, reject(Error('account must be payee'))];
                                     }
                                     if (_amount > request.amountPaid) {
@@ -574,7 +579,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.payback = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.payback = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
             var request, account, _a, method, e_8;
             return __generator(this, function (_b) {
@@ -603,12 +608,12 @@ var requestEthereumService = /** @class */ (function () {
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         // TODO use bigNumber
-                        if (_amount.lt(0) /*|| !_amount.isInteger()*/)
+                        if (_amount.lt(0))
                             return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, _callbackTransactionError(Error('request must be accepted'))];
                         }
-                        if (account != request.payee) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be payee'))];
                         }
                         if (_amount > request.amountPaid) {
@@ -625,7 +630,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.discountAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.discountAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         _amount = new bignumber_js_1.default(_amount);
@@ -655,12 +660,12 @@ var requestEthereumService = /** @class */ (function () {
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         // TODO use bigNumber
-                        if (_amount.lt(0) /* || !_amount.isInteger()*/)
+                        if (_amount.lt(0))
                             return [2 /*return*/, reject(Error('_amount must a positive integer'))];
                         if (request.state == Types.State.Canceled) {
                             return [2 /*return*/, reject(Error('request must be accepted or created'))];
                         }
-                        if (account != request.payee) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                             return [2 /*return*/, reject(Error('account must be payee'))];
                         }
                         if (request.amountPaid.add(_amount).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
@@ -688,7 +693,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         }); });
     };
-    requestEthereumService.prototype.discount = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.discount = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
             var request, account, _a, method, e_10;
             return __generator(this, function (_b) {
@@ -722,7 +727,7 @@ var requestEthereumService = /** @class */ (function () {
                         if (request.state == Types.State.Canceled) {
                             return [2 /*return*/, _callbackTransactionError(Error('request must be accepted or created'))];
                         }
-                        if (account != request.payee) {
+                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be payee'))];
                         }
                         if (_amount.add(request.amountPaid).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
@@ -739,7 +744,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         });
     };
-    requestEthereumService.prototype.withdrawAsync = function (_numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.withdrawAsync = function (_numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         if (_gasPrice)
@@ -761,7 +766,7 @@ var requestEthereumService = /** @class */ (function () {
             }, undefined, _from, _gasPrice, _gasLimit);
         });
     };
-    requestEthereumService.prototype.withdraw = function (_callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+    RequestEthereumService.prototype.withdraw = function (_callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
         if (_gasPrice)
             _gasPrice = new bignumber_js_1.default(_gasPrice);
         if (_gasLimit)
@@ -769,7 +774,7 @@ var requestEthereumService = /** @class */ (function () {
         var method = this.instanceRequestEthereum.methods.withdraw();
         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
     };
-    requestEthereumService.prototype.getRequestAsync = function (_requestId) {
+    RequestEthereumService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
@@ -795,7 +800,7 @@ var requestEthereumService = /** @class */ (function () {
                                 details: data.details,
                             };
                             if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
-                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getInstance().getRequestAsync(_requestId)];
+                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestAsync(_requestId)];
                         case 1:
                             extensionDetails = _d.sent();
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
@@ -820,7 +825,7 @@ var requestEthereumService = /** @class */ (function () {
             }); });
         });
     };
-    requestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
+    RequestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
         var _this = this;
         if (!this.web3Single.isHexStrictBytes32(_requestId))
             return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), undefined);
@@ -845,7 +850,7 @@ var requestEthereumService = /** @class */ (function () {
                             details: data.details,
                         };
                         if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getInstance().getRequestAsync(_requestId)];
+                        return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestAsync(_requestId)];
                     case 1:
                         extensionDetails = _a.sent();
                         dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
@@ -868,7 +873,7 @@ var requestEthereumService = /** @class */ (function () {
             });
         }); });
     };
-    return requestEthereumService;
+    return RequestEthereumService;
 }());
-exports.default = requestEthereumService;
+exports.default = RequestEthereumService;
 //# sourceMappingURL=requestEthereum-service.js.map

@@ -2,6 +2,7 @@ import config from '../config';
 import * as Types from '../types';
 import Artifacts from '../artifacts';
 import BigNumber from 'bignumber.js';
+import * as ServicesContracts from '../servicesContracts';
 
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExtensionEscrowArtifact;
@@ -34,10 +35,6 @@ export default class RequestSynchroneExtensionEscrowService {
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
     }
 
-    public static getInstance() {
-        return this._instance || (this._instance = new this());
-    }
-
     public parseParameters(_extensionParams: any[]): any {
         if(!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
             return {error:Error('first parameter must be a valid eth address')}
@@ -60,15 +57,27 @@ export default class RequestSynchroneExtensionEscrowService {
         _from: string = undefined,
         _gasPrice: number = undefined,
         _gasLimit: number = undefined): Promise < any > {
-        var myThis = this;
-        return new Promise((resolve, reject) => {
-            // TODO check from == payer or escrow ?
+        return new Promise(async (resolve, reject) => {
+            let account = _from || await this.web3Single.getDefaultAccount();
+
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            var method = myThis.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+            let request = await this.getRequestSubContractAsync(_requestId);
 
-            myThis.web3Single.broadcastMethod(
+            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
+                return reject(Error('account must be payer or escrow'));
+            }
+            if(request.extension.state != Types.EscrowState.Created) {
+                return reject(Error('Escrow state must be \'Created\''));
+            }
+            if(request.state != Types.State.Accepted) {
+                return reject(Error('State must be \'Accepted\''));
+            }
+
+            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+
+            this.web3Single.broadcastMethod(
                 method,
                 (transactionHash: string) => {
                     // we do nothing here!
@@ -92,7 +101,7 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public releaseToPayee(
+    public async releaseToPayee(
         _requestId: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -100,10 +109,21 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackTransactionError: Types.CallbackTransactionError,
         _from: string = undefined,
         _gasPrice: number = undefined,
-        _gasLimit: number = undefined): void {
-        // TODO check from == payer ?
+        _gasLimit: number = undefined): Promise<any> {
+        let account = _from || await this.web3Single.getDefaultAccount();
+
         // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+        let request = await this.getRequestSubContractAsync(_requestId);
+        if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+            return _callbackTransactionError(Error('account must be payer or escrow'));
+        }
+        if(request.extension.state != Types.EscrowState.Created) {
+            return _callbackTransactionError(Error('Escrow state must be \'Created\''));
+        }
+        if(request.state != Types.State.Accepted) {
+            return _callbackTransactionError(Error('State must be \'Accepted\''));
+        }
 
         var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
 
@@ -125,15 +145,26 @@ export default class RequestSynchroneExtensionEscrowService {
         _from: string = undefined,
         _gasPrice: number = undefined,
         _gasLimit: number = undefined): Promise < any > {
-        var myThis = this;
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            let account = _from || await this.web3Single.getDefaultAccount();
             // TODO check from == payee or escrow ?
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            var method = myThis.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+            let request = await this.getRequestSubContractAsync(_requestId);
+            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+                return reject(Error('account must be payee or escrow'));
+            }
+            if(request.extension.state != Types.EscrowState.Created) {
+                return reject(Error('Escrow state must be \'Created\''));
+            }
+            if(request.state != Types.State.Accepted) {
+                return reject(Error('State must be \'Accepted\''));
+            }
 
-            myThis.web3Single.broadcastMethod(
+            var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+
+            this.web3Single.broadcastMethod(
                 method,
                 (transactionHash: string) => {
                     // we do nothing here!
@@ -143,7 +174,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 },
                 (confirmationNumber: number, receipt: any) => {
                     if (confirmationNumber == _numberOfConfirmation) {
-                        var event = myThis.web3Single.decodeLog(myThis.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
+                        var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
                         return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                     }
                 },
@@ -157,7 +188,7 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public refundToPayer(
+    public async refundToPayer(
         _requestId: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -165,10 +196,22 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackTransactionError: Types.CallbackTransactionError,
         _from: string = undefined,
         _gasPrice: number = undefined,
-        _gasLimit: number = undefined): void {
-        // TODO check from == payer ?
+        _gasLimit: number = undefined): Promise<any> {
+        let account = _from || await this.web3Single.getDefaultAccount();
+        // TODO check from == payee or escrow ?
         // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
+        let request = await this.getRequestSubContractAsync(_requestId);
+        if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+            return _callbackTransactionError(Error('account must be payee or escrow'));
+        }
+        if(request.extension.state != Types.EscrowState.Created) {
+            return _callbackTransactionError(Error('Escrow state must be \'Created\''));
+        }
+        if(request.state != Types.State.Accepted) {
+            return _callbackTransactionError(Error('State must be \'Accepted\''));
+        }
 
         var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
 
@@ -187,13 +230,11 @@ export default class RequestSynchroneExtensionEscrowService {
 
     public getRequestAsync(
         _requestId: string): Promise < any > {
-        var myThis = this;
+        
         return new Promise((resolve, reject) => {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            myThis.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
+            this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
                 if (err) return reject(err);
 
                 let dataResult: any = {
@@ -212,8 +253,7 @@ export default class RequestSynchroneExtensionEscrowService {
     public getRequest(
         _requestId: string,
         _callbackGetRequest: Types.CallbackGetRequest) {
-        // TODO check from == payer ?
-        // TODO check if this is possible ? (quid if other tx pending)
+
         if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
 
         this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
@@ -231,4 +271,30 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
+    public getRequestSubContractAsync(
+        _requestId: string): Promise < any > {
+        return new Promise((resolve, reject) => {
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
+            this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
+                if (err) return reject(err);
+                ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequest(_requestId, (err: Error, data: any) => {
+                   if (err) return reject(err);
+                   return resolve(data);
+                });
+            });
+        });
+    }
+
+    public getRequestSubContract(
+        _requestId: string,
+        _callbackGetRequest: Types.CallbackGetRequest) {
+
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
+
+        this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
+            if (err) return _callbackGetRequest(err, data);
+            ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequest(_requestId, _callbackGetRequest);
+        }); 
+    }
 }

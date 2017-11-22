@@ -3,14 +3,11 @@ import {Artifact} from './types';
 
 import RequestSynchroneExtensionEscrowService from './servicesExtensions/requestSynchroneExtensionEscrow-service';
 
-export const services = {
-    RequestSynchroneExtensionEscrowService: 	RequestSynchroneExtensionEscrowService as any,
-};
 
-export const getServiceFromAddress = function(address:string) : any{
+export const getServiceFromAddress = function(address:string, web3Provider ? : any) : any{
 	switch(address.toLowerCase()) {
 		case config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase():
-			return services.RequestSynchroneExtensionEscrowService;
+			return new RequestSynchroneExtensionEscrowService(web3Provider);
 		default:
 			return undefined;
 	}

@@ -9,8 +9,7 @@
 			"requestSynchroneExtensionEscrow": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
 		},
 		"gasPriceDefault": "5",
-		"gasPriceDefaultUnit": "gwei",
-		"from": "0x627306090abab3a6e1400e9345bc60c78a8bef57"
+		"gasPriceDefaultUnit": "gwei"
 	},
 	"ipfs": 
 	{

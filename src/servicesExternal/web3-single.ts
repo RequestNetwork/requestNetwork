@@ -93,6 +93,10 @@ export class Web3Single {
         return this.web3.utils.isAddress(address.toLowerCase());
     }
 
+    public areSameAddressesNoChecksum(address1: string,address2: string): boolean {
+        return address1.toLowerCase()==address2.toLowerCase();
+    }
+
     public isHexStrictBytes32(hex: string): boolean {
         return this.web3.utils.isHexStrict(hex) && hex.length == 66; // '0x' + 32 bytes * 2 characters = 66
     }
