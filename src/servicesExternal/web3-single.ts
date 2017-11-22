@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import config from '../config';
 import * as Types from '../types';
 var Web3 = require('web3');
@@ -9,8 +10,8 @@ const ethABI = require('../lib/ethereumjs-abi-perso.js');
 export class Web3Single {
     public web3: any;
 
-    constructor(web3Provider?: any) {
-        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config.ethereum.node_url));
+    constructor(web3Provider ? : any) {
+        this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.node_url));
     }
 
     public async broadcastMethod(_method: any,
@@ -20,14 +21,14 @@ export class Web3Single {
         _callbackTransactionError: Types.CallbackTransactionError,
         _value: any,
         _from: string,
-        _gasPrice: number,
-        _gasLimit: number) {
+        _gasPrice: BigNumber,
+        _gasLimit: BigNumber) {
 
-        if(!_from) {
+        if (!_from) {
             try {
                 let accounts = await this.web3.eth.getAccounts();
                 _from = accounts[0];
-            } catch(e) {
+            } catch (e) {
                 return _callbackTransactionError(e);
             }
         }
@@ -62,11 +63,11 @@ export class Web3Single {
     //     });
     // }
 
-    public async getDefaultAccount(): Promise<any> {   
-        return new Promise((resolve, reject) => {     
-            this.web3.eth.getAccounts((err,accs) => {
-                if(err) return reject(err);
-                if(accs.length === 0) return reject(Error("No accounts found"));
+    public async getDefaultAccount(): Promise < any > {
+        return new Promise((resolve, reject) => {
+            this.web3.eth.getAccounts((err, accs) => {
+                if (err) return reject(err);
+                if (accs.length === 0) return reject(Error("No accounts found"));
                 return resolve(accs[0]);
             });
         });

@@ -11,11 +11,11 @@ import RequestSynchroneExtensionEscrowService from "../src/servicesExtensions/re
 
 export default class RequestNetwork {
 
-	public requestEthereumService:RequestEthereumService;
-	public requestSynchroneExtensionEscrowService:RequestSynchroneExtensionEscrowService;
+    public requestEthereumService: RequestEthereumService;
+    public requestSynchroneExtensionEscrowService: RequestSynchroneExtensionEscrowService;
 
-	constructor(provider?: any) {
-		this.requestEthereumService = new RequestEthereumService(provider);
-		this.requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService(provider);
-	}
+    constructor(provider? : any) {
+        this.requestEthereumService = new RequestEthereumService(provider);
+        this.requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService(provider);
+    }
 }

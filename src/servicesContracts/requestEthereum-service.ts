@@ -39,14 +39,14 @@ export default class RequestEthereumService {
 
     public async createRequestAsPayeeAsync (
         _payer: string,
-        _amountInitial: BigNumber,
+        _amountInitial: any,
         _extension: string,
         _extensionParams: Array < any > ,
         _details: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         _amountInitial = new BigNumber(_amountInitial);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
@@ -110,7 +110,7 @@ export default class RequestEthereumService {
 
     public async createRequestAsPayee(
         _payer: string,
-        _amountInitial: BigNumber,
+        _amountInitial: any,
         _extension: string,
         _extensionParams: Array < any > ,
         _details: string,
@@ -119,8 +119,8 @@ export default class RequestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise<any> {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise<any> {
         _amountInitial = new BigNumber(_amountInitial);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
@@ -174,8 +174,8 @@ export default class RequestEthereumService {
         _requestId: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
         return new Promise(async (resolve, reject) => {
@@ -228,8 +228,8 @@ export default class RequestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise<any> {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise<any> {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
 
@@ -266,8 +266,8 @@ export default class RequestEthereumService {
         _requestId: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
         
@@ -326,8 +326,8 @@ export default class RequestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise<any> {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise<any> {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
         
@@ -368,12 +368,12 @@ export default class RequestEthereumService {
 
     public payAsync(
         _requestId: string,
-        _amount: BigNumber,
-        _tips: BigNumber,
+        _amount: any,
+        _tips: any,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         _amount = new BigNumber(_amount);
         _tips = new BigNumber(_tips);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
@@ -433,15 +433,15 @@ export default class RequestEthereumService {
 
     public async pay(
         _requestId: string,
-        _amount: BigNumber,
-        _tips: BigNumber,
+        _amount: any,
+        _tips: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise<any> {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise<any> {
         _amount = new BigNumber(_amount);
         _tips = new BigNumber(_tips);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
@@ -487,11 +487,11 @@ export default class RequestEthereumService {
 
     public async paybackAsync(
         _requestId: string,
-        _amount: BigNumber,
+        _amount: any,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         _amount = new BigNumber(_amount);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
@@ -547,14 +547,14 @@ export default class RequestEthereumService {
 
     public async payback(
         _requestId: string,
-        _amount: BigNumber,
+        _amount: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise<any> {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise<any> {
         _amount = new BigNumber(_amount);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
@@ -598,11 +598,11 @@ export default class RequestEthereumService {
 
     public discountAsync(
         _requestId: string,
-        _amount: BigNumber,
+        _amount: any,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         _amount = new BigNumber(_amount);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
@@ -659,14 +659,14 @@ export default class RequestEthereumService {
 
     public async discount(
         _requestId: string,
-        _amount: BigNumber,
+        _amount: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise<any> {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise<any> {
         _amount = new BigNumber(_amount);
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
@@ -711,8 +711,8 @@ export default class RequestEthereumService {
     public withdrawAsync(
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): Promise < any > {
+        _gasPrice ? : any,
+        _gasLimit ? : any): Promise < any > {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
         
@@ -748,8 +748,8 @@ export default class RequestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : BigNumber,
-        _gasLimit ? : BigNumber): void {
+        _gasPrice ? : any,
+        _gasLimit ? : any): void {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
         
