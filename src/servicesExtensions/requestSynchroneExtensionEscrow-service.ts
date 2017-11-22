@@ -40,7 +40,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
     public parseParameters(_extensionParams: any[]): any {
         if(!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
-            return {error:Error("first parameter must be a valid eth address")}
+            return {error:Error('first parameter must be a valid eth address')}
         }
         let ret: any[] = [];
 
@@ -64,7 +64,7 @@ export default class RequestSynchroneExtensionEscrowService {
         return new Promise((resolve, reject) => {
             // TODO check from == payer or escrow ?
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             var method = myThis.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
 
@@ -103,7 +103,7 @@ export default class RequestSynchroneExtensionEscrowService {
         _gasLimit: number = undefined): void {
         // TODO check from == payer ?
         // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
 
         var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
 
@@ -129,7 +129,7 @@ export default class RequestSynchroneExtensionEscrowService {
         return new Promise((resolve, reject) => {
             // TODO check from == payee or escrow ?
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             var method = myThis.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
 
@@ -168,7 +168,7 @@ export default class RequestSynchroneExtensionEscrowService {
         _gasLimit: number = undefined): void {
         // TODO check from == payer ?
         // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
 
         var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
 
@@ -191,7 +191,7 @@ export default class RequestSynchroneExtensionEscrowService {
         return new Promise((resolve, reject) => {
             // TODO check from == payer ?
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+            if (!myThis.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             myThis.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
                 if (err) return reject(err);
@@ -214,7 +214,7 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackGetRequest: Types.CallbackGetRequest) {
         // TODO check from == payer ?
         // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
 
         this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
             if (err) return _callbackGetRequest(err, data);

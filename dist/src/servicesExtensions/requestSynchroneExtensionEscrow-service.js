@@ -21,7 +21,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
     };
     RequestSynchroneExtensionEscrowService.prototype.parseParameters = function (_extensionParams) {
         if (!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
-            return { error: Error("first parameter must be a valid eth address") };
+            return { error: Error('first parameter must be a valid eth address') };
         }
         var ret = [];
         // parse escrow 
@@ -41,7 +41,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             // TODO check from == payer or escrow ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!myThis.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             var method = myThis.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
             myThis.web3Single.broadcastMethod(method, function (transactionHash) {
                 // we do nothing here!
@@ -64,7 +64,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         // TODO check from == payer ?
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
         var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
     };
@@ -78,7 +78,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             // TODO check from == payee or escrow ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!myThis.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             var method = myThis.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
             myThis.web3Single.broadcastMethod(method, function (transactionHash) {
                 // we do nothing here!
@@ -101,7 +101,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         // TODO check from == payer ?
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
         var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
     };
@@ -111,7 +111,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             // TODO check from == payer ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!myThis.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             myThis.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call(function (err, data) {
                 if (err)
                     return reject(err);
@@ -130,7 +130,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         // TODO check from == payer ?
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
         this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call(function (err, data) {
             if (err)
                 return _callbackGetRequest(err, data);

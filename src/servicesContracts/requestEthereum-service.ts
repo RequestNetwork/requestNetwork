@@ -54,12 +54,12 @@ export default class requestEthereumService {
         return new Promise(async (resolve, reject) => {
             let account = _from || await this.web3Single.getDefaultAccount();
             // check _details is a proper JSON
-            if (_amountInitial.lt(0) /*|| !_amountInitial.isInteger()*/ ) return reject(Error("_amountInitial must a positive integer"));
-            if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error("_payer must be a valid eth address"));
-            if (_extension != "" && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error("_extension must be a valid eth address"));
-            if (_extensionParams.length > 9) return reject(Error("_extensionParams length must be less than 9"));
+            if (_amountInitial.lt(0)  ) return reject(Error('_amountInitial must a positive integer'));
+            if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
+            if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
+            if (_extensionParams.length > 9) return reject(Error('_extensionParams length must be less than 9'));
             if ( account == _payer ) {
-                return reject(Error("_from must be different than _payer"));
+                return reject(Error('_from must be different than _payer'));
             }
 
             let paramsParsed: any[];
@@ -93,7 +93,7 @@ export default class requestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, "Created", receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
                             return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash, ipfsHash: hash });
                         }
                     },
@@ -127,19 +127,19 @@ export default class requestEthereumService {
 
         let account = _from || await this.web3Single.getDefaultAccount();
 
-        if (_amountInitial.lt(0) /*|| !_amountInitial.isInteger()*/ ) throw Error("_amountInitial must a positive integer");
-        if (!this.web3Single.isAddressNoChecksum(_payer)) throw Error("_payer must be a valid eth address");
-        if (_extension != "" && !this.web3Single.isAddressNoChecksum(_extension)) throw Error("_extension must be a valid eth address");
-        if (_extensionParams.length > 9) throw Error("_extensionParams length must be less than 9");
+        if (_amountInitial.lt(0)) return _callbackTransactionError(Error('_amountInitial must a positive integer'));
+        if (!this.web3Single.isAddressNoChecksum(_payer)) return _callbackTransactionError(Error('_payer must be a valid eth address'));
+        if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callbackTransactionError(Error('_extension must be a valid eth address'));
+        if (_extensionParams.length > 9) return _callbackTransactionError(Error('_extensionParams length must be less than 9'));
         if ( account == _payer ) {
-            throw Error("account must be different than _payer");
+            return _callbackTransactionError(Error('account must be different than _payer'));
         }
 
         let paramsParsed: any[];
         if (ServiceExtensions.getServiceFromAddress(_extension)) {
             let parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
             if(parsing.error) {
-                throw Error(parsing.error);
+                return _callbackTransactionError(Error(parsing.error));
             }
             paramsParsed = parsing.result;
         } else {
@@ -183,14 +183,14 @@ export default class requestEthereumService {
                 let request = await this.getRequestAsync(_requestId);    
                 let account = await this.web3Single.getDefaultAccount();
                 if ( request.state != Types.State.Created) {
-                    return reject(Error('request state is not "created"'));
+                    return reject(Error('request state is not \'created\''));
                 }
                 if ( account == request.payer ) {
-                    return reject(Error("account must be the payer"));
+                    return reject(Error('account must be the payer'));
                 }
 
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
                 var method = this.instanceRequestEthereum.methods.accept(_requestId);
 
@@ -204,7 +204,7 @@ export default class requestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, "Accepted", receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
                             return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                         }
                     },
@@ -232,18 +232,18 @@ export default class requestEthereumService {
         _gasLimit ? : BigNumber): Promise<any> {
         if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
         if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
-        
+
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
             if ( request.state != Types.State.Created) {
-                throw Error('request state is not "created"');
+                return _callbackTransactionError(Error('request state is not \'created\''));
             }
             if ( account != request.payer ) {
-                throw Error("from must be the payer");
+                return _callbackTransactionError(Error('from must be the payer'));
             }
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             var method = this.instanceRequestEthereum.methods.accept(_requestId);
 
@@ -276,10 +276,10 @@ export default class requestEthereumService {
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _from || await this.web3Single.getDefaultAccount();
                 if ( account != request.payer && account != request.payee ) {
-                    return reject(Error("account must be the payer or the payee"));
+                    return reject(Error('account must be the payer or the payee'));
                 }
                 if ( account == request.payer && request.state != Types.State.Created ) {
-                    return reject(Error('payer can cancel request in state "created"'));
+                    return reject(Error('payer can cancel request in state \'created\''));
                 }
                 if ( account == request.payee && request.state == Types.State.Canceled ) {
                     return reject(Error('payer cannot cancel request already canceled'));
@@ -288,7 +288,7 @@ export default class requestEthereumService {
                     return reject(Error('impossible to cancel a Request with a balance != 0'));
                 }
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
                 var method = this.instanceRequestEthereum.methods.cancel(_requestId);
 
@@ -302,7 +302,7 @@ export default class requestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, "Canceled", receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
                             return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                         }
                     },
@@ -335,19 +335,19 @@ export default class requestEthereumService {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
             if ( account != request.payer && account != request.payee ) {
-               throw Error("account must be the payer or the payee");
+               return _callbackTransactionError(Error('account must be the payer or the payee'));
             }
             if ( account == request.payer && request.state != Types.State.Created ) {
-                throw Error('payer can cancel request in state "created"');
+                return _callbackTransactionError(Error('payer can cancel request in state \'created\''));
             }
             if ( account == request.payee && request.state == Types.State.Canceled ) {
-                throw Error('payer cannot cancel request already canceled');
+                return _callbackTransactionError(Error('payer cannot cancel request already \'canceled\''));
             }
             if ( request.amountPaid != 0 ) {
-                throw Error('impossible to cancel a Request with a balance != 0');
+                return _callbackTransactionError(Error('impossible to cancel a Request with a balance != 0'));
             }
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             var method = this.instanceRequestEthereum.methods.cancel(_requestId);
 
@@ -386,11 +386,11 @@ export default class requestEthereumService {
 
                 // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
                 // TODO use bigNumber
-                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error("_amount must a positive integer"));
+                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error('_amount must a positive integer'));
                 // TODO use bigNumber
-                if (_tips.lt(0) /* || !_tips.isInteger()*/ ) return reject(Error("_tips must a positive integer"));
+                if (_tips.lt(0) /* || !_tips.isInteger()*/ ) return reject(Error('_tips must a positive integer'));
 
                 if ( request.state != Types.State.Accepted ) {
                     return reject(Error('request must be accepted'));
@@ -414,7 +414,7 @@ export default class requestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, "Payment", receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Payment', receipt.events[0]);
                             return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                         }
                     },
@@ -452,19 +452,19 @@ export default class requestEthereumService {
             let account = _from || await this.web3Single.getDefaultAccount();
 
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             // TODO use bigNumber
-            if (_amount.lt(0) /* || !_amount.isInteger()*/ ) throw Error("_amount must a positive integer");
+            if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return _callbackTransactionError(Error('_amount must a positive integer'));
             // TODO use bigNumber
-            if (_tips.lt(0) /* || !_tips.isInteger()*/ ) throw Error("_tips must a positive integer");
+            if (_tips.lt(0) /* || !_tips.isInteger()*/ ) return _callbackTransactionError(Error('_tips must a positive integer'));
             if ( request.state != Types.State.Accepted ) {
-                throw Error('request must be accepted');
+                return _callbackTransactionError(Error('request must be accepted'));
             }
             if ( _amount.lt(_tips) ) {
-                throw Error('tips declare must be lower than amount sent');
+                return _callbackTransactionError(Error('tips declare must be lower than amount sent'));
             }
             if ( request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract).lt(_amount) ) {
-                throw Error('You cannot pay more than amount needed');
+                return _callbackTransactionError(Error('You cannot pay more than amount needed'));
             }
 
             var method = this.instanceRequestEthereum.methods.pay(_requestId, _tips);
@@ -502,9 +502,9 @@ export default class requestEthereumService {
                 let account = _from || await this.web3Single.getDefaultAccount();
 
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
                 // TODO use bigNumber
-                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error("_amount must a positive integer"));
+                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error('_amount must a positive integer'));
 
                 if ( request.state != Types.State.Accepted ) {
                     return reject(Error('request must be accepted'));
@@ -528,7 +528,7 @@ export default class requestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, "Refunded", receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Refunded', receipt.events[0]);
                             return resolve({ requestId: event.requestId, amountRefunded: event.amountRefunded, transactionHash: receipt.transactionHash });
                         }
                     },
@@ -564,18 +564,18 @@ export default class requestEthereumService {
             let account = _from || await this.web3Single.getDefaultAccount();
 
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             // TODO use bigNumber
-            if (_amount.lt(0) /*|| !_amount.isInteger()*/ ) throw Error("_amount must a positive integer");
+            if (_amount.lt(0) /*|| !_amount.isInteger()*/ ) return _callbackTransactionError(Error('_amount must a positive integer'));
 
             if ( request.state != Types.State.Accepted ) {
-                throw Error('request must be accepted');
+                return _callbackTransactionError(Error('request must be accepted'));
             }
             if ( account != request.payee ) {
-                throw Error('account must be payee');
+                return _callbackTransactionError(Error('account must be payee'));
             }
             if ( _amount > request.amountPaid ) {
-                throw Error('You cannot payback more than what has been paid');
+                return _callbackTransactionError(Error('You cannot payback more than what has been paid'));
             }
 
             var method = this.instanceRequestEthereum.methods.payback(_requestId);
@@ -613,9 +613,9 @@ export default class requestEthereumService {
                 let account = _from || await this.web3Single.getDefaultAccount();
 
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
                 // TODO use bigNumber
-                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error("_amount must a positive integer"));
+                if (_amount.lt(0) /* || !_amount.isInteger()*/ ) return reject(Error('_amount must a positive integer'));
 
                 if ( request.state == Types.State.Canceled ) {
                     return reject(Error('request must be accepted or created'));
@@ -623,10 +623,7 @@ export default class requestEthereumService {
                 if ( account != request.payee ) {
                     return reject(Error('account must be payee'));
                 }
-                console.log("request.amountPaid.add(_amount)")
-                console.log(request.amountPaid.add(_amount))
-                console.log("request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract)")
-                console.log(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))
+
                 if ( request.amountPaid.add(_amount).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
                     return reject(Error('You cannot discount more than necessary'));
                 }
@@ -643,7 +640,7 @@ export default class requestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, "AddSubtract", receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'AddSubtract', receipt.events[0]);
                             return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                         }
                     },
@@ -679,18 +676,18 @@ export default class requestEthereumService {
             let account = _from || await this.web3Single.getDefaultAccount();
 
             // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             // TODO use bigNumber
-            if (_amount.lt(0) /*|| !_amount.isInteger()*/ ) throw Error("_amount must a positive integer");
+            if (_amount.lt(0) /*|| !_amount.isInteger()*/ ) return _callbackTransactionError(Error('_amount must a positive integer'));
 
             if ( request.state == Types.State.Canceled ) {
-                throw Error('request must be accepted or created');
+                return _callbackTransactionError(Error('request must be accepted or created'));
             }
             if ( account != request.payee ) {
-                throw Error('account must be payee');
+                return _callbackTransactionError(Error('account must be payee'));
             }
             if ( _amount.add(request.amountPaid).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
-                throw Error('You cannot payback more than what has been paid');
+                return _callbackTransactionError(Error('You cannot payback more than what has been paid'));
             }
 
             var method = this.instanceRequestEthereum.methods.discount(_requestId, _amount);
@@ -773,7 +770,7 @@ export default class requestEthereumService {
     public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise((resolve, reject) => {
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
                 if (err) return reject(err);
@@ -812,7 +809,7 @@ export default class requestEthereumService {
     public getRequest(
         _requestId: string,
         _callbackGetRequest: Types.CallbackGetRequest) {
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),undefined);
 
         this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
             if (err) return _callbackGetRequest(err, data);
