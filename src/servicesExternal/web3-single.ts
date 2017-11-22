@@ -62,6 +62,15 @@ export class Web3Single {
     //     });
     // }
 
+    public async getDefaultAccount(): Promise<any> {   
+        return new Promise((resolve, reject) => {     
+            this.web3.eth.getAccounts((err,accs) => {
+                if(err) return reject(err);
+                if(accs.length === 0) return reject(Error("No accounts found"));
+                return resolve(accs[0]);
+            });
+        });
+    }
 
     public toSolidityBytes32(type: string, value: any): any {
         return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(type, value));

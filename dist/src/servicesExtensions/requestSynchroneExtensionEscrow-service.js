@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
 var artifacts_1 = require("../artifacts");
+var bignumber_js_1 = require("bignumber.js");
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var requestSynchroneExtensionEscrow_Artifact = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
@@ -19,13 +20,16 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         return this._instance || (this._instance = new this());
     };
     RequestSynchroneExtensionEscrowService.prototype.parseParameters = function (_extensionParams) {
+        if (!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
+            return { error: Error("first parameter must be a valid eth address") };
+        }
         var ret = [];
         // parse escrow 
         ret.push(this.web3Single.toSolidityBytes32('address', _extensionParams[0]));
         for (var i = 1; i < 9; i++) {
             ret.push(this.web3Single.toSolidityBytes32('bytes32', 0));
         }
-        return ret;
+        return { result: ret };
     };
     RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
@@ -115,8 +119,8 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                     subContract: data.subContract,
                     escrow: data.escrow,
                     state: data.state,
-                    amountPaid: data.amountPaid,
-                    amountRefunded: data.amountRefunded
+                    amountPaid: new bignumber_js_1.default(data.amountPaid),
+                    amountRefunded: new bignumber_js_1.default(data.amountRefunded)
                 };
                 return resolve(dataResult);
             });
@@ -134,8 +138,8 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                 subContract: data.subContract,
                 escrow: data.escrow,
                 state: data.state,
-                amountPaid: data.amountPaid,
-                amountRefunded: data.amountRefunded
+                amountPaid: new bignumber_js_1.default(data.amountPaid),
+                amountRefunded: new bignumber_js_1.default(data.amountRefunded)
             };
             return _callbackGetRequest(err, dataResult);
         });

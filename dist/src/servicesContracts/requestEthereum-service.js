@@ -36,6 +36,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
+var bignumber_js_1 = require("bignumber.js");
+var Types = require("../types");
 var artifacts_1 = require("../artifacts");
 var ServiceExtensions = require("../servicesExtensions");
 var requestEthereum_Artifact = artifacts_1.default.RequestEthereumArtifact;
@@ -54,246 +56,640 @@ var requestEthereumService = /** @class */ (function () {
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
     requestEthereumService.prototype.createRequestAsPayeeAsync = function (_payer, _amountInitial, _extension, _extensionParams, _details, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
-        var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        return new Promise(function (resolve, reject) {
-            // check _details is a proper JSON
-            if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/)
-                return reject(Error("_amountInitial must a positive integer"));
-            if (!_this.web3Single.isAddressNoChecksum(_payer))
-                return reject(Error("_payer must be a valid eth address"));
-            if (_extension != "" && !_this.web3Single.isAddressNoChecksum(_extension))
-                return reject(Error("_extension must be a valid eth address"));
-            if (_extensionParams.length > 9)
-                return reject(Error("_extensionParams length must be less than 9"));
-            var paramsParsed;
-            if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                paramsParsed = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
-            }
-            else {
-                paramsParsed = _this.web3Single.arrayToBytes32(_extensionParams, 9);
-            }
-            _this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
-                if (err)
-                    return reject(err);
-                var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
-                _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                    // we do nothing here!
-                }, function (receipt) {
-                    // we do nothing here!
-                }, function (confirmationNumber, receipt) {
-                    if (confirmationNumber == _numberOfConfirmation) {
-                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Created", receipt.events[0]);
-                        return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash, ipfsHash: hash });
-                    }
-                }, function (error) {
-                    return reject(error);
-                }, undefined, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                _amountInitial = new bignumber_js_1.default(_amountInitial);
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var _this = this;
+                        var account, _a, paramsParsed, parsing;
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
+                                case 0:
+                                    _a = _from;
+                                    if (_a) return [3 /*break*/, 2];
+                                    return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                                case 1:
+                                    _a = (_b.sent());
+                                    _b.label = 2;
+                                case 2:
+                                    account = _a;
+                                    // check _details is a proper JSON
+                                    if (_amountInitial.lt(0) /*|| !_amountInitial.isInteger()*/)
+                                        return [2 /*return*/, reject(Error("_amountInitial must a positive integer"))];
+                                    if (!this.web3Single.isAddressNoChecksum(_payer))
+                                        return [2 /*return*/, reject(Error("_payer must be a valid eth address"))];
+                                    if (_extension != "" && !this.web3Single.isAddressNoChecksum(_extension))
+                                        return [2 /*return*/, reject(Error("_extension must be a valid eth address"))];
+                                    if (_extensionParams.length > 9)
+                                        return [2 /*return*/, reject(Error("_extensionParams length must be less than 9"))];
+                                    if (account == _payer) {
+                                        return [2 /*return*/, reject(Error("_from must be different than _payer"))];
+                                    }
+                                    if (ServiceExtensions.getServiceFromAddress(_extension)) {
+                                        parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+                                        if (parsing.error) {
+                                            return [2 /*return*/, reject(parsing.error)];
+                                        }
+                                        paramsParsed = parsing.result;
+                                    }
+                                    else {
+                                        paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                                    }
+                                    this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
+                                        if (err)
+                                            return reject(err);
+                                        var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                                        _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                                            // we do nothing here!
+                                        }, function (receipt) {
+                                            // we do nothing here!
+                                        }, function (confirmationNumber, receipt) {
+                                            if (confirmationNumber == _numberOfConfirmation) {
+                                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Created", receipt.events[0]);
+                                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash, ipfsHash: hash });
+                                            }
+                                        }, function (error) {
+                                            return reject(error);
+                                        }, undefined, _from, _gasPrice, _gasLimit);
+                                    });
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
             });
         });
     };
     requestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _extension, _extensionParams, _details, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        var _this = this;
-        if (_amountInitial < 0 /*|| !_amountInitial.isInteger()*/)
-            throw Error("_amountInitial must a positive integer");
-        if (!this.web3Single.isAddressNoChecksum(_payer))
-            throw Error("_payer must be a valid eth address");
-        if (_extension != "" && !this.web3Single.isAddressNoChecksum(_extension))
-            throw Error("_extension must be a valid eth address");
-        if (_extensionParams.length > 9)
-            throw Error("_extensionParams length must be less than 9");
-        var paramsParsed;
-        if (ServiceExtensions.getServiceFromAddress(_extension)) {
-            paramsParsed = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
-        }
-        else {
-            paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
-        }
-        this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
-            if (err)
-                return _callbackTransactionError(err);
-            var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
-            _this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var account, _a, paramsParsed, parsing;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _amountInitial = new bignumber_js_1.default(_amountInitial);
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 1:
+                        _a = (_b.sent());
+                        _b.label = 2;
+                    case 2:
+                        account = _a;
+                        if (_amountInitial.lt(0) /*|| !_amountInitial.isInteger()*/)
+                            throw Error("_amountInitial must a positive integer");
+                        if (!this.web3Single.isAddressNoChecksum(_payer))
+                            throw Error("_payer must be a valid eth address");
+                        if (_extension != "" && !this.web3Single.isAddressNoChecksum(_extension))
+                            throw Error("_extension must be a valid eth address");
+                        if (_extensionParams.length > 9)
+                            throw Error("_extensionParams length must be less than 9");
+                        if (account == _payer) {
+                            throw Error("account must be different than _payer");
+                        }
+                        if (ServiceExtensions.getServiceFromAddress(_extension)) {
+                            parsing = ServiceExtensions.getServiceFromAddress(_extension).getInstance().parseParameters(_extensionParams);
+                            if (parsing.error) {
+                                throw Error(parsing.error);
+                            }
+                            paramsParsed = parsing.result;
+                        }
+                        else {
+                            paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                        }
+                        this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
+                            if (err)
+                                return _callbackTransactionError(err);
+                            var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                            _this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+                        });
+                        return [2 /*return*/];
+                }
+            });
         });
     };
     requestEthereumService.prototype.acceptAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        return new Promise(function (resolve, reject) {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
-            var method = _this.instanceRequestEthereum.methods.accept(_requestId);
-            _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                // we do nothing here!
-            }, function (receipt) {
-                // we do nothing here!
-            }, function (confirmationNumber, receipt) {
-                if (confirmationNumber == _numberOfConfirmation) {
-                    var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Accepted", receipt.events[0]);
-                    return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            var request, account, method, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 1:
+                        request = _a.sent();
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 2:
+                        account = _a.sent();
+                        if (request.state != Types.State.Created) {
+                            return [2 /*return*/, reject(Error('request state is not "created"'))];
+                        }
+                        if (account == request.payer) {
+                            return [2 /*return*/, reject(Error("account must be the payer"))];
+                        }
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'))];
+                        method = this.instanceRequestEthereum.methods.accept(_requestId);
+                        this.web3Single.broadcastMethod(method, function (transactionHash) {
+                            // we do nothing here!
+                        }, function (receipt) {
+                            // we do nothing here!
+                        }, function (confirmationNumber, receipt) {
+                            if (confirmationNumber == _numberOfConfirmation) {
+                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Accepted", receipt.events[0]);
+                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            }
+                        }, function (error) {
+                            return reject(error);
+                        }, undefined, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        return [2 /*return*/, reject(e_1)];
+                    case 4: return [2 /*return*/];
                 }
-            }, function (error) {
-                return reject(error);
-            }, undefined, _from, _gasPrice, _gasLimit);
-        });
+            });
+        }); });
     };
     requestEthereumService.prototype.accept = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        // TODO check from == payer ?
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-        var method = this.instanceRequestEthereum.methods.accept(_requestId);
-        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, account, _a, method, e_2;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 1:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 2:
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
+                        account = _a;
+                        if (request.state != Types.State.Created) {
+                            throw Error('request state is not "created"');
+                        }
+                        if (account != request.payer) {
+                            throw Error("from must be the payer");
+                        }
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+                        method = this.instanceRequestEthereum.methods.accept(_requestId);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_2 = _b.sent();
+                        throw e_2;
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
     };
     requestEthereumService.prototype.cancelAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        return new Promise(function (resolve, reject) {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
-            var method = _this.instanceRequestEthereum.methods.cancel(_requestId);
-            _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                // we do nothing here!
-            }, function (receipt) {
-                // we do nothing here!
-            }, function (confirmationNumber, receipt) {
-                if (confirmationNumber == _numberOfConfirmation) {
-                    var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Canceled", receipt.events[0]);
-                    return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            var request, account, _a, method, e_3;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 1:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 2:
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
+                        account = _a;
+                        if (account != request.payer && account != request.payee) {
+                            return [2 /*return*/, reject(Error("account must be the payer or the payee"))];
+                        }
+                        if (account == request.payer && request.state != Types.State.Created) {
+                            return [2 /*return*/, reject(Error('payer can cancel request in state "created"'))];
+                        }
+                        if (account == request.payee && request.state == Types.State.Canceled) {
+                            return [2 /*return*/, reject(Error('payer cannot cancel request already canceled'))];
+                        }
+                        if (request.amountPaid != 0) {
+                            return [2 /*return*/, reject(Error('impossible to cancel a Request with a balance != 0'))];
+                        }
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'))];
+                        method = this.instanceRequestEthereum.methods.cancel(_requestId);
+                        this.web3Single.broadcastMethod(method, function (transactionHash) {
+                            // we do nothing here!
+                        }, function (receipt) {
+                            // we do nothing here!
+                        }, function (confirmationNumber, receipt) {
+                            if (confirmationNumber == _numberOfConfirmation) {
+                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Canceled", receipt.events[0]);
+                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            }
+                        }, function (error) {
+                            return reject(error);
+                        }, undefined, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_3 = _b.sent();
+                        return [2 /*return*/, reject(e_3)];
+                    case 5: return [2 /*return*/];
                 }
-            }, function (error) {
-                return reject(error);
-            }, undefined, _from, _gasPrice, _gasLimit);
-        });
+            });
+        }); });
     };
     requestEthereumService.prototype.cancel = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        // TODO check from == payee ?
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-        var method = this.instanceRequestEthereum.methods.cancel(_requestId);
-        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, account, _a, method, e_4;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 1:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 2:
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
+                        account = _a;
+                        if (account != request.payer && account != request.payee) {
+                            throw Error("account must be the payer or the payee");
+                        }
+                        if (account == request.payer && request.state != Types.State.Created) {
+                            throw Error('payer can cancel request in state "created"');
+                        }
+                        if (account == request.payee && request.state == Types.State.Canceled) {
+                            throw Error('payer cannot cancel request already canceled');
+                        }
+                        if (request.amountPaid != 0) {
+                            throw Error('impossible to cancel a Request with a balance != 0');
+                        }
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+                        method = this.instanceRequestEthereum.methods.cancel(_requestId);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_4 = _b.sent();
+                        throw e_4;
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
     };
     requestEthereumService.prototype.payAsync = function (_requestId, _amount, _tips, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        return new Promise(function (resolve, reject) {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-            // TODO use bigNumber
-            if (_amount < 0 /* || !_amount.isInteger()*/)
-                throw Error("_amount must a positive integer");
-            // TODO use bigNumber
-            if (_tips < 0 /* || !_tips.isInteger()*/)
-                throw Error("_tips must a positive integer");
-            var method = _this.instanceRequestEthereum.methods.pay(_requestId, _tips);
-            _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                // we do nothing here!
-            }, function (receipt) {
-                // we do nothing here!
-            }, function (confirmationNumber, receipt) {
-                if (confirmationNumber == _numberOfConfirmation) {
-                    var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Payment", receipt.events[0]);
-                    return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+        _amount = new bignumber_js_1.default(_amount);
+        _tips = new bignumber_js_1.default(_tips);
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            var request, account, _a, method, e_5;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 1:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 2:
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
+                        account = _a;
+                        // TODO check from == payer ?
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'))];
+                        // TODO use bigNumber
+                        if (_amount.lt(0) /* || !_amount.isInteger()*/)
+                            return [2 /*return*/, reject(Error("_amount must a positive integer"))];
+                        // TODO use bigNumber
+                        if (_tips.lt(0) /* || !_tips.isInteger()*/)
+                            return [2 /*return*/, reject(Error("_tips must a positive integer"))];
+                        if (request.state != Types.State.Accepted) {
+                            return [2 /*return*/, reject(Error('request must be accepted'))];
+                        }
+                        if (_amount.lt(_tips)) {
+                            return [2 /*return*/, reject(Error('tips declare must be lower than amount sent'))];
+                        }
+                        if (request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract).lt(_amount)) {
+                            return [2 /*return*/, reject(Error('You cannot pay more than amount needed'))];
+                        }
+                        method = this.instanceRequestEthereum.methods.pay(_requestId, _tips);
+                        this.web3Single.broadcastMethod(method, function (transactionHash) {
+                            // we do nothing here!
+                        }, function (receipt) {
+                            // we do nothing here!
+                        }, function (confirmationNumber, receipt) {
+                            if (confirmationNumber == _numberOfConfirmation) {
+                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Payment", receipt.events[0]);
+                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            }
+                        }, function (error) {
+                            return reject(error);
+                        }, _amount, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_5 = _b.sent();
+                        return [2 /*return*/, reject(e_5)];
+                    case 5: return [2 /*return*/];
                 }
-            }, function (error) {
-                return reject(error);
-            }, _amount, _from, _gasPrice, _gasLimit);
-        });
+            });
+        }); });
     };
     requestEthereumService.prototype.pay = function (_requestId, _amount, _tips, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        // TODO check from == payer ?
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-        // TODO use bigNumber
-        if (_amount < 0 /* || !_amount.isInteger()*/)
-            throw Error("_amount must a positive integer");
-        // TODO use bigNumber
-        if (_tips < 0 /* || !_tips.isInteger()*/)
-            throw Error("_tips must a positive integer");
-        var method = this.instanceRequestEthereum.methods.pay(_requestId, _tips);
-        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _amount, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, account, _a, method, e_6;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _amount = new bignumber_js_1.default(_amount);
+                        _tips = new bignumber_js_1.default(_tips);
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 5, , 6]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 2:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 3:
+                        _a = (_b.sent());
+                        _b.label = 4;
+                    case 4:
+                        account = _a;
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+                        // TODO use bigNumber
+                        if (_amount.lt(0) /* || !_amount.isInteger()*/)
+                            throw Error("_amount must a positive integer");
+                        // TODO use bigNumber
+                        if (_tips.lt(0) /* || !_tips.isInteger()*/)
+                            throw Error("_tips must a positive integer");
+                        if (request.state != Types.State.Accepted) {
+                            throw Error('request must be accepted');
+                        }
+                        if (_amount.lt(_tips)) {
+                            throw Error('tips declare must be lower than amount sent');
+                        }
+                        if (request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract).lt(_amount)) {
+                            throw Error('You cannot pay more than amount needed');
+                        }
+                        method = this.instanceRequestEthereum.methods.pay(_requestId, _tips);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _amount, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        e_6 = _b.sent();
+                        throw e_6;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
     };
     requestEthereumService.prototype.paybackAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
-        var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        return new Promise(function (resolve, reject) {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-            // TODO use bigNumber
-            if (_amount < 0 /* || !_amount.isInteger()*/)
-                throw Error("_amount must a positive integer");
-            var method = _this.instanceRequestEthereum.methods.payback(_requestId);
-            _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                // we do nothing here!
-            }, function (receipt) {
-                // we do nothing here!
-            }, function (confirmationNumber, receipt) {
-                if (confirmationNumber == _numberOfConfirmation) {
-                    var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Refunded", receipt.events[0]);
-                    return resolve({ requestId: event.requestId, amountRefunded: event.amountRefunded, transactionHash: receipt.transactionHash });
-                }
-            }, function (error) {
-                return reject(error);
-            }, _amount, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                _amount = new bignumber_js_1.default(_amount);
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var _this = this;
+                        var request, account, _a, method, e_7;
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
+                                case 0:
+                                    _b.trys.push([0, 4, , 5]);
+                                    return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                                case 1:
+                                    request = _b.sent();
+                                    _a = _from;
+                                    if (_a) return [3 /*break*/, 3];
+                                    return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                                case 2:
+                                    _a = (_b.sent());
+                                    _b.label = 3;
+                                case 3:
+                                    account = _a;
+                                    // TODO check if this is possible ? (quid if other tx pending)
+                                    if (!this.web3Single.isHexStrictBytes32(_requestId))
+                                        return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'))];
+                                    // TODO use bigNumber
+                                    if (_amount.lt(0) /* || !_amount.isInteger()*/)
+                                        return [2 /*return*/, reject(Error("_amount must a positive integer"))];
+                                    if (request.state != Types.State.Accepted) {
+                                        return [2 /*return*/, reject(Error('request must be accepted'))];
+                                    }
+                                    if (account != request.payee) {
+                                        return [2 /*return*/, reject(Error('account must be payee'))];
+                                    }
+                                    if (_amount > request.amountPaid) {
+                                        return [2 /*return*/, reject(Error('You cannot payback more than what has been paid'))];
+                                    }
+                                    method = this.instanceRequestEthereum.methods.payback(_requestId);
+                                    this.web3Single.broadcastMethod(method, function (transactionHash) {
+                                        // we do nothing here!
+                                    }, function (receipt) {
+                                        // we do nothing here!
+                                    }, function (confirmationNumber, receipt) {
+                                        if (confirmationNumber == _numberOfConfirmation) {
+                                            var event = _this.web3Single.decodeLog(_this.abiRequestCore, "Refunded", receipt.events[0]);
+                                            return resolve({ requestId: event.requestId, amountRefunded: event.amountRefunded, transactionHash: receipt.transactionHash });
+                                        }
+                                    }, function (error) {
+                                        return reject(error);
+                                    }, _amount, _from, _gasPrice, _gasLimit);
+                                    return [3 /*break*/, 5];
+                                case 4:
+                                    e_7 = _b.sent();
+                                    return [2 /*return*/, reject(e_7)];
+                                case 5: return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
         });
     };
     requestEthereumService.prototype.payback = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        // TODO check from == payee ?
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-        // TODO use bigNumber
-        if (_amount < 0 /*|| !_amount.isInteger()*/)
-            throw Error("_amount must a positive integer");
-        var method = this.instanceRequestEthereum.methods.payback(_requestId);
-        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _amount, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, account, _a, method, e_8;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _amount = new bignumber_js_1.default(_amount);
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 5, , 6]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 2:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 3:
+                        _a = (_b.sent());
+                        _b.label = 4;
+                    case 4:
+                        account = _a;
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+                        // TODO use bigNumber
+                        if (_amount.lt(0) /*|| !_amount.isInteger()*/)
+                            throw Error("_amount must a positive integer");
+                        if (request.state != Types.State.Accepted) {
+                            throw Error('request must be accepted');
+                        }
+                        if (account != request.payee) {
+                            throw Error('account must be payee');
+                        }
+                        if (_amount > request.amountPaid) {
+                            throw Error('You cannot payback more than what has been paid');
+                        }
+                        method = this.instanceRequestEthereum.methods.payback(_requestId);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _amount, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        e_8 = _b.sent();
+                        throw e_8;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
     };
     requestEthereumService.prototype.discountAsync = function (_requestId, _amount, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        return new Promise(function (resolve, reject) {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-            // TODO use bigNumber
-            if (_amount < 0 /* || !_amount.isInteger()*/)
-                throw Error("_amount must a positive integer");
-            var method = _this.instanceRequestEthereum.methods.discount(_requestId, _amount);
-            _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                // we do nothing here!
-            }, function (receipt) {
-                // we do nothing here!
-            }, function (confirmationNumber, receipt) {
-                if (confirmationNumber == _numberOfConfirmation) {
-                    var event = _this.web3Single.decodeLog(_this.abiRequestCore, "AddSubtract", receipt.events[0]);
-                    return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+        _amount = new bignumber_js_1.default(_amount);
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            var request, account, _a, method, e_9;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 1:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 2:
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
+                        account = _a;
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'))];
+                        // TODO use bigNumber
+                        if (_amount.lt(0) /* || !_amount.isInteger()*/)
+                            return [2 /*return*/, reject(Error("_amount must a positive integer"))];
+                        if (request.state == Types.State.Canceled) {
+                            return [2 /*return*/, reject(Error('request must be accepted or created'))];
+                        }
+                        if (account != request.payee) {
+                            return [2 /*return*/, reject(Error('account must be payee'))];
+                        }
+                        console.log("request.amountPaid.add(_amount)");
+                        console.log(request.amountPaid.add(_amount));
+                        console.log("request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract)");
+                        console.log(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract));
+                        if (request.amountPaid.add(_amount).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
+                            return [2 /*return*/, reject(Error('You cannot discount more than necessary'))];
+                        }
+                        method = this.instanceRequestEthereum.methods.discount(_requestId, _amount);
+                        this.web3Single.broadcastMethod(method, function (transactionHash) {
+                            // we do nothing here!
+                        }, function (receipt) {
+                            // we do nothing here!
+                        }, function (confirmationNumber, receipt) {
+                            if (confirmationNumber == _numberOfConfirmation) {
+                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, "AddSubtract", receipt.events[0]);
+                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            }
+                        }, function (error) {
+                            return reject(error);
+                        }, undefined, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_9 = _b.sent();
+                        return [2 /*return*/, reject(e_9)];
+                    case 5: return [2 /*return*/];
                 }
-            }, function (error) {
-                return reject(error);
-            }, undefined, _from, _gasPrice, _gasLimit);
-        });
+            });
+        }); });
     };
     requestEthereumService.prototype.discount = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        // TODO check from == payee ?
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-        // TODO use bigNumber
-        if (_amount < 0 /*|| !_amount.isInteger()*/)
-            throw Error("_amount must a positive integer");
-        var method = this.instanceRequestEthereum.methods.discount(_requestId, _amount);
-        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, account, _a, method, e_10;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _amount = new bignumber_js_1.default(_amount);
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 5, , 6]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 2:
+                        request = _b.sent();
+                        _a = _from;
+                        if (_a) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                    case 3:
+                        _a = (_b.sent());
+                        _b.label = 4;
+                    case 4:
+                        account = _a;
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
+                        // TODO use bigNumber
+                        if (_amount.lt(0) /*|| !_amount.isInteger()*/)
+                            throw Error("_amount must a positive integer");
+                        if (request.state == Types.State.Canceled) {
+                            throw Error('request must be accepted or created');
+                        }
+                        if (account != request.payee) {
+                            throw Error('account must be payee');
+                        }
+                        if (_amount.add(request.amountPaid).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
+                            throw Error('You cannot payback more than what has been paid');
+                        }
+                        method = this.instanceRequestEthereum.methods.discount(_requestId, _amount);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        e_10 = _b.sent();
+                        throw e_10;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
     };
     requestEthereumService.prototype.withdrawAsync = function (_numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
@@ -325,7 +721,7 @@ var requestEthereumService = /** @class */ (function () {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
                 return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
             _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-                var dataResult, extensionDetails, _a, _b, _c, e_1;
+                var dataResult, extensionDetails, _a, _b, _c, e_11;
                 return __generator(this, function (_d) {
                     switch (_d.label) {
                         case 0:
@@ -335,11 +731,11 @@ var requestEthereumService = /** @class */ (function () {
                                 creator: data.creator,
                                 payee: data.payee,
                                 payer: data.payer,
-                                amountInitial: data.amountInitial,
+                                amountInitial: new bignumber_js_1.default(data.amountInitial),
                                 subContract: data.subContract,
-                                amountPaid: data.amountPaid,
-                                amountAdditional: data.amountAdditional,
-                                amountSubtract: data.amountSubtract,
+                                amountPaid: new bignumber_js_1.default(data.amountPaid),
+                                amountAdditional: new bignumber_js_1.default(data.amountAdditional),
+                                amountSubtract: new bignumber_js_1.default(data.amountSubtract),
                                 state: data.state,
                                 extension: data.extension,
                                 details: data.details,
@@ -362,8 +758,8 @@ var requestEthereumService = /** @class */ (function () {
                             _a.details = _c.apply(_b, [_d.sent()]);
                             return [3 /*break*/, 6];
                         case 5:
-                            e_1 = _d.sent();
-                            return [2 /*return*/, reject(e_1)];
+                            e_11 = _d.sent();
+                            return [2 /*return*/, reject(e_11)];
                         case 6: return [2 /*return*/, resolve(dataResult)];
                     }
                 });
@@ -390,11 +786,11 @@ var requestEthereumService = /** @class */ (function () {
                             creator: data.creator,
                             payee: data.payee,
                             payer: data.payer,
-                            amountInitial: data.amountInitial,
+                            amountInitial: new bignumber_js_1.default(data.amountInitial),
                             subContract: data.subContract,
-                            amountPaid: data.amountPaid,
-                            amountAdditional: data.amountAdditional,
-                            amountSubtract: data.amountSubtract,
+                            amountPaid: new bignumber_js_1.default(data.amountPaid),
+                            amountAdditional: new bignumber_js_1.default(data.amountAdditional),
+                            amountSubtract: new bignumber_js_1.default(data.amountSubtract),
                             state: data.state,
                             extension: data.extension,
                             details: data.details,

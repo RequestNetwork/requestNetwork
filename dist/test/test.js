@@ -71,7 +71,7 @@ function foo() {
                     console.log("result rn.requestEthereumService getRequestAsync********************");
                     console.log(result);
                     console.log("######################################### payAsync #########################################");
-                    return [4 /*yield*/, rn.requestEthereumService.payAsync(requestID, 1000, 0, 0, "0xf17f52151ebef6c7334fad080c5704d77216b732")];
+                    return [4 /*yield*/, rn.requestEthereumService.payAsync(requestID, 900, 0, 0, "0xf17f52151ebef6c7334fad080c5704d77216b732")];
                 case 5:
                     resultPay = _a.sent();
                     console.log("result resultPay********************");

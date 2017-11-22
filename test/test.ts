@@ -39,7 +39,7 @@ async function foo() {
 				console.log(result);
 
 				console.log("######################################### payAsync #########################################");
-				let resultPay = await rn.requestEthereumService.payAsync(requestID,1000,0,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
+				let resultPay = await rn.requestEthereumService.payAsync(requestID,900,0,0,"0xf17f52151ebef6c7334fad080c5704d77216b732");
 				console.log("result resultPay********************");
 				console.log(resultPay);
 

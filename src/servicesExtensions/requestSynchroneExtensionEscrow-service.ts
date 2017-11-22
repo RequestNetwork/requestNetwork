@@ -1,6 +1,7 @@
 import config from '../config';
 import * as Types from '../types';
 import Artifacts from '../artifacts';
+import BigNumber from 'bignumber.js';
 
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExtensionEscrowArtifact;
@@ -37,7 +38,10 @@ export default class RequestSynchroneExtensionEscrowService {
         return this._instance || (this._instance = new this());
     }
 
-    public parseParameters(_extensionParams: any[]): any[] {
+    public parseParameters(_extensionParams: any[]): any {
+        if(!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
+            return {error:Error("first parameter must be a valid eth address")}
+        }
         let ret: any[] = [];
 
         // parse escrow 
@@ -46,9 +50,8 @@ export default class RequestSynchroneExtensionEscrowService {
         for (let i = 1; i < 9; i++) {
             ret.push(this.web3Single.toSolidityBytes32('bytes32', 0));
         }
-        return ret;
+        return {result:ret};
     }
-
 
 
     public releaseToPayeeAsync(
@@ -197,8 +200,8 @@ export default class RequestSynchroneExtensionEscrowService {
                     subContract: data.subContract,
                     escrow: data.escrow,
                     state: data.state,
-                    amountPaid: data.amountPaid,
-                    amountRefunded: data.amountRefunded
+                    amountPaid: new BigNumber(data.amountPaid),
+                    amountRefunded: new BigNumber(data.amountRefunded)
                 };
 
                 return resolve(dataResult);
@@ -220,8 +223,8 @@ export default class RequestSynchroneExtensionEscrowService {
                 subContract: data.subContract,
                 escrow: data.escrow,
                 state: data.state,
-                amountPaid: data.amountPaid,
-                amountRefunded: data.amountRefunded
+                amountPaid: new BigNumber(data.amountPaid),
+                amountRefunded: new BigNumber(data.amountRefunded)
             };
 
             return _callbackGetRequest(err, dataResult);

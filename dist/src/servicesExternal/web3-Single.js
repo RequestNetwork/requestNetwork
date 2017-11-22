@@ -96,6 +96,22 @@ var Web3Single = /** @class */ (function () {
     //         })
     //     });
     // }
+    Web3Single.prototype.getDefaultAccount = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.web3.eth.getAccounts(function (err, accs) {
+                            if (err)
+                                return reject(err);
+                            if (accs.length === 0)
+                                return reject(Error("No accounts found"));
+                            return resolve(accs[0]);
+                        });
+                    })];
+            });
+        });
+    };
     Web3Single.prototype.toSolidityBytes32 = function (type, value) {
         return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(type, value));
     };
