@@ -45,9 +45,11 @@ export default class requestEthereumService {
         _details: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
         _amountInitial = new BigNumber(_amountInitial);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
 
         return new Promise(async (resolve, reject) => {
             let account = _from || await this.web3Single.getDefaultAccount();
@@ -117,9 +119,12 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise<any> {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise<any> {
         _amountInitial = new BigNumber(_amountInitial);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+
         let account = _from || await this.web3Single.getDefaultAccount();
 
         if (_amountInitial.lt(0) /*|| !_amountInitial.isInteger()*/ ) throw Error("_amountInitial must a positive integer");
@@ -169,8 +174,10 @@ export default class requestEthereumService {
         _requestId: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
         return new Promise(async (resolve, reject) => {
             try {
                 let request = await this.getRequestAsync(_requestId);    
@@ -221,8 +228,11 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise<any> {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise<any> {
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
@@ -256,8 +266,11 @@ export default class requestEthereumService {
         _requestId: string,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         return new Promise(async (resolve, reject) => {
             try {
                 let request = await this.getRequestAsync(_requestId);    
@@ -313,8 +326,11 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise<any> {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise<any> {
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
@@ -356,10 +372,13 @@ export default class requestEthereumService {
         _tips: BigNumber,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
         _amount = new BigNumber(_amount);
         _tips = new BigNumber(_tips);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         return new Promise(async (resolve, reject) => {
             try {
                 let request = await this.getRequestAsync(_requestId);    
@@ -421,10 +440,13 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise<any> {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise<any> {
         _amount = new BigNumber(_amount);
         _tips = new BigNumber(_tips);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
@@ -468,9 +490,12 @@ export default class requestEthereumService {
         _amount: BigNumber,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
         _amount = new BigNumber(_amount);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         return new Promise(async (resolve, reject) => {
             try {
                 let request = await this.getRequestAsync(_requestId);    
@@ -528,9 +553,12 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise<any> {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise<any> {
         _amount = new BigNumber(_amount);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
@@ -573,9 +601,12 @@ export default class requestEthereumService {
         _amount: BigNumber,
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
         _amount = new BigNumber(_amount);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         return new Promise(async (resolve, reject) => {
             try {
                 let request = await this.getRequestAsync(_requestId);    
@@ -637,9 +668,12 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise<any> {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise<any> {
         _amount = new BigNumber(_amount);
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         try {
             let request = await this.getRequestAsync(_requestId);    
             let account = _from || await this.web3Single.getDefaultAccount();
@@ -680,8 +714,11 @@ export default class requestEthereumService {
     public withdrawAsync(
         _numberOfConfirmation: number = 0,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): Promise < any > {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): Promise < any > {
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         return new Promise((resolve, reject) => {
             var method = this.instanceRequestEthereum.methods.withdraw();
 
@@ -714,8 +751,11 @@ export default class requestEthereumService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _from ? : string,
-        _gasPrice ? : number,
-        _gasLimit ? : number): void {
+        _gasPrice ? : BigNumber,
+        _gasLimit ? : BigNumber): void {
+        if(_gasPrice) _gasPrice = new BigNumber(_gasPrice);
+        if(_gasLimit) _gasLimit = new BigNumber(_gasLimit);
+        
         var method = this.instanceRequestEthereum.methods.withdraw();
 
         this.web3Single.broadcastMethod(

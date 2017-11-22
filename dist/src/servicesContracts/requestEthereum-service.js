@@ -61,6 +61,10 @@ var requestEthereumService = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 _amountInitial = new bignumber_js_1.default(_amountInitial);
+                if (_gasPrice)
+                    _gasPrice = new bignumber_js_1.default(_gasPrice);
+                if (_gasLimit)
+                    _gasLimit = new bignumber_js_1.default(_gasLimit);
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
                         var _this = this;
                         var account, _a, paramsParsed, parsing;
@@ -129,6 +133,10 @@ var requestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _amountInitial = new bignumber_js_1.default(_amountInitial);
+                        if (_gasPrice)
+                            _gasPrice = new bignumber_js_1.default(_gasPrice);
+                        if (_gasLimit)
+                            _gasLimit = new bignumber_js_1.default(_gasLimit);
                         _a = _from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
@@ -172,6 +180,10 @@ var requestEthereumService = /** @class */ (function () {
     requestEthereumService.prototype.acceptAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
+        if (_gasPrice)
+            _gasPrice = new bignumber_js_1.default(_gasPrice);
+        if (_gasLimit)
+            _gasLimit = new bignumber_js_1.default(_gasLimit);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             var request, account, method, e_1;
@@ -222,17 +234,23 @@ var requestEthereumService = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                        if (_gasPrice)
+                            _gasPrice = new bignumber_js_1.default(_gasPrice);
+                        if (_gasLimit)
+                            _gasLimit = new bignumber_js_1.default(_gasLimit);
+                        _b.label = 1;
                     case 1:
+                        _b.trys.push([1, 5, , 6]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 2:
                         request = _b.sent();
                         _a = _from;
-                        if (_a) return [3 /*break*/, 3];
+                        if (_a) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
                     case 3:
+                        _a = (_b.sent());
+                        _b.label = 4;
+                    case 4:
                         account = _a;
                         if (request.state != Types.State.Created) {
                             throw Error('request state is not "created"');
@@ -245,11 +263,11 @@ var requestEthereumService = /** @class */ (function () {
                             throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
                         method = this.instanceRequestEthereum.methods.accept(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
-                        return [3 /*break*/, 5];
-                    case 4:
+                        return [3 /*break*/, 6];
+                    case 5:
                         e_2 = _b.sent();
                         throw e_2;
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -257,6 +275,10 @@ var requestEthereumService = /** @class */ (function () {
     requestEthereumService.prototype.cancelAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
+        if (_gasPrice)
+            _gasPrice = new bignumber_js_1.default(_gasPrice);
+        if (_gasLimit)
+            _gasLimit = new bignumber_js_1.default(_gasLimit);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             var request, account, _a, method, e_3;
@@ -318,17 +340,23 @@ var requestEthereumService = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                        if (_gasPrice)
+                            _gasPrice = new bignumber_js_1.default(_gasPrice);
+                        if (_gasLimit)
+                            _gasLimit = new bignumber_js_1.default(_gasLimit);
+                        _b.label = 1;
                     case 1:
+                        _b.trys.push([1, 5, , 6]);
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
+                    case 2:
                         request = _b.sent();
                         _a = _from;
-                        if (_a) return [3 /*break*/, 3];
+                        if (_a) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
                     case 3:
+                        _a = (_b.sent());
+                        _b.label = 4;
+                    case 4:
                         account = _a;
                         if (account != request.payer && account != request.payee) {
                             throw Error("account must be the payer or the payee");
@@ -347,11 +375,11 @@ var requestEthereumService = /** @class */ (function () {
                             throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
                         method = this.instanceRequestEthereum.methods.cancel(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
-                        return [3 /*break*/, 5];
-                    case 4:
+                        return [3 /*break*/, 6];
+                    case 5:
                         e_4 = _b.sent();
                         throw e_4;
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -361,6 +389,10 @@ var requestEthereumService = /** @class */ (function () {
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         _amount = new bignumber_js_1.default(_amount);
         _tips = new bignumber_js_1.default(_tips);
+        if (_gasPrice)
+            _gasPrice = new bignumber_js_1.default(_gasPrice);
+        if (_gasLimit)
+            _gasLimit = new bignumber_js_1.default(_gasLimit);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             var request, account, _a, method, e_5;
@@ -428,6 +460,10 @@ var requestEthereumService = /** @class */ (function () {
                     case 0:
                         _amount = new bignumber_js_1.default(_amount);
                         _tips = new bignumber_js_1.default(_tips);
+                        if (_gasPrice)
+                            _gasPrice = new bignumber_js_1.default(_gasPrice);
+                        if (_gasLimit)
+                            _gasLimit = new bignumber_js_1.default(_gasLimit);
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
@@ -477,6 +513,10 @@ var requestEthereumService = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 _amount = new bignumber_js_1.default(_amount);
+                if (_gasPrice)
+                    _gasPrice = new bignumber_js_1.default(_gasPrice);
+                if (_gasLimit)
+                    _gasLimit = new bignumber_js_1.default(_gasLimit);
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
                         var _this = this;
                         var request, account, _a, method, e_7;
@@ -541,6 +581,10 @@ var requestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _amount = new bignumber_js_1.default(_amount);
+                        if (_gasPrice)
+                            _gasPrice = new bignumber_js_1.default(_gasPrice);
+                        if (_gasLimit)
+                            _gasLimit = new bignumber_js_1.default(_gasLimit);
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
@@ -585,6 +629,10 @@ var requestEthereumService = /** @class */ (function () {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
         _amount = new bignumber_js_1.default(_amount);
+        if (_gasPrice)
+            _gasPrice = new bignumber_js_1.default(_gasPrice);
+        if (_gasLimit)
+            _gasLimit = new bignumber_js_1.default(_gasLimit);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             var request, account, _a, method, e_9;
@@ -651,6 +699,10 @@ var requestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _amount = new bignumber_js_1.default(_amount);
+                        if (_gasPrice)
+                            _gasPrice = new bignumber_js_1.default(_gasPrice);
+                        if (_gasLimit)
+                            _gasLimit = new bignumber_js_1.default(_gasLimit);
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
@@ -694,6 +746,10 @@ var requestEthereumService = /** @class */ (function () {
     requestEthereumService.prototype.withdrawAsync = function (_numberOfConfirmation, _from, _gasPrice, _gasLimit) {
         var _this = this;
         if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
+        if (_gasPrice)
+            _gasPrice = new bignumber_js_1.default(_gasPrice);
+        if (_gasLimit)
+            _gasLimit = new bignumber_js_1.default(_gasLimit);
         return new Promise(function (resolve, reject) {
             var method = _this.instanceRequestEthereum.methods.withdraw();
             _this.web3Single.broadcastMethod(method, function (transactionHash) {
@@ -710,14 +766,16 @@ var requestEthereumService = /** @class */ (function () {
         });
     };
     requestEthereumService.prototype.withdraw = function (_callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
+        if (_gasPrice)
+            _gasPrice = new bignumber_js_1.default(_gasPrice);
+        if (_gasLimit)
+            _gasLimit = new bignumber_js_1.default(_gasLimit);
         var method = this.instanceRequestEthereum.methods.withdraw();
         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
     };
     requestEthereumService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            // TODO check from == payer ?
-            // TODO check if this is possible ? (quid if other tx pending)
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
                 return reject(Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"'));
             _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
@@ -768,13 +826,8 @@ var requestEthereumService = /** @class */ (function () {
     };
     requestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
         var _this = this;
-        // TODO check from == payer ?
-        // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId))
             throw Error('_requestId must be a 32 bytes hex string (eg.: "0x0000000000000000000000000000000000000000000000000000000000000000"');
-        // var method = await this.instanceRequestCore.methods.requests(_requestId);
-        // console.log(await this.web3Single.callMethod(method));
-        // console.log(this.instanceRequestCore);
         this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
             var dataResult, extensionDetails;
             return __generator(this, function (_a) {
