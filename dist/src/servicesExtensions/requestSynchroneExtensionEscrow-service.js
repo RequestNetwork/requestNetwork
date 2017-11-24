@@ -65,18 +65,15 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         }
         return { result: ret };
     };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAsync = function (_requestId, _options) {
         var _this = this;
-        if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        if (_from === void 0) { _from = undefined; }
-        if (_gasPrice === void 0) { _gasPrice = undefined; }
-        if (_gasLimit === void 0) { _gasLimit = undefined; }
+        _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var account, _a, request, method;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = _from;
+                        _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 1:
@@ -105,28 +102,26 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         }, function (receipt) {
                             // we do nothing here!
                         }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _numberOfConfirmation) {
+                            if (confirmationNumber == _options.numberOfConfirmation) {
                                 // check in case of failed : no event
                                 return resolve({ requestId: receipt.events.EscrowReleaseRequest.returnValues.requestId, transactionHash: receipt.transactionHash });
                             }
                         }, function (error) {
                             return reject(error);
-                        }, undefined, _from, _gasPrice, _gasLimit);
+                        }, _options);
                         return [2 /*return*/];
                 }
             });
         }); });
     };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayee = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        if (_from === void 0) { _from = undefined; }
-        if (_gasPrice === void 0) { _gasPrice = undefined; }
-        if (_gasLimit === void 0) { _gasLimit = undefined; }
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayee = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var account, _a, request, method;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = _from;
+                        _options = this.web3Single.setUpOptions(_options);
+                        _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 1:
@@ -150,25 +145,22 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                             return [2 /*return*/, _callbackTransactionError(Error('State must be \'Accepted\''))];
                         }
                         method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [2 /*return*/];
                 }
             });
         });
     };
-    RequestSynchroneExtensionEscrowService.prototype.refundToPayerAsync = function (_requestId, _numberOfConfirmation, _from, _gasPrice, _gasLimit) {
+    RequestSynchroneExtensionEscrowService.prototype.refundToPayerAsync = function (_requestId, _options) {
         var _this = this;
-        if (_numberOfConfirmation === void 0) { _numberOfConfirmation = 0; }
-        if (_from === void 0) { _from = undefined; }
-        if (_gasPrice === void 0) { _gasPrice = undefined; }
-        if (_gasLimit === void 0) { _gasLimit = undefined; }
+        _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             var account, _a, request, method;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = _from;
+                        _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 1:
@@ -198,28 +190,26 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         }, function (receipt) {
                             // we do nothing here!
                         }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _numberOfConfirmation) {
+                            if (confirmationNumber == _options.numberOfConfirmation) {
                                 var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
                                 return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                             }
                         }, function (error) {
                             return reject(error);
-                        }, undefined, _from, _gasPrice, _gasLimit);
+                        }, _options);
                         return [2 /*return*/];
                 }
             });
         }); });
     };
-    RequestSynchroneExtensionEscrowService.prototype.refundToPayer = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _from, _gasPrice, _gasLimit) {
-        if (_from === void 0) { _from = undefined; }
-        if (_gasPrice === void 0) { _gasPrice = undefined; }
-        if (_gasLimit === void 0) { _gasLimit = undefined; }
+    RequestSynchroneExtensionEscrowService.prototype.refundToPayer = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var account, _a, request, method;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = _from;
+                        _options = this.web3Single.setUpOptions(_options);
+                        _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 1:
@@ -244,7 +234,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                             return [2 /*return*/, _callbackTransactionError(Error('State must be \'Accepted\''))];
                         }
                         method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, undefined, _from, _gasPrice, _gasLimit);
+                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [2 /*return*/];
                 }
             });

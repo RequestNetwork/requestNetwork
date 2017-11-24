@@ -19,33 +19,27 @@ export class Web3Single {
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
-        _value: any,
-        _from: string,
-        _gasPrice: BigNumber,
-        _gasLimit: BigNumber) {
+        _options?:any) {
 
-        if (!_from) {
+        if(!_options) _options = {};
+
+        if (!_options.from) {
             try {
                 let accounts = await this.web3.eth.getAccounts();
-                _from = accounts[0];
+                _options.from = accounts[0];
             } catch (e) {
                 return _callbackTransactionError(e);
             }
         }
+        _options.value = _options.value?_options.value:0;
+        _options.gas = _options.gas?_options.gas:90000000;
+        _options.gasPrice = _options.gasPrice?_options.gasPrice:this.web3.utils.toWei(config.ethereum.gasPriceDefault, config.ethereum.gasPriceDefaultUnit);
 
-        _method.estimateGas({
-            from: _from,
-            value: _value ? _value : 0,
-            gas: _gasLimit ? _gasLimit : 90000000
-        }, (err: any, estimateGas: number) => {
+        _method.estimateGas(_options, (err: any, estimateGas: number) => {
             if (err) return _callbackTransactionError(err);
 
-            _method.send({
-                    from: _from,
-                    gasPrice: _gasPrice ? _gasPrice : this.web3.utils.toWei(config.ethereum.gasPriceDefault, config.ethereum.gasPriceDefaultUnit),
-                    gas: _gasLimit ? _gasLimit : Math.floor(estimateGas * 2),
-                    value: _value ? _value : 0
-                })
+            _options.gas = _options.gas?_options.gas:Math.floor(estimateGas * 2);
+            _method.send(_options)
                 .on('transactionHash', _callbackTransactionHash)
                 .on('receipt', _callbackTransactionReceipt)
                 .on('confirmation', _callbackTransactionConfirmation)
@@ -112,6 +106,15 @@ export class Web3Single {
             return false;
         });
         return this.web3.eth.abi.decodeLog(eventInput, log.raw.data, log.raw.topics[0]);
+    }
+    
+    public setUpOptions(_options:any) : any
+    {
+        if(!_options) _options = {};
+        if(!_options.numberOfConfirmation) _options.numberOfConfirmation = 0;
+        if(_options.gasPrice) _options.gasPrice = new BigNumber(_options.gasPrice);
+        if(_options.gas) _options.gas = new BigNumber(_options.gas);
+        return _options;
     }
 
 }

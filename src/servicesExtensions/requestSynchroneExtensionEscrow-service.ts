@@ -53,12 +53,10 @@ export default class RequestSynchroneExtensionEscrowService {
 
     public releaseToPayeeAsync(
         _requestId: string,
-        _numberOfConfirmation: number = 0,
-        _from: string = undefined,
-        _gasPrice: number = undefined,
-        _gasLimit: number = undefined): Promise < any > {
+        _options ?: any ): Promise < any > {
+        _options = this.web3Single.setUpOptions(_options);
         return new Promise(async (resolve, reject) => {
-            let account = _from || await this.web3Single.getDefaultAccount();
+            let account = _options.from || await this.web3Single.getDefaultAccount();
 
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
@@ -86,7 +84,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     // we do nothing here!
                 },
                 (confirmationNumber: number, receipt: any) => {
-                    if (confirmationNumber == _numberOfConfirmation) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
                         // check in case of failed : no event
                         return resolve({ requestId: receipt.events.EscrowReleaseRequest.returnValues.requestId, transactionHash: receipt.transactionHash });
                     }
@@ -94,10 +92,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 (error: Error) => {
                     return reject(error);
                 },
-                undefined,
-                _from,
-                _gasPrice,
-                _gasLimit);
+                _options);
         });
     }
 
@@ -107,10 +102,9 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
-        _from: string = undefined,
-        _gasPrice: number = undefined,
-        _gasLimit: number = undefined): Promise<any> {
-        let account = _from || await this.web3Single.getDefaultAccount();
+        _options ?: any): Promise<any> {
+        _options = this.web3Single.setUpOptions(_options);
+        let account = _options.from || await this.web3Single.getDefaultAccount();
 
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
@@ -133,20 +127,15 @@ export default class RequestSynchroneExtensionEscrowService {
             _callbackTransactionReceipt,
             _callbackTransactionConfirmation,
             _callbackTransactionError,
-            undefined,
-            _from,
-            _gasPrice,
-            _gasLimit);
+            _options);
     }
 
     public refundToPayerAsync(
         _requestId: string,
-        _numberOfConfirmation: number = 0,
-        _from: string = undefined,
-        _gasPrice: number = undefined,
-        _gasLimit: number = undefined): Promise < any > {
+        _options ?: any): Promise < any > {
+        _options = this.web3Single.setUpOptions(_options);
         return new Promise(async (resolve, reject) => {
-            let account = _from || await this.web3Single.getDefaultAccount();
+            let account = _options.from || await this.web3Single.getDefaultAccount();
             // TODO check from == payee or escrow ?
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
@@ -173,7 +162,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     // we do nothing here!
                 },
                 (confirmationNumber: number, receipt: any) => {
-                    if (confirmationNumber == _numberOfConfirmation) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
                         var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
                         return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
                     }
@@ -181,10 +170,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 (error: Error) => {
                     return reject(error);
                 },
-                undefined,
-                _from,
-                _gasPrice,
-                _gasLimit);
+                _options);
         });
     }
 
@@ -194,10 +180,9 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
-        _from: string = undefined,
-        _gasPrice: number = undefined,
-        _gasLimit: number = undefined): Promise<any> {
-        let account = _from || await this.web3Single.getDefaultAccount();
+        _options ?: any): Promise<any> {
+        _options = this.web3Single.setUpOptions(_options);
+        let account = _options.from || await this.web3Single.getDefaultAccount();
         // TODO check from == payee or escrow ?
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
@@ -221,10 +206,7 @@ export default class RequestSynchroneExtensionEscrowService {
             _callbackTransactionReceipt,
             _callbackTransactionConfirmation,
             _callbackTransactionError,
-            undefined,
-            _from,
-            _gasPrice,
-            _gasLimit);
+            _options);
     }
 
 

@@ -1,5 +1,3 @@
-var Web3 = require('web3');
-
 // Contract ---------------------------------
 import RequestEthereumService from "../src/servicesContracts/requestEthereum-service";
 

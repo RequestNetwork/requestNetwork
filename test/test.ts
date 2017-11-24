@@ -9,9 +9,10 @@ async function foo() {
         let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
 					'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 					1000,
-					/* ', */ config.ethereum.contracts.requestSynchroneExtensionEscrow,
-					/* [], */ ['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'], // 2 
-					'{"reason":"wine purchased"}');
+					'{"reason":"wine purchased"}'
+					,config.ethereum.contracts.requestSynchroneExtensionEscrow
+					,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
+					);
 
 				console.log('result createRequestAsPayeeAsync********************');
 				console.log(result);
@@ -31,7 +32,7 @@ async function foo() {
 				// console.log('result rn.requestEthereumService getRequestAsync********************');
 				// console.log(result2);
 
-				let resultAccept = await rn.requestEthereumService.acceptAsync(requestID,0,'0xf17f52151ebef6c7334fad080c5704d77216b732');
+				let resultAccept = await rn.requestEthereumService.acceptAsync(requestID,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
 				console.log('result acceptAsync********************');
 				console.log(resultAccept);
 
@@ -40,7 +41,7 @@ async function foo() {
 				console.log(result);
 
 				console.log('######################################### payAsync #########################################');
-				let resultPay = await rn.requestEthereumService.payAsync(requestID,900,0,0,'0xf17f52151ebef6c7334fad080c5704d77216b732');
+				let resultPay = await rn.requestEthereumService.payAsync(requestID,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
 				console.log('result resultPay********************');
 				console.log(resultPay);
 
@@ -49,7 +50,7 @@ async function foo() {
 				console.log(result);
 
 				console.log('######################################### releaseToPayeeAsync #########################################');
-				let resultReleaseToPayee = await rn.requestSynchroneExtensionEscrowService.releaseToPayeeAsync(requestID,0,'0xf17f52151ebef6c7334fad080c5704d77216b732');
+				let resultReleaseToPayee = await rn.requestSynchroneExtensionEscrowService.releaseToPayeeAsync(requestID,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
 				console.log('result releaseToPayeeAsync********************');
 				console.log(resultReleaseToPayee);
 
@@ -58,7 +59,7 @@ async function foo() {
 				console.log(result);
 
 				console.log('######################################### paybackAsync #########################################');
-				let resultPayBack = await rn.requestEthereumService.paybackAsync(requestID,100,0);
+				let resultPayBack = await rn.requestEthereumService.paybackAsync(requestID,100);
 				console.log('result paybackAsync********************');
 				console.log(resultPayBack);
 

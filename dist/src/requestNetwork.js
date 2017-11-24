@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Web3 = require('web3');
 // Contract ---------------------------------
 var requestEthereum_service_1 = require("../src/servicesContracts/requestEthereum-service");
 // Synchrone Extension ----------------------

@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var bignumber_js_1 = require("bignumber.js");
 var config_1 = require("../config");
 var Web3 = require('web3');
 // const Web3 = require('web3');
@@ -44,39 +45,35 @@ var Web3Single = /** @class */ (function () {
     function Web3Single(web3Provider) {
         this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.node_url));
     }
-    Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _value, _from, _gasPrice, _gasLimit) {
+    Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             var accounts, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!_from) return [3 /*break*/, 4];
+                        if (!_options)
+                            _options = {};
+                        if (!!_options.from) return [3 /*break*/, 4];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, this.web3.eth.getAccounts()];
                     case 2:
                         accounts = _a.sent();
-                        _from = accounts[0];
+                        _options.from = accounts[0];
                         return [3 /*break*/, 4];
                     case 3:
                         e_1 = _a.sent();
                         return [2 /*return*/, _callbackTransactionError(e_1)];
                     case 4:
-                        _method.estimateGas({
-                            from: _from,
-                            value: _value ? _value : 0,
-                            gas: _gasLimit ? _gasLimit : 90000000
-                        }, function (err, estimateGas) {
+                        _options.value = _options.value ? _options.value : 0;
+                        _options.gas = _options.gas ? _options.gas : 90000000;
+                        _options.gasPrice = _options.gasPrice ? _options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
+                        _method.estimateGas(_options, function (err, estimateGas) {
                             if (err)
                                 return _callbackTransactionError(err);
-                            _method.send({
-                                from: _from,
-                                gasPrice: _gasPrice ? _gasPrice : _this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit),
-                                gas: _gasLimit ? _gasLimit : Math.floor(estimateGas * 2),
-                                value: _value ? _value : 0
-                            })
+                            _options.gas = _options.gas ? _options.gas : Math.floor(estimateGas * 2);
+                            _method.send(_options)
                                 .on('transactionHash', _callbackTransactionHash)
                                 .on('receipt', _callbackTransactionReceipt)
                                 .on('confirmation', _callbackTransactionConfirmation)
@@ -145,6 +142,17 @@ var Web3Single = /** @class */ (function () {
             return false;
         });
         return this.web3.eth.abi.decodeLog(eventInput, log.raw.data, log.raw.topics[0]);
+    };
+    Web3Single.prototype.setUpOptions = function (_options) {
+        if (!_options)
+            _options = {};
+        if (!_options.numberOfConfirmation)
+            _options.numberOfConfirmation = 0;
+        if (_options.gasPrice)
+            _options.gasPrice = new bignumber_js_1.default(_options.gasPrice);
+        if (_options.gas)
+            _options.gas = new bignumber_js_1.default(_options.gas);
+        return _options;
     };
     return Web3Single;
 }());

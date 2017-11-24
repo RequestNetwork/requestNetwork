@@ -104,7 +104,7 @@ web3Single.getDefaultAccount().then(function (creator) {
                     console.log('adminAddTrustedSubContract - error ##########################');
                     console.log(error);
                     console.log('adminAddTrustedSubContract - error ##########################');
-                }, undefined, undefined, undefined, undefined);
+                });
                 web3Single.broadcastMethod(newContractInstanceRequestCore.methods.adminAddTrustedExtension(addressRequestExtensionEscrow), function (transactionHash) {
                     // we do nothing here!
                 }, function (receipt) {
@@ -117,7 +117,7 @@ web3Single.getDefaultAccount().then(function (creator) {
                     console.log('adminAddTrustedExtension - error ##########################');
                     console.log(error);
                     console.log('adminAddTrustedExtension - error ##########################');
-                }, undefined, undefined, undefined, undefined);
+                });
             });
         });
     });
