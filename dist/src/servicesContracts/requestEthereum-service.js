@@ -105,12 +105,21 @@ var RequestEthereumService = /** @class */ (function () {
                                             // we do nothing here!
                                         }, function (receipt) {
                                             // we do nothing here!
-                                        }, function (confirmationNumber, receipt) {
-                                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'Created', receipt.events[0]);
-                                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash, ipfsHash: hash });
-                                            }
-                                        }, function (error) {
+                                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
+                                            var event_1, request;
+                                            return __generator(this, function (_a) {
+                                                switch (_a.label) {
+                                                    case 0:
+                                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 2];
+                                                        event_1 = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
+                                                        return [4 /*yield*/, this.getRequestAsync(event_1.requestId)];
+                                                    case 1:
+                                                        request = _a.sent();
+                                                        return [2 /*return*/, resolve({ request: request, transactionHash: receipt.transactionHash })];
+                                                    case 2: return [2 /*return*/];
+                                                }
+                                            });
+                                        }); }, function (error) {
                                             return reject(error);
                                         }, _options);
                                     });
@@ -205,12 +214,21 @@ var RequestEthereumService = /** @class */ (function () {
                             // we do nothing here!
                         }, function (receipt) {
                             // we do nothing here!
-                        }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'Accepted', receipt.events[0]);
-                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                            }
-                        }, function (error) {
+                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
+                            var event, request_1;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 2];
+                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
+                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
+                                    case 1:
+                                        request_1 = _a.sent();
+                                        return [2 /*return*/, resolve({ request: request_1, transactionHash: receipt.transactionHash })];
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        }); }, function (error) {
                             return reject(error);
                         }, _options);
                         return [3 /*break*/, 5];
@@ -304,12 +322,21 @@ var RequestEthereumService = /** @class */ (function () {
                             // we do nothing here!
                         }, function (receipt) {
                             // we do nothing here!
-                        }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'Canceled', receipt.events[0]);
-                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                            }
-                        }, function (error) {
+                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
+                            var event, request_2;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 2];
+                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
+                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
+                                    case 1:
+                                        request_2 = _a.sent();
+                                        return [2 /*return*/, resolve({ request: request_2, transactionHash: receipt.transactionHash })];
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        }); }, function (error) {
                             return reject(error);
                         }, _options);
                         return [3 /*break*/, 5];
@@ -415,12 +442,21 @@ var RequestEthereumService = /** @class */ (function () {
                             // we do nothing here!
                         }, function (receipt) {
                             // we do nothing here!
-                        }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'Payment', receipt.events[0]);
-                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                            }
-                        }, function (error) {
+                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
+                            var event, request_3;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 2];
+                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'Payment', receipt.events[0]);
+                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
+                                    case 1:
+                                        request_3 = _a.sent();
+                                        return [2 /*return*/, resolve({ request: request_3, transactionHash: receipt.transactionHash })];
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        }); }, function (error) {
                             return reject(error);
                         }, _options);
                         return [3 /*break*/, 5];
@@ -528,12 +564,21 @@ var RequestEthereumService = /** @class */ (function () {
                                         // we do nothing here!
                                     }, function (receipt) {
                                         // we do nothing here!
-                                    }, function (confirmationNumber, receipt) {
-                                        if (confirmationNumber == _options.numberOfConfirmation) {
-                                            var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'Refunded', receipt.events[0]);
-                                            return resolve({ requestId: event.requestId, amountRefunded: event.amountRefunded, transactionHash: receipt.transactionHash });
-                                        }
-                                    }, function (error) {
+                                    }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
+                                        var event, request_4;
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0:
+                                                    if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 2];
+                                                    event = this.web3Single.decodeLog(this.abiRequestCore, 'Refunded', receipt.events[0]);
+                                                    return [4 /*yield*/, this.getRequestAsync(event.requestId)];
+                                                case 1:
+                                                    request_4 = _a.sent();
+                                                    return [2 /*return*/, resolve({ request: request_4, transactionHash: receipt.transactionHash })];
+                                                case 2: return [2 /*return*/];
+                                            }
+                                        });
+                                    }); }, function (error) {
                                         return reject(error);
                                     }, _options);
                                     return [3 /*break*/, 5];
@@ -637,12 +682,21 @@ var RequestEthereumService = /** @class */ (function () {
                             // we do nothing here!
                         }, function (receipt) {
                             // we do nothing here!
-                        }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'AddSubtract', receipt.events[0]);
-                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                            }
-                        }, function (error) {
+                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
+                            var event, request_5;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 2];
+                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'AddSubtract', receipt.events[0]);
+                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
+                                    case 1:
+                                        request_5 = _a.sent();
+                                        return [2 /*return*/, resolve({ request: request_5, transactionHash: receipt.transactionHash })];
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        }); }, function (error) {
                             return reject(error);
                         }, _options);
                         return [3 /*break*/, 5];
@@ -731,13 +785,14 @@ var RequestEthereumService = /** @class */ (function () {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
                 return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-                var dataResult, extensionDetails, _a, _b, _c, e_11;
-                return __generator(this, function (_d) {
-                    switch (_d.label) {
+                var dataResult, extensionDetails, _a, _b, _c, _d, e_11;
+                return __generator(this, function (_e) {
+                    switch (_e.label) {
                         case 0:
                             if (err)
                                 return [2 /*return*/, reject(err)];
                             dataResult = {
+                                requestId: _requestId,
                                 creator: data.creator,
                                 payee: data.payee,
                                 payer: data.payer,
@@ -753,22 +808,23 @@ var RequestEthereumService = /** @class */ (function () {
                             if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
                             return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestAsync(_requestId)];
                         case 1:
-                            extensionDetails = _d.sent();
+                            extensionDetails = _e.sent();
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                            _d.label = 2;
+                            _e.label = 2;
                         case 2:
                             if (!dataResult.details) return [3 /*break*/, 6];
-                            _d.label = 3;
+                            _e.label = 3;
                         case 3:
-                            _d.trys.push([3, 5, , 6]);
+                            _e.trys.push([3, 5, , 6]);
                             _a = dataResult;
-                            _c = (_b = JSON).parse;
+                            _b = { hash: dataResult.details };
+                            _d = (_c = JSON).parse;
                             return [4 /*yield*/, this.ipfs.getFileAsync(dataResult.details)];
                         case 4:
-                            _a.details = _c.apply(_b, [_d.sent()]);
+                            _a.details = (_b.data = _d.apply(_c, [_e.sent()]), _b);
                             return [3 /*break*/, 6];
                         case 5:
-                            e_11 = _d.sent();
+                            e_11 = _e.sent();
                             return [2 /*return*/, reject(e_11)];
                         case 6: return [2 /*return*/, resolve(dataResult)];
                     }
@@ -788,6 +844,7 @@ var RequestEthereumService = /** @class */ (function () {
                         if (err)
                             return [2 /*return*/, _callbackGetRequest(err, data)];
                         dataResult = {
+                            requestId: _requestId,
                             creator: data.creator,
                             payee: data.payee,
                             payer: data.payer,
@@ -812,7 +869,7 @@ var RequestEthereumService = /** @class */ (function () {
                             this.ipfs.getFile(dataResult.details, function (err, data) {
                                 if (err)
                                     return _callbackGetRequest(err, dataResult);
-                                dataResult.details = JSON.parse(data);
+                                dataResult.details = { hash: dataResult, data: JSON.parse(data) };
                                 return _callbackGetRequest(err, dataResult);
                             });
                         }

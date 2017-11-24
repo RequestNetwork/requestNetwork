@@ -88,10 +88,11 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash, ipfsHash: hash });
+                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -186,10 +187,11 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -271,10 +273,11 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -371,10 +374,11 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeLog(this.abiRequestCore, 'Payment', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -472,10 +476,11 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeLog(this.abiRequestCore, 'Refunded', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, amountRefunded: event.amountRefunded, transactionHash: receipt.transactionHash });
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -571,10 +576,11 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeLog(this.abiRequestCore, 'AddSubtract', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -686,6 +692,7 @@ export default class RequestEthereumService {
                 if (err) return reject(err);
 
                 let dataResult: any = {
+                    requestId: _requestId,
                     creator: data.creator,
                     payee: data.payee,
                     payer: data.payer,
@@ -706,7 +713,7 @@ export default class RequestEthereumService {
 
                 if (dataResult.details) {
                     try {
-                        dataResult.details = JSON.parse(await this.ipfs.getFileAsync(dataResult.details));
+                        dataResult.details = {hash:dataResult.details, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.details))};
                     } catch (e) {
                         return reject(e);
                     }
@@ -725,6 +732,7 @@ export default class RequestEthereumService {
             if (err) return _callbackGetRequest(err, data);
 
             let dataResult: any = {
+                requestId: _requestId,
                 creator: data.creator,
                 payee: data.payee,
                 payer: data.payer,
@@ -747,7 +755,7 @@ export default class RequestEthereumService {
                 // get IPFS data :
                 this.ipfs.getFile(dataResult.details, (err: Error, data: string) => {
                     if (err) return _callbackGetRequest(err, dataResult);
-                    dataResult.details = JSON.parse(data);
+                    dataResult.details = {hash:dataResult, data:JSON.parse(data)};
                     return _callbackGetRequest(err, dataResult);
                 });
             } else {

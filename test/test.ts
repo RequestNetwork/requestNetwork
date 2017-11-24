@@ -17,7 +17,7 @@ async function foo() {
 				console.log('result createRequestAsPayeeAsync********************');
 				console.log(result);
 
-				let requestID = result.requestId;
+				let requestID = result.request.requestId;
 				result = await rn.requestEthereumService.getRequestAsync(requestID);
 				console.log('result rn.requestEthereumService getRequestAsync********************');
 				console.log(result);

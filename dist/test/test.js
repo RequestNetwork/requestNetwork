@@ -52,7 +52,7 @@ function foo() {
                     result = _a.sent();
                     console.log('result createRequestAsPayeeAsync********************');
                     console.log(result);
-                    requestID = result.requestId;
+                    requestID = result.request.requestId;
                     return [4 /*yield*/, rn.requestEthereumService.getRequestAsync(requestID)];
                 case 2:
                     result = _a.sent();
