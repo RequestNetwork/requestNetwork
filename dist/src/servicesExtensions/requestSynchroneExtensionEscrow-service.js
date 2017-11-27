@@ -39,7 +39,8 @@ var config_1 = require("../config");
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
 var bignumber_js_1 = require("bignumber.js");
-var ServicesContracts = require("../servicesContracts");
+// import * as ServicesContracts from '../servicesContracts';
+var requestCore_service_1 = require("../servicesCore/requestCore-service");
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var requestSynchroneExtensionEscrow_Artifact = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
@@ -49,6 +50,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
+        this.requestCoreServices = new requestCore_service_1.default(web3Provider);
         this.abiSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.abi;
         this.addressSynchroneExtensionEscrow = config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow;
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
@@ -84,7 +86,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         // TODO check if this is possible ? (quid if other tx pending)
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestSubContractAsync(_requestId)];
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 3:
                         request = _b.sent();
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
@@ -132,7 +134,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         // TODO check if this is possible ? (quid if other tx pending)
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestSubContractAsync(_requestId)];
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 3:
                         request = _b.sent();
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
@@ -172,7 +174,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         // TODO check if this is possible ? (quid if other tx pending)
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestSubContractAsync(_requestId)];
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 3:
                         request = _b.sent();
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
@@ -221,7 +223,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         // TODO check if this is possible ? (quid if other tx pending)
                         if (!this.web3Single.isHexStrictBytes32(_requestId))
                             return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestSubContractAsync(_requestId)];
+                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 3:
                         request = _b.sent();
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
@@ -242,6 +244,23 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
     };
     RequestSynchroneExtensionEscrowService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var dataResult;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.requestCoreServices.getRequestAsync(_requestId)];
+                    case 1:
+                        dataResult = _a.sent();
+                        return [2 /*return*/, resolve(dataResult)];
+                }
+            });
+        }); });
+    };
+    RequestSynchroneExtensionEscrowService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
+        this.requestCoreServices.getRequest(_requestId, _callbackGetRequest);
+    };
+    RequestSynchroneExtensionEscrowService.prototype.getRequestExtensionInfoAsync = function (_requestId) {
+        var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
                 return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
@@ -259,7 +278,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             });
         });
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
+    RequestSynchroneExtensionEscrowService.prototype.getRequestExtensionInfo = function (_requestId, _callbackGetRequest) {
         if (!this.web3Single.isHexStrictBytes32(_requestId))
             throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
         this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call(function (err, data) {
@@ -275,33 +294,6 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             return _callbackGetRequest(err, dataResult);
         });
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestSubContractAsync = function (_requestId) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-            _this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call(function (err, data) {
-                if (err)
-                    return reject(err);
-                ServicesContracts.getServiceFromAddress(data.subContract, _this.web3Single.web3.currentProvider).getRequest(_requestId, function (err, data) {
-                    if (err)
-                        return reject(err);
-                    return resolve(data);
-                });
-            });
-        });
-    };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestSubContract = function (_requestId, _callbackGetRequest) {
-        var _this = this;
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
-        this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call(function (err, data) {
-            if (err)
-                return _callbackGetRequest(err, data);
-            ServicesContracts.getServiceFromAddress(data.subContract, _this.web3Single.web3.currentProvider).getRequest(_requestId, _callbackGetRequest);
-        });
-    };
-    RequestSynchroneExtensionEscrowService._instance = new RequestSynchroneExtensionEscrowService();
     return RequestSynchroneExtensionEscrowService;
 }());
 exports.default = RequestSynchroneExtensionEscrowService;

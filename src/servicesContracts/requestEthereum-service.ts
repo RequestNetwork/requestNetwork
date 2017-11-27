@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import * as Types from '../types';
 import Artifacts from '../artifacts';
+import RequestCoreService from '../servicesCore/requestCore-service';
 import * as ServiceExtensions from '../servicesExtensions';
 
 const requestEthereum_Artifact = Artifacts.RequestEthereumArtifact;
@@ -19,6 +20,7 @@ export default class RequestEthereumService {
     protected abiRequestCore: any;
     protected addressRequestCore: string;
     protected instanceRequestCore: any;
+    protected requestCoreServices:any;
 
     protected abiRequestEthereum: any;
     protected addressRequestEthereum: string;
@@ -31,6 +33,7 @@ export default class RequestEthereumService {
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config.ethereum.contracts.requestCore;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
+        this.requestCoreServices = new RequestCoreService(web3Provider)
 
         this.abiRequestEthereum = requestEthereum_Artifact.abi;
         this.addressRequestEthereum = config.ethereum.contracts.requestEthereum;
@@ -53,7 +56,7 @@ export default class RequestEthereumService {
             // check _details is a proper JSON
             if (_amountInitial.lt(0)  ) return reject(Error('_amountInitial must a positive integer'));
             if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
-            if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
+            if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
             if (_extensionParams.length > 9) return reject(Error('_extensionParams length must be less than 9'));
             if ( this.web3Single.areSameAddressesNoChecksum(account,_payer) ) {
                 return reject(Error('_from must be different than _payer'));
@@ -120,7 +123,7 @@ export default class RequestEthereumService {
 
         if (_amountInitial.lt(0)) return _callbackTransactionError(Error('_amountInitial must a positive integer'));
         if (!this.web3Single.isAddressNoChecksum(_payer)) return _callbackTransactionError(Error('_payer must be a valid eth address'));
-        if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callbackTransactionError(Error('_extension must be a valid eth address'));
+        if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callbackTransactionError(Error('_extension must be a valid eth address'));
         if (_extensionParams.length > 9) return _callbackTransactionError(Error('_extensionParams length must be less than 9'));
         if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
             return _callbackTransactionError(Error('account must be different than _payer'));
@@ -235,7 +238,7 @@ export default class RequestEthereumService {
                 _callbackTransactionError,
                 _options);
         } catch(e) {
-            throw e;
+            return _callbackTransactionError(e);
         }
     }
 
@@ -327,7 +330,7 @@ export default class RequestEthereumService {
                 _callbackTransactionError,
                 _options);
         } catch(e) {
-            throw e;
+            return _callbackTransactionError(e);
         }
     }
 
@@ -434,7 +437,7 @@ export default class RequestEthereumService {
                 _callbackTransactionError,
                 _options);
         } catch(e) {
-            throw e;
+            return _callbackTransactionError(e);
         }
     }
 
@@ -533,7 +536,7 @@ export default class RequestEthereumService {
                 _callbackTransactionError,
                 _options);
         } catch(e) {
-            throw e;
+            return _callbackTransactionError(e);
         }
     }
 
@@ -633,7 +636,7 @@ export default class RequestEthereumService {
                 _callbackTransactionError,
                 _options);
         } catch(e) {
-            throw e;
+            return _callbackTransactionError(e);
         }
     }
 
@@ -683,84 +686,31 @@ export default class RequestEthereumService {
             _options);
     }
 
+    public getRequestSubContractInfoAsync(
+        _requestId: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            return resolve({});
+        });
+    }
+
+    public getRequestSubContractInfo(
+        _requestId: string,
+        _callbackGetRequest: Types.CallbackGetRequest): void {
+            return _callbackGetRequest(null,{});
+    }
+
+
     public getRequestAsync(
         _requestId: string): Promise < any > {
-        return new Promise((resolve, reject) => {
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-
-            this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
-                if (err) return reject(err);
-
-                let dataResult: any = {
-                    requestId: _requestId,
-                    creator: data.creator,
-                    payee: data.payee,
-                    payer: data.payer,
-                    amountInitial: new BigNumber(data.amountInitial),
-                    subContract: data.subContract,
-                    amountPaid: new BigNumber(data.amountPaid),
-                    amountAdditional: new BigNumber(data.amountAdditional),
-                    amountSubtract: new BigNumber(data.amountSubtract),
-                    state: data.state,
-                    extension: data.extension,
-                    details: data.details,
-                };
-
-                if (ServiceExtensions.getServiceFromAddress(data.extension)) {
-                    let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestAsync(_requestId);
-                    dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                }
-
-                if (dataResult.details) {
-                    try {
-                        dataResult.details = {hash:dataResult.details, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.details))};
-                    } catch (e) {
-                        return reject(e);
-                    }
-                }
-                return resolve(dataResult);
-            });
+        return new Promise(async (resolve, reject) => {
+            let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
+            return resolve(dataResult);
         });
     }
 
     public getRequest(
         _requestId: string,
-        _callbackGetRequest: Types.CallbackGetRequest) {
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),undefined);
-
-        this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
-            if (err) return _callbackGetRequest(err, data);
-
-            let dataResult: any = {
-                requestId: _requestId,
-                creator: data.creator,
-                payee: data.payee,
-                payer: data.payer,
-                amountInitial: new BigNumber(data.amountInitial),
-                subContract: data.subContract,
-                amountPaid: new BigNumber(data.amountPaid),
-                amountAdditional: new BigNumber(data.amountAdditional),
-                amountSubtract: new BigNumber(data.amountSubtract),
-                state: data.state,
-                extension: data.extension,
-                details: data.details,
-            };
-
-            if (ServiceExtensions.getServiceFromAddress(data.extension)) {
-                let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestAsync(_requestId);
-                dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-            }
-
-            if (dataResult.details) {
-                // get IPFS data :
-                this.ipfs.getFile(dataResult.details, (err: Error, data: string) => {
-                    if (err) return _callbackGetRequest(err, dataResult);
-                    dataResult.details = {hash:dataResult, data:JSON.parse(data)};
-                    return _callbackGetRequest(err, dataResult);
-                });
-            } else {
-                return _callbackGetRequest(err, dataResult);
-            }
-        });
+        _callbackGetRequest: Types.CallbackGetRequest): void {
+        this.requestCoreServices.getRequest(_requestId,_callbackGetRequest);
     }        
 }

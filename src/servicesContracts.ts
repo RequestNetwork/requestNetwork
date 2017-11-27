@@ -5,6 +5,7 @@ import RequestEthereumService from './servicesContracts/requestEthereum-service'
 
 
 export const getServiceFromAddress = function(address:string, web3Provider ? : any) : any{
+	if(!address) return undefined;
 	switch(address.toLowerCase()) {
 		case config.ethereum.contracts.requestEthereum.toLowerCase():
 			return new RequestEthereumService(web3Provider);

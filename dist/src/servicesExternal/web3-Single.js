@@ -124,10 +124,10 @@ var Web3Single = /** @class */ (function () {
         return ret;
     };
     Web3Single.prototype.isAddressNoChecksum = function (address) {
-        return this.web3.utils.isAddress(address.toLowerCase());
+        return address && this.web3.utils.isAddress(address.toLowerCase());
     };
     Web3Single.prototype.areSameAddressesNoChecksum = function (address1, address2) {
-        return address1.toLowerCase() == address2.toLowerCase();
+        return address1 && address2 && address1.toLowerCase() == address2.toLowerCase();
     };
     Web3Single.prototype.isHexStrictBytes32 = function (hex) {
         return this.web3.utils.isHexStrict(hex) && hex.length == 66; // '0x' + 32 bytes * 2 characters = 66

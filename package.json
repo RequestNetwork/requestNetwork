@@ -11,7 +11,7 @@
     "clean": "rm -rf ./dist",
     "build": "npm run clean && tsc && cp -r ./src/artifacts ./dist/src/ && cp ./src/*.json ./dist/src/ && cp -r ./src/lib ./dist/src/",
     "test": "npm run build && node ./dist/test/test",
-    "testunit": "npm run build && mocha dist/test/unit/*.js",
+    "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
     "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
@@ -20,6 +20,9 @@
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
     "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "dirty-chai": "^2.0.1",
     "mocha": "^4.0.1",
     "ts-node": "^3.3.0",
     "typings": "^2.1.1"

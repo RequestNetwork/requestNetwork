@@ -43,6 +43,8 @@ export default class Ipfs {
         return new Promise(function(resolve, reject) {
 			let data = '';
 			myThis.ipfs.cat(_hash, (err:Error, stream:any) => {
+				if(err) return reject(err);
+
 				stream.on('data', function(chunk:string) {
 				   data += chunk;
 				});
@@ -63,6 +65,8 @@ export default class Ipfs {
 	{
 		let data = '';
 		this.ipfs.cat(_hash, (err:Error, stream:any) => {
+			if(err) return _callbackIpfs(err,null);
+
 			stream.on('data', function(chunk:string) {
 			   data += chunk;
 			});

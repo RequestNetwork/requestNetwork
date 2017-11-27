@@ -5,6 +5,7 @@ import RequestSynchroneExtensionEscrowService from './servicesExtensions/request
 
 
 export const getServiceFromAddress = function(address:string, web3Provider ? : any) : any{
+	if(!address) return undefined;
 	switch(address.toLowerCase()) {
 		case config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase():
 			return new RequestSynchroneExtensionEscrowService(web3Provider);

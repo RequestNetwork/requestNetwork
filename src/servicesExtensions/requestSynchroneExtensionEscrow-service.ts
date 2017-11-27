@@ -2,7 +2,8 @@ import config from '../config';
 import * as Types from '../types';
 import Artifacts from '../artifacts';
 import BigNumber from 'bignumber.js';
-import * as ServicesContracts from '../servicesContracts';
+// import * as ServicesContracts from '../servicesContracts';
+import RequestCoreService from '../servicesCore/requestCore-service';
 
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExtensionEscrowArtifact;
@@ -10,14 +11,13 @@ const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExten
 import { Web3Single } from '../servicesExternal/web3-single';
 
 export default class RequestSynchroneExtensionEscrowService {
-    private static _instance: RequestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
-
     protected web3Single: any;
 
     // RequestEthereum on blockchain
     protected abiRequestCore: any;
     protected addressRequestCore: string;
     protected instanceRequestCore: any;
+    protected requestCoreServices:any;
 
     protected abiSynchroneExtensionEscrow: any;
     protected addressSynchroneExtensionEscrow: string;
@@ -29,6 +29,7 @@ export default class RequestSynchroneExtensionEscrowService {
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config.ethereum.contracts.requestCore;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
+        this.requestCoreServices = new RequestCoreService(web3Provider);
 
         this.abiSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.abi;
         this.addressSynchroneExtensionEscrow = config.ethereum.contracts.requestSynchroneExtensionEscrow;
@@ -61,7 +62,7 @@ export default class RequestSynchroneExtensionEscrowService {
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            let request = await this.getRequestSubContractAsync(_requestId);
+            let request = await this.getRequestAsync(_requestId);
 
             if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
                 return reject(Error('account must be payer or escrow'));
@@ -108,7 +109,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-        let request = await this.getRequestSubContractAsync(_requestId);
+        let request = await this.getRequestAsync(_requestId);
         if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
             return _callbackTransactionError(Error('account must be payer or escrow'));
         }
@@ -140,7 +141,7 @@ export default class RequestSynchroneExtensionEscrowService {
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            let request = await this.getRequestSubContractAsync(_requestId);
+            let request = await this.getRequestAsync(_requestId);
             if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
                 return reject(Error('account must be payee or escrow'));
             }
@@ -187,7 +188,7 @@ export default class RequestSynchroneExtensionEscrowService {
         // TODO check if this is possible ? (quid if other tx pending)
         if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-        let request = await this.getRequestSubContractAsync(_requestId);
+        let request = await this.getRequestAsync(_requestId);
         if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
             return _callbackTransactionError(Error('account must be payee or escrow'));
         }
@@ -209,8 +210,21 @@ export default class RequestSynchroneExtensionEscrowService {
             _options);
     }
 
-
     public getRequestAsync(
+        _requestId: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
+            return resolve(dataResult);
+        });
+    }
+
+    public getRequest(
+        _requestId: string,
+        _callbackGetRequest: Types.CallbackGetRequest): void {
+        this.requestCoreServices.getRequest(_requestId,_callbackGetRequest);
+    }       
+
+    public getRequestExtensionInfoAsync(
         _requestId: string): Promise < any > {
         
         return new Promise((resolve, reject) => {
@@ -232,7 +246,7 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public getRequest(
+    public getRequestExtensionInfo(
         _requestId: string,
         _callbackGetRequest: Types.CallbackGetRequest) {
 
@@ -253,30 +267,4 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public getRequestSubContractAsync(
-        _requestId: string): Promise < any > {
-        return new Promise((resolve, reject) => {
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-
-            this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
-                if (err) return reject(err);
-                ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequest(_requestId, (err: Error, data: any) => {
-                   if (err) return reject(err);
-                   return resolve(data);
-                });
-            });
-        });
-    }
-
-    public getRequestSubContract(
-        _requestId: string,
-        _callbackGetRequest: Types.CallbackGetRequest) {
-
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
-
-        this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
-            if (err) return _callbackGetRequest(err, data);
-            ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequest(_requestId, _callbackGetRequest);
-        }); 
-    }
 }

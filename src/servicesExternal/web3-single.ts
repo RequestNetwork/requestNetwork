@@ -85,11 +85,11 @@ export class Web3Single {
     }
 
     public isAddressNoChecksum(address: string): boolean {
-        return this.web3.utils.isAddress(address.toLowerCase());
+        return address && this.web3.utils.isAddress(address.toLowerCase());
     }
 
     public areSameAddressesNoChecksum(address1: string,address2: string): boolean {
-        return address1.toLowerCase()==address2.toLowerCase();
+        return address1 && address2 && address1.toLowerCase()==address2.toLowerCase();
     }
 
     public isHexStrictBytes32(hex: string): boolean {

@@ -30,6 +30,8 @@ var Ipfs = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             var data = '';
             myThis.ipfs.cat(_hash, function (err, stream) {
+                if (err)
+                    return reject(err);
                 stream.on('data', function (chunk) {
                     data += chunk;
                 });
@@ -45,6 +47,8 @@ var Ipfs = /** @class */ (function () {
     Ipfs.prototype.getFile = function (_hash, _callbackIpfs) {
         var data = '';
         this.ipfs.cat(_hash, function (err, stream) {
+            if (err)
+                return _callbackIpfs(err, null);
             stream.on('data', function (chunk) {
                 data += chunk;
             });

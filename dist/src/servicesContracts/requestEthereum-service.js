@@ -39,6 +39,7 @@ var config_1 = require("../config");
 var bignumber_js_1 = require("bignumber.js");
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
+var requestCore_service_1 = require("../servicesCore/requestCore-service");
 var ServiceExtensions = require("../servicesExtensions");
 var requestEthereum_Artifact = artifacts_1.default.RequestEthereumArtifact;
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
@@ -51,6 +52,7 @@ var RequestEthereumService = /** @class */ (function () {
         this.abiRequestCore = requestCore_Artifact.abi;
         this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
+        this.requestCoreServices = new requestCore_service_1.default(web3Provider);
         this.abiRequestEthereum = requestEthereum_Artifact.abi;
         this.addressRequestEthereum = config_1.default.ethereum.contracts.requestEthereum;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
@@ -80,7 +82,7 @@ var RequestEthereumService = /** @class */ (function () {
                                         return [2 /*return*/, reject(Error('_amountInitial must a positive integer'))];
                                     if (!this.web3Single.isAddressNoChecksum(_payer))
                                         return [2 /*return*/, reject(Error('_payer must be a valid eth address'))];
-                                    if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
+                                    if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
                                         return [2 /*return*/, reject(Error('_extension must be a valid eth address'))];
                                     if (_extensionParams.length > 9)
                                         return [2 /*return*/, reject(Error('_extensionParams length must be less than 9'))];
@@ -151,7 +153,7 @@ var RequestEthereumService = /** @class */ (function () {
                             return [2 /*return*/, _callbackTransactionError(Error('_amountInitial must a positive integer'))];
                         if (!this.web3Single.isAddressNoChecksum(_payer))
                             return [2 /*return*/, _callbackTransactionError(Error('_payer must be a valid eth address'))];
-                        if (_extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
+                        if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
                             return [2 /*return*/, _callbackTransactionError(Error('_extension must be a valid eth address'))];
                         if (_extensionParams.length > 9)
                             return [2 /*return*/, _callbackTransactionError(Error('_extensionParams length must be less than 9'))];
@@ -275,7 +277,7 @@ var RequestEthereumService = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 5:
                         e_2 = _b.sent();
-                        throw e_2;
+                        return [2 /*return*/, _callbackTransactionError(e_2)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -389,7 +391,7 @@ var RequestEthereumService = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 5:
                         e_4 = _b.sent();
-                        throw e_4;
+                        return [2 /*return*/, _callbackTransactionError(e_4)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -514,7 +516,7 @@ var RequestEthereumService = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 5:
                         e_6 = _b.sent();
-                        throw e_6;
+                        return [2 /*return*/, _callbackTransactionError(e_6)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -634,7 +636,7 @@ var RequestEthereumService = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 5:
                         e_8 = _b.sent();
-                        throw e_8;
+                        return [2 /*return*/, _callbackTransactionError(e_8)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -750,7 +752,7 @@ var RequestEthereumService = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 5:
                         e_10 = _b.sent();
-                        throw e_10;
+                        return [2 /*return*/, _callbackTransactionError(e_10)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -779,107 +781,33 @@ var RequestEthereumService = /** @class */ (function () {
         var method = this.instanceRequestEthereum.methods.withdraw();
         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
     };
+    RequestEthereumService.prototype.getRequestSubContractInfoAsync = function (_requestId) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, resolve({})];
+            });
+        }); });
+    };
+    RequestEthereumService.prototype.getRequestSubContractInfo = function (_requestId, _callbackGetRequest) {
+        return _callbackGetRequest(null, {});
+    };
     RequestEthereumService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
-        return new Promise(function (resolve, reject) {
-            if (!_this.web3Single.isHexStrictBytes32(_requestId))
-                return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-            _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-                var dataResult, extensionDetails, _a, _b, _c, _d, e_11;
-                return __generator(this, function (_e) {
-                    switch (_e.label) {
-                        case 0:
-                            if (err)
-                                return [2 /*return*/, reject(err)];
-                            dataResult = {
-                                requestId: _requestId,
-                                creator: data.creator,
-                                payee: data.payee,
-                                payer: data.payer,
-                                amountInitial: new bignumber_js_1.default(data.amountInitial),
-                                subContract: data.subContract,
-                                amountPaid: new bignumber_js_1.default(data.amountPaid),
-                                amountAdditional: new bignumber_js_1.default(data.amountAdditional),
-                                amountSubtract: new bignumber_js_1.default(data.amountSubtract),
-                                state: data.state,
-                                extension: data.extension,
-                                details: data.details,
-                            };
-                            if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
-                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestAsync(_requestId)];
-                        case 1:
-                            extensionDetails = _e.sent();
-                            dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                            _e.label = 2;
-                        case 2:
-                            if (!dataResult.details) return [3 /*break*/, 6];
-                            _e.label = 3;
-                        case 3:
-                            _e.trys.push([3, 5, , 6]);
-                            _a = dataResult;
-                            _b = { hash: dataResult.details };
-                            _d = (_c = JSON).parse;
-                            return [4 /*yield*/, this.ipfs.getFileAsync(dataResult.details)];
-                        case 4:
-                            _a.details = (_b.data = _d.apply(_c, [_e.sent()]), _b);
-                            return [3 /*break*/, 6];
-                        case 5:
-                            e_11 = _e.sent();
-                            return [2 /*return*/, reject(e_11)];
-                        case 6: return [2 /*return*/, resolve(dataResult)];
-                    }
-                });
-            }); });
-        });
-    };
-    RequestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
-        var _this = this;
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), undefined);
-        this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult, extensionDetails;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var dataResult;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (err)
-                            return [2 /*return*/, _callbackGetRequest(err, data)];
-                        dataResult = {
-                            requestId: _requestId,
-                            creator: data.creator,
-                            payee: data.payee,
-                            payer: data.payer,
-                            amountInitial: new bignumber_js_1.default(data.amountInitial),
-                            subContract: data.subContract,
-                            amountPaid: new bignumber_js_1.default(data.amountPaid),
-                            amountAdditional: new bignumber_js_1.default(data.amountAdditional),
-                            amountSubtract: new bignumber_js_1.default(data.amountSubtract),
-                            state: data.state,
-                            extension: data.extension,
-                            details: data.details,
-                        };
-                        if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestAsync(_requestId)];
+                    case 0: return [4 /*yield*/, this.requestCoreServices.getRequestAsync(_requestId)];
                     case 1:
-                        extensionDetails = _a.sent();
-                        dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                        _a.label = 2;
-                    case 2:
-                        if (dataResult.details) {
-                            // get IPFS data :
-                            this.ipfs.getFile(dataResult.details, function (err, data) {
-                                if (err)
-                                    return _callbackGetRequest(err, dataResult);
-                                dataResult.details = { hash: dataResult, data: JSON.parse(data) };
-                                return _callbackGetRequest(err, dataResult);
-                            });
-                        }
-                        else {
-                            return [2 /*return*/, _callbackGetRequest(err, dataResult)];
-                        }
-                        return [2 /*return*/];
+                        dataResult = _a.sent();
+                        return [2 /*return*/, resolve(dataResult)];
                 }
             });
         }); });
+    };
+    RequestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
+        this.requestCoreServices.getRequest(_requestId, _callbackGetRequest);
     };
     return RequestEthereumService;
 }());
