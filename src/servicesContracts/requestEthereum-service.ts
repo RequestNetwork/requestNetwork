@@ -179,6 +179,9 @@ export default class RequestEthereumService {
 
         return new Promise(async (resolve, reject) => {
             try {
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _options.from || await this.web3Single.getDefaultAccount();
                 if ( request.state != Types.State.Created) {
@@ -187,9 +190,6 @@ export default class RequestEthereumService {
                 if ( !this.web3Single.areSameAddressesNoChecksum(account,request.payer) ) {
                     return reject(Error('account must be the payer'));
                 }
-
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
                 var method = this.instanceRequestEthereum.methods.accept(_requestId);
 
@@ -228,6 +228,9 @@ export default class RequestEthereumService {
         _options = this.web3Single.setUpOptions(_options);
 
         try {
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
             let request = await this.getRequestAsync(_requestId);    
             let account = _options.from || await this.web3Single.getDefaultAccount();
             if ( request.state != Types.State.Created) {
@@ -236,8 +239,6 @@ export default class RequestEthereumService {
             if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
                 return _callbackTransactionError(Error('from must be the payer'));
             }
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
             var method = this.instanceRequestEthereum.methods.accept(_requestId);
 
@@ -260,6 +261,9 @@ export default class RequestEthereumService {
         
         return new Promise(async (resolve, reject) => {
             try {
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _options.from || await this.web3Single.getDefaultAccount();
                 if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
@@ -269,14 +273,11 @@ export default class RequestEthereumService {
                     return reject(Error('payer can cancel request in state \'created\''));
                 }
                 if ( this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled ) {
-                    return reject(Error('payer cannot cancel request already canceled'));
+                    return reject(Error('payee cannot cancel request already canceled'));
                 }
                 if ( request.amountPaid != 0 ) {
                     return reject(Error('impossible to cancel a Request with a balance != 0'));
                 }
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-
                 var method = this.instanceRequestEthereum.methods.cancel(_requestId);
 
                 this.web3Single.broadcastMethod(
@@ -314,6 +315,9 @@ export default class RequestEthereumService {
         _options = this.web3Single.setUpOptions(_options);
         
         try {
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
             let request = await this.getRequestAsync(_requestId);    
             let account = _options.from || await this.web3Single.getDefaultAccount();
             if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
@@ -328,9 +332,6 @@ export default class RequestEthereumService {
             if ( request.amountPaid != 0 ) {
                 return _callbackTransactionError(Error('impossible to cancel a Request with a balance != 0'));
             }
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-
             var method = this.instanceRequestEthereum.methods.cancel(_requestId);
 
             this.web3Single.broadcastMethod(
@@ -357,12 +358,11 @@ export default class RequestEthereumService {
 
         return new Promise(async (resolve, reject) => {
             try {
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _options.from || await this.web3Single.getDefaultAccount();
-
-                // TODO check from == payer ?
                 // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
                 // TODO use bigNumber
                 if (_options.value.lt(0)) return reject(Error('_amount must a positive integer'));
                 // TODO use bigNumber
@@ -418,16 +418,15 @@ export default class RequestEthereumService {
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new BigNumber(_amount);
         
-        try {
+        try {            
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             let request = await this.getRequestAsync(_requestId);    
             let account = _options.from || await this.web3Single.getDefaultAccount();
 
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             // TODO use bigNumber
-            if (_options.value.lt(0) /* || !_amount.isInteger()*/ ) return _callbackTransactionError(Error('_amount must a positive integer'));
-            // TODO use bigNumber
-            if (_tips.lt(0) /* || !_tips.isInteger()*/ ) return _callbackTransactionError(Error('_tips must a positive integer'));
+            if (_options.value.lt(0)) return _callbackTransactionError(Error('_amount must a positive integer'));
+            if (_tips.lt(0)) return _callbackTransactionError(Error('_tips must a positive integer'));
             if ( request.state != Types.State.Accepted ) {
                 return _callbackTransactionError(Error('request must be accepted'));
             }
@@ -462,12 +461,12 @@ export default class RequestEthereumService {
         
         return new Promise(async (resolve, reject) => {
             try {
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _options.from || await this.web3Single.getDefaultAccount();
 
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-                // TODO use bigNumber
                 if (_options.value.lt(0) ) return reject(Error('_amount must a positive integer'));
 
                 if ( request.state != Types.State.Accepted ) {
@@ -519,12 +518,12 @@ export default class RequestEthereumService {
         _options.value = new BigNumber(_amount);
         
         try {
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
             let request = await this.getRequestAsync(_requestId);    
             let account = _options.from || await this.web3Single.getDefaultAccount();
 
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-            // TODO use bigNumber
             if (_options.value.lt(0)) return _callbackTransactionError(Error('_amount must a positive integer'));
 
             if ( request.state != Types.State.Accepted ) {
@@ -561,12 +560,12 @@ export default class RequestEthereumService {
         
         return new Promise(async (resolve, reject) => {
             try {
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
                 let request = await this.getRequestAsync(_requestId);    
                 let account = _options.from || await this.web3Single.getDefaultAccount();
 
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-                // TODO use bigNumber
                 if (_amount.lt(0)) return reject(Error('_amount must a positive integer'));
 
                 if ( request.state == Types.State.Canceled ) {
@@ -619,12 +618,12 @@ export default class RequestEthereumService {
         _options = this.web3Single.setUpOptions(_options);
 
         try {
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            
             let request = await this.getRequestAsync(_requestId);    
             let account = _options.from || await this.web3Single.getDefaultAccount();
 
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-            // TODO use bigNumber
             if (_amount.lt(0)) return _callbackTransactionError(Error('_amount must a positive integer'));
 
             if ( request.state == Types.State.Canceled ) {

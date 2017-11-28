@@ -209,6 +209,9 @@ var RequestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 4, , 5]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 1:
                         request = _b.sent();
@@ -226,9 +229,6 @@ var RequestEthereumService = /** @class */ (function () {
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
                             return [2 /*return*/, reject(Error('account must be the payer'))];
                         }
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         method = this.instanceRequestEthereum.methods.accept(_requestId);
                         this.web3Single.broadcastMethod(method, function (transactionHash) {
                             // we do nothing here!
@@ -270,6 +270,9 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 2:
                         request = _b.sent();
@@ -287,9 +290,6 @@ var RequestEthereumService = /** @class */ (function () {
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
                             return [2 /*return*/, _callbackTransactionError(Error('from must be the payer'))];
                         }
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         method = this.instanceRequestEthereum.methods.accept(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
@@ -311,6 +311,9 @@ var RequestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 4, , 5]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 1:
                         request = _b.sent();
@@ -329,14 +332,11 @@ var RequestEthereumService = /** @class */ (function () {
                             return [2 /*return*/, reject(Error('payer can cancel request in state \'created\''))];
                         }
                         if (this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled) {
-                            return [2 /*return*/, reject(Error('payer cannot cancel request already canceled'))];
+                            return [2 /*return*/, reject(Error('payee cannot cancel request already canceled'))];
                         }
                         if (request.amountPaid != 0) {
                             return [2 /*return*/, reject(Error('impossible to cancel a Request with a balance != 0'))];
                         }
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         method = this.instanceRequestEthereum.methods.cancel(_requestId);
                         this.web3Single.broadcastMethod(method, function (transactionHash) {
                             // we do nothing here!
@@ -378,6 +378,9 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 2:
                         request = _b.sent();
@@ -401,9 +404,6 @@ var RequestEthereumService = /** @class */ (function () {
                         if (request.amountPaid != 0) {
                             return [2 /*return*/, _callbackTransactionError(Error('impossible to cancel a Request with a balance != 0'))];
                         }
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         method = this.instanceRequestEthereum.methods.cancel(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
@@ -427,6 +427,8 @@ var RequestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 4, , 5]);
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 1:
                         request = _b.sent();
@@ -438,10 +440,7 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 3;
                     case 3:
                         account = _a;
-                        // TODO check from == payer ?
                         // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         // TODO use bigNumber
                         if (_options.value.lt(0))
                             return [2 /*return*/, reject(Error('_amount must a positive integer'))];
@@ -500,6 +499,9 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 2:
                         request = _b.sent();
@@ -511,14 +513,10 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 4;
                     case 4:
                         account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         // TODO use bigNumber
-                        if (_options.value.lt(0) /* || !_amount.isInteger()*/)
+                        if (_options.value.lt(0))
                             return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
-                        // TODO use bigNumber
-                        if (_tips.lt(0) /* || !_tips.isInteger()*/)
+                        if (_tips.lt(0))
                             return [2 /*return*/, _callbackTransactionError(Error('_tips must a positive integer'))];
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, _callbackTransactionError(Error('request must be accepted'))];
@@ -553,6 +551,9 @@ var RequestEthereumService = /** @class */ (function () {
                             switch (_b.label) {
                                 case 0:
                                     _b.trys.push([0, 4, , 5]);
+                                    // TODO check if this is possible ? (quid if other tx pending)
+                                    if (!this.web3Single.isHexStrictBytes32(_requestId))
+                                        return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                                     return [4 /*yield*/, this.getRequestAsync(_requestId)];
                                 case 1:
                                     request = _b.sent();
@@ -564,10 +565,6 @@ var RequestEthereumService = /** @class */ (function () {
                                     _b.label = 3;
                                 case 3:
                                     account = _a;
-                                    // TODO check if this is possible ? (quid if other tx pending)
-                                    if (!this.web3Single.isHexStrictBytes32(_requestId))
-                                        return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                                    // TODO use bigNumber
                                     if (_options.value.lt(0))
                                         return [2 /*return*/, reject(Error('_amount must a positive integer'))];
                                     if (request.state != Types.State.Accepted) {
@@ -623,6 +620,9 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 2:
                         request = _b.sent();
@@ -634,10 +634,6 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 4;
                     case 4:
                         account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        // TODO use bigNumber
                         if (_options.value.lt(0))
                             return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
                         if (request.state != Types.State.Accepted) {
@@ -671,6 +667,9 @@ var RequestEthereumService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 4, , 5]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 1:
                         request = _b.sent();
@@ -682,10 +681,6 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 3;
                     case 3:
                         account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        // TODO use bigNumber
                         if (_amount.lt(0))
                             return [2 /*return*/, reject(Error('_amount must a positive integer'))];
                         if (request.state == Types.State.Canceled) {
@@ -739,6 +734,9 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
+                        // TODO check if this is possible ? (quid if other tx pending)
+                        if (!this.web3Single.isHexStrictBytes32(_requestId))
+                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 2:
                         request = _b.sent();
@@ -750,10 +748,6 @@ var RequestEthereumService = /** @class */ (function () {
                         _b.label = 4;
                     case 4:
                         account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        // TODO use bigNumber
                         if (_amount.lt(0))
                             return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
                         if (request.state == Types.State.Canceled) {
