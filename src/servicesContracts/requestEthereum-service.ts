@@ -363,9 +363,7 @@ export default class RequestEthereumService {
                 let account = _options.from || await this.web3Single.getDefaultAccount();
                 // TODO check if this is possible ? (quid if other tx pending)
 
-                // TODO use bigNumber
                 if (_options.value.lt(0)) return reject(Error('_amount must a positive integer'));
-                // TODO use bigNumber
                 if (_tips.lt(0)) return reject(Error('_tips must a positive integer'));
 
                 if ( request.state != Types.State.Accepted ) {
@@ -450,7 +448,6 @@ export default class RequestEthereumService {
             return _callbackTransactionError(e);
         }
     }
-
 
     public async paybackAsync(
         _requestId: string,
@@ -550,7 +547,6 @@ export default class RequestEthereumService {
         }
     }
 
-
     public discountAsync(
         _requestId: string,
         _amount: any,
@@ -620,7 +616,7 @@ export default class RequestEthereumService {
         try {
             // TODO check if this is possible ? (quid if other tx pending)
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-            
+
             let request = await this.getRequestAsync(_requestId);    
             let account = _options.from || await this.web3Single.getDefaultAccount();
 

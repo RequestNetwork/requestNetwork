@@ -441,10 +441,8 @@ var RequestEthereumService = /** @class */ (function () {
                     case 3:
                         account = _a;
                         // TODO check if this is possible ? (quid if other tx pending)
-                        // TODO use bigNumber
                         if (_options.value.lt(0))
                             return [2 /*return*/, reject(Error('_amount must a positive integer'))];
-                        // TODO use bigNumber
                         if (_tips.lt(0))
                             return [2 /*return*/, reject(Error('_tips must a positive integer'))];
                         if (request.state != Types.State.Accepted) {
