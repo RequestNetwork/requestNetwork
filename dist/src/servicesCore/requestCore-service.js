@@ -52,6 +52,46 @@ var RequestCoreService = /** @class */ (function () {
         this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
+    RequestCoreService.prototype.getCurrentNumRequest = function (_callback) {
+        var _this = this;
+        this.instanceRequestCore.methods.numRequests().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, _callback(err, data)];
+            });
+        }); });
+    };
+    RequestCoreService.prototype.getCurrentNumRequestAsync = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.instanceRequestCore.methods.numRequests().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    if (err)
+                        return [2 /*return*/, reject(err)];
+                    return [2 /*return*/, resolve(data)];
+                });
+            }); });
+        });
+    };
+    RequestCoreService.prototype.getVersion = function (_callback) {
+        var _this = this;
+        this.instanceRequestCore.methods.VERSION().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, _callback(err, data)];
+            });
+        }); });
+    };
+    RequestCoreService.prototype.getVersionAsync = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.instanceRequestCore.methods.VERSION().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    if (err)
+                        return [2 /*return*/, reject(err)];
+                    return [2 /*return*/, resolve(data)];
+                });
+            }); });
+        });
+    };
     RequestCoreService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -75,14 +115,14 @@ var RequestCoreService = /** @class */ (function () {
                                 amountAdditional: new bignumber_js_1.default(data.amountAdditional),
                                 amountSubtract: new bignumber_js_1.default(data.amountSubtract),
                                 state: data.state,
-                                extension: data.extension,
+                                extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
                                 details: data.details,
                             };
                             if (!ServicesContracts.getServiceFromAddress(data.subContract)) return [3 /*break*/, 2];
                             return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.subContract, this.web3Single.web3.currentProvider).getRequestSubContractInfoAsync(_requestId)];
                         case 1:
                             subContractDetails = _e.sent();
-                            dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.extension });
+                            dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.subContract });
                             _e.label = 2;
                         case 2:
                             if (!(data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension))) return [3 /*break*/, 4];

@@ -72,6 +72,7 @@ export class Web3Single {
     }
 
     public arrayToBytes32(array: any[], length: number): any[] {
+        array = array?array:[];
         let ret: any[] = [];
         console.log('this')
         array.forEach(function(o: any) {

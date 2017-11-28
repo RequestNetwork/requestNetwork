@@ -52,57 +52,61 @@ export default class RequestEthereumService {
         _options = this.web3Single.setUpOptions(_options);
 
         return new Promise(async (resolve, reject) => {
-            let account = _options.from || await this.web3Single.getDefaultAccount();
-            // check _details is a proper JSON
-            if (_amountInitial.lt(0)  ) return reject(Error('_amountInitial must a positive integer'));
-            if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
-            if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
-            if (_extensionParams.length > 9) return reject(Error('_extensionParams length must be less than 9'));
-            if ( this.web3Single.areSameAddressesNoChecksum(account,_payer) ) {
-                return reject(Error('_from must be different than _payer'));
-            }
-
-            let paramsParsed: any[];
-            if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
-                if(parsing.error) {
-                  return reject(parsing.error);
+            try {
+                let account = _options.from || await this.web3Single.getDefaultAccount();
+                // check _details is a proper JSON
+                if (_amountInitial.lt(0)  ) return reject(Error('_amountInitial must a positive integer'));
+                if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
+                if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
+                if (_extensionParams && _extensionParams.length > 9) return reject(Error('_extensionParams length must be less than 9'));
+                if ( this.web3Single.areSameAddressesNoChecksum(account,_payer) ) {
+                    return reject(Error('_from must be different than _payer'));
                 }
-                paramsParsed = parsing.result;
-            } else {
-                paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+
+                let paramsParsed: any[];
+                if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
+                    let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
+                    if(parsing.error) {
+                      return reject(parsing.error);
+                    }
+                    paramsParsed = parsing.result;
+                } else {
+                    paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                }
+
+                this.ipfs.addFile(JSON.parse(_details), (err: Error, hash: string) => {
+                    if (err) return reject(err);
+
+                    var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
+                        _payer,
+                        _amountInitial,
+                        _extension,
+                        paramsParsed,
+                        hash);
+
+                    this.web3Single.broadcastMethod(
+                        method,
+                        (transactionHash: string) => {
+                            // we do nothing here!
+                        },
+                        (receipt: any) => {
+                            // we do nothing here!
+                        },
+                        async (confirmationNumber: number, receipt: any) => {
+                            if (confirmationNumber == _options.numberOfConfirmation) {
+                                let event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
+                                let request = await this.getRequestAsync(event.requestId);
+                                return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            }
+                        },
+                        (error: Error) => {
+                            return reject(error);
+                        },
+                        _options);
+                });
+            } catch(e) {
+                return reject(e);
             }
-
-            this.ipfs.addFile(JSON.parse(_details), (err: Error, hash: string) => {
-                if (err) return reject(err);
-
-                var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
-                    _payer,
-                    _amountInitial,
-                    _extension,
-                    paramsParsed,
-                    hash);
-
-                this.web3Single.broadcastMethod(
-                    method,
-                    (transactionHash: string) => {
-                        // we do nothing here!
-                    },
-                    (receipt: any) => {
-                        // we do nothing here!
-                    },
-                    async (confirmationNumber: number, receipt: any) => {
-                        if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
-                        }
-                    },
-                    (error: Error) => {
-                        return reject(error);
-                    },
-                    _options);
-            });
         });
     }
 
@@ -119,45 +123,49 @@ export default class RequestEthereumService {
         _options ? : any): Promise<any> {
         _amountInitial = new BigNumber(_amountInitial);
         _options = this.web3Single.setUpOptions(_options);
-        let account = _options.from || await this.web3Single.getDefaultAccount();
+        try {
+            let account = _options.from || await this.web3Single.getDefaultAccount();
 
-        if (_amountInitial.lt(0)) return _callbackTransactionError(Error('_amountInitial must a positive integer'));
-        if (!this.web3Single.isAddressNoChecksum(_payer)) return _callbackTransactionError(Error('_payer must be a valid eth address'));
-        if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callbackTransactionError(Error('_extension must be a valid eth address'));
-        if (_extensionParams.length > 9) return _callbackTransactionError(Error('_extensionParams length must be less than 9'));
-        if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
-            return _callbackTransactionError(Error('account must be different than _payer'));
-        }
-
-        let paramsParsed: any[];
-        if (ServiceExtensions.getServiceFromAddress(_extension)) {
-            let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
-            if(parsing.error) {
-                return _callbackTransactionError(Error(parsing.error));
+            if (_amountInitial.lt(0)) return _callbackTransactionError(Error('_amountInitial must a positive integer'));
+            if (!this.web3Single.isAddressNoChecksum(_payer)) return _callbackTransactionError(Error('_payer must be a valid eth address'));
+            if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callbackTransactionError(Error('_extension must be a valid eth address'));
+            if (_extensionParams && _extensionParams.length > 9) return _callbackTransactionError(Error('_extensionParams length must be less than 9'));
+            if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
+                return _callbackTransactionError(Error('account must be different than _payer'));
             }
-            paramsParsed = parsing.result;
-        } else {
-            paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+
+            let paramsParsed: any[];
+            if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
+                let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
+                if(parsing.error) {
+                    return _callbackTransactionError(Error(parsing.error));
+                }
+                paramsParsed = parsing.result;
+            } else {
+                paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+            }
+
+            this.ipfs.addFile(JSON.parse(_details), (err: Error, hash: string) => {
+                if (err) return _callbackTransactionError(err);
+
+                var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
+                    _payer,
+                    _amountInitial,
+                    _extension,
+                    paramsParsed,
+                    hash);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    _callbackTransactionHash,
+                    _callbackTransactionReceipt,
+                    _callbackTransactionConfirmation,
+                    _callbackTransactionError,
+                    _options);
+            });
+        } catch(e) {
+            return _callbackTransactionError(e);
         }
-
-        this.ipfs.addFile(JSON.parse(_details), (err: Error, hash: string) => {
-            if (err) return _callbackTransactionError(err);
-
-            var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
-                _payer,
-                _amountInitial,
-                _extension,
-                paramsParsed,
-                hash);
-
-            this.web3Single.broadcastMethod(
-                method,
-                _callbackTransactionHash,
-                _callbackTransactionReceipt,
-                _callbackTransactionConfirmation,
-                _callbackTransactionError,
-                _options);
-        });
     }
 
 

@@ -30,6 +30,36 @@ export default class RequestCoreService {
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
 
+    public getCurrentNumRequest(_callback: Types.CallbackGetRequest): void {
+      this.instanceRequestCore.methods.numRequests().call(async(err: Error, data: any) => {
+          return _callback(err,data);
+      });
+    }
+
+    public getCurrentNumRequestAsync(): Promise < number > {
+        return new Promise((resolve, reject) => {
+            this.instanceRequestCore.methods.numRequests().call(async(err: Error, data: any) => {
+                if (err) return reject(err);
+                return resolve(data);
+            });
+        });
+    }
+
+    public getVersion(_callback: Types.CallbackGetRequest): void {
+      this.instanceRequestCore.methods.VERSION().call(async(err: Error, data: any) => {
+          return _callback(err,data);
+      });
+    }
+
+    public getVersionAsync(): Promise < number > {
+        return new Promise((resolve, reject) => {
+            this.instanceRequestCore.methods.VERSION().call(async(err: Error, data: any) => {
+                if (err) return reject(err);
+                return resolve(data);
+            });
+        });
+    }
+
     public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise((resolve, reject) => {
@@ -49,13 +79,13 @@ export default class RequestCoreService {
                     amountAdditional: new BigNumber(data.amountAdditional),
                     amountSubtract: new BigNumber(data.amountSubtract),
                     state: data.state,
-                    extension: data.extension,
+                    extension: data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined,
                     details: data.details,
                 };
 
                 if (ServicesContracts.getServiceFromAddress(data.subContract)) {
                     let subContractDetails = await ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequestSubContractInfoAsync(_requestId);
-                    dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.extension });
+                    dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.subContract });
                 }
 
                 if (data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension)) {

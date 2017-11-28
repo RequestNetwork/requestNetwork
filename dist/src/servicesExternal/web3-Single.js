@@ -113,6 +113,7 @@ var Web3Single = /** @class */ (function () {
         return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(type, value));
     };
     Web3Single.prototype.arrayToBytes32 = function (array, length) {
+        array = array ? array : [];
         var ret = [];
         console.log('this');
         array.forEach(function (o) {

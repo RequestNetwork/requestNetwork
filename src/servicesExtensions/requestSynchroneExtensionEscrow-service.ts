@@ -37,7 +37,7 @@ export default class RequestSynchroneExtensionEscrowService {
     }
 
     public parseParameters(_extensionParams: any[]): any {
-        if(!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
+        if(!_extensionParams || !this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
             return {error:Error('first parameter must be a valid eth address')}
         }
         let ret: any[] = [];
@@ -57,43 +57,53 @@ export default class RequestSynchroneExtensionEscrowService {
         _options ?: any ): Promise < any > {
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(async (resolve, reject) => {
-            let account = _options.from || await this.web3Single.getDefaultAccount();
+            try {
+                let account = _options.from || await this.web3Single.getDefaultAccount();
 
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            let request = await this.getRequestAsync(_requestId);
+                let request = await this.getRequestAsync(_requestId);
 
-            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
-                return reject(Error('account must be payer or escrow'));
+                if(!request.extension) {
+                    return reject(Error('request doesn\'t have an extension'));
+                }
+                if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                    return reject(Error('request\'s extension is not sync. escrow'));
+                }
+                if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
+                    return reject(Error('account must be payer or escrow'));
+                }
+                if(request.extension.state != Types.EscrowState.Created) {
+                    return reject(Error('Escrow state must be \'Created\''));
+                }
+                if(request.state != Types.State.Accepted) {
+                    return reject(Error('State must be \'Accepted\''));
+                }
+
+                var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (transactionHash: string) => {
+                        // we do nothing here!
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber == _options.numberOfConfirmation) {
+                            // check in case of failed : no event
+                            return resolve({ requestId: receipt.events.EscrowReleaseRequest.returnValues.requestId, transactionHash: receipt.transactionHash });
+                        }
+                    },
+                    (error: Error) => {
+                        return reject(error);
+                    },
+                    _options);
+            } catch(e) {
+                return reject(e);
             }
-            if(request.extension.state != Types.EscrowState.Created) {
-                return reject(Error('Escrow state must be \'Created\''));
-            }
-            if(request.state != Types.State.Accepted) {
-                return reject(Error('State must be \'Accepted\''));
-            }
-
-            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
-
-            this.web3Single.broadcastMethod(
-                method,
-                (transactionHash: string) => {
-                    // we do nothing here!
-                },
-                (receipt: any) => {
-                    // we do nothing here!
-                },
-                (confirmationNumber: number, receipt: any) => {
-                    if (confirmationNumber == _options.numberOfConfirmation) {
-                        // check in case of failed : no event
-                        return resolve({ requestId: receipt.events.EscrowReleaseRequest.returnValues.requestId, transactionHash: receipt.transactionHash });
-                    }
-                },
-                (error: Error) => {
-                    return reject(error);
-                },
-                _options);
         });
     }
 
@@ -104,31 +114,42 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _options ?: any): Promise<any> {
-        _options = this.web3Single.setUpOptions(_options);
-        let account = _options.from || await this.web3Single.getDefaultAccount();
+        try {
+            _options = this.web3Single.setUpOptions(_options);
+            let account = _options.from || await this.web3Single.getDefaultAccount();
 
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-        let request = await this.getRequestAsync(_requestId);
-        if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-            return _callbackTransactionError(Error('account must be payer or escrow'));
-        }
-        if(request.extension.state != Types.EscrowState.Created) {
-            return _callbackTransactionError(Error('Escrow state must be \'Created\''));
-        }
-        if(request.state != Types.State.Accepted) {
-            return _callbackTransactionError(Error('State must be \'Accepted\''));
-        }
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            let request = await this.getRequestAsync(_requestId);
+            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+                return _callbackTransactionError(Error('account must be payer or escrow'));
+            }
 
-        var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+            if(!request.extension) {
+                return _callbackTransactionError(Error('request doesn\'t have an extension'));
+            }
+            if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                return _callbackTransactionError(Error('request\'s extension is not sync. escrow'));
+            }
+            if(request.extension.state != Types.EscrowState.Created) {
+                return _callbackTransactionError(Error('Escrow state must be \'Created\''));
+            }
+            if(request.state != Types.State.Accepted) {
+                return _callbackTransactionError(Error('State must be \'Accepted\''));
+            }
 
-        this.web3Single.broadcastMethod(
-            method,
-            _callbackTransactionHash,
-            _callbackTransactionReceipt,
-            _callbackTransactionConfirmation,
-            _callbackTransactionError,
-            _options);
+            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+
+            this.web3Single.broadcastMethod(
+                method,
+                _callbackTransactionHash,
+                _callbackTransactionReceipt,
+                _callbackTransactionConfirmation,
+                _callbackTransactionError,
+                _options);
+        } catch(e) {
+            return _callbackTransactionError(e);
+        }
     }
 
     public refundToPayerAsync(
@@ -136,42 +157,53 @@ export default class RequestSynchroneExtensionEscrowService {
         _options ?: any): Promise < any > {
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(async (resolve, reject) => {
-            let account = _options.from || await this.web3Single.getDefaultAccount();
-            // TODO check from == payee or escrow ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            try {
+                let account = _options.from || await this.web3Single.getDefaultAccount();
+                // TODO check from == payee or escrow ?
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-            let request = await this.getRequestAsync(_requestId);
-            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                return reject(Error('account must be payee or escrow'));
-            }
-            if(request.extension.state != Types.EscrowState.Created) {
-                return reject(Error('Escrow state must be \'Created\''));
-            }
-            if(request.state != Types.State.Accepted) {
-                return reject(Error('State must be \'Accepted\''));
-            }
+                let request = await this.getRequestAsync(_requestId);
 
-            var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+                if(!request.extension) {
+                    return reject(Error('request doesn\'t have an extension'));
+                }
+                if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                    return reject(Error('request\'s extension is not sync. escrow'));
+                }
+                if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+                    return reject(Error('account must be payee or escrow'));
+                }
+                if(request.extension.state != Types.EscrowState.Created) {
+                    return reject(Error('Escrow state must be \'Created\''));
+                }
+                if(request.state != Types.State.Accepted) {
+                    return reject(Error('State must be \'Accepted\''));
+                }
 
-            this.web3Single.broadcastMethod(
-                method,
-                (transactionHash: string) => {
-                    // we do nothing here!
-                },
-                (receipt: any) => {
-                    // we do nothing here!
-                },
-                (confirmationNumber: number, receipt: any) => {
-                    if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
-                        return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                    }
-                },
-                (error: Error) => {
-                    return reject(error);
-                },
-                _options);
+                var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (transactionHash: string) => {
+                        // we do nothing here!
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber == _options.numberOfConfirmation) {
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
+                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                        }
+                    },
+                    (error: Error) => {
+                        return reject(error);
+                    },
+                    _options);
+            } catch(e) {
+                return reject(e);
+            }
         });
     }
 
@@ -182,32 +214,43 @@ export default class RequestSynchroneExtensionEscrowService {
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _options ?: any): Promise<any> {
-        _options = this.web3Single.setUpOptions(_options);
-        let account = _options.from || await this.web3Single.getDefaultAccount();
-        // TODO check from == payee or escrow ?
-        // TODO check if this is possible ? (quid if other tx pending)
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+        try { 
+            _options = this.web3Single.setUpOptions(_options);
+            let account = _options.from || await this.web3Single.getDefaultAccount();
+            // TODO check from == payee or escrow ?
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-        let request = await this.getRequestAsync(_requestId);
-        if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-            return _callbackTransactionError(Error('account must be payee or escrow'));
-        }
-        if(request.extension.state != Types.EscrowState.Created) {
-            return _callbackTransactionError(Error('Escrow state must be \'Created\''));
-        }
-        if(request.state != Types.State.Accepted) {
-            return _callbackTransactionError(Error('State must be \'Accepted\''));
-        }
+            let request = await this.getRequestAsync(_requestId);
+            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+                return _callbackTransactionError(Error('account must be payee or escrow'));
+            }
 
-        var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+            if(!request.extension) {
+                return _callbackTransactionError(Error('request doesn\'t have an extension'));
+            }
+            if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                return _callbackTransactionError(Error('request\'s extension is not sync. escrow'));
+            }
+            if(request.extension.state != Types.EscrowState.Created) {
+                return _callbackTransactionError(Error('Escrow state must be \'Created\''));
+            }
+            if(request.state != Types.State.Accepted) {
+                return _callbackTransactionError(Error('State must be \'Accepted\''));
+            }
 
-        this.web3Single.broadcastMethod(
-            method,
-            _callbackTransactionHash,
-            _callbackTransactionReceipt,
-            _callbackTransactionConfirmation,
-            _callbackTransactionError,
-            _options);
+            var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+
+            this.web3Single.broadcastMethod(
+                method,
+                _callbackTransactionHash,
+                _callbackTransactionReceipt,
+                _callbackTransactionConfirmation,
+                _callbackTransactionError,
+                _options);
+        } catch(e) {
+            return _callbackTransactionError(e);
+        }
     }
 
     public getRequestAsync(

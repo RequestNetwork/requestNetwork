@@ -56,7 +56,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
     }
     RequestSynchroneExtensionEscrowService.prototype.parseParameters = function (_extensionParams) {
-        if (!this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
+        if (!_extensionParams || !this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
             return { error: Error('first parameter must be a valid eth address') };
         }
         var ret = [];
@@ -71,10 +71,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         var _this = this;
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var account, _a, request, method;
+            var account, _a, request, method, e_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        _b.trys.push([0, 4, , 5]);
                         _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
@@ -89,6 +90,12 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 3:
                         request = _b.sent();
+                        if (!request.extension) {
+                            return [2 /*return*/, reject(Error('request doesn\'t have an extension'))];
+                        }
+                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                            return [2 /*return*/, reject(Error('request\'s extension is not sync. escrow'))];
+                        }
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
                             return [2 /*return*/, reject(Error('account must be payer or escrow'))];
                         }
@@ -111,17 +118,22 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         }, function (error) {
                             return reject(error);
                         }, _options);
-                        return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_1 = _b.sent();
+                        return [2 /*return*/, reject(e_1)];
+                    case 5: return [2 /*return*/];
                 }
             });
         }); });
     };
     RequestSynchroneExtensionEscrowService.prototype.releaseToPayee = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var account, _a, request, method;
+            var account, _a, request, method, e_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        _b.trys.push([0, 4, , 5]);
                         _options = this.web3Single.setUpOptions(_options);
                         _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
@@ -140,6 +152,12 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be payer or escrow'))];
                         }
+                        if (!request.extension) {
+                            return [2 /*return*/, _callbackTransactionError(Error('request doesn\'t have an extension'))];
+                        }
+                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                            return [2 /*return*/, _callbackTransactionError(Error('request\'s extension is not sync. escrow'))];
+                        }
                         if (request.extension.state != Types.EscrowState.Created) {
                             return [2 /*return*/, _callbackTransactionError(Error('Escrow state must be \'Created\''))];
                         }
@@ -148,7 +166,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         }
                         method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_2 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_2)];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -158,10 +180,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
-            var account, _a, request, method;
+            var account, _a, request, method, e_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        _b.trys.push([0, 4, , 5]);
                         _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
@@ -177,6 +200,12 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         return [4 /*yield*/, this.getRequestAsync(_requestId)];
                     case 3:
                         request = _b.sent();
+                        if (!request.extension) {
+                            return [2 /*return*/, reject(Error('request doesn\'t have an extension'))];
+                        }
+                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                            return [2 /*return*/, reject(Error('request\'s extension is not sync. escrow'))];
+                        }
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
                             return [2 /*return*/, reject(Error('account must be payee or escrow'))];
                         }
@@ -199,17 +228,22 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         }, function (error) {
                             return reject(error);
                         }, _options);
-                        return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_3 = _b.sent();
+                        return [2 /*return*/, reject(e_3)];
+                    case 5: return [2 /*return*/];
                 }
             });
         }); });
     };
     RequestSynchroneExtensionEscrowService.prototype.refundToPayer = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var account, _a, request, method;
+            var account, _a, request, method, e_4;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        _b.trys.push([0, 4, , 5]);
                         _options = this.web3Single.setUpOptions(_options);
                         _a = _options.from;
                         if (_a) return [3 /*break*/, 2];
@@ -229,6 +263,12 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be payee or escrow'))];
                         }
+                        if (!request.extension) {
+                            return [2 /*return*/, _callbackTransactionError(Error('request doesn\'t have an extension'))];
+                        }
+                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                            return [2 /*return*/, _callbackTransactionError(Error('request\'s extension is not sync. escrow'))];
+                        }
                         if (request.extension.state != Types.EscrowState.Created) {
                             return [2 /*return*/, _callbackTransactionError(Error('Escrow state must be \'Created\''))];
                         }
@@ -237,7 +277,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         }
                         method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_4 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_4)];
+                    case 5: return [2 /*return*/];
                 }
             });
         });

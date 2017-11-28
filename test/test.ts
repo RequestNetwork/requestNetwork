@@ -10,8 +10,8 @@ async function foo() {
 					'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 					1000,
 					'{"reason":"wine purchased"}'
-					,config.ethereum.contracts.requestSynchroneExtensionEscrow
-					,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
+					// ,config.ethereum.contracts.requestSynchroneExtensionEscrow
+					// ,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
 					);
 
 				console.log('result createRequestAsPayeeAsync********************');
@@ -49,14 +49,14 @@ async function foo() {
 				console.log('result rn.requestEthereumService getRequestAsync********************');
 				console.log(result);
 
-				console.log('######################################### releaseToPayeeAsync #########################################');
-				let resultReleaseToPayee = await rn.requestSynchroneExtensionEscrowService.releaseToPayeeAsync(requestID,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
-				console.log('result releaseToPayeeAsync********************');
-				console.log(resultReleaseToPayee);
+				// console.log('######################################### releaseToPayeeAsync #########################################');
+				// let resultReleaseToPayee = await rn.requestSynchroneExtensionEscrowService.releaseToPayeeAsync(requestID,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+				// console.log('result releaseToPayeeAsync********************');
+				// console.log(resultReleaseToPayee);
 
-				result = await rn.requestEthereumService.getRequestAsync(requestID);
-				console.log('result rn.requestEthereumService getRequestAsync********************');
-				console.log(result);
+				// result = await rn.requestEthereumService.getRequestAsync(requestID);
+				// console.log('result rn.requestEthereumService getRequestAsync********************');
+				// console.log(result);
 
 				console.log('######################################### paybackAsync #########################################');
 				let resultPayBack = await rn.requestEthereumService.paybackAsync(requestID,100);

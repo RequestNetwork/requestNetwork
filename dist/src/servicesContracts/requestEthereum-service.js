@@ -65,10 +65,11 @@ var RequestEthereumService = /** @class */ (function () {
                 _options = this.web3Single.setUpOptions(_options);
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
                         var _this = this;
-                        var account, _a, paramsParsed, parsing;
+                        var account, _a, paramsParsed_1, parsing, e_1;
                         return __generator(this, function (_b) {
                             switch (_b.label) {
                                 case 0:
+                                    _b.trys.push([0, 3, , 4]);
                                     _a = _options.from;
                                     if (_a) return [3 /*break*/, 2];
                                     return [4 /*yield*/, this.web3Single.getDefaultAccount()];
@@ -84,25 +85,25 @@ var RequestEthereumService = /** @class */ (function () {
                                         return [2 /*return*/, reject(Error('_payer must be a valid eth address'))];
                                     if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
                                         return [2 /*return*/, reject(Error('_extension must be a valid eth address'))];
-                                    if (_extensionParams.length > 9)
+                                    if (_extensionParams && _extensionParams.length > 9)
                                         return [2 /*return*/, reject(Error('_extensionParams length must be less than 9'))];
                                     if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                                         return [2 /*return*/, reject(Error('_from must be different than _payer'))];
                                     }
-                                    if (ServiceExtensions.getServiceFromAddress(_extension)) {
+                                    if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
                                         parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                                         if (parsing.error) {
                                             return [2 /*return*/, reject(parsing.error)];
                                         }
-                                        paramsParsed = parsing.result;
+                                        paramsParsed_1 = parsing.result;
                                     }
                                     else {
-                                        paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                                        paramsParsed_1 = this.web3Single.arrayToBytes32(_extensionParams, 9);
                                     }
                                     this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
                                         if (err)
                                             return reject(err);
-                                        var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                                        var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_1, hash);
                                         _this.web3Single.broadcastMethod(method, function (transactionHash) {
                                             // we do nothing here!
                                         }, function (receipt) {
@@ -125,7 +126,11 @@ var RequestEthereumService = /** @class */ (function () {
                                             return reject(error);
                                         }, _options);
                                     });
-                                    return [2 /*return*/];
+                                    return [3 /*break*/, 4];
+                                case 3:
+                                    e_1 = _b.sent();
+                                    return [2 /*return*/, reject(e_1)];
+                                case 4: return [2 /*return*/];
                             }
                         });
                     }); })];
@@ -135,19 +140,22 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _extension, _extensionParams, _details, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var account, _a, paramsParsed, parsing;
+            var account, _a, paramsParsed_2, parsing, e_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _amountInitial = new bignumber_js_1.default(_amountInitial);
                         _options = this.web3Single.setUpOptions(_options);
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
+                        _b.label = 1;
                     case 1:
-                        _a = (_b.sent());
-                        _b.label = 2;
+                        _b.trys.push([1, 4, , 5]);
+                        _a = _options.from;
+                        if (_a) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 2:
+                        _a = (_b.sent());
+                        _b.label = 3;
+                    case 3:
                         account = _a;
                         if (_amountInitial.lt(0))
                             return [2 /*return*/, _callbackTransactionError(Error('_amountInitial must a positive integer'))];
@@ -155,28 +163,32 @@ var RequestEthereumService = /** @class */ (function () {
                             return [2 /*return*/, _callbackTransactionError(Error('_payer must be a valid eth address'))];
                         if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
                             return [2 /*return*/, _callbackTransactionError(Error('_extension must be a valid eth address'))];
-                        if (_extensionParams.length > 9)
+                        if (_extensionParams && _extensionParams.length > 9)
                             return [2 /*return*/, _callbackTransactionError(Error('_extensionParams length must be less than 9'))];
                         if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be different than _payer'))];
                         }
-                        if (ServiceExtensions.getServiceFromAddress(_extension)) {
+                        if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
                             parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                             if (parsing.error) {
                                 return [2 /*return*/, _callbackTransactionError(Error(parsing.error))];
                             }
-                            paramsParsed = parsing.result;
+                            paramsParsed_2 = parsing.result;
                         }
                         else {
-                            paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                            paramsParsed_2 = this.web3Single.arrayToBytes32(_extensionParams, 9);
                         }
                         this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
                             if (err)
                                 return _callbackTransactionError(err);
-                            var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                            var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_2, hash);
                             _this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         });
-                        return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_2 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_2)];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -186,7 +198,7 @@ var RequestEthereumService = /** @class */ (function () {
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
-            var request, account, _a, method, e_1;
+            var request, account, _a, method, e_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -235,8 +247,8 @@ var RequestEthereumService = /** @class */ (function () {
                         }, _options);
                         return [3 /*break*/, 5];
                     case 4:
-                        e_1 = _b.sent();
-                        return [2 /*return*/, reject(e_1)];
+                        e_3 = _b.sent();
+                        return [2 /*return*/, reject(e_3)];
                     case 5: return [2 /*return*/];
                 }
             });
@@ -244,7 +256,7 @@ var RequestEthereumService = /** @class */ (function () {
     };
     RequestEthereumService.prototype.accept = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_2;
+            var request, account, _a, method, e_4;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -276,8 +288,8 @@ var RequestEthereumService = /** @class */ (function () {
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
                     case 5:
-                        e_2 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_2)];
+                        e_4 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_4)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -288,7 +300,7 @@ var RequestEthereumService = /** @class */ (function () {
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
-            var request, account, _a, method, e_3;
+            var request, account, _a, method, e_5;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -343,8 +355,8 @@ var RequestEthereumService = /** @class */ (function () {
                         }, _options);
                         return [3 /*break*/, 5];
                     case 4:
-                        e_3 = _b.sent();
-                        return [2 /*return*/, reject(e_3)];
+                        e_5 = _b.sent();
+                        return [2 /*return*/, reject(e_5)];
                     case 5: return [2 /*return*/];
                 }
             });
@@ -352,7 +364,7 @@ var RequestEthereumService = /** @class */ (function () {
     };
     RequestEthereumService.prototype.cancel = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_4;
+            var request, account, _a, method, e_6;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -390,8 +402,8 @@ var RequestEthereumService = /** @class */ (function () {
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
                     case 5:
-                        e_4 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_4)];
+                        e_6 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_6)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -404,7 +416,7 @@ var RequestEthereumService = /** @class */ (function () {
         _options.value = new bignumber_js_1.default(_amount);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
-            var request, account, _a, method, e_5;
+            var request, account, _a, method, e_7;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -463,8 +475,8 @@ var RequestEthereumService = /** @class */ (function () {
                         }, _options);
                         return [3 /*break*/, 5];
                     case 4:
-                        e_5 = _b.sent();
-                        return [2 /*return*/, reject(e_5)];
+                        e_7 = _b.sent();
+                        return [2 /*return*/, reject(e_7)];
                     case 5: return [2 /*return*/];
                 }
             });
@@ -472,7 +484,7 @@ var RequestEthereumService = /** @class */ (function () {
     };
     RequestEthereumService.prototype.pay = function (_requestId, _amount, _tips, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_6;
+            var request, account, _a, method, e_8;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -515,8 +527,8 @@ var RequestEthereumService = /** @class */ (function () {
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
                     case 5:
-                        e_6 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_6)];
+                        e_8 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_8)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -530,7 +542,7 @@ var RequestEthereumService = /** @class */ (function () {
                 _options.value = new bignumber_js_1.default(_amount);
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
                         var _this = this;
-                        var request, account, _a, method, e_7;
+                        var request, account, _a, method, e_9;
                         return __generator(this, function (_b) {
                             switch (_b.label) {
                                 case 0:
@@ -585,8 +597,8 @@ var RequestEthereumService = /** @class */ (function () {
                                     }, _options);
                                     return [3 /*break*/, 5];
                                 case 4:
-                                    e_7 = _b.sent();
-                                    return [2 /*return*/, reject(e_7)];
+                                    e_9 = _b.sent();
+                                    return [2 /*return*/, reject(e_9)];
                                 case 5: return [2 /*return*/];
                             }
                         });
@@ -596,7 +608,7 @@ var RequestEthereumService = /** @class */ (function () {
     };
     RequestEthereumService.prototype.payback = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_8;
+            var request, account, _a, method, e_10;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -635,8 +647,8 @@ var RequestEthereumService = /** @class */ (function () {
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
                     case 5:
-                        e_8 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_8)];
+                        e_10 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_10)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -648,7 +660,7 @@ var RequestEthereumService = /** @class */ (function () {
         _amount = new bignumber_js_1.default(_amount);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
-            var request, account, _a, method, e_9;
+            var request, account, _a, method, e_11;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -703,8 +715,8 @@ var RequestEthereumService = /** @class */ (function () {
                         }, _options);
                         return [3 /*break*/, 5];
                     case 4:
-                        e_9 = _b.sent();
-                        return [2 /*return*/, reject(e_9)];
+                        e_11 = _b.sent();
+                        return [2 /*return*/, reject(e_11)];
                     case 5: return [2 /*return*/];
                 }
             });
@@ -712,7 +724,7 @@ var RequestEthereumService = /** @class */ (function () {
     };
     RequestEthereumService.prototype.discount = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_10;
+            var request, account, _a, method, e_12;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -751,8 +763,8 @@ var RequestEthereumService = /** @class */ (function () {
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 6];
                     case 5:
-                        e_10 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_10)];
+                        e_12 = _b.sent();
+                        return [2 /*return*/, _callbackTransactionError(e_12)];
                     case 6: return [2 /*return*/];
                 }
             });
