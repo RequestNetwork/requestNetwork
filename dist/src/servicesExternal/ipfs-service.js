@@ -10,15 +10,23 @@ var Ipfs = /** @class */ (function () {
     Ipfs.getInstance = function () {
         return this._instance || (this._instance = new this());
     };
-    Ipfs.prototype.addFile = function (_data, _callbackIpfs) {
+    Ipfs.prototype.addFile = function (_details, _callbackIpfs) {
+        if (!_details || _details == '') {
+            return _callbackIpfs(null, '');
+        }
+        var _data = JSON.parse(_details);
         this.ipfs.add(Buffer.from(JSON.stringify(_data)), function (err, result) {
             return _callbackIpfs(err, result ? result[0].hash : null);
         });
     };
-    Ipfs.prototype.addFileAsync = function (_data) {
-        var myThis = this;
+    Ipfs.prototype.addFileAsync = function (_details) {
+        var _this = this;
         return new Promise(function (resolve, reject) {
-            myThis.ipfs.add(Buffer.from(JSON.stringify(_data)), function (err, result) {
+            if (!_details || _details == '') {
+                return resolve('');
+            }
+            var _data = JSON.parse(_details);
+            _this.ipfs.add(Buffer.from(JSON.stringify(_data)), function (err, result) {
                 if (err)
                     return reject(err);
                 return resolve(result[0].hash);
@@ -26,10 +34,13 @@ var Ipfs = /** @class */ (function () {
         });
     };
     Ipfs.prototype.getFileAsync = function (_hash) {
-        var myThis = this;
+        var _this = this;
         return new Promise(function (resolve, reject) {
+            if (!_hash || _hash == '') {
+                return resolve();
+            }
             var data = '';
-            myThis.ipfs.cat(_hash, function (err, stream) {
+            _this.ipfs.cat(_hash, function (err, stream) {
                 if (err)
                     return reject(err);
                 stream.on('data', function (chunk) {
@@ -45,6 +56,9 @@ var Ipfs = /** @class */ (function () {
         });
     };
     Ipfs.prototype.getFile = function (_hash, _callbackIpfs) {
+        if (!_hash || _hash == '') {
+            return _callbackIpfs(null, null);
+        }
         var data = '';
         this.ipfs.cat(_hash, function (err, stream) {
             if (err)

@@ -90,7 +90,10 @@ var RequestEthereumService = /** @class */ (function () {
                                     if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                                         return [2 /*return*/, reject(Error('_from must be different than _payer'))];
                                     }
-                                    if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
+                                    if (!_extension || _extension == '') {
+                                        paramsParsed_1 = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                                    }
+                                    else if (ServiceExtensions.getServiceFromAddress(_extension)) {
                                         parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                                         if (parsing.error) {
                                             return [2 /*return*/, reject(parsing.error)];
@@ -98,9 +101,9 @@ var RequestEthereumService = /** @class */ (function () {
                                         paramsParsed_1 = parsing.result;
                                     }
                                     else {
-                                        paramsParsed_1 = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                                        return [2 /*return*/, reject(Error('_extension is not supported'))];
                                     }
-                                    this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
+                                    this.ipfs.addFile(_details, function (err, hash) {
                                         if (err)
                                             return reject(err);
                                         var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_1, hash);
@@ -137,7 +140,7 @@ var RequestEthereumService = /** @class */ (function () {
             });
         });
     };
-    RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _extension, _extensionParams, _details, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
+    RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _details, _extension, _extensionParams, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             var account, _a, paramsParsed_2, parsing, e_2;
@@ -168,17 +171,20 @@ var RequestEthereumService = /** @class */ (function () {
                         if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be different than _payer'))];
                         }
-                        if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
+                        if (!_extension || _extension == '') {
+                            paramsParsed_2 = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                        }
+                        else if (ServiceExtensions.getServiceFromAddress(_extension)) {
                             parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                             if (parsing.error) {
-                                return [2 /*return*/, _callbackTransactionError(Error(parsing.error))];
+                                return [2 /*return*/, _callbackTransactionError(parsing.error)];
                             }
                             paramsParsed_2 = parsing.result;
                         }
                         else {
-                            paramsParsed_2 = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                            return [2 /*return*/, _callbackTransactionError(Error('_extension is not supported'))];
                         }
-                        this.ipfs.addFile(JSON.parse(_details), function (err, hash) {
+                        this.ipfs.addFile(_details, function (err, hash) {
                             if (err)
                                 return _callbackTransactionError(err);
                             var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_2, hash);

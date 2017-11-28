@@ -43,7 +43,7 @@ export default class RequestEthereumService {
     public async createRequestAsPayeeAsync (
         _payer: string,
         _amountInitial: any,
-        _details: string,
+        _details ? : string,
         _extension ? : string,
         _extensionParams ? : Array < any > ,
         _options ? : any,
@@ -55,7 +55,7 @@ export default class RequestEthereumService {
             try {
                 let account = _options.from || await this.web3Single.getDefaultAccount();
                 // check _details is a proper JSON
-                if (_amountInitial.lt(0)  ) return reject(Error('_amountInitial must a positive integer'));
+                if (_amountInitial.lt(0)) return reject(Error('_amountInitial must a positive integer'));
                 if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
                 if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
                 if (_extensionParams && _extensionParams.length > 9) return reject(Error('_extensionParams length must be less than 9'));
@@ -64,17 +64,19 @@ export default class RequestEthereumService {
                 }
 
                 let paramsParsed: any[];
-                if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
+                if (!_extension || _extension == '') {
+                    paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                } else if(ServiceExtensions.getServiceFromAddress(_extension)) {
                     let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                     if(parsing.error) {
                       return reject(parsing.error);
                     }
                     paramsParsed = parsing.result;
                 } else {
-                    paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                    return reject(Error('_extension is not supported'));
                 }
 
-                this.ipfs.addFile(JSON.parse(_details), (err: Error, hash: string) => {
+                this.ipfs.addFile(_details, (err: Error, hash: string) => {
                     if (err) return reject(err);
 
                     var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
@@ -83,7 +85,6 @@ export default class RequestEthereumService {
                         _extension,
                         paramsParsed,
                         hash);
-
                     this.web3Single.broadcastMethod(
                         method,
                         (transactionHash: string) => {
@@ -113,13 +114,13 @@ export default class RequestEthereumService {
     public async createRequestAsPayee(
         _payer: string,
         _amountInitial: any,
-        _extension: string,
-        _extensionParams: Array < any > ,
-        _details: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
+        _details ? : string,
+        _extension ? : string,
+        _extensionParams ? : Array < any >,
         _options ? : any): Promise<any> {
         _amountInitial = new BigNumber(_amountInitial);
         _options = this.web3Single.setUpOptions(_options);
@@ -135,17 +136,19 @@ export default class RequestEthereumService {
             }
 
             let paramsParsed: any[];
-            if (_extension && _extension != '' && ServiceExtensions.getServiceFromAddress(_extension)) {
+            if (!_extension || _extension == '') {
+                paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+            } else if(ServiceExtensions.getServiceFromAddress(_extension)) {
                 let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
                 if(parsing.error) {
-                    return _callbackTransactionError(Error(parsing.error));
+                  return _callbackTransactionError(parsing.error);
                 }
                 paramsParsed = parsing.result;
             } else {
-                paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                return _callbackTransactionError(Error('_extension is not supported'));
             }
 
-            this.ipfs.addFile(JSON.parse(_details), (err: Error, hash: string) => {
+            this.ipfs.addFile(_details, (err: Error, hash: string) => {
                 if (err) return _callbackTransactionError(err);
 
                 var method = this.instanceRequestEthereum.methods.createRequestAsPayee(

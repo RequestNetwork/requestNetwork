@@ -18,19 +18,27 @@ export default class Ipfs {
 		return this._instance || (this._instance = new this());
 	}
 
-	public addFile(	_data:any, 
+	public addFile(	_details:string, 
 					_callbackIpfs:Types.CallbackIpfsAddFile) 
 	{
+		if(!_details || _details == '') {
+			return _callbackIpfs(null,'');
+		}
+		let _data = JSON.parse(_details);
 		this.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
 			return _callbackIpfs(err,result?result[0].hash:null);
 		});
 	}
 
-	public addFileAsync(_data:any) : Promise<any>
+	public addFileAsync(_details:string) : Promise<any>
 	{
-        var myThis = this;
-        return new Promise(function(resolve, reject) {
-			myThis.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
+        return new Promise((resolve, reject) => {
+			if(!_details || _details == '') {
+				return resolve('');
+			}
+			let _data = JSON.parse(_details);
+        
+			this.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
 				if(err) return reject(err);
 				return resolve(result[0].hash);
 			});
@@ -39,10 +47,12 @@ export default class Ipfs {
 
 	public getFileAsync(_hash:string) : Promise<string>
 	{
-        var myThis = this;
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
+			if(!_hash || _hash == '') {
+				return resolve();
+			}
 			let data = '';
-			myThis.ipfs.cat(_hash, (err:Error, stream:any) => {
+			this.ipfs.cat(_hash, (err:Error, stream:any) => {
 				if(err) return reject(err);
 
 				stream.on('data', function(chunk:string) {
@@ -63,6 +73,9 @@ export default class Ipfs {
 	public getFile(	_hash:string, 
 					_callbackIpfs:Types.CallbackIpfsGetFile) 
 	{
+		if(!_hash || _hash == '') {
+			return _callbackIpfs(null,null);
+		}
 		let data = '';
 		this.ipfs.cat(_hash, (err:Error, stream:any) => {
 			if(err) return _callbackIpfs(err,null);

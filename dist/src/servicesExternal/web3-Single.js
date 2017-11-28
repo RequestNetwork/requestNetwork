@@ -115,7 +115,6 @@ var Web3Single = /** @class */ (function () {
     Web3Single.prototype.arrayToBytes32 = function (array, length) {
         array = array ? array : [];
         var ret = [];
-        console.log('this');
         array.forEach(function (o) {
             ret.push(this.web3.utils.bytesToHex(ethABI.toSolidityBytes32('address', o)));
         }.bind(this));

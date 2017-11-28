@@ -74,7 +74,6 @@ export class Web3Single {
     public arrayToBytes32(array: any[], length: number): any[] {
         array = array?array:[];
         let ret: any[] = [];
-        console.log('this')
         array.forEach(function(o: any) {
             ret.push(this.web3.utils.bytesToHex(ethABI.toSolidityBytes32('address', o)));
         }.bind(this));

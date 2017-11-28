@@ -93,12 +93,14 @@ export default class RequestCoreService {
                     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                 }
 
-                if (dataResult.details) {
+                if (dataResult.details && dataResult.details != '') {
                     try {
                         dataResult.details = {hash:dataResult.details, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.details))};
                     } catch (e) {
                         return reject(e);
                     }
+                } else {
+                    dataResult.details = undefined;
                 }
                 return resolve(dataResult);
             });

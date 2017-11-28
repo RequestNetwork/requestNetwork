@@ -132,7 +132,7 @@ var RequestCoreService = /** @class */ (function () {
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                             _e.label = 4;
                         case 4:
-                            if (!dataResult.details) return [3 /*break*/, 8];
+                            if (!(dataResult.details && dataResult.details != '')) return [3 /*break*/, 9];
                             _e.label = 5;
                         case 5:
                             _e.trys.push([5, 7, , 8]);
@@ -146,7 +146,11 @@ var RequestCoreService = /** @class */ (function () {
                         case 7:
                             e_1 = _e.sent();
                             return [2 /*return*/, reject(e_1)];
-                        case 8: return [2 /*return*/, resolve(dataResult)];
+                        case 8: return [3 /*break*/, 10];
+                        case 9:
+                            dataResult.details = undefined;
+                            _e.label = 10;
+                        case 10: return [2 /*return*/, resolve(dataResult)];
                     }
                 });
             }); });
