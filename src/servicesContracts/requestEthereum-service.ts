@@ -136,7 +136,7 @@ export default class RequestEthereumService {
             if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
                 return _callbackTransactionError(Error('account must be different than _payer'));
             }
-            
+
             _options.value = await this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension);
 
             let paramsParsed: any[];
@@ -331,7 +331,7 @@ export default class RequestEthereumService {
                 return _callbackTransactionError(Error('payer can cancel request in state \'created\''));
             }
             if ( this.web3Single.areSameAddressesNoChecksum(account, request.paye) && request.state == Types.State.Canceled ) {
-                return _callbackTransactionError(Error('payer cannot cancel request already \'canceled\''));
+                return _callbackTransactionError(Error('payee cannot cancel request already \'canceled\''));
             }
             if ( request.amountPaid != 0 ) {
                 return _callbackTransactionError(Error('impossible to cancel a Request with a balance != 0'));
@@ -350,13 +350,13 @@ export default class RequestEthereumService {
         }
     }
 
-    public payAsync(
+    public paymentActionAsync(
         _requestId: string,
         _amount: any,
-        _tips: any,
+        _additionals: any,
         _options ? : any): Promise < any > {
 
-        _tips = new BigNumber(_tips);
+        _additionals = new BigNumber(_additionals);
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new BigNumber(_amount);
 
@@ -368,19 +368,13 @@ export default class RequestEthereumService {
                 // TODO check if this is possible ? (quid if other tx pending)
 
                 if (_options.value.lt(0)) return reject(Error('_amount must a positive integer'));
-                if (_tips.lt(0)) return reject(Error('_tips must a positive integer'));
+                if (_additionals.lt(0)) return reject(Error('_additionals must a positive integer'));
 
-                if ( request.state != Types.State.Accepted ) {
-                    return reject(Error('request must be accepted'));
-                }
-                if ( _options.value.lt(_tips) ) {
-                    return reject(Error('tips declare must be lower than amount sent'));
-                }
-                if ( request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract).lt(_amount) ) {
-                    return reject(Error('You cannot pay more than amount needed'));
+                if ( request.state == Types.State.Canceled ) {
+                    return reject(Error('request cannot be canceled'));
                 }
 
-                var method = this.instanceRequestEthereum.methods.pay(_requestId, _tips);
+                var method = this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -407,16 +401,16 @@ export default class RequestEthereumService {
         });
     }
 
-    public async pay(
+    public async paymentAction(
         _requestId: string,
         _amount: any,
-        _tips: any,
+        _additionals: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
         _options ? : any): Promise<any> {
-        _tips = new BigNumber(_tips);
+        _additionals = new BigNumber(_additionals);
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new BigNumber(_amount);
         
@@ -428,18 +422,13 @@ export default class RequestEthereumService {
 
             // TODO use bigNumber
             if (_options.value.lt(0)) return _callbackTransactionError(Error('_amount must a positive integer'));
-            if (_tips.lt(0)) return _callbackTransactionError(Error('_tips must a positive integer'));
-            if ( request.state != Types.State.Accepted ) {
-                return _callbackTransactionError(Error('request must be accepted'));
-            }
-            if ( _options.value.lt(_tips) ) {
-                return _callbackTransactionError(Error('tips declare must be lower than amount sent'));
-            }
-            if ( request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract).lt(_amount) ) {
-                return _callbackTransactionError(Error('You cannot pay more than amount needed'));
+            if (_additionals.lt(0)) return _callbackTransactionError(Error('_additionals must a positive integer'));
+
+            if ( request.state == Types.State.Canceled ) {
+                return _callbackTransactionError(Error('request cannot be canceled'));
             }
 
-            var method = this.instanceRequestEthereum.methods.pay(_requestId, _tips);
+            var method = this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
 
             this.web3Single.broadcastMethod(
                 method,
@@ -453,7 +442,7 @@ export default class RequestEthereumService {
         }
     }
 
-    public async paybackAsync(
+    public async refundActionAsync(
         _requestId: string,
         _amount: any,
         _options ? : any): Promise < any > {
@@ -476,11 +465,8 @@ export default class RequestEthereumService {
                 if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                     return reject(Error('account must be payee'));
                 }
-                if ( _options.value.gt(request.amountPaid) ) {
-                    return reject(Error('You cannot payback more than what has been paid'));
-                }
 
-                var method = this.instanceRequestEthereum.methods.payback(_requestId);
+                var method = this.instanceRequestEthereum.methods.refundAction(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -507,7 +493,7 @@ export default class RequestEthereumService {
         });
     }
 
-    public async payback(
+    public async refundAction(
         _requestId: string,
         _amount: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
@@ -533,11 +519,8 @@ export default class RequestEthereumService {
             if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                 return _callbackTransactionError(Error('account must be payee'));
             }
-            if ( _options.value.gt(request.amountPaid) ) {
-                return _callbackTransactionError(Error('You cannot payback more than what has been paid'));
-            }
 
-            var method = this.instanceRequestEthereum.methods.payback(_requestId);
+            var method = this.instanceRequestEthereum.methods.refundAction(_requestId);
 
             this.web3Single.broadcastMethod(
                 method,
@@ -551,7 +534,7 @@ export default class RequestEthereumService {
         }
     }
 
-    public discountAsync(
+    public subtractActionAsync(
         _requestId: string,
         _amount: any,
         _options ? : any): Promise < any > {
@@ -575,11 +558,7 @@ export default class RequestEthereumService {
                     return reject(Error('account must be payee'));
                 }
 
-                if ( request.amountPaid.add(_amount).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
-                    return reject(Error('You cannot discount more than necessary'));
-                }
-
-                var method = this.instanceRequestEthereum.methods.discount(_requestId, _amount);
+                var method = this.instanceRequestEthereum.methods.subtractAction(_requestId, _amount);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -606,7 +585,7 @@ export default class RequestEthereumService {
         });
     }
 
-    public async discount(
+    public async subtractAction(
         _requestId: string,
         _amount: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
@@ -632,11 +611,8 @@ export default class RequestEthereumService {
             if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
                 return _callbackTransactionError(Error('account must be payee'));
             }
-            if ( _amount.add(request.amountPaid).gt(request.amountInitial.add(request.amountAdditional).sub(request.amountSubtract))) {
-                return _callbackTransactionError(Error('You cannot payback more than what has been paid'));
-            }
 
-            var method = this.instanceRequestEthereum.methods.discount(_requestId, _amount);
+            var method = this.instanceRequestEthereum.methods.subtractAction(_requestId, _amount);
 
             this.web3Single.broadcastMethod(
                 method,
@@ -650,6 +626,100 @@ export default class RequestEthereumService {
         }
     }
 
+
+
+
+    public additionalActionAsync(
+        _requestId: string,
+        _amount: any,
+        _options ? : any): Promise < any > {
+        _options = this.web3Single.setUpOptions(_options);
+        _amount = new BigNumber(_amount);
+        
+        return new Promise(async (resolve, reject) => {
+            try {
+                // TODO check if this is possible ? (quid if other tx pending)
+                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
+                let request = await this.getRequestAsync(_requestId);    
+                let account = _options.from || await this.web3Single.getDefaultAccount();
+
+                if (_amount.lt(0)) return reject(Error('_amount must a positive integer'));
+
+                if ( request.state == Types.State.Canceled ) {
+                    return reject(Error('request must be accepted or created'));
+                }
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return reject(Error('account must be payer'));
+                }
+
+                var method = this.instanceRequestEthereum.methods.additionalAction(_requestId, _amount);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (transactionHash: string) => {
+                        // we do nothing here!
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber == _options.numberOfConfirmation) {
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'AddSubtract', receipt.events[0]);
+                            let request = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                        }
+                    },
+                    (error: Error) => {
+                        return reject(error);
+                    },
+                    _options);
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    public async additionalAction(
+        _requestId: string,
+        _amount: any,
+        _callbackTransactionHash: Types.CallbackTransactionHash,
+        _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
+        _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
+        _callbackTransactionError: Types.CallbackTransactionError,
+        _options ? : any): Promise<any> {
+        _amount = new BigNumber(_amount);
+        _options = this.web3Single.setUpOptions(_options);
+
+        try {
+            // TODO check if this is possible ? (quid if other tx pending)
+            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+
+            let request = await this.getRequestAsync(_requestId);    
+            let account = _options.from || await this.web3Single.getDefaultAccount();
+
+            if (_amount.lt(0)) return _callbackTransactionError(Error('_amount must a positive integer'));
+
+            if ( request.state == Types.State.Canceled ) {
+                return _callbackTransactionError(Error('request must be accepted or created'));
+            }
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                return _callbackTransactionError(Error('account must be payer'));
+            }
+
+            var method = this.instanceRequestEthereum.methods.additionalAction(_requestId, _amount);
+
+            this.web3Single.broadcastMethod(
+                method,
+                _callbackTransactionHash,
+                _callbackTransactionReceipt,
+                _callbackTransactionConfirmation,
+                _callbackTransactionError,
+                _options);
+        } catch(e) {
+            return _callbackTransactionError(e);
+        }
+    }
 
     public withdrawAsync(_options ? : any): Promise < any > {
         _options = this.web3Single.setUpOptions(_options);
