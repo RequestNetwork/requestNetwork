@@ -65,17 +65,17 @@ var RequestEthereumService = /** @class */ (function () {
                 _options = this.web3Single.setUpOptions(_options);
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
                         var _this = this;
-                        var account, _a, paramsParsed_1, parsing, e_1;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
+                        var account, _a, _b, paramsParsed_1, parsing, e_1;
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
                                 case 0:
-                                    _b.trys.push([0, 3, , 4]);
+                                    _c.trys.push([0, 4, , 5]);
                                     _a = _options.from;
                                     if (_a) return [3 /*break*/, 2];
                                     return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                                 case 1:
-                                    _a = (_b.sent());
-                                    _b.label = 2;
+                                    _a = (_c.sent());
+                                    _c.label = 2;
                                 case 2:
                                     account = _a;
                                     // check _details is a proper JSON
@@ -90,6 +90,10 @@ var RequestEthereumService = /** @class */ (function () {
                                     if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                                         return [2 /*return*/, reject(Error('_from must be different than _payer'))];
                                     }
+                                    _b = _options;
+                                    return [4 /*yield*/, this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension)];
+                                case 3:
+                                    _b.value = _c.sent();
                                     if (!_extension || _extension == '') {
                                         paramsParsed_1 = this.web3Single.arrayToBytes32(_extensionParams, 9);
                                     }
@@ -129,11 +133,11 @@ var RequestEthereumService = /** @class */ (function () {
                                             return reject(error);
                                         }, _options);
                                     });
-                                    return [3 /*break*/, 4];
-                                case 3:
-                                    e_1 = _b.sent();
+                                    return [3 /*break*/, 5];
+                                case 4:
+                                    e_1 = _c.sent();
                                     return [2 /*return*/, reject(e_1)];
-                                case 4: return [2 /*return*/];
+                                case 5: return [2 /*return*/];
                             }
                         });
                     }); })];
@@ -143,21 +147,21 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _details, _extension, _extensionParams, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var account, _a, paramsParsed_2, parsing, e_2;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var account, _a, _b, paramsParsed_2, parsing, e_2;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         _amountInitial = new bignumber_js_1.default(_amountInitial);
                         _options = this.web3Single.setUpOptions(_options);
-                        _b.label = 1;
+                        _c.label = 1;
                     case 1:
-                        _b.trys.push([1, 4, , 5]);
+                        _c.trys.push([1, 5, , 6]);
                         _a = _options.from;
                         if (_a) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.web3Single.getDefaultAccount()];
                     case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
+                        _a = (_c.sent());
+                        _c.label = 3;
                     case 3:
                         account = _a;
                         if (_amountInitial.lt(0))
@@ -171,6 +175,10 @@ var RequestEthereumService = /** @class */ (function () {
                         if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                             return [2 /*return*/, _callbackTransactionError(Error('account must be different than _payer'))];
                         }
+                        _b = _options;
+                        return [4 /*yield*/, this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension)];
+                    case 4:
+                        _b.value = _c.sent();
                         if (!_extension || _extension == '') {
                             paramsParsed_2 = this.web3Single.arrayToBytes32(_extensionParams, 9);
                         }
@@ -190,11 +198,11 @@ var RequestEthereumService = /** @class */ (function () {
                             var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_2, hash);
                             _this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         });
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_2 = _b.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
+                        e_2 = _c.sent();
                         return [2 /*return*/, _callbackTransactionError(e_2)];
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });

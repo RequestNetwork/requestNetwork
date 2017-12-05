@@ -60,6 +60,37 @@ export default class RequestCoreService {
         });
     }
 
+    public getCollectEstimationAsync(
+        _expectedAmount:any, 
+        _currencyContract:string, 
+        _extension:string): Promise < any > {
+        _expectedAmount = new BigNumber(_expectedAmount);
+
+        return new Promise((resolve, reject) => {
+            if (!this.web3Single.isAddressNoChecksum(_currencyContract)) return reject(Error('_currencyContract must be a valid eth address'));
+            if (!this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
+
+            this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount,_currencyContract,_extension).call(async(err: Error, data: any) => {
+                if (err) return reject(err);
+                return resolve(data);
+            });
+        });
+    }
+
+    public getCollectEstimation(
+        _expectedAmount:any, 
+        _currencyContract:string, 
+        _extension:string,
+        _callback: Types.CallbackGetRequest): void {
+        _expectedAmount = new BigNumber(_expectedAmount);
+            if (!this.web3Single.isAddressNoChecksum(_currencyContract)) return _callback(Error('_currencyContract must be a valid eth address'),null);
+            if (!this.web3Single.isAddressNoChecksum(_extension)) return _callback(Error('_extension must be a valid eth address'),null);
+
+            this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount,_currencyContract,_extension).call(async(err: Error, data: any) => {
+                return _callback(err,data);
+            });
+    }
+    
     public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise((resolve, reject) => {

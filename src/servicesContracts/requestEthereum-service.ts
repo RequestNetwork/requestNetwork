@@ -63,6 +63,8 @@ export default class RequestEthereumService {
                     return reject(Error('_from must be different than _payer'));
                 }
 
+                _options.value = await this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension);
+
                 let paramsParsed: any[];
                 if (!_extension || _extension == '') {
                     paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
@@ -134,6 +136,8 @@ export default class RequestEthereumService {
             if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
                 return _callbackTransactionError(Error('account must be different than _payer'));
             }
+            
+            _options.value = await this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension);
 
             let paramsParsed: any[];
             if (!_extension || _extension == '') {

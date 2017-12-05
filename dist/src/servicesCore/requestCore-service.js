@@ -92,6 +92,36 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
+    RequestCoreService.prototype.getCollectEstimationAsync = function (_expectedAmount, _currencyContract, _extension) {
+        var _this = this;
+        _expectedAmount = new bignumber_js_1.default(_expectedAmount);
+        return new Promise(function (resolve, reject) {
+            if (!_this.web3Single.isAddressNoChecksum(_currencyContract))
+                return reject(Error('_currencyContract must be a valid eth address'));
+            if (!_this.web3Single.isAddressNoChecksum(_extension))
+                return reject(Error('_extension must be a valid eth address'));
+            _this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    if (err)
+                        return [2 /*return*/, reject(err)];
+                    return [2 /*return*/, resolve(data)];
+                });
+            }); });
+        });
+    };
+    RequestCoreService.prototype.getCollectEstimation = function (_expectedAmount, _currencyContract, _extension, _callback) {
+        var _this = this;
+        _expectedAmount = new bignumber_js_1.default(_expectedAmount);
+        if (!this.web3Single.isAddressNoChecksum(_currencyContract))
+            return _callback(Error('_currencyContract must be a valid eth address'), null);
+        if (!this.web3Single.isAddressNoChecksum(_extension))
+            return _callback(Error('_extension must be a valid eth address'), null);
+        this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, _callback(err, data)];
+            });
+        }); });
+    };
     RequestCoreService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
