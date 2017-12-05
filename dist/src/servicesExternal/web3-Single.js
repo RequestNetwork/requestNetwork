@@ -67,7 +67,7 @@ var Web3Single = /** @class */ (function () {
                         return [2 /*return*/, _callbackTransactionError(e_1)];
                     case 4:
                         _options.value = _options.value ? _options.value : 0;
-                        _options.gas = _options.gas ? _options.gas : 90000000;
+                        _options.gas = _options.gas ? _options.gas : 85500000;
                         _options.gasPrice = _options.gasPrice ? _options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
                         _method.estimateGas(_options, function (err, estimateGas) {
                             if (err)

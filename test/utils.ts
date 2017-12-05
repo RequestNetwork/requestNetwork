@@ -5,7 +5,7 @@ var ethABI = require('ethereumjs-abi');
 var ethUtil = require('ethereumjs-util');
 
 export const getHashRequest = function(coreVersion,num) : string {
-	return ethUtil.bufferToHex(ethABI.soliditySHA3(["uint256","uint256"], [num,coreVersion]));
+	return ethUtil.bufferToHex(ethABI.soliditySHA3(["uint256","uint32"], [num,coreVersion]));
 }
 
 

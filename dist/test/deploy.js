@@ -4,18 +4,22 @@ var web3_Single_1 = require("../src/servicesExternal/web3-Single");
 var RequestCoreJson = require("../src/artifacts/RequestCore.json");
 var RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
 var RequestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
+var RequestBurnManagerSimple = require("../src/artifacts/RequestBurnManagerSimple.json");
 var config = require('../src/config.json');
 var web3Single = new web3_Single_1.Web3Single();
 // let web3Single = Web3Sgl.Web3Single.getInstance();
 var instanceRequestCore = new web3Single.web3.eth.Contract(RequestCoreJson.abi);
 var instanceRequestEthereum = new web3Single.web3.eth.Contract(RequestEthereumJson.abi);
 var instanceSynchroneExtensionEscrow = new web3Single.web3.eth.Contract(RequestSynchroneExtensionEscrowJson.abi);
+var instanceRequestBurnManagerSimple = new web3Single.web3.eth.Contract(RequestBurnManagerSimple.abi);
 var addressRequestCore;
 var addressRequestEthereum;
 var addressRequestExtensionEscrow;
+var addressRequestBurnManagerSimple;
 var newContractInstanceRequestCore;
 var newContractInstanceRequestEthereum;
 var newContractInstanceRequestExtensionEscrow;
+var newContractInstanceRequestBurnManagerSimple;
 web3Single.getDefaultAccount().then(function (creator) {
     console.log("creator: " + creator);
     instanceRequestCore.deploy({
@@ -92,31 +96,84 @@ web3Single.getDefaultAccount().then(function (creator) {
                 console.log('ExtensionEscrow - address : ' + newContractInstance.options.address); // instance with the new contract address
                 addressRequestExtensionEscrow = newContractInstance.options.address;
                 newContractInstanceRequestExtensionEscrow = newContractInstance;
-                web3Single.broadcastMethod(newContractInstanceRequestCore.methods.adminAddTrustedSubContract(addressRequestEthereum), function (transactionHash) {
-                    // we do nothing here!
-                }, function (receipt) {
-                    if (receipt.status == 1) {
-                        console.log('adminAddTrustedSubContract: ' + addressRequestEthereum);
+                instanceRequestBurnManagerSimple.deploy({
+                    data: RequestBurnManagerSimple.bytecode,
+                    arguments: [addressRequestCore]
+                })
+                    .send({
+                    from: creator,
+                    gas: 15000000
+                }, function (error, transactionHash) {
+                    if (error) {
+                        console.log('RequestBurnManagerSimple - error transactionHash ##########################');
+                        console.log(error);
+                        console.log(transactionHash);
+                        console.log('RequestBurnManagerSimple - error transactionHash ##########################');
                     }
-                }, function (confirmationNumber, receipt) {
-                    // we do nothing here!
-                }, function (error) {
-                    console.log('adminAddTrustedSubContract - error ##########################');
+                    // console.log('RequestCore - transactionHash : '+transactionHash);
+                })
+                    .on('error', function (error) {
+                    console.log('RequestBurnManagerSimple - error transactionHash ##########################');
                     console.log(error);
-                    console.log('adminAddTrustedSubContract - error ##########################');
-                });
-                web3Single.broadcastMethod(newContractInstanceRequestCore.methods.adminAddTrustedExtension(addressRequestExtensionEscrow), function (transactionHash) {
-                    // we do nothing here!
-                }, function (receipt) {
-                    if (receipt.status == 1) {
-                        console.log('adminAddTrustedExtension: ' + addressRequestExtensionEscrow);
-                    }
-                }, function (confirmationNumber, receipt) {
-                    // we do nothing here!
-                }, function (error) {
-                    console.log('adminAddTrustedExtension - error ##########################');
-                    console.log(error);
-                    console.log('adminAddTrustedExtension - error ##########################');
+                    console.log('RequestBurnManagerSimple - error transactionHash ##########################');
+                })
+                    .then(function (newContractInstance) {
+                    console.log('RequestBurnManagerSimple - address : ' + newContractInstance.options.address); // instance with the new contract address
+                    addressRequestBurnManagerSimple = newContractInstance.options.address;
+                    newContractInstanceRequestBurnManagerSimple = newContractInstance;
+                    web3Single.broadcastMethod(newContractInstanceRequestBurnManagerSimple.methods.setFeesPerTenThousand(10), // 0.1 %
+                    function (transactionHash) {
+                        // we do nothing here!
+                    }, function (receipt) {
+                        if (receipt.status == 1) {
+                            console.log('setFeesPerTenThousand: ' + 10);
+                        }
+                    }, function (confirmationNumber, receipt) {
+                        // we do nothing here!
+                    }, function (error) {
+                        console.log('setFeesPerTenThousand - error ##########################');
+                        console.log(error);
+                        console.log('setFeesPerTenThousand - error ##########################');
+                    });
+                    web3Single.broadcastMethod(newContractInstanceRequestCore.methods.setBurnManager(addressRequestBurnManagerSimple), function (transactionHash) {
+                        // we do nothing here!
+                    }, function (receipt) {
+                        if (receipt.status == 1) {
+                            console.log('setBurnManager: ' + addressRequestBurnManagerSimple);
+                        }
+                    }, function (confirmationNumber, receipt) {
+                        // we do nothing here!
+                    }, function (error) {
+                        console.log('setBurnManager - error ##########################');
+                        console.log(error);
+                        console.log('setBurnManager - error ##########################');
+                    });
+                    web3Single.broadcastMethod(newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestEthereum), function (transactionHash) {
+                        // we do nothing here!
+                    }, function (receipt) {
+                        if (receipt.status == 1) {
+                            console.log('adminAddTrustedCurrencyContract: ' + addressRequestEthereum);
+                        }
+                    }, function (confirmationNumber, receipt) {
+                        // we do nothing here!
+                    }, function (error) {
+                        console.log('adminAddTrustedCurrencyContract - error ##########################');
+                        console.log(error);
+                        console.log('adminAddTrustedCurrencyContract - error ##########################');
+                    });
+                    web3Single.broadcastMethod(newContractInstanceRequestCore.methods.adminAddTrustedExtension(addressRequestExtensionEscrow), function (transactionHash) {
+                        // we do nothing here!
+                    }, function (receipt) {
+                        if (receipt.status == 1) {
+                            console.log('adminAddTrustedExtension: ' + addressRequestExtensionEscrow);
+                        }
+                    }, function (confirmationNumber, receipt) {
+                        // we do nothing here!
+                    }, function (error) {
+                        console.log('adminAddTrustedExtension - error ##########################');
+                        console.log(error);
+                        console.log('adminAddTrustedExtension - error ##########################');
+                    });
                 });
             });
         });

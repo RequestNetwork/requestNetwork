@@ -32,7 +32,7 @@ export class Web3Single {
             }
         }
         _options.value = _options.value?_options.value:0;
-        _options.gas = _options.gas?_options.gas:90000000;
+        _options.gas = _options.gas?_options.gas:85500000;
         _options.gasPrice = _options.gasPrice?_options.gasPrice:this.web3.utils.toWei(config.ethereum.gasPriceDefault, config.ethereum.gasPriceDefaultUnit);
 
         _method.estimateGas(_options, (err: any, estimateGas: number) => {
