@@ -98,12 +98,14 @@ var RequestCoreService = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isAddressNoChecksum(_currencyContract))
                 return reject(Error('_currencyContract must be a valid eth address'));
-            if (!_this.web3Single.isAddressNoChecksum(_extension))
+            if (_extension && _extension != '' && !_this.web3Single.isAddressNoChecksum(_extension))
                 return reject(Error('_extension must be a valid eth address'));
             _this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     if (err)
                         return [2 /*return*/, reject(err)];
+                    console.log("data");
+                    console.log(data);
                     return [2 /*return*/, resolve(data)];
                 });
             }); });
@@ -114,7 +116,7 @@ var RequestCoreService = /** @class */ (function () {
         _expectedAmount = new bignumber_js_1.default(_expectedAmount);
         if (!this.web3Single.isAddressNoChecksum(_currencyContract))
             return _callback(Error('_currencyContract must be a valid eth address'), null);
-        if (!this.web3Single.isAddressNoChecksum(_extension))
+        if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
             return _callback(Error('_extension must be a valid eth address'), null);
         this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -128,7 +130,7 @@ var RequestCoreService = /** @class */ (function () {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
                 return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
             _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-                var dataResult, subContractDetails, extensionDetails, _a, _b, _c, _d, e_1;
+                var dataResult, currencyContractDetails, extensionDetails, _a, _b, _c, _d, e_1;
                 return __generator(this, function (_e) {
                     switch (_e.label) {
                         case 0:
@@ -139,20 +141,18 @@ var RequestCoreService = /** @class */ (function () {
                                 creator: data.creator,
                                 payee: data.payee,
                                 payer: data.payer,
-                                amountInitial: new bignumber_js_1.default(data.amountInitial),
-                                subContract: data.subContract,
-                                amountPaid: new bignumber_js_1.default(data.amountPaid),
-                                amountAdditional: new bignumber_js_1.default(data.amountAdditional),
-                                amountSubtract: new bignumber_js_1.default(data.amountSubtract),
+                                expectedAmount: new bignumber_js_1.default(data.expectedAmount),
+                                currencyContract: data.currencyContract,
+                                balance: new bignumber_js_1.default(data.balance),
                                 state: data.state,
                                 extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
-                                details: data.details,
+                                data: data.data,
                             };
-                            if (!ServicesContracts.getServiceFromAddress(data.subContract)) return [3 /*break*/, 2];
-                            return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.subContract, this.web3Single.web3.currentProvider).getRequestSubContractInfoAsync(_requestId)];
+                            if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 2];
+                            return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
                         case 1:
-                            subContractDetails = _e.sent();
-                            dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.subContract });
+                            currencyContractDetails = _e.sent();
+                            dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                             _e.label = 2;
                         case 2:
                             if (!(data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension))) return [3 /*break*/, 4];
@@ -162,23 +162,23 @@ var RequestCoreService = /** @class */ (function () {
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                             _e.label = 4;
                         case 4:
-                            if (!(dataResult.details && dataResult.details != '')) return [3 /*break*/, 9];
+                            if (!(dataResult.data && dataResult.data != '')) return [3 /*break*/, 9];
                             _e.label = 5;
                         case 5:
                             _e.trys.push([5, 7, , 8]);
                             _a = dataResult;
-                            _b = { hash: dataResult.details };
+                            _b = { hash: dataResult.data };
                             _d = (_c = JSON).parse;
-                            return [4 /*yield*/, this.ipfs.getFileAsync(dataResult.details)];
+                            return [4 /*yield*/, this.ipfs.getFileAsync(dataResult.data)];
                         case 6:
-                            _a.details = (_b.data = _d.apply(_c, [_e.sent()]), _b);
+                            _a.data = (_b.data = _d.apply(_c, [_e.sent()]), _b);
                             return [3 /*break*/, 8];
                         case 7:
                             e_1 = _e.sent();
                             return [2 /*return*/, reject(e_1)];
                         case 8: return [3 /*break*/, 10];
                         case 9:
-                            dataResult.details = undefined;
+                            dataResult.data = undefined;
                             _e.label = 10;
                         case 10: return [2 /*return*/, resolve(dataResult)];
                     }
@@ -191,7 +191,7 @@ var RequestCoreService = /** @class */ (function () {
         if (!this.web3Single.isHexStrictBytes32(_requestId))
             return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), undefined);
         this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult, extensionDetails, subContractDetails;
+            var dataResult, extensionDetails, currencyContractDetails;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -202,14 +202,12 @@ var RequestCoreService = /** @class */ (function () {
                             creator: data.creator,
                             payee: data.payee,
                             payer: data.payer,
-                            amountInitial: new bignumber_js_1.default(data.amountInitial),
-                            subContract: data.subContract,
-                            amountPaid: new bignumber_js_1.default(data.amountPaid),
-                            amountAdditional: new bignumber_js_1.default(data.amountAdditional),
-                            amountSubtract: new bignumber_js_1.default(data.amountSubtract),
+                            expectedAmount: new bignumber_js_1.default(data.expectedAmount),
+                            currencyContract: data.currencyContract,
+                            balance: new bignumber_js_1.default(data.balance),
                             state: data.state,
-                            extension: data.extension,
-                            details: data.details,
+                            extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
+                            data: data.data,
                         };
                         if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
                         return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId)];
@@ -218,19 +216,19 @@ var RequestCoreService = /** @class */ (function () {
                         dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                         _a.label = 2;
                     case 2:
-                        if (!ServicesContracts.getServiceFromAddress(data.subContract)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.subContract, this.web3Single.web3.currentProvider).getRequestSubContractInfoAsync(_requestId)];
+                        if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
                     case 3:
-                        subContractDetails = _a.sent();
-                        dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.extension });
+                        currencyContractDetails = _a.sent();
+                        dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
                         _a.label = 4;
                     case 4:
-                        if (dataResult.details) {
+                        if (dataResult.data && dataResult.data != '') {
                             // get IPFS data :
-                            this.ipfs.getFile(dataResult.details, function (err, data) {
+                            this.ipfs.getFile(dataResult.data, function (err, data) {
                                 if (err)
                                     return _callbackGetRequest(err, dataResult);
-                                dataResult.details = { hash: dataResult, data: JSON.parse(data) };
+                                dataResult.data = { hash: dataResult, data: JSON.parse(data) };
                                 return _callbackGetRequest(err, dataResult);
                             });
                         }

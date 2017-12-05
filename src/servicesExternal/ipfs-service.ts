@@ -18,27 +18,27 @@ export default class Ipfs {
 		return this._instance || (this._instance = new this());
 	}
 
-	public addFile(	_details:string, 
+	public addFile(	_data:string, 
 					_callbackIpfs:Types.CallbackIpfsAddFile) 
 	{
-		if(!_details || _details == '') {
+		if(!_data || _data == '') {
 			return _callbackIpfs(null,'');
 		}
-		let _data = JSON.parse(_details);
-		this.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
+		let dataParsed = JSON.parse(_data);
+		this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), (err:Error, result:any[]) => {
 			return _callbackIpfs(err,result?result[0].hash:null);
 		});
 	}
 
-	public addFileAsync(_details:string) : Promise<any>
+	public addFileAsync(_data:string) : Promise<any>
 	{
         return new Promise((resolve, reject) => {
-			if(!_details || _details == '') {
+			if(!_data || _data == '') {
 				return resolve('');
 			}
-			let _data = JSON.parse(_details);
+			let dataParsed = JSON.parse(_data);
         
-			this.ipfs.add(Buffer.from(JSON.stringify(_data)), (err:Error, result:any[]) => {
+			this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), (err:Error, result:any[]) => {
 				if(err) return reject(err);
 				return resolve(result[0].hash);
 			});

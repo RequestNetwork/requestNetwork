@@ -68,10 +68,12 @@ export default class RequestCoreService {
 
         return new Promise((resolve, reject) => {
             if (!this.web3Single.isAddressNoChecksum(_currencyContract)) return reject(Error('_currencyContract must be a valid eth address'));
-            if (!this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
+            if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
 
             this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount,_currencyContract,_extension).call(async(err: Error, data: any) => {
                 if (err) return reject(err);
+                console.log("data");
+                console.log(data);
                 return resolve(data);
             });
         });
@@ -84,13 +86,13 @@ export default class RequestCoreService {
         _callback: Types.CallbackGetRequest): void {
         _expectedAmount = new BigNumber(_expectedAmount);
             if (!this.web3Single.isAddressNoChecksum(_currencyContract)) return _callback(Error('_currencyContract must be a valid eth address'),null);
-            if (!this.web3Single.isAddressNoChecksum(_extension)) return _callback(Error('_extension must be a valid eth address'),null);
+            if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return _callback(Error('_extension must be a valid eth address'),null);
 
             this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount,_currencyContract,_extension).call(async(err: Error, data: any) => {
                 return _callback(err,data);
             });
     }
-    
+
     public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise((resolve, reject) => {
@@ -104,19 +106,17 @@ export default class RequestCoreService {
                     creator: data.creator,
                     payee: data.payee,
                     payer: data.payer,
-                    amountInitial: new BigNumber(data.amountInitial),
-                    subContract: data.subContract,
-                    amountPaid: new BigNumber(data.amountPaid),
-                    amountAdditional: new BigNumber(data.amountAdditional),
-                    amountSubtract: new BigNumber(data.amountSubtract),
+                    expectedAmount: new BigNumber(data.expectedAmount),
+                    currencyContract: data.currencyContract,
+                    balance: new BigNumber(data.balance),
                     state: data.state,
                     extension: data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined,
-                    details: data.details,
+                    data: data.data,
                 };
 
-                if (ServicesContracts.getServiceFromAddress(data.subContract)) {
-                    let subContractDetails = await ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequestSubContractInfoAsync(_requestId);
-                    dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.subContract });
+                if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
+                    let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
+                    dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                 }
 
                 if (data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension)) {
@@ -124,14 +124,14 @@ export default class RequestCoreService {
                     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                 }
 
-                if (dataResult.details && dataResult.details != '') {
+                if (dataResult.data && dataResult.data != '') {
                     try {
-                        dataResult.details = {hash:dataResult.details, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.details))};
+                        dataResult.data = {hash:dataResult.data, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.data))};
                     } catch (e) {
                         return reject(e);
                     }
                 } else {
-                    dataResult.details = undefined;
+                    dataResult.data = undefined;
                 }
                 return resolve(dataResult);
             });
@@ -151,14 +151,12 @@ export default class RequestCoreService {
                 creator: data.creator,
                 payee: data.payee,
                 payer: data.payer,
-                amountInitial: new BigNumber(data.amountInitial),
-                subContract: data.subContract,
-                amountPaid: new BigNumber(data.amountPaid),
-                amountAdditional: new BigNumber(data.amountAdditional),
-                amountSubtract: new BigNumber(data.amountSubtract),
+                expectedAmount: new BigNumber(data.expectedAmount),
+                currencyContract: data.currencyContract,
+                balance: new BigNumber(data.balance),
                 state: data.state,
-                extension: data.extension,
-                details: data.details,
+                extension: data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined,
+                data: data.data,
             };
 
             if (ServiceExtensions.getServiceFromAddress(data.extension)) {
@@ -166,16 +164,16 @@ export default class RequestCoreService {
                 dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
             }
 
-            if (ServicesContracts.getServiceFromAddress(data.subContract)) {
-                let subContractDetails = await ServicesContracts.getServiceFromAddress(data.subContract,this.web3Single.web3.currentProvider).getRequestSubContractInfoAsync(_requestId);
-                dataResult.subContract = Object.assign(subContractDetails, { address: dataResult.extension });
+            if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
+                let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
+                dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
             }
 
-            if (dataResult.details) {
+            if (dataResult.data && dataResult.data != '') {
                 // get IPFS data :
-                this.ipfs.getFile(dataResult.details, (err: Error, data: string) => {
+                this.ipfs.getFile(dataResult.data, (err: Error, data: string) => {
                     if (err) return _callbackGetRequest(err, dataResult);
-                    dataResult.details = {hash:dataResult, data:JSON.parse(data)};
+                    dataResult.data = {hash:dataResult, data:JSON.parse(data)};
                     return _callbackGetRequest(err, dataResult);
                 });
             } else {

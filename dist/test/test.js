@@ -40,13 +40,13 @@ var requestNetwork_1 = require("../src/requestNetwork");
 var rn = new requestNetwork_1.default();
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
-        var result, requestID, resultAccept, resultPay, resultPayBack, resultdiscount, err_1;
+        var result, requestID, resultAccept, resultPay, resultPayBack, resultsubtractAction, resultAdditionalAction, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 11, , 12]);
+                    _a.trys.push([0, 13, , 14]);
                     return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync('0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
-                        1000, '{"reason":"wine purchased"}'
+                        200000, '{"reason":"wine purchased"}'
                         // ,config.ethereum.contracts.requestSynchroneExtensionEscrow
                         // ,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
                         )];
@@ -70,8 +70,8 @@ function foo() {
                     result = _a.sent();
                     console.log('result rn.requestEthereumService getRequestAsync********************');
                     console.log(result);
-                    console.log('######################################### payAsync #########################################');
-                    return [4 /*yield*/, rn.requestEthereumService.payAsync(requestID, 900, 0, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
+                    console.log('######################################### paymentActionAsync #########################################');
+                    return [4 /*yield*/, rn.requestEthereumService.paymentActionAsync(requestID, 900, 0, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
                 case 5:
                     resultPay = _a.sent();
                     console.log('result resultPay********************');
@@ -88,34 +88,45 @@ function foo() {
                     // result = await rn.requestEthereumService.getRequestAsync(requestID);
                     // console.log('result rn.requestEthereumService getRequestAsync********************');
                     // console.log(result);
-                    console.log('######################################### paybackAsync #########################################');
-                    return [4 /*yield*/, rn.requestEthereumService.paybackAsync(requestID, 100)];
+                    console.log('######################################### refundActionAsync #########################################');
+                    return [4 /*yield*/, rn.requestEthereumService.refundActionAsync(requestID, 100)];
                 case 7:
                     resultPayBack = _a.sent();
-                    console.log('result paybackAsync********************');
+                    console.log('result refundActionAsync********************');
                     console.log(resultPayBack);
                     return [4 /*yield*/, rn.requestEthereumService.getRequestAsync(requestID)];
                 case 8:
                     result = _a.sent();
                     console.log('result rn.requestEthereumService getRequestAsync********************');
                     console.log(result);
-                    console.log('######################################### discountAsync #########################################');
-                    return [4 /*yield*/, rn.requestEthereumService.discountAsync(requestID, 100)];
+                    console.log('######################################### subtractActionAsync #########################################');
+                    return [4 /*yield*/, rn.requestEthereumService.subtractActionAsync(requestID, 100)];
                 case 9:
-                    resultdiscount = _a.sent();
-                    console.log('result discountAsync********************');
-                    console.log(resultdiscount);
+                    resultsubtractAction = _a.sent();
+                    console.log('result subtractActionAsync********************');
+                    console.log(resultsubtractAction);
                     return [4 /*yield*/, rn.requestEthereumService.getRequestAsync(requestID)];
                 case 10:
                     result = _a.sent();
                     console.log('result requestEthereumService getRequestAsync********************');
                     console.log(result);
-                    return [3 /*break*/, 12];
+                    console.log('######################################### additionalActionAsync #########################################');
+                    return [4 /*yield*/, rn.requestEthereumService.additionalActionAsync(requestID, 222, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
                 case 11:
+                    resultAdditionalAction = _a.sent();
+                    console.log('result additionalActionAsync********************');
+                    console.log(resultAdditionalAction);
+                    return [4 /*yield*/, rn.requestEthereumService.getRequestAsync(requestID)];
+                case 12:
+                    result = _a.sent();
+                    console.log('result requestEthereumService getRequestAsync********************');
+                    console.log(result);
+                    return [3 /*break*/, 14];
+                case 13:
                     err_1 = _a.sent();
                     console.log('Error: ', err_1.message);
-                    return [3 /*break*/, 12];
-                case 12: return [2 /*return*/];
+                    return [3 /*break*/, 14];
+                case 14: return [2 /*return*/];
             }
         });
     });

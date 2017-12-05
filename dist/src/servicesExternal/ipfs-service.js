@@ -10,23 +10,23 @@ var Ipfs = /** @class */ (function () {
     Ipfs.getInstance = function () {
         return this._instance || (this._instance = new this());
     };
-    Ipfs.prototype.addFile = function (_details, _callbackIpfs) {
-        if (!_details || _details == '') {
+    Ipfs.prototype.addFile = function (_data, _callbackIpfs) {
+        if (!_data || _data == '') {
             return _callbackIpfs(null, '');
         }
-        var _data = JSON.parse(_details);
-        this.ipfs.add(Buffer.from(JSON.stringify(_data)), function (err, result) {
+        var dataParsed = JSON.parse(_data);
+        this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), function (err, result) {
             return _callbackIpfs(err, result ? result[0].hash : null);
         });
     };
-    Ipfs.prototype.addFileAsync = function (_details) {
+    Ipfs.prototype.addFileAsync = function (_data) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            if (!_details || _details == '') {
+            if (!_data || _data == '') {
                 return resolve('');
             }
-            var _data = JSON.parse(_details);
-            _this.ipfs.add(Buffer.from(JSON.stringify(_data)), function (err, result) {
+            var dataParsed = JSON.parse(_data);
+            _this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), function (err, result) {
                 if (err)
                     return reject(err);
                 return resolve(result[0].hash);

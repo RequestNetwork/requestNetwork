@@ -43,7 +43,7 @@ export default class RequestEthereumService {
     public async createRequestAsPayeeAsync (
         _payer: string,
         _amountInitial: any,
-        _details ? : string,
+        _data ? : string,
         _extension ? : string,
         _extensionParams ? : Array < any > ,
         _options ? : any,
@@ -54,7 +54,7 @@ export default class RequestEthereumService {
         return new Promise(async (resolve, reject) => {
             try {
                 let account = _options.from || await this.web3Single.getDefaultAccount();
-                // check _details is a proper JSON
+                // check _data is a proper JSON
                 if (_amountInitial.lt(0)) return reject(Error('_amountInitial must a positive integer'));
                 if (!this.web3Single.isAddressNoChecksum(_payer)) return reject(Error('_payer must be a valid eth address'));
                 if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return reject(Error('_extension must be a valid eth address'));
@@ -78,7 +78,7 @@ export default class RequestEthereumService {
                     return reject(Error('_extension is not supported'));
                 }
 
-                this.ipfs.addFile(_details, (err: Error, hash: string) => {
+                this.ipfs.addFile(_data, (err: Error, hash: string) => {
                     if (err) return reject(err);
 
                     var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
@@ -120,7 +120,7 @@ export default class RequestEthereumService {
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
-        _details ? : string,
+        _data ? : string,
         _extension ? : string,
         _extensionParams ? : Array < any >,
         _options ? : any): Promise<any> {
@@ -152,7 +152,7 @@ export default class RequestEthereumService {
                 return _callbackTransactionError(Error('_extension is not supported'));
             }
 
-            this.ipfs.addFile(_details, (err: Error, hash: string) => {
+            this.ipfs.addFile(_data, (err: Error, hash: string) => {
                 if (err) return _callbackTransactionError(err);
 
                 var method = this.instanceRequestEthereum.methods.createRequestAsPayee(
@@ -279,7 +279,7 @@ export default class RequestEthereumService {
                 if ( this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled ) {
                     return reject(Error('payee cannot cancel request already canceled'));
                 }
-                if ( request.amountPaid != 0 ) {
+                if ( request.balance != 0 ) {
                     return reject(Error('impossible to cancel a Request with a balance != 0'));
                 }
                 var method = this.instanceRequestEthereum.methods.cancel(_requestId);
@@ -333,7 +333,7 @@ export default class RequestEthereumService {
             if ( this.web3Single.areSameAddressesNoChecksum(account, request.paye) && request.state == Types.State.Canceled ) {
                 return _callbackTransactionError(Error('payee cannot cancel request already \'canceled\''));
             }
-            if ( request.amountPaid != 0 ) {
+            if ( request.balance != 0 ) {
                 return _callbackTransactionError(Error('impossible to cancel a Request with a balance != 0'));
             }
             var method = this.instanceRequestEthereum.methods.cancel(_requestId);
@@ -386,9 +386,9 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Payment', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
+                            let requestAfter = await this.getRequestAsync(event.requestId);
+                            return resolve({ request: requestAfter, transactionHash: receipt.transactionHash});
                         }
                     },
                     (error: Error) => {
@@ -478,7 +478,7 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Refunded', receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
                             let request = await this.getRequestAsync(event.requestId);
                             return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
@@ -570,7 +570,7 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'AddSubtract', receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
                             let request = await this.getRequestAsync(event.requestId);
                             return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
@@ -665,7 +665,7 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'AddSubtract', receipt.events[0]);
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
                             let request = await this.getRequestAsync(event.requestId);
                             return resolve({ request: request, transactionHash: receipt.transactionHash});
                         }
@@ -766,14 +766,14 @@ export default class RequestEthereumService {
             _options);
     }
 
-    public getRequestSubContractInfoAsync(
+    public getRequestCurrencyContractInfoAsync(
         _requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
             return resolve({});
         });
     }
 
-    public getRequestSubContractInfo(
+    public getRequestCurrencyContractInfo(
         _requestId: string,
         _callbackGetRequest: Types.CallbackGetRequest): void {
             return _callbackGetRequest(null,{});

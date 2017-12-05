@@ -1,3 +1,8 @@
+
+let addressContractBurner = 0;
+let feesPerTenThousand = 10; // 0.1 %
+
+
 import { Web3Single } from '../src/servicesExternal/web3-Single';
 
 let RequestCoreJson = require("../src/artifacts/RequestCore.json");
@@ -110,7 +115,7 @@ web3Single.getDefaultAccount().then(function(creator) {
 
                         instanceRequestBurnManagerSimple.deploy({
                                 data: RequestBurnManagerSimple.bytecode,
-                                arguments: [addressRequestCore]
+                                arguments: [addressContractBurner]
                             })
                             .send({
                                 from: creator,
@@ -135,13 +140,13 @@ web3Single.getDefaultAccount().then(function(creator) {
                                 newContractInstanceRequestBurnManagerSimple = newContractInstance;
 
                                 web3Single.broadcastMethod(
-                                    newContractInstanceRequestBurnManagerSimple.methods.setFeesPerTenThousand(10), // 0.1 %
+                                    newContractInstanceRequestBurnManagerSimple.methods.setFeesPerTenThousand(feesPerTenThousand), // 0.1 %
                                     (transactionHash: string) => {
                                         // we do nothing here!
                                     },
                                     (receipt: any) => {
                                         if (receipt.status == 1) {
-                                            console.log('setFeesPerTenThousand: ' + 10);
+                                            console.log('setFeesPerTenThousand: ' + feesPerTenThousand);
                                         }
                                     },
                                     (confirmationNumber: number, receipt: any) => {

@@ -67,7 +67,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         }
         return { result: ret };
     };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAsync = function (_requestId, _options) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeActionAsync = function (_requestId, _options) {
         var _this = this;
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -105,7 +105,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, reject(Error('State must be \'Accepted\''))];
                         }
-                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
                         this.web3Single.broadcastMethod(method, function (transactionHash) {
                             // we do nothing here!
                         }, function (receipt) {
@@ -127,7 +127,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             });
         }); });
     };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayee = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAction = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var account, _a, request, method, e_2;
             return __generator(this, function (_b) {
@@ -164,7 +164,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, _callbackTransactionError(Error('State must be \'Accepted\''))];
                         }
-                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 5];
                     case 4:
@@ -175,7 +175,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             });
         });
     };
-    RequestSynchroneExtensionEscrowService.prototype.refundToPayerAsync = function (_requestId, _options) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayerActionAsync = function (_requestId, _options) {
         var _this = this;
         _options = this.web3Single.setUpOptions(_options);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -215,7 +215,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, reject(Error('State must be \'Accepted\''))];
                         }
-                        method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
                         this.web3Single.broadcastMethod(method, function (transactionHash) {
                             // we do nothing here!
                         }, function (receipt) {
@@ -237,7 +237,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             });
         }); });
     };
-    RequestSynchroneExtensionEscrowService.prototype.refundToPayer = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayerAction = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var account, _a, request, method, e_4;
             return __generator(this, function (_b) {
@@ -275,7 +275,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (request.state != Types.State.Accepted) {
                             return [2 /*return*/, _callbackTransactionError(Error('State must be \'Accepted\''))];
                         }
-                        method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
                         this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
                         return [3 /*break*/, 5];
                     case 4:
@@ -312,11 +312,10 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                 if (err)
                     return reject(err);
                 var dataResult = {
-                    subContract: data.subContract,
+                    currencyContract: data.currencyContract,
                     escrow: data.escrow,
                     state: data.state,
-                    amountPaid: new bignumber_js_1.default(data.amountPaid),
-                    amountRefunded: new bignumber_js_1.default(data.amountRefunded)
+                    balance: new bignumber_js_1.default(data.balance)
                 };
                 return resolve(dataResult);
             });
@@ -329,11 +328,10 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             if (err)
                 return _callbackGetRequest(err, data);
             var dataResult = {
-                subContract: data.subContract,
+                currencyContract: data.currencyContract,
                 escrow: data.escrow,
                 state: data.state,
-                amountPaid: new bignumber_js_1.default(data.amountPaid),
-                amountRefunded: new bignumber_js_1.default(data.amountRefunded)
+                balance: new bignumber_js_1.default(data.balance)
             };
             return _callbackGetRequest(err, dataResult);
         });

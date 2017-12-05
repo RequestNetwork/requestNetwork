@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var addressContractBurner = 0;
+var feesPerTenThousand = 10; // 0.1 %
 var web3_Single_1 = require("../src/servicesExternal/web3-Single");
 var RequestCoreJson = require("../src/artifacts/RequestCore.json");
 var RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
@@ -98,7 +100,7 @@ web3Single.getDefaultAccount().then(function (creator) {
                 newContractInstanceRequestExtensionEscrow = newContractInstance;
                 instanceRequestBurnManagerSimple.deploy({
                     data: RequestBurnManagerSimple.bytecode,
-                    arguments: [addressRequestCore]
+                    arguments: [addressContractBurner]
                 })
                     .send({
                     from: creator,
@@ -121,12 +123,12 @@ web3Single.getDefaultAccount().then(function (creator) {
                     console.log('RequestBurnManagerSimple - address : ' + newContractInstance.options.address); // instance with the new contract address
                     addressRequestBurnManagerSimple = newContractInstance.options.address;
                     newContractInstanceRequestBurnManagerSimple = newContractInstance;
-                    web3Single.broadcastMethod(newContractInstanceRequestBurnManagerSimple.methods.setFeesPerTenThousand(10), // 0.1 %
+                    web3Single.broadcastMethod(newContractInstanceRequestBurnManagerSimple.methods.setFeesPerTenThousand(feesPerTenThousand), // 0.1 %
                     function (transactionHash) {
                         // we do nothing here!
                     }, function (receipt) {
                         if (receipt.status == 1) {
-                            console.log('setFeesPerTenThousand: ' + 10);
+                            console.log('setFeesPerTenThousand: ' + feesPerTenThousand);
                         }
                     }, function (confirmationNumber, receipt) {
                         // we do nothing here!

@@ -52,7 +52,7 @@ export default class RequestSynchroneExtensionEscrowService {
     }
 
 
-    public releaseToPayeeAsync(
+    public releaseToPayeeActionAsync(
         _requestId: string,
         _options ?: any ): Promise < any > {
         _options = this.web3Single.setUpOptions(_options);
@@ -81,7 +81,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     return reject(Error('State must be \'Accepted\''));
                 }
 
-                var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+                var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -107,7 +107,7 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public async releaseToPayee(
+    public async releaseToPayeeAction(
         _requestId: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -138,7 +138,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 return _callbackTransactionError(Error('State must be \'Accepted\''));
             }
 
-            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
 
             this.web3Single.broadcastMethod(
                 method,
@@ -152,7 +152,7 @@ export default class RequestSynchroneExtensionEscrowService {
         }
     }
 
-    public refundToPayerAsync(
+    public releaseToPayerActionAsync(
         _requestId: string,
         _options ?: any): Promise < any > {
         _options = this.web3Single.setUpOptions(_options);
@@ -181,7 +181,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     return reject(Error('State must be \'Accepted\''));
                 }
 
-                var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+                var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -207,7 +207,7 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public async refundToPayer(
+    public async releaseToPayerAction(
         _requestId: string,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -239,7 +239,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 return _callbackTransactionError(Error('State must be \'Accepted\''));
             }
 
-            var method = this.instanceSynchroneExtensionEscrow.methods.refundToPayer(_requestId);
+            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
 
             this.web3Single.broadcastMethod(
                 method,
@@ -277,11 +277,10 @@ export default class RequestSynchroneExtensionEscrowService {
                 if (err) return reject(err);
 
                 let dataResult: any = {
-                    subContract: data.subContract,
+                    currencyContract: data.currencyContract,
                     escrow: data.escrow,
                     state: data.state,
-                    amountPaid: new BigNumber(data.amountPaid),
-                    amountRefunded: new BigNumber(data.amountRefunded)
+                    balance: new BigNumber(data.balance)
                 };
 
                 return resolve(dataResult);
@@ -299,11 +298,10 @@ export default class RequestSynchroneExtensionEscrowService {
             if (err) return _callbackGetRequest(err, data);
 
             let dataResult: any = {
-                subContract: data.subContract,
+                currencyContract: data.currencyContract,
                 escrow: data.escrow,
                 state: data.state,
-                amountPaid: new BigNumber(data.amountPaid),
-                amountRefunded: new BigNumber(data.amountRefunded)
+                balance: new BigNumber(data.balance)
             };
 
             return _callbackGetRequest(err, dataResult);

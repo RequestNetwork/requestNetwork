@@ -8,7 +8,7 @@ async function foo() {
     try {
         let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
 					'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
-					1000,
+					200000,
 					'{"reason":"wine purchased"}'
 					// ,config.ethereum.contracts.requestSynchroneExtensionEscrow
 					// ,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
@@ -40,8 +40,8 @@ async function foo() {
 				console.log('result rn.requestEthereumService getRequestAsync********************');
 				console.log(result);
 
-				console.log('######################################### payAsync #########################################');
-				let resultPay = await rn.requestEthereumService.payAsync(requestID,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+				console.log('######################################### paymentActionAsync #########################################');
+				let resultPay = await rn.requestEthereumService.paymentActionAsync(requestID,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
 				console.log('result resultPay********************');
 				console.log(resultPay);
 
@@ -58,9 +58,9 @@ async function foo() {
 				// console.log('result rn.requestEthereumService getRequestAsync********************');
 				// console.log(result);
 
-				console.log('######################################### paybackAsync #########################################');
-				let resultPayBack = await rn.requestEthereumService.paybackAsync(requestID,100);
-				console.log('result paybackAsync********************');
+				console.log('######################################### refundActionAsync #########################################');
+				let resultPayBack = await rn.requestEthereumService.refundActionAsync(requestID,100);
+				console.log('result refundActionAsync********************');
 				console.log(resultPayBack);
 
 				result = await rn.requestEthereumService.getRequestAsync(requestID);
@@ -68,15 +68,26 @@ async function foo() {
 				console.log(result);
 
 
-				console.log('######################################### discountAsync #########################################');
-				let resultdiscount = await rn.requestEthereumService.discountAsync(requestID,100);
-				console.log('result discountAsync********************');
-				console.log(resultdiscount);
+				console.log('######################################### subtractActionAsync #########################################');
+				let resultsubtractAction = await rn.requestEthereumService.subtractActionAsync(requestID,100);
+				console.log('result subtractActionAsync********************');
+				console.log(resultsubtractAction);
 
 				result = await rn.requestEthereumService.getRequestAsync(requestID);
 				console.log('result requestEthereumService getRequestAsync********************');
 				console.log(result);
-				
+
+
+
+				console.log('######################################### additionalActionAsync #########################################');
+				let resultAdditionalAction = await rn.requestEthereumService.additionalActionAsync(requestID,222,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+				console.log('result additionalActionAsync********************');
+				console.log(resultAdditionalAction);
+
+				result = await rn.requestEthereumService.getRequestAsync(requestID);
+				console.log('result requestEthereumService getRequestAsync********************');
+				console.log(result);
+
     }
     catch(err) {
         console.log('Error: ', err.message);
