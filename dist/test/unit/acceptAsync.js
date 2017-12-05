@@ -106,16 +106,15 @@ describe('acceptAsync', function () {
                 case 0: return [4 /*yield*/, rn.requestEthereumService.acceptAsync(requestId, { from: payer })];
                 case 1:
                     result = _a.sent();
-                    utils.expectEqualsBN(result.request.amountInitial, arbitraryAmount, 'amountInitial is wrong');
-                    utils.expectEqualsBN(result.request.amountAdditional, 0, 'amountAdditional is wrong');
-                    utils.expectEqualsBN(result.request.amountPaid, 0, 'amountPaid is wrong');
+                    utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+                    utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
                     chai_1.expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
                     chai_1.expect(result.request.extension, 'extension is wrong').to.be.undefined;
                     chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
                     chai_1.expect(result.request.state, 'state is wrong').to.equal('1');
-                    chai_1.expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config_1.default.ethereum.contracts.requestEthereum);
+                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config_1.default.ethereum.contracts.requestEthereum);
                     chai_1.expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
                     return [2 /*return*/];
             }

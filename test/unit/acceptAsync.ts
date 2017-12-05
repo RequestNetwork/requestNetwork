@@ -61,16 +61,15 @@ describe('acceptAsync', () => {
                                 requestId,
                                 {from: payer});
 
-        utils.expectEqualsBN(result.request.amountInitial,arbitraryAmount,'amountInitial is wrong');
-        utils.expectEqualsBN(result.request.amountAdditional,0,'amountAdditional is wrong');
-        utils.expectEqualsBN(result.request.amountPaid,0,'amountPaid is wrong');
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });

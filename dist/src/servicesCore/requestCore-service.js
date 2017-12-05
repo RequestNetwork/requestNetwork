@@ -104,8 +104,6 @@ var RequestCoreService = /** @class */ (function () {
                 return __generator(this, function (_a) {
                     if (err)
                         return [2 /*return*/, reject(err)];
-                    console.log("data");
-                    console.log(data);
                     return [2 /*return*/, resolve(data)];
                 });
             }); });

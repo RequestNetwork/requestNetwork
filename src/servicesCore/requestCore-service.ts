@@ -72,8 +72,6 @@ export default class RequestCoreService {
 
             this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount,_currencyContract,_extension).call(async(err: Error, data: any) => {
                 if (err) return reject(err);
-                console.log("data");
-                console.log(data);
                 return resolve(data);
             });
         });

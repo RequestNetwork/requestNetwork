@@ -44,19 +44,18 @@ describe('createRequestAsPayeeAsync', () => {
                     [],
                     {from: payee});
 
-        utils.expectEqualsBN(result.request.amountInitial,arbitraryAmount,'amountInitial is wrong');
-        utils.expectEqualsBN(result.request.amountAdditional,0,'amountAdditional is wrong');
-        utils.expectEqualsBN(result.request.amountPaid,0,'amountPaid is wrong');
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('0');
-        expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
 
-        utils.expectEqualsObject(result.request.details.data,{"reason": "weed purchased"},'details.data is wrong')
-        expect(result.request.details, 'details.hash is wrong').to.have.property('hash');
+        utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"},'data.data is wrong')
+        expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
 
@@ -67,18 +66,18 @@ describe('createRequestAsPayeeAsync', () => {
 
         expect(result).to.have.property('transactionHash'); 
 
-        utils.expectEqualsBN(result.request.amountInitial,arbitraryAmount,'amountInitial is wrong');
-        utils.expectEqualsBN(result.request.amountAdditional,0,'amountAdditional is wrong');
-        utils.expectEqualsBN(result.request.amountPaid,0,'amountPaid is wrong');
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        
+        utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('0');
-        expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
 
-        expect(result.request.details, 'request.details is wrong').to.be.undefined;
+        expect(result.request.data, 'request.data is wrong').to.be.undefined;
     });
 
     it('create request _payer not address', async () => {
@@ -110,7 +109,7 @@ describe('createRequestAsPayeeAsync', () => {
                     -1);
             expect(false,'exception not thrown').to.be.true; 
         } catch(e) {
-            utils.expectEqualsObject(e,Error('_amountInitial must a positive integer'),'exception not right');
+            utils.expectEqualsObject(e,Error('_expectedAmount must a positive integer'),'exception not right');
         }
     });
 
@@ -150,17 +149,17 @@ describe('createRequestAsPayeeAsync', () => {
 
         expect(result).to.have.property('transactionHash'); 
 
-        utils.expectEqualsBN(result.request.amountInitial,arbitraryAmount,'amountInitial is wrong');
-        utils.expectEqualsBN(result.request.amountAdditional,0,'amountAdditional is wrong');
-        utils.expectEqualsBN(result.request.amountPaid,0,'amountPaid is wrong');
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        
+        utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('0');
-        expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
         expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(config.ethereum.contracts.requestSynchroneExtensionEscrow);
 
-        expect(result.request.details, 'request.details is wrong').to.be.undefined;
+        expect(result.request.data, 'request.data is wrong').to.be.undefined;
     });
 });

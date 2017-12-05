@@ -20,7 +20,7 @@ var currentNumRequest;
 
 var requestId;
 
-describe('payAsync', () => {
+describe('paymentActionAsync', () => {
     var arbitraryAmount = 100000000;
     rn = new RequestNetwork();
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -50,47 +50,46 @@ describe('payAsync', () => {
                                 requestId,
                                 {from: payer});
 
-        let result = await rn.requestEthereumService.payAsync(
+        let result = await rn.requestEthereumService.paymentActionAsync(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payer});
 
-        utils.expectEqualsBN(result.request.amountInitial,arbitraryAmount,'amountInitial is wrong');
-        utils.expectEqualsBN(result.request.amountAdditional,0,'amountAdditional is wrong');
-        utils.expectEqualsBN(result.request.amountPaid,arbitraryAmount,'amountPaid is wrong');
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        
+        utils.expectEqualsBN(result.request.balance,arbitraryAmount,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
 
-    it('pay request with tips', async () => {
+    it('pay request with additional', async () => {
         await rn.requestEthereumService.acceptAsync(
                                 requestId,
                                 {from: payer});
 
-        let result = await rn.requestEthereumService.payAsync(
+        let result = await rn.requestEthereumService.paymentActionAsync(
                             requestId,
                             arbitraryAmount,
                             10,
                             {from: payer});
             
-        utils.expectEqualsBN(result.request.amountInitial,arbitraryAmount,'amountInitial is wrong');
-        utils.expectEqualsBN(result.request.amountAdditional,10,'amountAdditional is wrong');
-        utils.expectEqualsBN(result.request.amountPaid,arbitraryAmount,'amountPaid is wrong');
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount+10,'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance,arbitraryAmount,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.subContract.address.toLowerCase(), 'subContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
@@ -101,7 +100,7 @@ describe('payAsync', () => {
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.payAsync(
+            let result = await rn.requestEthereumService.paymentActionAsync(
                                 '0x00000000000000',
                                 arbitraryAmount,
                                 0,
@@ -112,20 +111,20 @@ describe('payAsync', () => {
         }
     });
 
-    it('pay request with not valid tips', async () => {
+    it('pay request with not valid additional', async () => {
         let result = await rn.requestEthereumService.acceptAsync(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.payAsync(
+            let result = await rn.requestEthereumService.paymentActionAsync(
                                 requestId,
                                 arbitraryAmount,
                                 -1,
                                 {from: payer});
             expect(false,'exception not thrown').to.be.true; 
         } catch(e) {
-            utils.expectEqualsObject(e,Error('_tips must a positive integer'),'exception not right');
+            utils.expectEqualsObject(e,Error('_additional must a positive integer'),'exception not right');
         }
     });
 
@@ -135,7 +134,7 @@ describe('payAsync', () => {
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.payAsync(
+            let result = await rn.requestEthereumService.paymentActionAsync(
                                 requestId,
                                 -1,
                                 0,
@@ -152,7 +151,7 @@ describe('payAsync', () => {
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.payAsync(
+            let result = await rn.requestEthereumService.paymentActionAsync(
                                 requestId,
                                 arbitraryAmount,
                                 0,
@@ -164,51 +163,72 @@ describe('payAsync', () => {
     });
 
     it('pay request created', async () => {
-        try {
-            let result = await rn.requestEthereumService.payAsync(
+        let result = await rn.requestEthereumService.paymentActionAsync(
                                 requestId,
                                 arbitraryAmount,
                                 0,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('request must be accepted'),'exception not right');
-        }
+            
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance,arbitraryAmount,'balance is wrong');
+        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+        expect(result.request.extension, 'extension is wrong').to.be.undefined;
+        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
+        expect(result.request.state, 'state is wrong').to.equal('1');
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+
+        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
 
 
-    it('pay request with tips higher than amount', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+    it('pay request with additional higher than amount', async () => {
+        await rn.requestEthereumService.acceptAsync(
                                 requestId,
                                 {from: payer});
 
-        try {
-            let result = await rn.requestEthereumService.payAsync(
+        let result = await rn.requestEthereumService.paymentActionAsync(
                                 requestId,
                                 1,
                                 2,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('tips declare must be lower than amount sent'),'exception not right');
-        }
+            
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount+2,'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance,1,'balance is wrong');
+        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+        expect(result.request.extension, 'extension is wrong').to.be.undefined;
+        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
+        expect(result.request.state, 'state is wrong').to.equal('1');
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+
+        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
 
-    it('pay request with tips higher than amount', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+    it('pay request with higher amount than expected', async () => {
+        await rn.requestEthereumService.acceptAsync(
                                 requestId,
                                 {from: payer});
 
-        try {
-            let result = await rn.requestEthereumService.payAsync(
+        let result = await rn.requestEthereumService.paymentActionAsync(
                                 requestId,
                                 arbitraryAmount+1,
                                 0,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('You cannot pay more than amount needed'),'exception not right');
-        }
+
+        utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance,arbitraryAmount+1,'balance is wrong');
+        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+        expect(result.request.extension, 'extension is wrong').to.be.undefined;
+        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
+        expect(result.request.state, 'state is wrong').to.equal('1');
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+
+        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
 
 });
