@@ -922,6 +922,9 @@
   "networks": {
     "private": {
       "address": "0x8cdaf0cd259887258bc13a92c0a6da92698644c0"
+    },
+    "kovan": {
+      "address": "0xb1e8dc9fe1244c881ac23732f871e0c89f3eb1d5"
     }
   }
 }

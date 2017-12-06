@@ -240,7 +240,6 @@ var RequestEthereumService = /** @class */ (function () {
                         if (request.state != Types.State.Created) {
                             return [2 /*return*/, reject(Error('request state is not \'created\''))];
                         }
-                        console.log([account, request.payer]);
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
                             return [2 /*return*/, reject(Error('account must be the payer'))];
                         }

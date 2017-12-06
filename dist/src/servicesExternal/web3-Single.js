@@ -45,7 +45,6 @@ var Web3Single = /** @class */ (function () {
     function Web3Single(web3Provider, networkId) {
         this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault.private));
         this.networkName = Web3Single.getNetworkName(networkId);
-        console.log("this.networkName " + this.networkName);
     }
     Web3Single.init = function (web3Provider, networkId) {
         this._instance = new this(web3Provider, networkId);
@@ -111,7 +110,7 @@ var Web3Single = /** @class */ (function () {
                             if (err)
                                 return reject(err);
                             if (accs.length === 0)
-                                return reject(Error("No accounts found"));
+                                return reject(Error('No accounts found'));
                             return resolve(accs[0]);
                         });
                     })];
@@ -169,12 +168,12 @@ var Web3Single = /** @class */ (function () {
     };
     Web3Single.getNetworkName = function (networkId) {
         switch (networkId) {
-            case "1": return "main";
-            case "2": return "morden";
-            case "3": return "ropsten";
-            case "4": return "rinkeby";
-            case "42": return "kovan";
-            default: return "private";
+            case 1: return 'main';
+            case 2: return 'morden';
+            case 3: return 'ropsten';
+            case 4: return 'rinkeby';
+            case 42: return 'kovan';
+            default: return 'private';
         }
     };
     return Web3Single;

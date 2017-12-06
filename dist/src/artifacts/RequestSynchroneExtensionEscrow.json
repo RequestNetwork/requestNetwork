@@ -381,6 +381,9 @@
   "networks": {
     "private": {
       "address": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
+    },
+    "kovan": {
+      "address": "0x9b6b6fb13bfaf88792016911986359d3c6033762"
     }
   }
 }

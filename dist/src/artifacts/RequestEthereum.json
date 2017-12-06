@@ -494,6 +494,9 @@
   "networks": {
     "private": {
       "address": "0xf12b5dd4ead5f743c6baa640b0216200e89b60da"
+    },
+    "kovan": {
+      "address": "0x8b9186213ffe76365167e12c6d9965774e5fed33"
     }
   }
 }

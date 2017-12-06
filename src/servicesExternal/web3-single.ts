@@ -76,7 +76,7 @@ export class Web3Single {
         return new Promise((resolve, reject) => {
             this.web3.eth.getAccounts((err, accs) => {
                 if (err) return reject(err);
-                if (accs.length === 0) return reject(Error("No accounts found"));
+                if (accs.length === 0) return reject(Error('No accounts found'));
                 return resolve(accs[0]);
             });
         });
@@ -134,15 +134,15 @@ export class Web3Single {
         return _options;
     }
 
-    public static getNetworkName(networkId:any) : string
+    public static getNetworkName(networkId:number) : string
     {
         switch (networkId) {
-          case "1":  return "main";
-          case "2":  return "morden";
-          case "3":  return "ropsten";
-          case "4":  return "rinkeby";
-          case "42": return "kovan";
-          default:   return "private";
+          case 1:  return 'main';
+          case 2:  return 'morden';
+          case 3:  return 'ropsten';
+          case 4:  return 'rinkeby';
+          case 42: return 'kovan';
+          default:   return 'private';
         }
     }
 }
