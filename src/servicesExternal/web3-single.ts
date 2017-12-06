@@ -8,10 +8,24 @@ var Web3 = require('web3');
 const ethABI = require('../lib/ethereumjs-abi-perso.js');
 
 export class Web3Single {
+    private static _instance: Web3Single;
+
+    public networkName: string;
     public web3: any;
 
-    constructor(web3Provider ? : any) {
-        this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.node_url));
+    private constructor(web3Provider ? : any, networkId ? : number) {
+        this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.nodeUrlDefault.private));
+        this.networkName = Web3Single.getNetworkName(networkId);
+    }
+
+    public static init(web3Provider ? : any, networkId ? : number) 
+    {   
+        this._instance = new this(web3Provider,networkId);
+    }
+
+    public static getInstance() 
+    {
+        return this._instance;
     }
 
     public async broadcastMethod(_method: any,
@@ -86,10 +100,12 @@ export class Web3Single {
     }
 
     public isAddressNoChecksum(address: string): boolean {
+        if(!address) return false;
         return address && this.web3.utils.isAddress(address.toLowerCase());
     }
 
     public areSameAddressesNoChecksum(address1: string,address2: string): boolean {
+        if(!address1 || !address2) return false;
         return address1 && address2 && address1.toLowerCase()==address2.toLowerCase();
     }
 
@@ -118,4 +134,15 @@ export class Web3Single {
         return _options;
     }
 
+    public static getNetworkName(networkId:any) : string
+    {
+        switch (networkId) {
+          case "1":  return "main";
+          case "2":  return "morden";
+          case "3":  return "ropsten";
+          case "4":  return "rinkeby";
+          case "42": return "kovan";
+          default:   return "private";
+        }
+    }
 }

@@ -1,4 +1,3 @@
-import config from '../config';
 import BigNumber from 'bignumber.js';
 
 import * as Types from '../types';
@@ -6,7 +5,6 @@ import Artifacts from '../artifacts';
 import * as ServicesContracts from '../servicesContracts';
 import * as ServiceExtensions from '../servicesExtensions';
 
-const requestEthereum_Artifact = Artifacts.RequestEthereumArtifact;
 const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 
 import { Web3Single } from '../servicesExternal/web3-single';
@@ -21,12 +19,15 @@ export default class RequestCoreService {
     protected addressRequestCore: string;
     protected instanceRequestCore: any;
 
-    constructor(web3Provider ? : any) {
-        this.web3Single = new Web3Single(web3Provider);
+    constructor() {
+        this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
 
         this.abiRequestCore = requestCore_Artifact.abi;
-        this.addressRequestCore = config.ethereum.contracts.requestCore;
+        if(!requestCore_Artifact.networks[this.web3Single.networkName]) {
+            throw Error('RequestCore Artifact does not have configuration for network : "'+this.web3Single.networkName+'"');
+        }
+        this.addressRequestCore = requestCore_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
 
@@ -119,12 +120,12 @@ export default class RequestCoreService {
                     };
 
                     if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
-                        let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
+                        let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId);
                         dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                     }
 
                     if (data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension)) {
-                        let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId);
+                        let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfoAsync(_requestId);
                         dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                     }
 
@@ -169,12 +170,12 @@ export default class RequestCoreService {
                 };
 
                 if (ServiceExtensions.getServiceFromAddress(data.extension)) {
-                    let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId);
+                    let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfoAsync(_requestId);
                     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                 }
 
                 if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
-                    let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
+                    let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId);
                     dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
                 }
 

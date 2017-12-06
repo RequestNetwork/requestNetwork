@@ -35,7 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = require("../config");
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
 var bignumber_js_1 = require("bignumber.js");
@@ -45,14 +44,15 @@ var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var requestSynchroneExtensionEscrow_Artifact = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
-    function RequestSynchroneExtensionEscrowService(web3Provider) {
-        this.web3Single = new web3_single_1.Web3Single(web3Provider);
+    function RequestSynchroneExtensionEscrowService() {
+        this.web3Single = web3_single_1.Web3Single.getInstance();
         this.abiRequestCore = requestCore_Artifact.abi;
-        this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
-        this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
-        this.requestCoreServices = new requestCore_service_1.default(web3Provider);
+        this.requestCoreServices = new requestCore_service_1.default();
         this.abiSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.abi;
-        this.addressSynchroneExtensionEscrow = config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow;
+        if (!requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName]) {
+            throw Error('requestSynchroneExtensionEscrow Artifact does not have configuration for network : "' + this.web3Single.networkName + '"');
+        }
+        this.addressSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName].address;
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
     }
     RequestSynchroneExtensionEscrowService.prototype.parseParameters = function (_extensionParams) {
@@ -93,7 +93,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (!request.extension) {
                             return [2 /*return*/, reject(Error('request doesn\'t have an extension'))];
                         }
-                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                             return [2 /*return*/, reject(Error('request\'s extension is not sync. escrow'))];
                         }
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
@@ -155,7 +155,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (!request.extension) {
                             return [2 /*return*/, _callbackTransactionError(Error('request doesn\'t have an extension'))];
                         }
-                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                             return [2 /*return*/, _callbackTransactionError(Error('request\'s extension is not sync. escrow'))];
                         }
                         if (request.extension.state != Types.EscrowState.Created) {
@@ -203,7 +203,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (!request.extension) {
                             return [2 /*return*/, reject(Error('request doesn\'t have an extension'))];
                         }
-                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                             return [2 /*return*/, reject(Error('request\'s extension is not sync. escrow'))];
                         }
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
@@ -266,7 +266,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         if (!request.extension) {
                             return [2 /*return*/, _callbackTransactionError(Error('request doesn\'t have an extension'))];
                         }
-                        if (request.extension.address.toLowerCase() != config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                             return [2 /*return*/, _callbackTransactionError(Error('request\'s extension is not sync. escrow'))];
                         }
                         if (request.extension.state != Types.EscrowState.Created) {

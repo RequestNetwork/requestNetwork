@@ -39,9 +39,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 require("mocha");
 var utils = require("../utils");
-var config_1 = require("../../src/config");
 var Web3 = require('web3');
 var requestNetwork_1 = require("../../src/requestNetwork");
+var artifacts_1 = require("../../src/artifacts");
+var addressRequestEthereum = artifacts_1.default.RequestEthereumArtifact.networks.private.address;
+var addressSynchroneExtensionEscrow = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact.networks.private.address;
 var rn;
 var web3;
 var defaultAccount;
@@ -114,7 +116,7 @@ describe('acceptAsync', function () {
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
                     chai_1.expect(result.request.state, 'state is wrong').to.equal('1');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config_1.default.ethereum.contracts.requestEthereum);
+                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
                     chai_1.expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
                     return [2 /*return*/];
             }

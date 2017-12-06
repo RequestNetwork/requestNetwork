@@ -1,3 +1,5 @@
+import { Web3Single } from './servicesExternal/web3-single';
+
 // Core -------------------------------------
 import RequestCoreService from "../src/servicesCore/requestCore-service";
 
@@ -7,17 +9,19 @@ import RequestEthereumService from "../src/servicesContracts/requestEthereum-ser
 // Synchrone Extension ----------------------
 import RequestSynchroneExtensionEscrowService from "../src/servicesExtensions/requestSynchroneExtensionEscrow-service";
 
-
-// const config = require('./config.json');
-
 export default class RequestNetwork {
-
     public requestEthereumService: RequestEthereumService;
     public requestSynchroneExtensionEscrowService: RequestSynchroneExtensionEscrowService;
     public requestCoreService: RequestCoreService;
-    constructor(provider? : any) {
-    	this.requestCoreService = new RequestCoreService(provider);
-        this.requestEthereumService = new RequestEthereumService(provider);
-        this.requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService(provider);
+    
+    constructor(provider? : any, networkId ? : number) {
+    	if(provider && !networkId)
+    	{
+    		throw Error('if you give provider you have to give the networkId too');
+    	}
+    	Web3Single.init(provider,networkId);
+    	this.requestCoreService = new RequestCoreService();
+        this.requestEthereumService = new RequestEthereumService();
+        this.requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
     }
 }

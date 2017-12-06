@@ -1,4 +1,3 @@
-import config from '../config';
 import BigNumber from 'bignumber.js';
 
 import * as Types from '../types';
@@ -18,25 +17,24 @@ export default class RequestEthereumService {
 
     // RequestEthereum on blockchain
     protected abiRequestCore: any;
-    protected addressRequestCore: string;
-    protected instanceRequestCore: any;
     protected requestCoreServices:any;
 
     protected abiRequestEthereum: any;
     protected addressRequestEthereum: string;
     protected instanceRequestEthereum: any;
 
-    constructor(web3Provider ? : any) {
-        this.web3Single = new Web3Single(web3Provider);
+    constructor() {
+        this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
 
         this.abiRequestCore = requestCore_Artifact.abi;
-        this.addressRequestCore = config.ethereum.contracts.requestCore;
-        this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
-        this.requestCoreServices = new RequestCoreService(web3Provider)
+        this.requestCoreServices = new RequestCoreService();
 
         this.abiRequestEthereum = requestEthereum_Artifact.abi;
-        this.addressRequestEthereum = config.ethereum.contracts.requestEthereum;
+        if(!requestEthereum_Artifact.networks[this.web3Single.networkName]) {
+            throw Error('RequestEthereum Artifact does not have configuration for network : "'+this.web3Single.networkName+'"');
+        }
+        this.addressRequestEthereum = requestEthereum_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
 
@@ -69,7 +67,7 @@ export default class RequestEthereumService {
                 if (!_extension || _extension == '') {
                     paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
                 } else if(ServiceExtensions.getServiceFromAddress(_extension)) {
-                    let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
+                    let parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
                     if(parsing.error) {
                       return reject(parsing.error);
                     }
@@ -147,7 +145,7 @@ export default class RequestEthereumService {
             if (!_extension || _extension == '') {
                 paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
             } else if(ServiceExtensions.getServiceFromAddress(_extension)) {
-                let parsing = ServiceExtensions.getServiceFromAddress(_extension,this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
+                let parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
                 if(parsing.error) {
                   return _callbackTransactionError(parsing.error);
                 }

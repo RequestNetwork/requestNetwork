@@ -35,21 +35,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = require("../config");
 var bignumber_js_1 = require("bignumber.js");
 var artifacts_1 = require("../artifacts");
 var ServicesContracts = require("../servicesContracts");
 var ServiceExtensions = require("../servicesExtensions");
-var requestEthereum_Artifact = artifacts_1.default.RequestEthereumArtifact;
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var RequestCoreService = /** @class */ (function () {
-    function RequestCoreService(web3Provider) {
-        this.web3Single = new web3_single_1.Web3Single(web3Provider);
+    function RequestCoreService() {
+        this.web3Single = web3_single_1.Web3Single.getInstance();
         this.ipfs = ipfs_service_1.default.getInstance();
         this.abiRequestCore = requestCore_Artifact.abi;
-        this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
+        if (!requestCore_Artifact.networks[this.web3Single.networkName]) {
+            throw Error('RequestCore Artifact does not have configuration for network : "' + this.web3Single.networkName + '"');
+        }
+        this.addressRequestCore = requestCore_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
     RequestCoreService.prototype.getCurrentNumRequest = function (_callback) {
@@ -153,14 +154,14 @@ var RequestCoreService = /** @class */ (function () {
                                 data: data.data,
                             };
                             if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 3];
-                            return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
+                            return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId)];
                         case 2:
                             currencyContractDetails = _e.sent();
                             dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                             _e.label = 3;
                         case 3:
                             if (!(data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension))) return [3 /*break*/, 5];
-                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId)];
+                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfoAsync(_requestId)];
                         case 4:
                             extensionDetails = _e.sent();
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
@@ -217,14 +218,14 @@ var RequestCoreService = /** @class */ (function () {
                             data: data.data,
                         };
                         if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId)];
+                        return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfoAsync(_requestId)];
                     case 2:
                         extensionDetails = _a.sent();
                         dataResult_1.extension = Object.assign(extensionDetails, { address: dataResult_1.extension });
                         _a.label = 3;
                     case 3:
                         if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
+                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId)];
                     case 4:
                         currencyContractDetails = _a.sent();
                         dataResult_1.currencyContract = Object.assign(currencyContractDetails, { address: dataResult_1.extension });

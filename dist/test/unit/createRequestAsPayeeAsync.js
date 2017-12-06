@@ -39,9 +39,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 require("mocha");
 var utils = require("../utils");
-var config_1 = require("../../src/config");
 var Web3 = require('web3');
 var requestNetwork_1 = require("../../src/requestNetwork");
+var artifacts_1 = require("../../src/artifacts");
+var addressRequestEthereum = artifacts_1.default.RequestEthereumArtifact.networks.private.address;
+var addressSynchroneExtensionEscrow = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact.networks.private.address;
 var rn;
 var web3;
 var defaultAccount;
@@ -90,7 +92,7 @@ describe('createRequestAsPayeeAsync', function () {
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
                     chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config_1.default.ethereum.contracts.requestEthereum);
+                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
                     utils.expectEqualsObject(result.request.data.data, { "reason": "weed purchased" }, 'data.data is wrong');
                     chai_1.expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
                     chai_1.expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
@@ -114,7 +116,7 @@ describe('createRequestAsPayeeAsync', function () {
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
                     chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config_1.default.ethereum.contracts.requestEthereum);
+                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
                     chai_1.expect(result.request.data, 'request.data is wrong').to.be.undefined;
                     return [2 /*return*/];
             }
@@ -202,7 +204,7 @@ describe('createRequestAsPayeeAsync', function () {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', config_1.default.ethereum.contracts.requestEthereum)];
+                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', addressRequestEthereum)];
                 case 1:
                     result = _a.sent();
                     chai_1.expect(false, 'exception not thrown').to.be.true;
@@ -219,7 +221,7 @@ describe('createRequestAsPayeeAsync', function () {
         var result;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow, [otherGuy])];
+                case 0: return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', addressSynchroneExtensionEscrow, [otherGuy])];
                 case 1:
                     result = _a.sent();
                     chai_1.expect(result).to.have.property('transactionHash');
@@ -230,8 +232,8 @@ describe('createRequestAsPayeeAsync', function () {
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
                     chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config_1.default.ethereum.contracts.requestEthereum);
-                    chai_1.expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow);
+                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+                    chai_1.expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(addressSynchroneExtensionEscrow);
                     chai_1.expect(result.request.data, 'request.data is wrong').to.be.undefined;
                     return [2 /*return*/];
             }

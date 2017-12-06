@@ -1,15 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = require("./config");
+var artifacts_1 = require("./artifacts");
 var requestSynchroneExtensionEscrow_service_1 = require("./servicesExtensions/requestSynchroneExtensionEscrow-service");
-exports.getServiceFromAddress = function (address, web3Provider) {
+exports.getServiceFromAddress = function (address) {
     if (!address)
         return undefined;
-    switch (address.toLowerCase()) {
-        case config_1.default.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase():
-            return new requestSynchroneExtensionEscrow_service_1.default(web3Provider);
-        default:
-            return undefined;
+    if (isThisArtifact(artifacts_1.default.RequestSynchroneExtensionEscrowArtifact, address)) {
+        return new requestSynchroneExtensionEscrow_service_1.default();
     }
+    else {
+        return undefined;
+    }
+};
+var isThisArtifact = function (artifact, address) {
+    if (!address)
+        return false;
+    var found = false;
+    Object.keys(artifact.networks).forEach(function (k) {
+        found = found || (artifact.networks[k].address && artifact.networks[k].address.toLowerCase() == address.toLowerCase());
+    });
+    return found;
 };
 //# sourceMappingURL=servicesExtensions.js.map

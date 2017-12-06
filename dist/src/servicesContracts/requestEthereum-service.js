@@ -35,7 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = require("../config");
 var bignumber_js_1 = require("bignumber.js");
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
@@ -46,15 +45,16 @@ var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var RequestEthereumService = /** @class */ (function () {
-    function RequestEthereumService(web3Provider) {
-        this.web3Single = new web3_single_1.Web3Single(web3Provider);
+    function RequestEthereumService() {
+        this.web3Single = web3_single_1.Web3Single.getInstance();
         this.ipfs = ipfs_service_1.default.getInstance();
         this.abiRequestCore = requestCore_Artifact.abi;
-        this.addressRequestCore = config_1.default.ethereum.contracts.requestCore;
-        this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
-        this.requestCoreServices = new requestCore_service_1.default(web3Provider);
+        this.requestCoreServices = new requestCore_service_1.default();
         this.abiRequestEthereum = requestEthereum_Artifact.abi;
-        this.addressRequestEthereum = config_1.default.ethereum.contracts.requestEthereum;
+        if (!requestEthereum_Artifact.networks[this.web3Single.networkName]) {
+            throw Error('RequestEthereum Artifact does not have configuration for network : "' + this.web3Single.networkName + '"');
+        }
+        this.addressRequestEthereum = requestEthereum_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
     RequestEthereumService.prototype.createRequestAsPayeeAsync = function (_payer, _amountInitial, _data, _extension, _extensionParams, _options) {
@@ -98,7 +98,7 @@ var RequestEthereumService = /** @class */ (function () {
                                         paramsParsed_1 = this.web3Single.arrayToBytes32(_extensionParams, 9);
                                     }
                                     else if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                                        parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
+                                        parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
                                         if (parsing.error) {
                                             return [2 /*return*/, reject(parsing.error)];
                                         }
@@ -189,7 +189,7 @@ var RequestEthereumService = /** @class */ (function () {
                             paramsParsed_2 = this.web3Single.arrayToBytes32(_extensionParams, 9);
                         }
                         else if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                            parsing = ServiceExtensions.getServiceFromAddress(_extension, this.web3Single.web3.currentProvider).parseParameters(_extensionParams);
+                            parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
                             if (parsing.error) {
                                 return [2 /*return*/, _callbackTransactionError(parsing.error)];
                             }
@@ -240,6 +240,7 @@ var RequestEthereumService = /** @class */ (function () {
                         if (request.state != Types.State.Created) {
                             return [2 /*return*/, reject(Error('request state is not \'created\''))];
                         }
+                        console.log([account, request.payer]);
                         if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
                             return [2 /*return*/, reject(Error('account must be the payer'))];
                         }

@@ -42,9 +42,17 @@ var Web3 = require('web3');
 // declare var require: (moduleId: string) => any;
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
 var Web3Single = /** @class */ (function () {
-    function Web3Single(web3Provider) {
-        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.node_url));
+    function Web3Single(web3Provider, networkId) {
+        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault.private));
+        this.networkName = Web3Single.getNetworkName(networkId);
+        console.log("this.networkName " + this.networkName);
     }
+    Web3Single.init = function (web3Provider, networkId) {
+        this._instance = new this(web3Provider, networkId);
+    };
+    Web3Single.getInstance = function () {
+        return this._instance;
+    };
     Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var accounts, e_1, forcedGas;
@@ -125,9 +133,13 @@ var Web3Single = /** @class */ (function () {
         return ret;
     };
     Web3Single.prototype.isAddressNoChecksum = function (address) {
+        if (!address)
+            return false;
         return address && this.web3.utils.isAddress(address.toLowerCase());
     };
     Web3Single.prototype.areSameAddressesNoChecksum = function (address1, address2) {
+        if (!address1 || !address2)
+            return false;
         return address1 && address2 && address1.toLowerCase() == address2.toLowerCase();
     };
     Web3Single.prototype.isHexStrictBytes32 = function (hex) {
@@ -154,6 +166,16 @@ var Web3Single = /** @class */ (function () {
         if (_options.gas)
             _options.gas = new bignumber_js_1.default(_options.gas);
         return _options;
+    };
+    Web3Single.getNetworkName = function (networkId) {
+        switch (networkId) {
+            case "1": return "main";
+            case "2": return "morden";
+            case "3": return "ropsten";
+            case "4": return "rinkeby";
+            case "42": return "kovan";
+            default: return "private";
+        }
     };
     return Web3Single;
 }());

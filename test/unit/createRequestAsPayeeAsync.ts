@@ -2,13 +2,14 @@ import {expect} from 'chai';
 import BigNumber from 'bignumber.js';
 import 'mocha';
 import * as utils from '../utils';
-import config from '../../src/config';
 
 var Web3 = require('web3');
 
 
 import RequestNetwork from '../../src/requestNetwork';
-
+import Artifacts from '../../src/artifacts';
+const addressRequestEthereum = Artifacts.RequestEthereumArtifact.networks.private.address;
+const addressSynchroneExtensionEscrow = Artifacts.RequestSynchroneExtensionEscrowArtifact.networks.private.address;
 
 var rn;
 var web3;
@@ -43,7 +44,6 @@ describe('createRequestAsPayeeAsync', () => {
                     '', 
                     [],
                     {from: payee});
-
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
@@ -52,7 +52,7 @@ describe('createRequestAsPayeeAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('0');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"},'data.data is wrong')
         expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
@@ -75,7 +75,7 @@ describe('createRequestAsPayeeAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('0');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         expect(result.request.data, 'request.data is wrong').to.be.undefined;
     });
@@ -132,7 +132,7 @@ describe('createRequestAsPayeeAsync', () => {
                     payer,
                     arbitraryAmount,
                     '',
-                    config.ethereum.contracts.requestEthereum);
+                    addressRequestEthereum);
             expect(false,'exception not thrown').to.be.true; 
         } catch(e) {
             utils.expectEqualsObject(e,Error('_extension is not supported'),'exception not right');
@@ -144,7 +144,7 @@ describe('createRequestAsPayeeAsync', () => {
                 payer,
                 arbitraryAmount,
                 '',
-                config.ethereum.contracts.requestSynchroneExtensionEscrow,
+                addressSynchroneExtensionEscrow,
                 [otherGuy]);
 
         expect(result).to.have.property('transactionHash'); 
@@ -157,8 +157,8 @@ describe('createRequestAsPayeeAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('0');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
-        expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(config.ethereum.contracts.requestSynchroneExtensionEscrow);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(addressSynchroneExtensionEscrow);
 
         expect(result.request.data, 'request.data is wrong').to.be.undefined;
     });

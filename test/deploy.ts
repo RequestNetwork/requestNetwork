@@ -10,10 +10,8 @@ let RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
 let RequestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
 let RequestBurnManagerSimple = require("../src/artifacts/RequestBurnManagerSimple.json");
 
-const config = require('../src/config.json');
-
-
-let web3Single = new Web3Single();
+Web3Single.init();
+let web3Single = Web3Single.getInstance();
 
 // let web3Single = Web3Sgl.Web3Single.getInstance();
 

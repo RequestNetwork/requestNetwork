@@ -5,7 +5,7 @@ var config_1 = require("../config");
 var ipfsAPI = require("ipfs-api");
 var Ipfs = /** @class */ (function () {
     function Ipfs() {
-        this.ipfs = ipfsAPI(config_1.default.ipfs.node_url);
+        this.ipfs = ipfsAPI(config_1.default.ipfs.nodeUrlDefault.public);
     }
     Ipfs.getInstance = function () {
         return this._instance || (this._instance = new this());

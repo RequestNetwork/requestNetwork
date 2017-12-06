@@ -13,7 +13,7 @@ export type CallbackIpfsGetFile = (err:Error, data:string) => void;
 
 export interface Artifact {
     abi: any;
-    networks: {[networkId: number]: {
+    networks: {[networkName: string]: {
         address: string;
     }};
 }

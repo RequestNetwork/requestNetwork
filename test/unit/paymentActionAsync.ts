@@ -2,11 +2,13 @@ import {expect} from 'chai';
 import BigNumber from 'bignumber.js';
 import 'mocha';
 import * as utils from '../utils';
-import config from '../../src/config';
 
 var Web3 = require('web3');
 
 import RequestNetwork from '../../src/requestNetwork';
+import Artifacts from '../../src/artifacts';
+const addressRequestEthereum = Artifacts.RequestEthereumArtifact.networks.private.address;
+const addressSynchroneExtensionEscrow = Artifacts.RequestSynchroneExtensionEscrowArtifact.networks.private.address;
 
 var rn;
 var web3;
@@ -65,7 +67,7 @@ describe('paymentActionAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
@@ -89,7 +91,7 @@ describe('paymentActionAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
@@ -177,7 +179,7 @@ describe('paymentActionAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
@@ -202,7 +204,7 @@ describe('paymentActionAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
@@ -226,7 +228,7 @@ describe('paymentActionAsync', () => {
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal('1');
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(config.ethereum.contracts.requestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });

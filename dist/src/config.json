@@ -1,18 +1,18 @@
 {
 	"ethereum": 
-	{
-		"node_url": "http://localhost:8545",
-		"contracts": 
+	{	
+		"nodeUrlDefault": 
 		{
-			"requestCore": "0x8cdaf0cd259887258bc13a92c0a6da92698644c0",
-			"requestEthereum": "0xf12b5dd4ead5f743c6baa640b0216200e89b60da",
-			"requestSynchroneExtensionEscrow": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
+			"private": "http://localhost:8545",
+			"kovan": "https://kovan.infura.io/BQBjfSi5EKSCQQpXebO"
 		},
 		"gasPriceDefault": "5",
 		"gasPriceDefaultUnit": "gwei"
 	},
 	"ipfs": 
 	{
-		"node_url": "/ip4/127.0.0.1/tcp/5001"
+		"nodeUrlDefault": {
+			"public": "/ip4/127.0.0.1/tcp/5001"
+		}
 	}
 }

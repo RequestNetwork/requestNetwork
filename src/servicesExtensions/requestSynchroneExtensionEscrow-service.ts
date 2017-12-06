@@ -15,24 +15,23 @@ export default class RequestSynchroneExtensionEscrowService {
 
     // RequestEthereum on blockchain
     protected abiRequestCore: any;
-    protected addressRequestCore: string;
-    protected instanceRequestCore: any;
     protected requestCoreServices:any;
 
     protected abiSynchroneExtensionEscrow: any;
     protected addressSynchroneExtensionEscrow: string;
     protected instanceSynchroneExtensionEscrow: any;
 
-    constructor(web3Provider ? : any) {
-        this.web3Single = new Web3Single(web3Provider);
+    constructor() {
+        this.web3Single = Web3Single.getInstance();
 
         this.abiRequestCore = requestCore_Artifact.abi;
-        this.addressRequestCore = config.ethereum.contracts.requestCore;
-        this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
-        this.requestCoreServices = new RequestCoreService(web3Provider);
+        this.requestCoreServices = new RequestCoreService();
 
         this.abiSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.abi;
-        this.addressSynchroneExtensionEscrow = config.ethereum.contracts.requestSynchroneExtensionEscrow;
+        if(!requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName]) {
+            throw Error('requestSynchroneExtensionEscrow Artifact does not have configuration for network : "'+this.web3Single.networkName+'"');
+        }
+        this.addressSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName].address;
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
     }
 
@@ -68,7 +67,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 if(!request.extension) {
                     return reject(Error('request doesn\'t have an extension'));
                 }
-                if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                     return reject(Error('request\'s extension is not sync. escrow'));
                 }
                 if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
@@ -128,7 +127,7 @@ export default class RequestSynchroneExtensionEscrowService {
             if(!request.extension) {
                 return _callbackTransactionError(Error('request doesn\'t have an extension'));
             }
-            if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+            if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                 return _callbackTransactionError(Error('request\'s extension is not sync. escrow'));
             }
             if(request.extension.state != Types.EscrowState.Created) {
@@ -168,7 +167,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 if(!request.extension) {
                     return reject(Error('request doesn\'t have an extension'));
                 }
-                if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+                if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                     return reject(Error('request\'s extension is not sync. escrow'));
                 }
                 if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
@@ -229,7 +228,7 @@ export default class RequestSynchroneExtensionEscrowService {
             if(!request.extension) {
                 return _callbackTransactionError(Error('request doesn\'t have an extension'));
             }
-            if(request.extension.address.toLowerCase() != config.ethereum.contracts.requestSynchroneExtensionEscrow.toLowerCase()) {
+            if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
                 return _callbackTransactionError(Error('request\'s extension is not sync. escrow'));
             }
             if(request.extension.state != Types.EscrowState.Created) {
