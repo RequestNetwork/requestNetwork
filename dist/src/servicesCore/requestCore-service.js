@@ -134,6 +134,12 @@ var RequestCoreService = /** @class */ (function () {
                         case 0:
                             if (err)
                                 return [2 /*return*/, reject(err)];
+                            _e.label = 1;
+                        case 1:
+                            _e.trys.push([1, 9, , 10]);
+                            if (data.creator == '0x0000000000000000000000000000000000000000') {
+                                return [2 /*return*/, reject(Error('request not found'))];
+                            }
                             dataResult = {
                                 requestId: _requestId,
                                 creator: data.creator,
@@ -146,24 +152,21 @@ var RequestCoreService = /** @class */ (function () {
                                 extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
                                 data: data.data,
                             };
-                            if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 2];
+                            if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 3];
                             return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
-                        case 1:
+                        case 2:
                             currencyContractDetails = _e.sent();
                             dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
-                            _e.label = 2;
-                        case 2:
-                            if (!(data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension))) return [3 /*break*/, 4];
-                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId)];
+                            _e.label = 3;
                         case 3:
+                            if (!(data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension))) return [3 /*break*/, 5];
+                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId)];
+                        case 4:
                             extensionDetails = _e.sent();
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                            _e.label = 4;
-                        case 4:
-                            if (!(dataResult.data && dataResult.data != '')) return [3 /*break*/, 9];
                             _e.label = 5;
                         case 5:
-                            _e.trys.push([5, 7, , 8]);
+                            if (!(dataResult.data && dataResult.data != '')) return [3 /*break*/, 7];
                             _a = dataResult;
                             _b = { hash: dataResult.data };
                             _d = (_c = JSON).parse;
@@ -172,13 +175,13 @@ var RequestCoreService = /** @class */ (function () {
                             _a.data = (_b.data = _d.apply(_c, [_e.sent()]), _b);
                             return [3 /*break*/, 8];
                         case 7:
+                            dataResult.data = undefined;
+                            _e.label = 8;
+                        case 8: return [2 /*return*/, resolve(dataResult)];
+                        case 9:
                             e_1 = _e.sent();
                             return [2 /*return*/, reject(e_1)];
-                        case 8: return [3 /*break*/, 10];
-                        case 9:
-                            dataResult.data = undefined;
-                            _e.label = 10;
-                        case 10: return [2 /*return*/, resolve(dataResult)];
+                        case 10: return [2 /*return*/];
                     }
                 });
             }); });
@@ -189,13 +192,19 @@ var RequestCoreService = /** @class */ (function () {
         if (!this.web3Single.isHexStrictBytes32(_requestId))
             return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), undefined);
         this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult, extensionDetails, currencyContractDetails;
+            var dataResult_1, extensionDetails, currencyContractDetails, e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (err)
                             return [2 /*return*/, _callbackGetRequest(err, data)];
-                        dataResult = {
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 6, , 7]);
+                        if (data.creator == '0x0000000000000000000000000000000000000000') {
+                            return [2 /*return*/, _callbackGetRequest(Error('request not found'), data)];
+                        }
+                        dataResult_1 = {
                             requestId: _requestId,
                             creator: data.creator,
                             payee: data.payee,
@@ -207,33 +216,37 @@ var RequestCoreService = /** @class */ (function () {
                             extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
                             data: data.data,
                         };
-                        if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 2];
+                        if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 3];
                         return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension, this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId)];
-                    case 1:
-                        extensionDetails = _a.sent();
-                        dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                        _a.label = 2;
                     case 2:
-                        if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
+                        extensionDetails = _a.sent();
+                        dataResult_1.extension = Object.assign(extensionDetails, { address: dataResult_1.extension });
+                        _a.label = 3;
                     case 3:
-                        currencyContractDetails = _a.sent();
-                        dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
-                        _a.label = 4;
+                        if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract, this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId)];
                     case 4:
-                        if (dataResult.data && dataResult.data != '') {
+                        currencyContractDetails = _a.sent();
+                        dataResult_1.currencyContract = Object.assign(currencyContractDetails, { address: dataResult_1.extension });
+                        _a.label = 5;
+                    case 5:
+                        if (dataResult_1.data && dataResult_1.data != '') {
                             // get IPFS data :
-                            this.ipfs.getFile(dataResult.data, function (err, data) {
+                            this.ipfs.getFile(dataResult_1.data, function (err, data) {
                                 if (err)
-                                    return _callbackGetRequest(err, dataResult);
-                                dataResult.data = { hash: dataResult, data: JSON.parse(data) };
-                                return _callbackGetRequest(err, dataResult);
+                                    return _callbackGetRequest(err, dataResult_1);
+                                dataResult_1.data = { hash: dataResult_1, data: JSON.parse(data) };
+                                return _callbackGetRequest(err, dataResult_1);
                             });
                         }
                         else {
-                            return [2 /*return*/, _callbackGetRequest(err, dataResult)];
+                            return [2 /*return*/, _callbackGetRequest(err, dataResult_1)];
                         }
-                        return [2 /*return*/];
+                        return [3 /*break*/, 7];
+                    case 6:
+                        e_2 = _a.sent();
+                        return [2 /*return*/, _callbackGetRequest(e_2, null)];
+                    case 7: return [2 /*return*/];
                 }
             });
         }); });

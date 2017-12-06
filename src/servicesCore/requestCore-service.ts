@@ -99,6 +99,62 @@ export default class RequestCoreService {
             this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
                 if (err) return reject(err);
 
+                try {
+                    if(data.creator == '0x0000000000000000000000000000000000000000') 
+                    {
+                        return reject(Error('request not found'));
+                    }
+
+                    let dataResult: any = {
+                        requestId: _requestId,
+                        creator: data.creator,
+                        payee: data.payee,
+                        payer: data.payer,
+                        expectedAmount: new BigNumber(data.expectedAmount),
+                        currencyContract: data.currencyContract,
+                        balance: new BigNumber(data.balance),
+                        state: data.state,
+                        extension: data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined,
+                        data: data.data,
+                    };
+
+                    if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
+                        let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
+                        dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
+                    }
+
+                    if (data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension)) {
+                        let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId);
+                        dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
+                    }
+
+                    if (dataResult.data && dataResult.data != '') {
+                        dataResult.data = {hash:dataResult.data, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.data))};
+                    } else {
+                        dataResult.data = undefined;
+                    }
+                    return resolve(dataResult);
+                } catch (e) {
+                    return reject(e);
+                }
+            });
+        });
+    }
+
+    public getRequest(
+        _requestId: string,
+        _callbackGetRequest: Types.CallbackGetRequest) {
+        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),undefined);
+
+        this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
+            if (err) return _callbackGetRequest(err, data);
+
+            try {
+                if(data.creator == '0x0000000000000000000000000000000000000000') 
+                {
+                    return _callbackGetRequest(Error('request not found'),data);
+                }
+
                 let dataResult: any = {
                     requestId: _requestId,
                     creator: data.creator,
@@ -112,70 +168,28 @@ export default class RequestCoreService {
                     data: data.data,
                 };
 
-                if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
-                    let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
-                    dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
-                }
-
-                if (data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension)) {
+                if (ServiceExtensions.getServiceFromAddress(data.extension)) {
                     let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId);
                     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                 }
 
-                if (dataResult.data && dataResult.data != '') {
-                    try {
-                        dataResult.data = {hash:dataResult.data, data:JSON.parse(await this.ipfs.getFileAsync(dataResult.data))};
-                    } catch (e) {
-                        return reject(e);
-                    }
-                } else {
-                    dataResult.data = undefined;
+                if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
+                    let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
+                    dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
                 }
-                return resolve(dataResult);
-            });
-        });
-    }
 
-    public getRequest(
-        _requestId: string,
-        _callbackGetRequest: Types.CallbackGetRequest) {
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),undefined);
-
-        this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
-            if (err) return _callbackGetRequest(err, data);
-
-            let dataResult: any = {
-                requestId: _requestId,
-                creator: data.creator,
-                payee: data.payee,
-                payer: data.payer,
-                expectedAmount: new BigNumber(data.expectedAmount),
-                currencyContract: data.currencyContract,
-                balance: new BigNumber(data.balance),
-                state: data.state,
-                extension: data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined,
-                data: data.data,
-            };
-
-            if (ServiceExtensions.getServiceFromAddress(data.extension)) {
-                let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension,this.web3Single.web3.currentProvider).getRequestExtensionInfoAsync(_requestId);
-                dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-            }
-
-            if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
-                let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract,this.web3Single.web3.currentProvider).getRequestCurrencyContractInfoAsync(_requestId);
-                dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
-            }
-
-            if (dataResult.data && dataResult.data != '') {
-                // get IPFS data :
-                this.ipfs.getFile(dataResult.data, (err: Error, data: string) => {
-                    if (err) return _callbackGetRequest(err, dataResult);
-                    dataResult.data = {hash:dataResult, data:JSON.parse(data)};
+                if (dataResult.data && dataResult.data != '') {
+                    // get IPFS data :
+                    this.ipfs.getFile(dataResult.data, (err: Error, data: string) => {
+                        if (err) return _callbackGetRequest(err, dataResult);
+                        dataResult.data = {hash:dataResult, data:JSON.parse(data)};
+                        return _callbackGetRequest(err, dataResult);
+                    });
+                } else {
                     return _callbackGetRequest(err, dataResult);
-                });
-            } else {
-                return _callbackGetRequest(err, dataResult);
+                }
+            } catch (e) {
+                return _callbackGetRequest(e,null);
             }
         });
     }        

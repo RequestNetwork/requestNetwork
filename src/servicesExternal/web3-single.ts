@@ -31,14 +31,15 @@ export class Web3Single {
                 return _callbackTransactionError(e);
             }
         }
+        let forcedGas = _options.gas;
         _options.value = _options.value?_options.value:0;
-        _options.gas = _options.gas?_options.gas:85500000;
+        _options.gas = forcedGas?forcedGas:90000000;
         _options.gasPrice = _options.gasPrice?_options.gasPrice:this.web3.utils.toWei(config.ethereum.gasPriceDefault, config.ethereum.gasPriceDefaultUnit);
 
         _method.estimateGas(_options, (err: any, estimateGas: number) => {
             if (err) return _callbackTransactionError(err);
 
-            _options.gas = _options.gas?_options.gas:Math.floor(estimateGas * 2);
+            _options.gas = forcedGas?forcedGas:Math.floor(estimateGas * 2);
             _method.send(_options)
                 .on('transactionHash', _callbackTransactionHash)
                 .on('receipt', _callbackTransactionReceipt)

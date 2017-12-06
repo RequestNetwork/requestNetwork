@@ -47,7 +47,7 @@ var Web3Single = /** @class */ (function () {
     }
     Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var accounts, e_1;
+            var accounts, e_1, forcedGas;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -66,13 +66,14 @@ var Web3Single = /** @class */ (function () {
                         e_1 = _a.sent();
                         return [2 /*return*/, _callbackTransactionError(e_1)];
                     case 4:
+                        forcedGas = _options.gas;
                         _options.value = _options.value ? _options.value : 0;
-                        _options.gas = _options.gas ? _options.gas : 85500000;
+                        _options.gas = forcedGas ? forcedGas : 90000000;
                         _options.gasPrice = _options.gasPrice ? _options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
                         _method.estimateGas(_options, function (err, estimateGas) {
                             if (err)
                                 return _callbackTransactionError(err);
-                            _options.gas = _options.gas ? _options.gas : Math.floor(estimateGas * 2);
+                            _options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
                             _method.send(_options)
                                 .on('transactionHash', _callbackTransactionHash)
                                 .on('receipt', _callbackTransactionReceipt)

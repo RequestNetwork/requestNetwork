@@ -97,9 +97,13 @@ export default class RequestEthereumService {
                         },
                         async (confirmationNumber: number, receipt: any) => {
                             if (confirmationNumber == _options.numberOfConfirmation) {
-                                let event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
-                                let request = await this.getRequestAsync(event.requestId);
-                                return resolve({ request: request, transactionHash: receipt.transactionHash});
+                                try {
+                                    let event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
+                                    let request = await this.getRequestAsync(event.requestId);
+                                    return resolve({ request: request, transactionHash: receipt.transactionHash});
+                                } catch(e) {
+                                    return reject(e);
+                                }
                             }
                         },
                         (error: Error) => {
@@ -207,9 +211,13 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            try {
+                                var event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
+                                let request = await this.getRequestAsync(event.requestId);
+                                return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            } catch(e) {
+                                return reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -294,9 +302,13 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            try {
+                                var event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
+                                let request = await this.getRequestAsync(event.requestId);
+                                return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            } catch(e) {
+                                return reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -386,9 +398,13 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
-                            let requestAfter = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: requestAfter, transactionHash: receipt.transactionHash});
+                            try {
+                                var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
+                                let requestAfter = await this.getRequestAsync(event.requestId);
+                                return resolve({ request: requestAfter, transactionHash: receipt.transactionHash});
+                            } catch(e) {
+                                return reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -478,9 +494,13 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                                try {
+                                    var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
+                                    let request = await this.getRequestAsync(event.requestId);
+                                    return resolve({ request: request, transactionHash: receipt.transactionHash});
+                                } catch(e) {
+                                    return reject(e);
+                                }
                         }
                     },
                     (error: Error) => {
@@ -570,9 +590,13 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            try {
+                                var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
+                                let request = await this.getRequestAsync(event.requestId);
+                                return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            } catch(e) {
+                                return reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -665,9 +689,13 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
-                            let request = await this.getRequestAsync(event.requestId);
-                            return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            try {
+                                var event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
+                                let request = await this.getRequestAsync(event.requestId);
+                                return resolve({ request: request, transactionHash: receipt.transactionHash});
+                            } catch(e) {
+                                return reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -737,7 +765,11 @@ export default class RequestEthereumService {
                 },
                 (confirmationNumber: number, receipt: any) => {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        return resolve({ transactionHash: receipt.transactionHash });
+                        try {
+                            return resolve({ transactionHash: receipt.transactionHash });
+                        } catch(e) {
+                            return reject(e);
+                        }
                     }
                 },
                 (error: Error) => {
@@ -783,8 +815,12 @@ export default class RequestEthereumService {
     public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
-            let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
-            return resolve(dataResult);
+            try {
+                let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
+                return resolve(dataResult);
+            } catch(e) {
+                return reject(e);
+            }
         });
     }
 

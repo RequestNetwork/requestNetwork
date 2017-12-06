@@ -256,8 +256,12 @@ export default class RequestSynchroneExtensionEscrowService {
     public getRequestAsync(
         _requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
-            let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
-            return resolve(dataResult);
+            try {
+                let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
+                return resolve(dataResult);
+            } catch(e) {
+                return reject(e);
+            }
         });
     }
 
