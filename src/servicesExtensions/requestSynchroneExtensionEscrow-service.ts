@@ -2,6 +2,7 @@ import config from '../config';
 import * as Types from '../types';
 import Artifacts from '../artifacts';
 import BigNumber from 'bignumber.js';
+import * as Web3PromiEvent from 'web3-core-promievent';
 // import * as ServicesContracts from '../servicesContracts';
 import RequestCoreService from '../servicesCore/requestCore-service';
 
@@ -50,134 +51,92 @@ export default class RequestSynchroneExtensionEscrowService {
         return {result:ret};
     }
 
-
-    public releaseToPayeeActionAsync(
+    public releaseToPayeeAction(
         _requestId: string,
-        _options ?: any ): Promise < any > {
+        _options ? : any): Web3PromiEvent {
+        let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        return new Promise(async (resolve, reject) => {
-            try {
-                let account = _options.from || await this.web3Single.getDefaultAccount();
 
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+        this.web3Single.getDefaultAccount((err,defaultAccount) => {
+            if(!_options.from && err) return promiEvent.reject(err);
+            let account = _options.from || defaultAccount;
 
-                let request = await this.getRequestAsync(_requestId);
+            this.getRequest(_requestId, (err,request) => {
+                if (err) return promiEvent.reject(err);
 
                 if(!request.extension) {
-                    return reject(Error('request doesn\'t have an extension'));
+                    return promiEvent.reject(Error('request doesn\'t have an extension'));
                 }
                 if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                    return reject(Error('request\'s extension is not sync. escrow'));
+                    return promiEvent.reject(Error('request\'s extension is not sync. escrow'));
                 }
                 if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
-                    return reject(Error('account must be payer or escrow'));
+                    return promiEvent.reject(Error('account must be payer or escrow'));
                 }
                 if(request.extension.state != Types.EscrowState.Created) {
-                    return reject(Error('Escrow state must be \'Created\''));
+                    return promiEvent.reject(Error('Escrow state must be \'Created\''));
                 }
                 if(request.state != Types.State.Accepted) {
-                    return reject(Error('State must be \'Accepted\''));
+                    return promiEvent.reject(Error('State must be \'Accepted\''));
                 }
 
-                var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
+                var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
                     (transactionHash: string) => {
-                        // we do nothing here!
+                        return promiEvent.eventEmitter.emit('broadcasted',{ transactionHash: transactionHash});
                     },
                     (receipt: any) => {
                         // we do nothing here!
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            // check in case of failed : no event
-                            return resolve({ requestId: receipt.events.EscrowReleaseRequest.returnValues.requestId, transactionHash: receipt.transactionHash });
+                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
+                            this.getRequest(_requestId, (err,request) => {
+                                if(err) return promiEvent.reject(err);
+                                promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
+                            });
                         }
                     },
                     (error: Error) => {
-                        return reject(error);
+                        return promiEvent.reject(error);
                     },
                     _options);
-            } catch(e) {
-                return reject(e);
-            }
+            });
         });
+
+        return promiEvent.eventEmitter;
     }
 
-    public async releaseToPayeeAction(
+
+    public releaseToPayerAction(
         _requestId: string,
-        _callbackTransactionHash: Types.CallbackTransactionHash,
-        _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
-        _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-        _callbackTransactionError: Types.CallbackTransactionError,
-        _options ?: any): Promise<any> {
-        try {
-            _options = this.web3Single.setUpOptions(_options);
-            let account = _options.from || await this.web3Single.getDefaultAccount();
-
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-            let request = await this.getRequestAsync(_requestId);
-            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                return _callbackTransactionError(Error('account must be payer or escrow'));
-            }
-
-            if(!request.extension) {
-                return _callbackTransactionError(Error('request doesn\'t have an extension'));
-            }
-            if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                return _callbackTransactionError(Error('request\'s extension is not sync. escrow'));
-            }
-            if(request.extension.state != Types.EscrowState.Created) {
-                return _callbackTransactionError(Error('Escrow state must be \'Created\''));
-            }
-            if(request.state != Types.State.Accepted) {
-                return _callbackTransactionError(Error('State must be \'Accepted\''));
-            }
-
-            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
-
-            this.web3Single.broadcastMethod(
-                method,
-                _callbackTransactionHash,
-                _callbackTransactionReceipt,
-                _callbackTransactionConfirmation,
-                _callbackTransactionError,
-                _options);
-        } catch(e) {
-            return _callbackTransactionError(e);
-        }
-    }
-
-    public releaseToPayerActionAsync(
-        _requestId: string,
-        _options ?: any): Promise < any > {
+        _options ? : any): Web3PromiEvent {
+        let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        return new Promise(async (resolve, reject) => {
-            try {
-                let account = _options.from || await this.web3Single.getDefaultAccount();
-                // TODO check from == payee or escrow ?
-                // TODO check if this is possible ? (quid if other tx pending)
-                if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
-                let request = await this.getRequestAsync(_requestId);
+        this.web3Single.getDefaultAccount((err,defaultAccount) => {
+            if(!_options.from && err) return promiEvent.reject(err);
+            let account = _options.from || defaultAccount;
+
+            this.getRequest(_requestId, (err,request) => {
+                if (err) return promiEvent.reject(err);
 
                 if(!request.extension) {
-                    return reject(Error('request doesn\'t have an extension'));
+                    return promiEvent.reject(Error('request doesn\'t have an extension'));
                 }
                 if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                    return reject(Error('request\'s extension is not sync. escrow'));
+                    return promiEvent.reject(Error('request\'s extension is not sync. escrow'));
                 }
                 if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                    return reject(Error('account must be payee or escrow'));
+                    return promiEvent.reject(Error('account must be payee or escrow'));
                 }
                 if(request.extension.state != Types.EscrowState.Created) {
-                    return reject(Error('Escrow state must be \'Created\''));
+                    return promiEvent.reject(Error('Escrow state must be \'Created\''));
                 }
                 if(request.state != Types.State.Accepted) {
-                    return reject(Error('State must be \'Accepted\''));
+                    return promiEvent.reject(Error('State must be \'Accepted\''));
                 }
 
                 var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
@@ -185,7 +144,7 @@ export default class RequestSynchroneExtensionEscrowService {
                 this.web3Single.broadcastMethod(
                     method,
                     (transactionHash: string) => {
-                        // we do nothing here!
+                        return promiEvent.eventEmitter.emit('broadcasted',{ transactionHash: transactionHash});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -193,64 +152,22 @@ export default class RequestSynchroneExtensionEscrowService {
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
-                            return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
+                            this.getRequest(_requestId, (err,request) => {
+                                if(err) return promiEvent.reject(err);
+                                promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
+                            });
                         }
                     },
                     (error: Error) => {
-                        return reject(error);
+                        return promiEvent.reject(error);
                     },
                     _options);
-            } catch(e) {
-                return reject(e);
-            }
+            });
         });
+
+        return promiEvent.eventEmitter;
     }
 
-    public async releaseToPayerAction(
-        _requestId: string,
-        _callbackTransactionHash: Types.CallbackTransactionHash,
-        _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
-        _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
-        _callbackTransactionError: Types.CallbackTransactionError,
-        _options ?: any): Promise<any> {
-        try { 
-            _options = this.web3Single.setUpOptions(_options);
-            let account = _options.from || await this.web3Single.getDefaultAccount();
-            // TODO check from == payee or escrow ?
-            // TODO check if this is possible ? (quid if other tx pending)
-            if (!this.web3Single.isHexStrictBytes32(_requestId)) return _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
-
-            let request = await this.getRequestAsync(_requestId);
-            if(!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                return _callbackTransactionError(Error('account must be payee or escrow'));
-            }
-
-            if(!request.extension) {
-                return _callbackTransactionError(Error('request doesn\'t have an extension'));
-            }
-            if(request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                return _callbackTransactionError(Error('request\'s extension is not sync. escrow'));
-            }
-            if(request.extension.state != Types.EscrowState.Created) {
-                return _callbackTransactionError(Error('Escrow state must be \'Created\''));
-            }
-            if(request.state != Types.State.Accepted) {
-                return _callbackTransactionError(Error('State must be \'Accepted\''));
-            }
-
-            var method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
-
-            this.web3Single.broadcastMethod(
-                method,
-                _callbackTransactionHash,
-                _callbackTransactionReceipt,
-                _callbackTransactionConfirmation,
-                _callbackTransactionError,
-                _options);
-        } catch(e) {
-            return _callbackTransactionError(e);
-        }
-    }
 
     public getRequestAsync(
         _requestId: string): Promise < any > {

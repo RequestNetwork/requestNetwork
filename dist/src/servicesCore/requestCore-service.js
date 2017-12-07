@@ -228,7 +228,7 @@ var RequestCoreService = /** @class */ (function () {
                         return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId)];
                     case 4:
                         currencyContractDetails = _a.sent();
-                        dataResult_1.currencyContract = Object.assign(currencyContractDetails, { address: dataResult_1.extension });
+                        dataResult_1.currencyContract = Object.assign(currencyContractDetails, { address: dataResult_1.currencyContract });
                         _a.label = 5;
                     case 5:
                         if (dataResult_1.data && dataResult_1.data != '') {
@@ -236,7 +236,7 @@ var RequestCoreService = /** @class */ (function () {
                             this.ipfs.getFile(dataResult_1.data, function (err, data) {
                                 if (err)
                                     return _callbackGetRequest(err, dataResult_1);
-                                dataResult_1.data = { hash: dataResult_1, data: JSON.parse(data) };
+                                dataResult_1.data = { hash: dataResult_1.data, data: JSON.parse(data) };
                                 return _callbackGetRequest(err, dataResult_1);
                             });
                         }
@@ -248,6 +248,22 @@ var RequestCoreService = /** @class */ (function () {
                         e_2 = _a.sent();
                         return [2 /*return*/, _callbackGetRequest(e_2, null)];
                     case 7: return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    RequestCoreService.prototype.getRequestByTransactionHashAsync = function (_hash) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var tx;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.web3Single.getTransactionReceipt(_hash)];
+                    case 1:
+                        tx = _a.sent();
+                        console.log('tx');
+                        console.log(tx);
+                        return [2 /*return*/];
                 }
             });
         }); });

@@ -176,14 +176,14 @@ export default class RequestCoreService {
 
                 if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
                     let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId);
-                    dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.extension });
+                    dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                 }
 
                 if (dataResult.data && dataResult.data != '') {
                     // get IPFS data :
                     this.ipfs.getFile(dataResult.data, (err: Error, data: string) => {
                         if (err) return _callbackGetRequest(err, dataResult);
-                        dataResult.data = {hash:dataResult, data:JSON.parse(data)};
+                        dataResult.data = {hash:dataResult.data, data:JSON.parse(data)};
                         return _callbackGetRequest(err, dataResult);
                     });
                 } else {
@@ -193,5 +193,7 @@ export default class RequestCoreService {
                 return _callbackGetRequest(e,null);
             }
         });
-    }        
+    }   
+
+    }     
 }

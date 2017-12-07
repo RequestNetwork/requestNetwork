@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var bignumber_js_1 = require("bignumber.js");
+var Web3PromiEvent = require("web3-core-promievent");
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
 var requestCore_service_1 = require("../servicesCore/requestCore-service");
@@ -57,878 +58,336 @@ var RequestEthereumService = /** @class */ (function () {
         this.addressRequestEthereum = requestEthereum_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
-    RequestEthereumService.prototype.createRequestAsPayeeAsync = function (_payer, _amountInitial, _data, _extension, _extensionParams, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                _amountInitial = new bignumber_js_1.default(_amountInitial);
-                _options = this.web3Single.setUpOptions(_options);
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var _this = this;
-                        var account, _a, _b, paramsParsed_1, parsing, e_1;
-                        return __generator(this, function (_c) {
-                            switch (_c.label) {
-                                case 0:
-                                    _c.trys.push([0, 4, , 5]);
-                                    _a = _options.from;
-                                    if (_a) return [3 /*break*/, 2];
-                                    return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                                case 1:
-                                    _a = (_c.sent());
-                                    _c.label = 2;
-                                case 2:
-                                    account = _a;
-                                    // check _data is a proper JSON
-                                    if (_amountInitial.lt(0))
-                                        return [2 /*return*/, reject(Error('_amountInitial must a positive integer'))];
-                                    if (!this.web3Single.isAddressNoChecksum(_payer))
-                                        return [2 /*return*/, reject(Error('_payer must be a valid eth address'))];
-                                    if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
-                                        return [2 /*return*/, reject(Error('_extension must be a valid eth address'))];
-                                    if (_extensionParams && _extensionParams.length > 9)
-                                        return [2 /*return*/, reject(Error('_extensionParams length must be less than 9'))];
-                                    if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
-                                        return [2 /*return*/, reject(Error('_from must be different than _payer'))];
-                                    }
-                                    _b = _options;
-                                    return [4 /*yield*/, this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension)];
-                                case 3:
-                                    _b.value = _c.sent();
-                                    if (!_extension || _extension == '') {
-                                        paramsParsed_1 = this.web3Single.arrayToBytes32(_extensionParams, 9);
-                                    }
-                                    else if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                                        parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
-                                        if (parsing.error) {
-                                            return [2 /*return*/, reject(parsing.error)];
-                                        }
-                                        paramsParsed_1 = parsing.result;
-                                    }
-                                    else {
-                                        return [2 /*return*/, reject(Error('_extension is not supported'))];
-                                    }
-                                    this.ipfs.addFile(_data, function (err, hash) {
-                                        if (err)
-                                            return reject(err);
-                                        var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_1, hash);
-                                        _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                                            // we do nothing here!
-                                        }, function (receipt) {
-                                            // we do nothing here!
-                                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                                            var event_1, request, e_2;
-                                            return __generator(this, function (_a) {
-                                                switch (_a.label) {
-                                                    case 0:
-                                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                                        _a.label = 1;
-                                                    case 1:
-                                                        _a.trys.push([1, 3, , 4]);
-                                                        event_1 = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
-                                                        return [4 /*yield*/, this.getRequestAsync(event_1.requestId)];
-                                                    case 2:
-                                                        request = _a.sent();
-                                                        return [2 /*return*/, resolve({ request: request, transactionHash: receipt.transactionHash })];
-                                                    case 3:
-                                                        e_2 = _a.sent();
-                                                        return [2 /*return*/, reject(e_2)];
-                                                    case 4: return [2 /*return*/];
-                                                }
-                                            });
-                                        }); }, function (error) {
-                                            return reject(error);
-                                        }, _options);
-                                    });
-                                    return [3 /*break*/, 5];
-                                case 4:
-                                    e_1 = _c.sent();
-                                    return [2 /*return*/, reject(e_1)];
-                                case 5: return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+    RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _data, _extension, _extensionParams, _options) {
+        var _this = this;
+        var promiEvent = Web3PromiEvent();
+        _amountInitial = new bignumber_js_1.default(_amountInitial);
+        _options = this.web3Single.setUpOptions(_options);
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            if (_amountInitial.lt(0))
+                return promiEvent.reject(Error('_amountInitial must a positive integer'));
+            if (!_this.web3Single.isAddressNoChecksum(_payer))
+                return promiEvent.reject(Error('_payer must be a valid eth address'));
+            if (_extension && _extension != '' && !_this.web3Single.isAddressNoChecksum(_extension))
+                return promiEvent.reject(Error('_extension must be a valid eth address'));
+            if (_extensionParams && _extensionParams.length > 9)
+                return promiEvent.reject(Error('_extensionParams length must be less than 9'));
+            if (_this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
+                return promiEvent.reject(Error('_from must be different than _payer'));
+            }
+            _this.requestCoreServices.getCollectEstimation(_amountInitial, _this.addressRequestEthereum, _extension, function (err, collectEstimation) {
+                if (err)
+                    return promiEvent.reject(err);
+                _options.value = collectEstimation;
+                // parse extension parameters
+                var paramsParsed;
+                if (!_extension || _extension == '') {
+                    paramsParsed = _this.web3Single.arrayToBytes32(_extensionParams, 9);
+                }
+                else if (ServiceExtensions.getServiceFromAddress(_extension)) {
+                    var parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
+                    if (parsing.error) {
+                        return promiEvent.reject(parsing.error);
+                    }
+                    paramsParsed = parsing.result;
+                }
+                else {
+                    return promiEvent.reject(Error('_extension is not supported'));
+                }
+                _this.ipfs.addFile(_data, function (err, hash) {
+                    if (err)
+                        return promiEvent.reject(err);
+                    var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                    _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                        return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                    }, function (receipt) {
+                        // we do nothing here!
+                    }, function (confirmationNumber, receipt) {
+                        if (confirmationNumber == _options.numberOfConfirmation) {
+                            var event_1 = _this.web3Single.decodeLog(_this.abiRequestCore, 'Created', receipt.events[0]);
+                            _this.getRequest(event_1.requestId, function (err, request) {
+                                if (err)
+                                    return promiEvent.reject(err);
+                                promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                            });
+                        }
+                    }, function (err) {
+                        return promiEvent.reject(err);
+                    }, _options);
+                });
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _data, _extension, _extensionParams, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            var account, _a, _b, paramsParsed_2, parsing, e_3;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        _amountInitial = new bignumber_js_1.default(_amountInitial);
-                        _options = this.web3Single.setUpOptions(_options);
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 5, , 6]);
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_c.sent());
-                        _c.label = 3;
-                    case 3:
-                        account = _a;
-                        if (_amountInitial.lt(0))
-                            return [2 /*return*/, _callbackTransactionError(Error('_amountInitial must a positive integer'))];
-                        if (!this.web3Single.isAddressNoChecksum(_payer))
-                            return [2 /*return*/, _callbackTransactionError(Error('_payer must be a valid eth address'))];
-                        if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
-                            return [2 /*return*/, _callbackTransactionError(Error('_extension must be a valid eth address'))];
-                        if (_extensionParams && _extensionParams.length > 9)
-                            return [2 /*return*/, _callbackTransactionError(Error('_extensionParams length must be less than 9'))];
-                        if (this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be different than _payer'))];
-                        }
-                        _b = _options;
-                        return [4 /*yield*/, this.requestCoreServices.getCollectEstimationAsync(_amountInitial, this.addressRequestEthereum, _extension)];
-                    case 4:
-                        _b.value = _c.sent();
-                        if (!_extension || _extension == '') {
-                            paramsParsed_2 = this.web3Single.arrayToBytes32(_extensionParams, 9);
-                        }
-                        else if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                            parsing = ServiceExtensions.getServiceFromAddress(_extension).parseParameters(_extensionParams);
-                            if (parsing.error) {
-                                return [2 /*return*/, _callbackTransactionError(parsing.error)];
-                            }
-                            paramsParsed_2 = parsing.result;
-                        }
-                        else {
-                            return [2 /*return*/, _callbackTransactionError(Error('_extension is not supported'))];
-                        }
-                        this.ipfs.addFile(_data, function (err, hash) {
+    RequestEthereumService.prototype.accept = function (_requestId, _options) {
+        var _this = this;
+        var promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (request.state != Types.State.Created) {
+                    return promiEvent.reject(Error('request state is not \'created\''));
+                }
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
+                    return promiEvent.reject(Error('account must be the payer'));
+                }
+                var method = _this.instanceRequestEthereum.methods.accept(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event_2 = _this.web3Single.decodeLog(_this.abiRequestCore, 'Accepted', receipt.events[0]);
+                        _this.getRequest(event_2.requestId, function (err, request) {
                             if (err)
-                                return _callbackTransactionError(err);
-                            var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed_2, hash);
-                            _this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
                         });
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_3 = _c.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_3)];
-                    case 6: return [2 /*return*/];
-                }
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.acceptAsync = function (_requestId, _options) {
+    RequestEthereumService.prototype.cancel = function (_requestId, _options) {
         var _this = this;
+        var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var request, account, _a, method, e_4;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 1:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
-                    case 3:
-                        account = _a;
-                        if (request.state != Types.State.Created) {
-                            return [2 /*return*/, reject(Error('request state is not \'created\''))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
-                            return [2 /*return*/, reject(Error('account must be the payer'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.accept(_requestId);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                            var event, request_1, e_5;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                        _a.label = 1;
-                                    case 1:
-                                        _a.trys.push([1, 3, , 4]);
-                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
-                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
-                                    case 2:
-                                        request_1 = _a.sent();
-                                        return [2 /*return*/, resolve({ request: request_1, transactionHash: receipt.transactionHash })];
-                                    case 3:
-                                        e_5 = _a.sent();
-                                        return [2 /*return*/, reject(e_5)];
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        }); }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_4 = _b.sent();
-                        return [2 /*return*/, reject(e_4)];
-                    case 5: return [2 /*return*/];
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !_this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
+                    return promiEvent.reject(Error('account must be the payer or the payee'));
                 }
-            });
-        }); });
-    };
-    RequestEthereumService.prototype.accept = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_6;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _options = this.web3Single.setUpOptions(_options);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 2:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 3:
-                        _a = (_b.sent());
-                        _b.label = 4;
-                    case 4:
-                        account = _a;
-                        if (request.state != Types.State.Created) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request state is not \'created\''))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('from must be the payer'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.accept(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_6 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_6)];
-                    case 6: return [2 /*return*/];
+                if (_this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created) {
+                    return promiEvent.reject(Error('payer can cancel request in state \'created\''));
                 }
+                if (_this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled) {
+                    return promiEvent.reject(Error('payee cannot cancel request already canceled'));
+                }
+                if (request.balance != 0) {
+                    return promiEvent.reject(Error('impossible to cancel a Request with a balance != 0'));
+                }
+                var method = _this.instanceRequestEthereum.methods.cancel(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event_3 = _this.web3Single.decodeLog(_this.abiRequestCore, 'Canceled', receipt.events[0]);
+                        _this.getRequest(event_3.requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                        });
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.cancelAsync = function (_requestId, _options) {
+    RequestEthereumService.prototype.paymentAction = function (_requestId, _amount, _additionals, _options) {
         var _this = this;
-        _options = this.web3Single.setUpOptions(_options);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var request, account, _a, method, e_7;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 1:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
-                    case 3:
-                        account = _a;
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
-                            return [2 /*return*/, reject(Error('account must be the payer or the payee'))];
-                        }
-                        if (this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created) {
-                            return [2 /*return*/, reject(Error('payer can cancel request in state \'created\''))];
-                        }
-                        if (this.web3Single.areSameAddressesNoChecksum(account, request.payee) && request.state == Types.State.Canceled) {
-                            return [2 /*return*/, reject(Error('payee cannot cancel request already canceled'))];
-                        }
-                        if (request.balance != 0) {
-                            return [2 /*return*/, reject(Error('impossible to cancel a Request with a balance != 0'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.cancel(_requestId);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                            var event, request_2, e_8;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                        _a.label = 1;
-                                    case 1:
-                                        _a.trys.push([1, 3, , 4]);
-                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
-                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
-                                    case 2:
-                                        request_2 = _a.sent();
-                                        return [2 /*return*/, resolve({ request: request_2, transactionHash: receipt.transactionHash })];
-                                    case 3:
-                                        e_8 = _a.sent();
-                                        return [2 /*return*/, reject(e_8)];
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        }); }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_7 = _b.sent();
-                        return [2 /*return*/, reject(e_7)];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        }); });
-    };
-    RequestEthereumService.prototype.cancel = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_9;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _options = this.web3Single.setUpOptions(_options);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 2:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 3:
-                        _a = (_b.sent());
-                        _b.label = 4;
-                    case 4:
-                        account = _a;
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be the payer or the payee'))];
-                        }
-                        if (this.web3Single.areSameAddressesNoChecksum(account, request.payer) && request.state != Types.State.Created) {
-                            return [2 /*return*/, _callbackTransactionError(Error('payer can cancel request in state \'created\''))];
-                        }
-                        if (this.web3Single.areSameAddressesNoChecksum(account, request.paye) && request.state == Types.State.Canceled) {
-                            return [2 /*return*/, _callbackTransactionError(Error('payee cannot cancel request already \'canceled\''))];
-                        }
-                        if (request.balance != 0) {
-                            return [2 /*return*/, _callbackTransactionError(Error('impossible to cancel a Request with a balance != 0'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.cancel(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_9 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_9)];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    RequestEthereumService.prototype.paymentActionAsync = function (_requestId, _amount, _additionals, _options) {
-        var _this = this;
+        var promiEvent = Web3PromiEvent();
         _additionals = new bignumber_js_1.default(_additionals);
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new bignumber_js_1.default(_amount);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var request_3, account, _a, method, e_10;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 1:
-                        request_3 = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
-                    case 3:
-                        account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (_options.value.lt(0))
-                            return [2 /*return*/, reject(Error('_amount must a positive integer'))];
-                        if (_additionals.lt(0))
-                            return [2 /*return*/, reject(Error('_additionals must a positive integer'))];
-                        if (request_3.state == Types.State.Canceled) {
-                            return [2 /*return*/, reject(Error('request cannot be canceled'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                            var event, requestAfter, e_11;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                        _a.label = 1;
-                                    case 1:
-                                        _a.trys.push([1, 3, , 4]);
-                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', request_3.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
-                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
-                                    case 2:
-                                        requestAfter = _a.sent();
-                                        return [2 /*return*/, resolve({ request: requestAfter, transactionHash: receipt.transactionHash })];
-                                    case 3:
-                                        e_11 = _a.sent();
-                                        return [2 /*return*/, reject(e_11)];
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        }); }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_10 = _b.sent();
-                        return [2 /*return*/, reject(e_10)];
-                    case 5: return [2 /*return*/];
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (_options.value.lt(0))
+                    return promiEvent.reject(Error('_amount must a positive integer'));
+                if (_additionals.lt(0))
+                    return promiEvent.reject(Error('_additionals must a positive integer'));
+                if (request.state == Types.State.Canceled) {
+                    return promiEvent.reject(Error('request cannot be canceled'));
                 }
-            });
-        }); });
-    };
-    RequestEthereumService.prototype.paymentAction = function (_requestId, _amount, _additionals, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_12;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _additionals = new bignumber_js_1.default(_additionals);
-                        _options = this.web3Single.setUpOptions(_options);
-                        _options.value = new bignumber_js_1.default(_amount);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 2:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 3:
-                        _a = (_b.sent());
-                        _b.label = 4;
-                    case 4:
-                        account = _a;
-                        // TODO use bigNumber
-                        if (_options.value.lt(0))
-                            return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
-                        if (_additionals.lt(0))
-                            return [2 /*return*/, _callbackTransactionError(Error('_additionals must a positive integer'))];
-                        if (request.state == Types.State.Canceled) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request cannot be canceled'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_12 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_12)];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    RequestEthereumService.prototype.refundActionAsync = function (_requestId, _amount, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                _options = this.web3Single.setUpOptions(_options);
-                _options.value = new bignumber_js_1.default(_amount);
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var _this = this;
-                        var request, account, _a, method, e_13;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0:
-                                    _b.trys.push([0, 4, , 5]);
-                                    // TODO check if this is possible ? (quid if other tx pending)
-                                    if (!this.web3Single.isHexStrictBytes32(_requestId))
-                                        return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                                    return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                                case 1:
-                                    request = _b.sent();
-                                    _a = _options.from;
-                                    if (_a) return [3 /*break*/, 3];
-                                    return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                                case 2:
-                                    _a = (_b.sent());
-                                    _b.label = 3;
-                                case 3:
-                                    account = _a;
-                                    if (_options.value.lt(0))
-                                        return [2 /*return*/, reject(Error('_amount must a positive integer'))];
-                                    if (request.state != Types.State.Accepted) {
-                                        return [2 /*return*/, reject(Error('request must be accepted'))];
-                                    }
-                                    if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
-                                        return [2 /*return*/, reject(Error('account must be payee'))];
-                                    }
-                                    method = this.instanceRequestEthereum.methods.refundAction(_requestId);
-                                    this.web3Single.broadcastMethod(method, function (transactionHash) {
-                                        // we do nothing here!
-                                    }, function (receipt) {
-                                        // we do nothing here!
-                                    }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                                        var event, request_4, e_14;
-                                        return __generator(this, function (_a) {
-                                            switch (_a.label) {
-                                                case 0:
-                                                    if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                                    _a.label = 1;
-                                                case 1:
-                                                    _a.trys.push([1, 3, , 4]);
-                                                    event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
-                                                    return [4 /*yield*/, this.getRequestAsync(event.requestId)];
-                                                case 2:
-                                                    request_4 = _a.sent();
-                                                    return [2 /*return*/, resolve({ request: request_4, transactionHash: receipt.transactionHash })];
-                                                case 3:
-                                                    e_14 = _a.sent();
-                                                    return [2 /*return*/, reject(e_14)];
-                                                case 4: return [2 /*return*/];
-                                            }
-                                        });
-                                    }); }, function (error) {
-                                        return reject(error);
-                                    }, _options);
-                                    return [3 /*break*/, 5];
-                                case 4:
-                                    e_13 = _b.sent();
-                                    return [2 /*return*/, reject(e_13)];
-                                case 5: return [2 /*return*/];
-                            }
+                var method = _this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event_4 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
+                        _this.getRequest(event_4.requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
                         });
-                    }); })];
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.refundAction = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_15;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _options = this.web3Single.setUpOptions(_options);
-                        _options.value = new bignumber_js_1.default(_amount);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 2:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 3:
-                        _a = (_b.sent());
-                        _b.label = 4;
-                    case 4:
-                        account = _a;
-                        if (_options.value.lt(0))
-                            return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
-                        if (request.state != Types.State.Accepted) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request must be accepted'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be payee'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.refundAction(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_15 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_15)];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    RequestEthereumService.prototype.subtractActionAsync = function (_requestId, _amount, _options) {
+    RequestEthereumService.prototype.refundAction = function (_requestId, _amount, _options) {
         var _this = this;
+        var promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+        _options.value = new bignumber_js_1.default(_amount);
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (request.state != Types.State.Accepted) {
+                    return promiEvent.reject(Error('request must be accepted'));
+                }
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
+                    return promiEvent.reject(Error('account must be payee'));
+                }
+                var method = _this.instanceRequestEthereum.methods.refundAction(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event_5 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
+                        _this.getRequest(event_5.requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                        });
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
+            });
+        });
+        return promiEvent.eventEmitter;
+    };
+    RequestEthereumService.prototype.subtractAction = function (_requestId, _amount, _options) {
+        var _this = this;
+        var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amount = new bignumber_js_1.default(_amount);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var request, account, _a, method, e_16;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 1:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
-                    case 3:
-                        account = _a;
-                        if (_amount.lt(0))
-                            return [2 /*return*/, reject(Error('_amount must a positive integer'))];
-                        if (request.state == Types.State.Canceled) {
-                            return [2 /*return*/, reject(Error('request must be accepted or created'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
-                            return [2 /*return*/, reject(Error('account must be payee'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.subtractAction(_requestId, _amount);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                            var event, request_5, e_17;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                        _a.label = 1;
-                                    case 1:
-                                        _a.trys.push([1, 3, , 4]);
-                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
-                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
-                                    case 2:
-                                        request_5 = _a.sent();
-                                        return [2 /*return*/, resolve({ request: request_5, transactionHash: receipt.transactionHash })];
-                                    case 3:
-                                        e_17 = _a.sent();
-                                        return [2 /*return*/, reject(e_17)];
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        }); }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_16 = _b.sent();
-                        return [2 /*return*/, reject(e_16)];
-                    case 5: return [2 /*return*/];
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (_amount.lt(0))
+                    return promiEvent.reject(Error('_amount must a positive integer'));
+                if (request.state == Types.State.Canceled) {
+                    return promiEvent.reject(Error('request must be accepted or created'));
                 }
-            });
-        }); });
-    };
-    RequestEthereumService.prototype.subtractAction = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_18;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _amount = new bignumber_js_1.default(_amount);
-                        _options = this.web3Single.setUpOptions(_options);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 2:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 3:
-                        _a = (_b.sent());
-                        _b.label = 4;
-                    case 4:
-                        account = _a;
-                        if (_amount.lt(0))
-                            return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
-                        if (request.state == Types.State.Canceled) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request must be accepted or created'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be payee'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.subtractAction(_requestId, _amount);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_18 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_18)];
-                    case 6: return [2 /*return*/];
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
+                    return promiEvent.reject(Error('account must be payee'));
                 }
+                var method = _this.instanceRequestEthereum.methods.subtractAction(_requestId, _amount);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event_6 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
+                        _this.getRequest(event_6.requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                        });
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.additionalActionAsync = function (_requestId, _amount, _options) {
+    RequestEthereumService.prototype.additionalAction = function (_requestId, _amount, _options) {
         var _this = this;
+        var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amount = new bignumber_js_1.default(_amount);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var request, account, _a, method, e_19;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 1:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 2:
-                        _a = (_b.sent());
-                        _b.label = 3;
-                    case 3:
-                        account = _a;
-                        if (_amount.lt(0))
-                            return [2 /*return*/, reject(Error('_amount must a positive integer'))];
-                        if (request.state == Types.State.Canceled) {
-                            return [2 /*return*/, reject(Error('request must be accepted or created'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
-                            return [2 /*return*/, reject(Error('account must be payer'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.additionalAction(_requestId, _amount);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) { return __awaiter(_this, void 0, void 0, function () {
-                            var event, request_6, e_20;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!(confirmationNumber == _options.numberOfConfirmation)) return [3 /*break*/, 4];
-                                        _a.label = 1;
-                                    case 1:
-                                        _a.trys.push([1, 3, , 4]);
-                                        event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
-                                        return [4 /*yield*/, this.getRequestAsync(event.requestId)];
-                                    case 2:
-                                        request_6 = _a.sent();
-                                        return [2 /*return*/, resolve({ request: request_6, transactionHash: receipt.transactionHash })];
-                                    case 3:
-                                        e_20 = _a.sent();
-                                        return [2 /*return*/, reject(e_20)];
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        }); }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_19 = _b.sent();
-                        return [2 /*return*/, reject(e_19)];
-                    case 5: return [2 /*return*/];
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (_amount.lt(0))
+                    return promiEvent.reject(Error('_amount must a positive integer'));
+                if (request.state == Types.State.Canceled) {
+                    return promiEvent.reject(Error('request must be accepted or created'));
                 }
-            });
-        }); });
-    };
-    RequestEthereumService.prototype.additionalAction = function (_requestId, _amount, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, account, _a, method, e_21;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _amount = new bignumber_js_1.default(_amount);
-                        _options = this.web3Single.setUpOptions(_options);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 2:
-                        request = _b.sent();
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 3:
-                        _a = (_b.sent());
-                        _b.label = 4;
-                    case 4:
-                        account = _a;
-                        if (_amount.lt(0))
-                            return [2 /*return*/, _callbackTransactionError(Error('_amount must a positive integer'))];
-                        if (request.state == Types.State.Canceled) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request must be accepted or created'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be payer'))];
-                        }
-                        method = this.instanceRequestEthereum.methods.additionalAction(_requestId, _amount);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        e_21 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_21)];
-                    case 6: return [2 /*return*/];
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
+                    return promiEvent.reject(Error('account must be payer'));
                 }
+                var method = _this.instanceRequestEthereum.methods.additionalAction(_requestId, _amount);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event_7 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
+                        _this.getRequest(event_7.requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                        });
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.withdrawAsync = function (_options) {
+    RequestEthereumService.prototype.withdraw = function (_options) {
         var _this = this;
+        var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        return new Promise(function (resolve, reject) {
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
             var method = _this.instanceRequestEthereum.methods.withdraw();
             _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                // we do nothing here!
+                return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
             }, function (receipt) {
                 // we do nothing here!
             }, function (confirmationNumber, receipt) {
                 if (confirmationNumber == _options.numberOfConfirmation) {
-                    try {
-                        return resolve({ transactionHash: receipt.transactionHash });
-                    }
-                    catch (e) {
-                        return reject(e);
-                    }
+                    return promiEvent.resolve({ transactionHash: receipt.transactionHash });
                 }
             }, function (error) {
-                return reject(error);
+                return promiEvent.reject(error);
             }, _options);
         });
-    };
-    RequestEthereumService.prototype.withdraw = function (_callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        _options = this.web3Single.setUpOptions(_options);
-        var method = this.instanceRequestEthereum.methods.withdraw();
-        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
+        return promiEvent.eventEmitter;
     };
     RequestEthereumService.prototype.getRequestCurrencyContractInfoAsync = function (_requestId) {
         var _this = this;
@@ -941,26 +400,17 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.getRequestCurrencyContractInfo = function (_requestId, _callbackGetRequest) {
         return _callbackGetRequest(null, {});
     };
-    RequestEthereumService.prototype.getRequestAsync = function (_requestId) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult, e_22;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.requestCoreServices.getRequestAsync(_requestId)];
-                    case 1:
-                        dataResult = _a.sent();
-                        return [2 /*return*/, resolve(dataResult)];
-                    case 2:
-                        e_22 = _a.sent();
-                        return [2 /*return*/, reject(e_22)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        }); });
-    };
+    // public getRequestAsync(
+    //     _requestId: string): Promise < any > {
+    //     return new Promise(async (resolve, reject) => {
+    //         try {
+    //             let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
+    //             return resolve(dataResult);
+    //         } catch(e) {
+    //             return reject(e);
+    //         }
+    //     });
+    // }
     RequestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
         this.requestCoreServices.getRequest(_requestId, _callbackGetRequest);
     };

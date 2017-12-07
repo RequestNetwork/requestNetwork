@@ -38,6 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
 var bignumber_js_1 = require("bignumber.js");
+var Web3PromiEvent = require("web3-core-promievent");
 // import * as ServicesContracts from '../servicesContracts';
 var requestCore_service_1 = require("../servicesCore/requestCore-service");
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
@@ -67,229 +68,104 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         }
         return { result: ret };
     };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeActionAsync = function (_requestId, _options) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAction = function (_requestId, _options) {
         var _this = this;
+        var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var account, _a, request, method, e_1;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 1:
-                        _a = (_b.sent());
-                        _b.label = 2;
-                    case 2:
-                        account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 3:
-                        request = _b.sent();
-                        if (!request.extension) {
-                            return [2 /*return*/, reject(Error('request doesn\'t have an extension'))];
-                        }
-                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                            return [2 /*return*/, reject(Error('request\'s extension is not sync. escrow'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
-                            return [2 /*return*/, reject(Error('account must be payer or escrow'))];
-                        }
-                        if (request.extension.state != Types.EscrowState.Created) {
-                            return [2 /*return*/, reject(Error('Escrow state must be \'Created\''))];
-                        }
-                        if (request.state != Types.State.Accepted) {
-                            return [2 /*return*/, reject(Error('State must be \'Accepted\''))];
-                        }
-                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                // check in case of failed : no event
-                                return resolve({ requestId: receipt.events.EscrowReleaseRequest.returnValues.requestId, transactionHash: receipt.transactionHash });
-                            }
-                        }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_1 = _b.sent();
-                        return [2 /*return*/, reject(e_1)];
-                    case 5: return [2 /*return*/];
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (!request.extension) {
+                    return promiEvent.reject(Error('request doesn\'t have an extension'));
                 }
-            });
-        }); });
-    };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAction = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var account, _a, request, method, e_2;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        _options = this.web3Single.setUpOptions(_options);
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 1:
-                        _a = (_b.sent());
-                        _b.label = 2;
-                    case 2:
-                        account = _a;
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 3:
-                        request = _b.sent();
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be payer or escrow'))];
-                        }
-                        if (!request.extension) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request doesn\'t have an extension'))];
-                        }
-                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request\'s extension is not sync. escrow'))];
-                        }
-                        if (request.extension.state != Types.EscrowState.Created) {
-                            return [2 /*return*/, _callbackTransactionError(Error('Escrow state must be \'Created\''))];
-                        }
-                        if (request.state != Types.State.Accepted) {
-                            return [2 /*return*/, _callbackTransactionError(Error('State must be \'Accepted\''))];
-                        }
-                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayeeAction(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_2 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_2)];
-                    case 5: return [2 /*return*/];
+                if (request.extension.address.toLowerCase() != _this.addressSynchroneExtensionEscrow.toLowerCase()) {
+                    return promiEvent.reject(Error('request\'s extension is not sync. escrow'));
                 }
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payer) && account != request.extension.escrow) {
+                    return promiEvent.reject(Error('account must be payer or escrow'));
+                }
+                if (request.extension.state != Types.EscrowState.Created) {
+                    return promiEvent.reject(Error('Escrow state must be \'Created\''));
+                }
+                if (request.state != Types.State.Accepted) {
+                    return promiEvent.reject(Error('State must be \'Accepted\''));
+                }
+                var method = _this.instanceSynchroneExtensionEscrow.methods.releaseToPayee(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
+                        _this.getRequest(_requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                        });
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayerActionAsync = function (_requestId, _options) {
+    RequestSynchroneExtensionEscrowService.prototype.releaseToPayerAction = function (_requestId, _options) {
         var _this = this;
+        var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var account, _a, request, method, e_3;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 1:
-                        _a = (_b.sent());
-                        _b.label = 2;
-                    case 2:
-                        account = _a;
-                        // TODO check from == payee or escrow ?
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 3:
-                        request = _b.sent();
-                        if (!request.extension) {
-                            return [2 /*return*/, reject(Error('request doesn\'t have an extension'))];
-                        }
-                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                            return [2 /*return*/, reject(Error('request\'s extension is not sync. escrow'))];
-                        }
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                            return [2 /*return*/, reject(Error('account must be payee or escrow'))];
-                        }
-                        if (request.extension.state != Types.EscrowState.Created) {
-                            return [2 /*return*/, reject(Error('Escrow state must be \'Created\''))];
-                        }
-                        if (request.state != Types.State.Accepted) {
-                            return [2 /*return*/, reject(Error('State must be \'Accepted\''))];
-                        }
-                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
-                        this.web3Single.broadcastMethod(method, function (transactionHash) {
-                            // we do nothing here!
-                        }, function (receipt) {
-                            // we do nothing here!
-                        }, function (confirmationNumber, receipt) {
-                            if (confirmationNumber == _options.numberOfConfirmation) {
-                                var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
-                                return resolve({ requestId: event.requestId, transactionHash: receipt.transactionHash });
-                            }
-                        }, function (error) {
-                            return reject(error);
-                        }, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_3 = _b.sent();
-                        return [2 /*return*/, reject(e_3)];
-                    case 5: return [2 /*return*/];
+        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+            if (!_options.from && err)
+                return promiEvent.reject(err);
+            var account = _options.from || defaultAccount;
+            _this.getRequest(_requestId, function (err, request) {
+                if (err)
+                    return promiEvent.reject(err);
+                if (!request.extension) {
+                    return promiEvent.reject(Error('request doesn\'t have an extension'));
                 }
-            });
-        }); });
-    };
-    RequestSynchroneExtensionEscrowService.prototype.releaseToPayerAction = function (_requestId, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var account, _a, request, method, e_4;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        _options = this.web3Single.setUpOptions(_options);
-                        _a = _options.from;
-                        if (_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.web3Single.getDefaultAccount()];
-                    case 1:
-                        _a = (_b.sent());
-                        _b.label = 2;
-                    case 2:
-                        account = _a;
-                        // TODO check from == payee or escrow ?
-                        // TODO check if this is possible ? (quid if other tx pending)
-                        if (!this.web3Single.isHexStrictBytes32(_requestId))
-                            return [2 /*return*/, _callbackTransactionError(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''))];
-                        return [4 /*yield*/, this.getRequestAsync(_requestId)];
-                    case 3:
-                        request = _b.sent();
-                        if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
-                            return [2 /*return*/, _callbackTransactionError(Error('account must be payee or escrow'))];
-                        }
-                        if (!request.extension) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request doesn\'t have an extension'))];
-                        }
-                        if (request.extension.address.toLowerCase() != this.addressSynchroneExtensionEscrow.toLowerCase()) {
-                            return [2 /*return*/, _callbackTransactionError(Error('request\'s extension is not sync. escrow'))];
-                        }
-                        if (request.extension.state != Types.EscrowState.Created) {
-                            return [2 /*return*/, _callbackTransactionError(Error('Escrow state must be \'Created\''))];
-                        }
-                        if (request.state != Types.State.Accepted) {
-                            return [2 /*return*/, _callbackTransactionError(Error('State must be \'Accepted\''))];
-                        }
-                        method = this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
-                        this.web3Single.broadcastMethod(method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_4 = _b.sent();
-                        return [2 /*return*/, _callbackTransactionError(e_4)];
-                    case 5: return [2 /*return*/];
+                if (request.extension.address.toLowerCase() != _this.addressSynchroneExtensionEscrow.toLowerCase()) {
+                    return promiEvent.reject(Error('request\'s extension is not sync. escrow'));
                 }
+                if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payee) && !_this.web3Single.areSameAddressesNoChecksum(account, request.extension.escrow)) {
+                    return promiEvent.reject(Error('account must be payee or escrow'));
+                }
+                if (request.extension.state != Types.EscrowState.Created) {
+                    return promiEvent.reject(Error('Escrow state must be \'Created\''));
+                }
+                if (request.state != Types.State.Accepted) {
+                    return promiEvent.reject(Error('State must be \'Accepted\''));
+                }
+                var method = _this.instanceSynchroneExtensionEscrow.methods.releaseToPayerAction(_requestId);
+                _this.web3Single.broadcastMethod(method, function (transactionHash) {
+                    return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
+                }, function (receipt) {
+                    // we do nothing here!
+                }, function (confirmationNumber, receipt) {
+                    if (confirmationNumber == _options.numberOfConfirmation) {
+                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
+                        _this.getRequest(_requestId, function (err, request) {
+                            if (err)
+                                return promiEvent.reject(err);
+                            promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
+                        });
+                    }
+                }, function (error) {
+                    return promiEvent.reject(error);
+                }, _options);
             });
         });
+        return promiEvent.eventEmitter;
     };
     RequestSynchroneExtensionEscrowService.prototype.getRequestAsync = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult, e_5;
+            var dataResult, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -299,8 +175,8 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         dataResult = _a.sent();
                         return [2 /*return*/, resolve(dataResult)];
                     case 2:
-                        e_5 = _a.sent();
-                        return [2 /*return*/, reject(e_5)];
+                        e_1 = _a.sent();
+                        return [2 /*return*/, reject(e_1)];
                     case 3: return [2 /*return*/];
                 }
             });

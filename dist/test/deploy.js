@@ -22,7 +22,7 @@ var newContractInstanceRequestCore;
 var newContractInstanceRequestEthereum;
 var newContractInstanceRequestExtensionEscrow;
 var newContractInstanceRequestBurnManagerSimple;
-web3Single.getDefaultAccount().then(function (creator) {
+web3Single.getDefaultAccountAsync().then(function (creator) {
     console.log("creator: " + creator);
     instanceRequestCore.deploy({
         data: RequestCoreJson.bytecode

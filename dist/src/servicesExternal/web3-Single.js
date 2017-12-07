@@ -101,7 +101,7 @@ var Web3Single = /** @class */ (function () {
     //         })
     //     });
     // }
-    Web3Single.prototype.getDefaultAccount = function () {
+    Web3Single.prototype.getDefaultAccountAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
@@ -115,6 +115,15 @@ var Web3Single = /** @class */ (function () {
                         });
                     })];
             });
+        });
+    };
+    Web3Single.prototype.getDefaultAccount = function (callback) {
+        this.web3.eth.getAccounts(function (err, accs) {
+            if (err)
+                return callback(err, null);
+            if (accs.length === 0)
+                return callback(Error('No accounts found'), null);
+            return callback(null, accs[0]);
         });
     };
     Web3Single.prototype.toSolidityBytes32 = function (type, value) {
@@ -175,6 +184,13 @@ var Web3Single = /** @class */ (function () {
             case 42: return 'kovan';
             default: return 'private';
         }
+    };
+    Web3Single.prototype.getTransactionReceipt = function (_hash) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.web3.eth.getTransactionReceipt(_hash)];
+            });
+        });
     };
     return Web3Single;
 }());

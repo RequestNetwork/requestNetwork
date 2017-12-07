@@ -81,163 +81,134 @@ describe('createRequestAsPayeeAsync', function () {
         var result;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '{"reason":"weed purchased"}', '', [], { from: payee })];
+                case 0: return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee(payer, arbitraryAmount, '{"reason":"weed purchased"}', '', [], { from: payee }).on('broadcasted', function (data) {
+                        chai_1.expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                    }).then(function (result) {
+                        console.log(result);
+                        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+                        utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
+                        chai_1.expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+                        chai_1.expect(result.request.extension, 'extension is wrong').to.be.undefined;
+                        chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+                        chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+                        chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
+                        chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
+                        chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+                        utils.expectEqualsObject(result.request.data.data, { "reason": "weed purchased" }, 'data.data is wrong');
+                        chai_1.expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
+                        chai_1.expect(result, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                    }).catch(function (err) {
+                        chai_1.expect(false, 'exception not expected').to.be.true;
+                    })];
                 case 1:
                     result = _a.sent();
-                    utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-                    utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
-                    chai_1.expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
-                    chai_1.expect(result.request.extension, 'extension is wrong').to.be.undefined;
-                    chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
-                    chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-                    chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
-                    chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-                    utils.expectEqualsObject(result.request.data.data, { "reason": "weed purchased" }, 'data.data is wrong');
-                    chai_1.expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
-                    chai_1.expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
                     return [2 /*return*/];
             }
         });
     }); });
-    it('create request without extension (implicit parameters)', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount)];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(result).to.have.property('transactionHash');
-                    utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-                    utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
-                    chai_1.expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
-                    chai_1.expect(result.request.extension, 'extension is wrong').to.be.undefined;
-                    chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
-                    chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-                    chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
-                    chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-                    chai_1.expect(result.request.data, 'request.data is wrong').to.be.undefined;
-                    return [2 /*return*/];
+    /*
+        it('create request without extension (implicit parameters)', async () => {
+            let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                        payer,
+                        arbitraryAmount);
+    
+            expect(result).to.have.property('transactionHash');
+    
+            utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+            
+            utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
+            expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
+            expect(result.request.extension, 'extension is wrong').to.be.undefined;
+            expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
+            expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+            expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
+            expect(result.request.state, 'state is wrong').to.equal('0');
+            expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+    
+            expect(result.request.data, 'request.data is wrong').to.be.undefined;
+        });
+    
+        it('create request _payer not address', async () => {
+            try {
+                let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                        '0xNOTADDRESS',
+                        arbitraryAmount);
+                expect(false,'exception not thrown').to.be.true;
+            } catch(e) {
+                utils.expectEqualsObject(e,Error('_payer must be a valid eth address'),'exception not right');
             }
         });
-    }); });
-    it('create request _payer not address', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result, e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync('0xNOTADDRESS', arbitraryAmount)];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(false, 'exception not thrown').to.be.true;
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_1 = _a.sent();
-                    utils.expectEqualsObject(e_1, Error('_payer must be a valid eth address'), 'exception not right');
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+    
+        it('create request payer == payee', async () => {
+            try {
+                let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                        defaultAccount,
+                        arbitraryAmount);
+                expect(false,'exception not thrown').to.be.true;
+            } catch(e) {
+                utils.expectEqualsObject(e,Error('_payer must be a valid eth address'),'exception not right');
             }
         });
-    }); });
-    it('create request payer == payee', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result, e_2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(defaultAccount, arbitraryAmount)];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(false, 'exception not thrown').to.be.true;
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_2 = _a.sent();
-                    utils.expectEqualsObject(e_2, Error('_payer must be a valid eth address'), 'exception not right');
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+    
+        it('create request amount < 0', async () => {
+            try {
+                let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                        payer,
+                        -1);
+                expect(false,'exception not thrown').to.be.true;
+            } catch(e) {
+                utils.expectEqualsObject(e,Error('_expectedAmount must a positive integer'),'exception not right');
             }
         });
-    }); });
-    it('create request amount < 0', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result, e_3;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, -1)];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(false, 'exception not thrown').to.be.true;
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_3 = _a.sent();
-                    utils.expectEqualsObject(e_3, Error('_expectedAmount must a positive integer'), 'exception not right');
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+    
+        it('create request _extension not address', async () => {
+            try {
+                let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                        payer,
+                        arbitraryAmount,
+                        '',
+                        '0xNOTADDRESS');
+                expect(false,'exception not thrown').to.be.true;
+            } catch(e) {
+                utils.expectEqualsObject(e,Error('_extension must be a valid eth address'),'exception not right');
             }
         });
-    }); });
-    it('create request _extension not address', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result, e_4;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', '0xNOTADDRESS')];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(false, 'exception not thrown').to.be.true;
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_4 = _a.sent();
-                    utils.expectEqualsObject(e_4, Error('_extension must be a valid eth address'), 'exception not right');
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+    
+        it('create request _extension not handled', async () => {
+            try {
+                let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                        payer,
+                        arbitraryAmount,
+                        '',
+                        addressRequestEthereum);
+                expect(false,'exception not thrown').to.be.true;
+            } catch(e) {
+                utils.expectEqualsObject(e,Error('_extension is not supported'),'exception not right');
             }
         });
-    }); });
-    it('create request _extension not handled', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result, e_5;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', addressRequestEthereum)];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(false, 'exception not thrown').to.be.true;
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_5 = _a.sent();
-                    utils.expectEqualsObject(e_5, Error('_extension is not supported'), 'exception not right');
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
-            }
-        });
-    }); });
-    it('create request with _extension handled', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayeeAsync(payer, arbitraryAmount, '', addressSynchroneExtensionEscrow, [otherGuy])];
-                case 1:
-                    result = _a.sent();
-                    chai_1.expect(result).to.have.property('transactionHash');
-                    utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-                    utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
-                    chai_1.expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
-                    chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
-                    chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-                    chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
-                    chai_1.expect(result.request.state, 'state is wrong').to.equal('0');
-                    chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-                    chai_1.expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(addressSynchroneExtensionEscrow);
-                    chai_1.expect(result.request.data, 'request.data is wrong').to.be.undefined;
-                    return [2 /*return*/];
-            }
-        });
-    }); });
+    
+        it('create request with _extension handled', async () => {
+            let result = await rn.requestEthereumService.createRequestAsPayeeAsync(
+                    payer,
+                    arbitraryAmount,
+                    '',
+                    addressSynchroneExtensionEscrow,
+                    [otherGuy]);
+    
+            expect(result).to.have.property('transactionHash');
+    
+            utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
+            
+            utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
+            expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
+            expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
+            expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+            expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion,++currentNumRequest));
+            expect(result.request.state, 'state is wrong').to.equal('0');
+            expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+            expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(addressSynchroneExtensionEscrow);
+    
+            expect(result.request.data, 'request.data is wrong').to.be.undefined;
+        });*/
 });
 //# sourceMappingURL=createRequestAsPayeeAsync.js.map

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import config from '../config';
 import * as Types from '../types';
+
 var Web3 = require('web3');
 // const Web3 = require('web3');
 
@@ -72,7 +73,7 @@ export class Web3Single {
     //     });
     // }
 
-    public async getDefaultAccount(): Promise < any > {
+    public async getDefaultAccountAsync(): Promise < any > {
         return new Promise((resolve, reject) => {
             this.web3.eth.getAccounts((err, accs) => {
                 if (err) return reject(err);
@@ -80,6 +81,14 @@ export class Web3Single {
                 return resolve(accs[0]);
             });
         });
+    }
+
+    public getDefaultAccount(callback:Types.CallbackErrorData): void {
+            this.web3.eth.getAccounts((err, accs) => {
+                if (err) return callback(err,null);
+                if (accs.length === 0) return callback(Error('No accounts found'),null);
+                return callback(null, accs[0]);
+            });
     }
 
     public toSolidityBytes32(type: string, value: any): any {
@@ -144,5 +153,10 @@ export class Web3Single {
           case 42: return 'kovan';
           default:   return 'private';
         }
+    }
+
+    public async getTransactionReceipt(_hash:string) : Promise<any>
+    {
+        return this.web3.eth.getTransactionReceipt(_hash);
     }
 }
