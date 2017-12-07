@@ -22,7 +22,7 @@ var currentNumRequest;
 
 var requestId;
 
-describe('refundActionAsync', () => {
+describe('refundAction', () => {
     var arbitraryAmount = 100000000;
     rn = new RequestNetwork();
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -36,7 +36,7 @@ describe('refundActionAsync', () => {
         coreVersion = await rn.requestCoreService.getVersionAsync();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequestAsync();
 
-        let req = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let req = await rn.requestEthereumService.createRequestAsPayee( 
             payer,
             arbitraryAmount,
             '',
@@ -48,20 +48,23 @@ describe('refundActionAsync', () => {
     })
 
     it('payBack request', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payer});
 
-        let result = await rn.requestEthereumService.refundActionAsync(
+        let result = await rn.requestEthereumService.refundAction(
                             requestId,
                             arbitraryAmount,
-                            {from: payee});
+                            {from: payee})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         
@@ -78,20 +81,23 @@ describe('refundActionAsync', () => {
     });
 
     it('payBack request not fully', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payer});
 
-        let result = await rn.requestEthereumService.refundActionAsync(
+        let result = await rn.requestEthereumService.refundAction(
                             requestId,
                             10,
-                            {from: payee});
+                            {from: payee})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         
@@ -107,18 +113,18 @@ describe('refundActionAsync', () => {
         expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
     });
     it('payback request with not valid requestId', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payee});
 
         try {
-            let result = await rn.requestEthereumService.refundActionAsync(
+            let result = await rn.requestEthereumService.refundAction(
                                 '0x00000000000000',
                                 arbitraryAmount,
                                 {from: payer});
@@ -129,18 +135,18 @@ describe('refundActionAsync', () => {
     });
 
     it('payback request with not valid amount', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.refundActionAsync(
+            let result = await rn.requestEthereumService.refundAction(
                                 requestId,
                                 -1,
                                 {from: payee});
@@ -151,18 +157,18 @@ describe('refundActionAsync', () => {
     });
 
     it('payback request by payer', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.refundActionAsync(
+            let result = await rn.requestEthereumService.refundAction(
                                 requestId,
                                 arbitraryAmount,
                                 {from: payer});
@@ -173,18 +179,18 @@ describe('refundActionAsync', () => {
     });
 
     it('payback request by otherGuy', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
                             {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.refundActionAsync(
+            let result = await rn.requestEthereumService.refundAction(
                                 requestId,
                                 arbitraryAmount,
                                 {from: otherGuy});
@@ -196,18 +202,18 @@ describe('refundActionAsync', () => {
 
 
     it('payback request by otherGuy', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                             requestId,
                             10,
                             0,
                             {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.refundActionAsync(
+            let result = await rn.requestEthereumService.refundAction(
                                 requestId,
                                 11,
                                 {from: otherGuy});

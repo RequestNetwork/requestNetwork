@@ -22,7 +22,7 @@ var currentNumRequest;
 
 var requestId;
 
-describe('acceptAsync', () => {
+describe('accept', () => {
     var arbitraryAmount = 100000000;
     rn = new RequestNetwork();
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -36,7 +36,7 @@ describe('acceptAsync', () => {
         coreVersion = await rn.requestCoreService.getVersionAsync();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequestAsync();
 
-        let req = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let req = await rn.requestEthereumService.createRequestAsPayee( 
             payer,
             arbitraryAmount,
             '',
@@ -49,7 +49,7 @@ describe('acceptAsync', () => {
 
     it('accept request with not valid requestId', async () => {
         try {
-            let result = await rn.requestEthereumService.acceptAsync(
+            let result = await rn.requestEthereumService.accept(
                                 '0x00000000000000',
                                 {from: payer});
             expect(false,'exception not thrown').to.be.true; 
@@ -59,9 +59,12 @@ describe('acceptAsync', () => {
     });
 
     it('accept request', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
-                                {from: payer});
+                                {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
@@ -78,7 +81,7 @@ describe('acceptAsync', () => {
 
     it('accept request by payee or otherguy', async () => {
         try {
-            let result = await rn.requestEthereumService.acceptAsync(
+            let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payee});
             expect(false,'exception not thrown').to.be.true; 
@@ -87,7 +90,7 @@ describe('acceptAsync', () => {
         }
 
         try {
-            let result = await rn.requestEthereumService.acceptAsync(
+            let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: otherGuy});
             expect(false,'exception not thrown').to.be.true; 
@@ -99,11 +102,11 @@ describe('acceptAsync', () => {
     it('accept request not in created state', async () => {
         try {
             // accept first
-            await rn.requestEthereumService.acceptAsync(
+            await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-            let result = await rn.requestEthereumService.acceptAsync(
+            let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
             expect(false,'exception not thrown').to.be.true; 

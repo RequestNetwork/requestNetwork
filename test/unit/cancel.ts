@@ -23,7 +23,7 @@ var currentNumRequest;
 
 var requestId;
 
-describe('cancelAsync', () => {
+describe('cancel', () => {
     var arbitraryAmount = 100000000;
     rn = new RequestNetwork();
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -37,7 +37,7 @@ describe('cancelAsync', () => {
         coreVersion = await rn.requestCoreService.getVersionAsync();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequestAsync();
 
-        let req = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let req = await rn.requestEthereumService.createRequestAsPayee( 
             payer,
             arbitraryAmount,
             '',
@@ -50,7 +50,7 @@ describe('cancelAsync', () => {
 
     it('cancel request with not valid requestId', async () => {
         try {
-            let result = await rn.requestEthereumService.cancelAsync(
+            let result = await rn.requestEthereumService.cancel(
                                 '0x00000000000000',
                                 {from: payer});
             expect(false,'exception not thrown').to.be.true; 
@@ -60,9 +60,12 @@ describe('cancelAsync', () => {
     });
 
     it('cancel request by payer when created', async () => {
-        let result = await rn.requestEthereumService.cancelAsync(
+        let result = await rn.requestEthereumService.cancel(
                                 requestId,
-                                {from: payer});
+                                {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
@@ -79,7 +82,7 @@ describe('cancelAsync', () => {
 
     it('cancel request by otherGuy', async () => {
         try {
-            let result = await rn.requestEthereumService.cancelAsync(
+            let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: otherGuy});
             expect(false,'exception not thrown').to.be.true; 
@@ -89,12 +92,12 @@ describe('cancelAsync', () => {
     })
 
     it('cancel request by payer when not created', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.cancelAsync(
+            let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer});
             expect(false,'exception not thrown').to.be.true; 
@@ -104,12 +107,12 @@ describe('cancelAsync', () => {
     })
 
     it('cancel request by payee when cancel', async () => {
-        await rn.requestEthereumService.cancelAsync(
+        await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.cancelAsync(
+            let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
             expect(false,'exception not thrown').to.be.true; 
@@ -119,7 +122,7 @@ describe('cancelAsync', () => {
     })
 
     it('cancel request by payee when created', async () => {
-        let result = await rn.requestEthereumService.cancelAsync(
+        let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
 
@@ -139,13 +142,19 @@ describe('cancelAsync', () => {
 
 
     it('cancel request by payee when accepted and balance == 0', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
-                                {from: payer});
+                                {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
-        let result = await rn.requestEthereumService.cancelAsync(
+        let result = await rn.requestEthereumService.cancel(
                                 requestId,
-                                {from: payee});
+                                {from: payee})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         
@@ -163,18 +172,18 @@ describe('cancelAsync', () => {
 
 
     it('cancel request by payee when accepted and balance != 0', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        await rn.requestEthereumService.paymentActionAsync(
+        await rn.requestEthereumService.paymentAction(
                         requestId,
                         1,
                         0,
                         {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.cancelAsync(
+            let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
             expect(false,'exception not thrown').to.be.true; 

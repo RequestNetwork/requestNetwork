@@ -21,7 +21,7 @@ var otherGuy;
 var coreVersion;
 var currentNumRequest;
 
-describe('createRequestAsPayeeAsync', () => {
+describe('createRequestAsPayee', () => {
     var arbitraryAmount = 100000000;
     rn = new RequestNetwork();
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -37,13 +37,17 @@ describe('createRequestAsPayeeAsync', () => {
     })
 
     it('create request without extension', async () => {
-        let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
                     arbitraryAmount,
                     '{"reason":"weed purchased"}',
                     '', 
                     [],
-                    {from: payee});
+                    {from: payee})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
+
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
@@ -60,10 +64,12 @@ describe('createRequestAsPayeeAsync', () => {
     });
 
     it('create request without extension (implicit parameters)', async () => {
-        let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
-                    arbitraryAmount);
-
+                    arbitraryAmount)
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
         expect(result).to.have.property('transactionHash'); 
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
@@ -82,7 +88,7 @@ describe('createRequestAsPayeeAsync', () => {
 
     it('create request _payer not address', async () => {
         try { 
-            let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+            let result = await rn.requestEthereumService.createRequestAsPayee( 
                     '0xNOTADDRESS',
                     arbitraryAmount);
             expect(false,'exception not thrown').to.be.true; 
@@ -93,7 +99,7 @@ describe('createRequestAsPayeeAsync', () => {
 
     it('create request payer == payee', async () => {
         try { 
-            let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+            let result = await rn.requestEthereumService.createRequestAsPayee( 
                     defaultAccount,
                     arbitraryAmount);
             expect(false,'exception not thrown').to.be.true; 
@@ -104,7 +110,7 @@ describe('createRequestAsPayeeAsync', () => {
 
     it('create request amount < 0', async () => {
         try { 
-            let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+            let result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
                     -1);
             expect(false,'exception not thrown').to.be.true; 
@@ -115,7 +121,7 @@ describe('createRequestAsPayeeAsync', () => {
 
     it('create request _extension not address', async () => {
         try { 
-            let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+            let result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
                     arbitraryAmount,
                     '',
@@ -128,7 +134,7 @@ describe('createRequestAsPayeeAsync', () => {
 
     it('create request _extension not handled', async () => {
         try { 
-            let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+            let result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
                     arbitraryAmount,
                     '',
@@ -140,12 +146,15 @@ describe('createRequestAsPayeeAsync', () => {
     });
 
     it('create request with _extension handled', async () => {
-        let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let result = await rn.requestEthereumService.createRequestAsPayee( 
                 payer,
                 arbitraryAmount,
                 '',
                 addressSynchroneExtensionEscrow,
-                [otherGuy]);
+                [otherGuy])
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         expect(result).to.have.property('transactionHash'); 
 

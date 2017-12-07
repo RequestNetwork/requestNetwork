@@ -295,6 +295,8 @@ export default class RequestEthereumService {
             this.getRequest(_requestId, (err,request) => {
                 if (err) return promiEvent.reject(err);
 
+                if (_options.value.lt(0)) return promiEvent.reject(Error('_amount must a positive integer'));
+                
                 if ( request.state != Types.State.Accepted ) {
                     return promiEvent.reject(Error('request must be accepted'));
                 }

@@ -20,7 +20,7 @@ var rn = new RequestNetwork();
 
 // async function foo() {
 //     try {
-//         let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+//         let result = await rn.requestEthereumService.createRequestAsPayee( 
 // 					'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 // 					200000,
 // 					'{"reason":"wine purchased"}'
@@ -28,7 +28,7 @@ var rn = new RequestNetwork();
 // 					// ,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
 // 					);
 
-// 				console.log('result createRequestAsPayeeAsync********************');
+// 				console.log('result createRequestAsPayee********************');
 // 				console.log(result);
 
 // 				let requestID = result.request.requestId;
@@ -108,10 +108,10 @@ var rn = new RequestNetwork();
 //     }
 // }
 
-// async function foo() {
-//     try {
+async function foo() {
+    try {
 
-    	rn.requestEthereumService.createRequestAsPayee( 
+    	let test = await rn.requestEthereumService.createRequestAsPayee( 
 					'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 					200000,
 					'{"reason":"wine purchased"}'
@@ -119,20 +119,14 @@ var rn = new RequestNetwork();
 			.on('broadcasted', (data:any) => {
 				console.log('broadcasted')
 				console.log(data)
-			})
-			.then((data:any) => {
-				console.log('then')
-				console.log(data)
-			}, (err:any) => {
-				console.log('catch')
-				console.log(err)
-			})
+			});
 			// .catch((err:any) => {
 			// 	console.log('catch')
 			// 	console.log(err)
 			// })
-
-   //  	rn.requestEthereumService.createRequestAsPayeeAsync( 
+		console.log('test')
+		console.log(test)
+   //  	rn.requestEthereumService.createRequestAsPayee( 
 			// 		'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 			// 		200000,
 			// 		'{"reason":"wine purchased"}'
@@ -153,7 +147,7 @@ var rn = new RequestNetwork();
 			// 	console.log(data)
 			// })
 
-     //    let result = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+     //    let result = await rn.requestEthereumService.createRequestAsPayee( 
 					// '0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 					// 200000,
 					// '{"reason":"wine purchased"}'
@@ -161,7 +155,7 @@ var rn = new RequestNetwork();
 					// // ,['0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef'] // 2 
 					// );
 
-				// console.log('result createRequestAsPayeeAsync********************');
+				// console.log('result createRequestAsPayee********************');
 				// console.log(result.transactionHash);
 
 				// result = await rn.requestCoreService.getRequestByTransactionHashAsync(result.transactionHash);
@@ -241,11 +235,11 @@ var rn = new RequestNetwork();
 				// console.log('result requestEthereumService getRequestAsync********************');
 				// console.log(result);
 
-//     }
-//     catch(err) {
-//         console.log('Error: ', err.message);
-//     }
-// }
+    }
+    catch(err) {
+        console.log('Error: ', err.message);
+    }
+}
 
-// foo();
+foo();
 

@@ -241,6 +241,7 @@ var RequestCoreService = /** @class */ (function () {
                             });
                         }
                         else {
+                            dataResult_1.data = undefined;
                             return [2 /*return*/, _callbackGetRequest(err, dataResult_1)];
                         }
                         return [3 /*break*/, 7];
@@ -248,22 +249,6 @@ var RequestCoreService = /** @class */ (function () {
                         e_2 = _a.sent();
                         return [2 /*return*/, _callbackGetRequest(e_2, null)];
                     case 7: return [2 /*return*/];
-                }
-            });
-        }); });
-    };
-    RequestCoreService.prototype.getRequestByTransactionHashAsync = function (_hash) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var tx;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.web3Single.getTransactionReceipt(_hash)];
-                    case 1:
-                        tx = _a.sent();
-                        console.log('tx');
-                        console.log(tx);
-                        return [2 /*return*/];
                 }
             });
         }); });

@@ -22,7 +22,7 @@ var currentNumRequest;
 
 var requestId;
 
-describe('paymentActionAsync', () => {
+describe('paymentAction', () => {
     var arbitraryAmount = 100000000;
     rn = new RequestNetwork();
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -36,7 +36,7 @@ describe('paymentActionAsync', () => {
         coreVersion = await rn.requestCoreService.getVersionAsync();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequestAsync();
 
-        let req = await rn.requestEthereumService.createRequestAsPayeeAsync( 
+        let req = await rn.requestEthereumService.createRequestAsPayee( 
             payer,
             arbitraryAmount,
             '',
@@ -48,15 +48,18 @@ describe('paymentActionAsync', () => {
     })
 
     it('pay request', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        let result = await rn.requestEthereumService.paymentActionAsync(
+        let result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             0,
-                            {from: payer});
+                            {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         
@@ -73,11 +76,11 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request with additional', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        let result = await rn.requestEthereumService.paymentActionAsync(
+        let result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             arbitraryAmount,
                             10,
@@ -97,12 +100,12 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request with not valid requestId', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.paymentActionAsync(
+            let result = await rn.requestEthereumService.paymentAction(
                                 '0x00000000000000',
                                 arbitraryAmount,
                                 0,
@@ -114,12 +117,12 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request with not valid additional', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.paymentActionAsync(
+            let result = await rn.requestEthereumService.paymentAction(
                                 requestId,
                                 arbitraryAmount,
                                 -1,
@@ -131,12 +134,12 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request with not valid amount', async () => {
-        let result = await rn.requestEthereumService.acceptAsync(
+        let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.paymentActionAsync(
+            let result = await rn.requestEthereumService.paymentAction(
                                 requestId,
                                 -1,
                                 0,
@@ -148,12 +151,12 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request canceled', async () => {
-        let result = await rn.requestEthereumService.cancelAsync(
+        let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer});
 
         try {
-            let result = await rn.requestEthereumService.paymentActionAsync(
+            let result = await rn.requestEthereumService.paymentAction(
                                 requestId,
                                 arbitraryAmount,
                                 0,
@@ -165,11 +168,14 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request created', async () => {
-        let result = await rn.requestEthereumService.paymentActionAsync(
+        let result = await rn.requestEthereumService.paymentAction(
                                 requestId,
                                 arbitraryAmount,
                                 0,
-                                {from: payer});
+                                {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
             
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,arbitraryAmount,'balance is wrong');
@@ -186,15 +192,18 @@ describe('paymentActionAsync', () => {
 
 
     it('pay request with additional higher than amount', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        let result = await rn.requestEthereumService.paymentActionAsync(
+        let result = await rn.requestEthereumService.paymentAction(
                                 requestId,
                                 1,
                                 2,
-                                {from: payer});
+                                {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
             
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount+2,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,1,'balance is wrong');
@@ -210,15 +219,18 @@ describe('paymentActionAsync', () => {
     });
 
     it('pay request with higher amount than expected', async () => {
-        await rn.requestEthereumService.acceptAsync(
+        await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        let result = await rn.requestEthereumService.paymentActionAsync(
+        let result = await rn.requestEthereumService.paymentAction(
                                 requestId,
                                 arbitraryAmount+1,
                                 0,
-                                {from: payer});
+                                {from: payer})
+            .on('broadcasted', (data:any) => {
+                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+            });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance,arbitraryAmount+1,'balance is wrong');

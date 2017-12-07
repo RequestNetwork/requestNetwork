@@ -187,6 +187,7 @@ export default class RequestCoreService {
                         return _callbackGetRequest(err, dataResult);
                     });
                 } else {
+                    dataResult.data = undefined;
                     return _callbackGetRequest(err, dataResult);
                 }
             } catch (e) {
@@ -194,6 +195,5 @@ export default class RequestCoreService {
             }
         });
     }   
-
-    }     
+     
 }
