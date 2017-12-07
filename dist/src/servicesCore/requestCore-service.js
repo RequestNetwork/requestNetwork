@@ -253,6 +253,49 @@ var RequestCoreService = /** @class */ (function () {
             });
         }); });
     };
+    RequestCoreService.prototype.getRequestByTransactionHash = function (_hash) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var txReceipt, tx, event_1, request, e_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 5, , 6]);
+                        return [4 /*yield*/, this.web3Single.getTransactionReceipt(_hash)];
+                    case 1:
+                        txReceipt = _a.sent();
+                        if (!!txReceipt) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.web3Single.getTransaction(_hash)];
+                    case 2:
+                        tx = _a.sent();
+                        if (!tx) {
+                            return [2 /*return*/, reject(Error('transaction not found'))];
+                        }
+                        else if (!tx.blockNumber) {
+                            // TODO : check transaction input data
+                            return [2 /*return*/, reject(Error('transaction not mined'))];
+                        }
+                        _a.label = 3;
+                    case 3:
+                        if (!txReceipt.logs || !txReceipt.logs[0] || !this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address, this.addressRequestCore)) {
+                            return [2 /*return*/, reject(Error('transaction did not create a Request'))];
+                        }
+                        event_1 = this.web3Single.decodeTransactionLog(this.abiRequestCore, 'Created', txReceipt.logs[0]);
+                        if (!event_1) {
+                            return [2 /*return*/, reject(Error('transaction did not create a Request'))];
+                        }
+                        return [4 /*yield*/, this.getRequestAsync(event_1.requestId)];
+                    case 4:
+                        request = _a.sent();
+                        return [2 /*return*/, resolve(request)];
+                    case 5:
+                        e_3 = _a.sent();
+                        return [2 /*return*/, reject(e_3)];
+                    case 6: return [2 /*return*/];
+                }
+            });
+        }); });
+    };
     return RequestCoreService;
 }());
 exports.default = RequestCoreService;

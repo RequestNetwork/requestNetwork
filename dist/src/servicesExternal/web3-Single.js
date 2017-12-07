@@ -153,16 +153,32 @@ var Web3Single = /** @class */ (function () {
     Web3Single.prototype.isHexStrictBytes32 = function (hex) {
         return this.web3.utils.isHexStrict(hex) && hex.length == 66; // '0x' + 32 bytes * 2 characters = 66
     };
-    Web3Single.prototype.decodeLog = function (abi, event, log) {
+    Web3Single.prototype.decodeTransactionLog = function (abi, event, log) {
         var eventInput;
+        var signature;
         abi.some(function (o) {
             if (o.name == event) {
+                eventInput = o.inputs;
+                signature = o.signature;
+                return true;
+            }
+            return false;
+        });
+        if (log.topics[0] != signature) {
+            return null;
+        }
+        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics[0]);
+    };
+    Web3Single.prototype.decodeEvent = function (abi, eventName, event) {
+        var eventInput;
+        abi.some(function (o) {
+            if (o.name == eventName) {
                 eventInput = o.inputs;
                 return true;
             }
             return false;
         });
-        return this.web3.eth.abi.decodeLog(eventInput, log.raw.data, log.raw.topics[0]);
+        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics[0]);
     };
     Web3Single.prototype.setUpOptions = function (_options) {
         if (!_options)
@@ -189,6 +205,13 @@ var Web3Single = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.web3.eth.getTransactionReceipt(_hash)];
+            });
+        });
+    };
+    Web3Single.prototype.getTransaction = function (_hash) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.web3.eth.getTransaction(_hash)];
             });
         });
     };

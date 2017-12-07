@@ -180,4 +180,4 @@ describe('accept', function () {
         });
     }); });
 });
-//# sourceMappingURL=acceptAsync.js.map
+//# sourceMappingURL=accept.js.map

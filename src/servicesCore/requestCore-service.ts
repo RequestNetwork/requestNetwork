@@ -195,5 +195,44 @@ export default class RequestCoreService {
             }
         });
     }   
-     
+
+    public getRequestByTransactionHash(
+        _hash: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            try 
+            {
+                let txReceipt = await this.web3Single.getTransactionReceipt(_hash);
+                
+                if(!txReceipt)
+                {
+                    let tx = await this.web3Single.getTransaction(_hash);
+                    if(!tx)
+                    {
+                        return reject(Error('transaction not found'));
+                    }
+                    else if(!tx.blockNumber)
+                    {
+                        // TODO : check transaction input data
+                        return reject(Error('transaction not mined'));
+                    }
+                }
+
+                if(!txReceipt.logs || !txReceipt.logs[0] || !this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address,this.addressRequestCore)) 
+                {
+                    return reject(Error('transaction did not create a Request'));
+                } 
+           
+                let event = this.web3Single.decodeTransactionLog(this.abiRequestCore, 'Created', txReceipt.logs[0]);
+                if(!event)
+                {
+                    return reject(Error('transaction did not create a Request'));
+                }
+                let request = await this.getRequestAsync(event.requestId);
+
+                return resolve(request);
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }     
 }

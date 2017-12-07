@@ -122,16 +122,36 @@ export class Web3Single {
         return this.web3.utils.isHexStrict(hex) && hex.length == 66; // '0x' + 32 bytes * 2 characters = 66
     }
 
-    public decodeLog(abi: Array < any > , event: string, log: any): any {
+    public decodeTransactionLog(abi: Array < any > , event: string, log: any): any {
         let eventInput: any;
+        let signature: string;
         abi.some((o: any) => {
             if (o.name == event) {
+                eventInput = o.inputs;
+                signature = o.signature;
+                return true;
+            }
+            return false;
+        });
+        
+        if(log.topics[0] != signature)
+        {
+            return null;
+        }
+
+        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics[0]);
+    }
+
+    public decodeEvent(abi: Array < any > , eventName: string, event: any): any {
+        let eventInput: any;
+        abi.some((o: any) => {
+            if (o.name == eventName) {
                 eventInput = o.inputs;
                 return true;
             }
             return false;
         });
-        return this.web3.eth.abi.decodeLog(eventInput, log.raw.data, log.raw.topics[0]);
+        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics[0]);
     }
     
     public setUpOptions(_options:any) : any
@@ -159,4 +179,10 @@ export class Web3Single {
     {
         return this.web3.eth.getTransactionReceipt(_hash);
     }
+
+    public async getTransaction(_hash:string) : Promise<any>
+    {
+        return this.web3.eth.getTransaction(_hash);
+    }
+
 }

@@ -107,7 +107,7 @@ var RequestEthereumService = /** @class */ (function () {
                         // we do nothing here!
                     }, function (confirmationNumber, receipt) {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event_1 = _this.web3Single.decodeLog(_this.abiRequestCore, 'Created', receipt.events[0]);
+                            var event_1 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'Created', receipt.events[0]);
                             _this.getRequest(event_1.requestId, function (err, request) {
                                 if (err)
                                     return promiEvent.reject(err);
@@ -146,7 +146,7 @@ var RequestEthereumService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event_2 = _this.web3Single.decodeLog(_this.abiRequestCore, 'Accepted', receipt.events[0]);
+                        var event_2 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'Accepted', receipt.events[0]);
                         _this.getRequest(event_2.requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
@@ -190,7 +190,7 @@ var RequestEthereumService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event_3 = _this.web3Single.decodeLog(_this.abiRequestCore, 'Canceled', receipt.events[0]);
+                        var event_3 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'Canceled', receipt.events[0]);
                         _this.getRequest(event_3.requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
@@ -231,7 +231,7 @@ var RequestEthereumService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event_4 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
+                        var event_4 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
                         _this.getRequest(event_4.requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
@@ -257,6 +257,8 @@ var RequestEthereumService = /** @class */ (function () {
             _this.getRequest(_requestId, function (err, request) {
                 if (err)
                     return promiEvent.reject(err);
+                if (_options.value.lt(0))
+                    return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state != Types.State.Accepted) {
                     return promiEvent.reject(Error('request must be accepted'));
                 }
@@ -270,7 +272,7 @@ var RequestEthereumService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event_5 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
+                        var event_5 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
                         _this.getRequest(event_5.requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
@@ -311,7 +313,7 @@ var RequestEthereumService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event_6 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
+                        var event_6 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
                         _this.getRequest(event_6.requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
@@ -352,7 +354,7 @@ var RequestEthereumService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event_7 = _this.web3Single.decodeLog(_this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
+                        var event_7 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
                         _this.getRequest(event_7.requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);

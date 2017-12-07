@@ -92,7 +92,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
+                            var event = this.web3Single.decodeEvent(this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
                             this.getRequest(_requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -151,7 +151,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            var event = this.web3Single.decodeLog(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
+                            var event = this.web3Single.decodeEvent(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
                             this.getRequest(_requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});

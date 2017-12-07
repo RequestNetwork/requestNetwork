@@ -104,7 +104,7 @@ export default class RequestEthereumService {
                         (confirmationNumber: number, receipt: any) => {
                             if (confirmationNumber == _options.numberOfConfirmation) 
                             {
-                                let event = this.web3Single.decodeLog(this.abiRequestCore, 'Created', receipt.events[0]);
+                                let event = this.web3Single.decodeEvent(this.abiRequestCore, 'Created', receipt.events[0]);
                                 this.getRequest(event.requestId, (err,request) => {
                                     if(err) return promiEvent.reject(err);
                                     promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -155,7 +155,7 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'Accepted', receipt.events[0]);
+                            let event = this.web3Single.decodeEvent(this.abiRequestCore, 'Accepted', receipt.events[0]);
                             this.getRequest(event.requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -210,7 +210,7 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'Canceled', receipt.events[0]);
+                            let event = this.web3Single.decodeEvent(this.abiRequestCore, 'Canceled', receipt.events[0]);
                             this.getRequest(event.requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -263,7 +263,7 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
+                            let event = this.web3Single.decodeEvent(this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
                             this.getRequest(event.requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -316,7 +316,7 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
+                            let event = this.web3Single.decodeEvent(this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
                             this.getRequest(event.requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -369,7 +369,7 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
+                            let event = this.web3Single.decodeEvent(this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
                             this.getRequest(event.requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
@@ -422,7 +422,7 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
-                            let event = this.web3Single.decodeLog(this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
+                            let event = this.web3Single.decodeEvent(this.abiRequestCore, 'UpdateExpectedAmoun', receipt.events[0]);
                             this.getRequest(event.requestId, (err,request) => {
                                 if(err) return promiEvent.reject(err);
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});

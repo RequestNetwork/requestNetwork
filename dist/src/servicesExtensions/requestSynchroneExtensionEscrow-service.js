@@ -101,7 +101,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
+                        var event = _this.web3Single.decodeEvent(_this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
                         _this.getRequest(_requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
@@ -148,7 +148,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                     // we do nothing here!
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
-                        var event = _this.web3Single.decodeLog(_this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
+                        var event = _this.web3Single.decodeEvent(_this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
                         _this.getRequest(_requestId, function (err, request) {
                             if (err)
                                 return promiEvent.reject(err);
