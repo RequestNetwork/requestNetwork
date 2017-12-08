@@ -34,8 +34,8 @@ describe('cancel', () => {
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
         otherGuy = accounts[4].toLowerCase();
-        coreVersion = await rn.requestCoreService.getVersionAsync();
-        currentNumRequest = await rn.requestCoreService.getCurrentNumRequestAsync();
+        coreVersion = await rn.requestCoreService.getVersion();
+        currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
         let req = await rn.requestEthereumService.createRequestAsPayee( 
             payer,

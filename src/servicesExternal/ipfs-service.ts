@@ -18,19 +18,7 @@ export default class Ipfs {
 		return this._instance || (this._instance = new this());
 	}
 
-	public addFile(	_data:string, 
-					_callbackIpfs:Types.CallbackIpfsAddFile) 
-	{
-		if(!_data || _data == '') {
-			return _callbackIpfs(null,'');
-		}
-		let dataParsed = JSON.parse(_data);
-		this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), (err:Error, result:any[]) => {
-			return _callbackIpfs(err,result?result[0].hash:null);
-		});
-	}
-
-	public addFileAsync(_data:string) : Promise<any>
+	public addFile(_data:string) : Promise<any>
 	{
         return new Promise((resolve, reject) => {
 			if(!_data || _data == '') {
@@ -45,7 +33,7 @@ export default class Ipfs {
 		});
 	}
 
-	public getFileAsync(_hash:string) : Promise<string>
+	public getFile(_hash:string) : Promise<string>
 	{
         return new Promise((resolve, reject) => {
 			if(!_hash || _hash == '') {
@@ -69,30 +57,4 @@ export default class Ipfs {
 			});
 		});
 	}
-
-	public getFile(	_hash:string, 
-					_callbackIpfs:Types.CallbackIpfsGetFile) 
-	{
-		if(!_hash || _hash == '') {
-			return _callbackIpfs(null,null);
-		}
-		let data = '';
-		this.ipfs.cat(_hash, (err:Error, stream:any) => {
-			if(err) return _callbackIpfs(err,null);
-
-			stream.on('data', function(chunk:string) {
-			   data += chunk;
-			});
-
-			stream.on('end',function(){
-			   return _callbackIpfs(err,data);
-			});
-
-			stream.on('error',function(err:Error){
-			   return _callbackIpfs(err,data);
-			});
-		});
-	}
-
-
 }

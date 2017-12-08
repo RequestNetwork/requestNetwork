@@ -10,16 +10,7 @@ var Ipfs = /** @class */ (function () {
     Ipfs.getInstance = function () {
         return this._instance || (this._instance = new this());
     };
-    Ipfs.prototype.addFile = function (_data, _callbackIpfs) {
-        if (!_data || _data == '') {
-            return _callbackIpfs(null, '');
-        }
-        var dataParsed = JSON.parse(_data);
-        this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), function (err, result) {
-            return _callbackIpfs(err, result ? result[0].hash : null);
-        });
-    };
-    Ipfs.prototype.addFileAsync = function (_data) {
+    Ipfs.prototype.addFile = function (_data) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_data || _data == '') {
@@ -33,7 +24,7 @@ var Ipfs = /** @class */ (function () {
             });
         });
     };
-    Ipfs.prototype.getFileAsync = function (_hash) {
+    Ipfs.prototype.getFile = function (_hash) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_hash || _hash == '') {
@@ -52,25 +43,6 @@ var Ipfs = /** @class */ (function () {
                 stream.on('error', function (err) {
                     return reject(err);
                 });
-            });
-        });
-    };
-    Ipfs.prototype.getFile = function (_hash, _callbackIpfs) {
-        if (!_hash || _hash == '') {
-            return _callbackIpfs(null, null);
-        }
-        var data = '';
-        this.ipfs.cat(_hash, function (err, stream) {
-            if (err)
-                return _callbackIpfs(err, null);
-            stream.on('data', function (chunk) {
-                data += chunk;
-            });
-            stream.on('end', function () {
-                return _callbackIpfs(err, data);
-            });
-            stream.on('error', function (err) {
-                return _callbackIpfs(err, data);
             });
         });
     };

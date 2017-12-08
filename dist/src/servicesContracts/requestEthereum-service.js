@@ -63,7 +63,7 @@ var RequestEthereumService = /** @class */ (function () {
         var promiEvent = Web3PromiEvent();
         _amountInitial = new bignumber_js_1.default(_amountInitial);
         _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
@@ -78,9 +78,7 @@ var RequestEthereumService = /** @class */ (function () {
             if (_this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
-            _this.requestCoreServices.getCollectEstimation(_amountInitial, _this.addressRequestEthereum, _extension, function (err, collectEstimation) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.requestCoreServices.getCollectEstimation(_amountInitial, _this.addressRequestEthereum, _extension).then(function (collectEstimation) {
                 _options.value = collectEstimation;
                 // parse extension parameters
                 var paramsParsed;
@@ -97,7 +95,7 @@ var RequestEthereumService = /** @class */ (function () {
                 else {
                     return promiEvent.reject(Error('_extension is not supported'));
                 }
-                _this.ipfs.addFile(_data, function (err, hash) {
+                _this.ipfs.addFile(_data).then(function (hash) {
                     if (err)
                         return promiEvent.reject(err);
                     var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
@@ -108,17 +106,15 @@ var RequestEthereumService = /** @class */ (function () {
                     }, function (confirmationNumber, receipt) {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event_1 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'Created', receipt.events[0]);
-                            _this.getRequest(event_1.requestId, function (err, request) {
-                                if (err)
-                                    return promiEvent.reject(err);
+                            _this.getRequest(event_1.requestId).then(function (request) {
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                            });
+                            }).catch(function (e) { return promiEvent.reject(e); });
                         }
                     }, function (err) {
                         return promiEvent.reject(err);
                     }, _options);
-                });
-            });
+                }).catch(function (e) { return promiEvent.reject(e); });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -126,13 +122,11 @@ var RequestEthereumService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (request.state != Types.State.Created) {
                     return promiEvent.reject(Error('request state is not \'created\''));
                 }
@@ -147,16 +141,14 @@ var RequestEthereumService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event_2 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'Accepted', receipt.events[0]);
-                        _this.getRequest(event_2.requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event_2.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -164,13 +156,11 @@ var RequestEthereumService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (!_this.web3Single.areSameAddressesNoChecksum(account, request.payer) && !_this.web3Single.areSameAddressesNoChecksum(account, request.payee)) {
                     return promiEvent.reject(Error('account must be the payer or the payee'));
                 }
@@ -191,16 +181,14 @@ var RequestEthereumService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event_3 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'Canceled', receipt.events[0]);
-                        _this.getRequest(event_3.requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event_3.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -210,13 +198,11 @@ var RequestEthereumService = /** @class */ (function () {
         _additionals = new bignumber_js_1.default(_additionals);
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new bignumber_js_1.default(_amount);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (_options.value.lt(0))
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (_additionals.lt(0))
@@ -232,16 +218,14 @@ var RequestEthereumService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event_4 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateBalance', request.state == Types.State.Created ? receipt.events[1] : receipt.events[0]);
-                        _this.getRequest(event_4.requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event_4.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -250,13 +234,11 @@ var RequestEthereumService = /** @class */ (function () {
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new bignumber_js_1.default(_amount);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (_options.value.lt(0))
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state != Types.State.Accepted) {
@@ -273,16 +255,14 @@ var RequestEthereumService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event_5 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateBalance', receipt.events[0]);
-                        _this.getRequest(event_5.requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event_5.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -291,13 +271,11 @@ var RequestEthereumService = /** @class */ (function () {
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amount = new bignumber_js_1.default(_amount);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (_amount.lt(0))
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state == Types.State.Canceled) {
@@ -314,16 +292,14 @@ var RequestEthereumService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event_6 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
-                        _this.getRequest(event_6.requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event_6.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -332,13 +308,11 @@ var RequestEthereumService = /** @class */ (function () {
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amount = new bignumber_js_1.default(_amount);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (_amount.lt(0))
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state == Types.State.Canceled) {
@@ -355,16 +329,14 @@ var RequestEthereumService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event_7 = _this.web3Single.decodeEvent(_this.abiRequestCore, 'UpdateExpectedAmount', receipt.events[0]);
-                        _this.getRequest(event_7.requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event_7.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -372,7 +344,7 @@ var RequestEthereumService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
@@ -391,7 +363,7 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.getRequestCurrencyContractInfoAsync = function (_requestId) {
+    RequestEthereumService.prototype.getRequestCurrencyContractInfo = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -399,22 +371,8 @@ var RequestEthereumService = /** @class */ (function () {
             });
         }); });
     };
-    RequestEthereumService.prototype.getRequestCurrencyContractInfo = function (_requestId, _callbackGetRequest) {
-        return _callbackGetRequest(null, {});
-    };
-    // public getRequestAsync(
-    //     _requestId: string): Promise < any > {
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
-    //             let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
-    //             return resolve(dataResult);
-    //         } catch(e) {
-    //             return reject(e);
-    //         }
-    //     });
-    // }
-    RequestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
-        this.requestCoreServices.getRequest(_requestId, _callbackGetRequest);
+    RequestEthereumService.prototype.getRequest = function (_requestId) {
+        return this.requestCoreServices.getRequest(_requestId);
     };
     RequestEthereumService.prototype.getRequestHistory = function (_requestId) {
         var _this = this;

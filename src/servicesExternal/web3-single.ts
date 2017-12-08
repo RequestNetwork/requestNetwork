@@ -73,7 +73,7 @@ export class Web3Single {
     //     });
     // }
 
-    public async getDefaultAccountAsync(): Promise < any > {
+    public async getDefaultAccount(): Promise < any > {
         return new Promise((resolve, reject) => {
             this.web3.eth.getAccounts((err, accs) => {
                 if (err) return reject(err);
@@ -83,7 +83,7 @@ export class Web3Single {
         });
     }
 
-    public getDefaultAccount(callback:Types.CallbackErrorData): void {
+    public getDefaultAccountCallback(callback:Types.CallbackErrorData): void {
             this.web3.eth.getAccounts((err, accs) => {
                 if (err) return callback(err,null);
                 if (accs.length === 0) return callback(Error('No accounts found'),null);

@@ -53,15 +53,7 @@ var RequestCoreService = /** @class */ (function () {
         this.addressRequestCore = requestCore_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
-    RequestCoreService.prototype.getCurrentNumRequest = function (_callback) {
-        var _this = this;
-        this.instanceRequestCore.methods.numRequests().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, _callback(err, data)];
-            });
-        }); });
-    };
-    RequestCoreService.prototype.getCurrentNumRequestAsync = function () {
+    RequestCoreService.prototype.getCurrentNumRequest = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.instanceRequestCore.methods.numRequests().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
@@ -73,15 +65,7 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
-    RequestCoreService.prototype.getVersion = function (_callback) {
-        var _this = this;
-        this.instanceRequestCore.methods.VERSION().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, _callback(err, data)];
-            });
-        }); });
-    };
-    RequestCoreService.prototype.getVersionAsync = function () {
+    RequestCoreService.prototype.getVersion = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.instanceRequestCore.methods.VERSION().call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
@@ -93,7 +77,7 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
-    RequestCoreService.prototype.getCollectEstimationAsync = function (_expectedAmount, _currencyContract, _extension) {
+    RequestCoreService.prototype.getCollectEstimation = function (_expectedAmount, _currencyContract, _extension) {
         var _this = this;
         _expectedAmount = new bignumber_js_1.default(_expectedAmount);
         return new Promise(function (resolve, reject) {
@@ -110,20 +94,7 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
-    RequestCoreService.prototype.getCollectEstimation = function (_expectedAmount, _currencyContract, _extension, _callback) {
-        var _this = this;
-        _expectedAmount = new bignumber_js_1.default(_expectedAmount);
-        if (!this.web3Single.isAddressNoChecksum(_currencyContract))
-            return _callback(Error('_currencyContract must be a valid eth address'), null);
-        if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension))
-            return _callback(Error('_extension must be a valid eth address'), null);
-        this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, _callback(err, data)];
-            });
-        }); });
-    };
-    RequestCoreService.prototype.getRequestAsync = function (_requestId) {
+    RequestCoreService.prototype.getRequest = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
@@ -154,14 +125,14 @@ var RequestCoreService = /** @class */ (function () {
                                 data: data.data,
                             };
                             if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 3];
-                            return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId)];
+                            return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfo(_requestId)];
                         case 2:
                             currencyContractDetails = _e.sent();
                             dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                             _e.label = 3;
                         case 3:
                             if (!(data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension))) return [3 /*break*/, 5];
-                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfoAsync(_requestId)];
+                            return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfo(_requestId)];
                         case 4:
                             extensionDetails = _e.sent();
                             dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
@@ -171,7 +142,7 @@ var RequestCoreService = /** @class */ (function () {
                             _a = dataResult;
                             _b = { hash: dataResult.data };
                             _d = (_c = JSON).parse;
-                            return [4 /*yield*/, this.ipfs.getFileAsync(dataResult.data)];
+                            return [4 /*yield*/, this.ipfs.getFile(dataResult.data)];
                         case 6:
                             _a.data = (_b.data = _d.apply(_c, [_e.sent()]), _b);
                             return [3 /*break*/, 8];
@@ -188,75 +159,10 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
-    RequestCoreService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
-        var _this = this;
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            return _callbackGetRequest(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), undefined);
-        this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult_1, extensionDetails, currencyContractDetails, e_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (err)
-                            return [2 /*return*/, _callbackGetRequest(err, data)];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 6, , 7]);
-                        if (data.creator == '0x0000000000000000000000000000000000000000') {
-                            return [2 /*return*/, _callbackGetRequest(Error('request not found'), data)];
-                        }
-                        dataResult_1 = {
-                            requestId: _requestId,
-                            creator: data.creator,
-                            payee: data.payee,
-                            payer: data.payer,
-                            expectedAmount: new bignumber_js_1.default(data.expectedAmount),
-                            currencyContract: data.currencyContract,
-                            balance: new bignumber_js_1.default(data.balance),
-                            state: data.state,
-                            extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
-                            data: data.data,
-                        };
-                        if (!ServiceExtensions.getServiceFromAddress(data.extension)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfoAsync(_requestId)];
-                    case 2:
-                        extensionDetails = _a.sent();
-                        dataResult_1.extension = Object.assign(extensionDetails, { address: dataResult_1.extension });
-                        _a.label = 3;
-                    case 3:
-                        if (!ServicesContracts.getServiceFromAddress(data.currencyContract)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfoAsync(_requestId)];
-                    case 4:
-                        currencyContractDetails = _a.sent();
-                        dataResult_1.currencyContract = Object.assign(currencyContractDetails, { address: dataResult_1.currencyContract });
-                        _a.label = 5;
-                    case 5:
-                        if (dataResult_1.data && dataResult_1.data != '') {
-                            // get IPFS data :
-                            this.ipfs.getFile(dataResult_1.data, function (err, data) {
-                                if (err)
-                                    return _callbackGetRequest(err, dataResult_1);
-                                dataResult_1.data = { hash: dataResult_1.data, data: JSON.parse(data) };
-                                return _callbackGetRequest(err, dataResult_1);
-                            });
-                        }
-                        else {
-                            dataResult_1.data = undefined;
-                            return [2 /*return*/, _callbackGetRequest(err, dataResult_1)];
-                        }
-                        return [3 /*break*/, 7];
-                    case 6:
-                        e_2 = _a.sent();
-                        return [2 /*return*/, _callbackGetRequest(e_2, null)];
-                    case 7: return [2 /*return*/];
-                }
-            });
-        }); });
-    };
     RequestCoreService.prototype.getRequestByTransactionHash = function (_hash) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var txReceipt, tx, event_1, request, e_3;
+            var txReceipt, tx, event_1, request, e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -284,13 +190,13 @@ var RequestCoreService = /** @class */ (function () {
                         if (!event_1) {
                             return [2 /*return*/, reject(Error('transaction did not create a Request'))];
                         }
-                        return [4 /*yield*/, this.getRequestAsync(event_1.requestId)];
+                        return [4 /*yield*/, this.getRequest(event_1.requestId)];
                     case 4:
                         request = _a.sent();
                         return [2 /*return*/, resolve(request)];
                     case 5:
-                        e_3 = _a.sent();
-                        return [2 /*return*/, reject(e_3)];
+                        e_2 = _a.sent();
+                        return [2 /*return*/, reject(e_2)];
                     case 6: return [2 /*return*/];
                 }
             });
@@ -302,7 +208,7 @@ var RequestCoreService = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-                    var currencyContract, extension, eventsCoreRaw, eventsCore, eventsExtensions, eventsCurrencyContract, e_4;
+                    var currencyContract, extension, eventsCoreRaw, eventsCore, eventsExtensions, eventsCurrencyContract, e_3;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -350,7 +256,7 @@ var RequestCoreService = /** @class */ (function () {
                                     return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
                                 }))];
                             case 7:
-                                e_4 = _a.sent();
+                                e_3 = _a.sent();
                                 return [2 /*return*/, reject(err)];
                             case 8: return [2 /*return*/];
                         }

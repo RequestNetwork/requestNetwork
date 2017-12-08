@@ -101,7 +101,7 @@ var Web3Single = /** @class */ (function () {
     //         })
     //     });
     // }
-    Web3Single.prototype.getDefaultAccountAsync = function () {
+    Web3Single.prototype.getDefaultAccount = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
@@ -117,7 +117,7 @@ var Web3Single = /** @class */ (function () {
             });
         });
     };
-    Web3Single.prototype.getDefaultAccount = function (callback) {
+    Web3Single.prototype.getDefaultAccountCallback = function (callback) {
         this.web3.eth.getAccounts(function (err, accs) {
             if (err)
                 return callback(err, null);

@@ -72,11 +72,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
+            _this.getRequest(_requestId).then(function (request) {
                 if (err)
                     return promiEvent.reject(err);
                 if (!request.extension) {
@@ -102,16 +102,14 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event = _this.web3Single.decodeEvent(_this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
-                        _this.getRequest(_requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
@@ -119,13 +117,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccount(function (err, defaultAccount) {
+        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            _this.getRequest(_requestId, function (err, request) {
-                if (err)
-                    return promiEvent.reject(err);
+            _this.getRequest(_requestId).then(function (request) {
                 if (!request.extension) {
                     return promiEvent.reject(Error('request doesn\'t have an extension'));
                 }
@@ -149,43 +145,21 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                 }, function (confirmationNumber, receipt) {
                     if (confirmationNumber == _options.numberOfConfirmation) {
                         var event = _this.web3Single.decodeEvent(_this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
-                        _this.getRequest(_requestId, function (err, request) {
-                            if (err)
-                                return promiEvent.reject(err);
+                        _this.getRequest(event.requestId).then(function (request) {
                             promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash });
-                        });
+                        }).catch(function (e) { return promiEvent.reject(e); });
                     }
                 }, function (error) {
                     return promiEvent.reject(error);
                 }, _options);
-            });
+            }).catch(function (e) { return promiEvent.reject(e); });
         });
         return promiEvent.eventEmitter;
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestAsync = function (_requestId) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var dataResult, e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.requestCoreServices.getRequestAsync(_requestId)];
-                    case 1:
-                        dataResult = _a.sent();
-                        return [2 /*return*/, resolve(dataResult)];
-                    case 2:
-                        e_1 = _a.sent();
-                        return [2 /*return*/, reject(e_1)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        }); });
+    RequestSynchroneExtensionEscrowService.prototype.getRequest = function (_requestId) {
+        return this.requestCoreServices.getRequest(_requestId);
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
-        this.requestCoreServices.getRequest(_requestId, _callbackGetRequest);
-    };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestExtensionInfoAsync = function (_requestId) {
+    RequestSynchroneExtensionEscrowService.prototype.getRequestExtensionInfo = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
@@ -201,21 +175,6 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                 };
                 return resolve(dataResult);
             });
-        });
-    };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestExtensionInfo = function (_requestId, _callbackGetRequest) {
-        if (!this.web3Single.isHexStrictBytes32(_requestId))
-            throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
-        this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call(function (err, data) {
-            if (err)
-                return _callbackGetRequest(err, data);
-            var dataResult = {
-                currencyContract: data.currencyContract,
-                escrow: data.escrow,
-                state: data.state,
-                balance: new bignumber_js_1.default(data.balance)
-            };
-            return _callbackGetRequest(err, dataResult);
         });
     };
     RequestSynchroneExtensionEscrowService.prototype.getRequestHistory = function (_requestId) {

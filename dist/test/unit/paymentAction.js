@@ -68,10 +68,10 @@ describe('paymentAction', function () {
                     payer = accounts[2].toLowerCase();
                     payee = accounts[3].toLowerCase();
                     otherGuy = accounts[4].toLowerCase();
-                    return [4 /*yield*/, rn.requestCoreService.getVersionAsync()];
+                    return [4 /*yield*/, rn.requestCoreService.getVersion()];
                 case 2:
                     coreVersion = _a.sent();
-                    return [4 /*yield*/, rn.requestCoreService.getCurrentNumRequestAsync()];
+                    return [4 /*yield*/, rn.requestCoreService.getCurrentNumRequest()];
                 case 3:
                     currentNumRequest = _a.sent();
                     return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee(payer, arbitraryAmount, '', '', [], { from: payee })];

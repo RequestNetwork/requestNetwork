@@ -30,7 +30,7 @@ let newContractInstanceRequestEthereum;
 let newContractInstanceRequestExtensionEscrow;
 let newContractInstanceRequestBurnManagerSimple;
 
-web3Single.getDefaultAccountAsync().then(function(creator) {
+web3Single.getDefaultAccount().then(function(creator) {
     console.log("creator: " + creator);
 
     instanceRequestCore.deploy({

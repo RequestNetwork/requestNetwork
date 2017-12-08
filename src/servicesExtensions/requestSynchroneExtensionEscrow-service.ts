@@ -57,11 +57,11 @@ export default class RequestSynchroneExtensionEscrowService {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccount((err,defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
             let account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId, (err,request) => {
+            this.getRequest(_requestId).then(request => {
                 if (err) return promiEvent.reject(err);
 
                 if(!request.extension) {
@@ -93,17 +93,16 @@ export default class RequestSynchroneExtensionEscrowService {
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeEvent(this.abiRequestCore, 'EscrowReleaseRequest', receipt.events[0]);
-                            this.getRequest(_requestId, (err,request) => {
-                                if(err) return promiEvent.reject(err);
+                            this.getRequest(event.requestId).then((request) => {
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
-                            });
+                            }).catch(e => {return promiEvent.reject(e)});
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            });
+            }).catch(e => {return promiEvent.reject(e)});
         });
 
         return promiEvent.eventEmitter;
@@ -116,12 +115,11 @@ export default class RequestSynchroneExtensionEscrowService {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccount((err,defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
             let account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId, (err,request) => {
-                if (err) return promiEvent.reject(err);
+            this.getRequest(_requestId).then(request => {
 
                 if(!request.extension) {
                     return promiEvent.reject(Error('request doesn\'t have an extension'));
@@ -152,43 +150,27 @@ export default class RequestSynchroneExtensionEscrowService {
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber == _options.numberOfConfirmation) {
                             var event = this.web3Single.decodeEvent(this.abiRequestCore, 'EscrowRefundRequest', receipt.events[0]);
-                            this.getRequest(_requestId, (err,request) => {
-                                if(err) return promiEvent.reject(err);
+                            this.getRequest(event.requestId).then((request) => {
                                 promiEvent.resolve({ request: request, transactionHash: receipt.transactionHash});
-                            });
+                            }).catch(e => {return promiEvent.reject(e)});
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            });
+            }).catch(e => {return promiEvent.reject(e)});
         });
 
         return promiEvent.eventEmitter;
     }
 
 
-    public getRequestAsync(
-        _requestId: string): Promise < any > {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let dataResult = await this.requestCoreServices.getRequestAsync(_requestId);
-                return resolve(dataResult);
-            } catch(e) {
-                return reject(e);
-            }
-        });
+    public getRequest(_requestId: string): Promise < any > {
+        return this.requestCoreServices.getRequest(_requestId);
     }
 
-    public getRequest(
-        _requestId: string,
-        _callbackGetRequest: Types.CallbackGetRequest): void {
-        this.requestCoreServices.getRequest(_requestId,_callbackGetRequest);
-    }       
-
-    public getRequestExtensionInfoAsync(
-        _requestId: string): Promise < any > {
+    public getRequestExtensionInfo(_requestId: string): Promise < any > {
         
         return new Promise((resolve, reject) => {
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
@@ -205,26 +187,6 @@ export default class RequestSynchroneExtensionEscrowService {
 
                 return resolve(dataResult);
             });
-        });
-    }
-
-    public getRequestExtensionInfo(
-        _requestId: string,
-        _callbackGetRequest: Types.CallbackGetRequest) {
-
-        if (!this.web3Single.isHexStrictBytes32(_requestId)) throw Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\'');
-
-        this.instanceSynchroneExtensionEscrow.methods.escrows(_requestId).call((err: Error, data: any) => {
-            if (err) return _callbackGetRequest(err, data);
-
-            let dataResult: any = {
-                currencyContract: data.currencyContract,
-                escrow: data.escrow,
-                state: data.state,
-                balance: new BigNumber(data.balance)
-            };
-
-            return _callbackGetRequest(err, dataResult);
         });
     }
 
