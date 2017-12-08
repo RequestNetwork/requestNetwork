@@ -124,12 +124,7 @@
       "constant": false,
       "inputs": [],
       "name": "pause",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -171,24 +166,14 @@
         }
       ],
       "name": "setMaxCollectable",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint16"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "_reqBurnerContract",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "maxFees",
       "outputs": [
         {
@@ -201,64 +186,39 @@
       "type": "function"
     },
     {
+      "constant": false,
       "inputs": [
         {
           "name": "newOwner",
           "type": "address"
         }
       ],
+      "name": "transferOwnership",
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
-      "type": "function",
-      "anonymous": false,
-      "name": "transferOwnership",
-      "constant": false,
-      "outputs": []
+      "type": "function"
     },
     {
-      "anonymous": false,
       "inputs": [
         {
           "name": "_reqBurnerContract",
           "type": "address"
         }
       ],
-      "name": "Unpause",
-      "type": "constructor",
       "payable": false,
-      "stateMutability": "nonpayable"
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     },
     {
       "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "Pause",
       "type": "event"
     },
     {
       "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "Unpause",
       "type": "event"
     },
@@ -290,7 +250,7 @@
       "address": "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf"
     },
     "kovan": {
-      "address": "0x6e51827948f057a354d01ba0a108fdc7843b0d04"
+      "address": ""
     }
   }
 }
