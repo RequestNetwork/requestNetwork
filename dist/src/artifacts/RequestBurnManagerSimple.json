@@ -247,10 +247,12 @@
   },
   "networks": {
     "private": {
-      "address": "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf"
+      "address": "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf",
+      "blockNumber": 0
     },
     "kovan": {
-      "address": ""
+      "address": "",
+      "blockNumber": 0
     }
   }
 }

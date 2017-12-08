@@ -17,5 +17,6 @@ export interface Artifact {
     abi: any;
     networks: {[networkName: string]: {
         address: string;
+        blockNumber: string;
     }};
 }

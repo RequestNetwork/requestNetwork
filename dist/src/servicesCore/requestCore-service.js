@@ -296,6 +296,70 @@ var RequestCoreService = /** @class */ (function () {
             });
         }); });
     };
+    RequestCoreService.prototype.getRequestHistory = function (_requestId) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                    var currencyContract, extension, eventsCoreRaw, eventsCore, eventsExtensions, eventsCurrencyContract, e_4;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                if (err)
+                                    return [2 /*return*/, reject(err)];
+                                _a.label = 1;
+                            case 1:
+                                _a.trys.push([1, 7, , 8]);
+                                currencyContract = data.currencyContract;
+                                extension = data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('allEvents', {
+                                        // allEvents and filter don't work together so far. issues created on web3 github
+                                        // filter: {requestId: _requestId}, 
+                                        fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                        toBlock: 'latest'
+                                    })];
+                            case 2:
+                                eventsCoreRaw = _a.sent();
+                                eventsCore = eventsCoreRaw.filter(function (e) { return e.returnValues.requestId == _requestId; })
+                                    .map(function (e) {
+                                    return {
+                                        _meta: {
+                                            logIndex: e.logIndex,
+                                            blockNumber: e.blockNumber,
+                                        },
+                                        name: e.event,
+                                        data: e.returnValues
+                                    };
+                                });
+                                eventsExtensions = [];
+                                if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 4];
+                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistory(_requestId)];
+                            case 3:
+                                eventsExtensions = _a.sent();
+                                _a.label = 4;
+                            case 4:
+                                eventsCurrencyContract = [];
+                                if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 6];
+                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistory(_requestId)];
+                            case 5:
+                                eventsCurrencyContract = _a.sent();
+                                _a.label = 6;
+                            case 6: return [2 /*return*/, resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
+                                    var diffBlockNumber = a._meta.blockNumber - b._meta.blockNumber;
+                                    return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
+                                }))];
+                            case 7:
+                                e_4 = _a.sent();
+                                return [2 /*return*/, reject(err)];
+                            case 8: return [2 /*return*/];
+                        }
+                    });
+                }); });
+                return [2 /*return*/];
+            });
+        }); });
+    };
     return RequestCoreService;
 }());
 exports.default = RequestCoreService;

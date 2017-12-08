@@ -235,4 +235,55 @@ export default class RequestCoreService {
             }
         });
     }  
+
+
+
+    public getRequestHistory(
+        _requestId: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
+                if (err) return reject(err);
+
+                try {
+                    let currencyContract = data.currencyContract;
+                    let extension = data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined;
+
+                    let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
+                        // allEvents and filter don't work together so far. issues created on web3 github
+                        // filter: {requestId: _requestId}, 
+                        fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                        toBlock: 'latest'
+                    });
+                        // waiting for filter working (see above)
+                    let eventsCore = eventsCoreRaw.filter(e => e.returnValues.requestId == _requestId)
+                                                     .map(e => { 
+                                                            return {
+                                                                _meta: {
+                                                                    logIndex:e.logIndex,
+                                                                    blockNumber:e.blockNumber,
+                                                                },
+                                                                name:e.event,
+                                                                data: e.returnValues
+                                                            };
+                                                        });
+                    let eventsExtensions = [];
+                    if (ServiceExtensions.getServiceFromAddress(extension)) {
+                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistory(_requestId);
+                    }
+
+                    let eventsCurrencyContract = [];
+                    if (ServicesContracts.getServiceFromAddress(currencyContract)) {
+                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistory(_requestId);
+                    }
+
+                    return resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
+                                                                                          let diffBlockNumber = a._meta.blockNumber - b._meta.blockNumber;
+                                                                                          return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
+                                                                                        }));
+                } catch(e) {
+                    return reject(err); 
+                }
+            });
+        }); 
+    }
 }

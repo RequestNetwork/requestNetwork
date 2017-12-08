@@ -416,6 +416,36 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.getRequest = function (_requestId, _callbackGetRequest) {
         this.requestCoreServices.getRequest(_requestId, _callbackGetRequest);
     };
+    RequestEthereumService.prototype.getRequestHistory = function (_requestId) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.instanceRequestEthereum.getPastEvents('allEvents', {
+                    // allEvents and filter don't work together so far. issues created on web3 github
+                    // filter: {requestId: _requestId}, 
+                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                    toBlock: 'latest'
+                })
+                    .then(function (events) {
+                    // waiting for filter working (see above)
+                    return resolve(events.filter(function (e) { return e.returnValues.requestId == _requestId; })
+                        .map(function (e) {
+                        return {
+                            _meta: {
+                                logIndex: e.logIndex,
+                                blockNumber: e.blockNumber,
+                            },
+                            name: e.event,
+                            data: e.returnValues
+                        };
+                    }));
+                }).catch(function (err) {
+                    return reject(err);
+                });
+                return [2 /*return*/];
+            });
+        }); });
+    };
     return RequestEthereumService;
 }());
 exports.default = RequestEthereumService;

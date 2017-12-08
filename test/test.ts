@@ -115,31 +115,21 @@ async function foo() {
 					'0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
 					200000,
 					'{"reason":"wine purchased"}'
-			)
-				.on('broadcasted', async (data:any) => {
-					console.log('broadcasted')
-					console.log(data)
-					let test = await rn.requestCoreService.getRequestByTransactionHash(data.transactionHash);
-					console.log('getRequestByTransactionHash')
-					console.log(test)
-				});
+			);
 
-			console.log('result')
+			console.log('createRequestAsPayee')
 			console.log(result)
 
-			result = await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'})
-				.on('broadcasted', async (data:any) => {
-					try {
-						console.log('broadcasted 222222222222222')
-						console.log(data.transactionHash)
-						let test = await rn.requestCoreService.getRequestByTransactionHash(data.transactionHash);
-						console.log('getRequestByTransactionHash 222222222222222')
-						console.log(test)
-					}
-				  catch(err) {
-				      console.log('ErrorXXXXXX: ', err.message);
-			    }
-				});
+			// await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+			await rn.requestEthereumService.paymentAction(result.request.requestId,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+			await rn.requestEthereumService.refundAction(result.request.requestId,700);
+
+			result = await rn.requestCoreService.getRequestHistory(result.request.requestId);
+
+
+			console.log('getRequestHistory')
+			console.log(result)
+
 
     }
     catch(err) {

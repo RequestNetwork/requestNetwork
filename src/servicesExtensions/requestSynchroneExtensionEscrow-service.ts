@@ -228,4 +228,31 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
+    public getRequestHistory(
+        _requestId: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
+                // allEvents and filter don't work together so far. issues created on web3 github
+                // filter: {requestId: _requestId}, 
+                fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                toBlock: 'latest'
+            })
+            .then(events => {
+                // waiting for filter working (see above)
+                return resolve(events.filter(e => e.returnValues.requestId == _requestId)
+                                     .map(e => { 
+                                            return {
+                                                _meta: {
+                                                    logIndex:e.logIndex,
+                                                    blockNumber:e.blockNumber,
+                                                },
+                                                name:e.event,
+                                                data: e.returnValues
+                                            };
+                                        }));
+            }).catch(err => {
+                return reject(err); 
+            });
+        });  
+    }  
 }

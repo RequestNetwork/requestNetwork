@@ -121,65 +121,36 @@ var rn = new requestNetwork_1.default();
 // }
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
         var result, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 3, , 4]);
+                    _a.trys.push([0, 5, , 6]);
                     return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee('0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
-                        200000, '{"reason":"wine purchased"}')
-                            .on('broadcasted', function (data) { return __awaiter(_this, void 0, void 0, function () {
-                            var test;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        console.log('broadcasted');
-                                        console.log(data);
-                                        return [4 /*yield*/, rn.requestCoreService.getRequestByTransactionHash(data.transactionHash)];
-                                    case 1:
-                                        test = _a.sent();
-                                        console.log('getRequestByTransactionHash');
-                                        console.log(test);
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); })];
+                        200000, '{"reason":"wine purchased"}')];
                 case 1:
                     result = _a.sent();
-                    console.log('result');
+                    console.log('createRequestAsPayee');
                     console.log(result);
-                    return [4 /*yield*/, rn.requestEthereumService.accept(result.request.requestId, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })
-                            .on('broadcasted', function (data) { return __awaiter(_this, void 0, void 0, function () {
-                            var test_1, err_2;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        _a.trys.push([0, 2, , 3]);
-                                        console.log('broadcasted 222222222222222');
-                                        console.log(data.transactionHash);
-                                        return [4 /*yield*/, rn.requestCoreService.getRequestByTransactionHash(data.transactionHash)];
-                                    case 1:
-                                        test_1 = _a.sent();
-                                        console.log('getRequestByTransactionHash 222222222222222');
-                                        console.log(test_1);
-                                        return [3 /*break*/, 3];
-                                    case 2:
-                                        err_2 = _a.sent();
-                                        console.log('ErrorXXXXXX: ', err_2.message);
-                                        return [3 /*break*/, 3];
-                                    case 3: return [2 /*return*/];
-                                }
-                            });
-                        }); })];
+                    // await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+                    return [4 /*yield*/, rn.requestEthereumService.paymentAction(result.request.requestId, 900, 0, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
                 case 2:
-                    result = _a.sent();
-                    return [3 /*break*/, 4];
+                    // await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+                    _a.sent();
+                    return [4 /*yield*/, rn.requestEthereumService.refundAction(result.request.requestId, 700)];
                 case 3:
+                    _a.sent();
+                    return [4 /*yield*/, rn.requestCoreService.getRequestHistory(result.request.requestId)];
+                case 4:
+                    result = _a.sent();
+                    console.log('getRequestHistory');
+                    console.log(result);
+                    return [3 /*break*/, 6];
+                case 5:
                     err_1 = _a.sent();
                     console.log('Error: ', err_1.message);
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });
