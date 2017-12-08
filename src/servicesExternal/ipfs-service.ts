@@ -10,7 +10,7 @@ export default class Ipfs {
 	public ipfs: any;
 
 	private constructor() {
-		this.ipfs = ipfsAPI(config.ipfs.nodeUrlDefault.public);
+		this.ipfs = ipfsAPI(config.ipfs.nodeUrlDefault.host, config.ipfs.nodeUrlDefault.port, {protocol: config.ipfs.nodeUrlDefault.protocol})
 	}
 
 	public static getInstance()
