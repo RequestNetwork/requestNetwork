@@ -139,7 +139,7 @@ export class Web3Single {
             return null;
         }
 
-        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics[0]);
+        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics[1]);
     }
 
     public decodeEvent(abi: Array < any > , eventName: string, event: any): any {
@@ -151,7 +151,7 @@ export class Web3Single {
             }
             return false;
         });
-        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics[0]);
+        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics[1]);
     }
     
     public setUpOptions(_options:any) : any

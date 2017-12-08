@@ -234,5 +234,5 @@ export default class RequestCoreService {
                 return reject(e);
             }
         });
-    }
+    }  
 }

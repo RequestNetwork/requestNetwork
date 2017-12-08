@@ -167,7 +167,7 @@ var Web3Single = /** @class */ (function () {
         if (log.topics[0] != signature) {
             return null;
         }
-        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics[0]);
+        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics[1]);
     };
     Web3Single.prototype.decodeEvent = function (abi, eventName, event) {
         var eventInput;
@@ -178,7 +178,7 @@ var Web3Single = /** @class */ (function () {
             }
             return false;
         });
-        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics[0]);
+        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics[1]);
     };
     Web3Single.prototype.setUpOptions = function (_options) {
         if (!_options)
