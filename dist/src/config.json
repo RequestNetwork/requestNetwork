@@ -12,7 +12,9 @@
 	"ipfs": 
 	{
 		"nodeUrlDefault": {
-			"public": "/ip4/127.0.0.1/tcp/5001"
+			"host": "ipfs.infura.io", 
+			"port": "5001", 
+			"protocol": "https"
 		}
 	}
 }
