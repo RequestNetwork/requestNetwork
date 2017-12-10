@@ -257,12 +257,45 @@ var RequestCoreService = /** @class */ (function () {
                                 }))];
                             case 7:
                                 e_3 = _a.sent();
-                                return [2 /*return*/, reject(err)];
+                                return [2 /*return*/, reject(e_3)];
                             case 8: return [2 /*return*/];
                         }
                     });
                 }); });
                 return [2 /*return*/];
+            });
+        }); });
+    };
+    RequestCoreService.prototype.getRequestsByAddress = function (_address) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var eventsCorePayee, eventsCorePayer, e_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Created', {
+                                filter: { payee: _address },
+                                fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                toBlock: 'latest'
+                            })];
+                    case 1:
+                        eventsCorePayee = _a.sent();
+                        return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Created', {
+                                filter: { payer: _address },
+                                fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                toBlock: 'latest'
+                            })];
+                    case 2:
+                        eventsCorePayer = _a.sent();
+                        return [2 /*return*/, resolve({ asPayer: eventsCorePayer.map(function (e) { return { requestId: e.returnValues.requestId, _meta: { blockNumber: e.blockNumber } }; }),
+                                asPayee: eventsCorePayee.map(function (e) { return { requestId: e.returnValues.requestId, _meta: { blockNumber: e.blockNumber } }; })
+                            })];
+                    case 3:
+                        e_4 = _a.sent();
+                        return [2 /*return*/, reject(e_4)];
+                    case 4: return [2 /*return*/];
+                }
             });
         }); });
     };

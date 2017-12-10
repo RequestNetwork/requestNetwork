@@ -155,8 +155,6 @@ export default class RequestCoreService {
         });
     }  
 
-
-
     public getRequestHistory(
         _requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
@@ -200,9 +198,32 @@ export default class RequestCoreService {
                                                                                           return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
                                                                                         }));
                 } catch(e) {
-                    return reject(err); 
+                    return reject(e); 
                 }
             });
         }); 
+    }
+
+    public getRequestsByAddress(
+        _address: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let eventsCorePayee = await this.instanceRequestCore.getPastEvents('Created', {
+                    filter: { payee: _address }, 
+                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                    toBlock: 'latest'
+                });
+                let eventsCorePayer = await this.instanceRequestCore.getPastEvents('Created', {
+                    filter: { payer: _address }, 
+                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                    toBlock: 'latest'
+                });
+                return resolve({asPayer : eventsCorePayer.map(e => { return {requestId:e.returnValues.requestId, _meta: {blockNumber:e.blockNumber}}}),
+                                asPayee : eventsCorePayee.map(e => { return {requestId:e.returnValues.requestId, _meta: {blockNumber:e.blockNumber}}})
+                            });
+            } catch(e) {
+                return reject(e); 
+            }
+        });
     }
 }
