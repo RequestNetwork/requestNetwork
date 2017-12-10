@@ -4,8 +4,10 @@ var config_1 = require("../config");
 // import ipfs from 'ipfs-api';
 var ipfsAPI = require("ipfs-api");
 var Ipfs = /** @class */ (function () {
-    function Ipfs() {
-        this.ipfs = ipfsAPI(config_1.default.ipfs.nodeUrlDefault.host, config_1.default.ipfs.nodeUrlDefault.port, { protocol: config_1.default.ipfs.nodeUrlDefault.protocol });
+    function Ipfs(_publicIpfs) {
+        if (_publicIpfs === void 0) { _publicIpfs = false; }
+        var ipfsConfig = config_1.default.ipfs.nodeUrlDefault[_publicIpfs ? 'public' : 'private'];
+        this.ipfs = ipfsAPI(ipfsConfig.host, ipfsConfig.port, { protocol: ipfsConfig.protocol });
     }
     Ipfs.getInstance = function () {
         return this._instance || (this._instance = new this());

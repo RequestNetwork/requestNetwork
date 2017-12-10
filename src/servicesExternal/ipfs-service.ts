@@ -9,8 +9,9 @@ export default class Ipfs {
 
 	public ipfs: any;
 
-	private constructor() {
-		this.ipfs = ipfsAPI(config.ipfs.nodeUrlDefault.host, config.ipfs.nodeUrlDefault.port, {protocol: config.ipfs.nodeUrlDefault.protocol})
+	private constructor(_publicIpfs : boolean = false) {
+		let ipfsConfig = config.ipfs.nodeUrlDefault[_publicIpfs?'public':'private'];
+		this.ipfs = ipfsAPI(ipfsConfig.host, ipfsConfig.port, {protocol: ipfsConfig.protocol})
 	}
 
 	public static getInstance()
