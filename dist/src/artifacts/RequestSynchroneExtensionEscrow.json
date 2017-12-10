@@ -384,8 +384,8 @@
       "blockNumber": 0
     },
     "kovan": {
-      "address": "",
-      "blockNumber": 0
+      "address": "0xa08dC8CEC69E8af8DC6E746cd6A8343EA1355092",
+      "blockNumber": 5020229
     }
   }
 }
