@@ -1,7 +1,7 @@
 const config = require('../src/config.json');
 
 import RequestNetwork from '../src/requestNetwork';
-var rn = new RequestNetwork();
+var rn = new RequestNetwork(null,null,false);
 
 async function foo() {
     try {

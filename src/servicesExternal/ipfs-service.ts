@@ -5,19 +5,24 @@ import ipfsAPI = require('ipfs-api');
 
 
 export default class Ipfs {
-	private static _instance:Ipfs = new Ipfs();
+	private static _instance:Ipfs;
 
 	public ipfs: any;
 
-	private constructor(_publicIpfs : boolean = false) {
+	private constructor(_publicIpfs : boolean) {
 		let ipfsConfig = config.ipfs.nodeUrlDefault[_publicIpfs?'public':'private'];
 		this.ipfs = ipfsAPI(ipfsConfig.host, ipfsConfig.port, {protocol: ipfsConfig.protocol})
 	}
 
-	public static getInstance()
-	{
-		return this._instance || (this._instance = new this());
-	}
+    public static init(_publicIpfs : boolean = true) 
+    {   
+        this._instance = new this(_publicIpfs);
+    }
+
+    public static getInstance() 
+    {
+        return this._instance;
+    }
 
 	public addFile(_data:string) : Promise<any>
 	{

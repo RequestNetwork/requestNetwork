@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var config = require('../src/config.json');
 var requestNetwork_1 = require("../src/requestNetwork");
-var rn = new requestNetwork_1.default();
+var rn = new requestNetwork_1.default(null, null, false);
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
         var result, err_1;

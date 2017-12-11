@@ -5,12 +5,15 @@ var config_1 = require("../config");
 var ipfsAPI = require("ipfs-api");
 var Ipfs = /** @class */ (function () {
     function Ipfs(_publicIpfs) {
-        if (_publicIpfs === void 0) { _publicIpfs = false; }
         var ipfsConfig = config_1.default.ipfs.nodeUrlDefault[_publicIpfs ? 'public' : 'private'];
         this.ipfs = ipfsAPI(ipfsConfig.host, ipfsConfig.port, { protocol: ipfsConfig.protocol });
     }
+    Ipfs.init = function (_publicIpfs) {
+        if (_publicIpfs === void 0) { _publicIpfs = true; }
+        this._instance = new this(_publicIpfs);
+    };
     Ipfs.getInstance = function () {
-        return this._instance || (this._instance = new this());
+        return this._instance;
     };
     Ipfs.prototype.addFile = function (_data) {
         var _this = this;
@@ -48,7 +51,6 @@ var Ipfs = /** @class */ (function () {
             });
         });
     };
-    Ipfs._instance = new Ipfs();
     return Ipfs;
 }());
 exports.default = Ipfs;
