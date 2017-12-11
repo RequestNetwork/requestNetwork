@@ -131,7 +131,6 @@ export default class RequestEthereumService {
             let account = _options.from || defaultAccount;
 
             this.getRequest(_requestId).then((request) => {
-
                 if (request.state != Types.State.Created) {
                     return promiEvent.reject(Error('request state is not \'created\''));
                 }

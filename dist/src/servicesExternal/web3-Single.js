@@ -54,34 +54,35 @@ var Web3Single = /** @class */ (function () {
     };
     Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
-            var accounts, e_1, forcedGas;
+            var options, accounts, e_1, forcedGas;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!_options)
-                            _options = {};
-                        if (!!_options.from) return [3 /*break*/, 4];
+                        options = Object.assign({}, _options || {});
+                        ;
+                        options.numberOfConfirmation = undefined;
+                        if (!!options.from) return [3 /*break*/, 4];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, this.web3.eth.getAccounts()];
                     case 2:
                         accounts = _a.sent();
-                        _options.from = accounts[0];
+                        options.from = accounts[0];
                         return [3 /*break*/, 4];
                     case 3:
                         e_1 = _a.sent();
                         return [2 /*return*/, _callbackTransactionError(e_1)];
                     case 4:
-                        forcedGas = _options.gas;
-                        _options.value = _options.value ? _options.value : 0;
-                        _options.gas = forcedGas ? forcedGas : 90000000;
-                        _options.gasPrice = _options.gasPrice ? _options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
-                        _method.estimateGas(_options, function (err, estimateGas) {
+                        forcedGas = options.gas;
+                        options.value = options.value ? options.value : 0;
+                        options.gas = forcedGas ? forcedGas : 90000000;
+                        options.gasPrice = options.gasPrice ? options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
+                        _method.estimateGas(options, function (err, estimateGas) {
                             if (err)
                                 return _callbackTransactionError(err);
-                            _options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
-                            _method.send(_options)
+                            options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
+                            _method.send(options)
                                 .on('transactionHash', _callbackTransactionHash)
                                 .on('receipt', _callbackTransactionReceipt)
                                 .on('confirmation', _callbackTransactionConfirmation)
