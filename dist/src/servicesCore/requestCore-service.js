@@ -35,13 +35,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var bignumber_js_1 = require("bignumber.js");
 var artifacts_1 = require("../artifacts");
 var ServicesContracts = require("../servicesContracts");
 var ServiceExtensions = require("../servicesExtensions");
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
+var BN = web3_single_1.Web3Single.BN();
 var RequestCoreService = /** @class */ (function () {
     function RequestCoreService() {
         this.web3Single = web3_single_1.Web3Single.getInstance();
@@ -79,7 +79,7 @@ var RequestCoreService = /** @class */ (function () {
     };
     RequestCoreService.prototype.getCollectEstimation = function (_expectedAmount, _currencyContract, _extension) {
         var _this = this;
-        _expectedAmount = new bignumber_js_1.default(_expectedAmount);
+        _expectedAmount = new BN(_expectedAmount);
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isAddressNoChecksum(_currencyContract))
                 return reject(Error('_currencyContract must be a valid eth address'));
@@ -117,9 +117,9 @@ var RequestCoreService = /** @class */ (function () {
                                 creator: data.creator,
                                 payee: data.payee,
                                 payer: data.payer,
-                                expectedAmount: new bignumber_js_1.default(data.expectedAmount),
+                                expectedAmount: new BN(data.expectedAmount),
                                 currencyContract: data.currencyContract,
-                                balance: new bignumber_js_1.default(data.balance),
+                                balance: new BN(data.balance),
                                 state: data.state,
                                 extension: data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined,
                                 data: data.data,

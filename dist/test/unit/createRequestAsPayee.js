@@ -40,6 +40,7 @@ var chai_1 = require("chai");
 require("mocha");
 var utils = require("../utils");
 var Web3 = require('web3');
+var BN = Web3.utils.BN;
 var requestNetwork_1 = require("../../src/requestNetwork");
 var artifacts_1 = require("../../src/artifacts");
 var addressRequestEthereum = artifacts_1.default.RequestEthereumArtifact.networks.private.address;
@@ -172,7 +173,7 @@ describe('createRequestAsPayee', function () {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee(payer, -1)];
+                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee(payer, new Web3.utils.BN(-1))];
                 case 1:
                     result = _a.sent();
                     chai_1.expect(false, 'exception not thrown').to.be.true;

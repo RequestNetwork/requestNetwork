@@ -35,7 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var bignumber_js_1 = require("bignumber.js");
 var config_1 = require("../config");
 var Web3 = require('web3');
 // const Web3 = require('web3');
@@ -51,6 +50,9 @@ var Web3Single = /** @class */ (function () {
     };
     Web3Single.getInstance = function () {
         return this._instance;
+    };
+    Web3Single.BN = function () {
+        return Web3.utils.BN;
     };
     Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
@@ -187,9 +189,9 @@ var Web3Single = /** @class */ (function () {
         if (!_options.numberOfConfirmation)
             _options.numberOfConfirmation = 0;
         if (_options.gasPrice)
-            _options.gasPrice = new bignumber_js_1.default(_options.gasPrice);
+            _options.gasPrice = new Web3.utils.BN(_options.gasPrice);
         if (_options.gas)
-            _options.gas = new bignumber_js_1.default(_options.gas);
+            _options.gas = new Web3.utils.BN(_options.gas);
         return _options;
     };
     Web3Single.getNetworkName = function (networkId) {

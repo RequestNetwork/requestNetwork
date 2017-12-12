@@ -1,10 +1,9 @@
 import {expect} from 'chai';
-import BigNumber from 'bignumber.js';
 import 'mocha';
 import * as utils from '../utils';
 
 var Web3 = require('web3');
-
+const BN = Web3.utils.BN;
 
 import RequestNetwork from '../../src/requestNetwork';
 import Artifacts from '../../src/artifacts';
@@ -112,7 +111,7 @@ describe('createRequestAsPayee', () => {
         try { 
             let result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
-                    -1);
+                    new Web3.utils.BN(-1));
             expect(false,'exception not thrown').to.be.true; 
         } catch(e) {
             utils.expectEqualsObject(e,Error('_expectedAmount must a positive integer'),'exception not right');

@@ -1,7 +1,6 @@
 import config from '../config';
 import * as Types from '../types';
 import Artifacts from '../artifacts';
-import BigNumber from 'bignumber.js';
 import * as Web3PromiEvent from 'web3-core-promievent';
 // import * as ServicesContracts from '../servicesContracts';
 import RequestCoreService from '../servicesCore/requestCore-service';
@@ -10,6 +9,8 @@ const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 const requestSynchroneExtensionEscrow_Artifact = Artifacts.RequestSynchroneExtensionEscrowArtifact;
 
 import { Web3Single } from '../servicesExternal/web3-single';
+
+const BN = Web3Single.BN();
 
 export default class RequestSynchroneExtensionEscrowService {
     protected web3Single: any;
@@ -182,7 +183,7 @@ export default class RequestSynchroneExtensionEscrowService {
                     currencyContract: data.currencyContract,
                     escrow: data.escrow,
                     state: data.state,
-                    balance: new BigNumber(data.balance)
+                    balance: new BN(data.balance)
                 };
 
                 return resolve(dataResult);

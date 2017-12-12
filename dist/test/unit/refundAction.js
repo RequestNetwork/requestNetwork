@@ -40,6 +40,7 @@ var chai_1 = require("chai");
 require("mocha");
 var utils = require("../utils");
 var Web3 = require('web3');
+var BN = Web3.utils.BN;
 var requestNetwork_1 = require("../../src/requestNetwork");
 var artifacts_1 = require("../../src/artifacts");
 var addressRequestEthereum = artifacts_1.default.RequestEthereumArtifact.networks.private.address;

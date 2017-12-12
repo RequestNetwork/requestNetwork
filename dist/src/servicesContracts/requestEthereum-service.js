@@ -35,7 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var bignumber_js_1 = require("bignumber.js");
 var Web3PromiEvent = require("web3-core-promievent");
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
@@ -45,6 +44,7 @@ var requestEthereum_Artifact = artifacts_1.default.RequestEthereumArtifact;
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
+var BN = web3_single_1.Web3Single.BN();
 var RequestEthereumService = /** @class */ (function () {
     function RequestEthereumService() {
         this.web3Single = web3_single_1.Web3Single.getInstance();
@@ -61,13 +61,13 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _data, _extension, _extensionParams, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
-        _amountInitial = new bignumber_js_1.default(_amountInitial);
+        _amountInitial = new BN(_amountInitial);
         _options = this.web3Single.setUpOptions(_options);
         this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
-            if (_amountInitial.lt(0))
+            if (_amountInitial.isNeg())
                 return promiEvent.reject(Error('_amountInitial must a positive integer'));
             if (!_this.web3Single.isAddressNoChecksum(_payer))
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
@@ -195,17 +195,17 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.paymentAction = function (_requestId, _amount, _additionals, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
-        _additionals = new bignumber_js_1.default(_additionals);
+        _additionals = new BN(_additionals);
         _options = this.web3Single.setUpOptions(_options);
-        _options.value = new bignumber_js_1.default(_amount);
+        _options.value = new BN(_amount);
         this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
             _this.getRequest(_requestId).then(function (request) {
-                if (_options.value.lt(0))
+                if (_options.value.isNeg())
                     return promiEvent.reject(Error('_amount must a positive integer'));
-                if (_additionals.lt(0))
+                if (_additionals.isNeg())
                     return promiEvent.reject(Error('_additionals must a positive integer'));
                 if (request.state == Types.State.Canceled) {
                     return promiEvent.reject(Error('request cannot be canceled'));
@@ -233,13 +233,13 @@ var RequestEthereumService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _options.value = new bignumber_js_1.default(_amount);
+        _options.value = new BN(_amount);
         this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
             _this.getRequest(_requestId).then(function (request) {
-                if (_options.value.lt(0))
+                if (_options.value.isNeg())
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state != Types.State.Accepted) {
                     return promiEvent.reject(Error('request must be accepted'));
@@ -270,13 +270,13 @@ var RequestEthereumService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _amount = new bignumber_js_1.default(_amount);
+        _amount = new BN(_amount);
         this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
             _this.getRequest(_requestId).then(function (request) {
-                if (_amount.lt(0))
+                if (_amount.isNeg())
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state == Types.State.Canceled) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -307,13 +307,13 @@ var RequestEthereumService = /** @class */ (function () {
         var _this = this;
         var promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _amount = new bignumber_js_1.default(_amount);
+        _amount = new BN(_amount);
         this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
             if (!_options.from && err)
                 return promiEvent.reject(err);
             var account = _options.from || defaultAccount;
             _this.getRequest(_requestId).then(function (request) {
-                if (_amount.lt(0))
+                if (_amount.isNeg())
                     return promiEvent.reject(Error('_amount must a positive integer'));
                 if (request.state == Types.State.Canceled) {
                     return promiEvent.reject(Error('request must be accepted or created'));

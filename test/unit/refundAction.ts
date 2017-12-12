@@ -1,9 +1,9 @@
 import {expect} from 'chai';
-import BigNumber from 'bignumber.js';
 import 'mocha';
 import * as utils from '../utils';
 
 var Web3 = require('web3');
+const BN = Web3.utils.BN;
 
 import RequestNetwork from '../../src/requestNetwork';
 import Artifacts from '../../src/artifacts';
@@ -21,6 +21,7 @@ var coreVersion;
 var currentNumRequest;
 
 var requestId;
+
 
 describe('refundAction', () => {
     var arbitraryAmount = 100000000;

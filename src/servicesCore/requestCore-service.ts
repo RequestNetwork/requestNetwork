@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js';
-
 import * as Types from '../types';
 import Artifacts from '../artifacts';
 import * as ServicesContracts from '../servicesContracts';
@@ -9,6 +7,8 @@ const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 
 import { Web3Single } from '../servicesExternal/web3-single';
 import Ipfs from '../servicesExternal/ipfs-service';
+
+const BN = Web3Single.BN();
 
 export default class RequestCoreService {
     private web3Single: Web3Single;
@@ -53,7 +53,7 @@ export default class RequestCoreService {
         _expectedAmount:any, 
         _currencyContract:string, 
         _extension:string): Promise < any > {
-        _expectedAmount = new BigNumber(_expectedAmount);
+        _expectedAmount = new BN(_expectedAmount);
 
         return new Promise((resolve, reject) => {
             if (!this.web3Single.isAddressNoChecksum(_currencyContract)) return reject(Error('_currencyContract must be a valid eth address'));
@@ -84,9 +84,9 @@ export default class RequestCoreService {
                         creator: data.creator,
                         payee: data.payee,
                         payer: data.payer,
-                        expectedAmount: new BigNumber(data.expectedAmount),
+                        expectedAmount: new BN(data.expectedAmount),
                         currencyContract: data.currencyContract,
-                        balance: new BigNumber(data.balance),
+                        balance: new BN(data.balance),
                         state: data.state,
                         extension: data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined,
                         data: data.data,

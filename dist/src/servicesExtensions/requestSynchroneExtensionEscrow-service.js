@@ -37,13 +37,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Types = require("../types");
 var artifacts_1 = require("../artifacts");
-var bignumber_js_1 = require("bignumber.js");
 var Web3PromiEvent = require("web3-core-promievent");
 // import * as ServicesContracts from '../servicesContracts';
 var requestCore_service_1 = require("../servicesCore/requestCore-service");
 var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var requestSynchroneExtensionEscrow_Artifact = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
+var BN = web3_single_1.Web3Single.BN();
 var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
     function RequestSynchroneExtensionEscrowService() {
         this.web3Single = web3_single_1.Web3Single.getInstance();
@@ -171,7 +171,7 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                     currencyContract: data.currencyContract,
                     escrow: data.escrow,
                     state: data.state,
-                    balance: new bignumber_js_1.default(data.balance)
+                    balance: new BN(data.balance)
                 };
                 return resolve(dataResult);
             });

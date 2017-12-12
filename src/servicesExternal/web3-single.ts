@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import config from '../config';
 import * as Types from '../types';
 
@@ -28,7 +27,10 @@ export class Web3Single {
     {
         return this._instance;
     }
-
+    public static BN() 
+    {
+        return Web3.utils.BN;
+    }
     public async broadcastMethod(_method: any,
         _callbackTransactionHash: Types.CallbackTransactionHash,
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
@@ -160,8 +162,8 @@ export class Web3Single {
     {
         if(!_options) _options = {};
         if(!_options.numberOfConfirmation) _options.numberOfConfirmation = 0;
-        if(_options.gasPrice) _options.gasPrice = new BigNumber(_options.gasPrice);
-        if(_options.gas) _options.gas = new BigNumber(_options.gas);
+        if(_options.gasPrice) _options.gasPrice = new Web3.utils.BN(_options.gasPrice);
+        if(_options.gas) _options.gas = new Web3.utils.BN(_options.gas);
         return _options;
     }
 

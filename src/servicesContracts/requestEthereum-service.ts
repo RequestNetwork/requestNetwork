@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+
 
 import * as Web3PromiEvent from 'web3-core-promievent';
 
@@ -12,6 +12,8 @@ const requestCore_Artifact = Artifacts.RequestCoreArtifact;
 
 import { Web3Single } from '../servicesExternal/web3-single';
 import Ipfs from '../servicesExternal/ipfs-service';
+
+const BN = Web3Single.BN();
 
 export default class RequestEthereumService {
     private web3Single: Web3Single;
@@ -51,21 +53,19 @@ export default class RequestEthereumService {
         _options ? : any,
         ): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
-        _amountInitial = new BigNumber(_amountInitial);
+        _amountInitial = new BN(_amountInitial);
         _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
             let account = _options.from || defaultAccount;
-
-            if (_amountInitial.lt(0)) return promiEvent.reject(Error('_amountInitial must a positive integer'));
+            if (_amountInitial.isNeg()) return promiEvent.reject(Error('_amountInitial must a positive integer'));
             if (!this.web3Single.isAddressNoChecksum(_payer)) return promiEvent.reject(Error('_payer must be a valid eth address'));
             if (_extension && _extension != '' && !this.web3Single.isAddressNoChecksum(_extension)) return promiEvent.reject(Error('_extension must be a valid eth address'));
             if (_extensionParams && _extensionParams.length > 9) return promiEvent.reject(Error('_extensionParams length must be less than 9'));
             if ( this.web3Single.areSameAddressesNoChecksum(account,_payer) ) {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
-
             this.requestCoreServices.getCollectEstimation(_amountInitial, this.addressRequestEthereum, _extension).then((collectEstimation) => {
                 _options.value = collectEstimation;
 
@@ -82,7 +82,6 @@ export default class RequestEthereumService {
                 } else {
                     return promiEvent.reject(Error('_extension is not supported'));
                 }
-
                 this.ipfs.addFile(_data).then((hash: string) => {
                     if (err) return promiEvent.reject(err);
 
@@ -226,9 +225,9 @@ export default class RequestEthereumService {
         _options ? : any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
 
-        _additionals = new BigNumber(_additionals);
+        _additionals = new BN(_additionals);
         _options = this.web3Single.setUpOptions(_options);
-        _options.value = new BigNumber(_amount);
+        _options.value = new BN(_amount);
 
         this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
@@ -236,8 +235,8 @@ export default class RequestEthereumService {
 
             this.getRequest(_requestId).then((request) => {
 
-                if (_options.value.lt(0)) return promiEvent.reject(Error('_amount must a positive integer'));
-                if (_additionals.lt(0)) return promiEvent.reject(Error('_additionals must a positive integer'));
+                if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
+                if (_additionals.isNeg()) return promiEvent.reject(Error('_additionals must a positive integer'));
                 if ( request.state == Types.State.Canceled ) {
                     return promiEvent.reject(Error('request cannot be canceled'));
                 }
@@ -276,14 +275,14 @@ export default class RequestEthereumService {
         _options ? : any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _options.value = new BigNumber(_amount);
+        _options.value = new BN(_amount);
 
         this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
             let account = _options.from || defaultAccount;
 
             this.getRequest(_requestId).then((request) => {
-                if (_options.value.lt(0)) return promiEvent.reject(Error('_amount must a positive integer'));
+                if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
                 
                 if ( request.state != Types.State.Accepted ) {
                     return promiEvent.reject(Error('request must be accepted'));
@@ -326,7 +325,7 @@ export default class RequestEthereumService {
         _options ? : any):  Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _amount = new BigNumber(_amount);
+        _amount = new BN(_amount);
 
         this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
@@ -334,7 +333,7 @@ export default class RequestEthereumService {
 
             this.getRequest(_requestId).then((request) => {
 
-                if (_amount.lt(0)) return promiEvent.reject(Error('_amount must a positive integer'));
+                if (_amount.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
 
                 if ( request.state == Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -377,7 +376,7 @@ export default class RequestEthereumService {
         _options ? : any):  Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _amount = new BigNumber(_amount);
+        _amount = new BN(_amount);
 
         this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
             if(!_options.from && err) return promiEvent.reject(err);
@@ -385,7 +384,7 @@ export default class RequestEthereumService {
 
             this.getRequest(_requestId).then((request) => {
 
-                if (_amount.lt(0)) return promiEvent.reject(Error('_amount must a positive integer'));
+                if (_amount.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
 
                 if ( request.state == Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
