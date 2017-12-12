@@ -13,6 +13,7 @@
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
+    "testdeployr": "npm run build && node ./dist/test/deployRinkeby",
     "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
   "devDependencies": {
@@ -28,7 +29,6 @@
     "typings": "^2.1.1"
   },
   "dependencies": {
-    "bignumber.js": "^4.1.0",
     "ethereumjs-util": "^5.1.2",
     "ipfs-api": "^15.1.0",
     "web3": "^1.0.0-beta.26"
