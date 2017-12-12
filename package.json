@@ -13,7 +13,6 @@
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
-    "testdeployr": "npm run build && node ./dist/test/deployRinkeby",
     "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
   "devDependencies": {
