@@ -22,7 +22,6 @@
     "@types/node": "^8.0.53",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.2",
     "dirty-chai": "^2.0.1",
     "mocha": "^4.0.1",
     "ts-node": "^3.3.0",
