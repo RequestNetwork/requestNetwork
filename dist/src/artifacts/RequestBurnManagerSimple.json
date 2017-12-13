@@ -253,6 +253,10 @@
     "kovan": {
       "address": "0x76ac5481c3021fbC824b15729C404Aa6c2C5107A",
       "blockNumber": 5020231
-    }
+    },    
+     "rinkeby": {    
+       "address": "0x6E51827948F057a354d01bA0a108Fdc7843B0d04",    
+       "blockNumber": 1402858    
+      }
   }
 }
