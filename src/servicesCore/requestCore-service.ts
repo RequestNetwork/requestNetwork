@@ -185,12 +185,12 @@ export default class RequestCoreService {
                                                         });
                     let eventsExtensions = [];
                     if (ServiceExtensions.getServiceFromAddress(extension)) {
-                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistory(_requestId);
+                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId);
                     }
 
                     let eventsCurrencyContract = [];
                     if (ServicesContracts.getServiceFromAddress(currencyContract)) {
-                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistory(_requestId);
+                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId);
                     }
 
                     return resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {

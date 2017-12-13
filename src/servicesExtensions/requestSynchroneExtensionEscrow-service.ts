@@ -191,7 +191,11 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
-    public getRequestHistory(
+    public getRequestHistory(_requestId: string): Promise < any > {
+        return this.requestCoreServices.getRequestHistory(_requestId);
+    } 
+    
+    public getRequestHistoryExtensionInfo(
         _requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
             this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {

@@ -178,6 +178,9 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         });
     };
     RequestSynchroneExtensionEscrowService.prototype.getRequestHistory = function (_requestId) {
+        return this.requestCoreServices.getRequestHistory(_requestId);
+    };
+    RequestSynchroneExtensionEscrowService.prototype.getRequestHistoryExtensionInfo = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {

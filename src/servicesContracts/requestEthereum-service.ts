@@ -468,7 +468,11 @@ export default class RequestEthereumService {
         return this.requestCoreServices.getRequest(_requestId);
     }      
 
-    public getRequestHistory(
+    public getRequestHistory(_requestId: string): Promise < any > {
+        return this.requestCoreServices.getRequestHistory(_requestId);
+    } 
+    
+    public getRequestHistoryCurrencyContractInfo(
         _requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
             this.instanceRequestEthereum.getPastEvents('allEvents', {

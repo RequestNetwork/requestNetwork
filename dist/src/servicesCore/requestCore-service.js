@@ -240,14 +240,14 @@ var RequestCoreService = /** @class */ (function () {
                                 });
                                 eventsExtensions = [];
                                 if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 4];
-                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistory(_requestId)];
+                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId)];
                             case 3:
                                 eventsExtensions = _a.sent();
                                 _a.label = 4;
                             case 4:
                                 eventsCurrencyContract = [];
                                 if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 6];
-                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistory(_requestId)];
+                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId)];
                             case 5:
                                 eventsCurrencyContract = _a.sent();
                                 _a.label = 6;
