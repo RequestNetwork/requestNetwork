@@ -42,8 +42,8 @@ var Web3 = require('web3');
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
 var Web3Single = /** @class */ (function () {
     function Web3Single(web3Provider, networkId) {
-        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault.private));
-        this.networkName = Web3Single.getNetworkName(networkId);
+        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault[config_1.default.ethereum.default]));
+        this.networkName = networkId ? Web3Single.getNetworkName(networkId) : config_1.default.ethereum.default;
     }
     Web3Single.init = function (web3Provider, networkId) {
         this._instance = new this(web3Provider, networkId);

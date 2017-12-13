@@ -14,8 +14,8 @@ export class Web3Single {
     public web3: any;
 
     private constructor(web3Provider ? : any, networkId ? : number) {
-        this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.nodeUrlDefault.private));
-        this.networkName = Web3Single.getNetworkName(networkId);
+        this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default]));
+        this.networkName = networkId?Web3Single.getNetworkName(networkId):config.ethereum.default;
     }
 
     public static init(web3Provider ? : any, networkId ? : number) 
