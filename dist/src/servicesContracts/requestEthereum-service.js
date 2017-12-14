@@ -380,30 +380,32 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.getRequestHistoryCurrencyContractInfo = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.instanceRequestEthereum.getPastEvents('allEvents', {
-                    // allEvents and filter don't work together so far. issues created on web3 github
-                    // filter: {requestId: _requestId}, 
-                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                    toBlock: 'latest'
-                })
-                    .then(function (events) {
-                    // waiting for filter working (see above)
-                    return resolve(events.filter(function (e) { return e.returnValues.requestId == _requestId; })
-                        .map(function (e) {
-                        return {
-                            _meta: {
-                                logIndex: e.logIndex,
-                                blockNumber: e.blockNumber,
-                            },
-                            name: e.event,
-                            data: e.returnValues
+            var optionFilters, events, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        optionFilters = {
+                            filter: { requestId: _requestId },
+                            fromBlock: requestEthereum_Artifact.networks[this.web3Single.networkName].blockNumber,
+                            toBlock: 'latest'
                         };
-                    }));
-                }).catch(function (err) {
-                    return reject(err);
-                });
-                return [2 /*return*/];
+                        events = [];
+                        _b = (_a = events).concat;
+                        return [4 /*yield*/, this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters)];
+                    case 1:
+                        events = _b.apply(_a, [_c.sent()]);
+                        // waiting for filter working (see above)
+                        return [2 /*return*/, resolve(events.map(function (e) {
+                                return {
+                                    _meta: {
+                                        logIndex: e.logIndex,
+                                        blockNumber: e.blockNumber,
+                                    },
+                                    name: e.event,
+                                    data: e.returnValues
+                                };
+                            }))];
+                }
             });
         }); });
     };

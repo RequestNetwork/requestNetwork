@@ -165,15 +165,34 @@ export default class RequestCoreService {
                     let currencyContract = data.currencyContract;
                     let extension = data.extension!="0x0000000000000000000000000000000000000000"?data.extension:undefined;
 
-                    let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
-                        // allEvents and filter don't work together so far. issues created on web3 github
-                        // filter: {requestId: _requestId}, 
+                    // let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
+                    //     // allEvents and filter don't work together so far. issues created on web3 github
+                    //     // filter: {requestId: _requestId}, 
+                    //     fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                    //     toBlock: 'latest'
+                    // });
+
+                    // events by event waiting for a patch of web3
+                    let optionFilters = {
+                        filter: { requestId: _requestId }, 
                         fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                         toBlock: 'latest'
-                    });
+                    };
+
+                    let eventsCoreRaw = [];
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Created', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Accepted', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Canceled', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('UpdateBalance', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('UpdateExpectedAmount', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewPayee', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewPayer', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewExpectedAmount', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewExtension', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewData', optionFilters));
+
                         // waiting for filter working (see above)
-                    let eventsCore = eventsCoreRaw.filter(e => e.returnValues.requestId == _requestId)
-                                                     .map(e => { 
+                    let eventsCore = eventsCoreRaw.map(e => { 
                                                             return {
                                                                 _meta: {
                                                                     logIndex:e.logIndex,

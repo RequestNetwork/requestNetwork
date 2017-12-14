@@ -44,19 +44,59 @@ function foo() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 6, , 7]);
                     return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee('0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
                         200000)];
                 case 1:
                     result = _a.sent();
                     console.log('createRequestAsPayee');
                     console.log(result);
-                    return [3 /*break*/, 3];
+                    // result = await rn.requestEthereumService.createRequestAsPayee( 
+                    // 		'0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e', // 1
+                    // 		200000,
+                    // 		'{"reason":"wine purchased"}',
+                    // 		'',
+                    // 		[],
+                    // 		{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'}
+                    // );
+                    // console.log('createRequestAsPayee')
+                    // console.log(result)
+                    // result = await rn.requestCoreService.getRequestsByAddress('0xf17f52151ebef6c7334fad080c5704d77216b732');
+                    // console.log('getRequestsByAddress')
+                    // console.log(JSON.stringify(result));
+                    return [4 /*yield*/, rn.requestEthereumService.accept(result.request.requestId, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
                 case 2:
+                    // result = await rn.requestEthereumService.createRequestAsPayee( 
+                    // 		'0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e', // 1
+                    // 		200000,
+                    // 		'{"reason":"wine purchased"}',
+                    // 		'',
+                    // 		[],
+                    // 		{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'}
+                    // );
+                    // console.log('createRequestAsPayee')
+                    // console.log(result)
+                    // result = await rn.requestCoreService.getRequestsByAddress('0xf17f52151ebef6c7334fad080c5704d77216b732');
+                    // console.log('getRequestsByAddress')
+                    // console.log(JSON.stringify(result));
+                    _a.sent();
+                    return [4 /*yield*/, rn.requestEthereumService.paymentAction(result.request.requestId, 900, 0, { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, rn.requestEthereumService.refundAction(result.request.requestId, 700)];
+                case 4:
+                    _a.sent();
+                    return [4 /*yield*/, rn.requestCoreService.getRequestHistory(result.request.requestId)];
+                case 5:
+                    result = _a.sent();
+                    console.log('getRequestHistory');
+                    console.log(result);
+                    return [3 /*break*/, 7];
+                case 6:
                     err_1 = _a.sent();
                     console.log('Error: ', err_1.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });

@@ -30,12 +30,12 @@ async function foo() {
 
 			// console.log('getRequestsByAddress')
 			// console.log(JSON.stringify(result));
-			// await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
-			// await rn.requestEthereumService.paymentAction(result.request.requestId,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
-			// await rn.requestEthereumService.refundAction(result.request.requestId,700);
-			// result = await rn.requestCoreService.getRequestHistory(result.request.requestId);
-			// console.log('getRequestHistory')
-			// console.log(result)
+			await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+			await rn.requestEthereumService.paymentAction(result.request.requestId,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+			await rn.requestEthereumService.refundAction(result.request.requestId,700);
+			result = await rn.requestCoreService.getRequestHistory(result.request.requestId);
+			console.log('getRequestHistory')
+			console.log(result)
 
     }
     catch(err) {

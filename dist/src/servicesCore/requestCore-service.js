@@ -208,27 +208,64 @@ var RequestCoreService = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
-                    var currencyContract, extension, eventsCoreRaw, eventsCore, eventsExtensions, eventsCurrencyContract, e_3;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
+                    var currencyContract, extension, optionFilters, eventsCoreRaw, _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, eventsCore, eventsExtensions, eventsCurrencyContract, e_3;
+                    return __generator(this, function (_w) {
+                        switch (_w.label) {
                             case 0:
                                 if (err)
                                     return [2 /*return*/, reject(err)];
-                                _a.label = 1;
+                                _w.label = 1;
                             case 1:
-                                _a.trys.push([1, 7, , 8]);
+                                _w.trys.push([1, 16, , 17]);
                                 currencyContract = data.currencyContract;
                                 extension = data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined;
-                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('allEvents', {
-                                        // allEvents and filter don't work together so far. issues created on web3 github
-                                        // filter: {requestId: _requestId}, 
-                                        fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                                        toBlock: 'latest'
-                                    })];
+                                optionFilters = {
+                                    filter: { requestId: _requestId },
+                                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                    toBlock: 'latest'
+                                };
+                                eventsCoreRaw = [];
+                                _b = (_a = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Created', optionFilters)];
                             case 2:
-                                eventsCoreRaw = _a.sent();
-                                eventsCore = eventsCoreRaw.filter(function (e) { return e.returnValues.requestId == _requestId; })
-                                    .map(function (e) {
+                                eventsCoreRaw = _b.apply(_a, [_w.sent()]);
+                                _d = (_c = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Accepted', optionFilters)];
+                            case 3:
+                                eventsCoreRaw = _d.apply(_c, [_w.sent()]);
+                                _f = (_e = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Canceled', optionFilters)];
+                            case 4:
+                                eventsCoreRaw = _f.apply(_e, [_w.sent()]);
+                                _h = (_g = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('UpdateBalance', optionFilters)];
+                            case 5:
+                                eventsCoreRaw = _h.apply(_g, [_w.sent()]);
+                                _k = (_j = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('UpdateExpectedAmount', optionFilters)];
+                            case 6:
+                                eventsCoreRaw = _k.apply(_j, [_w.sent()]);
+                                _m = (_l = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('NewPayee', optionFilters)];
+                            case 7:
+                                eventsCoreRaw = _m.apply(_l, [_w.sent()]);
+                                _p = (_o = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('NewPayer', optionFilters)];
+                            case 8:
+                                eventsCoreRaw = _p.apply(_o, [_w.sent()]);
+                                _r = (_q = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('NewExpectedAmount', optionFilters)];
+                            case 9:
+                                eventsCoreRaw = _r.apply(_q, [_w.sent()]);
+                                _t = (_s = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('NewExtension', optionFilters)];
+                            case 10:
+                                eventsCoreRaw = _t.apply(_s, [_w.sent()]);
+                                _v = (_u = eventsCoreRaw).concat;
+                                return [4 /*yield*/, this.instanceRequestCore.getPastEvents('NewData', optionFilters)];
+                            case 11:
+                                eventsCoreRaw = _v.apply(_u, [_w.sent()]);
+                                eventsCore = eventsCoreRaw.map(function (e) {
                                     return {
                                         _meta: {
                                             logIndex: e.logIndex,
@@ -239,26 +276,26 @@ var RequestCoreService = /** @class */ (function () {
                                     };
                                 });
                                 eventsExtensions = [];
-                                if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 4];
+                                if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 13];
                                 return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId)];
-                            case 3:
-                                eventsExtensions = _a.sent();
-                                _a.label = 4;
-                            case 4:
+                            case 12:
+                                eventsExtensions = _w.sent();
+                                _w.label = 13;
+                            case 13:
                                 eventsCurrencyContract = [];
-                                if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 6];
+                                if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 15];
                                 return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId)];
-                            case 5:
-                                eventsCurrencyContract = _a.sent();
-                                _a.label = 6;
-                            case 6: return [2 /*return*/, resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
+                            case 14:
+                                eventsCurrencyContract = _w.sent();
+                                _w.label = 15;
+                            case 15: return [2 /*return*/, resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
                                     var diffBlockNumber = a._meta.blockNumber - b._meta.blockNumber;
                                     return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
                                 }))];
-                            case 7:
-                                e_3 = _a.sent();
+                            case 16:
+                                e_3 = _w.sent();
                                 return [2 /*return*/, reject(e_3)];
-                            case 8: return [2 /*return*/];
+                            case 17: return [2 /*return*/];
                         }
                     });
                 }); });

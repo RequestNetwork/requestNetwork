@@ -472,31 +472,36 @@ export default class RequestEthereumService {
         return this.requestCoreServices.getRequestHistory(_requestId);
     } 
     
-    public getRequestHistoryCurrencyContractInfo(
-        _requestId: string): Promise < any > {
+    public getRequestHistoryCurrencyContractInfo(_requestId: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
-            this.instanceRequestEthereum.getPastEvents('allEvents', {
-                // allEvents and filter don't work together so far. issues created on web3 github
-                // filter: {requestId: _requestId}, 
-                fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+            // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
+            //     // allEvents and filter don't work together so far. issues created on web3 github
+            //     // filter: {requestId: _requestId}, 
+            //     fromBlock: requestEthereum_Artifact.networks[this.web3Single.networkName].blockNumber,
+            //     toBlock: 'latest'
+            // });
+
+            // events by event waiting for a patch of web3
+            let optionFilters = {
+                filter: { requestId: _requestId }, 
+                fromBlock: requestEthereum_Artifact.networks[this.web3Single.networkName].blockNumber,
                 toBlock: 'latest'
-            })
-            .then(events => {
-                // waiting for filter working (see above)
-                return resolve(events.filter(e => e.returnValues.requestId == _requestId)
-                                     .map(e => { 
-                                            return {
-                                                _meta: {
-                                                    logIndex:e.logIndex,
-                                                    blockNumber:e.blockNumber,
-                                                },
-                                                name:e.event,
-                                                data: e.returnValues
-                                            };
-                                        }));
-            }).catch(err => {
-                return reject(err); 
-            });
+            };
+
+            let events = [];
+            events = events.concat(await this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters));
+
+            // waiting for filter working (see above)
+            return resolve(events.map(e => { 
+                                        return {
+                                            _meta: {
+                                                logIndex:e.logIndex,
+                                                blockNumber:e.blockNumber,
+                                            },
+                                            name:e.event,
+                                            data: e.returnValues
+                                        };
+                                    }));
         });  
-    }  
+    } 
 }

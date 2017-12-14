@@ -87,7 +87,6 @@ var Web3Single = /** @class */ (function () {
                             _method.call(options, function (errCall, resultCall) {
                                 if (errCall) {
                                     //let's try with more gas
-                                    console.log('nice try!');
                                     options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
                                     _method.call(options, function (errCall, resultCall) {
                                         if (errCall)
