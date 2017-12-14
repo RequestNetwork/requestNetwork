@@ -83,12 +83,28 @@ var Web3Single = /** @class */ (function () {
                         _method.estimateGas(options, function (err, estimateGas) {
                             if (err)
                                 return _callbackTransactionError(err);
-                            options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
-                            _method.send(options)
-                                .on('transactionHash', _callbackTransactionHash)
-                                .on('receipt', _callbackTransactionReceipt)
-                                .on('confirmation', _callbackTransactionConfirmation)
-                                .on('error', _callbackTransactionError);
+                            options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 1.05);
+                            _method.call(options, function (errCall, resultCall) {
+                                if (errCall) {
+                                    //let's try with more gas
+                                    console.log('nice try!');
+                                    options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
+                                    _method.call(options, function (errCall, resultCall) {
+                                        if (errCall)
+                                            return _callbackTransactionError(errCall);
+                                        _method.send(options)
+                                            .on('transactionHash', _callbackTransactionHash)
+                                            .on('receipt', _callbackTransactionReceipt)
+                                            .on('confirmation', _callbackTransactionConfirmation)
+                                            .on('error', _callbackTransactionError);
+                                    });
+                                }
+                                _method.send(options)
+                                    .on('transactionHash', _callbackTransactionHash)
+                                    .on('receipt', _callbackTransactionReceipt)
+                                    .on('confirmation', _callbackTransactionConfirmation)
+                                    .on('error', _callbackTransactionError);
+                            });
                         });
                         return [2 /*return*/];
                 }

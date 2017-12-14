@@ -8,7 +8,7 @@
 			"kovan": "https://kovan.infura.io/BQBjfSi5EKSCQQpXebO",
 			"rinkeby": "https://rinkeby.infura.io/BQBjfSi5EKSCQQpXebO"
 		},
-		"gasPriceDefault": "5",
+		"gasPriceDefault": "1",
 		"gasPriceDefaultUnit": "gwei"
 	},
 	"ipfs": 

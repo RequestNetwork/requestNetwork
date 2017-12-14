@@ -10,7 +10,7 @@ let RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
 let RequestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
 let RequestBurnManagerSimple = require("../src/artifacts/RequestBurnManagerSimple.json");
 
-Web3Single.init();
+Web3Single.init("http://localhost:8545",10000000000);
 let web3Single = Web3Single.getInstance();
 
 // let web3Single = Web3Sgl.Web3Single.getInstance();

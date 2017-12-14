@@ -37,35 +37,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var config = require('../src/config.json');
 var requestNetwork_1 = require("../src/requestNetwork");
-var rn = new requestNetwork_1.default();
+var rn = new requestNetwork_1.default("http://localhost:8545", 10000000000);
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
         var result, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 4, , 5]);
+                    _a.trys.push([0, 2, , 3]);
                     return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee('0xf17f52151ebef6c7334fad080c5704d77216b732', // 1
-                        200000, '{"reason":"wine purchased"}')];
+                        200000)];
                 case 1:
                     result = _a.sent();
-                    return [4 /*yield*/, rn.requestEthereumService.createRequestAsPayee('0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e', // 1
-                        200000, '{"reason":"wine purchased"}', '', [], { from: '0xf17f52151ebef6c7334fad080c5704d77216b732' })];
+                    console.log('createRequestAsPayee');
+                    console.log(result);
+                    return [3 /*break*/, 3];
                 case 2:
-                    result = _a.sent();
-                    return [4 /*yield*/, rn.requestCoreService.getRequestsByAddress('0xf17f52151ebef6c7334fad080c5704d77216b732')];
-                case 3:
-                    // console.log('createRequestAsPayee')
-                    // console.log(result)
-                    result = _a.sent();
-                    console.log('getRequestsByAddress');
-                    console.log(JSON.stringify(result));
-                    return [3 /*break*/, 5];
-                case 4:
                     err_1 = _a.sent();
                     console.log('Error: ', err_1.message);
-                    return [3 /*break*/, 5];
-                case 5: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });

@@ -7,7 +7,7 @@ var RequestCoreJson = require("../src/artifacts/RequestCore.json");
 var RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
 var RequestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
 var RequestBurnManagerSimple = require("../src/artifacts/RequestBurnManagerSimple.json");
-web3_Single_1.Web3Single.init();
+web3_Single_1.Web3Single.init("http://localhost:8545", 10000000000);
 var web3Single = web3_Single_1.Web3Single.getInstance();
 // let web3Single = Web3Sgl.Web3Single.getInstance();
 var instanceRequestCore = new web3Single.web3.eth.Contract(RequestCoreJson.abi);

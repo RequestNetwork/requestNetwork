@@ -55,14 +55,29 @@ export class Web3Single {
         options.gasPrice = options.gasPrice?options.gasPrice:this.web3.utils.toWei(config.ethereum.gasPriceDefault, config.ethereum.gasPriceDefaultUnit);
 
         _method.estimateGas(options, (err: any, estimateGas: number) => {
-            if (err) return _callbackTransactionError(err);
+            if (err) return _callbackTransactionError(err)
+            options.gas = forcedGas?forcedGas:Math.floor(estimateGas * 1.05);
+            _method.call(options, (errCall,resultCall) => {
+                if(errCall) {
+                    //let's try with more gas
+                    options.gas = forcedGas?forcedGas:Math.floor(estimateGas * 2);
+                    _method.call(options, (errCall,resultCall) => {
+                        if(errCall) return _callbackTransactionError(errCall);
 
-            options.gas = forcedGas?forcedGas:Math.floor(estimateGas * 2);
-            _method.send(options)
-                .on('transactionHash', _callbackTransactionHash)
-                .on('receipt', _callbackTransactionReceipt)
-                .on('confirmation', _callbackTransactionConfirmation)
-                .on('error', _callbackTransactionError);
+                        _method.send(options)
+                            .on('transactionHash', _callbackTransactionHash)
+                            .on('receipt', _callbackTransactionReceipt)
+                            .on('confirmation', _callbackTransactionConfirmation)
+                            .on('error', _callbackTransactionError);
+                    });
+                }
+
+                _method.send(options)
+                    .on('transactionHash', _callbackTransactionHash)
+                    .on('receipt', _callbackTransactionReceipt)
+                    .on('confirmation', _callbackTransactionConfirmation)
+                    .on('error', _callbackTransactionError);     
+            });
         });
     }
 
