@@ -468,11 +468,17 @@ export default class RequestEthereumService {
         return this.requestCoreServices.getRequest(_requestId);
     }      
 
-    public getRequestHistory(_requestId: string): Promise < any > {
-        return this.requestCoreServices.getRequestHistory(_requestId);
+    public getRequestHistory(
+        _requestId: string,
+        _fromBlock ?: number,
+        _toBlock ?: number): Promise < any > {
+        return this.requestCoreServices.getRequestHistory(_requestId,_fromBlock,_toBlock);
     } 
     
-    public getRequestHistoryCurrencyContractInfo(_requestId: string): Promise < any > {
+    public getRequestHistoryCurrencyContractInfo(
+        _requestId: string,
+        _fromBlock ?: number,
+        _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
             //     // allEvents and filter don't work together so far. issues created on web3 github

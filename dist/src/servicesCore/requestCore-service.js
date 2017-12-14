@@ -202,7 +202,7 @@ var RequestCoreService = /** @class */ (function () {
             });
         }); });
     };
-    RequestCoreService.prototype.getRequestHistory = function (_requestId) {
+    RequestCoreService.prototype.getRequestHistory = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
@@ -221,8 +221,8 @@ var RequestCoreService = /** @class */ (function () {
                                 extension = data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined;
                                 optionFilters = {
                                     filter: { requestId: _requestId },
-                                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                                    toBlock: 'latest'
+                                    fromBlock: _fromBlock ? _fromBlock : requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                    toBlock: _toBlock ? _toBlock : 'latest'
                                 };
                                 eventsCoreRaw = [];
                                 _b = (_a = eventsCoreRaw).concat;
@@ -277,14 +277,14 @@ var RequestCoreService = /** @class */ (function () {
                                 });
                                 eventsExtensions = [];
                                 if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 13];
-                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId)];
+                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId, _fromBlock, _toBlock)];
                             case 12:
                                 eventsExtensions = _w.sent();
                                 _w.label = 13;
                             case 13:
                                 eventsCurrencyContract = [];
                                 if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 15];
-                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId)];
+                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId, _fromBlock, _toBlock)];
                             case 14:
                                 eventsCurrencyContract = _w.sent();
                                 _w.label = 15;
@@ -303,7 +303,7 @@ var RequestCoreService = /** @class */ (function () {
             });
         }); });
     };
-    RequestCoreService.prototype.getRequestsByAddress = function (_address) {
+    RequestCoreService.prototype.getRequestsByAddress = function (_address, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var eventsCorePayee, eventsCorePayer, e_4;
@@ -313,15 +313,15 @@ var RequestCoreService = /** @class */ (function () {
                         _a.trys.push([0, 3, , 4]);
                         return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Created', {
                                 filter: { payee: _address },
-                                fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                                toBlock: 'latest'
+                                fromBlock: _fromBlock ? _fromBlock : requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                toBlock: _toBlock ? _toBlock : 'latest'
                             })];
                     case 1:
                         eventsCorePayee = _a.sent();
                         return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Created', {
                                 filter: { payer: _address },
-                                fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                                toBlock: 'latest'
+                                fromBlock: _fromBlock ? _fromBlock : requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                                toBlock: _toBlock ? _toBlock : 'latest'
                             })];
                     case 2:
                         eventsCorePayer = _a.sent();

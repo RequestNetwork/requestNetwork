@@ -156,7 +156,9 @@ export default class RequestCoreService {
     }  
 
     public getRequestHistory(
-        _requestId: string): Promise < any > {
+        _requestId: string,
+        _fromBlock ?: number,
+        _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
                 if (err) return reject(err);
@@ -175,8 +177,8 @@ export default class RequestCoreService {
                     // events by event waiting for a patch of web3
                     let optionFilters = {
                         filter: { requestId: _requestId }, 
-                        fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                        toBlock: 'latest'
+                        fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                        toBlock: _toBlock?_toBlock:'latest'
                     };
 
                     let eventsCoreRaw = [];
@@ -204,12 +206,12 @@ export default class RequestCoreService {
                                                         });
                     let eventsExtensions = [];
                     if (ServiceExtensions.getServiceFromAddress(extension)) {
-                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId);
+                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId,_fromBlock,_toBlock);
                     }
 
                     let eventsCurrencyContract = [];
                     if (ServicesContracts.getServiceFromAddress(currencyContract)) {
-                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId);
+                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId,_fromBlock,_toBlock);
                     }
 
                     return resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
@@ -224,18 +226,20 @@ export default class RequestCoreService {
     }
 
     public getRequestsByAddress(
-        _address: string): Promise < any > {
+        _address: string,
+        _fromBlock ?: number,
+        _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try {
                 let eventsCorePayee = await this.instanceRequestCore.getPastEvents('Created', {
                     filter: { payee: _address }, 
-                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                    toBlock: 'latest'
+                    fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                    toBlock: _toBlock?_toBlock:'latest'
                 });
                 let eventsCorePayer = await this.instanceRequestCore.getPastEvents('Created', {
                     filter: { payer: _address }, 
-                    fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
-                    toBlock: 'latest'
+                    fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
+                    toBlock: _toBlock?_toBlock:'latest'
                 });
                 return resolve({asPayer : eventsCorePayer.map(e => { return {requestId:e.returnValues.requestId, _meta: {blockNumber:e.blockNumber}}}),
                                 asPayee : eventsCorePayee.map(e => { return {requestId:e.returnValues.requestId, _meta: {blockNumber:e.blockNumber}}})

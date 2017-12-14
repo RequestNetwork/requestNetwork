@@ -374,10 +374,10 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.getRequest = function (_requestId) {
         return this.requestCoreServices.getRequest(_requestId);
     };
-    RequestEthereumService.prototype.getRequestHistory = function (_requestId) {
-        return this.requestCoreServices.getRequestHistory(_requestId);
+    RequestEthereumService.prototype.getRequestHistory = function (_requestId, _fromBlock, _toBlock) {
+        return this.requestCoreServices.getRequestHistory(_requestId, _fromBlock, _toBlock);
     };
-    RequestEthereumService.prototype.getRequestHistoryCurrencyContractInfo = function (_requestId) {
+    RequestEthereumService.prototype.getRequestHistoryCurrencyContractInfo = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var optionFilters, events, _a, _b;

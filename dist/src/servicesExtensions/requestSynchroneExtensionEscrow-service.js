@@ -177,10 +177,10 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             });
         });
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestHistory = function (_requestId) {
-        return this.requestCoreServices.getRequestHistory(_requestId);
+    RequestSynchroneExtensionEscrowService.prototype.getRequestHistory = function (_requestId, _fromBlock, _toBlock) {
+        return this.requestCoreServices.getRequestHistory(_requestId, _fromBlock, _toBlock);
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestHistoryExtensionInfo = function (_requestId) {
+    RequestSynchroneExtensionEscrowService.prototype.getRequestHistoryExtensionInfo = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var optionFilters, events, _a, _b, _c, _d, _e, _f;
