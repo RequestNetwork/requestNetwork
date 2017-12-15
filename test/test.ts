@@ -26,19 +26,20 @@ async function foo() {
 			// console.log('createRequestAsPayee')
 			// console.log(result)
 
-			// result = await rn.requestCoreService.getRequestsByAddress('0xf17f52151ebef6c7334fad080c5704d77216b732');
+			result = await rn.requestCoreService.getRequestsByAddress('0x627306090abab3a6e1400e9345bc60c78a8bef57');
 
-			// console.log('getRequestsByAddress')
-			// console.log(result);
+			console.log('getRequestsByAddress')
+			console.log(result);
+			console.log(result.asPayee);
 
-			await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
-			await rn.requestEthereumService.paymentAction(result.request.requestId,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
-			await rn.requestEthereumService.refundAction(result.request.requestId,700);
-			result = await rn.requestCoreService.getRequestHistory(result.request.requestId);
-			console.log('getRequestHistory')
-			console.log(result)
-			console.log('getRequestHistory JSON')
-			console.log(JSON.stringify(result))
+			// await rn.requestEthereumService.accept(result.request.requestId,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+			// await rn.requestEthereumService.paymentAction(result.request.requestId,900,0,{from:'0xf17f52151ebef6c7334fad080c5704d77216b732'});
+			// await rn.requestEthereumService.refundAction(result.request.requestId,700);
+			// result = await rn.requestCoreService.getRequestHistory(result.request.requestId);
+			// console.log('getRequestHistory')
+			// console.log(result)
+			// console.log('getRequestHistory JSON')
+			// console.log(JSON.stringify(result))
 
     }
     catch(err) {

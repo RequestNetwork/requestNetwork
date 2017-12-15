@@ -246,9 +246,28 @@ export default class RequestCoreService {
                     fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                     toBlock: _toBlock?_toBlock:'latest'
                 });
-                return resolve({asPayer : eventsCorePayer.map(e => { return {requestId:e.returnValues.requestId, _meta: {blockNumber:e.blockNumber}}}),
-                                asPayee : eventsCorePayee.map(e => { return {requestId:e.returnValues.requestId, _meta: {blockNumber:e.blockNumber}}})
-                            });
+
+                eventsCorePayee = await Promise.all(eventsCorePayee.map(e => { 
+                                                        return new Promise(async (resolve, reject) => {
+                                                            return resolve({requestId:e.returnValues.requestId, 
+                                                                             _meta: {
+                                                                                 blockNumber:e.blockNumber,
+                                                                                 timestamp:await this.web3Single.getBlockTimestamp(e.blockNumber)
+                                                                            }});
+                                                        });
+                                                    }));
+
+                eventsCorePayer = await Promise.all(eventsCorePayer.map(e => { 
+                                                        return new Promise(async (resolve, reject) => {
+                                                            return resolve({requestId:e.returnValues.requestId, 
+                                                                             _meta: {
+                                                                                 blockNumber:e.blockNumber,
+                                                                                 timestamp:await this.web3Single.getBlockTimestamp(e.blockNumber)
+                                                                            }});
+                                                        });
+                                                    }));
+                return resolve({asPayer : eventsCorePayer,
+                                asPayee : eventsCorePayee});
             } catch(e) {
                 return reject(e); 
             }

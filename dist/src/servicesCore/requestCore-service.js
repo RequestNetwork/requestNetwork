@@ -327,11 +327,12 @@ var RequestCoreService = /** @class */ (function () {
     RequestCoreService.prototype.getRequestsByAddress = function (_address, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
             var eventsCorePayee, eventsCorePayer, e_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _a.trys.push([0, 5, , 6]);
                         return [4 /*yield*/, this.instanceRequestCore.getPastEvents('Created', {
                                 filter: { payee: _address },
                                 fromBlock: _fromBlock ? _fromBlock : requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
@@ -346,13 +347,52 @@ var RequestCoreService = /** @class */ (function () {
                             })];
                     case 2:
                         eventsCorePayer = _a.sent();
-                        return [2 /*return*/, resolve({ asPayer: eventsCorePayer.map(function (e) { return { requestId: e.returnValues.requestId, _meta: { blockNumber: e.blockNumber } }; }),
-                                asPayee: eventsCorePayee.map(function (e) { return { requestId: e.returnValues.requestId, _meta: { blockNumber: e.blockNumber } }; })
-                            })];
+                        return [4 /*yield*/, Promise.all(eventsCorePayee.map(function (e) {
+                                return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                                    var _a, _b, _c;
+                                    return __generator(this, function (_d) {
+                                        switch (_d.label) {
+                                            case 0:
+                                                _a = resolve;
+                                                _b = { requestId: e.returnValues.requestId };
+                                                _c = {
+                                                    blockNumber: e.blockNumber
+                                                };
+                                                return [4 /*yield*/, this.web3Single.getBlockTimestamp(e.blockNumber)];
+                                            case 1: return [2 /*return*/, _a.apply(void 0, [(_b._meta = (_c.timestamp = _d.sent(),
+                                                        _c), _b)])];
+                                        }
+                                    });
+                                }); });
+                            }))];
                     case 3:
+                        eventsCorePayee = _a.sent();
+                        return [4 /*yield*/, Promise.all(eventsCorePayer.map(function (e) {
+                                return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                                    var _a, _b, _c;
+                                    return __generator(this, function (_d) {
+                                        switch (_d.label) {
+                                            case 0:
+                                                _a = resolve;
+                                                _b = { requestId: e.returnValues.requestId };
+                                                _c = {
+                                                    blockNumber: e.blockNumber
+                                                };
+                                                return [4 /*yield*/, this.web3Single.getBlockTimestamp(e.blockNumber)];
+                                            case 1: return [2 /*return*/, _a.apply(void 0, [(_b._meta = (_c.timestamp = _d.sent(),
+                                                        _c), _b)])];
+                                        }
+                                    });
+                                }); });
+                            }))];
+                    case 4:
+                        eventsCorePayer = _a.sent();
+                        return [2 /*return*/, resolve({ asPayer: eventsCorePayer,
+                                asPayee: eventsCorePayee })];
+                    case 5:
                         e_4 = _a.sent();
                         return [2 /*return*/, reject(e_4)];
-                    case 4: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         }); });
