@@ -183,9 +183,10 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
     RequestSynchroneExtensionEscrowService.prototype.getRequestHistoryExtensionInfo = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var optionFilters, events, _a, _b, _c, _d, _e, _f;
-            return __generator(this, function (_g) {
-                switch (_g.label) {
+            var _this = this;
+            var optionFilters, events, _a, _b, _c, _d, _e, _f, _g;
+            return __generator(this, function (_h) {
+                switch (_h.label) {
                     case 0:
                         optionFilters = {
                             filter: { requestId: _requestId },
@@ -196,26 +197,44 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
                         _b = (_a = events).concat;
                         return [4 /*yield*/, this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowPayment', optionFilters)];
                     case 1:
-                        events = _b.apply(_a, [_g.sent()]);
+                        events = _b.apply(_a, [_h.sent()]);
                         _d = (_c = events).concat;
                         return [4 /*yield*/, this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowReleaseRequest', optionFilters)];
                     case 2:
-                        events = _d.apply(_c, [_g.sent()]);
+                        events = _d.apply(_c, [_h.sent()]);
                         _f = (_e = events).concat;
                         return [4 /*yield*/, this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowRefundRequest', optionFilters)];
                     case 3:
-                        events = _f.apply(_e, [_g.sent()]);
-                        // waiting for filter working (see above)
-                        return [2 /*return*/, resolve(events.map(function (e) {
-                                return {
-                                    _meta: {
-                                        logIndex: e.logIndex,
-                                        blockNumber: e.blockNumber,
-                                    },
-                                    name: e.event,
-                                    data: e.returnValues
-                                };
-                            }))];
+                        events = _f.apply(_e, [_h.sent()]);
+                        _g = resolve;
+                        return [4 /*yield*/, Promise.all(events.map(function (e) { return __awaiter(_this, void 0, void 0, function () {
+                                var _this = this;
+                                return __generator(this, function (_a) {
+                                    return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                                            var _a, _b, _c;
+                                            return __generator(this, function (_d) {
+                                                switch (_d.label) {
+                                                    case 0:
+                                                        _a = resolve;
+                                                        _b = {};
+                                                        _c = {
+                                                            logIndex: e.logIndex,
+                                                            blockNumber: e.blockNumber
+                                                        };
+                                                        return [4 /*yield*/, this.web3Single.getBlockTimestamp(e.blockNumber)];
+                                                    case 1:
+                                                        _a.apply(void 0, [(_b._meta = (_c.timestamp = _d.sent(),
+                                                                _c),
+                                                                _b.name = e.event,
+                                                                _b.data = e.returnValues,
+                                                                _b)]);
+                                                        return [2 /*return*/];
+                                                }
+                                            });
+                                        }); })];
+                                });
+                            }); }))];
+                    case 4: return [2 /*return*/, _g.apply(void 0, [_h.sent()])];
                 }
             });
         }); });

@@ -380,9 +380,10 @@ var RequestEthereumService = /** @class */ (function () {
     RequestEthereumService.prototype.getRequestHistoryCurrencyContractInfo = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var optionFilters, events, _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _this = this;
+            var optionFilters, events, _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         optionFilters = {
                             filter: { requestId: _requestId },
@@ -393,18 +394,36 @@ var RequestEthereumService = /** @class */ (function () {
                         _b = (_a = events).concat;
                         return [4 /*yield*/, this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters)];
                     case 1:
-                        events = _b.apply(_a, [_c.sent()]);
-                        // waiting for filter working (see above)
-                        return [2 /*return*/, resolve(events.map(function (e) {
-                                return {
-                                    _meta: {
-                                        logIndex: e.logIndex,
-                                        blockNumber: e.blockNumber,
-                                    },
-                                    name: e.event,
-                                    data: e.returnValues
-                                };
-                            }))];
+                        events = _b.apply(_a, [_d.sent()]);
+                        _c = resolve;
+                        return [4 /*yield*/, Promise.all(events.map(function (e) { return __awaiter(_this, void 0, void 0, function () {
+                                var _this = this;
+                                return __generator(this, function (_a) {
+                                    return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                                            var _a, _b, _c;
+                                            return __generator(this, function (_d) {
+                                                switch (_d.label) {
+                                                    case 0:
+                                                        _a = resolve;
+                                                        _b = {};
+                                                        _c = {
+                                                            logIndex: e.logIndex,
+                                                            blockNumber: e.blockNumber
+                                                        };
+                                                        return [4 /*yield*/, this.web3Single.getBlockTimestamp(e.blockNumber)];
+                                                    case 1:
+                                                        _a.apply(void 0, [(_b._meta = (_c.timestamp = _d.sent(),
+                                                                _c),
+                                                                _b.name = e.event,
+                                                                _b.data = e.returnValues,
+                                                                _b)]);
+                                                        return [2 /*return*/];
+                                                }
+                                            });
+                                        }); })];
+                                });
+                            }); }))];
+                    case 2: return [2 /*return*/, _c.apply(void 0, [_d.sent()])];
                 }
             });
         }); });

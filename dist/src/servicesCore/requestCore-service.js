@@ -208,6 +208,7 @@ var RequestCoreService = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                    var _this = this;
                     var currencyContract, extension, optionFilters, eventsCoreRaw, _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, eventsCore, eventsExtensions, eventsCurrencyContract, e_3;
                     return __generator(this, function (_w) {
                         switch (_w.label) {
@@ -216,7 +217,7 @@ var RequestCoreService = /** @class */ (function () {
                                     return [2 /*return*/, reject(err)];
                                 _w.label = 1;
                             case 1:
-                                _w.trys.push([1, 16, , 17]);
+                                _w.trys.push([1, 17, , 18]);
                                 currencyContract = data.currencyContract;
                                 extension = data.extension != "0x0000000000000000000000000000000000000000" ? data.extension : undefined;
                                 optionFilters = {
@@ -265,37 +266,57 @@ var RequestCoreService = /** @class */ (function () {
                                 return [4 /*yield*/, this.instanceRequestCore.getPastEvents('NewData', optionFilters)];
                             case 11:
                                 eventsCoreRaw = _v.apply(_u, [_w.sent()]);
-                                eventsCore = eventsCoreRaw.map(function (e) {
-                                    return {
-                                        _meta: {
-                                            logIndex: e.logIndex,
-                                            blockNumber: e.blockNumber,
-                                        },
-                                        name: e.event,
-                                        data: e.returnValues
-                                    };
-                                });
-                                eventsExtensions = [];
-                                if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 13];
-                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId, _fromBlock, _toBlock)];
+                                eventsCore = [];
+                                return [4 /*yield*/, Promise.all(eventsCoreRaw.map(function (e) { return __awaiter(_this, void 0, void 0, function () {
+                                        var _this = this;
+                                        return __generator(this, function (_a) {
+                                            return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                                                    var _a, _b, _c;
+                                                    return __generator(this, function (_d) {
+                                                        switch (_d.label) {
+                                                            case 0:
+                                                                _a = resolve;
+                                                                _b = {};
+                                                                _c = {
+                                                                    logIndex: e.logIndex,
+                                                                    blockNumber: e.blockNumber
+                                                                };
+                                                                return [4 /*yield*/, this.web3Single.getBlockTimestamp(e.blockNumber)];
+                                                            case 1:
+                                                                _a.apply(void 0, [(_b._meta = (_c.timestamp = _d.sent(),
+                                                                        _c),
+                                                                        _b.name = e.event,
+                                                                        _b.data = e.returnValues,
+                                                                        _b)]);
+                                                                return [2 /*return*/];
+                                                        }
+                                                    });
+                                                }); })];
+                                        });
+                                    }); }))];
                             case 12:
-                                eventsExtensions = _w.sent();
-                                _w.label = 13;
+                                eventsCore = _w.sent();
+                                eventsExtensions = [];
+                                if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 14];
+                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId, _fromBlock, _toBlock)];
                             case 13:
-                                eventsCurrencyContract = [];
-                                if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 15];
-                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId, _fromBlock, _toBlock)];
+                                eventsExtensions = _w.sent();
+                                _w.label = 14;
                             case 14:
+                                eventsCurrencyContract = [];
+                                if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 16];
+                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId, _fromBlock, _toBlock)];
+                            case 15:
                                 eventsCurrencyContract = _w.sent();
-                                _w.label = 15;
-                            case 15: return [2 /*return*/, resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
+                                _w.label = 16;
+                            case 16: return [2 /*return*/, resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {
                                     var diffBlockNumber = a._meta.blockNumber - b._meta.blockNumber;
                                     return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
                                 }))];
-                            case 16:
+                            case 17:
                                 e_3 = _w.sent();
                                 return [2 /*return*/, reject(e_3)];
-                            case 17: return [2 /*return*/];
+                            case 18: return [2 /*return*/];
                         }
                     });
                 }); });

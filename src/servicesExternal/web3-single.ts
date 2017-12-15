@@ -13,6 +13,8 @@ export class Web3Single {
     public networkName: string;
     public web3: any;
 
+    protected blockTimestamp: any = {};
+
     private constructor(web3Provider ? : any, networkId ? : number) {
         this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default]));
         this.networkName = networkId?Web3Single.getNetworkName(networkId):config.ethereum.default;
@@ -203,5 +205,18 @@ export class Web3Single {
     {
         return this.web3.eth.getTransaction(_hash);
     }
+
+
+    public async getBlockTimestamp(_blockNumber:number) : Promise<any>
+    {
+        return new Promise(async (resolve, reject) => {
+            if(!this.blockTimestamp[_blockNumber]) {
+                let block = await this.web3.eth.getBlock(_blockNumber);
+                this.blockTimestamp[_blockNumber] = block.timestamp;
+            }
+            return resolve(this.blockTimestamp[_blockNumber])
+        });
+    }
+
 
 }

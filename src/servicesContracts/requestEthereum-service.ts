@@ -494,20 +494,23 @@ export default class RequestEthereumService {
                 toBlock: 'latest'
             };
 
+            // waiting for filter working (see above)
             let events = [];
             events = events.concat(await this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters));
 
-            // waiting for filter working (see above)
-            return resolve(events.map(e => { 
-                                        return {
-                                            _meta: {
-                                                logIndex:e.logIndex,
-                                                blockNumber:e.blockNumber,
-                                            },
-                                            name:e.event,
-                                            data: e.returnValues
-                                        };
-                                    }));
+            return resolve(await Promise.all(events.map(async e => { 
+                                                    return new Promise(async (resolve, reject) => {
+                                                        resolve({
+                                                            _meta: {
+                                                                logIndex:e.logIndex,
+                                                                blockNumber:e.blockNumber,
+                                                                timestamp:await this.web3Single.getBlockTimestamp(e.blockNumber)
+                                                            },
+                                                            name:e.event,
+                                                            data: e.returnValues
+                                                        });
+                                                    });
+                                                })));
         });  
     } 
 }

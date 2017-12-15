@@ -194,16 +194,21 @@ export default class RequestCoreService {
                     eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewData', optionFilters));
 
                         // waiting for filter working (see above)
-                    let eventsCore = eventsCoreRaw.map(e => { 
-                                                            return {
-                                                                _meta: {
-                                                                    logIndex:e.logIndex,
-                                                                    blockNumber:e.blockNumber,
-                                                                },
-                                                                name:e.event,
-                                                                data: e.returnValues
-                                                            };
-                                                        });
+                    let eventsCore = []    
+                    eventsCore = await Promise.all(eventsCoreRaw.map(async e => { 
+                                                            return new Promise(async (resolve, reject) => {
+                                                                resolve({
+                                                                    _meta: {
+                                                                        logIndex:e.logIndex,
+                                                                        blockNumber:e.blockNumber,
+                                                                        timestamp:await this.web3Single.getBlockTimestamp(e.blockNumber)
+                                                                    },
+                                                                    name:e.event,
+                                                                    data: e.returnValues
+                                                                });
+                                                            });
+                                                        }));
+
                     let eventsExtensions = [];
                     if (ServiceExtensions.getServiceFromAddress(extension)) {
                         eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId,_fromBlock,_toBlock);

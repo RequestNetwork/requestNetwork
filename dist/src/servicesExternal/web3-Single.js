@@ -42,6 +42,7 @@ var Web3 = require('web3');
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
 var Web3Single = /** @class */ (function () {
     function Web3Single(web3Provider, networkId) {
+        this.blockTimestamp = {};
         this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault[config_1.default.ethereum.default]));
         this.networkName = networkId ? Web3Single.getNetworkName(networkId) : config_1.default.ethereum.default;
     }
@@ -230,6 +231,28 @@ var Web3Single = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.web3.eth.getTransaction(_hash)];
+            });
+        });
+    };
+    Web3Single.prototype.getBlockTimestamp = function (_blockNumber) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var block;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (!!this.blockTimestamp[_blockNumber]) return [3 /*break*/, 2];
+                                    return [4 /*yield*/, this.web3.eth.getBlock(_blockNumber)];
+                                case 1:
+                                    block = _a.sent();
+                                    this.blockTimestamp[_blockNumber] = block.timestamp;
+                                    _a.label = 2;
+                                case 2: return [2 /*return*/, resolve(this.blockTimestamp[_blockNumber])];
+                            }
+                        });
+                    }); })];
             });
         });
     };
