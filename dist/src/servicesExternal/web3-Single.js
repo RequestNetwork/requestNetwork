@@ -239,17 +239,25 @@ var Web3Single = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var block;
+                        var block, e_2;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
+                                    _a.trys.push([0, 3, , 4]);
                                     if (!!this.blockTimestamp[_blockNumber]) return [3 /*break*/, 2];
                                     return [4 /*yield*/, this.web3.eth.getBlock(_blockNumber)];
                                 case 1:
                                     block = _a.sent();
+                                    if (!block)
+                                        throw Error('block \'' + _blockNumber + '\' not found');
                                     this.blockTimestamp[_blockNumber] = block.timestamp;
                                     _a.label = 2;
                                 case 2: return [2 /*return*/, resolve(this.blockTimestamp[_blockNumber])];
+                                case 3:
+                                    e_2 = _a.sent();
+                                    console.warn(e_2);
+                                    return [2 /*return*/, resolve(null)];
+                                case 4: return [2 /*return*/];
                             }
                         });
                     }); })];

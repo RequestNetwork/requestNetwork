@@ -210,11 +210,20 @@ export class Web3Single {
     public async getBlockTimestamp(_blockNumber:number) : Promise<any>
     {
         return new Promise(async (resolve, reject) => {
-            if(!this.blockTimestamp[_blockNumber]) {
-                let block = await this.web3.eth.getBlock(_blockNumber);
-                this.blockTimestamp[_blockNumber] = block.timestamp;
+            try 
+            {
+                if(!this.blockTimestamp[_blockNumber]) {
+                    let block = await this.web3.eth.getBlock(_blockNumber);
+                    if(!block) throw Error('block \''+_blockNumber+'\' not found');
+                    this.blockTimestamp[_blockNumber] = block.timestamp;          
+                }
+                return resolve(this.blockTimestamp[_blockNumber])
             }
-            return resolve(this.blockTimestamp[_blockNumber])
+            catch(e)
+            {    
+                console.warn(e);
+                return resolve(null);
+            }
         });
     }
 
