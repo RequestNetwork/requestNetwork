@@ -497,8 +497,8 @@
       "blockNumber": 0
     }, 
     "rinkeby": {    
-       "address": "0x3F8577D2456Ba8e2d7fF156363211b3F6b519603",    
-       "blockNumber": 1435508      
+       "address": "0x0d5D6c5aB28737C182B9e67194451c2C6BcA8623",    
+       "blockNumber": 1435761      
     }
   }
 }
