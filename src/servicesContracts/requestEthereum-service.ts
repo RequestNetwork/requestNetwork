@@ -335,6 +335,8 @@ export default class RequestEthereumService {
 
                 if (_amount.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
 
+                if (_amount.gt(request.expectedAmount)) return promiEvent.reject(Error('_amount must equal or lower than expected'));
+
                 if ( request.state == Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
                 }
