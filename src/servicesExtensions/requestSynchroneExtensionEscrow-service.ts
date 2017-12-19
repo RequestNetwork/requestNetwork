@@ -17,7 +17,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
     // RequestEthereum on blockchain
     protected abiRequestCore: any;
-    protected requestCoreServices:any;
+    protected requestCoreServices: any;
 
     protected abiSynchroneExtensionEscrow: any;
     protected addressSynchroneExtensionEscrow: string;
@@ -54,7 +54,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
     public releaseToPayeeAction(
         _requestId: string,
-        _options ? : any): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -112,7 +112,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
     public releaseToPayerAction(
         _requestId: string,
-        _options ? : any): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 

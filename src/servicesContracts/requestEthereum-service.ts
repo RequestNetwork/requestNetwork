@@ -21,7 +21,7 @@ export default class RequestEthereumService {
 
     // RequestEthereum on blockchain
     protected abiRequestCore: any;
-    protected requestCoreServices:any;
+    protected requestCoreServices: any;
 
     protected abiRequestEthereum: any;
     protected addressRequestEthereum: string;
@@ -47,10 +47,10 @@ export default class RequestEthereumService {
     public createRequestAsPayee (
         _payer: string,
         _amountInitial: any,
-        _data ? : string,
-        _extension ? : string,
-        _extensionParams ? : Array < any > ,
-        _options ? : any,
+        _data ?: string,
+        _extension ?: string,
+        _extensionParams ?: Array < any > ,
+        _options ?: any,
         ): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _amountInitial = new BN(_amountInitial);
@@ -121,7 +121,7 @@ export default class RequestEthereumService {
 
     public accept(
         _requestId: string,
-        _options ? : any): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -167,7 +167,7 @@ export default class RequestEthereumService {
 
     public cancel(
         _requestId: string,
-        _options ? : any): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -222,7 +222,7 @@ export default class RequestEthereumService {
         _requestId: string,
         _amount: any,
         _additionals: any,
-        _options ? : any): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
 
         _additionals = new BN(_additionals);
@@ -272,7 +272,7 @@ export default class RequestEthereumService {
     public refundAction(
         _requestId: string,
         _amount: any,
-        _options ? : any): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new BN(_amount);
@@ -322,7 +322,7 @@ export default class RequestEthereumService {
     public subtractAction(
         _requestId: string,
         _amount: any,
-        _options ? : any):  Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amount = new BN(_amount);
@@ -375,7 +375,7 @@ export default class RequestEthereumService {
     public additionalAction(
         _requestId: string,
         _amount: any,
-        _options ? : any):  Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amount = new BN(_amount);
@@ -426,7 +426,7 @@ export default class RequestEthereumService {
 
 
 
-    public withdraw(_options ? : any):  Web3PromiEvent {
+    public withdraw(_options ?: any): Web3PromiEvent {
         let promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 

@@ -63,7 +63,7 @@ describe('cancel', () => {
         let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -145,14 +145,14 @@ describe('cancel', () => {
         await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
         let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 

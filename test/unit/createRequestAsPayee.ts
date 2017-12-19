@@ -43,7 +43,7 @@ describe('createRequestAsPayee', () => {
                     '',
                     [],
                     {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -66,7 +66,7 @@ describe('createRequestAsPayee', () => {
         let result = await rn.requestEthereumService.createRequestAsPayee(
                     payer,
                     arbitraryAmount)
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
         expect(result).to.have.property('transactionHash');
@@ -151,7 +151,7 @@ describe('createRequestAsPayee', () => {
                 '',
                 addressSynchroneExtensionEscrow,
                 [otherGuy])
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 

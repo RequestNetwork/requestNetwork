@@ -15,12 +15,12 @@ export class Web3Single {
 
     protected blockTimestamp: any = {};
 
-    private constructor(web3Provider ? : any, networkId ? : number) {
+    private constructor(web3Provider ?: any, networkId ?: number) {
         this.web3 = new Web3(web3Provider ||  new Web3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default]));
         this.networkName = networkId?Web3Single.getNetworkName(networkId):config.ethereum.default;
     }
 
-    public static init(web3Provider ? : any, networkId ? : number)
+    public static init(web3Provider ?: any, networkId ?: number)
     {
         this._instance = new this(web3Provider,networkId);
     }
@@ -38,7 +38,7 @@ export class Web3Single {
         _callbackTransactionReceipt: Types.CallbackTransactionReceipt,
         _callbackTransactionConfirmation: Types.CallbackTransactionConfirmation,
         _callbackTransactionError: Types.CallbackTransactionError,
-        _options?:any) {
+        _options?: any) {
 
         let options = Object.assign({}, _options || {}); ;
         options.numberOfConfirmation = undefined;
@@ -103,7 +103,7 @@ export class Web3Single {
         });
     }
 
-    public getDefaultAccountCallback(callback:Types.CallbackErrorData): void {
+    public getDefaultAccountCallback(callback: Types.CallbackErrorData): void {
             this.web3.eth.getAccounts((err, accs) => {
                 if (err) return callback(err,null);
                 if (accs.length === 0) return callback(Error('No accounts found'),null);
@@ -175,7 +175,7 @@ export class Web3Single {
         return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics.slice(1));
     }
 
-    public setUpOptions(_options:any) : any
+    public setUpOptions(_options: any): any
     {
         if(!_options) _options = {};
         if(!_options.numberOfConfirmation) _options.numberOfConfirmation = 0;
@@ -184,7 +184,7 @@ export class Web3Single {
         return _options;
     }
 
-    public static getNetworkName(networkId:number) : string
+    public static getNetworkName(networkId: number): string
     {
         switch (networkId) {
           case 1:  return 'main';
@@ -196,18 +196,18 @@ export class Web3Single {
         }
     }
 
-    public async getTransactionReceipt(_hash:string) : Promise<any>
+    public async getTransactionReceipt(_hash: string): Promise<any>
     {
         return this.web3.eth.getTransactionReceipt(_hash);
     }
 
-    public async getTransaction(_hash:string) : Promise<any>
+    public async getTransaction(_hash: string): Promise<any>
     {
         return this.web3.eth.getTransaction(_hash);
     }
 
 
-    public async getBlockTimestamp(_blockNumber:number) : Promise<any>
+    public async getBlockTimestamp(_blockNumber: number): Promise<any>
     {
         return new Promise(async (resolve, reject) => {
             try

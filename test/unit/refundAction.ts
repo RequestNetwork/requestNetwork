@@ -63,7 +63,7 @@ describe('refundAction', () => {
                             requestId,
                             arbitraryAmount,
                             {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -96,7 +96,7 @@ describe('refundAction', () => {
                             requestId,
                             10,
                             {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 

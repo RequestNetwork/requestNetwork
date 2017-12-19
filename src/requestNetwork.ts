@@ -15,7 +15,7 @@ export default class RequestNetwork {
     public requestSynchroneExtensionEscrowService: RequestSynchroneExtensionEscrowService;
     public requestCoreService: RequestCoreService;
 
-    constructor(provider? : any, networkId ? : number, useIpfsPublic : boolean = true) {
+    constructor(provider?: any, networkId ?: number, useIpfsPublic: boolean = true) {
     	if(provider && !networkId)
     	{
     		throw Error('if you give provider you have to give the networkId too');

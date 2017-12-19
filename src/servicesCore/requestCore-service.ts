@@ -50,9 +50,9 @@ export default class RequestCoreService {
     }
 
     public getCollectEstimation(
-        _expectedAmount:any,
-        _currencyContract:string,
-        _extension:string): Promise < any > {
+        _expectedAmount: any,
+        _currencyContract: string,
+        _extension: string): Promise < any > {
         _expectedAmount = new BN(_expectedAmount);
 
         return new Promise((resolve, reject) => {

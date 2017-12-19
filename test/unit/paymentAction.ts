@@ -57,7 +57,7 @@ describe('paymentAction', () => {
                             arbitraryAmount,
                             0,
                             {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -173,7 +173,7 @@ describe('paymentAction', () => {
                                 arbitraryAmount,
                                 0,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -201,7 +201,7 @@ describe('paymentAction', () => {
                                 1,
                                 2,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -228,7 +228,7 @@ describe('paymentAction', () => {
                                 arbitraryAmount+1,
                                 0,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
