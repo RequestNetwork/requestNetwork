@@ -37,11 +37,11 @@ describe('cancel', () => {
         coreVersion = await rn.requestCoreService.getVersion();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        let req = await rn.requestEthereumService.createRequestAsPayee( 
+        let req = await rn.requestEthereumService.createRequestAsPayee(
             payer,
             arbitraryAmount,
             '',
-            '', 
+            '',
             [],
             {from: payee});
 
@@ -53,7 +53,7 @@ describe('cancel', () => {
             let result = await rn.requestEthereumService.cancel(
                                 '0x00000000000000',
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
         }
@@ -63,7 +63,7 @@ describe('cancel', () => {
         let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
@@ -85,7 +85,7 @@ describe('cancel', () => {
             let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: otherGuy});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('account must be the payer or the payee'),'exception not right');
         }
@@ -100,7 +100,7 @@ describe('cancel', () => {
             let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('payer can cancel request in state \'created\''),'exception not right');
         }
@@ -115,7 +115,7 @@ describe('cancel', () => {
             let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('payee cannot cancel request already canceled'),'exception not right');
         }
@@ -127,7 +127,7 @@ describe('cancel', () => {
                                 {from: payee});
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
-        
+
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -145,19 +145,19 @@ describe('cancel', () => {
         await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
         let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
-        
+
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -186,7 +186,7 @@ describe('cancel', () => {
             let result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('impossible to cancel a Request with a balance != 0'),'exception not right');
         }

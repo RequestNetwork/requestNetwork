@@ -50,9 +50,9 @@ export default class RequestCoreService {
     }
 
     public getCollectEstimation(
-        _expectedAmount:any, 
-        _currencyContract:string, 
-        _extension:string): Promise < any > {
+        _expectedAmount: any,
+        _currencyContract: string,
+        _extension: string): Promise < any > {
         _expectedAmount = new BN(_expectedAmount);
 
         return new Promise((resolve, reject) => {
@@ -74,7 +74,7 @@ export default class RequestCoreService {
                 if (err) return reject(err);
 
                 try {
-                    if(data.creator == '0x0000000000000000000000000000000000000000') 
+                    if(data.creator == '0x0000000000000000000000000000000000000000')
                     {
                         return reject(Error('request not found'));
                     }
@@ -118,10 +118,10 @@ export default class RequestCoreService {
     public getRequestByTransactionHash(
         _hash: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
-            try 
+            try
             {
                 let txReceipt = await this.web3Single.getTransactionReceipt(_hash);
-                
+
                 if(!txReceipt)
                 {
                     let tx = await this.web3Single.getTransaction(_hash);
@@ -136,11 +136,11 @@ export default class RequestCoreService {
                     }
                 }
 
-                if(!txReceipt.logs || !txReceipt.logs[0] || !this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address,this.addressRequestCore)) 
+                if(!txReceipt.logs || !txReceipt.logs[0] || !this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address,this.addressRequestCore))
                 {
                     return reject(Error('transaction did not create a Request'));
-                } 
-           
+                }
+
                 let event = this.web3Single.decodeTransactionLog(this.abiRequestCore, 'Created', txReceipt.logs[0]);
                 if(!event)
                 {
@@ -153,7 +153,7 @@ export default class RequestCoreService {
                 return reject(e);
             }
         });
-    }  
+    }
 
     public getRequestHistory(
         _requestId: string,
@@ -169,14 +169,14 @@ export default class RequestCoreService {
 
                     // let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
                     //     // allEvents and filter don't work together so far. issues created on web3 github
-                    //     // filter: {requestId: _requestId}, 
+                    //     // filter: {requestId: _requestId},
                     //     fromBlock: requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                     //     toBlock: 'latest'
                     // });
 
                     // events by event waiting for a patch of web3
                     let optionFilters = {
-                        filter: { requestId: _requestId }, 
+                        filter: { requestId: _requestId },
                         fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                         toBlock: _toBlock?_toBlock:'latest'
                     };
@@ -194,8 +194,8 @@ export default class RequestCoreService {
                     eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewData', optionFilters));
 
                         // waiting for filter working (see above)
-                    let eventsCore = []    
-                    eventsCore = await Promise.all(eventsCoreRaw.map(async e => { 
+                    let eventsCore = []
+                    eventsCore = await Promise.all(eventsCoreRaw.map(async e => {
                                                             return new Promise(async (resolve, reject) => {
                                                                 resolve({
                                                                     _meta: {
@@ -224,10 +224,10 @@ export default class RequestCoreService {
                                                                                           return diffBlockNumber != 0 ? diffBlockNumber : a._meta.logIndex - b._meta.logIndex;
                                                                                         }));
                 } catch(e) {
-                    return reject(e); 
+                    return reject(e);
                 }
             });
-        }); 
+        });
     }
 
     public getRequestsByAddress(
@@ -237,19 +237,19 @@ export default class RequestCoreService {
         return new Promise(async (resolve, reject) => {
             try {
                 let eventsCorePayee = await this.instanceRequestCore.getPastEvents('Created', {
-                    filter: { payee: _address }, 
+                    filter: { payee: _address },
                     fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                     toBlock: _toBlock?_toBlock:'latest'
                 });
                 let eventsCorePayer = await this.instanceRequestCore.getPastEvents('Created', {
-                    filter: { payer: _address }, 
+                    filter: { payer: _address },
                     fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                     toBlock: _toBlock?_toBlock:'latest'
                 });
 
-                eventsCorePayee = await Promise.all(eventsCorePayee.map(e => { 
+                eventsCorePayee = await Promise.all(eventsCorePayee.map(e => {
                                                         return new Promise(async (resolve, reject) => {
-                                                            return resolve({requestId:e.returnValues.requestId, 
+                                                            return resolve({requestId:e.returnValues.requestId,
                                                                              _meta: {
                                                                                  blockNumber:e.blockNumber,
                                                                                  timestamp:await this.web3Single.getBlockTimestamp(e.blockNumber)
@@ -257,9 +257,9 @@ export default class RequestCoreService {
                                                         });
                                                     }));
 
-                eventsCorePayer = await Promise.all(eventsCorePayer.map(e => { 
+                eventsCorePayer = await Promise.all(eventsCorePayer.map(e => {
                                                         return new Promise(async (resolve, reject) => {
-                                                            return resolve({requestId:e.returnValues.requestId, 
+                                                            return resolve({requestId:e.returnValues.requestId,
                                                                              _meta: {
                                                                                  blockNumber:e.blockNumber,
                                                                                  timestamp:await this.web3Single.getBlockTimestamp(e.blockNumber)
@@ -269,7 +269,7 @@ export default class RequestCoreService {
                 return resolve({asPayer : eventsCorePayer,
                                 asPayee : eventsCorePayee});
             } catch(e) {
-                return reject(e); 
+                return reject(e);
             }
         });
     }

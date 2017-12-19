@@ -37,11 +37,11 @@ describe('refundAction', () => {
         coreVersion = await rn.requestCoreService.getVersion();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        let req = await rn.requestEthereumService.createRequestAsPayee( 
+        let req = await rn.requestEthereumService.createRequestAsPayee(
             payer,
             arbitraryAmount,
             '',
-            '', 
+            '',
             [],
             {from: payee});
 
@@ -63,12 +63,12 @@ describe('refundAction', () => {
                             requestId,
                             arbitraryAmount,
                             {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
-        
+
         utils.expectEqualsBN(result.request.balance,0,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -96,12 +96,12 @@ describe('refundAction', () => {
                             requestId,
                             10,
                             {from: payee})
-            .on('broadcasted', (data:any) => {
+            .on('broadcasted', (data: any) => {
                 expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount,'expectedAmount is wrong');
-        
+
         utils.expectEqualsBN(result.request.balance,arbitraryAmount-10,'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -129,7 +129,7 @@ describe('refundAction', () => {
                                 '0x00000000000000',
                                 arbitraryAmount,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
         }
@@ -151,7 +151,7 @@ describe('refundAction', () => {
                                 requestId,
                                 -1,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('_amount must a positive integer'),'exception not right');
         }
@@ -173,7 +173,7 @@ describe('refundAction', () => {
                                 requestId,
                                 arbitraryAmount,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('account must be payee'),'exception not right');
         }
@@ -195,7 +195,7 @@ describe('refundAction', () => {
                                 requestId,
                                 arbitraryAmount,
                                 {from: otherGuy});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('account must be payee'),'exception not right');
         }
@@ -218,7 +218,7 @@ describe('refundAction', () => {
                                 requestId,
                                 11,
                                 {from: otherGuy});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('You cannot payback more than what has been paid'),'exception not right');
         }

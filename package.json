@@ -13,7 +13,8 @@
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
-    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "lint": "tslint -p tsconfig.json -t verbose"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -24,6 +25,7 @@
     "dirty-chai": "^2.0.1",
     "mocha": "^4.0.1",
     "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
     "typings": "^2.1.1"
   },
   "dependencies": {
