@@ -14,7 +14,7 @@ export default class RequestNetwork {
     public requestEthereumService: RequestEthereumService;
     public requestSynchroneExtensionEscrowService: RequestSynchroneExtensionEscrowService;
     public requestCoreService: RequestCoreService;
-    
+
     constructor(provider? : any, networkId ? : number, useIpfsPublic : boolean = true) {
     	if(provider && !networkId)
     	{

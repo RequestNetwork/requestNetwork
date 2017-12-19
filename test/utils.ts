@@ -15,5 +15,5 @@ export const expectEqualsObject = function(obj1:any,obj2:any,msg:string) : void 
 }
 
 export const expectEqualsBN = function(obj1:any,obj2:any,msg:string) : void {
-    expect(new BN(obj1).eq(new BN(obj2)), msg).to.be.true; 
+    expect(new BN(obj1).eq(new BN(obj2)), msg).to.be.true;
 }

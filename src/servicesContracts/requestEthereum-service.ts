@@ -100,7 +100,7 @@ export default class RequestEthereumService {
                             // we do nothing here!
                         },
                         (confirmationNumber: number, receipt: any) => {
-                            if (confirmationNumber == _options.numberOfConfirmation) 
+                            if (confirmationNumber == _options.numberOfConfirmation)
                             {
                                 let event = this.web3Single.decodeEvent(this.abiRequestCore, 'Created', receipt.events[0]);
                                 this.getRequest(event.requestId).then((request) => {
@@ -283,7 +283,7 @@ export default class RequestEthereumService {
 
             this.getRequest(_requestId).then((request) => {
                 if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
-                
+
                 if ( request.state != Types.State.Accepted ) {
                     return promiEvent.reject(Error('request must be accepted'));
                 }
@@ -435,7 +435,7 @@ export default class RequestEthereumService {
             let account = _options.from || defaultAccount;
 
             var method = this.instanceRequestEthereum.methods.withdraw();
-                
+
             this.web3Single.broadcastMethod(
                 method,
                 (transactionHash: string) => {
@@ -468,15 +468,15 @@ export default class RequestEthereumService {
 
     public getRequest(_requestId: string): Promise < any > {
         return this.requestCoreServices.getRequest(_requestId);
-    }      
+    }
 
     public getRequestHistory(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return this.requestCoreServices.getRequestHistory(_requestId,_fromBlock,_toBlock);
-    } 
-    
+    }
+
     public getRequestHistoryCurrencyContractInfo(
         _requestId: string,
         _fromBlock ?: number,
@@ -484,14 +484,14 @@ export default class RequestEthereumService {
         return new Promise(async (resolve, reject) => {
             // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
             //     // allEvents and filter don't work together so far. issues created on web3 github
-            //     // filter: {requestId: _requestId}, 
+            //     // filter: {requestId: _requestId},
             //     fromBlock: requestEthereum_Artifact.networks[this.web3Single.networkName].blockNumber,
             //     toBlock: 'latest'
             // });
 
             // events by event waiting for a patch of web3
             let optionFilters = {
-                filter: { requestId: _requestId }, 
+                filter: { requestId: _requestId },
                 fromBlock: requestEthereum_Artifact.networks[this.web3Single.networkName].blockNumber,
                 toBlock: 'latest'
             };
@@ -500,7 +500,7 @@ export default class RequestEthereumService {
             let events = [];
             events = events.concat(await this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters));
 
-            return resolve(await Promise.all(events.map(async e => { 
+            return resolve(await Promise.all(events.map(async e => {
                                                     return new Promise(async (resolve, reject) => {
                                                         resolve({
                                                             _meta: {
@@ -513,6 +513,6 @@ export default class RequestEthereumService {
                                                         });
                                                     });
                                                 })));
-        });  
-    } 
+        });
+    }
 }

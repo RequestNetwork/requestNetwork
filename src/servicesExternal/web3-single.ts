@@ -20,16 +20,16 @@ export class Web3Single {
         this.networkName = networkId?Web3Single.getNetworkName(networkId):config.ethereum.default;
     }
 
-    public static init(web3Provider ? : any, networkId ? : number) 
-    {   
+    public static init(web3Provider ? : any, networkId ? : number)
+    {
         this._instance = new this(web3Provider,networkId);
     }
 
-    public static getInstance() 
+    public static getInstance()
     {
         return this._instance;
     }
-    public static BN() 
+    public static BN()
     {
         return Web3.utils.BN;
     }
@@ -42,7 +42,7 @@ export class Web3Single {
 
         let options = Object.assign({}, _options || {}); ;
         options.numberOfConfirmation = undefined;
-        
+
         if (!options.from) {
             try {
                 let accounts = await this.web3.eth.getAccounts();
@@ -78,7 +78,7 @@ export class Web3Single {
                     .on('transactionHash', _callbackTransactionHash)
                     .on('receipt', _callbackTransactionReceipt)
                     .on('confirmation', _callbackTransactionConfirmation)
-                    .on('error', _callbackTransactionError);     
+                    .on('error', _callbackTransactionError);
             });
         });
     }
@@ -153,7 +153,7 @@ export class Web3Single {
             }
             return false;
         });
-        
+
         if(log.topics[0] != signature)
         {
             return null;
@@ -174,7 +174,7 @@ export class Web3Single {
 
         return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics.slice(1));
     }
-    
+
     public setUpOptions(_options:any) : any
     {
         if(!_options) _options = {};
@@ -210,17 +210,17 @@ export class Web3Single {
     public async getBlockTimestamp(_blockNumber:number) : Promise<any>
     {
         return new Promise(async (resolve, reject) => {
-            try 
+            try
             {
                 if(!this.blockTimestamp[_blockNumber]) {
                     let block = await this.web3.eth.getBlock(_blockNumber);
                     if(!block) throw Error('block \''+_blockNumber+'\' not found');
-                    this.blockTimestamp[_blockNumber] = block.timestamp;          
+                    this.blockTimestamp[_blockNumber] = block.timestamp;
                 }
                 return resolve(this.blockTimestamp[_blockNumber])
             }
             catch(e)
-            {    
+            {
                 console.warn(e);
                 return resolve(null);
             }

@@ -43,7 +43,7 @@ export default class RequestSynchroneExtensionEscrowService {
         }
         let ret: any[] = [];
 
-        // parse escrow 
+        // parse escrow
         ret.push(this.web3Single.toSolidityBytes32('address', _extensionParams[0]));
 
         for (let i = 1; i < 9; i++) {
@@ -172,7 +172,7 @@ export default class RequestSynchroneExtensionEscrowService {
     }
 
     public getRequestExtensionInfo(_requestId: string): Promise < any > {
-        
+
         return new Promise((resolve, reject) => {
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
@@ -196,8 +196,8 @@ export default class RequestSynchroneExtensionEscrowService {
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return this.requestCoreServices.getRequestHistory(_requestId,_fromBlock,_toBlock);
-    } 
-    
+    }
+
     public getRequestHistoryExtensionInfo(
         _requestId: string,
         _fromBlock ?: number,
@@ -205,14 +205,14 @@ export default class RequestSynchroneExtensionEscrowService {
         return new Promise(async (resolve, reject) => {
             // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
             //     // allEvents and filter don't work together so far. issues created on web3 github
-            //     // filter: {requestId: _requestId}, 
+            //     // filter: {requestId: _requestId},
             //     fromBlock: requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName].blockNumber,
             //     toBlock: 'latest'
             // });
 
             // events by event waiting for a patch of web3
             let optionFilters = {
-                filter: { requestId: _requestId }, 
+                filter: { requestId: _requestId },
                 fromBlock: requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName].blockNumber,
                 toBlock: 'latest'
             };
@@ -222,7 +222,7 @@ export default class RequestSynchroneExtensionEscrowService {
             events = events.concat(await this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowReleaseRequest', optionFilters));
             events = events.concat(await this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowRefundRequest', optionFilters));
 
-            return resolve(await Promise.all(events.map(async e => { 
+            return resolve(await Promise.all(events.map(async e => {
                                                     return new Promise(async (resolve, reject) => {
                                                         resolve({
                                                             _meta: {
@@ -235,6 +235,6 @@ export default class RequestSynchroneExtensionEscrowService {
                                                         });
                                                     });
                                                 })));
-        });  
-    }  
+        });
+    }
 }

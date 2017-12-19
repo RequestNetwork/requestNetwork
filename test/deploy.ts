@@ -155,7 +155,7 @@ web3Single.getDefaultAccount().then(function(creator) {
                                         console.log(error)
                                         console.log('setFeesPerTenThousand - error ##########################')
                                     });
-                                
+
                                 web3Single.broadcastMethod(
                                     newContractInstanceRequestCore.methods.setBurnManager(addressRequestBurnManagerSimple),
                                     (transactionHash: string) => {

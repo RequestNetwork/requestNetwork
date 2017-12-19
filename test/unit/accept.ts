@@ -36,11 +36,11 @@ describe('accept', () => {
         coreVersion = await rn.requestCoreService.getVersion();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        let req = await rn.requestEthereumService.createRequestAsPayee( 
+        let req = await rn.requestEthereumService.createRequestAsPayee(
             payer,
             arbitraryAmount,
             '',
-            '', 
+            '',
             [],
             {from: payee});
 
@@ -52,7 +52,7 @@ describe('accept', () => {
             let result = await rn.requestEthereumService.accept(
                                 '0x00000000000000',
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
         }
@@ -84,7 +84,7 @@ describe('accept', () => {
             let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('account must be the payer'),'exception not right');
         }
@@ -93,7 +93,7 @@ describe('accept', () => {
             let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: otherGuy});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('account must be the payer'),'exception not right');
         }
@@ -109,7 +109,7 @@ describe('accept', () => {
             let result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
+            expect(false,'exception not thrown').to.be.true;
         } catch(e) {
             utils.expectEqualsObject(e,Error('request state is not \'created\''),'exception not right');
         }

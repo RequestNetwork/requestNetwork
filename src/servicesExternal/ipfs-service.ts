@@ -14,12 +14,12 @@ export default class Ipfs {
 		this.ipfs = ipfsAPI(ipfsConfig.host, ipfsConfig.port, {protocol: ipfsConfig.protocol})
 	}
 
-    public static init(_publicIpfs : boolean = true) 
-    {   
+    public static init(_publicIpfs : boolean = true)
+    {
         this._instance = new this(_publicIpfs);
     }
 
-    public static getInstance() 
+    public static getInstance()
     {
         return this._instance;
     }
@@ -31,7 +31,7 @@ export default class Ipfs {
 				return resolve('');
 			}
 			let dataParsed = JSON.parse(_data);
-        
+
 			this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), (err:Error, result:any[]) => {
 				if(err) return reject(err);
 				return resolve(result[0].hash);
