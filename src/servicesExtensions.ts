@@ -2,6 +2,11 @@ import Artifacts from './artifacts';
 
 import RequestSynchroneExtensionEscrowService from './servicesExtensions/requestSynchroneExtensionEscrow-service';
 
+/**
+ * getServiceFromAddress return the service of a coresponding extension contract address
+ * @param   address     The address of the extension contract
+ * @return  The service object or undefined if not found
+ */
 export const getServiceFromAddress = function(address:string) : any{
 	if(!address) return undefined;
 

@@ -2,6 +2,11 @@ import Artifacts from './artifacts';
 
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
 
+/**
+ * getServiceFromAddress return the service of a coresponding currency contract address
+ * @param   address     The address of the currency contract
+ * @return  The service object or undefined if not found
+ */
 export const getServiceFromAddress = function(address:string) : any{
 	if(!address) return undefined;
 
