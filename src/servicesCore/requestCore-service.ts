@@ -10,15 +10,30 @@ import Ipfs from '../servicesExternal/ipfs-service';
 
 const BN = Web3Single.BN();
 
+/**
+ * The RequestCoreService class is the interface for the Request Core contract
+ */
 export default class RequestCoreService {
     private web3Single: Web3Single;
     protected ipfs: any;
 
-    // RequestEthereum on blockchain
+    // RequestCore on blockchain
+    /**
+     * RequestCore contract's abi
+     */
     protected abiRequestCore: any;
+    /**
+     * RequestCore contract's address
+     */
     protected addressRequestCore: string;
+    /**
+     * RequestCore contract's web3 instance
+     */
     protected instanceRequestCore: any;
 
+    /**
+     * constructor to Instantiates a new RequestCoreService 
+     */
     constructor() {
         this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
@@ -31,6 +46,10 @@ export default class RequestCoreService {
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
 
+    /**
+     * get the number of the last request (N.B: number != id)
+     * @return  promise of the number of the last request
+     */
     public getCurrentNumRequest(): Promise < number > {
         return new Promise((resolve, reject) => {
             this.instanceRequestCore.methods.numRequests().call(async(err: Error, data: any) => {
@@ -40,6 +59,10 @@ export default class RequestCoreService {
         });
     }
 
+    /**
+     * get the version of the contract
+     * @return  promise of the version of the contract
+     */
     public getVersion(): Promise < number > {
         return new Promise((resolve, reject) => {
             this.instanceRequestCore.methods.VERSION().call(async(err: Error, data: any) => {
@@ -49,6 +72,13 @@ export default class RequestCoreService {
         });
     }
 
+    /**
+     * get the estimation of ether (in wei) needed to create a request
+     * @param   _expectedAmount    amount expected of the request
+     * @param   _currencyContract  address of the currency contract of the request
+     * @param   _extension         address of the extension contract of the request
+     * @return  promise of the number of wei needed to create the request
+     */
     public getCollectEstimation(
         _expectedAmount:any, 
         _currencyContract:string, 
@@ -66,10 +96,16 @@ export default class RequestCoreService {
         });
     }
 
+    /**
+     * get a request by its requestId
+     * @param   _requestId    requestId of the request
+     * @return  promise of the object containing the request
+     */
     public getRequest(_requestId: string): Promise < any > {
         return new Promise((resolve, reject) => {
             if (!this.web3Single.isHexStrictBytes32(_requestId)) return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
 
+            // get information from the core
             this.instanceRequestCore.methods.requests(_requestId).call(async(err: Error, data: any) => {
                 if (err) return reject(err);
 
@@ -92,16 +128,19 @@ export default class RequestCoreService {
                         data: data.data,
                     };
 
+                    // get information from the currency contract
                     if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
                         let currencyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfo(_requestId);
                         dataResult.currencyContract = Object.assign(currencyContractDetails, { address: dataResult.currencyContract });
                     }
 
+                    // get information from the extension contract
                     if (data.extension && data.extension != '' && ServiceExtensions.getServiceFromAddress(data.extension)) {
                         let extensionDetails = await ServiceExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfo(_requestId);
                         dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                     }
 
+                    // get ipfs data if needed
                     if (dataResult.data && dataResult.data != '') {
                         dataResult.data = {hash:dataResult.data, data:JSON.parse(await this.ipfs.getFile(dataResult.data))};
                     } else {
@@ -115,13 +154,18 @@ export default class RequestCoreService {
         });
     }
 
+    /**
+     * get a request by the hash of the transaction which created the request
+     * @param   _hash    hash of the transaction which created the request
+     * @return  promise of the object containing the request
+     */
     public getRequestByTransactionHash(
         _hash: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try 
             {
                 let txReceipt = await this.web3Single.getTransactionReceipt(_hash);
-                
+                // if no tx receipt found
                 if(!txReceipt)
                 {
                     let tx = await this.web3Single.getTransaction(_hash);
@@ -135,7 +179,6 @@ export default class RequestCoreService {
                         return reject(Error('transaction not mined'));
                     }
                 }
-
                 if(!txReceipt.logs || !txReceipt.logs[0] || !this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address,this.addressRequestCore)) 
                 {
                     return reject(Error('transaction did not create a Request'));
@@ -155,6 +198,13 @@ export default class RequestCoreService {
         });
     }  
 
+    /**
+     * get a request's history
+     * @param   _requestId    requestId of the request
+     * @param   _fromBlock    search events from this block (optional)
+     * @param   _toBlock    search events until this block (optional)
+     * @return  promise of the array of events about the request
+     */
     public getRequestHistory(
         _requestId: string,
         _fromBlock ?: number,
@@ -230,23 +280,33 @@ export default class RequestCoreService {
         }); 
     }
 
+    /**
+     * get the list of requests connected to an address
+     * @param   _address        address to get the requests
+     * @param   _fromBlock      search requests from this block (optional)
+     * @param   _toBlock        search requests until this block (optional)
+     * @return  promise of the object of requests as {asPayer:[],asPayee[]}
+     */
     public getRequestsByAddress(
         _address: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try {
+                // get events Created with payee == address
                 let eventsCorePayee = await this.instanceRequestCore.getPastEvents('Created', {
                     filter: { payee: _address }, 
                     fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                     toBlock: _toBlock?_toBlock:'latest'
                 });
+                // get events Created with payer == address
                 let eventsCorePayer = await this.instanceRequestCore.getPastEvents('Created', {
                     filter: { payer: _address }, 
                     fromBlock: _fromBlock?_fromBlock:requestCore_Artifact.networks[this.web3Single.networkName].blockNumber,
                     toBlock: _toBlock?_toBlock:'latest'
                 });
 
+                // clean the data and get timestamp for request as payee
                 eventsCorePayee = await Promise.all(eventsCorePayee.map(e => { 
                                                         return new Promise(async (resolve, reject) => {
                                                             return resolve({requestId:e.returnValues.requestId, 
@@ -257,6 +317,7 @@ export default class RequestCoreService {
                                                         });
                                                     }));
 
+                // clean the data and get timestamp for request as payer
                 eventsCorePayer = await Promise.all(eventsCorePayer.map(e => { 
                                                         return new Promise(async (resolve, reject) => {
                                                             return resolve({requestId:e.returnValues.requestId, 
@@ -266,6 +327,7 @@ export default class RequestCoreService {
                                                                             }});
                                                         });
                                                     }));
+
                 return resolve({asPayer : eventsCorePayer,
                                 asPayee : eventsCorePayee});
             } catch(e) {
