@@ -69,7 +69,7 @@ export default class RequestEthereumService {
      * @param   _amountInitial     amount initial expected of the request
      * @param   _data              Json of the request's details (optional)
      * @param   _extension         address of the extension contract of the request (optional)
-     * @param   _extensionParams   array of parameter for the extension (optional)
+     * @param   _extensionParams   array of parameters for the extension (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */

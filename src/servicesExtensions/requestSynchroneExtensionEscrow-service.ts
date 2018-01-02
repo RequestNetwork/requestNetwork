@@ -12,17 +12,39 @@ import { Web3Single } from '../servicesExternal/web3-single';
 
 const BN = Web3Single.BN();
 
+/**
+ * The RequestSynchroneExtensionEscrowService class is the interface for the Request Escrow Synchrone extension 
+ */
 export default class RequestSynchroneExtensionEscrowService {
     protected web3Single: any;
 
     // RequestEthereum on blockchain
+    /**
+     * RequestCore contract's abi
+     */
     protected abiRequestCore: any;
+    /**
+     * RequestCore service from this very lib
+     */
     protected requestCoreServices:any;
 
+    // RequestSynchroneExtensionEscrow on blockchain
+    /**
+     * RequestSynchroneExtensionEscrow contract's abi
+     */
     protected abiSynchroneExtensionEscrow: any;
+    /**
+     * RequestSynchroneExtensionEscrow contract's address
+     */
     protected addressSynchroneExtensionEscrow: string;
+    /**
+     * RequestSynchroneExtensionEscrow contract's web3 instance
+     */
     protected instanceSynchroneExtensionEscrow: any;
 
+    /**
+     * constructor to Instantiates a new RequestSynchroneExtensionEscrowService 
+     */
     constructor() {
         this.web3Single = Web3Single.getInstance();
 
@@ -37,6 +59,12 @@ export default class RequestSynchroneExtensionEscrowService {
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
     }
 
+
+    /**
+     * parse extension parameters (generic method)
+     * @param   _extensionParams    array of parameters for the extension (optional)
+     * @return  return object with array of the parsed parameters
+     */
     public parseParameters(_extensionParams: any[]): any {
         if(!_extensionParams || !this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
             return {error:Error('first parameter must be a valid eth address')}
@@ -52,6 +80,13 @@ export default class RequestSynchroneExtensionEscrowService {
         return {result:ret};
     }
 
+    /**
+     * release payment to Payee as payer or escrow
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the request
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     public releaseToPayeeAction(
         _requestId: string,
         _options ? : any): Web3PromiEvent {
@@ -109,7 +144,13 @@ export default class RequestSynchroneExtensionEscrowService {
         return promiEvent.eventEmitter;
     }
 
-
+    /**
+     * release payment to payer as payee or escrow
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the request
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     public releaseToPayerAction(
         _requestId: string,
         _options ? : any): Web3PromiEvent {
@@ -166,11 +207,18 @@ export default class RequestSynchroneExtensionEscrowService {
         return promiEvent.eventEmitter;
     }
 
-
+    /**
+     * alias of requestCoreServices.getRequest()
+     */
     public getRequest(_requestId: string): Promise < any > {
         return this.requestCoreServices.getRequest(_requestId);
     }
 
+    /**
+     * Get info from extension contract (generic method)
+     * @param   _requestId    requestId of the request
+     * @return  promise of the object containing the information from the extension contract of the request
+     */
     public getRequestExtensionInfo(_requestId: string): Promise < any > {
         
         return new Promise((resolve, reject) => {
@@ -191,13 +239,23 @@ export default class RequestSynchroneExtensionEscrowService {
         });
     }
 
+    /**
+     * alias of requestCoreServices.getRequestHistory()
+     */
     public getRequestHistory(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return this.requestCoreServices.getRequestHistory(_requestId,_fromBlock,_toBlock);
     } 
-    
+
+    /**
+     * Get request history from extension contract (generic method)
+     * @param   _requestId    requestId of the request
+     * @param   _fromBlock    search events from this block (optional)
+     * @param   _toBlock        search events until this block (optional)
+     * @return  promise of the object containing the history from the extension contract of the request (always {} here)
+     */     
     public getRequestHistoryExtensionInfo(
         _requestId: string,
         _fromBlock ?: number,
@@ -210,7 +268,7 @@ export default class RequestSynchroneExtensionEscrowService {
             //     toBlock: 'latest'
             // });
 
-            // events by event waiting for a patch of web3
+            // TODO : events by event waiting for a patch of web3
             let optionFilters = {
                 filter: { requestId: _requestId }, 
                 fromBlock: requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName].blockNumber,
