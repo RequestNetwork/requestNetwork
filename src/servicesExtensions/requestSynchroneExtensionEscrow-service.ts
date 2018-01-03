@@ -240,23 +240,23 @@ export default class RequestSynchroneExtensionEscrowService {
     }
 
     /**
-     * alias of requestCoreServices.getRequestHistory()
+     * alias of requestCoreServices.getRequestEvents()
      */
-    public getRequestHistory(
+    public getRequestEvents(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
-        return this.requestCoreServices.getRequestHistory(_requestId,_fromBlock,_toBlock);
+        return this.requestCoreServices.getRequestEvents(_requestId,_fromBlock,_toBlock);
     } 
 
     /**
-     * Get request history from extension contract (generic method)
+     * Get request events from extension contract (generic method)
      * @param   _requestId    requestId of the request
      * @param   _fromBlock    search events from this block (optional)
      * @param   _toBlock        search events until this block (optional)
-     * @return  promise of the object containing the history from the extension contract of the request (always {} here)
+     * @return  promise of the object containing the events from the extension contract of the request (always {} here)
      */     
-    public getRequestHistoryExtensionInfo(
+    public getRequestEventsExtensionInfo(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {

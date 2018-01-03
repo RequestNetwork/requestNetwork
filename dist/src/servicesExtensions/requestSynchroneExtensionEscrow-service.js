@@ -44,7 +44,13 @@ var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var requestSynchroneExtensionEscrow_Artifact = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var BN = web3_single_1.Web3Single.BN();
+/**
+ * The RequestSynchroneExtensionEscrowService class is the interface for the Request Escrow Synchrone extension
+ */
 var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
+    /**
+     * constructor to Instantiates a new RequestSynchroneExtensionEscrowService
+     */
     function RequestSynchroneExtensionEscrowService() {
         this.web3Single = web3_single_1.Web3Single.getInstance();
         this.abiRequestCore = requestCore_Artifact.abi;
@@ -56,6 +62,11 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         this.addressSynchroneExtensionEscrow = requestSynchroneExtensionEscrow_Artifact.networks[this.web3Single.networkName].address;
         this.instanceSynchroneExtensionEscrow = new this.web3Single.web3.eth.Contract(this.abiSynchroneExtensionEscrow, this.addressSynchroneExtensionEscrow);
     }
+    /**
+     * parse extension parameters (generic method)
+     * @param   _extensionParams    array of parameters for the extension (optional)
+     * @return  return object with array of the parsed parameters
+     */
     RequestSynchroneExtensionEscrowService.prototype.parseParameters = function (_extensionParams) {
         if (!_extensionParams || !this.web3Single.isAddressNoChecksum(_extensionParams[0])) {
             return { error: Error('first parameter must be a valid eth address') };
@@ -68,6 +79,13 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         }
         return { result: ret };
     };
+    /**
+     * release payment to Payee as payer or escrow
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the request
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestSynchroneExtensionEscrowService.prototype.releaseToPayeeAction = function (_requestId, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -113,6 +131,13 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * release payment to payer as payee or escrow
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the request
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestSynchroneExtensionEscrowService.prototype.releaseToPayerAction = function (_requestId, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -156,9 +181,17 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * alias of requestCoreServices.getRequest()
+     */
     RequestSynchroneExtensionEscrowService.prototype.getRequest = function (_requestId) {
         return this.requestCoreServices.getRequest(_requestId);
     };
+    /**
+     * Get info from extension contract (generic method)
+     * @param   _requestId    requestId of the request
+     * @return  promise of the object containing the information from the extension contract of the request
+     */
     RequestSynchroneExtensionEscrowService.prototype.getRequestExtensionInfo = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -177,10 +210,20 @@ var RequestSynchroneExtensionEscrowService = /** @class */ (function () {
             });
         });
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestHistory = function (_requestId, _fromBlock, _toBlock) {
-        return this.requestCoreServices.getRequestHistory(_requestId, _fromBlock, _toBlock);
+    /**
+     * alias of requestCoreServices.getRequestEvents()
+     */
+    RequestSynchroneExtensionEscrowService.prototype.getRequestEvents = function (_requestId, _fromBlock, _toBlock) {
+        return this.requestCoreServices.getRequestEvents(_requestId, _fromBlock, _toBlock);
     };
-    RequestSynchroneExtensionEscrowService.prototype.getRequestHistoryExtensionInfo = function (_requestId, _fromBlock, _toBlock) {
+    /**
+     * Get request events from extension contract (generic method)
+     * @param   _requestId    requestId of the request
+     * @param   _fromBlock    search events from this block (optional)
+     * @param   _toBlock        search events until this block (optional)
+     * @return  promise of the object containing the events from the extension contract of the request (always {} here)
+     */
+    RequestSynchroneExtensionEscrowService.prototype.getRequestEventsExtensionInfo = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;

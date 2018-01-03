@@ -2,6 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var artifacts_1 = require("./artifacts");
 var requestEthereum_service_1 = require("./servicesContracts/requestEthereum-service");
+/**
+ * getServiceFromAddress return the service of a coresponding currency contract address
+ * @param   address     The address of the currency contract
+ * @return  The service object or undefined if not found
+ */
 exports.getServiceFromAddress = function (address) {
     if (!address)
         return undefined;

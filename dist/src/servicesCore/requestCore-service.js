@@ -42,7 +42,13 @@ var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var BN = web3_single_1.Web3Single.BN();
+/**
+ * The RequestCoreService class is the interface for the Request Core contract
+ */
 var RequestCoreService = /** @class */ (function () {
+    /**
+     * constructor to Instantiates a new RequestCoreService
+     */
     function RequestCoreService() {
         this.web3Single = web3_single_1.Web3Single.getInstance();
         this.ipfs = ipfs_service_1.default.getInstance();
@@ -53,6 +59,10 @@ var RequestCoreService = /** @class */ (function () {
         this.addressRequestCore = requestCore_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
     }
+    /**
+     * get the number of the last request (N.B: number != id)
+     * @return  promise of the number of the last request
+     */
     RequestCoreService.prototype.getCurrentNumRequest = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -65,6 +75,10 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
+    /**
+     * get the version of the contract
+     * @return  promise of the version of the contract
+     */
     RequestCoreService.prototype.getVersion = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -77,6 +91,13 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
+    /**
+     * get the estimation of ether (in wei) needed to create a request
+     * @param   _expectedAmount    amount expected of the request
+     * @param   _currencyContract  address of the currency contract of the request
+     * @param   _extension         address of the extension contract of the request
+     * @return  promise of the number of wei needed to create the request
+     */
     RequestCoreService.prototype.getCollectEstimation = function (_expectedAmount, _currencyContract, _extension) {
         var _this = this;
         _expectedAmount = new BN(_expectedAmount);
@@ -94,11 +115,17 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
+    /**
+     * get a request by its requestId
+     * @param   _requestId    requestId of the request
+     * @return  promise of the object containing the request
+     */
     RequestCoreService.prototype.getRequest = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (!_this.web3Single.isHexStrictBytes32(_requestId))
                 return reject(Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''));
+            // get information from the core
             _this.instanceRequestCore.methods.requests(_requestId).call(function (err, data) { return __awaiter(_this, void 0, void 0, function () {
                 var dataResult, currencyContractDetails, extensionDetails, _a, _b, _c, _d, e_1;
                 return __generator(this, function (_e) {
@@ -159,6 +186,11 @@ var RequestCoreService = /** @class */ (function () {
             }); });
         });
     };
+    /**
+     * get a request by the hash of the transaction which created the request
+     * @param   _hash    hash of the transaction which created the request
+     * @return  promise of the object containing the request
+     */
     RequestCoreService.prototype.getRequestByTransactionHash = function (_hash) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -202,7 +234,14 @@ var RequestCoreService = /** @class */ (function () {
             });
         }); });
     };
-    RequestCoreService.prototype.getRequestHistory = function (_requestId, _fromBlock, _toBlock) {
+    /**
+     * get a request's events
+     * @param   _requestId    requestId of the request
+     * @param   _fromBlock    search events from this block (optional)
+     * @param   _toBlock    search events until this block (optional)
+     * @return  promise of the array of events about the request
+     */
+    RequestCoreService.prototype.getRequestEvents = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
@@ -298,14 +337,14 @@ var RequestCoreService = /** @class */ (function () {
                                 eventsCore = _w.sent();
                                 eventsExtensions = [];
                                 if (!ServiceExtensions.getServiceFromAddress(extension)) return [3 /*break*/, 14];
-                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId, _fromBlock, _toBlock)];
+                                return [4 /*yield*/, ServiceExtensions.getServiceFromAddress(extension).getRequestEventsExtensionInfo(_requestId, _fromBlock, _toBlock)];
                             case 13:
                                 eventsExtensions = _w.sent();
                                 _w.label = 14;
                             case 14:
                                 eventsCurrencyContract = [];
                                 if (!ServicesContracts.getServiceFromAddress(currencyContract)) return [3 /*break*/, 16];
-                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId, _fromBlock, _toBlock)];
+                                return [4 /*yield*/, ServicesContracts.getServiceFromAddress(currencyContract).getRequestEventsCurrencyContractInfo(_requestId, _fromBlock, _toBlock)];
                             case 15:
                                 eventsCurrencyContract = _w.sent();
                                 _w.label = 16;
@@ -324,6 +363,13 @@ var RequestCoreService = /** @class */ (function () {
             });
         }); });
     };
+    /**
+     * get the list of requests connected to an address
+     * @param   _address        address to get the requests
+     * @param   _fromBlock      search requests from this block (optional)
+     * @param   _toBlock        search requests until this block (optional)
+     * @return  promise of the object of requests as {asPayer:[],asPayee[]}
+     */
     RequestCoreService.prototype.getRequestsByAddress = function (_address, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -366,6 +412,7 @@ var RequestCoreService = /** @class */ (function () {
                                 }); });
                             }))];
                     case 3:
+                        // clean the data and get timestamp for request as payee
                         eventsCorePayee = _a.sent();
                         return [4 /*yield*/, Promise.all(eventsCorePayer.map(function (e) {
                                 return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -386,6 +433,7 @@ var RequestCoreService = /** @class */ (function () {
                                 }); });
                             }))];
                     case 4:
+                        // clean the data and get timestamp for request as payer
                         eventsCorePayer = _a.sent();
                         return [2 /*return*/, resolve({ asPayer: eventsCorePayer,
                                 asPayee: eventsCorePayee })];
