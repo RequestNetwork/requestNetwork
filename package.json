@@ -1,5 +1,5 @@
 {
-  "name": "requestnetwork.js",
+  "name": "@requestnetwork/request-network.js",
   "version": "0.0.1",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "keywords": [
