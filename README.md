@@ -91,7 +91,7 @@ Functions
 
 ## Functions
 ### Create a request as the payee
-` public createRequestAsPayee ( _payer: string, _amountInitial: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any ``` , _options ? : any, )`
+` public createRequestAsPayee ( _payer: string, _amountInitial: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)```
 
 emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
 
