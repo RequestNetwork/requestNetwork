@@ -21,7 +21,12 @@ If you’re looking for an example, you can browse the app.request.network websi
 requestNetwork.js ships as a CommonJS package.
 CommonJS (recommended):
 ### Install
+
+#### Using NPM
 `npm install @requestnetwork/request-network.js --save`
+
+#### Using Yarn
+`yarn add @requestnetwork/request-network.js`
 
 (We are currently working on retrieving the name of requestnetwork.js)
 
