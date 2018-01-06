@@ -39,9 +39,9 @@ Custom configuration
 
 Instantiates a new RequestNetwork instance that provides the public interface to the requestNetwork.js library.
 
-* @param   provider  The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network.
-* @param   networkId  the Ethereum network ID.
-* @param   useIpfsPublic  use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise
+* @param   `provider`  The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network.
+* @param   `networkId`  the Ethereum network ID.
+* @param   `useIpfsPublic`  use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise
 
 * @return  An instance of the requestNetwork.js RequestNetwork class.
 
@@ -52,11 +52,11 @@ requestNetwork.js is a promise-based library. This means that whenever an asynch
 Every function that modify data on the blockchain will trigger first an event “broadcasted” when the transaction is submitted to the nodes, before returning the request data when the transaction is confirmed. You can specify a number of confirmations to wait before returning the promise in options.numberOfConfirmation - default to 0.
 
 Async/await syntax (recommended):
-```
+```js
 try {
-  var data = await requestNetwork.requestEthereumService.accept(requestId).on(“broadcasted”, txHash => {
+  var data = await requestNetwork.requestEthereumService.accept(requestId).on('broadcasted', txHash => {
     //Transaction broadcasted
-    console.log(“transaction hash: “, txHash);
+    console.log('transaction hash: ', txHash);
   });
   //Transaction mined
   console.log(data.request)
@@ -68,8 +68,8 @@ try {
 
 
 Promise syntax:
-```
-requestNetwork.requestEthereumService.accept(requestId).on(“broadcasted”, txHash => {
+```js
+requestNetwork.requestEthereumService.accept(requestId).on('broadcasted', txHash => {
   //Transaction broadcasted
   console.log('Transaction hash: ', txHash);
 }).then(data => {
@@ -91,126 +91,127 @@ Functions
 
 ## Functions
 ### Create a request as the payee
-` public createRequestAsPayee ( _payer: string, _amountInitial: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)```
+`public createRequestAsPayee(_payer: string, _amountInitial: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)`
 
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+Emit the event `'broadcasted'` with `{transactionHash}` when the transaction is submitted.
 
-* @param   _payer             address of the payer
-* @param   _amountInitial     amount initial expected of the request
-* @param   _data              Json of the request's details (optional)
-* @param   _extension         address of the extension contract of the request (optional)
-* @param   _extensionParams   array of parameters for the extension (optional)
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+* @param   `_payer`             address of the payer
+* @param   `_amountInitial`     amount initial expected of the request
+* @param   `_data`              Json of the request's details (optional)
+* @param   `_extension`         address of the extension contract of the request (optional)
+* @param   `_extensionParams`   array of parameters for the extension (optional)
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
 ### Accept a request
-` public accept( _requestId: string, _options ? : any)`
-      
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+`public accept(_requestId: string, _options ? : any)`
 
-* @param   _requestId         requestId of the payer
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+Emit the event `'broadcasted'` with `{transactionHash}` when the transaction is submitted.
+
+* @param   `_requestId`         requestId of the payer
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 ### Cancel a request    
-` public cancel( _requestId: string, _options ? : any)`
+`public cancel(_requestId: string, _options ? : any)`
 
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+Emit the event `'broadcasted'` with `{transactionHash}` when the transaction is submitted.
 
-* @param   _requestId         requestId of the payer
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+* @param   `_requestId`         requestId of the payer
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
 ### Pay a request
-` public paymentAction( _requestId: string, _amount: any, _additionals: any, _options ? : any)` 
+`public paymentAction(_requestId: string, _amount: any, _additionals: any, _options ? : any)` 
 
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+Emit the event `'broadcasted`' with `{transactionHash}` when the transaction is submitted.
 
-* @param   _requestId         requestId of the payer
-* @param   _amount            amount to pay in wei
-* @param   _additionals       additional to declaire in wei (optional)
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+* @param   `_requestId`         requestId of the payer
+* @param   `_amount`            amount to pay in wei
+* @param   `_additionals`       additional to declaire in wei (optional)
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 ### Refund a request    
-` public refundAction( _requestId: string, _amount: any, _options ? : any)`
+`public refundAction(_requestId: string, _amount: any, _options ? : any)`
 
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+Emit the event `'broadcasted'` with `{transactionHash}` when the transaction is submitted.
 
-* @param   _requestId         requestId of the payer
-* @param   _amount            amount to refund in wei
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+* @param   `_requestId`         requestId of the payer
+* @param   `_amount`            amount to refund in wei
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
 ### Add subtracts to a request (only for the payee)
-` public subtractAction( _requestId: string, _amount: any, _options ? : any)`
+`public subtractAction(_requestId: string, _amount: any, _options ? : any)`
 
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+Emit the event `'broadcasted'` with `{transactionHash}` when the transaction is submitted.
 
-* @param   _requestId         requestId of the payer
-* @param   _amount            subtract to declare in wei
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+* @param   `_requestId`         requestId of the payer
+* @param   `_amount`            subtract to declare in wei
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
 ### Add additionals to a request (only for the payer)    
-` public additionalAction( _requestId: string, _amount: any, _options ? : any)`
+`public additionalAction(_requestId: string, _amount: any, _options ? : any)`
 
-emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
-* @param   _requestId         requestId of the payer
-* @param   _amount            subtract to declare in wei
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+Emit the event 'broadcasted' with {transactionHash} when the transaction is submitted.
+* @param   `_requestId`         requestId of the payer
+* @param   `_amount`            subtract to declare in wei
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
 ### Get Request Currency Contract info
-` public getRequestCurrencyContractInfo( _requestId: string)`
+`public getRequestCurrencyContractInfo(_requestId: string)`
 
-return {} always
+return `{}` always
 
-* @param   _requestId    requestId of the request
-* @return  promise of the object containing the information from the currency contract of the request (always {} here)
+* @param   `_requestId`    requestId of the request
+* @return  promise of the object containing the information from the currency contract of the request (always `{}` here)
 
 
-### Get Request by ID(Alias of requestCoreServices.getRequest())
+### Get Request by ID(Alias of `requestCoreServices.getRequest()`)
 
-` public getRequest(_requestId: string)`
+`public getRequest(_requestId: string)`
 
-* @param   _requestId    requestId of the request
+* @param   `_requestId`    requestId of the request
 * @return  promise of the object containing the request
 
-### Get Request History (Alias of requestCoreServices.getRequestHistory())
-` public getRequestHistory( _requestId: string, _fromBlock ?: number, _toBlock ?: number)`
+### Get Request History (Alias of `requestCoreServices.getRequestHistory()`)
+`public getRequestHistory(_requestId: string, _fromBlock ?: number, _toBlock ?: number)`
 
-* @param   _requestId    requestId of the request
-* @param   _fromBlock    search events from this block (optional)
-* @param   _toBlock    search events until this block (optional)
+* @param   `_requestId`    requestId of the request
+* @param   `_fromBlock`    search events from this block (optional)
+* @param   `_toBlock`    search events until this block (optional)
 * @return  promise of the array of events about the request
 
 
 ### Get request history from currency contract (generic method)    
-` public getRequestHistoryCurrencyContractInfo( _requestId: string, _fromBlock ?: number, _toBlock ?: number)`
+`public getRequestHistoryCurrencyContractInfo(_requestId: string, _fromBlock ?: number, _toBlock ?: number)`
 
-* @param   _requestId    requestId of the request
-* @param   _fromBlock    search events from this block (optional)
-* @param   _toBlock    search events until this block (optional)
-* @return  promise of the object containing the history from the currency contract of the request (always {} here)
+* @param   `_requestId`    requestId of the request
+* @param   `_fromBlock`    search events from this block (optional)
+* @param   `_toBlock`    search events until this block (optional)
+* @return  promise of the object containing the history from the currency contract of the request (always `{}` here)
     
    
 
 ### Events
 Here is the list of events produced by the Request Network smarts contracts. Note that the solidity types will be converted in strings when you receive them.
 
-* event Created(bytes32 indexed requestId, address indexed payee, address indexed payer);
-* event Accepted(bytes32 indexed requestId);
-* event Canceled(bytes32 indexed requestId);
-* event UpdateBalance(bytes32 indexed requestId, int256 deltaAmount);
-* event UpdateExpectedAmount(bytes32 indexed requestId, int256 deltaAmount);
-* event NewPayee(bytes32 indexed requestId, address payee);
-* event NewPayer(bytes32 indexed requestId, address payer);
-* event NewExpectedAmount(bytes32 indexed requestId, int256 expectedAmount);
-* event NewExtension(bytes32 indexed requestId, address extension);
-* event NewData(bytes32 indexed requestId, string data);
+* event `Created(bytes32 indexed requestId, address indexed payee, address indexed payer)`
+* event `Accepted(bytes32 indexed requestId)`
+* event `Canceled(bytes32 indexed requestId)`
+* event `UpdateBalance(bytes32 indexed requestId, int256 deltaAmount)`
+* event `UpdateExpectedAmount(bytes32 indexed requestId, int256 deltaAmount)`
+* event `NewPayee(bytes32 indexed requestId, address payee)`
+* event `NewPayer(bytes32 indexed requestId, address payer)`
+* event `NewExpectedAmount(bytes32 indexed requestId, int256 expectedAmount)`
+* event `NewExtension(bytes32 indexed requestId, address extension)`
+* event `NewData(bytes32 indexed requestId, string data)`
+
