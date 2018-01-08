@@ -13,7 +13,10 @@
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
-    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "generate-doc": "typedoc --module commonjs --out .tmp/doc --target ES5 src",
+    "preserve-doc": "npm run generate-doc",
+    "serve-doc": "serve --open .tmp/doc"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -23,7 +26,9 @@
     "chai-as-promised": "^7.1.1",
     "dirty-chai": "^2.0.1",
     "mocha": "^4.0.1",
+    "serve": "^6.4.4",
     "ts-node": "^3.3.0",
+    "typedoc": "^0.9.0",
     "typings": "^2.1.1"
   },
   "dependencies": {
