@@ -10,5 +10,12 @@
       "curly": [true, "ignore-same-line"],
       "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
     },
-    "rulesDirectory": []
+    "rulesDirectory": [],
+    "linterOptions": {
+      "exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/test/**"
+      ]
+    }
 }

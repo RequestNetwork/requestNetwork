@@ -36,17 +36,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
-var Web3 = require('web3');
+var WEB3 = require('web3');
 // ethereumjs-abi.js modified to support solidity packing of bytes32 array
-var ethABI = require('../lib/ethereumjs-abi-perso.js');
+var ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 /**
  * The Web3Single class is the singleton class containing the web3.js interface
  */
 var Web3Single = /** @class */ (function () {
     /**
      * Private constructor to Instantiates a new Web3Single
-     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with
-     *                          the Ethereum network.
+     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js
+     *                          library to use for interacting with the Ethereum network.
      * @param   networkId       the Ethereum network ID.
      */
     function Web3Single(web3Provider, networkId) {
@@ -54,13 +54,13 @@ var Web3Single = /** @class */ (function () {
          * cache of the blocks timestamp
          */
         this.blockTimestamp = {};
-        this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault[config_1.default.ethereum.default]));
+        this.web3 = new WEB3(web3Provider || new WEB3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault[config_1.default.ethereum.default]));
         this.networkName = networkId ? Web3Single.getNetworkName(networkId) : config_1.default.ethereum.default;
     }
     /**
      * Initialized the class Web3Single
-     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with
-     *                          the Ethereum network.
+     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library
+     *                          to use for interacting with the Ethereum network.
      * @param   networkId       the Ethereum network ID.
      */
     Web3Single.init = function (web3Provider, networkId) {
@@ -78,7 +78,22 @@ var Web3Single = /** @class */ (function () {
      * @return Web3.utils.BN
      */
     Web3Single.BN = function () {
-        return Web3.utils.BN;
+        return WEB3.utils.BN;
+    };
+    /**
+     * get Network name from network Id
+     * @param    _networkId    network id
+     * @return   network name
+     */
+    Web3Single.getNetworkName = function (_networkId) {
+        switch (_networkId) {
+            case 1: return 'main';
+            case 2: return 'morden';
+            case 3: return 'ropsten';
+            case 4: return 'rinkeby';
+            case 42: return 'kovan';
+            default: return 'private';
+        }
     };
     /**
      * Send a web3 method
@@ -96,7 +111,6 @@ var Web3Single = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         options = Object.assign({}, _options || {});
-                        ;
                         options.numberOfConfirmation = undefined;
                         if (!!options.from) return [3 /*break*/, 4];
                         _a.label = 1;
@@ -114,7 +128,9 @@ var Web3Single = /** @class */ (function () {
                         forcedGas = options.gas;
                         options.value = options.value ? options.value : 0;
                         options.gas = forcedGas ? forcedGas : 90000000;
-                        options.gasPrice = options.gasPrice ? options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
+                        options.gasPrice = options.gasPrice
+                            ? options.gasPrice
+                            : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
                         // get the gas estimation
                         _method.estimateGas(options, function (err, estimateGas) {
                             if (err)
@@ -124,12 +140,12 @@ var Web3Single = /** @class */ (function () {
                             // try the method offline
                             _method.call(options, function (errCall, resultCall) {
                                 if (errCall) {
-                                    //let's try with more gas (*2)
+                                    // let's try with more gas (*2)
                                     options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
                                     // try the method offline
-                                    _method.call(options, function (errCall, resultCall) {
-                                        if (errCall)
-                                            return _callbackTransactionError(errCall);
+                                    _method.call(options, function (errCall2, resultCall2) {
+                                        if (errCall2)
+                                            return _callbackTransactionError(errCall2);
                                         // everything looks fine, let's send the transation
                                         _method.send(options)
                                             .on('transactionHash', _callbackTransactionHash)
@@ -138,12 +154,14 @@ var Web3Single = /** @class */ (function () {
                                             .on('error', _callbackTransactionError);
                                     });
                                 }
-                                // everything looks fine, let's send the transation
-                                _method.send(options)
-                                    .on('transactionHash', _callbackTransactionHash)
-                                    .on('receipt', _callbackTransactionReceipt)
-                                    .on('confirmation', _callbackTransactionConfirmation)
-                                    .on('error', _callbackTransactionError);
+                                else {
+                                    // everything looks fine, let's send the transation
+                                    _method.send(options)
+                                        .on('transactionHash', _callbackTransactionHash)
+                                        .on('receipt', _callbackTransactionReceipt)
+                                        .on('confirmation', _callbackTransactionConfirmation)
+                                        .on('error', _callbackTransactionError);
+                                }
                             });
                         });
                         return [2 /*return*/];
@@ -155,7 +173,7 @@ var Web3Single = /** @class */ (function () {
     // {
     //     return new Promise((resolve, reject) => {
     //         _method.call(function(err:Error,data:any) {
-    //             if(err) return reject(err)
+    //             if (err) return reject(err)
     //                resolve(data);
     //         })
     //     });
@@ -200,7 +218,7 @@ var Web3Single = /** @class */ (function () {
      * @return   solidity like bytes32 string
      */
     Web3Single.prototype.toSolidityBytes32 = function (_type, _value) {
-        return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(_type, _value));
+        return this.web3.utils.bytesToHex(ETH_ABI.toSolidityBytes32(_type, _value));
     };
     /**
      * Convert an array to an array in solidity bytes32 string
@@ -213,11 +231,11 @@ var Web3Single = /** @class */ (function () {
         _array = _array ? _array : [];
         var ret = [];
         _array.forEach(function (o) {
-            ret.push(this.web3.utils.bytesToHex(ethABI.toSolidityBytes32('address', o)));
+            ret.push(this.web3.utils.bytesToHex(ETH_ABI.toSolidityBytes32('address', o)));
         }.bind(this));
         // fill the empty case with zeros
         for (var i = _array.length; i < _length; i++) {
-            ret.push(this.web3.utils.bytesToHex(ethABI.toSolidityBytes32('bytes32', 0)));
+            ret.push(this.web3.utils.bytesToHex(ETH_ABI.toSolidityBytes32('bytes32', 0)));
         }
         return ret;
     };
@@ -240,7 +258,7 @@ var Web3Single = /** @class */ (function () {
     Web3Single.prototype.areSameAddressesNoChecksum = function (_address1, _address2) {
         if (!_address1 || !_address2)
             return false;
-        return _address1 && _address2 && _address1.toLowerCase() == _address2.toLowerCase();
+        return _address1 && _address2 && _address1.toLowerCase() === _address2.toLowerCase();
     };
     /**
      * Check if a string is a bytes32
@@ -248,7 +266,7 @@ var Web3Single = /** @class */ (function () {
      * @return   true if _hex is a bytes32
      */
     Web3Single.prototype.isHexStrictBytes32 = function (_hex) {
-        return this.web3.utils.isHexStrict(_hex) && _hex.length == 66; // '0x' + 32 bytes * 2 characters = 66
+        return this.web3.utils.isHexStrict(_hex) && _hex.length === 66; // '0x' + 32 bytes * 2 characters = 66
     };
     /**
      * Decode transaction log parameters
@@ -261,14 +279,14 @@ var Web3Single = /** @class */ (function () {
         var eventInput;
         var signature;
         _abi.some(function (o) {
-            if (o.name == _event) {
+            if (o.name === _event) {
                 eventInput = o.inputs;
                 signature = o.signature;
                 return true;
             }
             return false;
         });
-        if (_log.topics[0] != signature) {
+        if (_log.topics[0] !== signature) {
             return null;
         }
         return this.web3.eth.abi.decodeLog(eventInput, _log.data, _log.topics.slice(1));
@@ -283,7 +301,7 @@ var Web3Single = /** @class */ (function () {
     Web3Single.prototype.decodeEvent = function (_abi, _eventName, _event) {
         var eventInput;
         _abi.some(function (o) {
-            if (o.name == _eventName) {
+            if (o.name === _eventName) {
                 eventInput = o.inputs;
                 return true;
             }
@@ -302,25 +320,10 @@ var Web3Single = /** @class */ (function () {
         if (!_options.numberOfConfirmation)
             _options.numberOfConfirmation = 0;
         if (_options.gasPrice)
-            _options.gasPrice = new Web3.utils.BN(_options.gasPrice);
+            _options.gasPrice = new WEB3.utils.BN(_options.gasPrice);
         if (_options.gas)
-            _options.gas = new Web3.utils.BN(_options.gas);
+            _options.gas = new WEB3.utils.BN(_options.gas);
         return _options;
-    };
-    /**
-     * get Network name from network Id
-     * @param    _networkId    network id
-     * @return   network name
-     */
-    Web3Single.getNetworkName = function (_networkId) {
-        switch (_networkId) {
-            case 1: return 'main';
-            case 2: return 'morden';
-            case 3: return 'ropsten';
-            case 4: return 'rinkeby';
-            case 42: return 'kovan';
-            default: return 'private';
-        }
     };
     /**
      * get Transaction Receipt
@@ -366,13 +369,12 @@ var Web3Single = /** @class */ (function () {
                                 case 1:
                                     block = _a.sent();
                                     if (!block)
-                                        throw Error('block \'' + _blockNumber + '\' not found');
+                                        throw Error('block ' + _blockNumber + ' not found');
                                     this.blockTimestamp[_blockNumber] = block.timestamp;
                                     _a.label = 2;
                                 case 2: return [2 /*return*/, resolve(this.blockTimestamp[_blockNumber])];
                                 case 3:
                                     e_2 = _a.sent();
-                                    console.warn(e_2);
                                     return [2 /*return*/, resolve(null)];
                                 case 4: return [2 /*return*/];
                             }

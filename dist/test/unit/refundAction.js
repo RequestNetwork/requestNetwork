@@ -38,13 +38,13 @@ var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 require("mocha");
-var utils = require("../utils");
-var Web3 = require('web3');
-var BN = Web3.utils.BN;
-var requestNetwork_1 = require("../../src/requestNetwork");
 var artifacts_1 = require("../../src/artifacts");
-var addressRequestEthereum = artifacts_1.default.RequestEthereumArtifact.networks.private.address;
-var addressSynchroneExtensionEscrow = artifacts_1.default.RequestSynchroneExtensionEscrowArtifact.networks.private.address;
+var requestNetwork_1 = require("../../src/requestNetwork");
+var utils = require("../utils");
+var WEB3 = require('web3');
+var BN = WEB3.utils.BN;
+var addressRequestEthereum = artifacts_1.default.requestEthereumArtifact.networks.private.address;
+var addressSynchroneExtensionEscrow = artifacts_1.default.requestSynchroneExtensionEscrowArtifact.networks.private.address;
 var rn;
 var web3;
 var defaultAccount;
@@ -56,7 +56,7 @@ var currentNumRequest;
 var requestId;
 describe('refundAction', function () {
     var arbitraryAmount = 100000000;
-    rn = new requestNetwork_1.default();
+    rn = new requestNetwork_1.default('http://localhost:8545', 10000000000);
     web3 = rn.requestEthereumService.web3Single.web3;
     beforeEach(function () { return __awaiter(_this, void 0, void 0, function () {
         var accounts, req;
@@ -84,7 +84,7 @@ describe('refundAction', function () {
         });
     }); });
     it('payBack request', function () { return __awaiter(_this, void 0, void 0, function () {
-        var result;
+        var result0, result;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, rn.requestEthereumService.accept(requestId, { from: payer })];
@@ -92,7 +92,7 @@ describe('refundAction', function () {
                     _a.sent();
                     return [4 /*yield*/, rn.requestEthereumService.paymentAction(requestId, arbitraryAmount, 0, { from: payer })];
                 case 2:
-                    _a.sent();
+                    result0 = _a.sent();
                     return [4 /*yield*/, rn.requestEthereumService.refundAction(requestId, arbitraryAmount, { from: payee })
                             .on('broadcasted', function (data) {
                             chai_1.expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
@@ -106,7 +106,7 @@ describe('refundAction', function () {
                     chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
-                    chai_1.expect(result.request.state, 'state is wrong').to.equal('1');
+                    chai_1.expect(result.request.state, 'state is wrong').to.equal(1);
                     chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
                     chai_1.expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
                     return [2 /*return*/];
@@ -136,7 +136,7 @@ describe('refundAction', function () {
                     chai_1.expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
                     chai_1.expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
                     chai_1.expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
-                    chai_1.expect(result.request.state, 'state is wrong').to.equal('1');
+                    chai_1.expect(result.request.state, 'state is wrong').to.equal(1);
                     chai_1.expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
                     chai_1.expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
                     return [2 /*return*/];
@@ -150,7 +150,7 @@ describe('refundAction', function () {
                 case 0: return [4 /*yield*/, rn.requestEthereumService.accept(requestId, { from: payer })];
                 case 1:
                     result = _a.sent();
-                    return [4 /*yield*/, rn.requestEthereumService.paymentAction(requestId, arbitraryAmount, 0, { from: payee })];
+                    return [4 /*yield*/, rn.requestEthereumService.paymentAction(requestId, arbitraryAmount, 0, { from: payer })];
                 case 2:
                     _a.sent();
                     _a.label = 3;

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
 // import ipfs from 'ipfs-api';
-var ipfsAPI = require("ipfs-api");
+var ipfsAPI = require('ipfs-api');
 /**
  * The Ipfs class is the singleton class containing the ipfs node interface
  */
@@ -38,7 +38,7 @@ var Ipfs = /** @class */ (function () {
     Ipfs.prototype.addFile = function (_data) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            if (!_data || _data == '') {
+            if (!_data || _data === '') {
                 return resolve('');
             }
             var dataParsed = JSON.parse(_data);
@@ -51,13 +51,13 @@ var Ipfs = /** @class */ (function () {
     };
     /**
      * get a file from ipfs from its hash
-     * @param    _hash	hash of the file to get
+     * @param    _hash    hash of the file to get
      * @return   promise of the data of the file
      */
     Ipfs.prototype.getFile = function (_hash) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            if (!_hash || _hash == '') {
+            if (!_hash || _hash === '') {
                 return resolve();
             }
             var data = '';
@@ -70,8 +70,8 @@ var Ipfs = /** @class */ (function () {
                 stream.on('end', function () {
                     return resolve(data);
                 });
-                stream.on('error', function (err) {
-                    return reject(err);
+                stream.on('error', function (errOnStrem) {
+                    return reject(errOnStrem);
                 });
             });
         });

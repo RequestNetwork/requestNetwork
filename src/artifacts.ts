@@ -1,11 +1,11 @@
-import { Artifact } from './types';
+import { InterfaceArtifact } from './types';
 
-const RequestCoreArtifact = require('./artifacts/RequestCore.json');
-const RequestEthereumArtifact = require('./artifacts/RequestEthereum.json');
-const RequestSynchroneExtensionEscrowArtifact = require('./artifacts/RequestSynchroneExtensionEscrow.json');
+const requestCoreArtifact = require('./artifacts/RequestCore.json');
+const requestEthereumArtifact = require('./artifacts/RequestEthereum.json');
+const requestSynchroneExtensionEscrowArtifact = require('./artifacts/RequestSynchroneExtensionEscrow.json');
 
 export default {
-    RequestCoreArtifact: RequestCoreArtifact as any as Artifact,
-    RequestEthereumArtifact: RequestEthereumArtifact as any as Artifact,
-    RequestSynchroneExtensionEscrowArtifact: RequestSynchroneExtensionEscrowArtifact as any as Artifact,
+    requestCoreArtifact: requestCoreArtifact as any as InterfaceArtifact,
+    requestEthereumArtifact: requestEthereumArtifact as any as InterfaceArtifact,
+    requestSynchroneExtensionEscrowArtifact: requestSynchroneExtensionEscrowArtifact as any as InterfaceArtifact,
 };
