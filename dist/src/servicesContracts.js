@@ -10,7 +10,7 @@ var requestEthereum_service_1 = require("./servicesContracts/requestEthereum-ser
 exports.getServiceFromAddress = function (address) {
     if (!address)
         return undefined;
-    if (isThisArtifact(artifacts_1.default.RequestEthereumArtifact, address)) {
+    if (isThisArtifact(artifacts_1.default.requestEthereumArtifact, address)) {
         return new requestEthereum_service_1.default();
     }
     else {
@@ -22,7 +22,8 @@ var isThisArtifact = function (artifact, address) {
         return false;
     var found = false;
     Object.keys(artifact.networks).forEach(function (k) {
-        found = found || (artifact.networks[k].address && artifact.networks[k].address.toLowerCase() == address.toLowerCase());
+        found = found || (artifact.networks[k].address
+            && artifact.networks[k].address.toLowerCase() === address.toLowerCase());
     });
     return found;
 };

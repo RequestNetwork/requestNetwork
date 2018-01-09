@@ -1,40 +1,38 @@
 
-let addressContractBurner = 0;
-let feesPerTenThousand = 10; // 0.1 %
-
+const addressContractBurner = 0;
+const feesPerTenThousand = 10; // 0.1 %
 
 import { Web3Single } from '../src/servicesExternal/web3-Single';
 
-let RequestCoreJson = require("../src/artifacts/RequestCore.json");
-let RequestEthereumJson = require("../src/artifacts/RequestEthereum.json");
-let RequestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
-let RequestBurnManagerSimple = require("../src/artifacts/RequestBurnManagerSimple.json");
+const requestCoreJson = require("../src/artifacts/RequestCore.json");
+const requestEthereumJson = require("../src/artifacts/RequestEthereum.json");
+const requestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
+const requestBurnManagerSimple = require("../src/artifacts/requestBurnManagerSimple.json");
 
 Web3Single.init("http://localhost:8545",10000000000);
-let web3Single = Web3Single.getInstance();
+const web3Single = Web3Single.getInstance();
 
 // let web3Single = Web3Sgl.Web3Single.getInstance();
 
-
-let instanceRequestCore = new web3Single.web3.eth.Contract(RequestCoreJson.abi);
-let instanceRequestEthereum = new web3Single.web3.eth.Contract(RequestEthereumJson.abi);
-let instanceSynchroneExtensionEscrow = new web3Single.web3.eth.Contract(RequestSynchroneExtensionEscrowJson.abi);
-let instanceRequestBurnManagerSimple = new web3Single.web3.eth.Contract(RequestBurnManagerSimple.abi)
+const instanceRequestCore = new web3Single.web3.eth.Contract(requestCoreJson.abi);
+const instanceRequestEthereum = new web3Single.web3.eth.Contract(requestEthereumJson.abi);
+const instanceSynchroneExtensionEscrow = new web3Single.web3.eth.Contract(requestSynchroneExtensionEscrowJson.abi);
+const instancerequestBurnManagerSimple = new web3Single.web3.eth.Contract(requestBurnManagerSimple.abi)
 
 let addressRequestCore;
 let addressRequestEthereum;
 let addressRequestExtensionEscrow;
-let addressRequestBurnManagerSimple;
+let addressrequestBurnManagerSimple;
 let newContractInstanceRequestCore;
 let newContractInstanceRequestEthereum;
 let newContractInstanceRequestExtensionEscrow;
-let newContractInstanceRequestBurnManagerSimple;
+let newContractInstancerequestBurnManagerSimple;
 
 web3Single.getDefaultAccount().then(function(creator) {
     console.log("creator: " + creator);
 
     instanceRequestCore.deploy({
-        data: RequestCoreJson.bytecode
+        data: requestCoreJson.bytecode
     })
     .send({
         from: creator,
@@ -59,7 +57,7 @@ web3Single.getDefaultAccount().then(function(creator) {
         console.log('RequestCore - address : ' + newContractInstance.options.address) // instance with the new contract address
 
         instanceRequestEthereum.deploy({
-                data: RequestEthereumJson.bytecode,
+                data: requestEthereumJson.bytecode,
                 arguments: [addressRequestCore]
             })
             .send({
@@ -85,7 +83,7 @@ web3Single.getDefaultAccount().then(function(creator) {
                 newContractInstanceRequestEthereum = newContractInstance;
 
                 instanceSynchroneExtensionEscrow.deploy({
-                        data: RequestSynchroneExtensionEscrowJson.bytecode,
+                        data: requestSynchroneExtensionEscrowJson.bytecode,
                         arguments: [addressRequestCore]
                     })
                     .send({
@@ -110,9 +108,8 @@ web3Single.getDefaultAccount().then(function(creator) {
                         addressRequestExtensionEscrow = newContractInstance.options.address;
                         newContractInstanceRequestExtensionEscrow = newContractInstance;
 
-
-                        instanceRequestBurnManagerSimple.deploy({
-                                data: RequestBurnManagerSimple.bytecode,
+                        instancerequestBurnManagerSimple.deploy({
+                                data: requestBurnManagerSimple.bytecode,
                                 arguments: [addressContractBurner]
                             })
                             .send({
@@ -120,25 +117,25 @@ web3Single.getDefaultAccount().then(function(creator) {
                                 gas: 15000000
                             }, function(error, transactionHash) {
                                 if (error) {
-                                    console.log('RequestBurnManagerSimple - error transactionHash ##########################')
+                                    console.log('requestBurnManagerSimple - error transactionHash ##########################')
                                     console.log(error)
                                     console.log(transactionHash)
-                                    console.log('RequestBurnManagerSimple - error transactionHash ##########################')
+                                    console.log('requestBurnManagerSimple - error transactionHash ##########################')
                                 }
                                 // console.log('RequestCore - transactionHash : '+transactionHash);
                             })
                             .on('error', function(error) {
-                                console.log('RequestBurnManagerSimple - error transactionHash ##########################')
+                                console.log('requestBurnManagerSimple - error transactionHash ##########################')
                                 console.log(error)
-                                console.log('RequestBurnManagerSimple - error transactionHash ##########################')
+                                console.log('requestBurnManagerSimple - error transactionHash ##########################')
                             })
                             .then(function(newContractInstance) {
-                                console.log('RequestBurnManagerSimple - address : ' + newContractInstance.options.address) // instance with the new contract address
-                                addressRequestBurnManagerSimple = newContractInstance.options.address;
-                                newContractInstanceRequestBurnManagerSimple = newContractInstance;
+                                console.log('requestBurnManagerSimple - address : ' + newContractInstance.options.address) // instance with the new contract address
+                                addressrequestBurnManagerSimple = newContractInstance.options.address;
+                                newContractInstancerequestBurnManagerSimple = newContractInstance;
 
                                 web3Single.broadcastMethod(
-                                    newContractInstanceRequestBurnManagerSimple.methods.setFeesPerTenThousand(feesPerTenThousand), // 0.1 %
+                                    newContractInstancerequestBurnManagerSimple.methods.setFeesPerTenThousand(feesPerTenThousand), // 0.1 %
                                     (transactionHash: string) => {
                                         // we do nothing here!
                                     },
@@ -157,13 +154,13 @@ web3Single.getDefaultAccount().then(function(creator) {
                                     });
                                 
                                 web3Single.broadcastMethod(
-                                    newContractInstanceRequestCore.methods.setBurnManager(addressRequestBurnManagerSimple),
+                                    newContractInstanceRequestCore.methods.setBurnManager(addressrequestBurnManagerSimple),
                                     (transactionHash: string) => {
                                         // we do nothing here!
                                     },
                                     (receipt: any) => {
                                         if (receipt.status == 1) {
-                                            console.log('setBurnManager: ' + addressRequestBurnManagerSimple);
+                                            console.log('setBurnManager: ' + addressrequestBurnManagerSimple);
                                         }
                                     },
                                     (confirmationNumber: number, receipt: any) => {
@@ -174,7 +171,6 @@ web3Single.getDefaultAccount().then(function(creator) {
                                         console.log(error)
                                         console.log('setBurnManager - error ##########################')
                                     });
-
 
                                 web3Single.broadcastMethod(
                                     newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestEthereum),
@@ -194,7 +190,6 @@ web3Single.getDefaultAccount().then(function(creator) {
                                         console.log(error)
                                         console.log('adminAddTrustedCurrencyContract - error ##########################')
                                     });
-
 
                                 web3Single.broadcastMethod(
                                     newContractInstanceRequestCore.methods.adminAddTrustedExtension(addressRequestExtensionEscrow),

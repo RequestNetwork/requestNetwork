@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// import * as Config from './config.json';
-var Config = require('./config.json');
-exports.default = Config;
+// import * as config from './config.json';
+var config = require('./config.json');
+exports.default = config;
 //# sourceMappingURL=config.js.map
