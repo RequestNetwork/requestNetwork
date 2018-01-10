@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "npm run clean && tsc && cp -r ./src/artifacts ./dist/src/ && cp ./src/*.json ./dist/src/ && cp -r ./src/lib ./dist/src/",
-    "lint": "tslint src/**/*.ts",
+    "lint": "tslint --project tsconfig.json -c tslint.json",
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",

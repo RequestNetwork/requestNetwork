@@ -113,12 +113,12 @@ export class Web3Single {
             // it is safer to add 5% of gas
             options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 1.05);
             // try the method offline
-            _method.call(options, (errCall, resultCall) => {
+            _method.call(options, (errCall: Error, resultCall: any) => {
                 if (errCall) {
                     // let's try with more gas (*2)
                     options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
                     // try the method offline
-                    _method.call(options, (errCall2, resultCall2) => {
+                    _method.call(options, (errCall2: Error, resultCall2: any) => {
                         if (errCall2) return _callbackTransactionError(errCall2);
 
                         // everything looks fine, let's send the transation
@@ -156,7 +156,7 @@ export class Web3Single {
      */
     public async getDefaultAccount(): Promise < any > {
         return new Promise((resolve, reject) => {
-            this.web3.eth.getAccounts((err, accs) => {
+            this.web3.eth.getAccounts((err: Error, accs: any[]) => {
                 if (err) return reject(err);
                 if (accs.length === 0) return reject(Error('No accounts found'));
                 return resolve(accs[0]);
@@ -169,10 +169,10 @@ export class Web3Single {
      * @param    _callback    callback with the default account
      */
     public getDefaultAccountCallback(_callback: Types.CallbackErrorData): void {
-            this.web3.eth.getAccounts((err, accs) => {
-                if (err) return _callback(err, null);
-                if (accs.length === 0) return _callback(Error('No accounts found'), null);
-                return _callback(null, accs[0]);
+            this.web3.eth.getAccounts((err: Error, accs: any[]) => {
+                if (err) return _callback(err, undefined);
+                if (accs.length === 0) return _callback(Error('No accounts found'), undefined);
+                return _callback(undefined, accs[0]);
             });
     }
 
@@ -193,10 +193,11 @@ export class Web3Single {
      * @param    _length  length of the final array
      * @return   array of solidity like bytes32 string
      */
-    public arrayToBytes32(_array: any[], _length: number): any[] {
+    public arrayToBytes32(_array: any[] | undefined, _length: number): any[] {
         _array = _array ? _array : [];
         const ret: any[] = [];
         _array.forEach(function(o: any) {
+            // @ts-ignore
             ret.push(this.web3.utils.bytesToHex(ETH_ABI.toSolidityBytes32('address', o)));
         }.bind(this));
         // fill the empty case with zeros
@@ -224,7 +225,7 @@ export class Web3Single {
      */
     public areSameAddressesNoChecksum(_address1: string, _address2: string): boolean {
         if (!_address1 || !_address2) return false;
-        return _address1 && _address2 && _address1.toLowerCase() === _address2.toLowerCase();
+        return _address1.toLowerCase() === _address2.toLowerCase();
     }
 
     /**
@@ -245,7 +246,7 @@ export class Web3Single {
      */
     public decodeTransactionLog(_abi: any[] , _event: string, _log: any): any {
         let eventInput: any;
-        let signature: string;
+        let signature: string = '';
         _abi.some((o: any) => {
             if (o.name === _event) {
                 eventInput = o.inputs;
@@ -328,7 +329,7 @@ export class Web3Single {
                 }
                 return resolve(this.blockTimestamp[_blockNumber]);
             } catch (e) {
-                return resolve(null);
+                return resolve();
             }
         });
     }

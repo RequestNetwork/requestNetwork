@@ -11,7 +11,7 @@ export type CallbackGetRequest = (err: Error, request: any) => void;
 export type CallbackIpfsAddFile = (err: Error, hash: string) => void;
 export type CallbackIpfsGetFile = (err: Error, data: string) => void;
 
-export type CallbackErrorData = (err: Error, data: string) => void;
+export type CallbackErrorData = (err: Error | undefined, data: string | undefined) => void;
 
 export interface InterfaceArtifact {
     abi: any;

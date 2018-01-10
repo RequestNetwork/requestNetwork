@@ -205,10 +205,10 @@ var Web3Single = /** @class */ (function () {
     Web3Single.prototype.getDefaultAccountCallback = function (_callback) {
         this.web3.eth.getAccounts(function (err, accs) {
             if (err)
-                return _callback(err, null);
+                return _callback(err, undefined);
             if (accs.length === 0)
-                return _callback(Error('No accounts found'), null);
-            return _callback(null, accs[0]);
+                return _callback(Error('No accounts found'), undefined);
+            return _callback(undefined, accs[0]);
         });
     };
     /**
@@ -231,6 +231,7 @@ var Web3Single = /** @class */ (function () {
         _array = _array ? _array : [];
         var ret = [];
         _array.forEach(function (o) {
+            // @ts-ignore
             ret.push(this.web3.utils.bytesToHex(ETH_ABI.toSolidityBytes32('address', o)));
         }.bind(this));
         // fill the empty case with zeros
@@ -258,7 +259,7 @@ var Web3Single = /** @class */ (function () {
     Web3Single.prototype.areSameAddressesNoChecksum = function (_address1, _address2) {
         if (!_address1 || !_address2)
             return false;
-        return _address1 && _address2 && _address1.toLowerCase() === _address2.toLowerCase();
+        return _address1.toLowerCase() === _address2.toLowerCase();
     };
     /**
      * Check if a string is a bytes32
@@ -277,7 +278,7 @@ var Web3Single = /** @class */ (function () {
      */
     Web3Single.prototype.decodeTransactionLog = function (_abi, _event, _log) {
         var eventInput;
-        var signature;
+        var signature = '';
         _abi.some(function (o) {
             if (o.name === _event) {
                 eventInput = o.inputs;
@@ -375,7 +376,7 @@ var Web3Single = /** @class */ (function () {
                                 case 2: return [2 /*return*/, resolve(this.blockTimestamp[_blockNumber])];
                                 case 3:
                                     e_2 = _a.sent();
-                                    return [2 /*return*/, resolve(null)];
+                                    return [2 /*return*/, resolve()];
                                 case 4: return [2 /*return*/];
                             }
                         });

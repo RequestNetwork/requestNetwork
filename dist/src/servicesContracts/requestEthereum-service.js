@@ -41,6 +41,7 @@ var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ServiceExtensions = require("../servicesExtensions");
 var Types = require("../types");
+// @ts-ignore
 var Web3PromiEvent = require("web3-core-promievent");
 var requestEthereumArtifact = artifacts_1.default.requestEthereumArtifact;
 var requestCoreArtifact = artifacts_1.default.requestCoreArtifact;

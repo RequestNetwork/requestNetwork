@@ -2,6 +2,7 @@ import Artifacts from '../artifacts';
 import config from '../config';
 import RequestCoreService from '../servicesCore/requestCore-service';
 
+// @ts-ignore
 import * as Web3PromiEvent from 'web3-core-promievent';
 import * as Types from '../types';
 
@@ -95,7 +96,7 @@ export default class RequestSynchroneExtensionEscrowService {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback((err: Error, defaultAccount: any[]) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
@@ -136,14 +137,14 @@ export default class RequestSynchroneExtensionEscrowService {
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -162,7 +163,7 @@ export default class RequestSynchroneExtensionEscrowService {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback((err: Error, defaultAccount: any[]) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
@@ -201,14 +202,14 @@ export default class RequestSynchroneExtensionEscrowService {
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -281,7 +282,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
             const getPastEvents = this.instanceSynchroneExtensionEscrow.getPastEvents;
 
-            let events = [];
+            let events: any[] = [];
             events = events.concat(await getPastEvents('EscrowPayment', optionFilters));
             events = events.concat(await getPastEvents('EscrowReleaseRequest', optionFilters));
             events = events.concat(await getPastEvents('EscrowRefundRequest', optionFilters));

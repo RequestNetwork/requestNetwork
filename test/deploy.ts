@@ -4,12 +4,12 @@ const feesPerTenThousand = 10; // 0.1 %
 
 import { Web3Single } from '../src/servicesExternal/web3-Single';
 
-const requestCoreJson = require("../src/artifacts/RequestCore.json");
-const requestEthereumJson = require("../src/artifacts/RequestEthereum.json");
-const requestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
-const requestBurnManagerSimple = require("../src/artifacts/requestBurnManagerSimple.json");
+const requestCoreJson = require('../src/artifacts/RequestCore.json');
+const requestEthereumJson = require('../src/artifacts/RequestEthereum.json');
+const requestSynchroneExtensionEscrowJson = require('../src/artifacts/RequestSynchroneExtensionEscrow.json');
+const requestBurnManagerSimple = require('../src/artifacts/requestBurnManagerSimple.json');
 
-Web3Single.init("http://localhost:8545",10000000000);
+Web3Single.init('http://localhost:8545', 10000000000);
 const web3Single = Web3Single.getInstance();
 
 // let web3Single = Web3Sgl.Web3Single.getInstance();
@@ -19,17 +19,17 @@ const instanceRequestEthereum = new web3Single.web3.eth.Contract(requestEthereum
 const instanceSynchroneExtensionEscrow = new web3Single.web3.eth.Contract(requestSynchroneExtensionEscrowJson.abi);
 const instancerequestBurnManagerSimple = new web3Single.web3.eth.Contract(requestBurnManagerSimple.abi)
 
-let addressRequestCore;
-let addressRequestEthereum;
-let addressRequestExtensionEscrow;
-let addressrequestBurnManagerSimple;
-let newContractInstanceRequestCore;
-let newContractInstanceRequestEthereum;
-let newContractInstanceRequestExtensionEscrow;
-let newContractInstancerequestBurnManagerSimple;
+let addressRequestCore: string;
+let addressRequestEthereum: string;
+let addressRequestExtensionEscrow: string;
+let addressrequestBurnManagerSimple: string;
+let newContractInstanceRequestCore: any;
+let newContractInstanceRequestEthereum: any;
+let newContractInstanceRequestExtensionEscrow: any;
+let newContractInstancerequestBurnManagerSimple: any;
 
-web3Single.getDefaultAccount().then(function(creator) {
-    console.log("creator: " + creator);
+web3Single.getDefaultAccount().then((creator) => {
+    console.log('creator: ' + creator);
 
     instanceRequestCore.deploy({
         data: requestCoreJson.bytecode
@@ -37,7 +37,7 @@ web3Single.getDefaultAccount().then(function(creator) {
     .send({
         from: creator,
         gas: 15000000
-    }, function(error, transactionHash) {
+    }, (error: Error, transactionHash: string) => {
         if (error) {
             console.log('RequestCore - error transactionHash ##########################')
             console.log(error)
@@ -46,12 +46,12 @@ web3Single.getDefaultAccount().then(function(creator) {
         }
         // console.log('RequestCore - transactionHash : '+transactionHash);
     })
-    .on('error', function(error) {
+    .on('error', (error: Error) => {
         console.log('RequestCore - error transactionHash ##########################')
         console.log(error)
         console.log('RequestCore - error transactionHash ##########################')
     })
-    .then(function(newContractInstance) {
+    .then((newContractInstance: any) => {
         addressRequestCore = newContractInstance.options.address;
         newContractInstanceRequestCore = newContractInstance;
         console.log('RequestCore - address : ' + newContractInstance.options.address) // instance with the new contract address
@@ -63,7 +63,7 @@ web3Single.getDefaultAccount().then(function(creator) {
             .send({
                 from: creator,
                 gas: 15000000
-            }, function(error, transactionHash) {
+            }, (error: Error, transactionHash: string) => {
                 if (error) {
                     console.log('RequestEthereum - error transactionHash ##########################')
                     console.log(error)
@@ -72,12 +72,12 @@ web3Single.getDefaultAccount().then(function(creator) {
                 }
                 // console.log('RequestCore - transactionHash : '+transactionHash);
             })
-            .on('error', function(error) {
+            .on('error', (error: Error) => {
                 console.log('RequestEthereum - error transactionHash ##########################')
                 console.log(error)
                 console.log('RequestEthereum - error transactionHash ##########################')
             })
-            .then(function(newContractInstance) {
+            .then((newContractInstance: any) => {
                 console.log('RequestEthereum - address : ' + newContractInstance.options.address) // instance with the new contract address
                 addressRequestEthereum = newContractInstance.options.address;
                 newContractInstanceRequestEthereum = newContractInstance;
@@ -89,7 +89,7 @@ web3Single.getDefaultAccount().then(function(creator) {
                     .send({
                         from: creator,
                         gas: 15000000
-                    }, function(error, transactionHash) {
+                    }, (error: Error, transactionHash: string) => {
                         if (error) {
                             console.log('ExtensionEscrow - error transactionHash ##########################')
                             console.log(error)
@@ -98,12 +98,12 @@ web3Single.getDefaultAccount().then(function(creator) {
                         }
                         // console.log('RequestCore - transactionHash : '+transactionHash);
                     })
-                    .on('error', function(error) {
+                    .on('error', (error: Error) => {
                         console.log('ExtensionEscrow - error transactionHash ##########################')
                         console.log(error)
                         console.log('ExtensionEscrow - error transactionHash ##########################')
                     })
-                    .then(function(newContractInstance) {
+                    .then((newContractInstance: any) => {
                         console.log('ExtensionEscrow - address : ' + newContractInstance.options.address) // instance with the new contract address
                         addressRequestExtensionEscrow = newContractInstance.options.address;
                         newContractInstanceRequestExtensionEscrow = newContractInstance;
@@ -115,7 +115,7 @@ web3Single.getDefaultAccount().then(function(creator) {
                             .send({
                                 from: creator,
                                 gas: 15000000
-                            }, function(error, transactionHash) {
+                            }, (error: Error, transactionHash: string) => {
                                 if (error) {
                                     console.log('requestBurnManagerSimple - error transactionHash ##########################')
                                     console.log(error)
@@ -124,12 +124,12 @@ web3Single.getDefaultAccount().then(function(creator) {
                                 }
                                 // console.log('RequestCore - transactionHash : '+transactionHash);
                             })
-                            .on('error', function(error) {
+                            .on('error', (error: Error) => {
                                 console.log('requestBurnManagerSimple - error transactionHash ##########################')
                                 console.log(error)
                                 console.log('requestBurnManagerSimple - error transactionHash ##########################')
                             })
-                            .then(function(newContractInstance) {
+                            .then((newContractInstance: any) => {
                                 console.log('requestBurnManagerSimple - address : ' + newContractInstance.options.address) // instance with the new contract address
                                 addressrequestBurnManagerSimple = newContractInstance.options.address;
                                 newContractInstancerequestBurnManagerSimple = newContractInstance;
@@ -197,7 +197,7 @@ web3Single.getDefaultAccount().then(function(creator) {
                                         // we do nothing here!
                                     },
                                     (receipt: any) => {
-                                        if (receipt.status == 1) {
+                                        if (receipt.status === 1) {
                                             console.log('adminAddTrustedExtension: ' + addressRequestExtensionEscrow);
                                         }
                                     },

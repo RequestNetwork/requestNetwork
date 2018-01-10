@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var addressContractBurner = 0;
 var feesPerTenThousand = 10; // 0.1 %
 var web3_Single_1 = require("../src/servicesExternal/web3-Single");
-var requestCoreJson = require("../src/artifacts/RequestCore.json");
-var requestEthereumJson = require("../src/artifacts/RequestEthereum.json");
-var requestSynchroneExtensionEscrowJson = require("../src/artifacts/RequestSynchroneExtensionEscrow.json");
-var requestBurnManagerSimple = require("../src/artifacts/requestBurnManagerSimple.json");
-web3_Single_1.Web3Single.init("http://localhost:8545", 10000000000);
+var requestCoreJson = require('../src/artifacts/RequestCore.json');
+var requestEthereumJson = require('../src/artifacts/RequestEthereum.json');
+var requestSynchroneExtensionEscrowJson = require('../src/artifacts/RequestSynchroneExtensionEscrow.json');
+var requestBurnManagerSimple = require('../src/artifacts/requestBurnManagerSimple.json');
+web3_Single_1.Web3Single.init('http://localhost:8545', 10000000000);
 var web3Single = web3_Single_1.Web3Single.getInstance();
 // let web3Single = Web3Sgl.Web3Single.getInstance();
 var instanceRequestCore = new web3Single.web3.eth.Contract(requestCoreJson.abi);
@@ -23,7 +23,7 @@ var newContractInstanceRequestEthereum;
 var newContractInstanceRequestExtensionEscrow;
 var newContractInstancerequestBurnManagerSimple;
 web3Single.getDefaultAccount().then(function (creator) {
-    console.log("creator: " + creator);
+    console.log('creator: ' + creator);
     instanceRequestCore.deploy({
         data: requestCoreJson.bytecode
     })
@@ -166,7 +166,7 @@ web3Single.getDefaultAccount().then(function (creator) {
                     web3Single.broadcastMethod(newContractInstanceRequestCore.methods.adminAddTrustedExtension(addressRequestExtensionEscrow), function (transactionHash) {
                         // we do nothing here!
                     }, function (receipt) {
-                        if (receipt.status == 1) {
+                        if (receipt.status === 1) {
                             console.log('adminAddTrustedExtension: ' + addressRequestExtensionEscrow);
                         }
                     }, function (confirmationNumber, receipt) {

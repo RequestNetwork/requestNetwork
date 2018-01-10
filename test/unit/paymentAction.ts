@@ -10,17 +10,17 @@ const BN = WEB3.utils.BN;
 const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
 const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
 
-let rn;
-let web3;
-let defaultAccount;
-let payer;
-let payee;
-let otherGuy;
+let rn: any;
+let web3: any;
+let defaultAccount: string;
+let payer: string;
+let payee: string;
+let otherGuy: string;
 
-let coreVersion;
-let currentNumRequest;
+let coreVersion: any;
+let currentNumRequest: any;
 
-let requestId;
+let requestId: any;
 
 describe('paymentAction', () => {
     const arbitraryAmount = 100000000;
@@ -110,9 +110,9 @@ describe('paymentAction', () => {
                                 arbitraryAmount,
                                 0,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
         }
     });
 
@@ -127,9 +127,9 @@ describe('paymentAction', () => {
                                 arbitraryAmount,
                                 -1,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_additional must a positive integer'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_additional must a positive integer'),'exception not right');
         }
     });
 
@@ -144,9 +144,9 @@ describe('paymentAction', () => {
                                 -1,
                                 0,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_amount must a positive integer'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_amount must a positive integer'),'exception not right');
         }
     });
 
@@ -161,9 +161,9 @@ describe('paymentAction', () => {
                                 arbitraryAmount,
                                 0,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('request must be accepted'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('request must be accepted'),'exception not right');
         }
     });
 

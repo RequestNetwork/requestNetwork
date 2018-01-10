@@ -239,7 +239,7 @@ export default class RequestCoreService {
                         fromBlock: _fromBlock ? _fromBlock : requestCoreArtifact.networks[networkName].blockNumber,
                         toBlock: _toBlock ? _toBlock : 'latest'};
 
-                    let eventsCoreRaw = [];
+                    let eventsCoreRaw: any[] = [];
                     const getPastEvents = this.instanceRequestCore.getPastEvents;
                     eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('Created', optionFilters));
                     eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('Accepted', optionFilters));
@@ -283,7 +283,7 @@ export default class RequestCoreService {
                     return resolve(eventsCore
                                     .concat(eventsExtensions)
                                     .concat(eventsCurrencyContract)
-                                    .sort( (a, b) => {
+                                    .sort( (a: any, b: any) => {
                                       const diffBlockNum = a._meta.blockNumber - b._meta.blockNumber;
                                       return diffBlockNum !== 0 ? diffBlockNum : a._meta.logIndex - b._meta.logIndex;
                                     }));
@@ -321,7 +321,7 @@ export default class RequestCoreService {
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
                 // clean the data and get timestamp for request as payee
-                eventsCorePayee = await Promise.all(eventsCorePayee.map((e) => {
+                eventsCorePayee = await Promise.all(eventsCorePayee.map((e: any) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
                                         return resolveEvent({
                                                 _meta: {
@@ -332,7 +332,7 @@ export default class RequestCoreService {
                                 }));
 
                 // clean the data and get timestamp for request as payer
-                eventsCorePayer = await Promise.all(eventsCorePayer.map((e) => {
+                eventsCorePayer = await Promise.all(eventsCorePayer.map((e: any) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
                                         return resolveEvent({
                                                 _meta: {

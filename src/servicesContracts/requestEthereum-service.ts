@@ -8,6 +8,7 @@ import * as ServiceExtensions from '../servicesExtensions';
 
 import * as Types from '../types';
 
+// @ts-ignore
 import * as Web3PromiEvent from 'web3-core-promievent';
 
 const requestEthereumArtifact = Artifacts.requestEthereumArtifact;
@@ -108,7 +109,7 @@ export default class RequestEthereumService {
             // get the amount to collect
             this.requestCoreServices.getCollectEstimation(  _amountInitial,
                                                             this.addressRequestEthereum,
-                                                            _extension ).then((collectEstimation) => {
+                                                            _extension ).then((collectEstimation: any) => {
                 _options.value = collectEstimation;
 
                 // parse extension parameters
@@ -150,15 +151,15 @@ export default class RequestEthereumService {
                                 const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Created', eventRaw);
                                 this.getRequest(event.requestId).then((request) => {
                                     promiEvent.resolve({request, transactionHash: receipt.transactionHash});
-                                }).catch((e) => promiEvent.reject(e));
+                                }).catch((e: Error) => promiEvent.reject(e));
                             }
                         },
                         (errBroadcast) => {
                             return promiEvent.reject(errBroadcast);
                         },
                         _options);
-                }).catch((e) => promiEvent.reject(e));
-            }).catch((e) => promiEvent.reject(e));
+                }).catch((e: Error) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
         return promiEvent.eventEmitter;
     }
@@ -204,14 +205,14 @@ export default class RequestEthereumService {
                             const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Accepted', eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -269,14 +270,14 @@ export default class RequestEthereumService {
                             const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Canceled', eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -338,14 +339,14 @@ export default class RequestEthereumService {
                                         request.state === Types.State.Created ? receipt.events[1] : receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -398,14 +399,14 @@ export default class RequestEthereumService {
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -463,14 +464,14 @@ export default class RequestEthereumService {
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -525,14 +526,14 @@ export default class RequestEthereumService {
                                                                         eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
-                            }).catch((e) => promiEvent.reject(e));
+                            }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
                     (error: Error) => {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
         });
 
         return promiEvent.eventEmitter;
@@ -594,7 +595,7 @@ export default class RequestEthereumService {
                 toBlock: 'latest'};
 
             // waiting for filter working (see above)
-            let events = [];
+            let events: any[] = [];
             events = events.concat(
                         await this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters));
 

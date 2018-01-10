@@ -50,7 +50,7 @@ export default class Ipfs {
             }
             const dataParsed = JSON.parse(_data);
 
-            this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), (err, result) => {
+            this.ipfs.add(Buffer.from(JSON.stringify(dataParsed)), (err: Error, result: any) => {
                 if (err) return reject(err);
                 return resolve(result[0].hash);
             });
@@ -68,10 +68,10 @@ export default class Ipfs {
                 return resolve();
             }
             let data = '';
-            this.ipfs.cat(_hash, (err, stream) => {
+            this.ipfs.cat(_hash, (err: Error, stream: any) => {
                 if (err) return reject(err);
 
-                stream.on('data', (chunk) => {
+                stream.on('data', (chunk: any) => {
                    data += chunk;
                 });
 
@@ -79,7 +79,7 @@ export default class Ipfs {
                    return resolve(data);
                 });
 
-                stream.on('error', (errOnStrem) => {
+                stream.on('error', (errOnStrem: Error) => {
                    return reject(errOnStrem);
                 });
             });

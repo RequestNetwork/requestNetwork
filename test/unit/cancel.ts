@@ -10,17 +10,17 @@ const BN = WEB3.utils.BN;
 const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
 const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
 
-let rn;
-let web3;
+let rn: any;
+let web3: any;
 let defaultAccount;
-let payer;
-let payee;
-let otherGuy;
+let payer: any;
+let payee: any;
+let otherGuy: any;
 
-let coreVersion;
-let currentNumRequest;
+let coreVersion: any;
+let currentNumRequest: any;
 
-let requestId;
+let requestId: any;
 
 describe('cancel', () => {
     const arbitraryAmount = 100000000;
@@ -52,9 +52,9 @@ describe('cancel', () => {
             const result = await rn.requestEthereumService.cancel(
                                 '0x00000000000000',
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
         }
     });
 
@@ -84,9 +84,9 @@ describe('cancel', () => {
             const result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: otherGuy});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('account must be the payer or the payee'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('account must be the payer or the payee'),'exception not right');
         }
     })
 
@@ -99,9 +99,9 @@ describe('cancel', () => {
             const result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('payer can cancel request in state \'created\''),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('payer can cancel request in state \'created\''),'exception not right');
         }
     })
 
@@ -114,9 +114,9 @@ describe('cancel', () => {
             const result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('payee cannot cancel request already canceled'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('payee cannot cancel request already canceled'),'exception not right');
         }
     })
 
@@ -183,9 +183,9 @@ describe('cancel', () => {
             const result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('impossible to cancel a Request with a balance != 0'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('impossible to cancel a Request with a balance != 0'),'exception not right');
         }
     })
 

@@ -10,15 +10,15 @@ const BN = WEB3.utils.BN;
 const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
 const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
 
-let rn;
-let web3;
-let defaultAccount;
-let payer;
-let payee;
-let otherGuy;
+let rn: any;
+let web3: any;
+let defaultAccount: string;
+let payer: string;
+let payee: string;
+let otherGuy: string;
 
-let coreVersion;
-let currentNumRequest;
+let coreVersion: any;
+let currentNumRequest: any;
 
 describe('createRequestAsPayee', () => {
     const arbitraryAmount = 100000000;
@@ -90,9 +90,9 @@ describe('createRequestAsPayee', () => {
             const result = await rn.requestEthereumService.createRequestAsPayee( 
                     '0xNOTADDRESS',
                     arbitraryAmount);
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_payer must be a valid eth address'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_payer must be a valid eth address'),'exception not right');
         }
     });
 
@@ -101,9 +101,9 @@ describe('createRequestAsPayee', () => {
             const result = await rn.requestEthereumService.createRequestAsPayee( 
                     defaultAccount,
                     arbitraryAmount);
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_payer must be a valid eth address'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_payer must be a valid eth address'),'exception not right');
         }
     });
 
@@ -112,9 +112,9 @@ describe('createRequestAsPayee', () => {
             const result = await rn.requestEthereumService.createRequestAsPayee( 
                     payer,
                     new WEB3.utils.BN(-1));
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_expectedAmount must a positive integer'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_expectedAmount must a positive integer'),'exception not right');
         }
     });
 
@@ -125,9 +125,9 @@ describe('createRequestAsPayee', () => {
                     arbitraryAmount,
                     '',
                     '0xNOTADDRESS');
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_extension must be a valid eth address'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_extension must be a valid eth address'),'exception not right');
         }
     });
 
@@ -138,9 +138,9 @@ describe('createRequestAsPayee', () => {
                     arbitraryAmount,
                     '',
                     addressRequestEthereum);
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_extension is not supported'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_extension is not supported'),'exception not right');
         }
     });
 

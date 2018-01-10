@@ -10,17 +10,17 @@ const BN = WEB3.utils.BN;
 const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
 const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
 
-let rn;
-let web3;
-let defaultAccount;
-let payer;
-let payee;
-let otherGuy;
+let rn: any;
+let web3: any;
+let defaultAccount: string;
+let payer: string;
+let payee: string;
+let otherGuy: string;
 
-let coreVersion;
-let currentNumRequest;
+let coreVersion: any;
+let currentNumRequest: any;
 
-let requestId;
+let requestId: any;
 
 describe('accept', () => {
     const arbitraryAmount = 100000000;
@@ -52,9 +52,9 @@ describe('accept', () => {
             const result = await rn.requestEthereumService.accept(
                                 '0x00000000000000',
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true;
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('_requestId must be a 32 bytes hex string'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true;
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string'),'exception not right');
         }
     });
 
@@ -85,18 +85,18 @@ describe('accept', () => {
             const result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payee});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('account must be the payer'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('account must be the payer'),'exception not right');
         }
 
         try {
             const result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: otherGuy});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('account must be the payer'),'exception not right');
+            expect(false, 'exception not thrown').to.be.true;
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('account must be the payer'),'exception not right');
         }
     });
 
@@ -110,9 +110,9 @@ describe('accept', () => {
             const result = await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
-            expect(false,'exception not thrown').to.be.true; 
-        } catch(e) {
-            utils.expectEqualsObject(e,Error('request state is not \'created\''),'exception not right');
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('request state is not \'created\''),'exception not right');
         }
     });
 

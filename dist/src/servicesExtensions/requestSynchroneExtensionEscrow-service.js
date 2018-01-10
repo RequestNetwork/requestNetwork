@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var artifacts_1 = require("../artifacts");
 var requestCore_service_1 = require("../servicesCore/requestCore-service");
+// @ts-ignore
 var Web3PromiEvent = require("web3-core-promievent");
 var Types = require("../types");
 var web3_single_1 = require("../servicesExternal/web3-single");
