@@ -240,17 +240,19 @@ export default class RequestCoreService {
                         toBlock: _toBlock ? _toBlock : 'latest'};
 
                     let eventsCoreRaw: any[] = [];
-                    const getPastEvents = this.instanceRequestCore.getPastEvents;
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('Created', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('Accepted', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('Canceled', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('UpdateBalance', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('UpdateExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('NewPayee', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('NewPayer', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('NewExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('NewExtension', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await getPastEvents('NewData', optionFilters));
+
+                    /* tslint:disable:max-line-length */
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Created', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Accepted', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Canceled', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('UpdateBalance', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('UpdateExpectedAmount', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewPayee', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewPayer', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewExpectedAmount', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewExtension', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewData', optionFilters));
+                    /* tslint:enable:max-line-length */
 
                         // waiting for filter working (see above)
                     let eventsCore = [];

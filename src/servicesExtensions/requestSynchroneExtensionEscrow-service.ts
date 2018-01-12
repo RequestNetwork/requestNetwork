@@ -280,12 +280,12 @@ export default class RequestSynchroneExtensionEscrowService {
                 fromBlock: requestSynchroneExtensionEscrowArtifact.networks[this.web3Single.networkName].blockNumber,
                 toBlock: 'latest'};
 
-            const getPastEvents = this.instanceSynchroneExtensionEscrow.getPastEvents;
-
             let events: any[] = [];
-            events = events.concat(await getPastEvents('EscrowPayment', optionFilters));
-            events = events.concat(await getPastEvents('EscrowReleaseRequest', optionFilters));
-            events = events.concat(await getPastEvents('EscrowRefundRequest', optionFilters));
+            /* tslint:disable:max-line-length */
+            events = events.concat(await this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowPayment', optionFilters));
+            events = events.concat(await this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowReleaseRequest', optionFilters));
+            events = events.concat(await this.instanceSynchroneExtensionEscrow.getPastEvents('EscrowRefundRequest', optionFilters));
+            /* tslint:enable:max-line-length */
 
             return resolve(await Promise.all(events.map(async (e) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
