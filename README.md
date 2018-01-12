@@ -31,7 +31,7 @@ CommonJS (recommended):
 (We are currently working on retrieving the name of requestnetwork.js)
 
 ### Import
-`import RequestNetwork from '@requestnetwork/request-network.js/dist/src/requestNetwork';`
+`import RequestNetwork from '@requestnetwork/request-network.js';`
 
 ### Constructor
 Default configuration (Infura and Rinkeby)
