@@ -1,4 +1,5 @@
 import Artifacts from './artifacts';
+import { InterfaceArtifact } from './types';
 
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
 
@@ -8,21 +9,21 @@ import RequestEthereumService from './servicesContracts/requestEthereum-service'
  * @return  The service object or undefined if not found
  */
 export const getServiceFromAddress = (address: string): any => {
-    if (!address) return undefined;
+    if (!address) return;
 
     if (isThisArtifact(Artifacts.requestEthereumArtifact, address)) {
         return new RequestEthereumService();
-    } else {
-        return undefined;
     }
 };
 
-const isThisArtifact = (artifact: any, address: string): boolean => {
+const isThisArtifact = (artifact: InterfaceArtifact, address: string): boolean => {
     if (!address) return false;
-    let found: boolean = false;
-    Object.keys(artifact.networks).forEach((k) => {
-        found = found || (artifact.networks[k].address
-                            && artifact.networks[k].address.toLowerCase() === address.toLowerCase());
-    });
-    return found;
+
+    const sanitizedAdress = address.toLowerCase();
+    return Object.keys(artifact.networks)
+        .some((k) => {
+            const network = artifact.networks[k];
+            if (!network.address) return false;
+            return network.address.toLowerCase() === sanitizedAdress;
+        });
 };
