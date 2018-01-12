@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-network.js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "keywords": [
     "requestnetwork.js",
@@ -14,7 +14,9 @@
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
-    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "pack": "npm run build && npm pack",
+    "publish": "npm run build && npm publish"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -33,5 +35,9 @@
     "ethereumjs-util": "^5.1.2",
     "ipfs-api": "^15.1.0",
     "web3": "^1.0.0-beta.26"
-  }
+  },
+  "main": "dist/src/requestNetwork.js",
+  "files": [
+    "dist/src"
+  ]
 }
