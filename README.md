@@ -33,6 +33,22 @@ CommonJS (recommended):
 ### Import
 `import RequestNetwork from '@requestnetwork/request-network.js';`
 
+### Tests
+`npm install -g ethereumjs-testrpc`
+
+Launch a testrpc instance on a terminal:
+
+`npm run testrpc`
+
+In a second terminal, deploy the contracts:
+
+`npm run testdeploy`
+
+You can now launch the unit tests:
+
+`npm run testunit`
+
+
 ### Constructor
 Default configuration (Infura and Rinkeby)
 
