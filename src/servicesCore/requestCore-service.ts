@@ -199,13 +199,13 @@ export default class RequestCoreService {
     }  
 
     /**
-     * get a request's history
+     * get a request's events
      * @param   _requestId    requestId of the request
      * @param   _fromBlock    search events from this block (optional)
      * @param   _toBlock    search events until this block (optional)
      * @return  promise of the array of events about the request
      */
-    public getRequestHistory(
+    public getRequestEvents(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
@@ -261,12 +261,12 @@ export default class RequestCoreService {
 
                     let eventsExtensions = [];
                     if (ServiceExtensions.getServiceFromAddress(extension)) {
-                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestHistoryExtensionInfo(_requestId,_fromBlock,_toBlock);
+                        eventsExtensions = await ServiceExtensions.getServiceFromAddress(extension).getRequestEventsExtensionInfo(_requestId,_fromBlock,_toBlock);
                     }
 
                     let eventsCurrencyContract = [];
                     if (ServicesContracts.getServiceFromAddress(currencyContract)) {
-                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestHistoryCurrencyContractInfo(_requestId,_fromBlock,_toBlock);
+                        eventsCurrencyContract = await ServicesContracts.getServiceFromAddress(currencyContract).getRequestEventsCurrencyContractInfo(_requestId,_fromBlock,_toBlock);
                     }
 
                     return resolve(eventsCore.concat(eventsExtensions).concat(eventsCurrencyContract).sort(function (a, b) {

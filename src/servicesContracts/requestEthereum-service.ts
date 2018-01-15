@@ -508,45 +508,6 @@ export default class RequestEthereumService {
     }
 
     /**
-     * Withdraw ether from contracts
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-     * @return  promise of the object containing the transaction hash
-     */
-    public withdraw(_options ? : any):  Web3PromiEvent {
-        let promiEvent = Web3PromiEvent();
-        _options = this.web3Single.setUpOptions(_options);
-
-        this.web3Single.getDefaultAccountCallback((err,defaultAccount) => {
-            if(!_options.from && err) return promiEvent.reject(err);
-            let account = _options.from || defaultAccount;
-
-            var method = this.instanceRequestEthereum.methods.withdraw();
-                
-            this.web3Single.broadcastMethod(
-                method,
-                (transactionHash: string) => {
-                    return promiEvent.eventEmitter.emit('broadcasted',{ transactionHash: transactionHash});
-                },
-                (receipt: any) => {
-                    // we do nothing here!
-                },
-                (confirmationNumber: number, receipt: any) => {
-                    if (confirmationNumber == _options.numberOfConfirmation) {
-                        return promiEvent.resolve({ transactionHash: receipt.transactionHash });
-                    }
-                },
-                (error: Error) => {
-                    return promiEvent.reject(error);
-                },
-                _options);
-        });
-
-        return promiEvent.eventEmitter;
-    }
-
-
-    /**
      * Get info from currency contract (generic method)
      * @dev return {} always
      * @param   _requestId    requestId of the request
@@ -567,23 +528,23 @@ export default class RequestEthereumService {
     }
 
     /**
-     * alias of requestCoreServices.getRequestHistory()
+     * alias of requestCoreServices.getRequestEvents()
      */
-    public getRequestHistory(
+    public getRequestEvents(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
-        return this.requestCoreServices.getRequestHistory(_requestId,_fromBlock,_toBlock);
+        return this.requestCoreServices.getRequestEvents(_requestId,_fromBlock,_toBlock);
     } 
 
     /**
-     * Get request history from currency contract (generic method)
+     * Get request events from currency contract (generic method)
      * @param   _requestId    requestId of the request
      * @param   _fromBlock    search events from this block (optional)
      * @param   _toBlock    search events until this block (optional)
-     * @return  promise of the object containing the history from the currency contract of the request (always {} here)
+     * @return  promise of the object containing the events from the currency contract of the request (always {} here)
      */    
-    public getRequestHistoryCurrencyContractInfo(
+    public getRequestEventsCurrencyContractInfo(
         _requestId: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {

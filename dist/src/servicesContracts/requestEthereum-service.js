@@ -45,7 +45,13 @@ var requestCore_Artifact = artifacts_1.default.RequestCoreArtifact;
 var web3_single_1 = require("../servicesExternal/web3-single");
 var ipfs_service_1 = require("../servicesExternal/ipfs-service");
 var BN = web3_single_1.Web3Single.BN();
+/**
+ * The RequestEthereumService class is the interface for the Request Ethereum currency contract
+ */
 var RequestEthereumService = /** @class */ (function () {
+    /**
+     * constructor to Instantiates a new RequestEthereumService
+     */
     function RequestEthereumService() {
         this.web3Single = web3_single_1.Web3Single.getInstance();
         this.ipfs = ipfs_service_1.default.getInstance();
@@ -58,6 +64,17 @@ var RequestEthereumService = /** @class */ (function () {
         this.addressRequestEthereum = requestEthereum_Artifact.networks[this.web3Single.networkName].address;
         this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum, this.addressRequestEthereum);
     }
+    /**
+     * create a request as payee
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _payer             address of the payer
+     * @param   _amountInitial     amount initial expected of the request
+     * @param   _data              Json of the request's details (optional)
+     * @param   _extension         address of the extension contract of the request (optional)
+     * @param   _extensionParams   array of parameters for the extension (optional)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.createRequestAsPayee = function (_payer, _amountInitial, _data, _extension, _extensionParams, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -78,6 +95,7 @@ var RequestEthereumService = /** @class */ (function () {
             if (_this.web3Single.areSameAddressesNoChecksum(account, _payer)) {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
+            // get the amount to collect
             _this.requestCoreServices.getCollectEstimation(_amountInitial, _this.addressRequestEthereum, _extension).then(function (collectEstimation) {
                 _options.value = collectEstimation;
                 // parse extension parameters
@@ -95,10 +113,12 @@ var RequestEthereumService = /** @class */ (function () {
                 else {
                     return promiEvent.reject(Error('_extension is not supported'));
                 }
+                // add file to ipfs
                 _this.ipfs.addFile(_data).then(function (hash) {
                     if (err)
                         return promiEvent.reject(err);
                     var method = _this.instanceRequestEthereum.methods.createRequestAsPayee(_payer, _amountInitial, _extension, paramsParsed, hash);
+                    // submit transaction
                     _this.web3Single.broadcastMethod(method, function (transactionHash) {
                         return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
                     }, function (receipt) {
@@ -118,6 +138,13 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * accept a request as payer
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.accept = function (_requestId, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -152,6 +179,13 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * cancel a request as payer or payee
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.cancel = function (_requestId, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -192,6 +226,15 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * pay a request
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _amount            amount to pay in wei
+     * @param   _additionals       additional to declaire in wei (optional)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.paymentAction = function (_requestId, _amount, _additionals, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -209,6 +252,12 @@ var RequestEthereumService = /** @class */ (function () {
                     return promiEvent.reject(Error('_additionals must a positive integer'));
                 if (request.state == Types.State.Canceled) {
                     return promiEvent.reject(Error('request cannot be canceled'));
+                }
+                if (request.state == Types.State.Created && !_this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
+                    return promiEvent.reject(Error('account must be payer if the request is created'));
+                }
+                if (_additionals.a.gt(0) && !_this.web3Single.areSameAddressesNoChecksum(account, request.payer)) {
+                    return promiEvent.reject(Error('only payer can add additionals'));
                 }
                 var method = _this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
                 _this.web3Single.broadcastMethod(method, function (transactionHash) {
@@ -229,6 +278,14 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * refund a request as payee
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _amount            amount to refund in wei
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.refundAction = function (_requestId, _amount, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -266,6 +323,14 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * add subtracts to a request as payee
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _amount            subtract to declare in wei
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.subtractAction = function (_requestId, _amount, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -305,6 +370,14 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
+    /**
+     * add addtionals to a request as payer
+     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _amount            subtract to declare in wei
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
     RequestEthereumService.prototype.additionalAction = function (_requestId, _amount, _options) {
         var _this = this;
         var promiEvent = Web3PromiEvent();
@@ -342,29 +415,12 @@ var RequestEthereumService = /** @class */ (function () {
         });
         return promiEvent.eventEmitter;
     };
-    RequestEthereumService.prototype.withdraw = function (_options) {
-        var _this = this;
-        var promiEvent = Web3PromiEvent();
-        _options = this.web3Single.setUpOptions(_options);
-        this.web3Single.getDefaultAccountCallback(function (err, defaultAccount) {
-            if (!_options.from && err)
-                return promiEvent.reject(err);
-            var account = _options.from || defaultAccount;
-            var method = _this.instanceRequestEthereum.methods.withdraw();
-            _this.web3Single.broadcastMethod(method, function (transactionHash) {
-                return promiEvent.eventEmitter.emit('broadcasted', { transactionHash: transactionHash });
-            }, function (receipt) {
-                // we do nothing here!
-            }, function (confirmationNumber, receipt) {
-                if (confirmationNumber == _options.numberOfConfirmation) {
-                    return promiEvent.resolve({ transactionHash: receipt.transactionHash });
-                }
-            }, function (error) {
-                return promiEvent.reject(error);
-            }, _options);
-        });
-        return promiEvent.eventEmitter;
-    };
+    /**
+     * Get info from currency contract (generic method)
+     * @dev return {} always
+     * @param   _requestId    requestId of the request
+     * @return  promise of the object containing the information from the currency contract of the request (always {} here)
+     */
     RequestEthereumService.prototype.getRequestCurrencyContractInfo = function (_requestId) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -373,13 +429,26 @@ var RequestEthereumService = /** @class */ (function () {
             });
         }); });
     };
+    /**
+     * alias of requestCoreServices.getRequest()
+     */
     RequestEthereumService.prototype.getRequest = function (_requestId) {
         return this.requestCoreServices.getRequest(_requestId);
     };
-    RequestEthereumService.prototype.getRequestHistory = function (_requestId, _fromBlock, _toBlock) {
-        return this.requestCoreServices.getRequestHistory(_requestId, _fromBlock, _toBlock);
+    /**
+     * alias of requestCoreServices.getRequestEvents()
+     */
+    RequestEthereumService.prototype.getRequestEvents = function (_requestId, _fromBlock, _toBlock) {
+        return this.requestCoreServices.getRequestEvents(_requestId, _fromBlock, _toBlock);
     };
-    RequestEthereumService.prototype.getRequestHistoryCurrencyContractInfo = function (_requestId, _fromBlock, _toBlock) {
+    /**
+     * Get request events from currency contract (generic method)
+     * @param   _requestId    requestId of the request
+     * @param   _fromBlock    search events from this block (optional)
+     * @param   _toBlock    search events until this block (optional)
+     * @return  promise of the object containing the events from the currency contract of the request (always {} here)
+     */
+    RequestEthereumService.prototype.getRequestEventsCurrencyContractInfo = function (_requestId, _fromBlock, _toBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;

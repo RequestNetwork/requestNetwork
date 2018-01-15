@@ -2,6 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var artifacts_1 = require("./artifacts");
 var requestSynchroneExtensionEscrow_service_1 = require("./servicesExtensions/requestSynchroneExtensionEscrow-service");
+/**
+ * getServiceFromAddress return the service of a coresponding extension contract address
+ * @param   address     The address of the extension contract
+ * @return  The service object or undefined if not found
+ */
 exports.getServiceFromAddress = function (address) {
     if (!address)
         return undefined;

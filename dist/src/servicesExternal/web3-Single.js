@@ -37,24 +37,58 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
 var Web3 = require('web3');
-// const Web3 = require('web3');
-// declare var require: (moduleId: string) => any;
+// ethereumjs-abi.js modified to support solidity packing of bytes32 array
 var ethABI = require('../lib/ethereumjs-abi-perso.js');
+/**
+ * The Web3Single class is the singleton class containing the web3.js interface
+ */
 var Web3Single = /** @class */ (function () {
+    /**
+     * Private constructor to Instantiates a new Web3Single
+     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with
+     *                          the Ethereum network.
+     * @param   networkId       the Ethereum network ID.
+     */
     function Web3Single(web3Provider, networkId) {
+        /**
+         * cache of the blocks timestamp
+         */
         this.blockTimestamp = {};
         this.web3 = new Web3(web3Provider || new Web3.providers.HttpProvider(config_1.default.ethereum.nodeUrlDefault[config_1.default.ethereum.default]));
         this.networkName = networkId ? Web3Single.getNetworkName(networkId) : config_1.default.ethereum.default;
     }
+    /**
+     * Initialized the class Web3Single
+     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with
+     *                          the Ethereum network.
+     * @param   networkId       the Ethereum network ID.
+     */
     Web3Single.init = function (web3Provider, networkId) {
         this._instance = new this(web3Provider, networkId);
     };
+    /**
+     * get the instance of Web3Single
+     * @return  The instance of the Web3Single class.
+     */
     Web3Single.getInstance = function () {
         return this._instance;
     };
+    /**
+     * return BN of web3
+     * @return Web3.utils.BN
+     */
     Web3Single.BN = function () {
         return Web3.utils.BN;
     };
+    /**
+     * Send a web3 method
+     * @param    _method                             the method to send
+     * @param    _callbackTransactionHash            callback when the transaction is submitted
+     * @param    _callbackTransactionReceipt         callback when the transacton is mined (0 confirmation block)
+     * @param    _callbackTransactionConfirmation    callback when a new confirmation block is mined (up to 20)
+     * @param    _callbackTransactionError           callback when an error occured
+     * @param    _options                            options for the method (gasPrice, gas, value, from)
+     */
     Web3Single.prototype.broadcastMethod = function (_method, _callbackTransactionHash, _callbackTransactionReceipt, _callbackTransactionConfirmation, _callbackTransactionError, _options) {
         return __awaiter(this, void 0, void 0, function () {
             var options, accounts, e_1, forcedGas;
@@ -81,17 +115,22 @@ var Web3Single = /** @class */ (function () {
                         options.value = options.value ? options.value : 0;
                         options.gas = forcedGas ? forcedGas : 90000000;
                         options.gasPrice = options.gasPrice ? options.gasPrice : this.web3.utils.toWei(config_1.default.ethereum.gasPriceDefault, config_1.default.ethereum.gasPriceDefaultUnit);
+                        // get the gas estimation
                         _method.estimateGas(options, function (err, estimateGas) {
                             if (err)
                                 return _callbackTransactionError(err);
+                            // it is safer to add 5% of gas
                             options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 1.05);
+                            // try the method offline
                             _method.call(options, function (errCall, resultCall) {
                                 if (errCall) {
-                                    //let's try with more gas
+                                    //let's try with more gas (*2)
                                     options.gas = forcedGas ? forcedGas : Math.floor(estimateGas * 2);
+                                    // try the method offline
                                     _method.call(options, function (errCall, resultCall) {
                                         if (errCall)
                                             return _callbackTransactionError(errCall);
+                                        // everything looks fine, let's send the transation
                                         _method.send(options)
                                             .on('transactionHash', _callbackTransactionHash)
                                             .on('receipt', _callbackTransactionReceipt)
@@ -99,6 +138,7 @@ var Web3Single = /** @class */ (function () {
                                             .on('error', _callbackTransactionError);
                                     });
                                 }
+                                // everything looks fine, let's send the transation
                                 _method.send(options)
                                     .on('transactionHash', _callbackTransactionHash)
                                     .on('receipt', _callbackTransactionReceipt)
@@ -120,6 +160,10 @@ var Web3Single = /** @class */ (function () {
     //         })
     //     });
     // }
+    /**
+     * Get the default account (account[0] of the wallet)
+     * @return    Promise of the default account
+     */
     Web3Single.prototype.getDefaultAccount = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -136,69 +180,122 @@ var Web3Single = /** @class */ (function () {
             });
         });
     };
-    Web3Single.prototype.getDefaultAccountCallback = function (callback) {
+    /**
+     * Get the default account (account[0] of the wallet) With a callback
+     * @param    _callback    callback with the default account
+     */
+    Web3Single.prototype.getDefaultAccountCallback = function (_callback) {
         this.web3.eth.getAccounts(function (err, accs) {
             if (err)
-                return callback(err, null);
+                return _callback(err, null);
             if (accs.length === 0)
-                return callback(Error('No accounts found'), null);
-            return callback(null, accs[0]);
+                return _callback(Error('No accounts found'), null);
+            return _callback(null, accs[0]);
         });
     };
-    Web3Single.prototype.toSolidityBytes32 = function (type, value) {
-        return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(type, value));
+    /**
+     * Convert a value in solidity bytes32 string
+     * @param    _type    type of the value to convert (e.g: address, uint, int etc...)
+     * @param    _value   value to convert
+     * @return   solidity like bytes32 string
+     */
+    Web3Single.prototype.toSolidityBytes32 = function (_type, _value) {
+        return this.web3.utils.bytesToHex(ethABI.toSolidityBytes32(_type, _value));
     };
-    Web3Single.prototype.arrayToBytes32 = function (array, length) {
-        array = array ? array : [];
+    /**
+     * Convert an array to an array in solidity bytes32 string
+     * TODO : only support addresses so far.
+     * @param    _array   array to convert
+     * @param    _length  length of the final array
+     * @return   array of solidity like bytes32 string
+     */
+    Web3Single.prototype.arrayToBytes32 = function (_array, _length) {
+        _array = _array ? _array : [];
         var ret = [];
-        array.forEach(function (o) {
+        _array.forEach(function (o) {
             ret.push(this.web3.utils.bytesToHex(ethABI.toSolidityBytes32('address', o)));
         }.bind(this));
-        for (var i = array.length; i < length; i++) {
+        // fill the empty case with zeros
+        for (var i = _array.length; i < _length; i++) {
             ret.push(this.web3.utils.bytesToHex(ethABI.toSolidityBytes32('bytes32', 0)));
         }
         return ret;
     };
-    Web3Single.prototype.isAddressNoChecksum = function (address) {
-        if (!address)
+    /**
+     * Check if an address is valid (ignoring case)
+     * @param    _address   address to check
+     * @return   true if address is valid
+     */
+    Web3Single.prototype.isAddressNoChecksum = function (_address) {
+        if (!_address)
             return false;
-        return address && this.web3.utils.isAddress(address.toLowerCase());
+        return _address && this.web3.utils.isAddress(_address.toLowerCase());
     };
-    Web3Single.prototype.areSameAddressesNoChecksum = function (address1, address2) {
-        if (!address1 || !address2)
+    /**
+     * Check if two addresses are equals (ignoring case)
+     * @param    _address1   address to check
+     * @param    _address2   address to check
+     * @return   true if _address1 is the same as _address2
+     */
+    Web3Single.prototype.areSameAddressesNoChecksum = function (_address1, _address2) {
+        if (!_address1 || !_address2)
             return false;
-        return address1 && address2 && address1.toLowerCase() == address2.toLowerCase();
+        return _address1 && _address2 && _address1.toLowerCase() == _address2.toLowerCase();
     };
-    Web3Single.prototype.isHexStrictBytes32 = function (hex) {
-        return this.web3.utils.isHexStrict(hex) && hex.length == 66; // '0x' + 32 bytes * 2 characters = 66
+    /**
+     * Check if a string is a bytes32
+     * @param    _hex   string to check
+     * @return   true if _hex is a bytes32
+     */
+    Web3Single.prototype.isHexStrictBytes32 = function (_hex) {
+        return this.web3.utils.isHexStrict(_hex) && _hex.length == 66; // '0x' + 32 bytes * 2 characters = 66
     };
-    Web3Single.prototype.decodeTransactionLog = function (abi, event, log) {
+    /**
+     * Decode transaction log parameters
+     * @param    _abi      abi of the contract
+     * @param    _event    event name
+     * @param    _log      log to decode
+     * @return   object with the log decoded
+     */
+    Web3Single.prototype.decodeTransactionLog = function (_abi, _event, _log) {
         var eventInput;
         var signature;
-        abi.some(function (o) {
-            if (o.name == event) {
+        _abi.some(function (o) {
+            if (o.name == _event) {
                 eventInput = o.inputs;
                 signature = o.signature;
                 return true;
             }
             return false;
         });
-        if (log.topics[0] != signature) {
+        if (_log.topics[0] != signature) {
             return null;
         }
-        return this.web3.eth.abi.decodeLog(eventInput, log.data, log.topics.slice(1));
+        return this.web3.eth.abi.decodeLog(eventInput, _log.data, _log.topics.slice(1));
     };
-    Web3Single.prototype.decodeEvent = function (abi, eventName, event) {
+    /**
+     * Decode transaction event parameters
+     * @param    _abi          abi of the contract
+     * @param    _eventName    event name
+     * @param    _event        event to decode
+     * @return   object with the event decoded
+     */
+    Web3Single.prototype.decodeEvent = function (_abi, _eventName, _event) {
         var eventInput;
-        abi.some(function (o) {
-            if (o.name == eventName) {
+        _abi.some(function (o) {
+            if (o.name == _eventName) {
                 eventInput = o.inputs;
                 return true;
             }
             return false;
         });
-        return this.web3.eth.abi.decodeLog(eventInput, event.raw.data, event.raw.topics.slice(1));
+        return this.web3.eth.abi.decodeLog(eventInput, _event.raw.data, _event.raw.topics.slice(1));
     };
+    /**
+     * Create or Clean options for a method
+     * @param    _options    options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return   options cleaned
+     */
     Web3Single.prototype.setUpOptions = function (_options) {
         if (!_options)
             _options = {};
@@ -210,8 +307,13 @@ var Web3Single = /** @class */ (function () {
             _options.gas = new Web3.utils.BN(_options.gas);
         return _options;
     };
-    Web3Single.getNetworkName = function (networkId) {
-        switch (networkId) {
+    /**
+     * get Network name from network Id
+     * @param    _networkId    network id
+     * @return   network name
+     */
+    Web3Single.getNetworkName = function (_networkId) {
+        switch (_networkId) {
             case 1: return 'main';
             case 2: return 'morden';
             case 3: return 'ropsten';
@@ -220,6 +322,11 @@ var Web3Single = /** @class */ (function () {
             default: return 'private';
         }
     };
+    /**
+     * get Transaction Receipt
+     * @param    _hash    transaction hash
+     * @return   Transaction receipt
+     */
     Web3Single.prototype.getTransactionReceipt = function (_hash) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -227,6 +334,11 @@ var Web3Single = /** @class */ (function () {
             });
         });
     };
+    /**
+     * get Transaction
+     * @param    _hash    transaction hash
+     * @return   transaction
+     */
     Web3Single.prototype.getTransaction = function (_hash) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -234,6 +346,11 @@ var Web3Single = /** @class */ (function () {
             });
         });
     };
+    /**
+     * get timestamp of a block
+     * @param    _blockNumber    number of the block
+     * @return   timestamp of a blocks
+     */
     Web3Single.prototype.getBlockTimestamp = function (_blockNumber) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;

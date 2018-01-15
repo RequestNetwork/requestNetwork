@@ -29,3 +29,8 @@
 npm-debug.log
 testem.log
 /typings
+
+# perso
+*.maybe
+*Kovan*
+*Rinkeby*
