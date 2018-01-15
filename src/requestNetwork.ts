@@ -33,7 +33,7 @@ export default class RequestNetwork {
      * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with
      *                          the Ethereum network.
      * @param   networkId       the Ethereum network ID.
-     * @param   useIpfsPublic   use public ipfs node if true, private one otherwise (default: true)
+     * @param   useIpfsPublic   use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise (default : true)
      * @return  An instance of the requestNetwork.js RequestNetwork class.
      */
     constructor(provider? : any, networkId ? : number, useIpfsPublic : boolean = true) {
