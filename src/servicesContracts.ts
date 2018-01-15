@@ -1,4 +1,5 @@
 import Artifacts from './artifacts';
+import { InterfaceArtifact } from './types';
 
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
 
@@ -7,21 +8,22 @@ import RequestEthereumService from './servicesContracts/requestEthereum-service'
  * @param   address     The address of the currency contract
  * @return  The service object or undefined if not found
  */
-export const getServiceFromAddress = function(address:string) : any{
-	if(!address) return undefined;
+export const getServiceFromAddress = (address: string): any => {
+    if (!address) return;
 
-	if(isThisArtifact(Artifacts.RequestEthereumArtifact, address)) {
-		return new RequestEthereumService();
-	} else {
-		return undefined;
-	}
-}
+    if (isThisArtifact(Artifacts.requestEthereumArtifact, address)) {
+        return new RequestEthereumService();
+    }
+};
 
-const isThisArtifact = function(artifact:any,address:string) : boolean {
-	if(!address) return false;
-	let found:boolean = false;
-	Object.keys(artifact.networks).forEach(function(k) {
-		found = found || (artifact.networks[k].address && artifact.networks[k].address.toLowerCase() == address.toLowerCase());
-	})
-	return found;
-}
+const isThisArtifact = (artifact: InterfaceArtifact, address: string): boolean => {
+    if (!address) return false;
+
+    const sanitizedAdress = address.toLowerCase();
+    return Object.keys(artifact.networks)
+        .some((k) => {
+            const network = artifact.networks[k];
+            if (!network.address) return false;
+            return network.address.toLowerCase() === sanitizedAdress;
+        });
+};

@@ -42,7 +42,7 @@ async function foo() {
 			// console.log(JSON.stringify(result))
 
     }
-    catch(err) {
+    catch (err) {
         console.log('Error: ', err.message);
     }
 }

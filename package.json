@@ -1,6 +1,6 @@
 {
-  "name": "requestnetwork.js",
-  "version": "0.0.1",
+  "name": "@requestnetwork/request-network.js",
+  "version": "0.1.6",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "keywords": [
     "requestnetwork.js",
@@ -10,10 +10,12 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "npm run clean && tsc && cp -r ./src/artifacts ./dist/src/ && cp ./src/*.json ./dist/src/ && cp -r ./src/lib ./dist/src/",
+    "lint": "tslint --project tsconfig.json -c tslint.json",
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/*.js ",
     "testdeploy": "npm run build && node ./dist/test/deploy",
-    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
+    "testrpc": "testrpc -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -24,11 +26,17 @@
     "dirty-chai": "^2.0.1",
     "mocha": "^4.0.1",
     "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
     "typings": "^2.1.1"
   },
   "dependencies": {
     "ethereumjs-util": "^5.1.2",
     "ipfs-api": "^15.1.0",
+    "tslib": "^1.8.1",
     "web3": "^1.0.0-beta.26"
-  }
+  },
+  "main": "dist/src/requestNetwork.js",
+  "files": [
+    "dist/src"
+  ]
 }

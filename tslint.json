@@ -1,0 +1,21 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+      "indent": [true, "spaces", 4],
+      "quotemark": [true, "single"],
+      "curly": [true, "ignore-same-line"],
+      "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
+    },
+    "rulesDirectory": [],
+    "linterOptions": {
+      "exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/test/**"
+      ]
+    }
+}

@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "strict": true,
     "outDir": "dist",
     "sourceMap": true,
     "declaration": false,
@@ -9,6 +10,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "es5",
+    "importHelpers": true,
     "typeRoots": [
       "node_modules/@types"
     ],
