@@ -238,6 +238,46 @@ export class Web3Single {
     }
 
     /**
+     * Decode transaction input data
+     * @param    _abi     abi of the contract
+     * @param    _data    input data
+     * @return   object with the method name and parameters
+     */
+    public decodeInputData(_abi: any[] , _data: string): any {
+        if (! _data) return {};
+
+        let method: any = {};
+        _abi.some((o: any) => {
+            if (o.type === 'function') {
+                let sign = o.name + '(';
+                o.inputs.forEach((i: any, index: number) => {
+                    sign += i.type + ((index + 1) === o.inputs.length ? '' : ',');
+                });
+                sign += ')';
+                const encoded = this.web3.eth.abi.encodeFunctionSignature(sign);
+
+                if (encoded === _data.slice(0, 10)) {
+                    method = { signature: sign, abi: o };
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        if (!method.signature) {
+            return {};
+        }
+
+        const onlyParameters =  '0x' + (_data.slice(10));
+        try {
+            return { name: method.abi.name,
+                        parameters: this.web3.eth.abi.decodeParameters(method.abi.inputs, onlyParameters)};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    /**
      * Decode transaction log parameters
      * @param    _abi      abi of the contract
      * @param    _event    event name

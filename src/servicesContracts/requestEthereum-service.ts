@@ -570,6 +570,15 @@ export default class RequestEthereumService {
     }
 
     /**
+     * decode data from input tx (generic method)
+     * @param   _data    requestId of the request
+     * @return  TODO !
+     */
+    public decodeInputData(_data: any): any {
+        return this.web3Single.decodeInputData(this.abiRequestEthereum, _data);
+    }
+
+    /**
      * Get request events from currency contract (generic method)
      * @param   _requestId    requestId of the request
      * @param   _fromBlock    search events from this block (optional)

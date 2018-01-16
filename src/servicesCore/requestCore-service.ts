@@ -171,25 +171,38 @@ export default class RequestCoreService {
      * @param   _hash    hash of the transaction which created the request
      * @return  promise of the object containing the request
      */
-    public getRequestByTransactionHash(
-        _hash: string): Promise < any > {
+    public getRequestByTransactionHash(_hash: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try {
                 const txReceipt = await this.web3Single.getTransactionReceipt(_hash);
                 // if no tx receipt found
                 if (!txReceipt) {
-                    const tx = await this.web3Single.getTransaction(_hash);
-                    if (!tx) {
+                    const transaction = await this.web3Single.getTransaction(_hash);
+                    if (!transaction) {
                         return reject(Error('transaction not found'));
-                    } else if (!tx.blockNumber) {
-                        // TODO : check transaction input data
-                        return reject(Error('transaction not mined'));
+                    } else if (!transaction.blockNumber) {
+                        const ccyContract = transaction.to;
+
+                        const ccyContractservice = await ServicesContracts.getServiceFromAddress(ccyContract);
+                        // get information from the currency contract
+                        if (!ccyContractservice) {
+                            return reject(Error('Contract is not supported by request'));
+                        }
+
+                        const method = ccyContractservice.decodeInputData(transaction.input);
+
+                        if ( ! method.name) {
+                            return reject(Error('transaction data not parsable'));
+                        }
+                        transaction.method = method;
+                        return resolve({transaction});
                     }
                 }
+
                 const logs = txReceipt.logs;
                 if (!logs
                     || !logs[0]
-                    || !this.web3Single.areSameAddressesNoChecksum(logs.address, this.addressRequestCore)) {
+                    || !this.web3Single.areSameAddressesNoChecksum(logs[0].address, this.addressRequestCore)) {
                     return reject(Error('transaction did not create a Request'));
                 }
 
@@ -199,7 +212,52 @@ export default class RequestCoreService {
                 }
                 const request = await this.getRequest(event.requestId);
 
-                return resolve(request);
+                return resolve({request, transaction: {hash: _hash}});
+            } catch (e) {
+                return reject(e);
+            }
+        });
+    }
+
+    /**
+     * get a request by the hash of the transaction which created the request
+     * @param   _hash    hash of the transaction which created the request
+     * @return  promise of the object containing the request
+     */
+    public getActionByTransactionHash(_hash: string): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const transaction = await this.web3Single.getTransaction(_hash);
+                if (!transaction) {
+                    return reject(Error('transaction not found'));
+                }
+
+                const ccyContract = transaction.to;
+
+                const ccyContractservice = await ServicesContracts.getServiceFromAddress(ccyContract);
+                // get information from the currency contract
+                if (!ccyContractservice) {
+                    return reject(Error('Contract is not supported by request'));
+                }
+
+                const method = ccyContractservice.decodeInputData(transaction.input);
+
+                if ( ! method.name) {
+                    return reject(Error('transaction data not parsable'));
+                }
+                transaction.method = method;
+
+                let request: any;
+
+                const txReceipt = await this.web3Single.getTransactionReceipt(_hash);
+                if (txReceipt
+                    && transaction.method
+                    && transaction.method.parameters
+                    && transaction.method.parameters._requestId) {
+                    request = await this.getRequest(transaction.method.parameters._requestId);
+                }
+
+                return resolve({request, transaction});
             } catch (e) {
                 return reject(e);
             }
