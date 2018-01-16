@@ -44,7 +44,7 @@ describe('createRequestAsPayee', () => {
                     [],
                     {from: payee})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -59,7 +59,7 @@ describe('createRequestAsPayee', () => {
 
         utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"},'data.data is wrong')
         expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('create request without extension (implicit parameters)', async () => {
@@ -67,9 +67,9 @@ describe('createRequestAsPayee', () => {
                     payer,
                     arbitraryAmount)
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
-        expect(result).to.have.property('transactionHash'); 
+        expect(result.transaction).to.have.property('hash'); 
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
         
@@ -152,10 +152,10 @@ describe('createRequestAsPayee', () => {
                 addressSynchroneExtensionEscrow,
                 [otherGuy])
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        expect(result).to.have.property('transactionHash'); 
+        expect(result.transaction).to.have.property('hash'); 
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
         

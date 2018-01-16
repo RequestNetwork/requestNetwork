@@ -63,7 +63,7 @@ describe('cancel', () => {
                                 requestId,
                                 {from: payer})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -76,7 +76,7 @@ describe('cancel', () => {
         expect(result.request.state, 'state is wrong').to.equal(2);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('cancel request by otherGuy', async () => {
@@ -136,7 +136,7 @@ describe('cancel', () => {
         expect(result.request.state, 'state is wrong').to.equal(2);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('cancel request by payee when accepted and balance == 0', async () => {
@@ -144,14 +144,14 @@ describe('cancel', () => {
                                 requestId,
                                 {from: payer})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         const result = await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payee})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -165,7 +165,7 @@ describe('cancel', () => {
         expect(result.request.state, 'state is wrong').to.equal(2);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('cancel request by payee when accepted and balance != 0', async () => {
