@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 import 'mocha';
-import Artifacts from '../../src/artifacts';
-import RequestNetwork from '../../src/requestNetwork';
-import * as utils from '../utils';
+import Artifacts from '../../../src/artifacts';
+import RequestNetwork from '../../../src/requestNetwork';
+import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
