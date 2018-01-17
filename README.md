@@ -34,11 +34,11 @@ CommonJS (recommended):
 `import RequestNetwork from '@requestnetwork/request-network.js';`
 
 ### Tests
-`npm install -g ethereumjs-testrpc`
+`npm install -g ganache-cli`
 
-Launch a testrpc instance on a terminal:
+Launch a ganache-cli instance on a terminal:
 
-`npm run testrpc`
+`npm run ganache`
 
 In a second terminal, deploy the contracts:
 
