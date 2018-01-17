@@ -203,6 +203,16 @@ return `{}` always
 * @param   `_requestId`    requestId of the request
 * @return  promise of the object containing the request
 
+
+### Get Request by Transaction hash
+
+`public getRequestByTransactionHash(_hash: string)`
+
+Get a request and method called by the hash of a transaction
+* @param   _hash    hash of the ethereum transaction
+* @return  promise of the object containing the request and the transaction
+
+
 ### Get Request's events (Alias of `requestCoreServices.getRequestEvents()`)
 `public getRequestEvents(_requestId: string, _fromBlock ?: number, _toBlock ?: number)`
 
