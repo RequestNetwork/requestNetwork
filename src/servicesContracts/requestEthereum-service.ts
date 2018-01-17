@@ -572,10 +572,19 @@ export default class RequestEthereumService {
     /**
      * decode data from input tx (generic method)
      * @param   _data    requestId of the request
-     * @return  TODO !
+     * @return  return an object with the name of the function and the parameters
      */
     public decodeInputData(_data: any): any {
         return this.web3Single.decodeInputData(this.abiRequestEthereum, _data);
+    }
+
+    /**
+     * generate web3 method of the contract from name and parameters in array (generic method)
+     * @param   _data    requestId of the request
+     * @return  return a web3 method object
+     */
+    public generateWeb3Method(_name: string, _parameters: any[]): any {
+        return this.web3Single.generateWeb3Method(this.instanceRequestEthereum, _name, _parameters);
     }
 
     /**

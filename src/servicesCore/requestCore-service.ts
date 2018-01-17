@@ -1,3 +1,4 @@
+import config from '../config';
 import * as ServicesContracts from '../servicesContracts';
 import * as ServicesExtensions from '../servicesExtensions';
 import * as Types from '../types';
@@ -167,67 +168,17 @@ export default class RequestCoreService {
     }
 
     /**
-     * get a request by the hash of the transaction which created the request
-     * @param   _hash    hash of the transaction which created the request
-     * @return  promise of the object containing the request
+     * get a request and method called by the hash of a transaction
+     * @param   _hash    hash of the ethereum transaction
+     * @return  promise of the object containing the request and the transaction
      */
     public getRequestByTransactionHash(_hash: string): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try {
-                const txReceipt = await this.web3Single.getTransactionReceipt(_hash);
-                // if no tx receipt found
-                if (!txReceipt) {
-                    const transaction = await this.web3Single.getTransaction(_hash);
-                    if (!transaction) {
-                        return reject(Error('transaction not found'));
-                    } else if (!transaction.blockNumber) {
-                        const ccyContract = transaction.to;
-
-                        const ccyContractservice = await ServicesContracts.getServiceFromAddress(ccyContract);
-                        // get information from the currency contract
-                        if (!ccyContractservice) {
-                            return reject(Error('Contract is not supported by request'));
-                        }
-
-                        const method = ccyContractservice.decodeInputData(transaction.input);
-
-                        if ( ! method.name) {
-                            return reject(Error('transaction data not parsable'));
-                        }
-                        transaction.method = method;
-                        return resolve({transaction});
-                    }
-                }
-
-                const logs = txReceipt.logs;
-                if (!logs
-                    || !logs[0]
-                    || !this.web3Single.areSameAddressesNoChecksum(logs[0].address, this.addressRequestCore)) {
-                    return reject(Error('transaction did not create a Request'));
-                }
-
-                const event = this.web3Single.decodeTransactionLog(this.abiRequestCore, 'Created', txReceipt.logs[0]);
-                if (!event) {
-                    return reject(Error('transaction did not create a Request'));
-                }
-                const request = await this.getRequest(event.requestId);
-
-                return resolve({request, transaction: {hash: _hash}});
-            } catch (e) {
-                return reject(e);
-            }
-        });
-    }
-
-    /**
-     * get a request by the hash of the transaction which created the request
-     * @param   _hash    hash of the transaction which created the request
-     * @return  promise of the object containing the request
-     */
-    public getActionByTransactionHash(_hash: string): Promise < any > {
-        return new Promise(async (resolve, reject) => {
-            try {
+                let errors: any[] | undefined = [];
+                let warnings: any[] | undefined = [];
                 const transaction = await this.web3Single.getTransaction(_hash);
+
                 if (!transaction) {
                     return reject(Error('transaction not found'));
                 }
@@ -250,14 +201,52 @@ export default class RequestCoreService {
                 let request: any;
 
                 const txReceipt = await this.web3Single.getTransactionReceipt(_hash);
-                if (txReceipt
-                    && transaction.method
-                    && transaction.method.parameters
-                    && transaction.method.parameters._requestId) {
-                    request = await this.getRequest(transaction.method.parameters._requestId);
+
+                // if already mined
+                if (txReceipt) {
+                    if (txReceipt.status !== '0x1' && txReceipt.status !== 1) {
+                        errors.push('transaction has failed');
+                    } else if (transaction.method
+                        && transaction.method.parameters
+                        && transaction.method.parameters._requestId) {
+                        // simple action
+                        request = await this.getRequest(transaction.method.parameters._requestId);
+                    } else if (txReceipt.logs
+                                && txReceipt.logs[0]
+                                && this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address,
+                                                                                this.addressRequestCore)) {
+                        // maybe a creation
+                        const event = this.web3Single.decodeTransactionLog(this.abiRequestCore,
+                                                                            'Created',
+                                                                            txReceipt.logs[0]);
+                        if (event) {
+                            request = await this.getRequest(event.requestId);
+                        }
+                    }
+                } else {
+                    // if not mined, let's try to call it
+                    const methodGenerated = ccyContractservice.generateWeb3Method(transaction.method.name,
+                                                        this.web3Single.resultToArray(transaction.method.parameters));
+                    const options = {
+                        from: transaction.from,
+                        gas: new BN(transaction.gas),
+                        value: transaction.value};
+
+                    try {
+                        const test = await this.web3Single.callMethod(methodGenerated, options);
+                    } catch (e) {
+                        warnings.push('transaction may failed: "' + e.message + '"');
+                    }
+
+                    if (transaction.gasPrice < config.ethereum.gasPriceMinimumCriticalInWei) {
+                        warnings.push('transaction gasPrice is low');
+                    }
                 }
 
-                return resolve({request, transaction});
+                errors = errors.length === 0 ? undefined : errors;
+                warnings = warnings.length === 0 ? undefined : warnings;
+
+                return resolve({request, transaction, errors, warnings});
             } catch (e) {
                 return reject(e);
             }

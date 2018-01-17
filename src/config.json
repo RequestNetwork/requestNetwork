@@ -9,7 +9,8 @@
             "rinkeby": "https://rinkeby.infura.io/BQBjfSi5EKSCQQpXebO"
         },
         "gasPriceDefault": "1",
-        "gasPriceDefaultUnit": "gwei"
+        "gasPriceDefaultUnit": "gwei",
+        "gasPriceMinimumCriticalInWei": 100000000 
     },
     "ipfs": 
     {    

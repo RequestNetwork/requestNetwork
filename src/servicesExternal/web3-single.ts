@@ -135,20 +135,28 @@ export class Web3Single {
                         .on('receipt', _callbackTransactionReceipt)
                         .on('confirmation', _callbackTransactionConfirmation)
                         .on('error', _callbackTransactionError);
-                    }
+                }
             });
         });
     }
 
-    // public callMethod(_method:any) : Promise<any>
-    // {
-    //     return new Promise((resolve, reject) => {
-    //         _method.call(function(err:Error,data:any) {
-    //             if (err) return reject(err)
-    //                resolve(data);
-    //         })
-    //     });
-    // }
+    /**
+     * Send a web3 method
+     * @param    _method    the method to call()
+     * @param    _options   options for the method (gasPrice, gas, value, from)
+     */
+    public callMethod(_method: any, _options ?: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            _method.estimateGas(_options, (errEstimateGas: any, estimateGas: number) => {
+                if (errEstimateGas) return reject(errEstimateGas);
+
+                _method.call(_options, (errCall: Error, resultCall: any) => {
+                    if (errCall) return reject(errCall);
+                    return resolve(resultCall);
+                });
+            });
+        });
+    }
 
     /**
      * Get the default account (account[0] of the wallet)
@@ -235,6 +243,17 @@ export class Web3Single {
      */
     public isHexStrictBytes32(_hex: string): boolean {
         return this.web3.utils.isHexStrict(_hex) && _hex.length === 66; // '0x' + 32 bytes * 2 characters = 66
+    }
+
+    /**
+     * generate web3 method
+     * @param   _contractInstance    contract instance
+     * @param   _name                method's name
+     * @param   _parameters          method's _parameters
+     * @return  return a web3 method object
+     */
+    public generateWeb3Method(_contractInstance: any, _name: string, _parameters: any[]): any {
+        return _contractInstance.methods[_name].apply(null, _parameters);
     }
 
     /**
@@ -372,5 +391,13 @@ export class Web3Single {
                 return resolve();
             }
         });
+    }
+
+    public resultToArray(obj: any): any[] {
+        const result: any[] = [];
+        for (let i = 0 ; i < obj.__length__ ; i++) {
+            result.push(obj[i]);
+        }
+        return result;
     }
 }
