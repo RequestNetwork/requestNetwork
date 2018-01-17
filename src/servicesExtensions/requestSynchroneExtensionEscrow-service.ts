@@ -85,7 +85,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
     /**
      * release payment to Payee as payer or escrow
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the request
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
@@ -124,8 +124,8 @@ export default class RequestSynchroneExtensionEscrowService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -136,7 +136,7 @@ export default class RequestSynchroneExtensionEscrowService {
                                                                         'EscrowReleaseRequest',
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -152,7 +152,7 @@ export default class RequestSynchroneExtensionEscrowService {
 
     /**
      * release payment to payer as payee or escrow
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the request
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
@@ -189,8 +189,8 @@ export default class RequestSynchroneExtensionEscrowService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -201,7 +201,7 @@ export default class RequestSynchroneExtensionEscrowService {
                                                                         'EscrowRefundRequest',
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },

@@ -69,7 +69,7 @@ export default class RequestEthereumService {
 
     /**
      * create a request as payee
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _payer             address of the payer
      * @param   _amountInitial     amount initial expected of the request
      * @param   _data              Json of the request's details (optional)
@@ -127,7 +127,7 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('_extension is not supported'));
                 }
                 // add file to ipfs
-                this.ipfs.addFile(_data).then((hash: string) => {
+                this.ipfs.addFile(_data).then((hashIpfs: string) => {
                     if (err) return promiEvent.reject(err);
 
                     const method = this.instanceRequestEthereum.methods.createRequestAsPayee(
@@ -135,12 +135,12 @@ export default class RequestEthereumService {
                         _amountInitial,
                         _extension,
                         paramsParsed,
-                        hash);
+                        hashIpfs);
                     // submit transaction
                     this.web3Single.broadcastMethod(
                         method,
-                        (transactionHash: string) => {
-                            return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                        (hash: string) => {
+                            return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                         },
                         (receipt: any) => {
                             // we do nothing here!
@@ -150,7 +150,7 @@ export default class RequestEthereumService {
                                 const eventRaw = receipt.events[0];
                                 const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Created', eventRaw);
                                 this.getRequest(event.requestId).then((request) => {
-                                    promiEvent.resolve({request, transactionHash: receipt.transactionHash});
+                                    promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
                                 }).catch((e: Error) => promiEvent.reject(e));
                             }
                         },
@@ -166,7 +166,7 @@ export default class RequestEthereumService {
 
     /**
      * accept a request as payer
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
@@ -193,8 +193,8 @@ export default class RequestEthereumService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -204,7 +204,7 @@ export default class RequestEthereumService {
                             const eventRaw = receipt.events[0];
                             const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Accepted', eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -220,7 +220,7 @@ export default class RequestEthereumService {
 
     /**
      * cancel a request as payer or payee
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
@@ -258,8 +258,8 @@ export default class RequestEthereumService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -269,7 +269,7 @@ export default class RequestEthereumService {
                             const eventRaw = receipt.events[0];
                             const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Canceled', eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -285,7 +285,7 @@ export default class RequestEthereumService {
 
     /**
      * pay a request
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _amount            amount to pay in wei
      * @param   _additionals       additional to declaire in wei (optional)
@@ -326,8 +326,8 @@ export default class RequestEthereumService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -338,7 +338,7 @@ export default class RequestEthereumService {
                                         this.abiRequestCore, 'UpdateBalance',
                                         request.state === Types.State.Created ? receipt.events[1] : receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -354,7 +354,7 @@ export default class RequestEthereumService {
 
     /**
      * refund a request as payee
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _amount            amount to refund in wei
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
@@ -386,8 +386,8 @@ export default class RequestEthereumService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -398,7 +398,7 @@ export default class RequestEthereumService {
                                                                         'UpdateBalance',
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -414,7 +414,7 @@ export default class RequestEthereumService {
 
     /**
      * add subtracts to a request as payee
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _amount            subtract to declare in wei
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
@@ -451,8 +451,8 @@ export default class RequestEthereumService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -463,7 +463,7 @@ export default class RequestEthereumService {
                                                                         'UpdateExpectedAmount',
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -478,8 +478,8 @@ export default class RequestEthereumService {
     }
 
     /**
-     * add additionals to a request as payer
-     * @dev emit the event 'broadcasted' with {transactionHash} when the transaction is submitted
+     * add addtionals to a request as payer
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _amount            subtract to declare in wei
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
@@ -512,8 +512,8 @@ export default class RequestEthereumService {
 
                 this.web3Single.broadcastMethod(
                     method,
-                    (transactionHash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transactionHash});
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
                     },
                     (receipt: any) => {
                         // we do nothing here!
@@ -525,7 +525,7 @@ export default class RequestEthereumService {
                                                                         'UpdateExpectedAmount',
                                                                         eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
-                                promiEvent.resolve({request: requestAfter, transactionHash: receipt.transactionHash});
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
                         }
                     },
@@ -567,6 +567,24 @@ export default class RequestEthereumService {
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return this.requestCoreServices.getRequestEvents(_requestId, _fromBlock, _toBlock);
+    }
+
+    /**
+     * decode data from input tx (generic method)
+     * @param   _data    requestId of the request
+     * @return  return an object with the name of the function and the parameters
+     */
+    public decodeInputData(_data: any): any {
+        return this.web3Single.decodeInputData(this.abiRequestEthereum, _data);
+    }
+
+    /**
+     * generate web3 method of the contract from name and parameters in array (generic method)
+     * @param   _data    requestId of the request
+     * @return  return a web3 method object
+     */
+    public generateWeb3Method(_name: string, _parameters: any[]): any {
+        return this.web3Single.generateWeb3Method(this.instanceRequestEthereum, _name, _parameters);
     }
 
     /**

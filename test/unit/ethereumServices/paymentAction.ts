@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 import 'mocha';
-import Artifacts from '../../src/artifacts';
-import RequestNetwork from '../../src/requestNetwork';
-import * as utils from '../utils';
+import Artifacts from '../../../src/artifacts';
+import RequestNetwork from '../../../src/requestNetwork';
+import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
@@ -58,7 +58,7 @@ describe('paymentAction', () => {
                             0,
                             {from: payer})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -72,7 +72,7 @@ describe('paymentAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('pay request with additional', async () => {
@@ -96,7 +96,7 @@ describe('paymentAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('pay request with not valid requestId', async () => {
@@ -174,7 +174,7 @@ describe('paymentAction', () => {
                                 0,
                                 {from: payer})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
             
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -187,7 +187,7 @@ describe('paymentAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('pay request with additional higher than amount', async () => {
@@ -201,7 +201,7 @@ describe('paymentAction', () => {
                                 2,
                                 {from: payer})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
             
         utils.expectEqualsBN(result.request.expectedAmount,arbitraryAmount+2,'expectedAmount is wrong');
@@ -214,7 +214,7 @@ describe('paymentAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('pay request with higher amount than expected', async () => {
@@ -228,7 +228,7 @@ describe('paymentAction', () => {
                                 0,
                                 {from: payer})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -241,7 +241,7 @@ describe('paymentAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
 });

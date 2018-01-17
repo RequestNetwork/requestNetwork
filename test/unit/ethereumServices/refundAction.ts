@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 import 'mocha';
-import Artifacts from '../../src/artifacts';
-import RequestNetwork from '../../src/requestNetwork';
-import * as utils from '../utils';
+import Artifacts from '../../../src/artifacts';
+import RequestNetwork from '../../../src/requestNetwork';
+import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
@@ -63,7 +63,7 @@ describe('refundAction', () => {
                             arbitraryAmount,
                             {from: payee})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
@@ -75,7 +75,7 @@ describe('refundAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('payBack request not fully', async () => {
@@ -94,7 +94,7 @@ describe('refundAction', () => {
                             10,
                             {from: payee})
             .on('broadcasted', (data: any) => {
-                expect(data, 'data.transactionHash is wrong').to.have.property('transactionHash');
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
         utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -107,7 +107,7 @@ describe('refundAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        expect(result, 'result.transactionHash is wrong').to.have.property('transactionHash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
     
     it('payback request with not valid requestId', async () => {
