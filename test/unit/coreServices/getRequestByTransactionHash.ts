@@ -20,7 +20,7 @@ let otherGuy: string;
 let coreVersion: any;
 let currentNumRequest: any;
 
-describe('getActionByTransactionHash', () => {
+describe('getRequestByTransactionHash', () => {
     const arbitraryAmount = 100000000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000);
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -35,11 +35,11 @@ describe('getActionByTransactionHash', () => {
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
     });
 
-    it('createRequestAsPayee getActionByTransactionHash', async () => {
+    it('createRequestAsPayee getRequestByTransactionHash', async () => {
         const result = await rn.requestEthereumService.createRequestAsPayee(
                     payer,
                     arbitraryAmount);
-        const data: any = await rn.requestCoreService.getActionByTransactionHash(result.transaction.hash);
+        const data: any = await rn.requestCoreService.getRequestByTransactionHash(result.transaction.hash);
 
         expect(data.transaction.method.name, 'name is wrong').to.equal('createRequestAsPayee');
 
@@ -61,7 +61,7 @@ describe('getActionByTransactionHash', () => {
         expect(data.transaction.method.parameters._data, '_data is wrong').to.equal('');
     });
 
-    it('accept getActionByTransactionHash', async () => {
+    it('accept getRequestByTransactionHash', async () => {
         const resultCreateRequestAsPayee = await rn.requestEthereumService.createRequestAsPayee(
                     payer,
                     arbitraryAmount);
@@ -70,8 +70,7 @@ describe('getActionByTransactionHash', () => {
                             resultCreateRequestAsPayee.request.requestId,
                             {from: payer});
 
-        const data: any = await rn.requestCoreService.getActionByTransactionHash(resultAccept.transaction.hash);
-
+        const data: any = await rn.requestCoreService.getRequestByTransactionHash(resultAccept.transaction.hash);
         expect(data.transaction.method.name, 'name is wrong').to.equal('accept');
         expect(data.transaction.method.parameters._requestId, '_requestId is wrong').to.equal(resultCreateRequestAsPayee.request.requestId);
 
@@ -87,7 +86,7 @@ describe('getActionByTransactionHash', () => {
         expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
     });
 
-    it('paymentAction getActionByTransactionHash', async () => {
+    it('paymentAction getRequestByTransactionHash', async () => {
         const resultCreateRequestAsPayee = await rn.requestEthereumService.createRequestAsPayee(
                     payer,
                     arbitraryAmount);
@@ -102,7 +101,7 @@ describe('getActionByTransactionHash', () => {
                             10,
                             {from: payer});
 
-        const data: any = await rn.requestCoreService.getActionByTransactionHash(resultPaymentAction.transaction.hash);
+        const data: any = await rn.requestCoreService.getRequestByTransactionHash(resultPaymentAction.transaction.hash);
 
         expect(data.transaction.method.name, 'name is wrong').to.equal('paymentAction');
         expect(data.transaction.method.parameters._requestId, '_requestId is wrong').to.equal(resultCreateRequestAsPayee.request.requestId);
@@ -120,23 +119,24 @@ describe('getActionByTransactionHash', () => {
         expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
     });
 
-    it('not valid txHash getActionByTransactionHash', async () => {
+    it('not valid txHash getRequestByTransactionHash', async () => {
         try {
-            await rn.requestCoreService.getActionByTransactionHash('0x999999999081999e95639c999124b4bc75ac1a370fcd166f15e98f4b8725af99');
+            await rn.requestCoreService.getRequestByTransactionHash('0x9999999999999999999999999999999999999999999999999999999999999999');
         } catch (e) {
             expect(e.message, 'exception not right').to.equal('transaction not found');
         }
     });
 
-    it('not tx request getActionByTransactionHash', async () => {
+    it('not tx request getRequestByTransactionHash', async () => {
         const tx = await web3.eth.sendTransaction({from: defaultAccount,
                                                     to: otherGuy,
                                                     value: 100000});
         try {
-            await rn.requestCoreService.getActionByTransactionHash(tx.transactionHash);
+            await rn.requestCoreService.getRequestByTransactionHash(tx.transactionHash);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             expect(e.message, 'exception not right').to.equal('Contract is not supported by request');
         }
     });
+
 });
