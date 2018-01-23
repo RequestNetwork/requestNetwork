@@ -400,11 +400,9 @@ export default class RequestCoreService {
     }
 
     /**
-     * get the list of requests connected to an address
-     * @param   _address        address to get the requests
-     * @param   _fromBlock      search requests from this block (optional)
-     * @param   _toBlock        search requests until this block (optional)
-     * @return  promise of the object of requests as {asPayer:[],asPayee[]}
+     * Get the file content from ipfs
+     * @param   _hash        hash of the file
+     * @return  promise of the content's file
      */
     public getIpfsFile(_hash: string): Promise < any > {
         return this.ipfs.getFile(_hash);
