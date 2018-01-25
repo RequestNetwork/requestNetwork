@@ -48,7 +48,6 @@ export default class RequestCoreService {
         this.instanceRequestCoreLast = requestCoreArtifact.instance;
     }
 
-
     /**
      * get the number of the last request (N.B: number !== id)
      * @return  promise of the number of the last request
@@ -351,8 +350,8 @@ export default class RequestCoreService {
                 const allCoreContracts = this.getAllCoreInstance();
                 let allEventsCorePayee: any[] = [];
                 let allEventsCorePayer: any[] = [];
-                for( let contract of allCoreContracts ) {
-                    let oneResult = await this.getRequestsByAddressForOneContract(_address, contract, _fromBlock, _toBlock);
+                for ( const contract of allCoreContracts ) {
+                    const oneResult = await this.getRequestsByAddressForOneContract(_address, contract, _fromBlock, _toBlock);
                     allEventsCorePayee = allEventsCorePayee.concat(oneResult.asPayee);
                     allEventsCorePayer = allEventsCorePayer.concat(oneResult.asPayer);
                 }
@@ -364,11 +363,10 @@ export default class RequestCoreService {
         });
     }
 
-
     public getAllCoreInstance(): any[] {
         const result: any[] = [];
         const allArtifacts = requestArtifactsJson[this.web3Single.networkName];
-        for ( let key in allArtifacts ) {
+        for ( const key in allArtifacts ) {
             if (key.slice(0, 2) === '0x' && allArtifacts[key].split('/')[0] === 'RequestCore') {
                 result.push( this.web3Single.getContractInstance(key) );
             }
@@ -391,7 +389,6 @@ export default class RequestCoreService {
         return this.web3Single.getContractInstance(_requestId.slice(0, 42));
     }
 
-    
     /**
      * get the list of requests connected to an address for one contract
      * @param   _address                address to get the requests
@@ -442,10 +439,6 @@ export default class RequestCoreService {
                                     });
                                 }));
 
-                console.log('eventsCorePayee');
-                console.log(eventsCorePayee);
-                console.log('eventsCorePayer');
-                console.log(eventsCorePayer);
                 return resolve({asPayee : eventsCorePayee,
                                 asPayer : eventsCorePayer});
             } catch (e) {
