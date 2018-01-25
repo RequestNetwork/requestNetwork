@@ -1,13 +1,14 @@
+import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
 import * as ServicesContracts from '../servicesContracts';
 import * as Types from '../types';
 
 import Ipfs from '../servicesExternal/ipfs-service';
-
 import { Web3Single } from '../servicesExternal/web3-single';
 
 const BN = Web3Single.BN();
 const EMPTY_BYTES_32 = '0x0000000000000000000000000000000000000000';
+const requestArtifactsJson = require('requestnetworkartifacts/index.json');
 
 /**
  * The RequestCoreService class is the interface for the Request Core contract
@@ -46,6 +47,7 @@ export default class RequestCoreService {
         this.addressRequestCoreLast = requestCoreArtifact.address;
         this.instanceRequestCoreLast = requestCoreArtifact.instance;
     }
+
 
     /**
      * get the number of the last request (N.B: number !== id)
@@ -332,6 +334,7 @@ export default class RequestCoreService {
             });
         });
     }
+
     /**
      * get the list of requests connected to an address
      * @param   _address        address to get the requests
@@ -339,23 +342,82 @@ export default class RequestCoreService {
      * @param   _toBlock        search requests until this block (optional)
      * @return  promise of the object of requests as {asPayer:[],asPayee[]}
      */
-/*    public getRequestsByAddress(
+    public getRequestsByAddress(
         _address: string,
+        _fromBlock ?: number,
+        _toBlock ?: number): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const allCoreContracts = this.getAllCoreInstance();
+                let allEventsCorePayee: any[] = [];
+                let allEventsCorePayer: any[] = [];
+                for( let contract of allCoreContracts ) {
+                    let oneResult = await this.getRequestsByAddressForOneContract(_address, contract, _fromBlock, _toBlock);
+                    allEventsCorePayee = allEventsCorePayee.concat(oneResult.asPayee);
+                    allEventsCorePayer = allEventsCorePayer.concat(oneResult.asPayer);
+                }
+                return resolve({asPayee : allEventsCorePayee,
+                                asPayer : allEventsCorePayer});
+            } catch (e) {
+                return reject(e);
+            }
+        });
+    }
+
+
+    public getAllCoreInstance(): any[] {
+        const result: any[] = [];
+        const allArtifacts = requestArtifactsJson[this.web3Single.networkName];
+        for ( let key in allArtifacts ) {
+            if (key.slice(0, 2) === '0x' && allArtifacts[key].split('/')[0] === 'RequestCore') {
+                result.push( this.web3Single.getContractInstance(key) );
+            }
+        }
+        return result;
+    }
+
+    /**
+     * get the list of requests connected to an address
+     * @param   _address        address to get the requests
+     * @param   _fromBlock      search requests from this block (optional)
+     * @param   _toBlock        search requests until this block (optional)
+     * @return  promise of the object of requests as {asPayer:[],asPayee[]}
+     */
+    public getIpfsFile(_hash: string): Promise < any > {
+        return this.ipfs.getFile(_hash);
+    }
+
+    public getCoreContractFromRequestId(_requestId: string): any {
+        return this.web3Single.getContractInstance(_requestId.slice(0, 42));
+    }
+
+    
+    /**
+     * get the list of requests connected to an address for one contract
+     * @param   _address                address to get the requests
+     * @param   _requestCoreContract    contract to search in
+     * @param   _fromBlock              search requests from this block (optional)
+     * @param   _toBlock                search requests until this block (optional)
+     * @return  promise of the object of requests as {asPayer:[],asPayee[]}
+     */
+    private getRequestsByAddressForOneContract(
+        _address: string,
+        _requestCoreContract: any,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try {
                 const networkName = this.web3Single.networkName;
                 // get events Created with payee === address
-                let eventsCorePayee = await this.instanceRequestCore.getPastEvents('Created', {
+                let eventsCorePayee = await _requestCoreContract.instance.getPastEvents('Created', {
                     filter: { payee: _address },
-                    fromBlock: _fromBlock ? _fromBlock : requestCoreArtifact.networks[networkName].blockNumber,
+                    fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
                 // get events Created with payer === address
-                let eventsCorePayer = await this.instanceRequestCore.getPastEvents('Created', {
+                let eventsCorePayer = await _requestCoreContract.instance.getPastEvents('Created', {
                     filter: { payer: _address },
-                    fromBlock: _fromBlock ? _fromBlock : requestCoreArtifact.networks[networkName].blockNumber,
+                    fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
                 // clean the data and get timestamp for request as payee
@@ -380,26 +442,15 @@ export default class RequestCoreService {
                                     });
                                 }));
 
+                console.log('eventsCorePayee');
+                console.log(eventsCorePayee);
+                console.log('eventsCorePayer');
+                console.log(eventsCorePayer);
                 return resolve({asPayee : eventsCorePayee,
                                 asPayer : eventsCorePayer});
             } catch (e) {
                 return reject(e);
             }
         });
-    }
-*/
-    /**
-     * get the list of requests connected to an address
-     * @param   _address        address to get the requests
-     * @param   _fromBlock      search requests from this block (optional)
-     * @param   _toBlock        search requests until this block (optional)
-     * @return  promise of the object of requests as {asPayer:[],asPayee[]}
-     */
-    public getIpfsFile(_hash: string): Promise < any > {
-        return this.ipfs.getFile(_hash);
-    }
-
-    public getCoreContractFromRequestId(_requestId: string): any {
-        return this.web3Single.getContractInstance(_requestId.slice(0, 42));
     }
 }
