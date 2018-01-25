@@ -93,15 +93,18 @@ export default class RequestEthereumService {
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
             }
-            if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
-                return promiEvent.reject(Error('_extension must be a valid eth address'));
+            if (_extension) {
+                return promiEvent.reject(Error('extensions are disabled for now'));
             }
-            if (_extensionParams && _extensionParams.length > 9) {
-                return promiEvent.reject(Error('_extensionParams length must be less than 9'));
-            }
-            if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
-                return promiEvent.reject(Error('_from must be different than _payer'));
-            }
+            // if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
+            //     return promiEvent.reject(Error('_extension must be a valid eth address'));
+            // }
+            // if (_extensionParams && _extensionParams.length > 9) {
+            //     return promiEvent.reject(Error('_extensionParams length must be less than 9'));
+            // }
+            // if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
+            //     return promiEvent.reject(Error('_from must be different than _payer'));
+            // }
             // get the amount to collect
             this.requestCoreServices.getCollectEstimation(  _amountInitial,
                                                             this.addressRequestEthereumLast,
