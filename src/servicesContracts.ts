@@ -1,29 +1,26 @@
-import Artifacts from './artifacts';
-import { InterfaceArtifact } from './types';
+import requestArtifacts from 'requestnetworkartifacts';
 
+// services
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
+// import RequestSynchroneExtensionEscrowService from './servicesExtensions/requestSynchroneExtensionEscrow-service';
 
 /**
  * getServiceFromAddress return the service of a coresponding currency contract address
  * @param   address     The address of the currency contract
  * @return  The service object or undefined if not found
  */
-export const getServiceFromAddress = (address: string): any => {
-    if (!address) return;
+export const getServiceFromAddress = (_networkName: string, _address: string): any => {
+    if (!_networkName || !_address) return;
 
-    if (isThisArtifact(Artifacts.requestEthereumArtifact, address)) {
-        return new RequestEthereumService();
+    const artifact = requestArtifacts(_networkName, _address);
+    if (!artifact) return;
+
+    switch (artifact.contractName) {
+        case 'RequestEthereum':
+            return new RequestEthereumService();
+        // case 'RequestSynchroneExtensionEscrow':
+        //     return new RequestSynchroneExtensionEscrowService();
+        default:
+            return;
     }
-};
-
-const isThisArtifact = (artifact: InterfaceArtifact, address: string): boolean => {
-    if (!address) return false;
-
-    const sanitizedAdress = address.toLowerCase();
-    return Object.keys(artifact.networks)
-        .some((k) => {
-            const network = artifact.networks[k];
-            if (!network.address) return false;
-            return network.address.toLowerCase() === sanitizedAdress;
-        });
 };

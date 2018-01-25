@@ -1,14 +1,10 @@
 import config from '../config';
 import * as ServicesContracts from '../servicesContracts';
-import * as ServicesExtensions from '../servicesExtensions';
 import * as Types from '../types';
 
-import Artifacts from '../artifacts';
 import Ipfs from '../servicesExternal/ipfs-service';
 
 import { Web3Single } from '../servicesExternal/web3-single';
-
-const requestCoreArtifact = Artifacts.requestCoreArtifact;
 
 const BN = Web3Single.BN();
 const EMPTY_BYTES_32 = '0x0000000000000000000000000000000000000000';
@@ -24,15 +20,15 @@ export default class RequestCoreService {
     /**
      * RequestCore contract's abi
      */
-    protected abiRequestCore: any;
+    protected abiRequestCoreLast: any;
     /**
      * RequestCore contract's address
      */
-    protected addressRequestCore: string;
+    protected addressRequestCoreLast: string;
     /**
      * RequestCore contract's web3 instance
      */
-    protected instanceRequestCore: any;
+    protected instanceRequestCoreLast: any;
 
     /**
      * constructor to Instantiates a new RequestCoreService
@@ -41,12 +37,14 @@ export default class RequestCoreService {
         this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
 
-        this.abiRequestCore = requestCoreArtifact.abi;
-        if (!requestCoreArtifact.networks[this.web3Single.networkName]) {
-            throw Error('RequestCore Artifact does not have configuration for network: ' + this.web3Single.networkName);
+        const requestCoreArtifact = this.web3Single.getContractInstance('last-RequestCore');
+        if (!requestCoreArtifact) {
+            throw Error('requestCore Artifact: no config for network : "' + this.web3Single.networkName + '"');
         }
-        this.addressRequestCore = requestCoreArtifact.networks[this.web3Single.networkName].address;
-        this.instanceRequestCore = new this.web3Single.web3.eth.Contract(this.abiRequestCore, this.addressRequestCore);
+
+        this.abiRequestCoreLast = requestCoreArtifact.abi;
+        this.addressRequestCoreLast = requestCoreArtifact.address;
+        this.instanceRequestCoreLast = requestCoreArtifact.instance;
     }
 
     /**
@@ -55,20 +53,7 @@ export default class RequestCoreService {
      */
     public getCurrentNumRequest(): Promise < number > {
         return new Promise((resolve, reject) => {
-            this.instanceRequestCore.methods.numRequests().call(async (err: Error, data: any) => {
-                if (err) return reject(err);
-                return resolve(data);
-            });
-        });
-    }
-
-    /**
-     * get the version of the contract
-     * @return  promise of the version of the contract
-     */
-    public getVersion(): Promise < number > {
-        return new Promise((resolve, reject) => {
-            this.instanceRequestCore.methods.VERSION().call(async (err: Error, data: any) => {
+            this.instanceRequestCoreLast.methods.numRequests().call(async (err: Error, data: any) => {
                 if (err) return reject(err);
                 return resolve(data);
             });
@@ -96,7 +81,7 @@ export default class RequestCoreService {
                 return reject(Error('_extension must be a valid eth address'));
             }
 
-            this.instanceRequestCore.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension)
+            this.instanceRequestCoreLast.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension)
               .call(async (err: Error, data: any) => {
                 if (err) return reject(err);
                 return resolve(data);
@@ -114,8 +99,10 @@ export default class RequestCoreService {
             if (!this.web3Single.isHexStrictBytes32(_requestId)) {
                 return reject(Error('_requestId must be a 32 bytes hex string'));
             }
+
+            const coreContract = this.getCoreContractFromRequestId(_requestId);
             // get information from the core
-            this.instanceRequestCore.methods.requests(_requestId).call(async (err: Error, data: any) => {
+            coreContract.instance.methods.requests(_requestId).call(async (err: Error, data: any) => {
                 if (err) return reject(err);
 
                 try {
@@ -136,19 +123,19 @@ export default class RequestCoreService {
                         state: parseInt(data.state, 10)};
 
                     // get information from the currency contract
-                    if (ServicesContracts.getServiceFromAddress(data.currencyContract)) {
-                        const ccyContractDetails = await ServicesContracts.getServiceFromAddress(data.currencyContract)
-                                                                            .getRequestCurrencyContractInfo(_requestId);
+                    const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.currencyContract);
+                    if (serviceContract) {
+                        const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId);
                         dataResult.currencyContract = Object.assign(ccyContractDetails,
                                                                     {address: dataResult.currencyContract});
                     }
 
                     // get information from the extension contract
+                    const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.extension);
                     if (data.extension
                             && data.extension !== ''
-                            && ServicesExtensions.getServiceFromAddress(data.extension)) {
-                        const extensionDetails = await ServicesExtensions.getServiceFromAddress(data.extension)
-                                                                        .getRequestExtensionInfo(_requestId);
+                            && serviceExtension) {
+                        const extensionDetails = await serviceExtension.getRequestExtensionInfo(_requestId);
                         dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
                     }
 
@@ -185,13 +172,13 @@ export default class RequestCoreService {
 
                 const ccyContract = transaction.to;
 
-                const ccyContractservice = await ServicesContracts.getServiceFromAddress(ccyContract);
+                const ccyContractservice = await ServicesContracts.getServiceFromAddress(this.web3Single.networkName, ccyContract);
                 // get information from the currency contract
                 if (!ccyContractservice) {
                     return reject(Error('Contract is not supported by request'));
                 }
 
-                const method = ccyContractservice.decodeInputData(transaction.input);
+                const method = ccyContractservice.decodeInputData(ccyContract, transaction.input);
 
                 if ( ! method.name) {
                     return reject(Error('transaction data not parsable'));
@@ -211,21 +198,24 @@ export default class RequestCoreService {
                         && transaction.method.parameters._requestId) {
                         // simple action
                         request = await this.getRequest(transaction.method.parameters._requestId);
-                    } else if (txReceipt.logs
-                                && txReceipt.logs[0]
-                                && this.web3Single.areSameAddressesNoChecksum(txReceipt.logs[0].address,
-                                                                                this.addressRequestCore)) {
-                        // maybe a creation
-                        const event = this.web3Single.decodeTransactionLog(this.abiRequestCore,
-                                                                            'Created',
-                                                                            txReceipt.logs[0]);
-                        if (event) {
-                            request = await this.getRequest(event.requestId);
+                    } else if (txReceipt.logs && txReceipt.logs[0]) {
+
+                        const coreContract = this.web3Single.getContractInstance(txReceipt.logs[0].address);
+
+                        if (coreContract) {
+                            // maybe a creation
+                            const event = this.web3Single.decodeTransactionLog(coreContract.abi,
+                                                                                'Created',
+                                                                                txReceipt.logs[0]);
+                            if (event) {
+                                request = await this.getRequest(event.requestId);
+                            }
+
                         }
                     }
                 } else {
                     // if not mined, let's try to call it
-                    const methodGenerated = ccyContractservice.generateWeb3Method(transaction.method.name,
+                    const methodGenerated = ccyContractservice.generateWeb3Method(ccyContract, transaction.method.name,
                                                         this.web3Single.resultToArray(transaction.method.parameters));
                     const options = {
                         from: transaction.from,
@@ -265,12 +255,13 @@ export default class RequestCoreService {
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
-            this.instanceRequestCore.methods.requests(_requestId).call(async (err: Error, data: any) => {
+            const coreContract = this.getCoreContractFromRequestId(_requestId);
+            coreContract.instance.methods.requests(_requestId).call(async (err: Error, request: any) => {
                 if (err) return reject(err);
 
                 try {
-                    const currencyContract = data.currencyContract;
-                    const extension = data.extension !== EMPTY_BYTES_32 ? data.extension : undefined;
+                    const currencyContract = request.currencyContract;
+                    const extension = request.extension !== EMPTY_BYTES_32 ? request.extension : undefined;
 
                     // let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
                     //     // allEvents and filter don't work together so far. issues created on web3 github
@@ -283,22 +274,22 @@ export default class RequestCoreService {
                     const networkName = this.web3Single.networkName;
                     const optionFilters = {
                         filter: { requestId: _requestId },
-                        fromBlock: _fromBlock ? _fromBlock : requestCoreArtifact.networks[networkName].blockNumber,
+                        fromBlock: _fromBlock ? _fromBlock : coreContract.networks[networkName].blockNumber,
                         toBlock: _toBlock ? _toBlock : 'latest'};
 
                     let eventsCoreRaw: any[] = [];
 
                     /* tslint:disable:max-line-length */
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Created', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Accepted', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('Canceled', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('UpdateBalance', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('UpdateExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewPayee', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewPayer', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewExtension', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await this.instanceRequestCore.getPastEvents('NewData', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('Created', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('Accepted', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('Canceled', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('UpdateBalance', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('UpdateExpectedAmount', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewPayee', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewPayer', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewExpectedAmount', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewExtension', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewData', optionFilters));
                     /* tslint:enable:max-line-length */
 
                         // waiting for filter working (see above)
@@ -316,17 +307,16 @@ export default class RequestCoreService {
                                     }));
 
                     let eventsExtensions = [];
-                    if (ServicesExtensions.getServiceFromAddress(extension)) {
-                        eventsExtensions = await ServicesExtensions
-                                                    .getServiceFromAddress(extension)
-                                                    .getRequestEventsExtensionInfo(_requestId, _fromBlock, _toBlock);
+                    const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, extension);
+                    if (serviceExtension) {
+                        eventsExtensions = await serviceExtension.getRequestEventsExtensionInfo(request, _fromBlock, _toBlock);
                     }
 
                     let eventsCurrencyContract = [];
-                    if (ServicesContracts.getServiceFromAddress(currencyContract)) {
-                        eventsCurrencyContract = await ServicesContracts
-                                                .getServiceFromAddress(currencyContract)
-                                                .getRequestEventsCurrencyContractInfo(_requestId, _fromBlock, _toBlock);
+                    const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, currencyContract);
+                    if (serviceContract) {
+                        eventsCurrencyContract = await serviceContract
+                                                .getRequestEventsCurrencyContractInfo(request, _fromBlock, _toBlock);
                     }
 
                     return resolve(eventsCore
@@ -342,7 +332,6 @@ export default class RequestCoreService {
             });
         });
     }
-
     /**
      * get the list of requests connected to an address
      * @param   _address        address to get the requests
@@ -350,7 +339,7 @@ export default class RequestCoreService {
      * @param   _toBlock        search requests until this block (optional)
      * @return  promise of the object of requests as {asPayer:[],asPayee[]}
      */
-    public getRequestsByAddress(
+/*    public getRequestsByAddress(
         _address: string,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
@@ -398,7 +387,7 @@ export default class RequestCoreService {
             }
         });
     }
-
+*/
     /**
      * get the list of requests connected to an address
      * @param   _address        address to get the requests
@@ -408,5 +397,9 @@ export default class RequestCoreService {
      */
     public getIpfsFile(_hash: string): Promise < any > {
         return this.ipfs.getFile(_hash);
+    }
+
+    public getCoreContractFromRequestId(_requestId: string): any {
+        return this.web3Single.getContractInstance(_requestId.slice(0, 42));
     }
 }

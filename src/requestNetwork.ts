@@ -5,7 +5,6 @@ import RequestCoreService from '../src/servicesCore/requestCore-service';
 import RequestEthereumService from '../src/servicesContracts/requestEthereum-service';
 
 // Synchrone Extension ----------------------
-import RequestSynchroneExtensionEscrowService from '../src/servicesExtensions/requestSynchroneExtensionEscrow-service';
 
 import Ipfs from './servicesExternal/ipfs-service';
 import { Web3Single } from './servicesExternal/web3-single';
@@ -23,7 +22,6 @@ export default class RequestNetwork {
     /**
      * requestSynchroneExtensionEscrowService class containing methods for interacting with the Extension Escrow
      */
-    public requestSynchroneExtensionEscrowService: RequestSynchroneExtensionEscrowService;
     /**
      * requestCoreService class containing methods for interacting with the Request Core
      */
@@ -47,6 +45,5 @@ export default class RequestNetwork {
         // init interface services
         this.requestCoreService = new RequestCoreService();
         this.requestEthereumService = new RequestEthereumService();
-        this.requestSynchroneExtensionEscrowService = new RequestSynchroneExtensionEscrowService();
     }
 }

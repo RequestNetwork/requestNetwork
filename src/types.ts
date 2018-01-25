@@ -12,11 +12,3 @@ export type CallbackIpfsAddFile = (err: Error, hash: string) => void;
 export type CallbackIpfsGetFile = (err: Error, data: string) => void;
 
 export type CallbackErrorData = (err: Error | undefined, data: string | undefined) => void;
-
-export interface InterfaceArtifact {
-    abi: any;
-    networks: {[networkName: string]: {
-        address: string;
-        blockNumber: string;
-    }};
-}

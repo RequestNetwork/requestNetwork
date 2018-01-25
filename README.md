@@ -40,7 +40,11 @@ Launch a ganache-cli instance on a terminal:
 
 `npm run ganache`
 
-In a second terminal, deploy the contracts:
+In a second terminal, Launch an ipfs node:
+
+`ipfs daemon`
+
+In a third terminal, deploy the contracts:
 
 `npm run testdeploy`
 

@@ -1,14 +1,14 @@
 import {expect} from 'chai';
 import 'mocha';
-import Artifacts from '../../../src/artifacts';
+import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
-const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
+const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
 let web3: any;
@@ -31,7 +31,7 @@ describe('getRequestByTransactionHash', () => {
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
         otherGuy = accounts[4].toLowerCase();
-        coreVersion = await rn.requestCoreService.getVersion();
+        
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
     });
 
@@ -81,7 +81,7 @@ describe('getRequestByTransactionHash', () => {
         expect(data.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
         expect(data.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(data.request.requestId, 'requestId is wrong').to.equal(
-                                    utils.getHashRequest(coreVersion, ++currentNumRequest));
+                                    utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(data.request.state, 'state is wrong').to.equal(1);
         expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
     });
@@ -114,7 +114,7 @@ describe('getRequestByTransactionHash', () => {
         expect(data.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
         expect(data.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(data.request.requestId, 'requestId is wrong').to.equal(
-                                    utils.getHashRequest(coreVersion, ++currentNumRequest));
+                                    utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(data.request.state, 'state is wrong').to.equal(1);
         expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
     });

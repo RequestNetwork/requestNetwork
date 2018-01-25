@@ -1,14 +1,14 @@
 import {expect} from 'chai';
 import 'mocha';
-import Artifacts from '../../../src/artifacts';
+import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
-const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
+const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
 let web3: any;
@@ -17,12 +17,11 @@ let payer: string;
 let payee: string;
 let otherGuy: string;
 
-let coreVersion: any;
 let currentNumRequest: any;
 
 describe('createRequestAsPayee', () => {
     const arbitraryAmount = 100000000;
-    rn = new RequestNetwork('http://localhost:8545', 10000000000);
+    rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestEthereumService.web3Single.web3;
 
     beforeEach(async () => {
@@ -31,7 +30,6 @@ describe('createRequestAsPayee', () => {
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
         otherGuy = accounts[4].toLowerCase();
-        coreVersion = await rn.requestCoreService.getVersion();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
     })
 
@@ -53,7 +51,7 @@ describe('createRequestAsPayee', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
@@ -78,7 +76,7 @@ describe('createRequestAsPayee', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
@@ -143,31 +141,5 @@ describe('createRequestAsPayee', () => {
             utils.expectEqualsObject(e, Error('_extension is not supported'),'exception not right');
         }
     });
-
-    it('create request with _extension handled', async () => {
-        const result = await rn.requestEthereumService.createRequestAsPayee( 
-                payer,
-                arbitraryAmount,
-                '',
-                addressSynchroneExtensionEscrow,
-                [otherGuy])
-            .on('broadcasted', (data: any) => {
-                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
-            });
-
-        expect(result.transaction).to.have.property('hash'); 
-
-        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-        
-        utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
-        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
-        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
-        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
-        expect(result.request.state, 'state is wrong').to.equal(0);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-        expect(result.request.extension.address.toLowerCase(), 'extension.address is wrong').to.equal(addressSynchroneExtensionEscrow);
-
-        expect(result.request.data, 'request.data is wrong').to.be.undefined;
-    });
+    
 });

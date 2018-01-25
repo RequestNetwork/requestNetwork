@@ -1,3 +1,4 @@
+import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
 import * as Types from '../types';
 
@@ -399,5 +400,19 @@ export class Web3Single {
             result.push(obj[i]);
         }
         return result;
+    }
+
+    public getContractInstance(_address: string): any {
+        const artifact = requestArtifacts(this.networkName, _address);
+        if (!artifact || !artifact.networks[this.networkName]) {
+            return null;
+        }
+        const abi: any = artifact.abi;
+        const version: string = artifact.version;
+        const address: string = artifact.networks[this.networkName].address;
+        const blockNumber: any = artifact.networks[this.networkName].blockNumber;
+        const instance: any = new this.web3.eth.Contract(abi, address);
+
+        return { abi, address, instance, blockNumber, version };
     }
 }

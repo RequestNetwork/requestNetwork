@@ -1,18 +1,14 @@
-import Artifacts from '../artifacts';
 import RequestCoreService from '../servicesCore/requestCore-service';
 import Ipfs from '../servicesExternal/ipfs-service';
 
 import { Web3Single } from '../servicesExternal/web3-single';
 
-import * as ServiceExtensions from '../servicesExtensions';
+import * as ServiceContracts from '../servicesContracts';
 
 import * as Types from '../types';
 
 // @ts-ignore
 import * as Web3PromiEvent from 'web3-core-promievent';
-
-const requestEthereumArtifact = Artifacts.requestEthereumArtifact;
-const requestCoreArtifact = Artifacts.requestCoreArtifact;
 
 const BN = Web3Single.BN();
 
@@ -26,7 +22,7 @@ export default class RequestEthereumService {
     /**
      * RequestCore contract's abi
      */
-    protected abiRequestCore: any;
+    protected abiRequestCoreLast: any;
     /**
      * RequestCore service from this very lib
      */
@@ -36,15 +32,15 @@ export default class RequestEthereumService {
     /**
      * RequestEthereum contract's abi
      */
-    protected abiRequestEthereum: any;
+    protected abiRequestEthereumLast: any;
     /**
      * RequestEthereum contract's address
      */
-    protected addressRequestEthereum: string;
+    protected addressRequestEthereumLast: string;
     /**
      * RequestEthereum contract's web3 instance
      */
-    protected instanceRequestEthereum: any;
+    protected instanceRequestEthereumLast: any;
 
     private web3Single: Web3Single;
 
@@ -55,16 +51,16 @@ export default class RequestEthereumService {
         this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
 
-        this.abiRequestCore = requestCoreArtifact.abi;
+        this.abiRequestCoreLast = this.web3Single.getContractInstance('last-RequestCore').abi;
         this.requestCoreServices = new RequestCoreService();
 
-        this.abiRequestEthereum = requestEthereumArtifact.abi;
-        if (!requestEthereumArtifact.networks[this.web3Single.networkName]) {
+        const requestEthereumLastArtifact = this.web3Single.getContractInstance('last-RequestEthereum');
+        if (!requestEthereumLastArtifact) {
             throw Error('RequestEthereum Artifact: no config for network : "' + this.web3Single.networkName + '"');
         }
-        this.addressRequestEthereum = requestEthereumArtifact.networks[this.web3Single.networkName].address;
-        this.instanceRequestEthereum = new this.web3Single.web3.eth.Contract(this.abiRequestEthereum,
-                                                                             this.addressRequestEthereum);
+        this.abiRequestEthereumLast = requestEthereumLastArtifact.abi;
+        this.addressRequestEthereumLast = requestEthereumLastArtifact.address;
+        this.instanceRequestEthereumLast = requestEthereumLastArtifact.instance;
     }
 
     /**
@@ -108,7 +104,7 @@ export default class RequestEthereumService {
             }
             // get the amount to collect
             this.requestCoreServices.getCollectEstimation(  _amountInitial,
-                                                            this.addressRequestEthereum,
+                                                            this.addressRequestEthereumLast,
                                                             _extension ).then((collectEstimation: any) => {
                 _options.value = collectEstimation;
 
@@ -116,8 +112,8 @@ export default class RequestEthereumService {
                 let paramsParsed: any[];
                 if (!_extension || _extension === '') {
                     paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
-                } else if (ServiceExtensions.getServiceFromAddress(_extension)) {
-                    const parsing = ServiceExtensions.getServiceFromAddress(_extension)
+                } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)) {
+                    const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)
                                                                     .parseParameters(_extensionParams);
                     if (parsing.error) {
                       return promiEvent.reject(parsing.error);
@@ -130,7 +126,7 @@ export default class RequestEthereumService {
                 this.ipfs.addFile(_data).then((hashIpfs: string) => {
                     if (err) return promiEvent.reject(err);
 
-                    const method = this.instanceRequestEthereum.methods.createRequestAsPayee(
+                    const method = this.instanceRequestEthereumLast.methods.createRequestAsPayee(
                         _payer,
                         _amountInitial,
                         _extension,
@@ -148,7 +144,7 @@ export default class RequestEthereumService {
                         (confirmationNumber: number, receipt: any) => {
                             if (confirmationNumber === _options.numberOfConfirmation) {
                                 const eventRaw = receipt.events[0];
-                                const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Created', eventRaw);
+                                const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
                                 this.getRequest(event.requestId).then((request) => {
                                     promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
                                 }).catch((e: Error) => promiEvent.reject(e));
@@ -189,7 +185,8 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('account must be the payer'));
                 }
 
-                const method = this.instanceRequestEthereum.methods.accept(_requestId);
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.accept(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -202,7 +199,8 @@ export default class RequestEthereumService {
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
-                            const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Accepted', eventRaw);
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi, 'Accepted', eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
@@ -254,7 +252,8 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('impossible to cancel a Request with a balance !== 0'));
                 }
 
-                const method = this.instanceRequestEthereum.methods.cancel(_requestId);
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.cancel(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -267,7 +266,8 @@ export default class RequestEthereumService {
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
-                            const event = this.web3Single.decodeEvent(this.abiRequestCore, 'Canceled', eventRaw);
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi, 'Canceled', eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
@@ -322,7 +322,8 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('only payer can add additionals'));
                 }
 
-                const method = this.instanceRequestEthereum.methods.paymentAction(_requestId, _additionals);
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.paymentAction(_requestId, _additionals);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -334,8 +335,8 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
-                            const event = this.web3Single.decodeEvent(
-                                        this.abiRequestCore, 'UpdateBalance',
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
                                         request.state === Types.State.Created ? receipt.events[1] : receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
@@ -382,7 +383,8 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('account must be payee'));
                 }
 
-                const method = this.instanceRequestEthereum.methods.refundAction(_requestId);
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.refundAction(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -394,7 +396,8 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
-                            const event = this.web3Single.decodeEvent(this.abiRequestCore,
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi,
                                                                         'UpdateBalance',
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
@@ -447,7 +450,8 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('account must be payee'));
                 }
 
-                const method = this.instanceRequestEthereum.methods.subtractAction(_requestId, _amount);
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.subtractAction(_requestId, _amount);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -459,7 +463,8 @@ export default class RequestEthereumService {
                     },
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
-                            const event = this.web3Single.decodeEvent(this.abiRequestCore,
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi,
                                                                         'UpdateExpectedAmount',
                                                                         receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
@@ -508,7 +513,8 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('account must be payer'));
                 }
 
-                const method = this.instanceRequestEthereum.methods.additionalAction(_requestId, _amount);
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.additionalAction(_requestId, _amount);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -521,7 +527,8 @@ export default class RequestEthereumService {
                     (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
-                            const event = this.web3Single.decodeEvent(this.abiRequestCore,
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi,
                                                                         'UpdateExpectedAmount',
                                                                         eventRaw);
                             this.getRequest(event.requestId).then((requestAfter) => {
@@ -574,8 +581,9 @@ export default class RequestEthereumService {
      * @param   _data    requestId of the request
      * @return  return an object with the name of the function and the parameters
      */
-    public decodeInputData(_data: any): any {
-        return this.web3Single.decodeInputData(this.abiRequestEthereum, _data);
+    public decodeInputData(_address: string, _data: any): any {
+        const contract = this.web3Single.getContractInstance(_address);
+        return this.web3Single.decodeInputData(contract.abi, _data);
     }
 
     /**
@@ -583,8 +591,9 @@ export default class RequestEthereumService {
      * @param   _data    requestId of the request
      * @return  return a web3 method object
      */
-    public generateWeb3Method(_name: string, _parameters: any[]): any {
-        return this.web3Single.generateWeb3Method(this.instanceRequestEthereum, _name, _parameters);
+    public generateWeb3Method(_address: string, _name: string, _parameters: any[]): any {
+        const contract = this.web3Single.getContractInstance(_address);
+        return this.web3Single.generateWeb3Method(contract.instance, _name, _parameters);
     }
 
     /**
@@ -595,10 +604,12 @@ export default class RequestEthereumService {
      * @return  promise of the object containing the events from the currency contract of the request (always {} here)
      */
     public getRequestEventsCurrencyContractInfo(
-        _requestId: string,
+        _request: any,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
+
+            const contract = this.web3Single.getContractInstance(_request.currencyContract.address);
             // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
             //     // allEvents and filter don't work together so far. issues created on web3 github
             //     // filter: {requestId: _requestId},
@@ -608,14 +619,14 @@ export default class RequestEthereumService {
 
             // TODO: events by event waiting for a patch of web3
             const optionFilters = {
-                filter: { requestId: _requestId },
-                fromBlock: requestEthereumArtifact.networks[this.web3Single.networkName].blockNumber,
+                filter: { requestId: _request.requestId },
+                fromBlock: contract.blockNumber,
                 toBlock: 'latest'};
 
             // waiting for filter working (see above)
             let events: any[] = [];
             events = events.concat(
-                        await this.instanceRequestEthereum.getPastEvents('EtherAvailableToWithdraw', optionFilters));
+                        await contract.instance.getPastEvents('EtherAvailableToWithdraw', optionFilters));
 
             return resolve(await Promise.all(events.map(async (e) => {
                                         return new Promise(async (resolveEvent, rejectEvent) => {

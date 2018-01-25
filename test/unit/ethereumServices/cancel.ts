@@ -1,14 +1,14 @@
 import {expect} from 'chai';
 import 'mocha';
-import Artifacts from '../../../src/artifacts';
+import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = Artifacts.requestEthereumArtifact.networks.private.address;
-const addressSynchroneExtensionEscrow = Artifacts.requestSynchroneExtensionEscrowArtifact.networks.private.address;
+const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
 let web3: any;
@@ -24,7 +24,7 @@ let requestId: any;
 
 describe('cancel', () => {
     const arbitraryAmount = 100000000;
-    rn = new RequestNetwork('http://localhost:8545', 10000000000);
+    rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestEthereumService.web3Single.web3;
 
     beforeEach(async () => {
@@ -33,7 +33,7 @@ describe('cancel', () => {
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
         otherGuy = accounts[4].toLowerCase();
-        coreVersion = await rn.requestCoreService.getVersion();
+        
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
         const req = await rn.requestEthereumService.createRequestAsPayee( 
@@ -72,7 +72,7 @@ describe('cancel', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(2);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
@@ -132,7 +132,7 @@ describe('cancel', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(2);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
@@ -161,7 +161,7 @@ describe('cancel', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
         expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getHashRequest(coreVersion, ++currentNumRequest));
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(2);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
