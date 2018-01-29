@@ -7,8 +7,12 @@ import * as ServiceContracts from '../servicesContracts';
 
 import * as Types from '../types';
 
+import * as ETH_UTIL from 'ethereumjs-util';
 // @ts-ignore
 import * as Web3PromiEvent from 'web3-core-promievent';
+
+// @ts-ignore
+const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 
 const BN = Web3Single.BN();
 
@@ -179,7 +183,7 @@ export default class RequestEthereumService {
     public createRequestAsPayer(
         _payee: string,
         _amountInitial: any,
-        _amountToPay: any,
+        _amountToPay ?: any,
         _additionals ?: any,
         _data ?: string,
         _extension ?: string,
@@ -188,7 +192,7 @@ export default class RequestEthereumService {
         ): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _amountInitial = new BN(_amountInitial);
-        _amountToPay = new BN(_amountToPay);
+        _amountToPay = new BN(_amountToPay || 0);
         _additionals = new BN(_additionals);
         _options = this.web3Single.setUpOptions(_options);
 
@@ -268,6 +272,183 @@ export default class RequestEthereumService {
                         },
                         _options);
                 }).catch((e: Error) => promiEvent.reject(e));
+            }).catch((e: Error) => promiEvent.reject(e));
+        });
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * sign a request as payee
+     * @param   _amountInitial     amount initial expected of the request
+     * @param   _expirationDate    timestamp of the date after what the signed request is useless
+     * @param   _data              Json of the request's details (optional)
+     * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
+     * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
+     * @param   _from              address of the payee, default account will be used otherwise (optional)
+     * @return  promise of the object containing the request signed
+     */
+    public signRequestAsPayee(
+        _amountInitial: any,
+        _expirationDate: number,
+        _data ?: string,
+        _extension ?: string,
+        _extensionParams ?: any[],
+        _from ?: string): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _amountInitial = new BN(_amountInitial);
+
+        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+            if (!_from && err) return promiEvent.reject(err);
+            const account: string = _from || defaultAccount || '';
+
+            const expirationDateSolidityTime = _expirationDate / 1000;
+            const todaySolidityTime: number = (new Date().getTime()) / 1000;
+            if ( expirationDateSolidityTime <= todaySolidityTime ) {
+                return promiEvent.reject(Error('_expirationDate must be greater than now')); 
+            }
+            if (_amountInitial.isNeg()) return promiEvent.reject(Error('_amountInitial must a positive integer'));
+            if (_extension) {
+                return promiEvent.reject(Error('extensions are disabled for now'));
+            }
+            // if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
+            //     return promiEvent.reject(Error('_extension must be a valid eth address'));
+            // }
+            // if (_extensionParams && _extensionParams.length > 9) {
+            //     return promiEvent.reject(Error('_extensionParams length must be less than 9'));
+            // }
+
+            // parse extension parameters
+            let paramsParsed: any[];
+            if (!_extension || _extension === '') {
+                paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+            } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)) {
+                const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)
+                                                                .parseParameters(_extensionParams);
+                if (parsing.error) {
+                  return promiEvent.reject(parsing.error);
+                }
+                paramsParsed = parsing.result;
+            } else {
+                return promiEvent.reject(Error('_extension is not supported'));
+            }
+            // add file to ipfs
+            this.ipfs.addFile(_data).then(async (hashIpfs: string) => {
+                if (err) return promiEvent.reject(err);
+
+                const signedRequest = await this.createSignedRequest(
+                                this.addressRequestEthereumLast,
+                                account,
+                                _amountInitial,
+                                hashIpfs,
+                                _extension,
+                                paramsParsed,
+                                expirationDateSolidityTime);
+                promiEvent.resolve(signedRequest);
+            }).catch((e: Error) => promiEvent.reject(e));
+        });
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * broadcast a signed transaction and fill it with his address as payer
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _payee             address of the payee
+     * @param   _amountInitial     amount initial expected of the request
+     * @param   _amountToPay       amount to pay in wei
+     * @param   _additionals       additional to declaire in wei (optional)
+     * @param   _data              Json of the request's details (optional)
+     * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
+     * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public broadcastSignedRequestAsPayer(
+        _signedRequest: any,
+        _amountToPay ?: any,
+        _additionals ?: any,
+        _options ?: any,
+        ): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+
+        _signedRequest.amountInitial = new BN(_signedRequest.amountInitial);
+        _amountToPay = new BN(_amountToPay);
+        _additionals = new BN(_additionals);
+        _options = this.web3Single.setUpOptions(_options);
+
+        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+            const error = this.signedRequestHasError(_signedRequest, account);
+            if (error !== '') return promiEvent.reject(Error(error));
+            if (_amountToPay.isNeg()) return promiEvent.reject(Error('_amountToPay must a positive integer'));
+            if (_additionals.isNeg()) return promiEvent.reject(Error('_additionals must a positive integer'));
+
+            if (_signedRequest.extension) {
+                return promiEvent.reject(Error('extensions are disabled for now'));
+            }
+            // if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
+            //     return promiEvent.reject(Error('_extension must be a valid eth address'));
+            // }
+            // if (_extensionParams && _extensionParams.length > 9) {
+            //     return promiEvent.reject(Error('_extensionParams length must be less than 9'));
+            // }
+
+            // get the amount to collect
+            this.requestCoreServices.getCollectEstimation(  _signedRequest.amountInitial,
+                                                            this.addressRequestEthereumLast,
+                                                            _signedRequest.extension ).then((collectEstimation: any) => {
+
+                _options.value = _amountToPay.add(new BN(collectEstimation));
+
+                // parse extension parameters
+                let paramsParsed: any[];
+                if (!_signedRequest.extension || _signedRequest.extension === '') {
+                    paramsParsed = this.web3Single.arrayToBytes32(_signedRequest.extensionParams, 9);
+                } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _signedRequest.extension)) {
+                    const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _signedRequest.extension)
+                                                                    .parseParameters(_signedRequest.extensionParams);
+                    if (parsing.error) {
+                      return promiEvent.reject(parsing.error);
+                    }
+                    paramsParsed = parsing.result;
+                } else {
+                    return promiEvent.reject(Error('_extension is not supported'));
+                }
+
+                const signatureRPClike = ETH_UTIL.fromRpcSig(_signedRequest.signature);
+
+                const method = this.instanceRequestEthereumLast.methods.broadcastSignedRequestAsPayer(
+                                                    _signedRequest.payee,
+                                                    _signedRequest.amountInitial,
+                                                    _signedRequest.extension,
+                                                    paramsParsed,
+                                                    _additionals,
+                                                    _signedRequest.data,
+                                                    _signedRequest.expirationDate,
+                                                    signatureRPClike.v, ETH_UTIL.bufferToHex(signatureRPClike.r), ETH_UTIL.bufferToHex(signatureRPClike.s));
+
+                    // submit transaction
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
+                            this.getRequest(event.requestId).then((request) => {
+                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
+                            }).catch((e: Error) => promiEvent.reject(e));
+                        }
+                    },
+                    (errBroadcast) => {
+                        return promiEvent.reject(errBroadcast);
+                    },
+                    _options);
             }).catch((e: Error) => promiEvent.reject(e));
         });
         return promiEvent.eventEmitter;
@@ -753,5 +934,110 @@ export default class RequestEthereumService {
                                         });
                                     })));
         });
+    }
+
+    private async createSignedRequest(    
+                            currencyContract: string,
+                            payee: string,
+                            amountInitial: any,
+                            data ?: string,
+                            extension ?: string,
+                            extensionParams ?: any[],
+                            expirationDate ?: number): Promise<any> {
+        const hash = this.hashRequest(currencyContract,
+                                        payee,
+                                        '',
+                                        amountInitial,
+                                        data ? data : '',
+                                        extension ? extension : '',
+                                        extension ? extensionParams : [],
+                                        expirationDate);
+
+        const signature = await this.web3Single.sign(hash, payee);
+
+        extension = extension ? extension : undefined;
+        extensionParams = extension ? extensionParams : undefined;
+        data = data ? data : undefined;
+        amountInitial = amountInitial.toString();
+
+        return {amountInitial,
+                currencyContract,
+                data,
+                expirationDate,
+                extension,
+                extensionParams,
+                hash,
+                payee,
+                signature};
+    }
+
+    private hashRequest(currencyContract: string,
+                        payee: string,
+                        payer: string,
+                        amountInitial: any,
+                        data ?: string,
+                        extension ?: string,
+                        extensionParams ?: any[],
+                        expirationDate ?: number): any {
+        const requestParts = [
+            {value: currencyContract, type: 'address'},
+            {value: payee, type: 'address'},
+            {value: payer, type: 'address'},
+            {value: amountInitial, type: 'int256'},
+            {value: extension, type: 'address'},
+            {value: extensionParams, type: 'bytes32[9]'},
+            {value: data, type: 'string'},
+            {value: expirationDate, type: 'uint256'}];
+        const types: any[] = [];
+        const values: any[] = [];
+
+        for (const part of requestParts) {
+            types.push(part.type);
+            values.push(part.value);
+        }
+
+        return this.web3Single.web3.utils.bytesToHex(ETH_ABI.soliditySHA3(types, values));
+    }
+
+    private signedRequestHasError(_signedRequest: any, payer: string): string {
+        const signatureRPClike = ETH_UTIL.fromRpcSig(_signedRequest.signature);
+        const pub = ETH_UTIL.ecrecover(ETH_UTIL.hashPersonalMessage(ETH_UTIL.toBuffer(_signedRequest.hash)), signatureRPClike.v, signatureRPClike.r, signatureRPClike.s);
+        const addrBuf = ETH_UTIL.pubToAddress(pub);
+        const addressSigning   = ETH_UTIL.bufferToHex(addrBuf);
+        _signedRequest.amountInitial = new BN(_signedRequest.amountInitial);
+        const hashComputed = this.hashRequest(_signedRequest.currencyContract,
+                        _signedRequest.payee,
+                        '',
+                        _signedRequest.amountInitial,
+                        _signedRequest.data ? _signedRequest.data : '',
+                        _signedRequest.extension ? _signedRequest.extension : '',
+                        _signedRequest.extensionParams ? _signedRequest.extensionParams : [],
+                        _signedRequest.expirationDate);
+
+        if (!_signedRequest) {
+            return '_signedRequest must be defined';
+        }
+        if (_signedRequest.amountInitial.isNeg()) {
+            return 'amountInitial must be a positive integer';
+        }
+        if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestEthereumLast, _signedRequest.currencyContract)) {
+            return 'currencyContract must be the last currencyContract of requestEthereum';
+        }
+        if (_signedRequest.expirationDate < new Date().getTime() / 1000) {
+            return 'expirationDate must be greater than now';
+        }
+        if (hashComputed !== _signedRequest.hash) {
+            return 'hash is not valid';
+        }
+        if (!this.web3Single.isAddressNoChecksum(_signedRequest.payee)) {
+            return 'payee must be an eth address valid';
+        }
+        if (this.web3Single.areSameAddressesNoChecksum(payer, _signedRequest.payee)) {
+            return '_from must be different than payee';
+        }
+        if (!this.web3Single.areSameAddressesNoChecksum(addressSigning, _signedRequest.payee)) {
+            return 'payee is not the signer';
+        }
+        return '';
     }
 }

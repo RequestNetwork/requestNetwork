@@ -4,3 +4,4 @@ declare module '*.json' {
 }
 
 declare module 'requestnetworkartifacts';
+declare module 'ethereumjs-util';

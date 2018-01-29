@@ -415,4 +415,9 @@ export class Web3Single {
 
         return { abi, address, instance, blockNumber, version };
     }
+
+    public sign(message: any, address: string): Promise<any> {
+        return this.web3.eth.sign(message, address);
+    }
+
 }
