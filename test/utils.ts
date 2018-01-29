@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 
-const ETH_ABI = require('ethereumjs-abi');
+const ETH_ABI = require('../src/lib/ethereumjs-abi-perso.js');
 const ETH_UTIL = require('ethereumjs-util');
 
 const WEB3 = require('web3');
