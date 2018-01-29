@@ -123,10 +123,74 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 * @param   `_payer`             address of the payer
 * @param   `_amountInitial`     amount initial expected of the request
 * @param   `_data`              Json of the request's details (optional)
-* @param   `_extension`         address of the extension contract of the request (optional)
-* @param   `_extensionParams`   array of parameters for the extension (optional)
+* @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
+* @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
+
+
+### Create a request as payer
+`public createRequestAsPayer(_payee: string, _amountInitial: any, _additionals: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)`
+
+Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
+
+* @param   `_payee`             address of the payee
+* @param   `_amountInitial`     amount initial expected of the request
+* @param   `_amountToPay`       amount to pay in wei
+* @param   `_additionals`       additional to declaire in wei (optional)
+* @param   `_data`              Json of the request's details (optional)
+* @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
+* @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
+
+
+### Sign a request as payee
+`public signRequestAsPayee(_amountInitial: any, _amount: any, _additionals: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)`
+
+* @param   `_amountInitial`     amount initial expected of the request
+* @param   `_expirationDate`    timestamp of the date after what the signed request is useless
+* @param   `_data`              Json of the request's details (optional)
+* @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
+* @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
+* @param   `_from`              address of the payee, default account will be used otherwise (optional)
+* @return  promise of the object containing the request signed
+
+
+### Broadcast a signed transaction and fill it with his address as payer
+`public broadcastSignedRequestAsPayer(_signedRequest: any, _amountToPay: any, _additionals: any, _options ? : any)`
+
+Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
+
+* @param   `_signedRequest`     object signed request (see Signed Request)
+* @param   `_amountToPay`       amount to pay in wei (optional)
+* @param   `_additionals`       additional to declaire in wei (optional)
+* @param   `_options`           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+
+
+### Signed Request
+
+`{  
+   "amountInitial"      => Amount initial of the request
+   "currencyContract":  => Address of the currency contract
+   "data":              => hash of the ipfs file (optional)
+   "expirationDate":    => unix timestamp of expiration date (in second)
+   "hash":              => solidity hash of the request data
+   "payee":             => payee address (which must be the signer also)
+   "signature":         => signature by payee of the hash
+}`
+
+Example: 
+`{  
+   "amountInitial":"100000000",
+   "currencyContract":"0xf12b5dd4ead5f743c6baa640b0216200e89b60da",
+   "data":"QmbFpULNpMJEj9LfvhH4hSTfTse5YrS2JvhbHW6bDCNpwS",
+   "expirationDate":7952342400,
+   "hash":"0x45ba3046df9e10f5b32c893ad21749d69c473d6629756654f82b9528da6c1480",
+   "payee":"0x821aea9a577a9b44299b9c15c88cf3087f3b5544",
+   "signature":"0x6df09d4c90bafea043d555caeb3d01d2dc656df2e27741b2b7f66403a682c69070d3ba30119598b766e5eb6413d49d6d91c349e23207b96102f54c69fca967d800"
+}`
 
 
 ### Accept a request

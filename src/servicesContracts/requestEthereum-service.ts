@@ -352,13 +352,9 @@ export default class RequestEthereumService {
     /**
      * broadcast a signed transaction and fill it with his address as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payee             address of the payee
-     * @param   _amountInitial     amount initial expected of the request
+     * @param   _signedRequest     object signed request
      * @param   _amountToPay       amount to pay in wei
      * @param   _additionals       additional to declaire in wei (optional)
-     * @param   _data              Json of the request's details (optional)
-     * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
-     * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
