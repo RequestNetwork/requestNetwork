@@ -19,23 +19,23 @@
     "prepare": "npm run build"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.5",
-    "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.53",
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "dirty-chai": "^2.0.1",
-    "mocha": "^4.1.0",
-    "ts-node": "^3.3.0",
-    "tslint": "^5.8.0",
-    "typings": "^2.1.1"
+    "@types/chai": "4.0.5",
+    "@types/mocha": "2.2.44",
+    "@types/node": "8.0.53",
+    "chai": "4.1.2",
+    "chai-as-promised": "7.1.1",
+    "dirty-chai": "2.0.1",
+    "mocha": "4.1.0",
+    "ts-node": "3.3.0",
+    "tslint": "5.8.0",
+    "typings": "2.1.1"
   },
   "dependencies": {
-    "ethereumjs-util": "^5.1.2",
-    "ipfs-api": "^15.1.0",
-    "requestnetworkartifacts": "^0.0.1",
-    "tslib": "^1.8.1",
-    "web3": "^1.0.0-beta.26"
+    "ethereumjs-util": "5.1.2",
+    "ipfs-api": "15.1.0",
+    "requestnetworkartifacts": "0.0.1",
+    "tslib": "1.8.1",
+    "web3": "1.0.0-beta.26"
   },
   "main": "dist/src/requestNetwork.js",
   "files": [
