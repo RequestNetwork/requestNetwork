@@ -1,3 +1,4 @@
+import * as ETH_UTIL from 'ethereumjs-util';
 import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
 import * as Types from '../types';
@@ -417,7 +418,26 @@ export class Web3Single {
     }
 
     public sign(message: any, address: string): Promise<any> {
-        return this.web3.eth.sign(message, address);
+        return new Promise( async (resolve, reject) => {
+            let signature = await this.web3.eth.sign(message, address);
+            // check if the signature is valid for solidity
+            if (!this.isValidSignatureForSolidity(signature, message, address)) {
+                // Work around for old web3 we had the solidity padding : '\u0019Ethereum Signed Message:\n'
+                const PADDING_SOLIDITY = '0x19457468657265756d205369676e6564204d6573736167653a0a';
+                const length = (message.length / 2) - 1;
+                const lengthHex = this.web3.utils.utf8ToHex(length.toString());
+                const messagePadded = PADDING_SOLIDITY + lengthHex.slice(2) + message.slice(2);
+                signature = await this.web3.eth.sign(messagePadded, address);
+            }
+            return resolve(signature);
+        });
     }
 
+    public isValidSignatureForSolidity(signature: string, hash: string, payee: string): boolean {
+        const signatureRPClike = ETH_UTIL.fromRpcSig(signature);
+        const pub = ETH_UTIL.ecrecover(ETH_UTIL.hashPersonalMessage(ETH_UTIL.toBuffer(hash)), signatureRPClike.v, signatureRPClike.r, signatureRPClike.s);
+        const addrBuf = ETH_UTIL.pubToAddress(pub);
+        const addressSigning = ETH_UTIL.bufferToHex(addrBuf);
+        return this.areSameAddressesNoChecksum(addressSigning, payee);
+    }
 }

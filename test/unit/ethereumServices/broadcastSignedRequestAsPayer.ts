@@ -21,7 +21,7 @@ let currentNumRequest: any;
 
 let signedRequest: any;
 
-describe('createRequestAsPayer', () => {
+describe('broadcastSignedRequestAsPayer', () => {
     const arbitraryAmount = 100000000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestEthereumService.web3Single.web3;
@@ -151,5 +151,39 @@ describe('createRequestAsPayer', () => {
         } catch (e) {
             utils.expectEqualsObject(e, Error('payee is not the signer'),'exception not right');
         }
+    });
+
+    it('sign + broadcast', async () => {
+        const expirationDate: number = new Date('2222-01-01').getTime();
+        const resultSigned = await rn.requestEthereumService.signRequestAsPayee(
+                    arbitraryAmount,
+                    expirationDate,
+                    '{"reason":"weed purchased"}',
+                    '',
+                    [],
+                    payee);
+
+        const result = await rn.requestEthereumService.broadcastSignedRequestAsPayer(
+                resultSigned,
+                2000,
+                1000,
+                {from: payer})
+            .on('broadcasted', (data: any) => {
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+            });
+
+        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount + 1000, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.balance, 2000, 'balance is wrong');
+        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+        expect(result.request.extension, 'extension is wrong').to.be.undefined;
+        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
+        expect(result.request.state, 'state is wrong').to.equal(1);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+
+        utils.expectEqualsObject(result.request.data.data, {'reason': 'weed purchased'}, 'data.data is wrong');
+        expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 });

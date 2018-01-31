@@ -304,7 +304,7 @@ export default class RequestEthereumService {
             const expirationDateSolidityTime = _expirationDate / 1000;
             const todaySolidityTime: number = (new Date().getTime()) / 1000;
             if ( expirationDateSolidityTime <= todaySolidityTime ) {
-                return promiEvent.reject(Error('_expirationDate must be greater than now')); 
+                return promiEvent.reject(Error('_expirationDate must be greater than now'));
             }
             if (_amountInitial.isNeg()) return promiEvent.reject(Error('_amountInitial must a positive integer'));
             if (_extension) {
@@ -932,7 +932,7 @@ export default class RequestEthereumService {
         });
     }
 
-    private async createSignedRequest(    
+    private async createSignedRequest(
                             currencyContract: string,
                             payee: string,
                             amountInitial: any,
@@ -996,10 +996,6 @@ export default class RequestEthereumService {
     }
 
     private signedRequestHasError(_signedRequest: any, payer: string): string {
-        const signatureRPClike = ETH_UTIL.fromRpcSig(_signedRequest.signature);
-        const pub = ETH_UTIL.ecrecover(ETH_UTIL.hashPersonalMessage(ETH_UTIL.toBuffer(_signedRequest.hash)), signatureRPClike.v, signatureRPClike.r, signatureRPClike.s);
-        const addrBuf = ETH_UTIL.pubToAddress(pub);
-        const addressSigning   = ETH_UTIL.bufferToHex(addrBuf);
         _signedRequest.amountInitial = new BN(_signedRequest.amountInitial);
         const hashComputed = this.hashRequest(_signedRequest.currencyContract,
                         _signedRequest.payee,
@@ -1031,7 +1027,7 @@ export default class RequestEthereumService {
         if (this.web3Single.areSameAddressesNoChecksum(payer, _signedRequest.payee)) {
             return '_from must be different than payee';
         }
-        if (!this.web3Single.areSameAddressesNoChecksum(addressSigning, _signedRequest.payee)) {
+        if (!this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payee)) {
             return 'payee is not the signer';
         }
         return '';
