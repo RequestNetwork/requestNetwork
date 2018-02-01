@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist",
-    "build": "npm run clean && tsc && shx mkdir dist && shx mkdir dist/src && shx cp -r ./src/artifacts ./dist/src/ && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
+    "build": "npm run clean && tsc && shx cp -r ./src/artifacts ./dist/src/ && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
     "lint": "tslint --project tsconfig.json -c tslint.json",
     "test": "npm run build && node ./dist/test/test",
     "testunit": "npm run build && mocha --timeout 15000 dist/test/unit/**/*.js",
