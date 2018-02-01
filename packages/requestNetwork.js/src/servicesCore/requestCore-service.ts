@@ -275,7 +275,7 @@ export default class RequestCoreService {
                     const networkName = this.web3Single.networkName;
                     const optionFilters = {
                         filter: { requestId: _requestId },
-                        fromBlock: _fromBlock ? _fromBlock : coreContract.networks[networkName].blockNumber,
+                        fromBlock: _fromBlock ? _fromBlock : coreContract.blockNumber,
                         toBlock: _toBlock ? _toBlock : 'latest'};
 
                     let eventsCoreRaw: any[] = [];

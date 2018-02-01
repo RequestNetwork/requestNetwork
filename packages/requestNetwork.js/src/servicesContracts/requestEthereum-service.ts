@@ -899,7 +899,7 @@ export default class RequestEthereumService {
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
 
-            const contract = this.web3Single.getContractInstance(_request.currencyContract.address);
+            const contract = this.web3Single.getContractInstance(_request.currencyContract);
             // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
             //     // allEvents and filter don't work together so far. issues created on web3 github
             //     // filter: {requestId: _requestId},
