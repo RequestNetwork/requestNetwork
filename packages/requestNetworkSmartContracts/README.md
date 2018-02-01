@@ -3,7 +3,7 @@
 Welcome to the Request Network Smart Contracts documentation. 
 Using the smart contracts you can create new requests, pay them, consult them or update them from your own on-chain applications. 
 
-If your application is off-chain, you can interact with the JS library. [View JS Library Documentation](https://github.com/RequestNetwork/requestNetwork.js) 
+If your application is off-chain, you can interact with the JS library. [View JS Library Documentation](https://github.com/RequestNetwork/requestNetwork) 
 
 ### Warning
 This is still an alpha version which will evolve significantly before the main net release. 
@@ -18,15 +18,15 @@ No tutorial available yet. Feel free to suggest yours and we will refer to it.
 
 ### Develop on test-rpc
 You can deploy your own contracts on testrpc thanks to the truffle project:
-```git clone https://github.com/RequestNetwork/Request_SmartContracts 
-cd Request_SmartContracts 
+```git clone https://github.com/RequestNetwork/requestNetwork 
+cd package/requestNetworkSmartContracts 
 truffle deploy --network development
 ```
 
 ### Develop on Rinkeby
 Contract addresses
-* RequestCore: 0xDD7dF24DBB1188b6e1baa9E17CBfD1dB3955C223
-* RequestEthereum: 0x0d5D6c5aB28737C182B9e67194451c2C6BcA8623
+* RequestCore: 0x964D72680ecE90cb9db0375ba2d7481F5cdc046b
+* RequestEthereum: 0x08474da803d2139d7ebe3312D7adf5F06689CA09
 
 ### Develop on the Main net 
 not available yet
