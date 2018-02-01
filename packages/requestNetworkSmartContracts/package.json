@@ -1,0 +1,11 @@
+{
+  "name": "Request_SmartContracts",
+  "version": "0.0.1",
+  "description": "Smart contracts that implement the Request Network protocol.",
+  "keywords": [
+    "requestnetwork",
+    "ethereum",
+    "smart contracts",
+    "request"
+  ]
+}
