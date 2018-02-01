@@ -3,7 +3,7 @@
 Welcome to the requestNetwork.js documentation! requestNetwork.js is a Javascript library for interacting with the Request Network protocol. 
 Using the library you can create new requests from your applications, pay them, consult them or update them from your own off-chain applications. 
 
-If your application is decentralized and onchain on Ethereum, you can directly interact with our smart contracts. [Smart contract documentation](https://github.com/RequestNetwork/Request_SmartContracts/)
+If your application is decentralized and onchain on Ethereum, you can directly interact with our smart contracts. [Smart contract documentation](/packages/requestNetworkSmartContracts)  
 
 ### Warning
 This is still an alpha version which will evolve significantly before the main net release. 
