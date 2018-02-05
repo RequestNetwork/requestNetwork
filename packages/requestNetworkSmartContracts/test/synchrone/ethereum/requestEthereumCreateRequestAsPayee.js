@@ -59,17 +59,16 @@ contract('RequestEthereum createRequestAsPayee',  function(accounts) {
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
+		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
+		assert.equal(l.data[1],'',"Event Created wrong args data");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(r[0],payee,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-		
-		
-		assert.equal(r[6],0,"new request wrong data : state");
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : state");
 
 		var e = await requestCore.getExtension.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(e,0,"new request wrong data : extension1");

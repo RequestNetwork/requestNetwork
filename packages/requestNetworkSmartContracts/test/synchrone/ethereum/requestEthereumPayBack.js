@@ -56,13 +56,13 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],-arbitraryAmount10percent,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : balance");
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : balance");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount10percent,"new request wrong data : amount to withdraw payer");
 	});
@@ -108,15 +108,15 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],-arbitraryAmount10percent,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : balance");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount10percent,"new request wrong data : amount to withdraw payer");
 	});
@@ -133,15 +133,15 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],-arbitraryAmount10percent,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : balance");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount10percent,"new request wrong data : amount to withdraw payer");
 	});
@@ -160,15 +160,15 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : balance");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),0,"new request wrong data : amount to withdraw payer");
 	});
@@ -184,15 +184,15 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],-arbitraryAmount30percent,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount-arbitraryAmount30percent,"new request wrong data : balance");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount30percent,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount30percent,"new request wrong data : amount to withdraw payer");
 
@@ -206,15 +206,15 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],-arbitraryAmount20percent,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount-arbitraryAmount30percent-arbitraryAmount20percent,"new request wrong data : balance");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount30percent-arbitraryAmount20percent,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount20percent+arbitraryAmount30percent,"new request wrong data : amount to withdraw payer");
 
@@ -228,15 +228,15 @@ contract('RequestEthereum PayBack',  function(accounts) {
 		assert.equal(l.data[0],-arbitraryAmount10percent,"Event UpdateBalance wrong args amountRefunded");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount-arbitraryAmount30percent-arbitraryAmount20percent-arbitraryAmount10percent,"new request wrong data : balance");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount30percent-arbitraryAmount20percent-arbitraryAmount10percent,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount30percent+arbitraryAmount20percent+arbitraryAmount10percent,"new request wrong data : amount to withdraw payer");
 	});
@@ -252,13 +252,13 @@ contract('RequestEthereum PayBack',  function(accounts) {
 	 	var r = await (requestEthereum.refundAction(utils.getRequestId(requestCore.address, 1), {value:arbitraryAmount+1, from:payee}));
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],-1,"new request wrong data : balance");
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],-1,"new request wrong data : balance");
+		assert.equal(newReq[5],1,"new request wrong data : state");
 
 		assert.equal((await web3.eth.getBalance(payer)).sub(balancePayerBefore),arbitraryAmount+1,"new request wrong data : amount to withdraw payer");
 	});

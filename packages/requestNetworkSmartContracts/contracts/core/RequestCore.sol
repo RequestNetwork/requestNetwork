@@ -24,7 +24,6 @@ contract RequestCore is Administrable {
     enum State { Created, Accepted, Canceled }
 
     struct Request {
-        address creator;
         address payee;
         address payer;
         int256 expectedAmount;
@@ -32,7 +31,6 @@ contract RequestCore is Administrable {
         int256 balance;
         State state;
         address extension;
-        string data;
     }
 
     // index of the Request in the mapping
@@ -44,7 +42,7 @@ contract RequestCore is Administrable {
     /*
      *  Events 
      */
-    event Created(bytes32 indexed requestId, address indexed payee, address indexed payer);
+    event Created(bytes32 indexed requestId, address indexed payee, address indexed payer, address creator, string data);
     event Accepted(bytes32 indexed requestId);
     event Canceled(bytes32 indexed requestId);
     event UpdateBalance(bytes32 indexed requestId, int256 deltaAmount);
@@ -54,7 +52,6 @@ contract RequestCore is Administrable {
     event NewPayer(bytes32 indexed requestId, address payer);
     event NewExpectedAmount(bytes32 indexed requestId, int256 expectedAmount);
     event NewExtension(bytes32 indexed requestId, address extension);
-    event NewData(bytes32 indexed requestId, string data);
 
     /*
      *  Constructor 
@@ -86,12 +83,12 @@ contract RequestCore is Administrable {
         numRequests = numRequests.add(1);
         requestId = bytes32((uint256(this) << 96).add(numRequests));
 
-        requests[requestId] = Request(_creator, _payee, _payer, _expectedAmount, msg.sender, 0, State.Created, _extension, _data); 
+        requests[requestId] = Request(_payee, _payer, _expectedAmount, msg.sender, 0, State.Created, _extension); 
 
         // collect
         require(trustedNewBurnManager.collectForReqBurning.value(msg.value)(_expectedAmount, msg.sender, _extension));
 
-        Created(requestId, _payee, _payer);
+        Created(requestId, _payee, _payer, _creator, _data);
         return requestId;
     }
 
@@ -211,20 +208,6 @@ contract RequestCore is Administrable {
         require(r.currencyContract==msg.sender);
         requests[_requestId].extension = _extension;
         NewExtension(_requestId, _extension);
-    }
-
-    /*
-     * @dev Set extension of a request
-     * @param _requestId Request id
-     * @param new extension
-     */     
-    function setData(bytes32 _requestId, string _data)
-        external
-    {
-        Request storage r = requests[_requestId];
-        require(r.currencyContract==msg.sender);
-        requests[_requestId].data = _data;
-        NewData(_requestId, _data);
     }
 
     /* GETTER */

@@ -73,17 +73,21 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,0,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],0,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],0,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		var r = await requestCore.setPayee(utils.getRequestId(requestCore.address,1), payee, {from:fakeContract});
 		assert.equal(r.logs[0].event,"NewPayee","Event is missing after setPayee()");
@@ -91,15 +95,15 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.payee,payee,"wrong args payee");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		// new request payer==0 OK
 		r = await requestCore.createRequest(creator, payee, 0, arbitraryAmount, 0, "", {from:fakeContract});
@@ -107,19 +111,21 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,2),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,0,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,2));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],0,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],0,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
 
 
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		var r = await requestCore.setPayer(utils.getRequestId(requestCore.address,2), payer, {from:fakeContract});
 		assert.equal(r.logs[0].event,"NewPayer","Event is missing after setPayer()");
@@ -127,15 +133,15 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.payer,payer,"wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,2));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		// new request payee==payer OK
 		r = await requestCore.createRequest(creator, payee, payee, arbitraryAmount, 0, "", {from:fakeContract});
@@ -143,17 +149,19 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,3),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payee,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,3));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payee,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payee,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 	});
 
 
@@ -172,17 +180,19 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],0,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],0,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		var r = await requestCore.setExpectedAmount(utils.getRequestId(requestCore.address,1), arbitraryAmount, {from:fakeContract});
 		assert.equal(r.logs[0].event,"NewExpectedAmount","Event is missing after setExpectedAmount()");
@@ -190,15 +200,15 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.expectedAmount,arbitraryAmount,"wrong args arbitraryAmount");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		await utils.expectThrow(requestCore.createRequest(creator, payee, payer, new BigNumber(2).pow(256), 0, "", {from:fakeContract}));
 	});
@@ -217,17 +227,19 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],-arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],-arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		await utils.expectThrow(requestCore.createRequest(creator, payee, payer, new BigNumber(-2).pow(256), 0, "", {from:fakeContract}));
 	});
@@ -247,19 +259,21 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
 
 
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		var newReqExtension = await requestCore.getExtension.call(utils.getRequestId(requestCore.address,1));
 		assert.equal(newReqExtension,0,"new request wrong data : Extension[0]");
@@ -271,32 +285,14 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.extension,fakeExtention1,"wrong args extension");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],fakeExtention1,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
-
-
-		var r = await requestCore.setData(utils.getRequestId(requestCore.address,1), "hello world!", {from:fakeContract});
-		assert.equal(r.logs[0].event,"NewData","Event is missing after setData()");
-		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"wrong args requestId");
-		assert.equal(r.logs[0].args.data,"hello world!","wrong args data");
-
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],fakeExtention1,"new request wrong data : extension");
-		assert.equal(newReq[8],"hello world!","new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],fakeExtention1,"new request wrong data : extension");
 	});
 
 	// new request with data
@@ -312,17 +308,19 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],"QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz","new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		// assert.equal(newReq[8],"QmSbfaY3FRQQNaFx8Uxm6rRKnqwu8s9oWGpRmqgfTEgxWz","new request wrong data : data");
 
 		var newReqExtension = await requestCore.getExtension.call(utils.getRequestId(requestCore.address,1));
 		assert.equal(newReqExtension,0,"new request wrong data : Extension[0]");
@@ -342,17 +340,19 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],fakeExtention1,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],fakeExtention1,"new request wrong data : extension");
+		
 
 
 		var newReqExtension = await requestCore.getExtension.call(utils.getRequestId(requestCore.address,1));
@@ -388,19 +388,21 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"Event Created wrong args requestId");
 		assert.equal(r.logs[0].args.payee,payee,"Event Created wrong args payee");
 		assert.equal(r.logs[0].args.payer,payer,"Event Created wrong args payer");
+		assert.equal(r.logs[0].args.creator,creator,"Event Created wrong args creator");
+		assert.equal(r.logs[0].args.data,"","Event Created wrong args payer");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
 
 
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],0,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],0,"new request wrong data : extension");
+		
 
 		var newReqExtension = await requestCore.getExtension.call(utils.getRequestId(requestCore.address,1));
 		assert.equal(newReqExtension,0,"new request wrong data : Extension[0]");
@@ -412,32 +414,24 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(r.logs[0].args.extension,fakeExtention1,"wrong args extension");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],fakeExtention1,"new request wrong data : extension");
-		assert.equal(newReq[8],0,"new request wrong data : data");
-
-
-		var r = await requestCore.setData(utils.getRequestId(requestCore.address,1), "hello world!", {from:fakeContract});
-		assert.equal(r.logs[0].event,"NewData","Event is missing after setData()");
-		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,1),"wrong args requestId");
-		assert.equal(r.logs[0].args.data,"hello world!","wrong args data");
-
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],fakeExtention1,"new request wrong data : extension");
+		
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[6],0,"new request wrong data : state");
-		assert.equal(newReq[7],fakeExtention1,"new request wrong data : extension");
-		assert.equal(newReq[8],"hello world!","new request wrong data : data");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(newReq[4],0,"new request wrong data : balance");
+		assert.equal(newReq[5],0,"new request wrong data : state");
+		assert.equal(newReq[6],fakeExtention1,"new request wrong data : extension");
 
 		// assert.equal((await web3.eth.getBalance(contractForBurning)).sub(balanceContractForBurning),arbitraryAmount/100,"amount collected wrong");
 
@@ -475,11 +469,11 @@ contract('RequestCore Create Request', function(accounts) {
 		await requestCore.createRequest(creator, payee, payer, arbitraryAmount, 0, "", {value:max,from:fakeContract});
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address,1));
-		assert.equal(newReq[0],creator,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],fakeContract,"new request wrong data : currencyContract");
+		
+		assert.equal(newReq[0],payee,"new request wrong data : payee");
+		assert.equal(newReq[1],payer,"new request wrong data : payer");
+		assert.equal(newReq[2],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[3],fakeContract,"new request wrong data : currencyContract");
 
 		assert.equal((await web3.eth.getBalance(contractForBurning)).sub(balanceContractForBurning),max,"amount collected wrong");
 	});

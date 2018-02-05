@@ -51,15 +51,13 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],1,"new request wrong data : state");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
+		assert.equal(r[5],1,"new request wrong data : state");
 	});
 
 	// accept request already accepted OK
@@ -71,15 +69,15 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],1,"new request wrong data : state");
+		assert.equal(r[5],1,"new request wrong data : state");
 	});
 
 	// accept request already canceled OK
@@ -91,15 +89,15 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],1,"new request wrong data : state");
+		assert.equal(r[5],1,"new request wrong data : state");
 	});
 
 	it("accept if Core Paused OK", async function () {
@@ -110,60 +108,27 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],1,"new request wrong data : state");
+		assert.equal(r[5],1,"new request wrong data : state");
 	});
 
 	it("accept request not exist impossible", async function () {
 		await utils.expectThrow(requestCore.accept(utils.getRequestId(requestCore.address, 2), {from:fakeContract}));
-
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 2), {from:fakeContract});
-		assert.equal(r[0],0,"request wrong data : creator");
-		assert.equal(r[1],0,"request wrong data : payee");
-		assert.equal(r[2],0,"request wrong data : payer");
-		assert.equal(r[3],0,"request wrong data : expectedAmount");
-		assert.equal(r[4],0,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],0,"new request wrong data : state");
 	});
 
 	it("accept request from a random guy impossible", async function () {
 		await utils.expectThrow(requestCore.accept(utils.getRequestId(requestCore.address, 1), {from:otherguy}));
-
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],0,"new request wrong data : state");
 	});
 
 	it("accept request from other subcontract impossible", async function () {
 		await utils.expectThrow(requestCore.accept(utils.getRequestId(requestCore.address, 1), {from:fakeContract2}));
-
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],0,"new request wrong data : state");
 	});
 	// ##################################################################################################
 	// ##################################################################################################
@@ -182,15 +147,15 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],2,"new request wrong data : state");
+		assert.equal(r[5],2,"new request wrong data : state");
 	});
 
 	// cancel request already accepted OK
@@ -202,15 +167,15 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],2,"new request wrong data : state");
+		assert.equal(r[5],2,"new request wrong data : state");
 	});
 
 	// cancel request already canceled OK
@@ -222,15 +187,15 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],2,"new request wrong data : state");
+		assert.equal(r[5],2,"new request wrong data : state");
 	});
 
 	it("cancel if Core Paused OK", async function () {
@@ -241,60 +206,27 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],0,"new request wrong data : balance");
 
 
-		assert.equal(r[6],2,"new request wrong data : state");
+		assert.equal(r[5],2,"new request wrong data : state");
 	});
 
 	it("cancel request not exist impossible", async function () {
 		await utils.expectThrow(requestCore.cancel(utils.getRequestId(requestCore.address, 2), {from:fakeContract}));
-
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 2), {from:fakeContract});
-		assert.equal(r[0],0,"request wrong data : creator");
-		assert.equal(r[1],0,"request wrong data : payee");
-		assert.equal(r[2],0,"request wrong data : payer");
-		assert.equal(r[3],0,"request wrong data : expectedAmount");
-		assert.equal(r[4],0,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],0,"new request wrong data : state");
 	});
 
 	it("cancel request from a random guy impossible", async function () {
 		await utils.expectThrow(requestCore.cancel(utils.getRequestId(requestCore.address, 1), {from:otherguy}));
-
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],0,"new request wrong data : state");
 	});
 
 	it("cancel request from other subcontract impossible", async function () {
 		await utils.expectThrow(requestCore.cancel(utils.getRequestId(requestCore.address, 1), {from:fakeContract2}));
-
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],0,"new request wrong data : balance");
-
-
-		assert.equal(r[6],0,"new request wrong data : state");
 	});
 
 	it("cancel request balance != 0 OK", async function () {
@@ -306,15 +238,15 @@ contract('RequestCore Accept & Cancel Request', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(r[0],creator,"request wrong data : creator");
-		assert.equal(r[1],payee,"request wrong data : payee");
-		assert.equal(r[2],payer,"request wrong data : payer");
-		assert.equal(r[3],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[4],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[5],1,"new request wrong data : balance");
+		
+		assert.equal(r[0],payee,"request wrong data : payee");
+		assert.equal(r[1],payer,"request wrong data : payer");
+		assert.equal(r[2],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[3],fakeContract,"new request wrong data : currencyContract");
+		assert.equal(r[4],1,"new request wrong data : balance");
 
 
-		assert.equal(r[6],2,"new request wrong data : state");
+		assert.equal(r[5],2,"new request wrong data : state");
 	});
 	// ##################################################################################################
 	// ##################################################################################################
