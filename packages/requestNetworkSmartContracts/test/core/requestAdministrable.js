@@ -5,15 +5,13 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 }
 
 var Administrable = artifacts.require("./core/Administrable.sol");
-var RequestCore = artifacts.require("./core/RequestCore.sol");
-var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
+var RequestCore = artifacts.require("./core/RequestCore.sol");;
 var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
 
 contract('RequestCore Administrative part', function(accounts) {
 	var admin = accounts[0];
 	var otherguy = accounts[1];
-
-
+	var fakeContract = accounts[2];
 	// Creation and event
 	it("Creation Core, pause, unpause", async function () {
 		var requestCore = await RequestCore.new();
@@ -46,82 +44,63 @@ contract('RequestCore Administrative part', function(accounts) {
 	// adminAddTrustedCurrencyContract adminRemoveTrustedCurrencyContract
 	it("adminAddTrustedCurrencyContract add a new contract as trusted", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
 
-		var r = await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
+		var r = await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		var ev = utils.getEventFromReceipt(r.receipt.logs[0], Administrable.abi);
 		assert.equal(ev.name,"NewTrustedContract","Event NewTrustedContract is missing after adminAddTrustedCurrencyContract()");
-		assert.equal(ev.data[0].toLowerCase(),requestEthereum.address,"Event NewTrustedContract wrong args");
-		assert.equal(await requestCore.getStatusContract.call(requestEthereum.address),"1","New contract should be added");
+		assert.equal(ev.data[0].toLowerCase(),fakeContract,"Event NewTrustedContract wrong args");
+		assert.equal(await requestCore.getStatusContract.call(fakeContract),"1","New contract should be added");
 	});
 	it("adminRemoveTrustedCurrencyContract remove trusted contract", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
+		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 
-		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
-
-		var r = await requestCore.adminRemoveTrustedCurrencyContract(requestEthereum.address, {from:admin});
+		var r = await requestCore.adminRemoveTrustedCurrencyContract(fakeContract, {from:admin});
 		var ev = utils.getEventFromReceipt(r.receipt.logs[0], Administrable.abi);
 		assert.equal(ev.name,"RemoveTrustedContract","Event RemoveTrustedContract is missing after adminAddTrustedCurrencyContract()");
-		assert.equal(ev.data[0].toLowerCase(),requestEthereum.address,"Event RemoveTrustedContract wrong args");
-		assert.equal(await requestCore.getStatusContract.call(requestEthereum.address),"0","New contract should be added");
+		assert.equal(ev.data[0].toLowerCase(),fakeContract,"Event RemoveTrustedContract wrong args");
+		assert.equal(await requestCore.getStatusContract.call(fakeContract),"0","New contract should be added");
 	});
 
 	// adminAddTrustedExtension adminRemoveTrustedCurrencyContract
 	it("adminAddTrustedExtension add a new extension as trusted", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
-
-		var r = await requestCore.adminAddTrustedExtension(requestEthereum.address, {from:admin});
+		var r = await requestCore.adminAddTrustedExtension(fakeContract, {from:admin});
 		var ev = utils.getEventFromReceipt(r.receipt.logs[0], Administrable.abi);
 		assert.equal(ev.name,"NewTrustedExtension","Event NewTrustedExtension is missing after adminAddTrustedExtension()");
-		assert.equal(ev.data[0].toLowerCase(),requestEthereum.address,"Event NewTrustedExtension wrong args");
-		assert.equal(await requestCore.getStatusExtension.call(requestEthereum.address),"1","New extension should be added");
+		assert.equal(ev.data[0].toLowerCase(),fakeContract,"Event NewTrustedExtension wrong args");
+		assert.equal(await requestCore.getStatusExtension.call(fakeContract),"1","New extension should be added");
 	});
 	it("adminRemoveTrustedCurrencyContract remove trusted contract", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
+		await requestCore.adminAddTrustedExtension(fakeContract, {from:admin});
 
-		await requestCore.adminAddTrustedExtension(requestEthereum.address, {from:admin});
-
-		var r = await requestCore.adminRemoveExtension(requestEthereum.address, {from:admin});
+		var r = await requestCore.adminRemoveExtension(fakeContract, {from:admin});
 		var ev = utils.getEventFromReceipt(r.receipt.logs[0], Administrable.abi);
 		assert.equal(ev.name,"RemoveTrustedExtension","Event RemoveTrustedExtension is missing after adminRemoveExtension()");
-		assert.equal(ev.data[0].toLowerCase(),requestEthereum.address,"Event RemoveTrustedExtension wrong args");
-		assert.equal(await requestCore.getStatusExtension.call(requestEthereum.address),"0","New extension should be added");
+		assert.equal(ev.data[0].toLowerCase(),fakeContract,"Event RemoveTrustedExtension wrong args");
+		assert.equal(await requestCore.getStatusExtension.call(fakeContract),"0","New extension should be added");
 	});
-
-
 
 	// right on adminAddTrustedCurrencyContract adminRemoveTrustedCurrencyContract adminAddTrustedExtension adminRemoveExtension
 	it("adminAddTrustedCurrencyContract can be done only by admin", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
-
-		await utils.expectThrow(requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:otherguy}));
+		await utils.expectThrow(requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:otherguy}));
 	});
 	it("adminAddTrustedExtension can be done only by admin", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
-
-		await utils.expectThrow(requestCore.adminAddTrustedExtension(requestEthereum.address, {from:otherguy}));
+		await utils.expectThrow(requestCore.adminAddTrustedExtension(fakeContract, {from:otherguy}));
 	});
 	it("adminRemoveTrustedCurrencyContract can be done only by admin", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
-
-		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
-		await utils.expectThrow(requestCore.adminRemoveTrustedCurrencyContract(requestEthereum.address, {from:otherguy}));
+		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
+		await utils.expectThrow(requestCore.adminRemoveTrustedCurrencyContract(fakeContract, {from:otherguy}));
 	});
 	it("adminRemoveExtension can be done only by admin", async function() {
 		var requestCore = await RequestCore.new();
-		var requestEthereum = await RequestEthereum.new();
-
-		await requestCore.adminAddTrustedExtension(requestEthereum.address, {from:admin});
-		await utils.expectThrow(requestCore.adminRemoveExtension(requestEthereum.address, {from:otherguy}));
+		await requestCore.adminAddTrustedExtension(fakeContract, {from:admin});
+		await utils.expectThrow(requestCore.adminRemoveExtension(fakeContract, {from:otherguy}));
 	});
-
-
 
 
 	// right on setBurnManager 
@@ -143,5 +122,3 @@ contract('RequestCore Administrative part', function(accounts) {
 		assert.equal(await requestCore.trustedNewBurnManager.call(),requestBurnManagerSimple.address,"trustedNewBurnManager is wrong");
 	});
 });
-
-
