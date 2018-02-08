@@ -23,14 +23,20 @@ contract RequestCore is Administrable {
 
     enum State { Created, Accepted, Canceled }
 
-    struct Request {
-        address payee;
-        address payer;
+    struct Payee {
+        address addr;
         int256 expectedAmount;
-        address currencyContract;
         int256 balance;
+    }
+    struct Request {
+        address payer;
+        address currencyContract;
         State state;
         address extension;
+
+        address payee;
+        int256 expectedAmount;
+        int256 balance;
     }
 
     // index of the Request in the mapping
@@ -38,6 +44,7 @@ contract RequestCore is Administrable {
     
     // mapping of all the Requests
     mapping(bytes32 => Request) public requests;
+    mapping(bytes32 => Payee[]) public subPayees;
 
     /*
      *  Events 
@@ -45,13 +52,16 @@ contract RequestCore is Administrable {
     event Created(bytes32 indexed requestId, address indexed payee, address indexed payer, address creator, string data);
     event Accepted(bytes32 indexed requestId);
     event Canceled(bytes32 indexed requestId);
-    event UpdateBalance(bytes32 indexed requestId, int256 deltaAmount);
-    event UpdateExpectedAmount(bytes32 indexed requestId, int256 deltaAmount);
 
-    event NewPayee(bytes32 indexed requestId, address payee);
-    event NewPayer(bytes32 indexed requestId, address payer);
-    event NewExpectedAmount(bytes32 indexed requestId, int256 expectedAmount);
-    event NewExtension(bytes32 indexed requestId, address extension);
+    event NewSubPayee(bytes32 indexed requestId, address indexed payee);
+
+    event UpdatePayer(bytes32 indexed requestId, address payer);
+    event UpdatePayee(bytes32 indexed requestId, address payee);
+    event UpdateExtension(bytes32 indexed requestId, address extension);
+
+    event UpdateAddressPayee(bytes32 indexed requestId, uint8 position, address indexed payee);
+    event UpdateExpectedAmount(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
+    event UpdateBalance(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
 
     /*
      *  Constructor 
@@ -71,24 +81,31 @@ contract RequestCore is Administrable {
      * @param _extension an extension can be linked to a request and allows advanced payments conditions such as escrow. Extensions have to be whitelisted in Core
      * @return Returns the id of the request 
      */   
-    function createRequest(address _creator, address _payee, address _payer, int256 _expectedAmount, address _extension, string _data) 
-        payable
+    function createRequest(address _creator, address[] _payees, int256[] _expectedAmounts, address _payer, address _extension, string _data) 
         external
         whenNotPaused 
-        isTrustedContract(msg.sender)
-        isTrustedExtension(_extension)
-        creatorNotZero(_creator)
         returns (bytes32 requestId) 
     {
+        require(_creator!=0); // not as modifier to lighten the stack
+        require(isTrustedContract(msg.sender)); // not as modifier to lighten the stack
+        require(isTrustedExtension(_extension)); // not as modifier to lighten the stack
+
         numRequests = numRequests.add(1);
+        // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
         requestId = bytes32((uint256(this) << 96).add(numRequests));
 
-        requests[requestId] = Request(_payee, _payer, _expectedAmount, msg.sender, 0, State.Created, _extension); 
+        address defaultPayee;
+        int256 defaultExpectedAmount;
+        if(_payees.length!=0) {
+            defaultPayee = _payees[0];
+            defaultExpectedAmount = _expectedAmounts[0];
+        }
+        requests[requestId] = Request(_payer, msg.sender, State.Created, _extension, defaultPayee, defaultExpectedAmount, 0);
+        Created(requestId, defaultPayee, _payer, _creator, _data);
+        
+        // add all the subPayees for the request (needed in internal function to avoid "stack too deep")
+        initSubPayees(requestId, _payees, _expectedAmounts);
 
-        // collect
-        require(trustedNewBurnManager.collectForReqBurning.value(msg.value)(_expectedAmount, msg.sender, _extension));
-
-        Created(requestId, _payee, _payer, _creator, _data);
         return requestId;
     }
 
@@ -122,36 +139,63 @@ contract RequestCore is Administrable {
     /*
      * @dev Function used to update the balance
      * @param _requestId Request id
+     * @param _position position of the payee (0 = the default)
      * @param _deltaAmount modifier amount
      */ 
-    function updateBalance(bytes32 _requestId, int256 _deltaAmount)
+    function updateBalance(bytes32 _requestId, uint8 _position, int256 _deltaAmount)
         external
     {   
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender); 
 
-        r.balance = r.balance.add(_deltaAmount);
-
-        UpdateBalance(_requestId, _deltaAmount);
+        if( _position == 0 ) {
+            r.balance = r.balance.add(_deltaAmount);    
+        } else {
+            Payee storage sp = subPayees[_requestId][_position-1];
+            sp.balance = sp.balance.add(_deltaAmount);
+        }
+        UpdateBalance(_requestId, _position, _deltaAmount);
     }
 
     /*
      * @dev Function update the expectedAmount adding additional or subtract
      * @param _requestId Request id
+     * @param _position position of the payee (0 = the default)
      * @param _deltaAmount modifier amount
      */ 
-    function updateExpectedAmount(bytes32 _requestId, int256 _deltaAmount)
+    function updateExpectedAmount(bytes32 _requestId, uint8 _position, int256 _deltaAmount)
         external
     {   
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender); 
 
-        r.expectedAmount = r.expectedAmount.add(_deltaAmount);
-
-        UpdateExpectedAmount(_requestId, _deltaAmount);
+        if( _position == 0 ) {
+            r.expectedAmount = r.expectedAmount.add(_deltaAmount);    
+        } else {
+            Payee storage sp = subPayees[_requestId][_position-1];
+            sp.expectedAmount = sp.expectedAmount.add(_deltaAmount);
+        }
+        UpdateExpectedAmount(_requestId, _position, _deltaAmount);
     }
 
-
+    /*
+     * @dev Internal: Init payees for a request (needed to avoid 'stack too deep' in createRequest())
+     * @param _requestId Request id
+     * @param _payees array of payees address
+     * @param _expectedAmounts array of payees initialAmount
+     */ 
+    function initSubPayees(bytes32 _requestId, address[] _payees, int256[] _expectedAmounts)
+        internal
+    {
+        require(_payees.length == _expectedAmounts.length);
+     
+        // TODO : overflow possible (?)
+        for (uint8 i = 1; i < _payees.length; i++)
+        {
+            subPayees[_requestId].push(Payee(_payees[i], _expectedAmounts[i], 0));
+            NewSubPayee(_requestId, _payees[i]);
+        }
+    }
     /* SETTER */
     /*
      * @dev Set payee of a request
@@ -164,7 +208,7 @@ contract RequestCore is Administrable {
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender);
         requests[_requestId].payee = _payee;
-        NewPayee(_requestId, _payee);
+        UpdatePayee(_requestId, _payee);
     }
 
     /*
@@ -178,21 +222,7 @@ contract RequestCore is Administrable {
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender);
         requests[_requestId].payer = _payer;
-        NewPayer(_requestId, _payer);
-    }
-
-    /*
-     * @dev Set amount expected of a request
-     * @param _requestId Request id
-     * @param new amount expected
-     */     
-    function setExpectedAmount(bytes32 _requestId, int256 _expectedAmount)
-        external
-    {
-        Request storage r = requests[_requestId];
-        require(r.currencyContract==msg.sender);
-        requests[_requestId].expectedAmount = _expectedAmount;
-        NewExpectedAmount(_requestId, _expectedAmount);
+        UpdatePayer(_requestId, _payer);
     }
 
     /*
@@ -202,26 +232,30 @@ contract RequestCore is Administrable {
      */     
     function setExtension(bytes32 _requestId, address _extension)
         external
-        isTrustedExtension(_extension)
     {
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender);
         requests[_requestId].extension = _extension;
-        NewExtension(_requestId, _extension);
+        UpdateExtension(_requestId, _extension);
     }
 
     /* GETTER */
     /*
-     * @dev Get payee of a request
+     * @dev Get address of a payee
      * @param _requestId Request id
+     * @param _position payee position
      * @return payee address
      */ 
-    function getPayee(bytes32 _requestId)
+    function getPayeeAddress(bytes32 _requestId, uint8 _position)
         public
         constant
         returns(address)
     {
-        return requests[_requestId].payee;
+        if(_position == 0) {
+            return requests[_requestId].payee;    
+        } else {
+            return subPayees[_requestId][_position-1].addr;
+        }
     }
 
     /*
@@ -238,16 +272,34 @@ contract RequestCore is Administrable {
     }
 
     /*
-     * @dev Get amount expected of a request
+     * @dev Get amount expected of a payee
      * @param _requestId Request id
+     * @param _position payee position
      * @return amount expected
      */     
-    function getExpectedAmount(bytes32 _requestId)
+    function getPayeeExpectedAmount(bytes32 _requestId, uint8 _position)
         public
         constant
         returns(int256)
+    {   
+        if(_position == 0) {
+            return requests[_requestId].expectedAmount;    
+        } else {
+            return subPayees[_requestId][_position-1].expectedAmount;
+        }
+    }
+
+    /*
+     * @dev Get number of subPayees for a request
+     * @param _requestId Request id
+     * @return number of subPayees
+     */     
+    function getSubPayeesCount(bytes32 _requestId)
+        public
+        constant
+        returns(uint)
     {
-        return requests[_requestId].expectedAmount;
+        return subPayees[_requestId].length;
     }
 
     /*
@@ -264,6 +316,24 @@ contract RequestCore is Administrable {
     }
 
     /*
+     * @dev Get balance of a payee
+     * @param _requestId Request id
+     * @param _position payee position
+     * @return balance
+     */     
+    function getPayeeBalance(bytes32 _requestId, uint8 _position)
+        public
+        constant
+        returns(int256)
+    {
+        if(_position == 0) {
+            return requests[_requestId].balance;    
+        } else {
+            return subPayees[_requestId][_position-1].balance;
+        }
+    }
+
+    /*
      * @dev Get balance of a request
      * @param _requestId Request id
      * @return balance
@@ -273,7 +343,34 @@ contract RequestCore is Administrable {
         constant
         returns(int256)
     {
-        return requests[_requestId].balance;
+        int256 balance = requests[_requestId].balance;
+
+        for (uint8 i = 0; i < subPayees[_requestId].length; i++)
+        {
+            balance = balance.add(subPayees[_requestId][i].balance);
+        }
+
+        return balance;
+    }
+
+    /*
+     * @dev Get expectedAmount of a request
+     * @param _requestId Request id
+     * @return balance
+     */     
+    function getExpectedAmount(bytes32 _requestId)
+        public
+        constant
+        returns(int256)
+    {
+        int256 expectedAmount = requests[_requestId].expectedAmount;
+
+        for (uint8 i = 0; i < subPayees[_requestId].length; i++)
+        {
+            expectedAmount = expectedAmount.add(subPayees[_requestId][i].expectedAmount);
+        }
+
+        return expectedAmount;
     }
 
     /*
@@ -303,11 +400,25 @@ contract RequestCore is Administrable {
     } 
 
     /*
-     * @dev Modifier Check that creator is not zero
-     * @param _creator Request
-     */
-    modifier creatorNotZero(address _creator) {
-       require(_creator!=0);
-       _;
+     * @dev Get address of a payee
+     * @param _requestId Request id
+     * @param _position payee position
+     * @return payee address
+     */ 
+    function getPayeePosition(bytes32 _requestId, address _address)
+        public
+        constant
+        returns(int16)
+    {
+        if(requests[_requestId].payee == _address) return 0;
+
+        // TODO can overflow (?)
+        for (uint8 i = 0; i < subPayees[_requestId].length; i++)
+        {
+            if(subPayees[_requestId][i].addr == _address) {
+                return i+1;
+            }
+        }
+        return -1;
     }
 }

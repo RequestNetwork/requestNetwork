@@ -138,24 +138,30 @@ contract Administrable is Pausable {
 	}
 
 	/**
-	 * @dev Modifier: check if a currencyContract is trusted
-	 * @dev Revert if currencyContract status is not 1
+	 * @dev check if a currencyContract is trusted
 	 *
 	 * @param _contractAddress The address of the currencyContract
+	 * @return bool true if contract is trusted
 	 */
-	modifier isTrustedContract(address _contractAddress) {
-		require(trustedCurrencyContracts[_contractAddress] == 1);
-		_;
+	function isTrustedContract(address _contractAddress)
+		public
+		view
+		returns(bool)
+	{
+		return trustedCurrencyContracts[_contractAddress] == 1;
 	}
 
 	/**
-	 * @dev Modifier: check if the extension is trusted
-	 * @dev Revert if extension status is not 1
+	 * @dev check if the extension is trusted
 	 *
 	 * @param _extension The address of the extension
+ 	 * @return bool true if extension is trusted
 	 */
-	modifier isTrustedExtension(address _extension) {
-		require(_extension==0 || trustedExtensions[_extension]==1);
-		_;
+	function isTrustedExtension(address _extension)
+		public
+		view
+		returns(bool)
+	{
+		return(_extension==0 || trustedExtensions[_extension]==1);
 	}
 }
