@@ -1,18 +1,21 @@
 pragma solidity 0.4.18;
 
-contract RequestEthereumWeak {
+// contract RequestEthereumWeak {
 
-    function createRequestAsPayee(address _payer, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, string _data) public returns(bytes32);
+//     function createRequestAsPayeeOLD(address _payer, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, string _data) public returns(bytes32);
+//     function createRequestAsPayee(address[] _payees, int256[] _expectedAmounts, address _payer, string _data);
 
-    function withdraw() public;
+//     function withdraw() public;
 
-}
-
+// }
+import '../../synchrone/RequestEthereum.sol';
 
 contract TestRequestReentrance {
 
     address contractAdd;
     uint8 round;
+    int256[] amounts;
+    address[] payees;
 
     event Log(bytes32 id);
 
@@ -22,15 +25,16 @@ contract TestRequestReentrance {
     }
 
     function init(address _payer) public {
-        RequestEthereumWeak weakContract = RequestEthereumWeak(contractAdd);
-        bytes32[9] memory empty;
-        bytes32 id = weakContract.createRequestAsPayee(_payer, 100000000000000000, 0, empty, "");
+        RequestEthereum weakContract = RequestEthereum(contractAdd);
+        payees.push(this);
+        amounts.push(10000000000000);
+        bytes32 id = weakContract.createRequestAsPayee(payees, amounts, _payer, "");
         Log(id);
     }
 
     function start() public {
         round--;
-        RequestEthereumWeak weakContract = RequestEthereumWeak(contractAdd);
+        RequestEthereum weakContract = RequestEthereum(contractAdd);
         weakContract.withdraw();
     }
 
@@ -41,7 +45,7 @@ contract TestRequestReentrance {
     {   
         if(round != 0) {
             round--;
-            RequestEthereumWeak weakContract = RequestEthereumWeak(contractAdd);
+            RequestEthereum weakContract = RequestEthereum(contractAdd);
             weakContract.withdraw();
         }
     } 

@@ -17,12 +17,16 @@ contract('RequestEthereum Withdraw',  function(accounts) {
 	var payer = accounts[3];
 	var payee = accounts[4];
 	var hacker2 = accounts[5];
+	var payee2 = accounts[6];
+	var payee3 = accounts[7];
 
 	var requestCore;
 	var requestEthereum;
 	var newRequest;
 
 	var arbitraryAmount = 1000;
+	var arbitraryAmount2 = 200;
+	var arbitraryAmount3 = 300; 
 	var arbitraryAmount10percent = 100;
 	var testRequestReentrance;
 
@@ -35,7 +39,7 @@ contract('RequestEthereum Withdraw',  function(accounts) {
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee(payer, arbitraryAmount, 0, [], "", {from:payee});
+		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, "", {from:payee});
 		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
     });
 
@@ -43,15 +47,13 @@ contract('RequestEthereum Withdraw',  function(accounts) {
 	// ### withdraw test unit ###########################################################################
 	// ##################################################################################################
 	it("challenge reentrance 2 rounds", async function () {
-		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), 0, {from:payer,value:arbitraryAmount});
+		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [0], {from:payer,value:arbitraryAmount});
 		testRequestReentrance = await TestRequestReentrance.new(requestEthereum.address, 2,{from:hacker});
-		
-		var r = await testRequestReentrance.init(hacker,{from:hacker2});
+		var r = await testRequestReentrance.init(hacker, {from:hacker2});
 		assert.equal(r.logs[0].event,"Log","Event Log is missing");
 		assert.equal(r.logs[0].args.id,utils.getRequestId(requestCore.address, 2),"Event Payment wrong args id");
-
 		await requestEthereum.accept(r.logs[0].args.id, {from:hacker});
-		await requestEthereum.paymentAction(r.logs[0].args.id, 0, {from:hacker,value:arbitraryAmount10percent});
+		await requestEthereum.paymentAction(r.logs[0].args.id, [arbitraryAmount10percent], [0], {from:hacker,value:arbitraryAmount10percent});
 		var r = await utils.expectThrow(testRequestReentrance.start({from:hacker}));
 		assert.equal(await web3.eth.getBalance(testRequestReentrance.address), 0, 'Contract hacking balance must remain 0');
 	});

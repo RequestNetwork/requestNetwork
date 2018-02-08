@@ -19,14 +19,20 @@ var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSi
 var BigNumber = require('bignumber.js');
 
 
-var hashRequest = function(contract, payee, payer, arbitraryAmount, extension, extParams, data, expirationDate) {
+var hashRequest = function(contract, payees, expectedAmounts, payer, data, expirationDate) {
 	const requestParts = [
+        // {value: contract, type: "address"},
+        // {value: payee, type: "address"},
+        // {value: payer, type: "address"},
+        // {value: arbitraryAmount, type: "int256"},
+        // {value: extension, type: "address"},
+        // {value: extParams, type: "bytes32[9]"},
+        // {value: data, type: "string"},
+        // {value: expirationDate, type: "uint256"}
         {value: contract, type: "address"},
-        {value: payee, type: "address"},
+        {value: payees, type: "address[]"},
+        {value: expectedAmounts, type: "int256[]"},
         {value: payer, type: "address"},
-        {value: arbitraryAmount, type: "int256"},
-        {value: extension, type: "address"},
-        {value: extParams, type: "bytes32[9]"},
         {value: data, type: "string"},
         {value: expirationDate, type: "uint256"}
     ];
@@ -36,14 +42,13 @@ var hashRequest = function(contract, payee, payer, arbitraryAmount, extension, e
     	types.push(o.type);
     	values.push(o.value);
     });
+
     return ethABI.soliditySHA3(types, values);
 }
 
-var signHashRequest = function(hash,privateKey) {
-	return ethUtil.ecsign(ethUtil.hashPersonalMessage(hash), privateKey);
+var signHashRequest = function (hash, address) {
+	return web3.eth.sign(address, ethUtil.bufferToHex(hash));
 }
-
-
 
 contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	var admin = accounts[0];
@@ -51,6 +56,9 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	var fakeContract = accounts[2];
 	var payer = accounts[3];
 	var payee = accounts[4];
+	var payee2 = accounts[5];
+	var payee3 = accounts[6];
+
 	var privateKeyOtherGuy = "1ba414a85acdd19339dacd7febb40893458433bee01201b7ae8ca3d6f4e90994";
 	var privateKeyPayer = "b383a09e0c750bcbfe094b9e17ee31c6a9bb4f2fcdc821d97a34cf3e5b7f5429";
 	var privateKeyPayee = "5f1859eee362d44b90d4f3cdd14a8775f682e08d34ff7cdca7e903d7ee956b6a";
@@ -65,6 +73,8 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	var requestEthereum;
 
 	var arbitraryAmount = 1000;
+	var arbitraryAmount2 = 200;
+	var arbitraryAmount3 = 300;
 	var arbitraryAmount10percent = 100;
 
 	var timeExpiration;
@@ -81,22 +91,27 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
     });
 
 	it("new quick request more than expectedAmount (with tips that make the new quick requestment under expected) OK", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent];
+		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
 		var balancePayeeBefore = await web3.eth.getBalance(payee);
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													arbitraryAmount10percent, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount+1});
+		var r = await requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount});
 
-		assert.equal(r.receipt.logs.length,4,"Wrong number of events");
+		assert.equal(r.receipt.logs.length,5,"Wrong number of events");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayer()");
@@ -107,442 +122,324 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[1],'',"Event Created wrong args data");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args payee");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(l.data[0],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(l.data[0],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[4], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[4].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[2],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],arbitraryAmount+1,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
+		assert.equal(newReq[4],payee,"new quick request wrong data : payee");
+		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
+		assert.equal(newReq[5],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
+		assert.equal(newReq[6],arbitraryAmount,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new quick request wrong data : state");
 
-		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),arbitraryAmount+1,"new request wrong data : amount to withdraw payee");
+		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),arbitraryAmount,"new request wrong data : amount to withdraw payee");
+	
 	});
 
 
 	it("new quick request pay more than expectedAmount (without tips) OK", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
 
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													0, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount+2});
+		var r = await requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount});
+
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[2],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],arbitraryAmount+2,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
-
+		assert.equal(newReq[4],payee,"new quick request wrong data : payee");
+		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
+		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
+		assert.equal(newReq[6],arbitraryAmount,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new quick request wrong data : state");
 	});
 
-	it("new quick request more than expectedAmount (with tips but still too much) Impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
+	it("new quick request more than expectedAmount (with tips but still too much)", async function () {
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount+2];
+		var additionals = [];
+		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
 
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													1, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount+2});
+		var r = await requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount+2});
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[2],arbitraryAmount+1,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],arbitraryAmount+2,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
+		assert.equal(newReq[4],payee,"new quick request wrong data : payee");
+		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
+		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
+		assert.equal(newReq[6],arbitraryAmount+2,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new quick request wrong data : state");
 	});
 
 
-	it("new quick request with more tips than msg.value Impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
+	it("new quick request with more tips than msg.value", async function () {
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent];
+		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
 
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													arbitraryAmount10percent, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:0});
+		var r = await requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount});
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[2],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],0,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
-	});
-
-	it("new quick request with tips OK", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
-
-		var balancePayeeBefore = await web3.eth.getBalance(payee);
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													arbitraryAmount10percent, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount});
-
-		assert.equal(r.receipt.logs.length,4,"Wrong number of events");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
-		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
-		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
-		assert.equal(l.data[1],'',"Event Created wrong args data");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(l.data[0],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(l.data[0],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");
-		assert.equal(newReq[2],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],arbitraryAmount,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
-
-		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),arbitraryAmount,"new request wrong data : amount to withdraw payee");
+		assert.equal(newReq[4],payee,"new quick request wrong data : payee");
+		assert.equal(newReq[0],payer,"new quick request wrong data : payer");	
+		assert.equal(newReq[5],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
+		assert.equal(newReq[6],arbitraryAmount,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new quick request wrong data : state");
 	});
 
 	it("new quick request payee==payer impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var payees = [payer, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount+arbitraryAmount10percent];
+		var data = "";
 
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(payer, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payer, value:arbitraryAmount}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new quick request payee==0 impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, 0, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);;
-		
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var payees = [0, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount+arbitraryAmount10percent];
+		var data = "";
 
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(0, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payer, value:arbitraryAmount}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
-
 
 	it("new quick request msg.sender==payee impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount+arbitraryAmount10percent];
+		var data = "";
 
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payee, value:arbitraryAmount}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payee, value:arbitraryAmount}));
 	});
 
-	it("new quick request msg.sender==otherguy OK", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
 
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:otherguy, value:arbitraryAmount});
-		
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],otherguy,"new quick request wrong data : payer");
-		assert.equal(newReq[2],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],arbitraryAmount,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
-	});
+	it("impossible to broadcastSignedRequestAsPayer if Core Paused", async function () {
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount+arbitraryAmount10percent];
+		var data = "";
 
-	it("impossible to createQuickquick request if Core Paused", async function () {
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+		
 		await requestCore.pause({from:admin});
-
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
-
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payer, value:arbitraryAmount}));
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
 
-	it("new quick request msg.value > 0 OK", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
-
-		var balancePayeeBefore = await web3.eth.getBalance(payee);
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													0, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount});
-
-		assert.equal(r.receipt.logs.length,3,"Wrong number of events");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
-		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
-		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
-		assert.equal(l.data[1],'',"Event Created wrong args data");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(l.data[0],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
-
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");
-		assert.equal(newReq[2],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],arbitraryAmount,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
-
-		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),arbitraryAmount,"new request wrong data : amount to withdraw payee");
-	});
-
-	it("new quick request signed by payee and data match signature OK", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
-
-		var balancePayeeBefore = await web3.eth.getBalance(payee);
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													0, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:0});
-
-		assert.equal(r.receipt.logs.length,2,"Wrong number of events");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
-		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
-		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
-		assert.equal(l.data[1],'',"Event Created wrong args data");
-
-		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
-		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
-
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[0],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[1],payer,"new quick request wrong data : payer");
-		assert.equal(newReq[2],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[3],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[4],0,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[5],1,"new quick request wrong data : state");
-
-		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),0,"new request wrong data : amount to withdraw payee");
-	});
 
 	it("new quick request signed by payer Impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyPayer, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
 
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payer, value:arbitraryAmount}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payer);
+		
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new quick request signed by otherguy Impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyOtherGuy, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
 
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payer, value:arbitraryAmount}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,otherguy);
+		
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new quick request signature doest match data impossible", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
 
-		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(otherguy, arbitraryAmount, 
-									extension,
-									listParamsExtensions, 
-									0, "", 
-									timeExpiration, 
-									sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-									{from:payer, value:arbitraryAmount}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+		
+		expectedAmounts[0] = 1;
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new request when currencyContract not trusted Impossible", async function () {
 		var requestEthereum2 = await RequestEthereum.new(requestCore.address,{from:admin});
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
 
-		var extension = 0;
-		var listParamsExtensions = [];
-
-		var hash = hashRequest(requestEthereum2.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
-
-		await utils.expectThrow(requestEthereum2.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													arbitraryAmount10percent, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount+1}));
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+		
+		var r = await utils.expectThrow(requestEthereum2.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
 
 
 	it("new quick request expired", async function () {
-		var extension = 0;
-		var listParamsExtensions = [];
-
-		var hash = hashRequest(requestEthereum.address, payee, 0, arbitraryAmount, extension, listParamsExtensions, "", timeExpiration);
-		var ecprivkey = Buffer.from(privateKeyPayee, 'hex');
-		var sig = signHashRequest(hash,ecprivkey);
-
 		timeExpiration = (new Date().getTime() / 1000) - 60;
 
-		await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(payee, arbitraryAmount, 
-													extension,
-													listParamsExtensions, 
-													0, "", 
-													timeExpiration, 
-													sig.v, ethUtil.bufferToHex(sig.r), ethUtil.bufferToHex(sig.s),
-													{from:payer, value:arbitraryAmount}));
+		var payees = [payee, payee2];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
 
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+		
+		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						payees, 
+						expectedAmounts,
+						payeeAmounts,
+						additionals, 
+						data, 
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount}));
 	});
-
 });
