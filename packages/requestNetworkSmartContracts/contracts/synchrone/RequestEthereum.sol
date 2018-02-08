@@ -12,6 +12,7 @@ import '../base/lifecycle/Pausable.sol';
  * @dev Requests can be created by the Payee with createRequest() or by the payer from a request signed offchain by the payee with createQuickRequest
  * @dev Requests don't have extension for now
  */
+
 contract RequestEthereum is Pausable {
 	using SafeMath for uint256;
 
@@ -24,7 +25,7 @@ contract RequestEthereum is Pausable {
     /*
      *  Events 
      */
-	event EtherAvailableToWithdraw(bytes32 indexed requestId, address recipient, uint256 amount);
+	event EtherAvailableToWithdraw(bytes32 indexed requestId, address indexed recipient, uint256 amount);
 
 	/*
 	 * @dev Constructor
@@ -40,23 +41,28 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @dev msg.sender will be the payee
 	 *
+	 * @param _payees array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payer Entity supposed to pay
-	 * @param _expectedAmount Expected amount to be received.
-	 * @param _extension NOT USED (will be use later)
-	 * @param _extensionParams NOT USED (will be use later)
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayee(address _payer, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, string _data)
+	function createRequestAsPayee(address[] _payees, int256[] _expectedAmounts, address _payer, string _data)
 		external
 		payable
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		require(_expectedAmount>=0);
-		require(msg.sender != _payer && _payer != 0);
-		requestId= requestCore.createRequest.value(msg.value)(msg.sender, msg.sender, _payer, _expectedAmount, 0, _data);
+		require(msg.sender == _payees[0] && msg.sender != _payer && _payer != 0);
+
+		// TODO: overflow possible (?)
+        for (uint8 i = 1; i < _expectedAmounts.length; i++)
+        {
+        	require(_expectedAmounts[i]>=0);
+        }
+
+		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, 0, _data);
 
 		return requestId;
 	}
@@ -67,22 +73,21 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @dev msg.sender will be the payer
 	 *
-	 * @param _payee Entity which will receive the payment
-	 * @param _expectedAmount Expected amount to be received
-	 * @param _extension NOT USED (will be use later)
-	 * @param _extensionParams NOT USED (will be use later)
-	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
+	 * @param _payees array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _expectedAmounts array of Expected amount to be received by each payees
+	 * @param _payeeAmounts array of amount repartition for the payment
+	 * @param _additionals array to increase the ExpectedAmount for payees
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayer(address _payee, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, uint256 _additionals, string _data)
+	function createRequestAsPayer(address[] _payees, int256[] _expectedAmounts, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		external
 		payable
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		return createAcceptAndPay(msg.sender, _payee, _expectedAmount, _extension, _extensionParams, _additionals, _data);
+		return createAcceptAndPay(msg.sender, _payees, _expectedAmounts, _payeeAmounts, _additionals, _data);
 	}
 
 
@@ -92,19 +97,19 @@ contract RequestEthereum is Pausable {
 	 * @dev msg.sender must be _payer
 	 * @dev the _payer can additionals 
 	 *
-	 * @param _payee Entity which will receive the payment
-	 * @param _payer Entity supposed to pay
-	 * @param _expectedAmount Expected amount to be received. This amount can't be changed.
-	 * @param _extension an extension can be linked to a request and allows advanced payments conditions such as escrow. Extensions have to be whitelisted in Core NOT USED (will be use later)
-	 * @param _extensionParams Parameters for the extension. It is an array of 9 bytes32 NOT USED (will be use later)
-	 * @param _additionals amount of additionals the payer want to declare
-	 * @param v ECDSA signature parameter v.
-	 * @param r ECDSA signature parameters r.
-	 * @param s ECDSA signature parameters s.
+	 * @param _payees array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _expectedAmounts array of Expected amount to be received by each payees
+	 * @param _payeeAmounts array of amount repartition for the payment
+	 * @param _additionals array to increase the ExpectedAmount for payees
+	 * @param _data Hash linking to additional data on the Request stored on IPFS
+	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+	 * @param v ECDSA signature parameter v.  TODO REPLACE IN ONE BYTES to avoid stack too deep
+	 * @param r ECDSA signature parameters r. TODO REPLACE IN ONE BYTES to avoid stack too deep
+	 * @param s ECDSA signature parameters s. TODO REPLACE IN ONE BYTES to avoid stack too deep
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function broadcastSignedRequestAsPayer(address _payee, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, uint256 _additionals, string _data, uint256 _expirationDate, uint8 v, bytes32 r, bytes32 s)
+	function broadcastSignedRequestAsPayer(address[] _payees, int256[] _expectedAmounts, uint256[] _payeeAmounts, uint256[] _additionals, string _data, uint256 _expirationDate, bytes signature)
 		external
 		payable
 		whenNotPaused
@@ -114,9 +119,9 @@ contract RequestEthereum is Pausable {
 		require(_expirationDate >= block.timestamp);
 
 		// check the signature
-		require(checkRequestSignature(_payee, _payee, 0, _expectedAmount,_extension,_extensionParams, _data, _expirationDate, v, r, s));
+		require(checkRequestSignature(_payees, _expectedAmounts, 0, _data, _expirationDate, signature));
 
-		return createAcceptAndPay(_payee, _payee, _expectedAmount, _extension, _extensionParams, _additionals, _data);
+		return createAcceptAndPay(_payees[0], _payees, _expectedAmounts, _payeeAmounts, _additionals, _data);
 	}
 
 
@@ -129,31 +134,31 @@ contract RequestEthereum is Pausable {
 	 * @param _creator Entity which create the request
 	 * @param _payee Entity which will receive the payment
 	 * @param _expectedAmount Expected amount to be received
-	 * @param _extension NOT USED (will be use later)
-	 * @param _extensionParams NOT USED (will be use later)
 	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createAcceptAndPay(address _creator, address _payee, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, uint256 _additionals, string _data)
+	function createAcceptAndPay(address _creator, address[] _payees, int256[] _expectedAmounts, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		internal
 		returns(bytes32 requestId)
 	{
-		require(_expectedAmount>=0);
-		require(msg.sender != _payee && _payee != 0);
+		require(msg.sender != _payees[0] && _payees[0] != 0);
 
-		uint256 collectAmount = requestCore.getCollectEstimation(_expectedAmount, this, _extension);
+		// TODO: overflow possible (?)
+        for (uint8 i = 1; i < _expectedAmounts.length; i++)
+        {
+        	require(_expectedAmounts[i]>=0);
+        }
 
-		requestId = requestCore.createRequest.value(collectAmount)(_creator, _payee, msg.sender, _expectedAmount, _extension, _data);
+		requestId= requestCore.createRequest(_creator, _payees, _expectedAmounts, msg.sender, 0, _data);
 
 		requestCore.accept(requestId);
+		
+		additionalInternal(requestId, _additionals);
 
-		if(_additionals > 0) {
-			requestCore.updateExpectedAmount(requestId, _additionals.toInt256Safe());
-		}
-		if(msg.value-collectAmount > 0) {
-			paymentInternal(requestId, msg.value-collectAmount);
+		if(msg.value > 0) {
+			paymentInternal(requestId, _payeeAmounts, msg.value);
 		}
 
 		return requestId;
@@ -194,7 +199,7 @@ contract RequestEthereum is Pausable {
 		whenNotPaused
 	{
 		require((requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created)
-				|| (requestCore.getPayee(_requestId)==msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled));
+				|| (requestCore.getPayeeAddress(_requestId,0)==msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled));
 
 		// impossible to cancel a Request with a balance != 0
 		require(requestCore.getBalance(_requestId) == 0);
@@ -215,22 +220,21 @@ contract RequestEthereum is Pausable {
 	 * @param _requestId id of the request
 	 * @param _additionals amount of additionals in wei to declare 
 	 */
-	function paymentAction(bytes32 _requestId, uint256 _additionals)
+	function paymentAction(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionalAmounts)
 		external
 		whenNotPaused
 		payable
 		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted || (requestCore.getState(_requestId)==RequestCore.State.Created && requestCore.getPayer(_requestId)==msg.sender))
-		condition(_additionals==0 || requestCore.getPayer(_requestId)==msg.sender)
+		condition(_additionalAmounts.length == 0 || msg.sender == requestCore.getPayer(_requestId))
 	{
 		// automatically accept request
 		if(requestCore.getState(_requestId)==RequestCore.State.Created) {
 			requestCore.accept(_requestId);
 		}
 
-		if(_additionals > 0) {
-			requestCore.updateExpectedAmount(_requestId, _additionals.toInt256Safe());
-		}
-		paymentInternal(_requestId, msg.value);
+		additionalInternal(_requestId, _additionalAmounts);
+
+		paymentInternal(_requestId, _payeeAmounts, msg.value);
 	}
 
 	/*
@@ -245,11 +249,9 @@ contract RequestEthereum is Pausable {
 	function refundAction(bytes32 _requestId)
 		external
 		whenNotPaused
-		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted)
-		onlyRequestPayee(_requestId)
 		payable
 	{
-		refundInternal(_requestId, msg.value);
+		refundInternal(_requestId, msg.sender, msg.value);
 	}
 
 	/*
@@ -259,17 +261,24 @@ contract RequestEthereum is Pausable {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _amount amount of subtract in wei to declare 
+	 * @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for )
 	 */
-	function subtractAction(bytes32 _requestId, uint256 _amount)
+	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
 		external
 		whenNotPaused
 		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted || requestCore.getState(_requestId)==RequestCore.State.Created)
-		// subtract must be equal or lower than amount expected
-		condition(requestCore.getExpectedAmount(_requestId) >= _amount.toInt256Safe())
+
 		onlyRequestPayee(_requestId)
 	{
-		requestCore.updateExpectedAmount(_requestId, -_amount.toInt256Safe());
+		// TODO overflow possible on i++
+		for(uint8 i = 0; i < _subtractAmounts.length; i++) {
+			if(_subtractAmounts[i] != 0) {
+				// subtract must be equal or lower than amount expected
+				require(requestCore.getPayeeExpectedAmount(_requestId,i) >= _subtractAmounts[i].toInt256Safe());
+
+				requestCore.updateExpectedAmount(_requestId, i, -_subtractAmounts[i].toInt256Safe());
+			}
+		}
 	}
 
 	/*
@@ -279,17 +288,16 @@ contract RequestEthereum is Pausable {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _amount amount of additional in wei to declare 
+	 * @param _amount amounts of additional in wei to declare (position 0 is for )
 	 */
-	function additionalAction(bytes32 _requestId, uint256 _amount)
-		external
+	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
+		public
 		whenNotPaused
 		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted || requestCore.getState(_requestId)==RequestCore.State.Created)
 		onlyRequestPayer(_requestId)
 	{
-		requestCore.updateExpectedAmount(_requestId, _amount.toInt256Safe());
+		additionalInternal(_requestId, _additionalAmounts);
 	}
-
 
 	/*
 	 * @dev Function to withdraw ether
@@ -306,6 +314,26 @@ contract RequestEthereum is Pausable {
 
 	// ---- INTERNAL FUNCTIONS ------------------------------------------------------------------------------------
 	/*
+	 * @dev Function internal to manage additional declaration
+	 *
+	 * @param _requestId id of the request
+	 * @param _additionalAmounts amount of additional to declare 
+	 *
+	 * @return true if the payment is done, false otherwise
+	 */
+	function additionalInternal(bytes32 _requestId, uint256[] _additionalAmounts)
+		internal
+	{
+		// TODO overflow possible on i++
+		for(uint8 i = 0; i < _additionalAmounts.length; i++) {
+			if(_additionalAmounts[i] != 0) {
+				requestCore.updateExpectedAmount(_requestId, i, _additionalAmounts[i].toInt256Safe());
+			}
+		}
+	}
+
+
+	/*
 	 * @dev Function internal to manage payment declaration
 	 *
 	 * @param _requestId id of the request
@@ -313,12 +341,23 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return true if the payment is done, false otherwise
 	 */
-	function paymentInternal(bytes32 _requestId, uint256 _amount) 
+	function paymentInternal(bytes32 _requestId, uint256[] _payeeAmounts, uint256 _value) 
 		internal
 	{
-		requestCore.updateBalance(_requestId, _amount.toInt256Safe());
-		// payment done, the money is ready to withdraw by the payee
-		fundOrderInternal(_requestId, requestCore.getPayee(_requestId), _amount);
+		uint256 totalPayeeAmounts = 0;
+
+		// TODO overflow possible on i++
+		for(uint8 i = 0; i < _payeeAmounts.length; i++) {
+			totalPayeeAmounts = totalPayeeAmounts.add(_payeeAmounts[i]);
+			if(_payeeAmounts[i] != 0) {
+				requestCore.updateBalance(_requestId, i, _payeeAmounts[i].toInt256Safe());
+				// payment done, the money is ready to withdraw by the payee
+				fundOrderInternal(_requestId, requestCore.getPayeeAddress(_requestId, i), _payeeAmounts[i]);
+			}
+		}
+
+		// check if payment repartition match the value paid
+		require(_value==totalPayeeAmounts);
 	}
 
 	/*
@@ -329,10 +368,14 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return true if the refund is done, false otherwise
 	 */
-	function refundInternal(bytes32 _requestId, uint256 _amount) 
+	function refundInternal(bytes32 _requestId, address _address, uint256 _amount) 
+		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted)
 		internal
 	{
-		requestCore.updateBalance(_requestId, -_amount.toInt256Safe());
+		int16 position = requestCore.getPayeePosition(_requestId, _address);
+		require(position >= 0); // same as onlyRequestPayeeOrSubPayees(_requestId, msg.sender)
+		// TODO overflow int16 => uint8
+		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
 		// payment done, the money is ready to withdraw by the payee
 		fundOrderInternal(_requestId, requestCore.getPayer(_requestId), _amount);
 	}
@@ -361,20 +404,25 @@ contract RequestEthereum is Pausable {
 	/*
 	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
 	 *
-	 * @param _payee Entity which will receive the payment.
+	 * @param _payees array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payer Entity supposed to pay.
-	 * @param _expectedAmount Expected amount to be received. This amount can't be changed.
-	 * @param _extension extension of the request.
-	 * @param _extensionParams Parameters for the extension.
+	 * @param _data Hash linking to additional data on the Request stored on IPFS
+	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
 	 *
 	 * @return Keccak-256 hash of a request
 	 */
-	function getRequestHash(address _payee, address _payer, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, string _data, uint256 _expirationDate)
+	function getRequestHash(
+		address[] _payees,
+		int256[] _expectedAmounts,
+		address _payer,
+		string _data,
+		uint256 _expirationDate)
 		internal
 		view
 		returns(bytes32)
 	{
-		return keccak256(this,_payee,_payer,_expectedAmount,_extension,_extensionParams,_data,_expirationDate);
+		return keccak256(this,_payees,_expectedAmounts,_payer,_data,_expirationDate);
 	}
 
 	/*
@@ -405,24 +453,35 @@ contract RequestEthereum is Pausable {
 	}
 
 	function checkRequestSignature(
-		address signer,
-		address payee,
+		address[] payees,
+		int256[] expectedAmounts,
 		address payer,
-		int256 expectedAmount,
-		address extension,
-		bytes32[9] extensionParams,
 		string data,
 		uint256 expirationDate,
-		uint8 v,
-		bytes32 r,
-		bytes32 s)
+		bytes signature)
 		public
 		view
 		returns (bool)
 	{
-		bytes32 hash = getRequestHash(payee,payer,expectedAmount,extension,extensionParams,data,expirationDate);
-		return isValidSignature(signer, hash, v, r, s);
+		bytes32 hash = getRequestHash(payees,expectedAmounts,payer,data,expirationDate);
+
+		// signature as "v, r, s"
+		uint8 v = uint8(signature[64]);
+		v = v < 27 ? v + 27 : v;
+		bytes32 r = bytesToBytes32(signature, 0);
+		bytes32 s = bytesToBytes32(signature, 32);
+
+		return isValidSignature(payees[0], hash, v, r, s);
 	}
+
+  	function bytesToBytes32(bytes b, uint offset) private pure returns (bytes32) {
+      bytes32 out;
+    
+      for (uint i = 0; i < 32; i++) {
+        out |= bytes32(b[offset + i] & 0xFF) >> (i * 8);
+      }
+      return out;
+    }
 
 	//modifier
 	modifier condition(bool c) 
@@ -449,7 +508,18 @@ contract RequestEthereum is Pausable {
 	 */	
 	modifier onlyRequestPayee(bytes32 _requestId) 
 	{
-		require(requestCore.getPayee(_requestId)==msg.sender);
+		require(requestCore.getPayeeAddress(_requestId, 0)==msg.sender);
+		_;
+	}
+
+	/*
+	 * @dev Modifier to check if msg.sender is payee or subPayee
+	 * @dev Revert if msg.sender is not payee
+	 * @param _requestId id of the request 
+	 */	
+	modifier onlyRequestPayeeOrSubPayees(bytes32 _requestId, address _address) 
+	{
+		require(requestCore.getPayeePosition(_requestId, _address) != -1);
 		_;
 	}
 
@@ -460,7 +530,7 @@ contract RequestEthereum is Pausable {
 	 */
 	modifier onlyRequestPayeeOrPayer(bytes32 _requestId) 
 	{
-		require(requestCore.getPayee(_requestId)==msg.sender || requestCore.getPayer(_requestId)==msg.sender);
+		require(requestCore.getPayeeAddress(_requestId, 0)==msg.sender || requestCore.getPayer(_requestId)==msg.sender);
 		_;
 	}
 
