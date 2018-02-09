@@ -36,7 +36,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract2, {from:admin});
 
-		var r = await requestCore.createRequest(creator, [payee], [arbitraryAmount], payer, 0, "", {from:fakeContract});
+		var r = await requestCore.createRequest(creator, [payee], [arbitraryAmount], payer, "", {from:fakeContract});
     })
 
 	// ##################################################################################################
@@ -51,11 +51,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 	// updateExpectedAmount with positive delta on request already accepted OK
@@ -69,11 +69,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],1,"new request wrong data : state");
 	});
 
@@ -88,11 +88,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],2,"new request wrong data : state");
 	});
 
@@ -106,11 +106,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount+arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 
@@ -132,11 +132,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount+arbitraryAmount20percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount+arbitraryAmount20percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 
@@ -148,11 +148,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 
@@ -184,11 +184,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 	// updateExpectedAmount with negative amount on request already accepted OK
@@ -202,11 +202,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],1,"new request wrong data : state");
 	});
 
@@ -221,11 +221,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],2,"new request wrong data : state");
 	});
 
@@ -239,11 +239,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount-arbitraryAmount10percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 	});
 
 	it("addSubtract request not exist impossible", async function () {
@@ -269,11 +269,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount-arbitraryAmount20percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount-arbitraryAmount20percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 
@@ -284,11 +284,11 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
-		assert.equal(r[4],payee,"request wrong data : payee");
+		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
-		assert.equal(r[5],arbitraryAmount-arbitraryAmount60percent-arbitraryAmount60percent,"request wrong data : expectedAmount");
+		assert.equal(r[4],arbitraryAmount-arbitraryAmount60percent-arbitraryAmount60percent,"request wrong data : expectedAmount");
 		assert.equal(r[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[5],0,"new request wrong data : balance");
 		assert.equal(r[2],0,"new request wrong data : state");
 	});
 	

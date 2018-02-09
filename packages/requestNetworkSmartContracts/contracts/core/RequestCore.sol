@@ -32,8 +32,6 @@ contract RequestCore is Administrable {
         address payer;
         address currencyContract;
         State state;
-        address extension;
-
         address payee;
         int256 expectedAmount;
         int256 balance;
@@ -52,13 +50,11 @@ contract RequestCore is Administrable {
     event Created(bytes32 indexed requestId, address indexed payee, address indexed payer, address creator, string data);
     event Accepted(bytes32 indexed requestId);
     event Canceled(bytes32 indexed requestId);
-
-    event NewSubPayee(bytes32 indexed requestId, address indexed payee);
-
     event UpdatePayer(bytes32 indexed requestId, address payer);
-    event UpdatePayee(bytes32 indexed requestId, address payee);
-    event UpdateExtension(bytes32 indexed requestId, address extension);
 
+    // Event for Payee & subPayees
+    event NewSubPayee(bytes32 indexed requestId, address indexed payee);
+    event UpdatePayee(bytes32 indexed requestId, address payee);
     event UpdateAddressPayee(bytes32 indexed requestId, uint8 position, address indexed payee);
     event UpdateExpectedAmount(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
     event UpdateBalance(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
@@ -78,17 +74,15 @@ contract RequestCore is Administrable {
      * @param _payee Entity which will receive the payment
      * @param _payer Entity supposed to pay
      * @param _expectedAmount Expected amount to be received. This amount can't be changed.
-     * @param _extension an extension can be linked to a request and allows advanced payments conditions such as escrow. Extensions have to be whitelisted in Core
      * @return Returns the id of the request 
      */   
-    function createRequest(address _creator, address[] _payees, int256[] _expectedAmounts, address _payer, address _extension, string _data) 
+    function createRequest(address _creator, address[] _payees, int256[] _expectedAmounts, address _payer, string _data) 
         external
         whenNotPaused 
         returns (bytes32 requestId) 
     {
         require(_creator!=0); // not as modifier to lighten the stack
         require(isTrustedContract(msg.sender)); // not as modifier to lighten the stack
-        require(isTrustedExtension(_extension)); // not as modifier to lighten the stack
 
         numRequests = numRequests.add(1);
         // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
@@ -100,7 +94,7 @@ contract RequestCore is Administrable {
             defaultPayee = _payees[0];
             defaultExpectedAmount = _expectedAmounts[0];
         }
-        requests[requestId] = Request(_payer, msg.sender, State.Created, _extension, defaultPayee, defaultExpectedAmount, 0);
+        requests[requestId] = Request(_payer, msg.sender, State.Created, defaultPayee, defaultExpectedAmount, 0);
         Created(requestId, defaultPayee, _payer, _creator, _data);
         
         // add all the subPayees for the request (needed in internal function to avoid "stack too deep")
@@ -223,20 +217,6 @@ contract RequestCore is Administrable {
         require(r.currencyContract==msg.sender);
         requests[_requestId].payer = _payer;
         UpdatePayer(_requestId, _payer);
-    }
-
-    /*
-     * @dev Set extension of a request
-     * @param _requestId Request id
-     * @param new extension
-     */     
-    function setExtension(bytes32 _requestId, address _extension)
-        external
-    {
-        Request storage r = requests[_requestId];
-        require(r.currencyContract==msg.sender);
-        requests[_requestId].extension = _extension;
-        UpdateExtension(_requestId, _extension);
     }
 
     /* GETTER */
@@ -385,19 +365,6 @@ contract RequestCore is Administrable {
     {
         return requests[_requestId].state;
     }
-
-    /*
-     * @dev Get extension of a request
-     * @param _requestId Request id
-     * @return address
-     */
-    function getExtension(bytes32 _requestId)
-        public
-        constant
-        returns(address)
-    {
-        return requests[_requestId].extension;
-    } 
 
     /*
      * @dev Get address of a payee
