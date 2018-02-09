@@ -10,9 +10,7 @@ import '../base/lifecycle/Pausable.sol';
  * @dev RequestEthereum is the currency contract managing the request payed in Ethereum
  *
  * @dev Requests can be created by the Payee with createRequest() or by the payer from a request signed offchain by the payee with createQuickRequest
- * @dev Requests don't have extension for now
  */
-
 contract RequestEthereum is Pausable {
 	using SafeMath for uint256;
 
@@ -62,7 +60,7 @@ contract RequestEthereum is Pausable {
         	require(_expectedAmounts[i]>=0);
         }
 
-		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, 0, _data);
+		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, _data);
 
 		return requestId;
 	}
@@ -151,7 +149,7 @@ contract RequestEthereum is Pausable {
         	require(_expectedAmounts[i]>=0);
         }
 
-		requestId= requestCore.createRequest(_creator, _payees, _expectedAmounts, msg.sender, 0, _data);
+		requestId= requestCore.createRequest(_creator, _payees, _expectedAmounts, msg.sender, _data);
 
 		requestCore.accept(requestId);
 		

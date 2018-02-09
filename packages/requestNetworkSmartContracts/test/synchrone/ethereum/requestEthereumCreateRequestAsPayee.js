@@ -64,10 +64,9 @@ contract('RequestEthereum createRequestAsPayee',  function(accounts) {
 		assert.equal(r[0],payer,"request wrong data : payer");
 		assert.equal(r[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(r[2],0,"new request wrong data : state");
-		assert.equal(r[3],0,"new request wrong data : extension");
-		assert.equal(r[4],payee,"request wrong data : payee");
-		assert.equal(r[5],arbitraryAmount,"request wrong data : expectedAmount");
-		assert.equal(r[6],0,"new request wrong data : balance");
+		assert.equal(r[3],payee,"request wrong data : payee");
+		assert.equal(r[4],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[5],0,"new request wrong data : balance");
 
 		var count = await requestCore.getSubPayeesCount.call(utils.getRequestId(requestCore.address,1));
 		assert.equal(count,2,"number of subPayee wrong");

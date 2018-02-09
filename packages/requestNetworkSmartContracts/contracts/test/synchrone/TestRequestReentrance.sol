@@ -1,13 +1,5 @@
 pragma solidity 0.4.18;
 
-// contract RequestEthereumWeak {
-
-//     function createRequestAsPayeeOLD(address _payer, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, string _data) public returns(bytes32);
-//     function createRequestAsPayee(address[] _payees, int256[] _expectedAmounts, address _payer, string _data);
-
-//     function withdraw() public;
-
-// }
 import '../../synchrone/RequestEthereum.sol';
 
 contract TestRequestReentrance {

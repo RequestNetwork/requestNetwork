@@ -60,11 +60,11 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payer,"new request wrong data : creator");
-		assert.equal(newReq[4],testRequestPaymentStuckRevert.address,"new request wrong data : payee");
+		assert.equal(newReq[3],testRequestPaymentStuckRevert.address,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
-		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
 		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[6],arbitraryAmount,"new request wrong data : balance");
+		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : balance");
 		assert.equal(newReq[2],1,"new request wrong data : state");
 
 		var r = await requestEthereum.ethToWithdraw.call(testRequestPaymentStuckRevert.address);
@@ -88,11 +88,11 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 		assert.equal(l.data[0],arbitraryAmount,"Event EtherAvailableToWithdraw wrong args amount");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[4],testRequestPaymentStuckAssert.address,"new request wrong data : payee");
+		assert.equal(newReq[3],testRequestPaymentStuckAssert.address,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
-		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
 		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[6],arbitraryAmount,"new request wrong data : balance");
+		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : balance");
 		assert.equal(newReq[2],1,"new request wrong data : state");
 
 		var r = await requestEthereum.ethToWithdraw.call(testRequestPaymentStuckAssert.address);
@@ -116,11 +116,11 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 		assert.equal(l.data[0],arbitraryAmount,"Event EtherAvailableToWithdraw wrong args amount");
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[4],testRequestPaymentStuckNonPayable.address,"new request wrong data : payee");
+		assert.equal(newReq[3],testRequestPaymentStuckNonPayable.address,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
-		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
 		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
-		assert.equal(newReq[6],arbitraryAmount,"new request wrong data : balance");
+		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : balance");
 		assert.equal(newReq[2],1,"new request wrong data : state");
 
 		var r = await requestEthereum.ethToWithdraw.call(testRequestPaymentStuckNonPayable.address);
