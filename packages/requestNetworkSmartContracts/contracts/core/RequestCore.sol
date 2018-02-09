@@ -4,6 +4,7 @@ import './Administrable.sol';
 import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathInt.sol';
 import '../base/math/SafeMathUint96.sol';
+import '../base/math/SafeMathUint8.sol';
 
 /**
  * @title RequestCore
@@ -20,6 +21,7 @@ contract RequestCore is Administrable {
     using SafeMath for uint256;
     using SafeMathUint96 for uint96;
     using SafeMathInt for int256;
+    using SafeMathUint8 for uint8;
 
     enum State { Created, Accepted, Canceled }
 
@@ -183,8 +185,7 @@ contract RequestCore is Administrable {
     {
         require(_payees.length == _expectedAmounts.length);
      
-        // TODO : overflow possible (?)
-        for (uint8 i = 1; i < _payees.length; i++)
+        for (uint8 i = 1; i < _payees.length; i = i.add(1))
         {
             subPayees[_requestId].push(Payee(_payees[i], _expectedAmounts[i], 0));
             NewSubPayee(_requestId, _payees[i]);
@@ -325,7 +326,7 @@ contract RequestCore is Administrable {
     {
         int256 balance = requests[_requestId].balance;
 
-        for (uint8 i = 0; i < subPayees[_requestId].length; i++)
+        for (uint8 i = 0; i < subPayees[_requestId].length; i = i.add(1))
         {
             balance = balance.add(subPayees[_requestId][i].balance);
         }
@@ -345,7 +346,7 @@ contract RequestCore is Administrable {
     {
         int256 expectedAmount = requests[_requestId].expectedAmount;
 
-        for (uint8 i = 0; i < subPayees[_requestId].length; i++)
+        for (uint8 i = 0; i < subPayees[_requestId].length; i = i.add(1))
         {
             expectedAmount = expectedAmount.add(subPayees[_requestId][i].expectedAmount);
         }
@@ -379,8 +380,7 @@ contract RequestCore is Administrable {
     {
         if(requests[_requestId].payee == _address) return 0;
 
-        // TODO can overflow (?)
-        for (uint8 i = 0; i < subPayees[_requestId].length; i++)
+        for (uint8 i = 0; i < subPayees[_requestId].length; i = i.add(1))
         {
             if(subPayees[_requestId][i].addr == _address) {
                 return i+1;

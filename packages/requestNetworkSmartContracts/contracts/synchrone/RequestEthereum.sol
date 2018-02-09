@@ -2,6 +2,7 @@ pragma solidity 0.4.18;
 
 import '../core/RequestCore.sol';
 import '../base/math/SafeMath.sol';
+import '../base/math/SafeMathUint8.sol';
 import '../base/lifecycle/Pausable.sol';
 
 /**
@@ -13,6 +14,7 @@ import '../base/lifecycle/Pausable.sol';
  */
 contract RequestEthereum is Pausable {
 	using SafeMath for uint256;
+	using SafeMathUint8 for uint8;
 
 	// RequestCore object
 	RequestCore public requestCore;
@@ -54,8 +56,7 @@ contract RequestEthereum is Pausable {
 	{
 		require(msg.sender == _payees[0] && msg.sender != _payer && _payer != 0);
 
-		// TODO: overflow possible (?)
-        for (uint8 i = 1; i < _expectedAmounts.length; i++)
+        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
         {
         	require(_expectedAmounts[i]>=0);
         }
@@ -101,9 +102,7 @@ contract RequestEthereum is Pausable {
 	 * @param _additionals array to increase the ExpectedAmount for payees
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
-	 * @param v ECDSA signature parameter v.  TODO REPLACE IN ONE BYTES to avoid stack too deep
-	 * @param r ECDSA signature parameters r. TODO REPLACE IN ONE BYTES to avoid stack too deep
-	 * @param s ECDSA signature parameters s. TODO REPLACE IN ONE BYTES to avoid stack too deep
+	 * @param _signature ECDSA signature in bytes
 	 *
 	 * @return Returns the id of the request 
 	 */
@@ -143,8 +142,7 @@ contract RequestEthereum is Pausable {
 	{
 		require(msg.sender != _payees[0] && _payees[0] != 0);
 
-		// TODO: overflow possible (?)
-        for (uint8 i = 1; i < _expectedAmounts.length; i++)
+        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
         {
         	require(_expectedAmounts[i]>=0);
         }
@@ -268,8 +266,7 @@ contract RequestEthereum is Pausable {
 
 		onlyRequestPayee(_requestId)
 	{
-		// TODO overflow possible on i++
-		for(uint8 i = 0; i < _subtractAmounts.length; i++) {
+		for(uint8 i = 0; i < _subtractAmounts.length; i = i.add(1)) {
 			if(_subtractAmounts[i] != 0) {
 				// subtract must be equal or lower than amount expected
 				require(requestCore.getPayeeExpectedAmount(_requestId,i) >= _subtractAmounts[i].toInt256Safe());
@@ -322,8 +319,7 @@ contract RequestEthereum is Pausable {
 	function additionalInternal(bytes32 _requestId, uint256[] _additionalAmounts)
 		internal
 	{
-		// TODO overflow possible on i++
-		for(uint8 i = 0; i < _additionalAmounts.length; i++) {
+		for(uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
 			if(_additionalAmounts[i] != 0) {
 				requestCore.updateExpectedAmount(_requestId, i, _additionalAmounts[i].toInt256Safe());
 			}
@@ -344,8 +340,7 @@ contract RequestEthereum is Pausable {
 	{
 		uint256 totalPayeeAmounts = 0;
 
-		// TODO overflow possible on i++
-		for(uint8 i = 0; i < _payeeAmounts.length; i++) {
+		for(uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
 			totalPayeeAmounts = totalPayeeAmounts.add(_payeeAmounts[i]);
 			if(_payeeAmounts[i] != 0) {
 				requestCore.updateBalance(_requestId, i, _payeeAmounts[i].toInt256Safe());
@@ -372,7 +367,7 @@ contract RequestEthereum is Pausable {
 	{
 		int16 position = requestCore.getPayeePosition(_requestId, _address);
 		require(position >= 0); // same as onlyRequestPayeeOrSubPayees(_requestId, msg.sender)
-		// TODO overflow int16 => uint8
+		require(position < 265); // avoid overflow for the uint8 cast
 		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
 		// payment done, the money is ready to withdraw by the payee
 		fundOrderInternal(_requestId, requestCore.getPayer(_requestId), _amount);
@@ -465,7 +460,7 @@ contract RequestEthereum is Pausable {
 
 		// signature as "v, r, s"
 		uint8 v = uint8(signature[64]);
-		v = v < 27 ? v + 27 : v;
+		v = v < 27 ? v.add(27) : v;
 		bytes32 r = bytesToBytes32(signature, 0);
 		bytes32 s = bytesToBytes32(signature, 32);
 
