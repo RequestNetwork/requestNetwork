@@ -73,9 +73,10 @@ contract RequestCore is Administrable {
     /*
      * @dev Function used by Subcontracts to create a request in the Core
      * @param _creator Request creator
-     * @param _payee Entity which will receive the payment
+     * @param _payees array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 255.
+     * @param _expectedAmounts array of Expected amount to be received by each payees. Size must be smaller than 255.
      * @param _payer Entity supposed to pay
-     * @param _expectedAmount Expected amount to be received. This amount can't be changed.
+     * @param _data data of the request
      * @return Returns the id of the request 
      */   
     function createRequest(address _creator, address[] _payees, int256[] _expectedAmounts, address _payer, string _data) 
