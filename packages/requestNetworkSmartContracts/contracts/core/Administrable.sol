@@ -5,15 +5,12 @@ import '../collect/RequestBurnManagerInterface.sol';
 
 /**
  * @title Administrable
- * @dev Administrable is a base contract to manage the list of trustedContract and the list of TrustedExtension
+ * @dev Administrable is a base contract to manage the list of trustedContract
  */
 contract Administrable is Pausable {
 
 	// mapping of address of trusted contract
 	mapping(address => uint8) public trustedCurrencyContracts;
-
-	// mapping of address of trusted extensions
-	mapping(address => uint8) public trustedExtensions;
 
 	// contract managing the fees
 	RequestBurnManagerInterface public trustedNewBurnManager;
@@ -21,8 +18,6 @@ contract Administrable is Pausable {
 	// Events of the system
 	event NewTrustedContract(address newContract);
 	event RemoveTrustedContract(address oldContract);
-	event NewTrustedExtension(address newExtension);
-	event RemoveTrustedExtension(address oldExtension);
 	event NewBurnManager(address newFeesManager);
 
 	/**
@@ -53,33 +48,6 @@ contract Administrable is Pausable {
 	}
 
 	/**
-	 * @dev add a trusted extension 
-	 *
-	 * @param _newExtension The address of the extension
-	 */
-	function adminAddTrustedExtension(address _newExtension)
-		external
-		onlyOwner
-	{
-		trustedExtensions[_newExtension] = 1;
-		NewTrustedExtension(_newExtension);
-	}
-
-	/**
-	 * @dev remove a trusted extension 
-	 *
-	 * @param _oldExtension The address of the extension
-	 */
-	function adminRemoveExtension(address _oldExtension)
-		external
-		onlyOwner
-	{
-		require(trustedExtensions[_oldExtension] != 0);
-		trustedExtensions[_oldExtension] = 0;
-		RemoveTrustedExtension(_oldExtension);
-	}
-
-	/**
 	 * @dev update the fees manager contract
 	 *
 	 * @param _newBurnManager The address of the new fees manager
@@ -91,23 +59,6 @@ contract Administrable is Pausable {
 		trustedNewBurnManager = RequestBurnManagerInterface(_newBurnManager);
 		NewBurnManager(_newBurnManager);
 	}
-
-	/**
-	 * @dev get the status of a trusted currencyContract 
-	 *
-	 * @param _expectedAmount Expected amount of the request
-	 * @param _currencyContract The address of the currencyContract
-	 * @param _extension The address of the extension
-	 * @return The status of the currencyContract. If trusted 1, otherwise 0
-	 */
-	function getCollectEstimation(int256 _expectedAmount, address _currencyContract, address _extension)
-		view
-		external
-		returns(uint256) 
-	{
-		return trustedNewBurnManager.collectEstimation(_expectedAmount, _currencyContract, _extension);
-	}
-
 
 	/**
 	 * @dev get the status of a trusted currencyContract 
@@ -124,20 +75,6 @@ contract Administrable is Pausable {
 	}
 
 	/**
-	 * @dev get the status of a trusted extension 
-	 *
-	 * @param _extension The address of the extension
-	 * @return The status of the extension. If trusted 1, otherwise 0
-	 */
-	function getStatusExtension(address _extension) 
-		view
-		external
-		returns(uint8) 
-	{
-		return trustedExtensions[_extension];
-	}
-
-	/**
 	 * @dev check if a currencyContract is trusted
 	 *
 	 * @param _contractAddress The address of the currencyContract
@@ -149,19 +86,5 @@ contract Administrable is Pausable {
 		returns(bool)
 	{
 		return trustedCurrencyContracts[_contractAddress] == 1;
-	}
-
-	/**
-	 * @dev check if the extension is trusted
-	 *
-	 * @param _extension The address of the extension
- 	 * @return bool true if extension is trusted
-	 */
-	function isTrustedExtension(address _extension)
-		public
-		view
-		returns(bool)
-	{
-		return(_extension==0 || trustedExtensions[_extension]==1);
 	}
 }
