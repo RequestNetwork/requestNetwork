@@ -22,6 +22,10 @@ contract RequestEthereum is Pausable {
 	// Ethereum available to withdraw
 	mapping(address => uint256) public ethToWithdraw;
 
+	// payment addresses by requestId (optional)
+    mapping(bytes32 => address[]) public payeesAddressPayment;
+    mapping(bytes32 => address) public payerAddressPayment;
+
     /*
      *  Events 
      */
@@ -41,38 +45,46 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @dev msg.sender will be the payee
 	 *
-	 * @param _payees array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+	 * @param _payeesId array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+	 * @param _payeesPayment array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payer Entity supposed to pay
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayee(address[] _payees, int256[] _expectedAmounts, address _payer, string _data)
+	function createRequestAsPayee(address[] _payeesId, address[] _payeesPayment, int256[] _expectedAmounts, address _payer, address _payerAddressPayment, string _data)
 		external
 		payable
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		require(msg.sender == _payees[0] && msg.sender != _payer && _payer != 0);
+		require(msg.sender == _payeesId[0] && msg.sender != _payer && _payer != 0);
 
         for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
         {
         	require(_expectedAmounts[i]>=0);
         }
 
-		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, _data);
+		requestId= requestCore.createRequest(msg.sender, _payeesId, _expectedAmounts, _payer, _data);
 
+		// set payment addresses
+		if(_payeesPayment.length != 0) {
+			payeesAddressPayment[requestId] = _payeesPayment;
+		}
+		if(_payerAddressPayment != 0) {
+			payerAddressPayment[requestId] = _payerAddressPayment;
+		}
 		return requestId;
 	}
-
 
 	/*
 	 * @dev Function to create a request as payer
 	 *
 	 * @dev msg.sender will be the payer
 	 *
-	 * @param _payees array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesId array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesPayment array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
@@ -80,13 +92,13 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayer(address[] _payees, int256[] _expectedAmounts, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
+	function createRequestAsPayer(address[] _payeesId, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		external
 		payable
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		return createAcceptAndPay(msg.sender, _payees, _expectedAmounts, _payeeAmounts, _additionals, _data);
+		return createAcceptAndPay(msg.sender, _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _payeeAmounts, _additionals, _data);
 	}
 
 
@@ -96,7 +108,8 @@ contract RequestEthereum is Pausable {
 	 * @dev msg.sender must be _payer
 	 * @dev the _payer can additionals 
 	 *
-	 * @param _payees array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesId array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesPayment array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
@@ -106,20 +119,21 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function broadcastSignedRequestAsPayer(address[] _payees, int256[] _expectedAmounts, uint256[] _payeeAmounts, uint256[] _additionals, string _data, uint256 _expirationDate, bytes signature)
-		external
-		payable
-		whenNotPaused
-		returns(bytes32)
-	{
-		// check expiration date
-		require(_expirationDate >= block.timestamp);
+	// function broadcastSignedRequestAsPayer(address[] _payeesId, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, uint256[] _payeeAmounts, uint256[] _additionals, string _data, uint256 _expirationDate, bytes signature)
+	// 	external
+	// 	payable
+	// 	whenNotPaused
+	// 	returns(bytes32)
+	// {
+	// 	// check expiration date
+	// 	require(_expirationDate >= block.timestamp);
 
-		// check the signature
-		require(checkRequestSignature(_payees, _expectedAmounts, 0, _data, _expirationDate, signature));
+	// 	// check the signature
+	// 	// TODO : ajouter _payeesPayment
+	// 	require(checkRequestSignature(_payeesId, _expectedAmounts, 0, _data, _expirationDate, signature));
 
-		return createAcceptAndPay(_payees[0], _payees, _expectedAmounts, _payeeAmounts, _additionals, _data);
-	}
+	// 	return createAcceptAndPay(_payeesId[0], _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _payeeAmounts, _additionals, _data);
+	// }
 
 
 
@@ -136,7 +150,7 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createAcceptAndPay(address _creator, address[] _payees, int256[] _expectedAmounts, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
+	function createAcceptAndPay(address _creator, address[] _payees, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		internal
 		returns(bytes32 requestId)
 	{
@@ -148,6 +162,14 @@ contract RequestEthereum is Pausable {
         }
 
 		requestId= requestCore.createRequest(_creator, _payees, _expectedAmounts, msg.sender, _data);
+
+		// set payment addresses
+		if(_payeesPayment.length != 0) {
+			payeesAddressPayment[requestId] = _payeesPayment;
+		}
+		if(_payerAddressPayment != 0) {
+			payerAddressPayment[requestId] = _payerAddressPayment;
+		}
 
 		requestCore.accept(requestId);
 		
@@ -344,8 +366,17 @@ contract RequestEthereum is Pausable {
 			totalPayeeAmounts = totalPayeeAmounts.add(_payeeAmounts[i]);
 			if(_payeeAmounts[i] != 0) {
 				requestCore.updateBalance(_requestId, i, _payeeAmounts[i].toInt256Safe());
+
+				// pay the payment address if given, the id address otherwise
+				address addressToPay;
+				if(payeesAddressPayment[_requestId].length == 0 || payeesAddressPayment[_requestId][i] == 0) {
+					addressToPay = requestCore.getPayeeAddress(_requestId, i);
+				} else {
+					addressToPay = payeesAddressPayment[_requestId][i];
+				}
+
 				// payment done, the money is ready to withdraw by the payee
-				fundOrderInternal(_requestId, requestCore.getPayeeAddress(_requestId, i), _payeeAmounts[i]);
+				fundOrderInternal(_requestId, addressToPay, _payeeAmounts[i]);
 			}
 		}
 
@@ -369,8 +400,15 @@ contract RequestEthereum is Pausable {
 		require(position >= 0); // same as onlyRequestPayeeOrSubPayees(_requestId, msg.sender)
 		require(position < 265); // avoid overflow for the uint8 cast
 		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
-		// payment done, the money is ready to withdraw by the payee
-		fundOrderInternal(_requestId, requestCore.getPayer(_requestId), _amount);
+
+		// pay the payment address if given, the id address otherwise
+		address addressToPay = payerAddressPayment[_requestId];
+		if(addressToPay == 0) {
+			addressToPay = requestCore.getPayer(_requestId);
+		}
+
+		// payment done, the money is ready to withdraw by the payer
+		fundOrderInternal(_requestId, addressToPay, _amount);
 	}
 
 	/*
