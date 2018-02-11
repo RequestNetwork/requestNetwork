@@ -8,6 +8,7 @@ contract TestRequestReentrance {
     uint8 round;
     int256[] amounts;
     address[] payees;
+    address[] payeesPayment;
 
     event Log(bytes32 id);
 
@@ -20,7 +21,7 @@ contract TestRequestReentrance {
         RequestEthereum weakContract = RequestEthereum(contractAdd);
         payees.push(this);
         amounts.push(10000000000000);
-        bytes32 id = weakContract.createRequestAsPayee(payees, amounts, _payer, "");
+        bytes32 id = weakContract.createRequestAsPayee(payees, payeesPayment, amounts, _payer, 0, "");
         Log(id);
     }
 

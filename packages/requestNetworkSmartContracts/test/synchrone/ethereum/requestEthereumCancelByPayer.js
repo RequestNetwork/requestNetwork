@@ -38,7 +38,7 @@ contract('RequestEthereum Cancel by payer',  function(accounts) {
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, "", {from:payee});
+		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
     });
 
 	// ##################################################################################################

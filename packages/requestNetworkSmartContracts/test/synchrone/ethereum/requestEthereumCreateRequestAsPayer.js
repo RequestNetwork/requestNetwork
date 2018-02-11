@@ -48,7 +48,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	it("new request more than expectedAmount (with tips that make the new requestment under expected) OK", async function () {
 		var balancePayeeBefore = await web3.eth.getBalance(payee);
 
-		var r = await requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount+1], [arbitraryAmount10percent],"", 
+		var r = await requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount+1], [arbitraryAmount10percent],"", 
 													{from:payer, value:arbitraryAmount+1});
 
 		assert.equal(r.receipt.logs.length,4,"Wrong number of events");
@@ -90,7 +90,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	});
 
 	it("new request more than expectedAmount (with tips but still too much) Impossible", async function () {
-		var r = await (requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount+2], [1], "", 
+		var r = await (requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount+2], [1], "", 
 													{from:payer, value:arbitraryAmount+2}));
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
@@ -104,7 +104,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	});
 
 	it("new request pay more than expectedAmount (without tips) Impossible", async function () {
-		var r = await (requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount+1], [], '', 
+		var r = await (requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount+1], [], '', 
 													{from:payer, value:arbitraryAmount+1}));
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
@@ -118,7 +118,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	});
 
 	it("new request with more tips than msg.value OK", async function () {
-		var r = await (requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount], [arbitraryAmount10percent], "", 
+		var r = await (requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent], "", 
 													{from:payer, value:arbitraryAmount}));
 
 		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
@@ -134,7 +134,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	it("new request with tips OK", async function () {
 		var balancePayeeBefore = await web3.eth.getBalance(payee);
 
-		var r = await requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount], [arbitraryAmount10percent], "", 
+		var r = await requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent], "", 
 													{from:payer, value:arbitraryAmount});
 
 		assert.equal(r.receipt.logs.length,4,"Wrong number of events");
@@ -176,30 +176,30 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	});
 
 	it("new request payee==payer impossible", async function () {
-		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([payer], [arbitraryAmount], [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([payer], [], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new request payee==0 impossible", async function () {
-		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([0], [arbitraryAmount], [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([0], [], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new request msg.sender==payee impossible", async function () {
-		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payee, value:arbitraryAmount}));
 	});
 
 	it("impossible to createQuickquick request if Core Paused", async function () {
 		await requestCore.pause({from:admin});
 
-		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payer, value:arbitraryAmount}));
 	});
 
 	it("new request msg.value > 0 OK", async function () {
 		var balancePayeeBefore = await web3.eth.getBalance(payee);
-		var r = await requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount], [], '', 
+		var r = await requestEthereum.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount], [], '', 
 													{from:payer, value:arbitraryAmount});
 
 		assert.equal(r.receipt.logs.length,3,"Wrong number of events");
@@ -236,7 +236,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 
 	it("new request when currencyContract not trusted Impossible", async function () {
 		var requestEthereum2 = await RequestEthereum.new(requestCore.address,{from:admin});
-		await utils.expectThrow(requestEthereum2.createRequestAsPayer([payee], [arbitraryAmount], [arbitraryAmount], [], "", {from:payer, value:arbitraryAmount}));
+		await utils.expectThrow(requestEthereum2.createRequestAsPayer([payee], [], [arbitraryAmount], 0, [arbitraryAmount], [], "", {from:payer, value:arbitraryAmount}));
 	});
 
 });
