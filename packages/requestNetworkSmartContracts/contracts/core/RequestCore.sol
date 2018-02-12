@@ -44,7 +44,7 @@ contract RequestCore is Administrable {
     
     // mapping of all the Requests
     mapping(bytes32 => Request) public requests;
-    mapping(bytes32 => Payee[]) public subPayees;
+    mapping(bytes32 => Payee[256]) public subPayees;
 
     /*
      *  Events 
@@ -188,7 +188,7 @@ contract RequestCore is Administrable {
      
         for (uint8 i = 1; i < _payees.length; i = i.add(1))
         {
-            subPayees[_requestId].push(Payee(_payees[i], _expectedAmounts[i], 0));
+            subPayees[_requestId][i-1] = Payee(_payees[i], _expectedAmounts[i], 0);
             NewSubPayee(_requestId, _payees[i]);
         }
     }
@@ -279,9 +279,12 @@ contract RequestCore is Administrable {
     function getSubPayeesCount(bytes32 _requestId)
         public
         constant
-        returns(uint)
+        returns(uint8)
     {
-        return subPayees[_requestId].length;
+        for (uint8 i = 0; i < 255 && subPayees[_requestId][i].addr != address(0); i = i.add(1)) {
+            // nothing to do
+        }
+        return i;
     }
 
     /*
@@ -327,7 +330,7 @@ contract RequestCore is Administrable {
     {
         int256 balance = requests[_requestId].balance;
 
-        for (uint8 i = 0; i < subPayees[_requestId].length; i = i.add(1))
+        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             balance = balance.add(subPayees[_requestId][i].balance);
         }
@@ -347,7 +350,7 @@ contract RequestCore is Administrable {
     {
         int256 expectedAmount = requests[_requestId].expectedAmount;
 
-        for (uint8 i = 0; i < subPayees[_requestId].length; i = i.add(1))
+        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             expectedAmount = expectedAmount.add(subPayees[_requestId][i].expectedAmount);
         }
@@ -381,7 +384,7 @@ contract RequestCore is Administrable {
     {
         if(requests[_requestId].payee == _address) return 0;
 
-        for (uint8 i = 0; i < subPayees[_requestId].length; i = i.add(1))
+        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             if(subPayees[_requestId][i].addr == _address) {
                 return i+1;

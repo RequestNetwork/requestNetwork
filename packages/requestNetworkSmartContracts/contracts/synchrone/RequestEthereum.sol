@@ -23,7 +23,7 @@ contract RequestEthereum is Pausable {
 	mapping(address => uint256) public ethToWithdraw;
 
 	// payment addresses by requestId (optional)
-    mapping(bytes32 => address[]) public payeesAddressPayment;
+    mapping(bytes32 => address[256]) public payeesAddressPayment;
     mapping(bytes32 => address) public payerAddressPayment;
 
     /*
@@ -68,10 +68,10 @@ contract RequestEthereum is Pausable {
 
 		requestId= requestCore.createRequest(msg.sender, _payeesId, _expectedAmounts, _payer, _data);
 
-		// set payment addresses
-		if(_payeesPayment.length != 0) {
-			payeesAddressPayment[requestId] = _payeesPayment;
+		for (uint8 j = 0; j < _payeesPayment.length; j = j.add(1)) {
+			payeesAddressPayment[requestId][j] = _payeesPayment[j];
 		}
+
 		if(_payerAddressPayment != 0) {
 			payerAddressPayment[requestId] = _payerAddressPayment;
 		}
@@ -164,8 +164,8 @@ contract RequestEthereum is Pausable {
 		requestId= requestCore.createRequest(_creator, _payees, _expectedAmounts, msg.sender, _data);
 
 		// set payment addresses
-		if(_payeesPayment.length != 0) {
-			payeesAddressPayment[requestId] = _payeesPayment;
+		for (uint8 j = 0; j < _payeesPayment.length; j = j.add(1)) {
+			payeesAddressPayment[requestId][j] = _payeesPayment[j];
 		}
 		if(_payerAddressPayment != 0) {
 			payerAddressPayment[requestId] = _payerAddressPayment;
@@ -369,7 +369,7 @@ contract RequestEthereum is Pausable {
 
 				// pay the payment address if given, the id address otherwise
 				address addressToPay;
-				if(payeesAddressPayment[_requestId].length == 0 || payeesAddressPayment[_requestId][i] == 0) {
+				if(payeesAddressPayment[_requestId][i] == 0) {
 					addressToPay = requestCore.getPayeeAddress(_requestId, i);
 				} else {
 					addressToPay = payeesAddressPayment[_requestId][i];
