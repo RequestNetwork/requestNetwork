@@ -396,9 +396,20 @@ contract RequestEthereum is Pausable {
 		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted)
 		internal
 	{
+		// Check if the _address is a payeesId
 		int16 position = requestCore.getPayeePosition(_requestId, _address);
-		require(position >= 0); // same as onlyRequestPayeeOrSubPayees(_requestId, msg.sender)
-		require(position < 265); // avoid overflow for the uint8 cast
+		if(position < 0) { // not a payee from the core
+			// maybe in the payee payments address1
+	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && position == -1; i = i.add(1))
+	        {
+	            if(payeesAddressPayment[_requestId][i] == _address) {
+	                position = int16(i);
+	            }
+	        }
+		}
+
+		require(position >= 0); // address must be found
+		// useless (subPayee size <256): require(position < 265); // avoid overflow for the uint8 cast
 		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
 
 		// pay the payment address if given, the id address otherwise
