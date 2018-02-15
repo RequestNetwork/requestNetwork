@@ -18,24 +18,55 @@ var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSi
 
 var BigNumber = require('bignumber.js');
 
+var hashRequest = function(contract, payees, expectedAmounts, _payeesPayment, payer, data, expirationDate) {
+	let requestParts = [
+    {value: contract, type: "address"},
+    {value: payees[0], type: "address"},
+    {value: payer, type: "address"},
+    {value: payees.length, type: "uint8"}];
 
-var hashRequest = function(contract, payees, expectedAmounts, payer, data, expirationDate) {
-	const requestParts = [
-        {value: contract, type: "address"},
-        {value: payees, type: "address[]"},
-        {value: expectedAmounts, type: "int256[]"},
-        {value: payer, type: "address"},
-        {value: data, type: "string"},
-        {value: expirationDate, type: "uint256"}
-    ];
+    for (k in payees) {
+    	requestParts.push({value: payees[k], type: "address"})
+    	requestParts.push({value: expectedAmounts[k], type: "int256"})
+    }
+
+    requestParts.push({value: data.length, type: "uint8"});
+    requestParts.push({value: data, type: "string"});
+
+    requestParts.push({value: _payeesPayment, type: "address[]"});
+    requestParts.push({value: expirationDate, type: "uint256"});
+
     var types = [];
     var values = [];
     requestParts.forEach(function(o,i) {
     	types.push(o.type);
     	values.push(o.value);
     });
-
     return ethABI.soliditySHA3(types, values);
+}
+
+var createBytesRequest = function(payees, expectedAmounts, payer, data) {
+
+	let requestParts = [
+    {value: payees[0], type: "address"},
+    {value: payer, type: "address"},
+    {value: payees.length, type: "uint8"}];
+
+    for (k in payees) {
+    	requestParts.push({value: payees[k], type: "address"})
+    	requestParts.push({value: expectedAmounts[k], type: "int256"})
+    }
+
+    requestParts.push({value: data.length, type: "uint8"});
+    requestParts.push({value: data, type: "string"});
+
+    var types = [];
+    var values = [];
+    requestParts.forEach(function(o,i) {
+    	types.push(o.type);
+    	values.push(o.value);
+    });
+    return ethUtil.bufferToHex(ethABI.solidityPack(types, values));
 }
 
 var signHashRequest = function (hash, address) {
@@ -73,10 +104,10 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
   beforeEach(async () => {
   	requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
+ 		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
+
 		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
 		requestEthereum = await RequestEthereum.new(requestCore.address,{from:admin});
-
 		timeExpiration = (new Date("01/01/2222").getTime() / 1000);
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
@@ -84,21 +115,21 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request more than expectedAmount (with tips that make the new quick requestment under expected) OK", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [arbitraryAmount10percent];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var balancePayeeBefore = await web3.eth.getBalance(payee);
 		var r = await requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount});
@@ -149,20 +180,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request pay more than expectedAmount (without tips) OK", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var r = await requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount});
@@ -179,20 +210,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request more than expectedAmount (with tips but still too much)", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount+2];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var r = await requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount+2});
@@ -208,22 +239,24 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	});
 
 
+	
+
 	it("new quick request with more tips than msg.value", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [arbitraryAmount10percent];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var r = await requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount});
@@ -240,20 +273,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request payee==payer impossible", async function () {
 		var payees = [payer, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [arbitraryAmount+arbitraryAmount10percent];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -261,20 +294,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request payee==0 impossible", async function () {
 		var payees = [0, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [arbitraryAmount+arbitraryAmount10percent];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -282,20 +315,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request msg.sender==payee impossible", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [arbitraryAmount+arbitraryAmount10percent];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payee, value:arbitraryAmount}));
@@ -304,21 +337,21 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("impossible to broadcastSignedRequestAsPayer if Core Paused", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [arbitraryAmount+arbitraryAmount10percent];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 		
 		await requestCore.pause({from:admin});
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -327,20 +360,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request signed by payer Impossible", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payer);
 		
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -348,20 +381,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request signed by otherguy Impossible", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,otherguy);
 		
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -369,21 +402,21 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request signature doest match data impossible", async function () {
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 		
 		expectedAmounts[0] = 1;
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -392,20 +425,20 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	it("new request when currencyContract not trusted Impossible", async function () {
 		var requestEthereum2 = await RequestEthereum.new(requestCore.address,{from:admin});
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 		
 		var r = await utils.expectThrow(requestEthereum2.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
@@ -416,22 +449,23 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		timeExpiration = (new Date().getTime() / 1000) - 60;
 
 		var payees = [payee, payee2];
+		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
 		var payeeAmounts = [arbitraryAmount];
 		var additionals = [];
 		var data = "";
 
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, 0, data, timeExpiration);
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
 		var signature = await signHashRequest(hash,payee);
 		
 		var r = await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
-						payees, 
-						expectedAmounts,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
 						payeeAmounts,
-						additionals, 
-						data, 
+						additionals,
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
 	});
+
 });
