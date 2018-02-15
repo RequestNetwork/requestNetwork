@@ -107,6 +107,58 @@ contract RequestCore is Administrable {
     }
 
     /*
+     * @dev Function used by Subcontracts to create a request in the Core from bytes
+     * @param _data bytes containing all the data packed :
+            address(creator)
+            address(payer)
+            uint8(number_of_payees)
+            address(first_payee_address)
+            int256(first_payee_expected_amount)
+            address(second_payee_address)
+            int256(second_payee_expected_amount)
+                ...
+            uint8(data_string_size)
+            size(data)
+     * @return Returns the id of the request 
+     */ 
+    function createRequestFromBytes(bytes _data) 
+        external
+        whenNotPaused 
+        returns (bytes32 requestId) 
+    {
+        // TODO overflow sur uint8 offsetDataSize+1+dataSize+20 /!\ (?)
+        address creator = extractAddress(_data, 0);
+        address payer = extractAddress(_data, 20);
+        uint8 payeesCount = uint8(_data[40]);
+        uint offsetDataSize = payeesCount.mul(52).add(41);
+        uint8 dataSize = uint8(_data[offsetDataSize]);
+        string memory dataStr = extractString(_data, dataSize, offsetDataSize+1);
+
+        require(creator!=0); // not as modifier to lighten the stack
+        require(isTrustedContract(msg.sender)); // not as modifier to lighten the stack
+
+        numRequests = numRequests.add(1);
+        // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
+        requestId = bytes32((uint256(this) << 96).add(numRequests));
+
+        address firstPayee = extractAddress(_data, 41); 
+        int256 firstExpectedAmount = int256(extractBytes32(_data, 61));
+
+        requests[requestId] = Request(payer, msg.sender, State.Created, firstPayee, firstExpectedAmount, 0);
+        Created(requestId, firstPayee, payer, creator, dataStr);
+
+        for(uint8 i = 1; i < payeesCount; i = i.add(1)) {
+            // TODO overflow sur uint8 i avec 1+i*8 /!\ (?)
+            address subPayeeAddress = extractAddress(_data, 41+i*52);
+            // TODO overflow sur uint8 i avec 1+i*8 /!\ (?)
+            subPayees[requestId][i-1] =  Payee(subPayeeAddress, int256(extractBytes32(_data, 61+i*52)), 0);
+            NewSubPayee(requestId, subPayeeAddress);
+        }
+
+        return requestId;
+    }
+
+    /*
      * @dev Function used by Subcontracts to accept a request in the Core.
      * @param _requestId Request id
      */ 
@@ -192,6 +244,7 @@ contract RequestCore is Administrable {
             NewSubPayee(_requestId, _payees[i]);
         }
     }
+
     /* SETTER */
     /*
      * @dev Set payee of a request
@@ -392,4 +445,92 @@ contract RequestCore is Administrable {
         }
         return -1;
     }
+
+    /*
+     * @dev extract a string in a bytes
+     * @param data bytes from where the string will be extract
+     * @param size string size to extract
+     * @param _offset position of the first byte of the string
+     * @return string
+     */ 
+    function extractString(bytes data, uint8 size, uint _offset) internal constant returns (string) {
+        bytes memory bytesString = new bytes(size);
+        for (uint j = 0; j < size; j++) {
+            bytesString[j] = data[_offset+j];
+        }
+        return string(bytesString);
+    }
+
+    /*
+     * @dev extract an address in a bytes
+     * @param _data bytes from where the address will be extract
+     * @param _offset position of the first byte of the address
+     * @return address
+     */ 
+    function extractAddress(bytes _data, uint offset) internal pure returns (address) {
+        uint160 m = uint160(_data[offset]); // 2576 gas
+        m = m*256 + uint160(_data[offset+1]);
+        m = m*256 + uint160(_data[offset+2]);
+        m = m*256 + uint160(_data[offset+3]);
+        m = m*256 + uint160(_data[offset+4]);
+        m = m*256 + uint160(_data[offset+5]);
+        m = m*256 + uint160(_data[offset+6]);
+        m = m*256 + uint160(_data[offset+7]);
+        m = m*256 + uint160(_data[offset+8]);
+        m = m*256 + uint160(_data[offset+9]);
+        m = m*256 + uint160(_data[offset+10]);
+        m = m*256 + uint160(_data[offset+11]);
+        m = m*256 + uint160(_data[offset+12]);
+        m = m*256 + uint160(_data[offset+13]);
+        m = m*256 + uint160(_data[offset+14]);
+        m = m*256 + uint160(_data[offset+15]);
+        m = m*256 + uint160(_data[offset+16]);
+        m = m*256 + uint160(_data[offset+17]);
+        m = m*256 + uint160(_data[offset+18]);
+        m = m*256 + uint160(_data[offset+19]);
+        return address(m);
+    }
+
+    /*
+     * @dev extract a bytes32 in a bytes
+     * @param data bytes from where the bytes32 will be extract
+     * @param offset position of the first byte of the bytes32
+     * @return address
+     */ 
+    function extractBytes32(bytes _data, uint _offset) public pure returns (bytes32) {
+        uint256 m = uint256(_data[_offset]); // 3930
+        m = m*256 + uint256(_data[_offset+1]);
+        m = m*256 + uint256(_data[_offset+2]);
+        m = m*256 + uint256(_data[_offset+3]);
+        m = m*256 + uint256(_data[_offset+4]);
+        m = m*256 + uint256(_data[_offset+5]);
+        m = m*256 + uint256(_data[_offset+6]);
+        m = m*256 + uint256(_data[_offset+7]);
+        m = m*256 + uint256(_data[_offset+8]);
+        m = m*256 + uint256(_data[_offset+9]);
+        m = m*256 + uint256(_data[_offset+10]);
+        m = m*256 + uint256(_data[_offset+11]);
+        m = m*256 + uint256(_data[_offset+12]);
+        m = m*256 + uint256(_data[_offset+13]);
+        m = m*256 + uint256(_data[_offset+14]);
+        m = m*256 + uint256(_data[_offset+15]);
+        m = m*256 + uint256(_data[_offset+16]);
+        m = m*256 + uint256(_data[_offset+17]);
+        m = m*256 + uint256(_data[_offset+18]);
+        m = m*256 + uint256(_data[_offset+19]);
+        m = m*256 + uint256(_data[_offset+20]);
+        m = m*256 + uint256(_data[_offset+21]);
+        m = m*256 + uint256(_data[_offset+22]);
+        m = m*256 + uint256(_data[_offset+23]);
+        m = m*256 + uint256(_data[_offset+24]);
+        m = m*256 + uint256(_data[_offset+25]);
+        m = m*256 + uint256(_data[_offset+26]);
+        m = m*256 + uint256(_data[_offset+27]);
+        m = m*256 + uint256(_data[_offset+28]);
+        m = m*256 + uint256(_data[_offset+29]);
+        m = m*256 + uint256(_data[_offset+30]);
+        m = m*256 + uint256(_data[_offset+31]);
+        return bytes32(m);
+    }
+
 }
