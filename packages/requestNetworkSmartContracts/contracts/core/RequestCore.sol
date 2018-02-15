@@ -391,6 +391,27 @@ contract RequestCore is Administrable {
         return balance;
     }
 
+
+    /*
+     * @dev check if all the payees balances are null
+     * @param _requestId Request id
+     * @return true if all the payees balances are equals to 0
+     */     
+    function areAllBalanceNull(bytes32 _requestId)
+        public
+        constant
+        returns(bool isNull)
+    {
+        isNull = requests[_requestId].balance == 0;
+
+        for (uint8 i = 0; isNull && i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
+        {
+            isNull = subPayees[_requestId][i].balance == 0;
+        }
+
+        return isNull;
+    }
+
     /*
      * @dev Get expectedAmount of a request
      * @param _requestId Request id
