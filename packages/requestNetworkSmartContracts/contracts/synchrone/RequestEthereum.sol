@@ -23,8 +23,8 @@ contract RequestEthereum is Pausable {
 	mapping(address => uint256) public ethToWithdraw;
 
 	// payment addresses by requestId (optional)
-    mapping(bytes32 => address[256]) public payeesAddressPayment;
-    mapping(bytes32 => address) public payerAddressPayment;
+    mapping(bytes32 => address[256]) public payeesPaymentAddress;
+    mapping(bytes32 => address) public payerRefundAddress;
 
     /*
      *  Events 
@@ -45,23 +45,23 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @dev msg.sender will be the payee
 	 *
-	 * @param _payeesId array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
-	 * @param _payeesPayment array of payees address for payment (optional)
+	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payer Entity supposed to pay
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayee(address[] _payeesId, address[] _payeesPayment, int256[] _expectedAmounts, address _payer, address _payerAddressPayment, string _data)
+	function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)
 		external
 		payable
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		require(msg.sender == _payeesId[0] && msg.sender != _payer && _payer != 0);
+		require(msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0);
 
-		requestId = createRequest(_payer, _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _data);
+		requestId = createRequest(_payer, _payeesIdAddress, _payeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
 		return requestId;
 	}
@@ -71,8 +71,8 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @dev msg.sender will be the payer
 	 *
-	 * @param _payeesId array of payees address (the position 0 will be the payee the others are subPayees)
-	 * @param _payeesPayment array of payees address for payment (optional)
+	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
@@ -80,15 +80,15 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayer(address[] _payeesId, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
+	function createRequestAsPayer(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		external
 		payable
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		require(msg.sender != _payeesId[0] && _payeesId[0] != 0);
+		require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0);
 
-		requestId = createRequest(msg.sender, _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _data);
+		requestId = createRequest(msg.sender, _payeesIdAddress, _payeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
 		acceptAndPay(requestId, _payeeAmounts, _additionals);
 
@@ -103,7 +103,7 @@ contract RequestEthereum is Pausable {
 	 * @dev the _payer can additionals 
 	 *
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
-	 * @param _payeesPayment array of payees address for payment (optional)
+	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
@@ -113,7 +113,7 @@ contract RequestEthereum is Pausable {
 	 */
 	function broadcastSignedRequestAsPayer(
 		bytes _requestData, // gather data to avoid "stack too deep"
-		address[] _payeesPayment,
+		address[] _payeesPaymentAddress,
 		uint256[] _payeeAmounts, 
 		uint256[] _additionals,
 		uint256 _expirationDate, 
@@ -127,9 +127,9 @@ contract RequestEthereum is Pausable {
 		require(_expirationDate >= block.timestamp);
 
 		// check the signature
-		require(checkRequestSignature(_requestData, _payeesPayment, _expirationDate, _signature));
+		require(checkRequestSignature(_requestData, _payeesPaymentAddress, _expirationDate, _signature));
 
-		return createAcceptAndPayFromBytes(_requestData,  _payeesPayment, _payeeAmounts, _additionals);
+		return createAcceptAndPayFromBytes(_requestData,  _payeesPaymentAddress, _payeeAmounts, _additionals);
 	}
 
 	/*
@@ -138,13 +138,13 @@ contract RequestEthereum is Pausable {
 	 * @dev msg.sender must be _payer
 	 *
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
-	 * @param _payeesPayment array of payees address for payment (optional)
+	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createAcceptAndPayFromBytes(bytes _requestData, address[] _payeesPayment, uint256[] _payeeAmounts, uint256[] _additionals)
+	function createAcceptAndPayFromBytes(bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals)
 		internal
 		returns(bytes32 requestId)
 	{
@@ -160,8 +160,8 @@ contract RequestEthereum is Pausable {
 		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
 
 		// set payees payment addresses
-		for (uint8 j = 0; j < _payeesPayment.length ; j = j.add(1)) {
-			payeesAddressPayment[requestId][j] = _payeesPayment[j];
+		for (uint8 j = 0; j < _payeesPaymentAddress.length ; j = j.add(1)) {
+			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
 		}
 
 		acceptAndPay(requestId, _payeeAmounts, _additionals);
@@ -177,15 +177,15 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @param _payer Payer identity address 
 	 * @param _payees Payees identity address 
-	 * @param _payeesPayment Payees payment address 
+	 * @param _payeesPaymentAddress Payees payment address 
 	 * @param _expectedAmounts Expected amounts to be received by payees
 	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
-	 * @param _payerAddressPayment payer refund address
+	 * @param _payerRefundAddress payer refund address
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequest(address _payer, address[] _payees, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, string _data)
+	function createRequest(address _payer, address[] _payees, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payerRefundAddress, string _data)
 		internal
 		returns(bytes32 requestId)
 	{
@@ -197,11 +197,11 @@ contract RequestEthereum is Pausable {
 		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, _data);
 
 		// set payment addresses
-		for (uint8 j = 0; j < _payeesPayment.length; j = j.add(1)) {
-			payeesAddressPayment[requestId][j] = _payeesPayment[j];
+		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
+			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
 		}
-		if(_payerAddressPayment != 0) {
-			payerAddressPayment[requestId] = _payerAddressPayment;
+		if(_payerRefundAddress != 0) {
+			payerRefundAddress[requestId] = _payerRefundAddress;
 		}
 
 		return requestId;
@@ -242,7 +242,8 @@ contract RequestEthereum is Pausable {
 	function accept(bytes32 _requestId) 
 		external
 		whenNotPaused
-		condition(requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created)
+		condition(requestCore.getPayer(_requestId)==msg.sender)
+		condition(requestCore.getState(_requestId)==RequestCore.State.Created)
 	{
 		requestCore.accept(_requestId);
 	}
@@ -264,8 +265,8 @@ contract RequestEthereum is Pausable {
 		require((requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created)
 				|| (requestCore.getPayeeAddress(_requestId,0)==msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled));
 
-		// impossible to cancel a Request with a balance != 0
-		require(requestCore.getBalance(_requestId) == 0);
+		// impossible to cancel a Request with any payees balance != 0
+		require(requestCore.areAllBalanceNull(_requestId));
 
 		requestCore.cancel(_requestId);
 	}
@@ -287,11 +288,11 @@ contract RequestEthereum is Pausable {
 		external
 		whenNotPaused
 		payable
-		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted || (requestCore.getState(_requestId)==RequestCore.State.Created && requestCore.getPayer(_requestId)==msg.sender))
+		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		condition(_additionalAmounts.length == 0 || msg.sender == requestCore.getPayer(_requestId))
 	{
 		// automatically accept request
-		if(requestCore.getState(_requestId)==RequestCore.State.Created) {
+		if(requestCore.getState(_requestId)==RequestCore.State.Created && msg.sender == requestCore.getPayer(_requestId)) {
 			requestCore.accept(_requestId);
 		}
 
@@ -329,7 +330,7 @@ contract RequestEthereum is Pausable {
 	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
 		external
 		whenNotPaused
-		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted || requestCore.getState(_requestId)==RequestCore.State.Created)
+		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 
 		onlyRequestPayee(_requestId)
 	{
@@ -355,7 +356,7 @@ contract RequestEthereum is Pausable {
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
 		public
 		whenNotPaused
-		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted || requestCore.getState(_requestId)==RequestCore.State.Created)
+		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		onlyRequestPayer(_requestId)
 	{
 		additionalInternal(_requestId, _additionalAmounts);
@@ -413,10 +414,10 @@ contract RequestEthereum is Pausable {
 
 				// pay the payment address if given, the id address otherwise
 				address addressToPay;
-				if(payeesAddressPayment[_requestId][i] == 0) {
+				if(payeesPaymentAddress[_requestId][i] == 0) {
 					addressToPay = requestCore.getPayeeAddress(_requestId, i);
 				} else {
-					addressToPay = payeesAddressPayment[_requestId][i];
+					addressToPay = payeesPaymentAddress[_requestId][i];
 				}
 
 				// payment done, the money is ready to withdraw by the payee
@@ -437,7 +438,7 @@ contract RequestEthereum is Pausable {
 	 * @return true if the refund is done, false otherwise
 	 */
 	function refundInternal(bytes32 _requestId, address _address, uint256 _amount) 
-		condition(requestCore.getState(_requestId)==RequestCore.State.Accepted)
+		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		internal
 	{
 		// Check if the _address is a payeesId
@@ -446,7 +447,7 @@ contract RequestEthereum is Pausable {
 			// maybe in the payee payments address1
 	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && position == -1; i = i.add(1))
 	        {
-	            if(payeesAddressPayment[_requestId][i] == _address) {
+	            if(payeesPaymentAddress[_requestId][i] == _address) {
 	                position = int16(i);
 	            }
 	        }
@@ -457,7 +458,7 @@ contract RequestEthereum is Pausable {
 		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
 
 		// pay the payment address if given, the id address otherwise
-		address addressToPay = payerAddressPayment[_requestId];
+		address addressToPay = payerRefundAddress[_requestId];
 		if(addressToPay == 0) {
 			addressToPay = requestCore.getPayer(_requestId);
 		}
@@ -500,14 +501,14 @@ contract RequestEthereum is Pausable {
 	 */
 	function getRequestHash(
 		bytes _requestData,
-		address[] _payeesPayment,
+		address[] _payeesPaymentAddress,
 		uint256 _expirationDate
 		)
 		internal
 		view
 		returns(bytes32)
 	{
-		return keccak256(this,_requestData, _payeesPayment, _expirationDate);
+		return keccak256(this,_requestData, _payeesPaymentAddress, _expirationDate);
 	}
 
 	/*
@@ -539,14 +540,14 @@ contract RequestEthereum is Pausable {
 
 	function checkRequestSignature(
 		bytes _requestData,
-		address[] _payeesPayment,
+		address[] _payeesPaymentAddress,
 		uint256 expirationDate,
 		bytes signature)
 		public
 		view
 		returns (bool)
 	{
-		bytes32 hash = getRequestHash(_requestData, _payeesPayment, expirationDate);
+		bytes32 hash = getRequestHash(_requestData, _payeesPaymentAddress, expirationDate);
 
 		// signature as "v, r, s"
 		uint8 v = uint8(signature[64]);
