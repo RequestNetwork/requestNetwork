@@ -61,20 +61,8 @@ contract RequestEthereum is Pausable {
 	{
 		require(msg.sender == _payeesId[0] && msg.sender != _payer && _payer != 0);
 
-        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
-        {
-        	require(_expectedAmounts[i]>=0);
-        }
+		requestId = createRequest(_payer, _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _data);
 
-		requestId= requestCore.createRequest(msg.sender, _payeesId, _expectedAmounts, _payer, _data);
-
-		for (uint8 j = 0; j < _payeesPayment.length; j = j.add(1)) {
-			payeesAddressPayment[requestId][j] = _payeesPayment[j];
-		}
-
-		if(_payerAddressPayment != 0) {
-			payerAddressPayment[requestId] = _payerAddressPayment;
-		}
 		return requestId;
 	}
 
@@ -98,7 +86,13 @@ contract RequestEthereum is Pausable {
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		return createAcceptAndPay(msg.sender, _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _payeeAmounts, _additionals, _data);
+		require(msg.sender != _payeesId[0] && _payeesId[0] != 0);
+
+		requestId = createRequest(msg.sender, _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _data);
+
+		acceptAndPay(requestId, _payeeAmounts, _additionals);
+
+		return requestId;
 	}
 
 
@@ -108,60 +102,99 @@ contract RequestEthereum is Pausable {
 	 * @dev msg.sender must be _payer
 	 * @dev the _payer can additionals 
 	 *
-	 * @param _payeesId array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
 	 * @param _payeesPayment array of payees address for payment (optional)
-	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
-	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
 	 * @param _signature ECDSA signature in bytes
 	 *
 	 * @return Returns the id of the request 
 	 */
-	// function broadcastSignedRequestAsPayer(address[] _payeesId, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, uint256[] _payeeAmounts, uint256[] _additionals, string _data, uint256 _expirationDate, bytes signature)
-	// 	external
-	// 	payable
-	// 	whenNotPaused
-	// 	returns(bytes32)
-	// {
-	// 	// check expiration date
-	// 	require(_expirationDate >= block.timestamp);
+	function broadcastSignedRequestAsPayer(
+		bytes _requestData, // gather data to avoid "stack too deep"
+		address[] _payeesPayment,
+		uint256[] _payeeAmounts, 
+		uint256[] _additionals,
+		uint256 _expirationDate, 
+		bytes _signature)
+		external
+		payable
+		whenNotPaused
+		returns(bytes32)
+	{
+		// check expiration date
+		require(_expirationDate >= block.timestamp);
 
-	// 	// check the signature
-	// 	// TODO : ajouter _payeesPayment
-	// 	require(checkRequestSignature(_payeesId, _expectedAmounts, 0, _data, _expirationDate, signature));
+		// check the signature
+		require(checkRequestSignature(_requestData, _payeesPayment, _expirationDate, _signature));
 
-	// 	return createAcceptAndPay(_payeesId[0], _payeesId, _payeesPayment, _expectedAmounts, _payerAddressPayment, _payeeAmounts, _additionals, _data);
-	// }
+		return createAcceptAndPayFromBytes(_requestData,  _payeesPayment, _payeeAmounts, _additionals);
+	}
 
+	/*
+	 * @dev Internal function to create, accept, add additionals and pay a request as Payer
+	 *
+	 * @dev msg.sender must be _payer
+	 *
+	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
+	 * @param _payeesPayment array of payees address for payment (optional)
+	 * @param _payeeAmounts array of amount repartition for the payment
+	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
+	 *
+	 * @return Returns the id of the request 
+	 */
+	function createAcceptAndPayFromBytes(bytes _requestData, address[] _payeesPayment, uint256[] _payeeAmounts, uint256[] _additionals)
+		internal
+		returns(bytes32 requestId)
+	{
+		address firstPayee = extractAddress(_requestData, 41); 
+		require(msg.sender != firstPayee && firstPayee != 0);  
+		require( extractAddress(_requestData, 0) == firstPayee );
+
+		uint8 payeesCount = uint8(_requestData[40]);
+		for(uint8 i = 0; i < payeesCount; i++) {
+		    require(isIntInBytesPositive(_requestData, 61+i*52));
+		}
+
+		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
+
+		// set payees payment addresses
+		for (uint8 j = 0; j < _payeesPayment.length ; j = j.add(1)) {
+			payeesAddressPayment[requestId][j] = _payeesPayment[j];
+		}
+
+		acceptAndPay(requestId, _payeeAmounts, _additionals);
+
+		return requestId;
+	}
 
 
 	/*
-	 * @dev Internal function to create,accept and pay a request as Payer
+	 * @dev Internal function to create a request
 	 *
-	 * @dev msg.sender will be the payer
+	 * @dev msg.sender is the creator of the request
 	 *
-	 * @param _creator Entity which create the request
-	 * @param _payee Entity which will receive the payment
-	 * @param _expectedAmount Expected amount to be received
+	 * @param _payer Payer identity address 
+	 * @param _payees Payees identity address 
+	 * @param _payeesPayment Payees payment address 
+	 * @param _expectedAmounts Expected amounts to be received by payees
 	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
+	 * @param _payerAddressPayment payer refund address
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createAcceptAndPay(address _creator, address[] _payees, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
+	function createRequest(address _payer, address[] _payees, address[] _payeesPayment, int256[] _expectedAmounts, address _payerAddressPayment, string _data)
 		internal
 		returns(bytes32 requestId)
 	{
-		require(msg.sender != _payees[0] && _payees[0] != 0);
+		for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
+		{
+			require(_expectedAmounts[i]>=0);
+		}
 
-        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
-        {
-        	require(_expectedAmounts[i]>=0);
-        }
-
-		requestId= requestCore.createRequest(_creator, _payees, _expectedAmounts, msg.sender, _data);
+		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, _data);
 
 		// set payment addresses
 		for (uint8 j = 0; j < _payeesPayment.length; j = j.add(1)) {
@@ -171,15 +204,27 @@ contract RequestEthereum is Pausable {
 			payerAddressPayment[requestId] = _payerAddressPayment;
 		}
 
-		requestCore.accept(requestId);
+		return requestId;
+	}
+
+	/*
+	 * @dev Internal function to accept, add additionals and pay a request as Payer
+	 *
+	 * @param _requestId id of the request 
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+	 * @param _additionals Will increase the ExpectedAmounts of payees
+	 *
+	 */	
+	function acceptAndPay(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionals)
+		internal
+	{
+		requestCore.accept(_requestId);
 		
-		additionalInternal(requestId, _additionals);
+		additionalInternal(_requestId, _additionals);
 
 		if(msg.value > 0) {
-			paymentInternal(requestId, _payeeAmounts, msg.value);
+			paymentInternal(_requestId, _payeeAmounts, msg.value);
 		}
-
-		return requestId;
 	}
 
 	// ---- INTERFACE FUNCTIONS ------------------------------------------------------------------------------------
@@ -348,7 +393,6 @@ contract RequestEthereum is Pausable {
 		}
 	}
 
-
 	/*
 	 * @dev Function internal to manage payment declaration
 	 *
@@ -455,16 +499,15 @@ contract RequestEthereum is Pausable {
 	 * @return Keccak-256 hash of a request
 	 */
 	function getRequestHash(
-		address[] _payees,
-		int256[] _expectedAmounts,
-		address _payer,
-		string _data,
-		uint256 _expirationDate)
+		bytes _requestData,
+		address[] _payeesPayment,
+		uint256 _expirationDate
+		)
 		internal
 		view
 		returns(bytes32)
 	{
-		return keccak256(this,_payees,_expectedAmounts,_payer,_data,_expirationDate);
+		return keccak256(this,_requestData, _payeesPayment, _expirationDate);
 	}
 
 	/*
@@ -495,35 +538,25 @@ contract RequestEthereum is Pausable {
 	}
 
 	function checkRequestSignature(
-		address[] payees,
-		int256[] expectedAmounts,
-		address payer,
-		string data,
+		bytes _requestData,
+		address[] _payeesPayment,
 		uint256 expirationDate,
 		bytes signature)
 		public
 		view
 		returns (bool)
 	{
-		bytes32 hash = getRequestHash(payees,expectedAmounts,payer,data,expirationDate);
+		bytes32 hash = getRequestHash(_requestData, _payeesPayment, expirationDate);
 
 		// signature as "v, r, s"
 		uint8 v = uint8(signature[64]);
 		v = v < 27 ? v.add(27) : v;
-		bytes32 r = bytesToBytes32(signature, 0);
-		bytes32 s = bytesToBytes32(signature, 32);
+		bytes32 r = extractBytes32(signature, 0);
+		bytes32 s = extractBytes32(signature, 32);
 
-		return isValidSignature(payees[0], hash, v, r, s);
+		return isValidSignature(extractAddress(_requestData, 0), hash, v, r, s);
 	}
 
-  	function bytesToBytes32(bytes b, uint offset) private pure returns (bytes32) {
-      bytes32 out;
-    
-      for (uint i = 0; i < 32; i++) {
-        out |= bytes32(b[offset + i] & 0xFF) >> (i * 8);
-      }
-      return out;
-    }
 
 	//modifier
 	modifier condition(bool c) 
@@ -554,37 +587,87 @@ contract RequestEthereum is Pausable {
 		_;
 	}
 
-	/*
-	 * @dev Modifier to check if msg.sender is payee or subPayee
-	 * @dev Revert if msg.sender is not payee
-	 * @param _requestId id of the request 
-	 */	
-	modifier onlyRequestPayeeOrSubPayees(bytes32 _requestId, address _address) 
-	{
-		require(requestCore.getPayeePosition(_requestId, _address) != -1);
-		_;
-	}
+    /*
+     * @dev modify 20 bytes in a bytes
+     * @param data bytes to modify
+     * @param offset position of the first byte to modify
+     * @param b bytes20 to insert
+     * @return address
+     */ 
+    function insertBytes20inBytes(bytes data, uint offset, bytes20 b) public returns(bytes) {
+        for(uint8 j = 0; j <20; j++) {
+            data[offset+j] = b[j];
+        }
+    	return data;
+    }
 
-	/*
-	 * @dev Modifier to check if msg.sender is payee or payer
-	 * @dev Revert if msg.sender is not payee or payer
-	 * @param _requestId id of the request 
-	 */
-	modifier onlyRequestPayeeOrPayer(bytes32 _requestId) 
-	{
-		require(requestCore.getPayeeAddress(_requestId, 0)==msg.sender || requestCore.getPayer(_requestId)==msg.sender);
-		_;
-	}
+    /*
+     * @dev extract an address in a bytes
+     * @param data bytes from where the address will be extract
+     * @param offset position of the first byte of the address
+     * @return address
+     */ 
+    function extractAddress(bytes _data, uint offset) internal pure returns (address) {
+        uint160 m = uint160(_data[offset]); // 2576 gas
+        m = m*256 + uint160(_data[offset+1]);
+        m = m*256 + uint160(_data[offset+2]);
+        m = m*256 + uint160(_data[offset+3]);
+        m = m*256 + uint160(_data[offset+4]);
+        m = m*256 + uint160(_data[offset+5]);
+        m = m*256 + uint160(_data[offset+6]);
+        m = m*256 + uint160(_data[offset+7]);
+        m = m*256 + uint160(_data[offset+8]);
+        m = m*256 + uint160(_data[offset+9]);
+        m = m*256 + uint160(_data[offset+10]);
+        m = m*256 + uint160(_data[offset+11]);
+        m = m*256 + uint160(_data[offset+12]);
+        m = m*256 + uint160(_data[offset+13]);
+        m = m*256 + uint160(_data[offset+14]);
+        m = m*256 + uint160(_data[offset+15]);
+        m = m*256 + uint160(_data[offset+16]);
+        m = m*256 + uint160(_data[offset+17]);
+        m = m*256 + uint160(_data[offset+18]);
+        m = m*256 + uint160(_data[offset+19]);
+        return address(m);
+    }
 
-	/*
-	 * @dev Modifier to check if request is in a specify state
-	 * @dev Revert if request not in a specify state
-	 * @param _requestId id of the request 
-	 * @param _state state to check
-	 */
-	modifier onlyRequestState(bytes32 _requestId, RequestCore.State _state) 
-	{
-		require(requestCore.getState(_requestId)==_state);
-		_;
-	}
+    function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
+        uint256 m = uint256(_data[offset]); // 3930
+        m = m*256 + uint256(_data[offset+1]);
+        m = m*256 + uint256(_data[offset+2]);
+        m = m*256 + uint256(_data[offset+3]);
+        m = m*256 + uint256(_data[offset+4]);
+        m = m*256 + uint256(_data[offset+5]);
+        m = m*256 + uint256(_data[offset+6]);
+        m = m*256 + uint256(_data[offset+7]);
+        m = m*256 + uint256(_data[offset+8]);
+        m = m*256 + uint256(_data[offset+9]);
+        m = m*256 + uint256(_data[offset+10]);
+        m = m*256 + uint256(_data[offset+11]);
+        m = m*256 + uint256(_data[offset+12]);
+        m = m*256 + uint256(_data[offset+13]);
+        m = m*256 + uint256(_data[offset+14]);
+        m = m*256 + uint256(_data[offset+15]);
+        m = m*256 + uint256(_data[offset+16]);
+        m = m*256 + uint256(_data[offset+17]);
+        m = m*256 + uint256(_data[offset+18]);
+        m = m*256 + uint256(_data[offset+19]);
+        m = m*256 + uint256(_data[offset+20]);
+        m = m*256 + uint256(_data[offset+21]);
+        m = m*256 + uint256(_data[offset+22]);
+        m = m*256 + uint256(_data[offset+23]);
+        m = m*256 + uint256(_data[offset+24]);
+        m = m*256 + uint256(_data[offset+25]);
+        m = m*256 + uint256(_data[offset+26]);
+        m = m*256 + uint256(_data[offset+27]);
+        m = m*256 + uint256(_data[offset+28]);
+        m = m*256 + uint256(_data[offset+29]);
+        m = m*256 + uint256(_data[offset+30]);
+        m = m*256 + uint256(_data[offset+31]);
+        return bytes32(m);
+    }
+
+    function isIntInBytesPositive(bytes data, uint offset) internal pure returns(bool) {
+        return int8(data[offset]) >= 0;
+    }
 }
