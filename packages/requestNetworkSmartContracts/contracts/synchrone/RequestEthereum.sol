@@ -304,7 +304,7 @@ contract RequestEthereum is Pausable {
 	/*
 	 * @dev Function PAYABLE to pay back in ether a request to the payee
 	 *
-	 * @dev msg.sender must be _payer
+	 * @dev msg.sender must be on of the payees
 	 * @dev the request must be accepted
 	 * @dev the payback must be lower than the amount already paid for the request
 	 *
