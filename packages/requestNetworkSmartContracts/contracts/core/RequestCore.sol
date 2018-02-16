@@ -519,7 +519,7 @@ contract RequestCore is Administrable {
      * @return address
      */ 
     function extractBytes32(bytes _data, uint _offset) public pure returns (bytes32) {
-        uint256 m = uint256(_data[_offset]); // 3930
+        uint256 m = uint256(_data[_offset]); // 3930 gas
         m = m*256 + uint256(_data[_offset+1]);
         m = m*256 + uint256(_data[_offset+2]);
         m = m*256 + uint256(_data[_offset+3]);
