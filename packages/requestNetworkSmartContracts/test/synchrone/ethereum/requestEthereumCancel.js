@@ -115,7 +115,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(newReq[2],2,"new request wrong data : state");
 	});
 
-	it("cancel request amountPaid != 0 Impossible", async function () {
+	it("cancel request payee balance != 0 Impossible", async function () {
 		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [10], [0], {from:payer,value:10});
 		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
@@ -130,6 +130,19 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		
 		
 		assert.equal(newReq[2],1,"new request wrong data : state");
+	});
+
+	it("cancel request subPayee balance != 0 Impossible", async function () {
+		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payer,value:10});
+		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+	});
+
+	it("cancel request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
+		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payer,value:10});
+		await requestEthereum.refundAction(utils.getRequestId(requestCore.address, 1), {from:payee,value:10});
+		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
 	});
 
 	it("cancel request created OK", async function () {
