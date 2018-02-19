@@ -595,7 +595,7 @@ contract RequestEthereum is Pausable {
      * @param b bytes20 to insert
      * @return address
      */ 
-    function insertBytes20inBytes(bytes data, uint offset, bytes20 b) public returns(bytes) {
+    function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
         for(uint8 j = 0; j <20; j++) {
             data[offset+j] = b[j];
         }

@@ -474,7 +474,7 @@ contract RequestCore is Administrable {
      * @param _offset position of the first byte of the string
      * @return string
      */ 
-    function extractString(bytes data, uint8 size, uint _offset) internal constant returns (string) {
+    function extractString(bytes data, uint8 size, uint _offset) internal pure returns (string) {
         bytes memory bytesString = new bytes(size);
         for (uint j = 0; j < size; j++) {
             bytesString[j] = data[_offset+j];
