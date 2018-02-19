@@ -28,6 +28,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 	var arbitraryAmount2 = 200;
 	var arbitraryAmount3 = 300;
 	var arbitraryAmount10percent = 100;
+	var arbitraryAmount20percent = 200;
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new({from:admin});
@@ -177,5 +178,41 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
+
+
+	it("additionalAction subPayees", async function () {
+		var r = await requestEthereum.additionalAction(utils.getRequestId(requestCore.address, 1),[0,arbitraryAmount10percent,arbitraryAmount20percent], {from:payer});
+		assert.equal(r.receipt.logs.length,2,"Wrong number of events");
+		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after subtractAction()");
+		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
+		assert.equal(l.data[0],1,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after subtractAction()");
+		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
+		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],arbitraryAmount20percent,"Event UpdateExpectedAmount wrong args amount");
+		
+
+		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[5],0,"new request wrong data : balance");
+		assert.equal(newReq[2],0,"new request wrong data : state");
+
+		var r = await requestCore.subPayees.call(utils.getRequestId(requestCore.address, 1),0);	
+		assert.equal(r[0],payee2,"request wrong data : payer");
+		assert.equal(r[1],arbitraryAmount2+arbitraryAmount10percent,"new request wrong data : expectedAmount");
+		assert.equal(r[2],0,"new request wrong data : balance");
+
+		var r = await requestCore.subPayees.call(utils.getRequestId(requestCore.address, 1),1);	
+		assert.equal(r[0],payee3,"request wrong data : payer");
+		assert.equal(r[1],arbitraryAmount3+arbitraryAmount20percent,"new request wrong data : expectedAmount");
+		assert.equal(r[2],0,"new request wrong data : balance");
+	});
 });
 
