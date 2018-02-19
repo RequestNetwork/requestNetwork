@@ -81,10 +81,9 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	var payee = accounts[4];
 	var payee2 = accounts[5];
 	var payee3 = accounts[6];
-
-	var privateKeyOtherGuy = "1ba414a85acdd19339dacd7febb40893458433bee01201b7ae8ca3d6f4e90994";
-	var privateKeyPayer = "b383a09e0c750bcbfe094b9e17ee31c6a9bb4f2fcdc821d97a34cf3e5b7f5429";
-	var privateKeyPayee = "5f1859eee362d44b90d4f3cdd14a8775f682e08d34ff7cdca7e903d7ee956b6a";
+	var payeeAddressPayment = accounts[7];
+	var payee2AddressPayment = accounts[8];
+	var payee3AddressPayment = accounts[9];
 
 	// var creator = accounts[5];
 	var fakeExtention1;
@@ -113,7 +112,7 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
     });
 
-	it("new quick request more than expectedAmount (with tips that make the new quick requestment under expected) OK", async function () {
+	it("new quick request more than expectedAmount OK", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -203,69 +202,6 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
 		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
 		assert.equal(newReq[4],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[2],1,"new quick request wrong data : state");
-	});
-
-	it("new quick request more than expectedAmount (with tips but still too much)", async function () {
-		var payees = [payee, payee2];
-		var payeesPayment = [];
-		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
-		var payeeAmounts = [arbitraryAmount+2];
-		var additionals = [];
-		var data = "";
-
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
-		var signature = await signHashRequest(hash,payee);
-
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(
-						createBytesRequest(payees, expectedAmounts, 0, data),
-						payeesPayment,
-						payeeAmounts,
-						additionals,
-						timeExpiration,
-						signature,
-						{from:payer, value:arbitraryAmount+2});
-
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		// assert.equal(newReq[0],payee,"new quick request wrong data : creator");
-		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[4],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount+2,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[2],1,"new quick request wrong data : state");
-	});
-
-
-	
-
-	it("new quick request with more tips than msg.value", async function () {
-		var payees = [payee, payee2];
-		var payeesPayment = [];
-		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
-		var payeeAmounts = [arbitraryAmount];
-		var additionals = [arbitraryAmount10percent];
-		var data = "";
-
-		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
-		var signature = await signHashRequest(hash,payee);
-
-		var r = await requestEthereum.broadcastSignedRequestAsPayer(
-						createBytesRequest(payees, expectedAmounts, 0, data),
-						payeesPayment,
-						payeeAmounts,
-						additionals,
-						timeExpiration,
-						signature,
-						{from:payer, value:arbitraryAmount});
-
-
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[0],payer,"new quick request wrong data : payer");	
-		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
 		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
 		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : amountPaid");
 		assert.equal(newReq[2],1,"new quick request wrong data : state");
@@ -466,6 +402,126 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 						timeExpiration,
 						signature,
 						{from:payer, value:arbitraryAmount}));
+	});
+
+
+	it("new request from payer with 3 payees all paid OK with tips with payments addresses", async function () {
+		var balancePayeeBefore = await web3.eth.getBalance(payee);
+		var balancePayee2Before = await web3.eth.getBalance(payee2);
+		var balancePayee3Before = await web3.eth.getBalance(payee3);
+
+		var balancePayeePaymentBefore = await web3.eth.getBalance(payeeAddressPayment);
+		var balancePayee2PaymentBefore = await web3.eth.getBalance(payee2AddressPayment);
+		var balancePayee3PaymentBefore = await web3.eth.getBalance(payee3AddressPayment);
+
+		var payees = [payee, payee2, payee3];
+		var payeesPayment = [payeeAddressPayment,payee2AddressPayment,payee3AddressPayment];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2,arbitraryAmount3];
+		var payeeAmounts = [arbitraryAmount+1,arbitraryAmount2+2,arbitraryAmount3+3];
+		var additionals = [1,2,3];
+		var data = "";
+
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		var r = await requestEthereum.broadcastSignedRequestAsPayer(
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer, value:arbitraryAmount+arbitraryAmount2+arbitraryAmount3+6});
+
+		assert.equal(r.receipt.logs.length,10,"Wrong number of events");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
+		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
+		assert.equal(l.data[1],'',"Event Created wrong args data");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args payee");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args payee");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
+		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[4], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[4].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],1,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[5], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[5].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
+		assert.equal(l.data[0],1,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],2,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[6], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[6].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
+		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],3,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[7], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[7].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[8], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[8].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
+		assert.equal(l.data[0],1,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[1],arbitraryAmount2+2,"Event UpdateBalance wrong args amountPaid");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[9], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[9].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
+		assert.equal(l.data[0],2,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[1],arbitraryAmount3+3,"Event UpdateBalance wrong args amountPaid");
+
+		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));		
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount+1,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[5],arbitraryAmount+1,"new request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new request wrong data : state");
+
+		var count = await requestCore.getSubPayeesCount.call(utils.getRequestId(requestCore.address,1));
+		assert.equal(count,2,"number of subPayee wrong");
+
+		var r = await requestCore.subPayees.call(utils.getRequestId(requestCore.address, 1),0);	
+		assert.equal(r[0],payee2,"request wrong data : payer");
+		assert.equal(r[1],arbitraryAmount2+2,"new request wrong data : expectedAmount");
+		assert.equal(r[2],arbitraryAmount2+2,"new request wrong data : balance");
+
+		var r = await requestCore.subPayees.call(utils.getRequestId(requestCore.address, 1),1);	
+		assert.equal(r[0],payee3,"request wrong data : payer");
+		assert.equal(r[1],arbitraryAmount3+3,"new request wrong data : expectedAmount");
+		assert.equal(r[2],arbitraryAmount3+3,"new request wrong data : balance");
+
+
+		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),0,"new request wrong data : amount to withdraw payee");
+		assert.equal((await web3.eth.getBalance(payee2)).sub(balancePayee2Before),0,"new request wrong data : amount to withdraw payee");
+		assert.equal((await web3.eth.getBalance(payee3)).sub(balancePayee3Before),0,"new request wrong data : amount to withdraw payee");
+
+		assert.equal((await web3.eth.getBalance(payeeAddressPayment)).sub(balancePayeePaymentBefore),arbitraryAmount+1,"new request wrong data : amount to withdraw payee");
+		assert.equal((await web3.eth.getBalance(payee2AddressPayment)).sub(balancePayee2PaymentBefore),arbitraryAmount2+2,"new request wrong data : amount to withdraw payee");
+		assert.equal((await web3.eth.getBalance(payee3AddressPayment)).sub(balancePayee3PaymentBefore),arbitraryAmount3+3,"new request wrong data : amount to withdraw payee");
 	});
 
 });
