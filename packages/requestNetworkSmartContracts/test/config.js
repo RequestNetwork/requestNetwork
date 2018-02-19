@@ -1,11 +1,12 @@
 var config = {
 	"all":true,
 	// "core.js": {
-		"requestAdministrable.js":false,    
-		"requestCoreCreateRequest.js":false,    
+		"requestAdministrable.js":false, 
+		"requestCoreCreateRequest.js":false,
+		"requestCoreCreateRequestFromBytes.js":false, 
 		"requestCoreAcceptCancel.js":false,
-		"requestCoreUpdateExpectedAmount.js":false,  
-		"requestCoreUpdateBalance.js":false,  
+		"requestCoreUpdateExpectedAmount.js":false,
+		"requestCoreUpdateBalance.js":false,
 	// },
 	// "synchrone.js": {
 	//	 	"ethereum.js": {
@@ -17,7 +18,7 @@ var config = {
 				"requestEthereumCancel.js":false, 
 				"requestEthereumWithdraw.js":false, 
 				"requestEthereumSubtract.js":false, 
-				"requestEthereumAdditional.js":false,  
+				"requestEthereumAdditional.js":false,
 				"requestEthereumPay.js":false, 
 				"requestEthereumPayBack.js":false, 
 				"requestEthereumPaymentStuck.js":false,
