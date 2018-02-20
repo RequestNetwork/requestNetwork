@@ -48,12 +48,11 @@ not available yet
 
 
 ### Create a new request as the payer
-` function createRequestAsPayer(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
+` function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
 
 * @dev msg.sender will be the payer
 
 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
-* @param _payeesPaymentAddress array of payees address for payment (optional)
 * @param _expectedAmounts array of Expected amount to be received by each payees
 * @param _payeeAmounts array of amount repartition for the payment
 * @param _additionals array to increase the ExpectedAmount for payees
