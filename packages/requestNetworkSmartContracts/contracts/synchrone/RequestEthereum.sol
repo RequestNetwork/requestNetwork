@@ -72,7 +72,6 @@ contract RequestEthereum is Pausable {
 	 * @dev msg.sender will be the payer
 	 *
 	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
-	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
@@ -80,7 +79,7 @@ contract RequestEthereum is Pausable {
 	 *
 	 * @return Returns the id of the request 
 	 */
-	function createRequestAsPayer(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
+	function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		external
 		payable
 		whenNotPaused
@@ -88,7 +87,9 @@ contract RequestEthereum is Pausable {
 	{
 		require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0);
 
-		requestId = createRequest(msg.sender, _payeesIdAddress, _payeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
+		// payeesPaymentAddress not allowed here to avoid scam
+		address[] memory emptyPayeesPaymentAddress = new address[](0);
+		requestId = createRequest(msg.sender, _payeesIdAddress, emptyPayeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
 		acceptAndPay(requestId, _payeeAmounts, _additionals);
 
