@@ -1,7 +1,6 @@
 pragma solidity 0.4.18;
 
 import '../base/lifecycle/Pausable.sol';
-import '../collect/RequestBurnManagerInterface.sol';
 
 /**
  * @title Administrable
@@ -11,9 +10,6 @@ contract Administrable is Pausable {
 
 	// mapping of address of trusted contract
 	mapping(address => uint8) public trustedCurrencyContracts;
-
-	// contract managing the fees
-	RequestBurnManagerInterface public trustedNewBurnManager;
 
 	// Events of the system
 	event NewTrustedContract(address newContract);
@@ -45,19 +41,6 @@ contract Administrable is Pausable {
 		require(trustedCurrencyContracts[_oldTrustedContractAddress] != 0);
 		trustedCurrencyContracts[_oldTrustedContractAddress] = 0;
 		RemoveTrustedContract(_oldTrustedContractAddress);
-	}
-
-	/**
-	 * @dev update the fees manager contract
-	 *
-	 * @param _newBurnManager The address of the new fees manager
-	 */
-	function setBurnManager(address _newBurnManager)
-		external
-		onlyOwner
-	{
-		trustedNewBurnManager = RequestBurnManagerInterface(_newBurnManager);
-		NewBurnManager(_newBurnManager);
 	}
 
 	/**
