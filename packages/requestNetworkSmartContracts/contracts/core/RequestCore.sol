@@ -126,13 +126,12 @@ contract RequestCore is Administrable {
         whenNotPaused 
         returns (bytes32 requestId) 
     {
-        // TODO overflow sur uint8 offsetDataSize+1+dataSize+20 /!\ (?)
         address creator = extractAddress(_data, 0);
         address payer = extractAddress(_data, 20);
         uint8 payeesCount = uint8(_data[40]);
-        uint offsetDataSize = payeesCount.mul(52).add(41);
+        uint256 offsetDataSize = uint256(payeesCount).mul(52).add(41);
         uint8 dataSize = uint8(_data[offsetDataSize]);
-        string memory dataStr = extractString(_data, dataSize, offsetDataSize+1);
+        string memory dataStr = extractString(_data, dataSize, offsetDataSize.add(1));
 
         require(creator!=0); // not as modifier to lighten the stack
         require(isTrustedContract(msg.sender)); // not as modifier to lighten the stack
@@ -141,17 +140,19 @@ contract RequestCore is Administrable {
         // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
         requestId = bytes32((uint256(this) << 96).add(numRequests));
 
-        address firstPayee = extractAddress(_data, 41); 
-        int256 firstExpectedAmount = int256(extractBytes32(_data, 61));
+        address firstPayee = address(0);
+        int256 firstExpectedAmount = 0;
+        if(payeesCount!=0) {
+            firstPayee = extractAddress(_data, 41);
+            firstExpectedAmount = int256(extractBytes32(_data, 61));
+        }
 
         requests[requestId] = Request(payer, msg.sender, State.Created, firstPayee, firstExpectedAmount, 0);
         Created(requestId, firstPayee, payer, creator, dataStr);
 
         for(uint8 i = 1; i < payeesCount; i = i.add(1)) {
-            // TODO overflow sur uint8 i avec 1+i*8 /!\ (?)
-            address subPayeeAddress = extractAddress(_data, 41+i*52);
-            // TODO overflow sur uint8 i avec 1+i*8 /!\ (?)
-            subPayees[requestId][i-1] =  Payee(subPayeeAddress, int256(extractBytes32(_data, 61+i*52)), 0);
+            address subPayeeAddress = extractAddress(_data, uint256(i).mul(52).add(41));
+            subPayees[requestId][i-1] =  Payee(subPayeeAddress, int256(extractBytes32(_data, uint256(i).mul(52).add(61))), 0);
             NewSubPayee(requestId, subPayeeAddress);
         }
 
