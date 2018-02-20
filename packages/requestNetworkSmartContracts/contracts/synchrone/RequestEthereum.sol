@@ -3,7 +3,7 @@ pragma solidity 0.4.18;
 import '../core/RequestCore.sol';
 import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathUint8.sol';
-import '../base/lifecycle/Pausable.sol';
+import './RequestCollectSynchrone.sol';
 
 /**
  * @title RequestEthereum
@@ -12,8 +12,9 @@ import '../base/lifecycle/Pausable.sol';
  *
  * @dev Requests can be created by the Payee with createRequest() or by the payer from a request signed offchain by the payee with createQuickRequest
  */
-contract RequestEthereum is Pausable {
+contract RequestEthereum is RequestCollectSynchrone {
 	using SafeMath for uint256;
+	using SafeMathInt for int256;
 	using SafeMathUint8 for uint8;
 
 	// RequestCore object
@@ -35,7 +36,7 @@ contract RequestEthereum is Pausable {
 	 * @dev Constructor
 	 * @param _requestCoreAddress Request Core address
 	 */  
-	function RequestEthereum(address _requestCoreAddress) public
+	function RequestEthereum(address _requestCoreAddress, address _requestBurnerAddress) RequestCollectSynchrone(_requestBurnerAddress) public
 	{
 		requestCore=RequestCore(_requestCoreAddress);
 	}
@@ -61,7 +62,10 @@ contract RequestEthereum is Pausable {
 	{
 		require(msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0);
 
-		requestId = createRequest(_payer, _payeesIdAddress, _payeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
+		uint256 fees;
+		(requestId, fees) = createRequest(_payer, _payeesIdAddress, _payeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
+
+		require(fees == msg.value);
 
 		return requestId;
 	}
@@ -89,7 +93,8 @@ contract RequestEthereum is Pausable {
 
 		// payeesPaymentAddress not allowed here to avoid scam
 		address[] memory emptyPayeesPaymentAddress = new address[](0);
-		requestId = createRequest(msg.sender, _payeesIdAddress, emptyPayeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
+		uint256 fees;
+		(requestId, fees) = createRequest(msg.sender, _payeesIdAddress, emptyPayeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
 		acceptAndPay(requestId, _payeeAmounts, _additionals);
 
@@ -188,12 +193,18 @@ contract RequestEthereum is Pausable {
 	 */
 	function createRequest(address _payer, address[] _payees, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payerRefundAddress, string _data)
 		internal
-		returns(bytes32 requestId)
+		returns(bytes32 requestId, uint256 fees)
 	{
+		int256 totalExpectedAmounts = 0;
 		for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
 		{
 			require(_expectedAmounts[i]>=0);
+			totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
 		}
+
+		// collect the fees
+		fees = collectEstimation(totalExpectedAmounts);
+		require(collectForREQBurning(fees));
 
 		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, _data);
 
@@ -204,8 +215,6 @@ contract RequestEthereum is Pausable {
 		if(_payerRefundAddress != 0) {
 			payerRefundAddress[requestId] = _payerRefundAddress;
 		}
-
-		return requestId;
 	}
 
 	/*
