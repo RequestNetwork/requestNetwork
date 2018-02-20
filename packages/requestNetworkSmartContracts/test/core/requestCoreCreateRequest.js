@@ -4,7 +4,7 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 	return;
 }
 var RequestCore = artifacts.require("./core/RequestCore.sol");
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
+
 var BigNumber = require('bignumber.js');
 
 
@@ -26,8 +26,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// requestId start at 1 when Core is created
 	it("Creation Core, requestId start at 0", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		assert.equal(await requestCore.numRequests.call(),"0","RequestId start by 0");
 	});
@@ -35,8 +35,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request from non trustable sender (contract trusted) impossible
 	it("request from non trustable sender (contract trusted) impossible", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await utils.expectThrow(requestCore.createRequest(creator, [payee], [arbitraryAmount], payer, "", {from:fakeContract}));
 	});
@@ -44,8 +44,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// impossible to createRequest if Core Paused
 	it("impossible to createRequest if Core Paused", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		await requestCore.pause({from:admin});
@@ -59,8 +59,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request payees[0]==payer OK
 	it("Actors not null and payee!=payer", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 
@@ -156,8 +156,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request _expectedAmount[0] > 2^256 impossible
 	it("expectedAmounts[0] == 0 and > 2^256", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 
@@ -200,8 +200,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request _expectedAmount[1] > 2^256 impossible
 	it("expectedAmounts[1] == 0 and > 2^256", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 
@@ -240,8 +240,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request _expectedAmounts[0] > -2^256 impossible
 	it("expectedAmounts[0] < 0 and > -2^255", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
@@ -271,8 +271,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request _expectedAmounts[1] > -2^256 impossible
 	it("expectedAmounts[1] < 0 and > -2^255", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
@@ -310,8 +310,8 @@ contract('RequestCore Create Request', function(accounts) {
 
 	it("new request with payees.length != expectedAmounts.length Impossible", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 
 		await utils.expectThrow(requestCore.createRequest(creator, [payee,payee2,payee3], [arbitraryAmount,arbitraryAmount2], payer, "", {from:fakeContract}));
@@ -319,8 +319,8 @@ contract('RequestCore Create Request', function(accounts) {
 
 	it("new request", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		
@@ -360,8 +360,8 @@ contract('RequestCore Create Request', function(accounts) {
 	// new request with data
 	it("new request with data", async function () {
 		var requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0);
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		;
+		
 
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 

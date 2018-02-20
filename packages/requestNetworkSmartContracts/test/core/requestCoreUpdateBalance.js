@@ -5,7 +5,7 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 }
 
 var RequestCore = artifacts.require("./core/RequestCore.sol");
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
+
 
 var BigNumber = require('bignumber.js');
 var BN = require('bn.js');
@@ -34,8 +34,8 @@ contract('RequestCore UpdateBalance', function(accounts) {
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+		; 
+		
 		
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract2, {from:admin});
