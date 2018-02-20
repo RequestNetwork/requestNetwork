@@ -436,7 +436,7 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(r.receipt.logs.length,10,"Wrong number of events");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
@@ -444,51 +444,51 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[1],'',"Event Created wrong args data");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayer()");
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args payee");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayer()");
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args payee");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[4], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[4].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],1,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[5], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[5].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],1,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],2,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[6], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[6].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],3,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[7], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[7].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[8], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[8].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],1,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount2+2,"Event UpdateBalance wrong args amountPaid");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[9], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
 		assert.equal(r.receipt.logs[9].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],2,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount3+3,"Event UpdateBalance wrong args amountPaid");

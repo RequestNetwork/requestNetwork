@@ -44,7 +44,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
     });
 
 	it("Payee REVERT fund sending => withdraw pattern", async function () {
-		var r = await requestEthereum.createRequestAsPayer([testRequestPaymentStuckRevert.address], [], [arbitraryAmount], 0, [0], [0], "", {from:payer});
+		var r = await requestEthereum.createRequestAsPayer([testRequestPaymentStuckRevert.address], [arbitraryAmount], 0, [0], [0], "", {from:payer});
 
 		var r = await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer});
 
@@ -73,7 +73,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 	});
 
 	it("Payee ASSERT fund sending => withdraw pattern", async function () {
-		var r = await requestEthereum.createRequestAsPayer([testRequestPaymentStuckAssert.address], [], [arbitraryAmount], 0, [0], [0], "", {from:payer});
+		var r = await requestEthereum.createRequestAsPayer([testRequestPaymentStuckAssert.address], [arbitraryAmount], 0, [0], [0], "", {from:payer});
 
 		var r = await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer});
 
@@ -101,7 +101,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 	});
 
 	it("Payee non payable fund sending => withdraw pattern", async function () {
-		var r = await requestEthereum.createRequestAsPayer([testRequestPaymentStuckNonPayable.address], [], [arbitraryAmount], 0, [0], [0], "", {from:payer});
+		var r = await requestEthereum.createRequestAsPayer([testRequestPaymentStuckNonPayable.address], [arbitraryAmount], 0, [0], [0], "", {from:payer});
 
 		var r = await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer});
 
