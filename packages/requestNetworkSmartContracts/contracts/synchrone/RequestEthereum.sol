@@ -96,7 +96,7 @@ contract RequestEthereum is RequestCollectSynchrone {
 		uint256 fees;
 		(requestId, fees) = createRequest(msg.sender, _payeesIdAddress, emptyPayeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
-		acceptAndPay(requestId, _payeeAmounts, _additionals);
+		acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value.sub(fees));
 
 		return requestId;
 	}
@@ -170,7 +170,7 @@ contract RequestEthereum is RequestCollectSynchrone {
 			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
 		}
 
-		acceptAndPay(requestId, _payeeAmounts, _additionals);
+		acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value); // TODO 
 
 		return requestId;
 	}
@@ -225,15 +225,15 @@ contract RequestEthereum is RequestCollectSynchrone {
 	 * @param _additionals Will increase the ExpectedAmounts of payees
 	 *
 	 */	
-	function acceptAndPay(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionals)
+	function acceptAndPay(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _amountPaid)
 		internal
 	{
 		requestCore.accept(_requestId);
 		
 		additionalInternal(_requestId, _additionals);
 
-		if(msg.value > 0) {
-			paymentInternal(_requestId, _payeeAmounts, msg.value);
+		if(_amountPaid > 0) {
+			paymentInternal(_requestId, _payeeAmounts, _amountPaid);
 		}
 	}
 
