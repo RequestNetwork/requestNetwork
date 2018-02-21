@@ -13,13 +13,13 @@ const BN = require('bn.js')
 
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
+
 
 var BigNumber = require('bignumber.js');
 
 contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	var admin = accounts[0];
-	var otherguy = accounts[1];
+	var burnerContract = accounts[1];
 	var fakeContract = accounts[2];
 	var payer = accounts[3];
 	var payee = accounts[4];
@@ -32,18 +32,15 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	var requestCore;
 	var requestEthereum;
 
-	var arbitraryAmount = 1000;
-	var arbitraryAmount2 = 200;
-	var arbitraryAmount3 = 300;
-	var arbitraryAmount10percent = 100;
+	var arbitraryAmount = 100000;
+	var arbitraryAmount2 = 20000;
+	var arbitraryAmount3 = 30000;
+	var arbitraryAmount10percent = 10000;
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new();
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
-		await requestBurnManagerSimple.setFeesPerTenThousand(100);// 1% collect
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
 		
-		requestEthereum = await RequestEthereum.new(requestCore.address,{from:admin});
+		requestEthereum = await RequestEthereum.new(requestCore.address, burnerContract, {from:admin});
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
     });
@@ -319,6 +316,67 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 									{from:payer, value:arbitraryAmount+arbitraryAmount2+arbitraryAmount3-1}));
 	});
 
+
+
+
+	it("new request more than expectedAmount OK", async function () {
+		var balancePayeeBefore = await web3.eth.getBalance(payee);
+		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
+		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
+
+		var r = await requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount+1], [arbitraryAmount10percent],"", 
+													{from:payer, value:fees.add(arbitraryAmount).add(1)});
+
+		assert.equal(r.receipt.logs.length,4,"Wrong number of events");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
+		assert.equal(l.data[0].toLowerCase(),payer,"Event Created wrong args creator");
+		assert.equal(l.data[1],'',"Event Created wrong args data");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
+		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
+
+		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[5],arbitraryAmount+1,"new request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new request wrong data : state");
+
+		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),arbitraryAmount+1,"new request wrong data : amount to withdraw payee");
+		assert((await web3.eth.getBalance(burnerContract)).sub(balanceBurnerContractBefore).equals(fees),"new request wrong data : amount to burnerContract");
+	});
+
+	it("impossible to createRequest if msg.value < fees", async function () {
+		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
+		await utils.expectThrow(requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer, value:fees.add(arbitraryAmount).minus(1)}));
+	});
+	it("impossible to createRequest if msg.value > fees", async function () {
+		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
+		await utils.expectThrow(requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer, value:fees.add(arbitraryAmount).add(1)}));
+	});
 
 });
 
