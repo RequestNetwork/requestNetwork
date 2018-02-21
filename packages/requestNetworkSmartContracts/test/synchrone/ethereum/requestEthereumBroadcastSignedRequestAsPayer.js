@@ -13,7 +13,7 @@ const BN = require('bn.js')
 
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
+
 
 
 var BigNumber = require('bignumber.js');
@@ -76,7 +76,7 @@ var signHashRequest = function (hash, address) {
 contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	var admin = accounts[0];
 	var otherguy = accounts[1];
-	var fakeContract = accounts[2];
+	var burnerContract = accounts[2];
 	var payer = accounts[3];
 	var payee = accounts[4];
 	var payee2 = accounts[5];
@@ -101,12 +101,10 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	var timeExpiration;
 
-  beforeEach(async () => {
-  	requestCore = await RequestCore.new();
- 		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
+	beforeEach(async () => {
+  		requestCore = await RequestCore.new();
 
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
-		requestEthereum = await RequestEthereum.new(requestCore.address,{from:admin});
+		requestEthereum = await RequestEthereum.new(requestCore.address,burnerContract,{from:admin});
 		timeExpiration = (new Date("01/01/2222").getTime() / 1000);
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
@@ -522,6 +520,124 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal((await web3.eth.getBalance(payeeAddressPayment)).sub(balancePayeePaymentBefore),arbitraryAmount+1,"new request wrong data : amount to withdraw payee");
 		assert.equal((await web3.eth.getBalance(payee2AddressPayment)).sub(balancePayee2PaymentBefore),arbitraryAmount2+2,"new request wrong data : amount to withdraw payee");
 		assert.equal((await web3.eth.getBalance(payee3AddressPayment)).sub(balancePayee3PaymentBefore),arbitraryAmount3+3,"new request wrong data : amount to withdraw payee");
+	});
+
+
+
+	it("new quick request more than expectedAmount OK", async function () {
+		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
+		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
+
+		var payees = [payee, payee2];
+		var payeesPayment = [];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent];
+		var data = "";
+
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		var balancePayeeBefore = await web3.eth.getBalance(payee);
+		var r = await requestEthereum.broadcastSignedRequestAsPayer(
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer, value:fees.add(arbitraryAmount)});
+
+		assert.equal(r.receipt.logs.length,5,"Wrong number of events");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+		assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
+		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
+		assert.equal(l.data[1],'',"Event Created wrong args data");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args payee");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
+		assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[4], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after broadcastSignedRequestAsPayer()");
+		assert.equal(r.receipt.logs[4].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
+
+		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
+		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
+		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new quick request wrong data : currencyContract");
+		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"new quick request wrong data : state");
+
+		assert.equal((await web3.eth.getBalance(payee)).sub(balancePayeeBefore),arbitraryAmount,"new request wrong data : amount to withdraw payee");
+		assert((await web3.eth.getBalance(burnerContract)).sub(balanceBurnerContractBefore).equals(fees),"new request wrong data : amount to burnerContract");	
+	});
+
+
+	it("impossible to createRequest if msg.value < fees", async function () {
+		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
+
+		var payees = [payee, payee2];
+		var payeesPayment = [];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent];
+		var data = "";
+
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer, value:fees.add(arbitraryAmount).minus(1)}));
+	});
+	it("impossible to createRequest if msg.value > fees", async function () {
+		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
+
+		var payees = [payee, payee2];
+		var payeesPayment = [];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent];
+		var data = "";
+
+		var hash = hashRequest(requestEthereum.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		await utils.expectThrow(requestEthereum.broadcastSignedRequestAsPayer(
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer, value:fees.add(arbitraryAmount).add(1)}));
 	});
 
 });
