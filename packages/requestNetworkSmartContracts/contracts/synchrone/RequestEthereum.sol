@@ -158,10 +158,15 @@ contract RequestEthereum is RequestCollectSynchrone {
 		require(msg.sender != firstPayee && firstPayee != 0);  
 		require( extractAddress(_requestData, 0) == firstPayee );
 
+		int256 totalExpectedAmounts = 0;
 		uint8 payeesCount = uint8(_requestData[40]);
 		for(uint8 i = 0; i < payeesCount; i++) {
-		    require(isIntInBytesPositive(_requestData, 61+i*52));
+			totalExpectedAmounts = totalExpectedAmounts.add(int256(extractBytes32(_requestData, uint256(i).mul(52).add(61))));
+			require(totalExpectedAmounts>0);
 		}
+		// collect the fees
+		uint256 fees = collectEstimation(totalExpectedAmounts);
+		require(collectForREQBurning(fees));
 
 		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
 
@@ -170,7 +175,7 @@ contract RequestEthereum is RequestCollectSynchrone {
 			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
 		}
 
-		acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value); // TODO 
+		acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value.sub(fees));
 
 		return requestId;
 	}
