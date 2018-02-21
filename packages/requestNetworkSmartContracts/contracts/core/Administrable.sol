@@ -4,7 +4,7 @@ import '../base/lifecycle/Pausable.sol';
 
 /**
  * @title Administrable
- * @dev Administrable is a base contract to manage the list of trustedContract
+ * @dev Administrable is a base contract to manage the list of trusted currency contract
  */
 contract Administrable is Pausable {
 
