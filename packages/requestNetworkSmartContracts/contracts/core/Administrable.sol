@@ -14,7 +14,6 @@ contract Administrable is Pausable {
 	// Events of the system
 	event NewTrustedContract(address newContract);
 	event RemoveTrustedContract(address oldContract);
-	event NewBurnManager(address newFeesManager);
 
 	/**
 	 * @dev add a trusted currencyContract 
