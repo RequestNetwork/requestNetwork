@@ -5,7 +5,7 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
+
 var BigNumber = require('bignumber.js');
 
 contract('RequestEthereum SubtractAction',  function(accounts) {
@@ -16,6 +16,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 	var payee = accounts[4];
 	var payee2 = accounts[5];
 	var payee3 = accounts[6];
+	var burnerContract = accounts[8];
 
 	var requestCore;
 	var requestEthereum;
@@ -29,10 +30,10 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new({from:admin});
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+
 		
-    	requestEthereum = await RequestEthereum.new(requestCore.address,{from:admin});
+		
+    	requestEthereum = await RequestEthereum.new(requestCore.address, burnerContract, {from:admin});
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 

@@ -8,7 +8,7 @@ var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 var TestRequestPaymentStuckRevert = artifacts.require("./test/synchrone/TestRequestPaymentStuckRevert.sol");
 var TestRequestPaymentStuckAssert = artifacts.require("./test/synchrone/TestRequestPaymentStuckAssert.sol");
 var TestRequestPaymentStuckNonPayable = artifacts.require("./test/synchrone/TestRequestPaymentStuckNonPayable.sol");
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
+
 
 var BigNumber = require('bignumber.js');
 
@@ -20,6 +20,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 	var fakeContract = accounts[2];
 	var payer = accounts[3];
 	var payee = accounts[4];
+	var burnerContract = accounts[8];
 
 	var requestCore;
 	var requestEthereum;
@@ -32,10 +33,10 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new({from:admin});
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
+
 		
-    	requestEthereum = await RequestEthereum.new(requestCore.address,{from:admin});
+		
+    	requestEthereum = await RequestEthereum.new(requestCore.address, burnerContract, {from:admin});
     	testRequestPaymentStuckRevert = await TestRequestPaymentStuckRevert.new({from:payee});
     	testRequestPaymentStuckAssert = await TestRequestPaymentStuckAssert.new({from:payee});
     	testRequestPaymentStuckNonPayable = await TestRequestPaymentStuckNonPayable.new({from:payee});
