@@ -4,16 +4,17 @@ import '../base/math/SafeMath.sol';
 import '../base/lifecycle/Pausable.sol';
 
 /**
- * @title RequestCollectSynchrone
+ * @title RequestEthereumCollect
  *
- * @dev RequestCollectSynchrone is a contract managing the fees for ethereum currency contract
+ * @dev RequestEthereumCollect is a contract managing the fees for ethereum currency contract
  */
-contract RequestCollectSynchrone is Pausable {
+contract RequestEthereumCollect is Pausable {
 	using SafeMath for uint256;
 
 	// fees percentage (per 10 000)
 	uint256 public feesPer10000 = 0;
 
+	// maximum fees in wei
 	uint256 public maxFees = 0.002 ether;
 
 	// address of the contract that will burn req token (probably through Kyber)
@@ -21,17 +22,17 @@ contract RequestCollectSynchrone is Pausable {
 
 	/*
 	 * @dev Constructor
-	 * @param _requestCoreAddress Request Core address
+	 * @param _requestBurnerContract Request burning address
 	 */  
-	function RequestCollectSynchrone(address _requestBurnerContract) 
+	function RequestEthereumCollect(address _requestBurnerContract) 
 		public
 	{
 		requestBurnerContract = _requestBurnerContract;
 	}
 
 	/*
-	 * @dev collect Fees
-	 * @param _requestId Request id
+	 * @dev send fees to the request burning address
+	 * @param _amount amount to send to the burning address
 	 */  
 	function collectForREQBurning(uint256 _amount)
 		internal
@@ -41,8 +42,8 @@ contract RequestCollectSynchrone is Pausable {
 	}
 
 	/*
-	 * @dev computeFees
-	 * @param _requestId Request id
+	 * @dev compute the fees
+	 * @param _expectedAmount amount expected for the request
 	 * @return 
 	 */  
 	function collectEstimation(int256 _expectedAmount)
@@ -57,7 +58,7 @@ contract RequestCollectSynchrone is Pausable {
 
 
 	/*
-	 * @dev computeFees
+	 * @dev set the fees pourcentage (per 10 000)
 	 * @param _newRate new rate
 	 * @return 
 	 */  
@@ -69,7 +70,7 @@ contract RequestCollectSynchrone is Pausable {
 	}
 
 	/*
-	 * @dev setMaxCollectable
+	 * @dev set the maximum fees in wei
 	 * @param _newMax new max
 	 * @return 
 	 */  
@@ -81,7 +82,7 @@ contract RequestCollectSynchrone is Pausable {
 	}
 
 	/*
-	 * @dev setrequestBurnerContract
+	 * @dev set the request burner address
 	 * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
 	 * @return 
 	 */  

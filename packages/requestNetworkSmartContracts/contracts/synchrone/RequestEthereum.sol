@@ -3,7 +3,7 @@ pragma solidity 0.4.18;
 import '../core/RequestCore.sol';
 import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathUint8.sol';
-import './RequestCollectSynchrone.sol';
+import './RequestEthereumCollect.sol';
 
 /**
  * @title RequestEthereum
@@ -12,7 +12,7 @@ import './RequestCollectSynchrone.sol';
  *
  * @dev Requests can be created by the Payee with createRequest() or by the payer from a request signed offchain by the payee with createQuickRequest
  */
-contract RequestEthereum is RequestCollectSynchrone {
+contract RequestEthereum is RequestEthereumCollect {
 	using SafeMath for uint256;
 	using SafeMathInt for int256;
 	using SafeMathUint8 for uint8;
@@ -36,7 +36,7 @@ contract RequestEthereum is RequestCollectSynchrone {
 	 * @dev Constructor
 	 * @param _requestCoreAddress Request Core address
 	 */  
-	function RequestEthereum(address _requestCoreAddress, address _requestBurnerAddress) RequestCollectSynchrone(_requestBurnerAddress) public
+	function RequestEthereum(address _requestCoreAddress, address _requestBurnerAddress) RequestEthereumCollect(_requestBurnerAddress) public
 	{
 		requestCore=RequestCore(_requestCoreAddress);
 	}
