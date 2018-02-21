@@ -8,9 +8,9 @@ import './RequestEthereumCollect.sol';
 /**
  * @title RequestEthereum
  *
- * @dev RequestEthereum is the currency contract managing the request payed in Ethereum
+ * @dev RequestEthereum is the currency contract managing the request in Ethereum
  *
- * @dev Requests can be created by the Payee with createRequest() or by the payer from a request signed offchain by the payee with createQuickRequest
+ * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
 contract RequestEthereum is RequestEthereumCollect {
 	using SafeMath for uint256;
@@ -20,7 +20,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	// RequestCore object
 	RequestCore public requestCore;
 
-	// Ethereum available to withdraw
+	// Ethereum available to withdraw (only in case of sending fail)
 	mapping(address => uint256) public ethToWithdraw;
 
 	// payment addresses by requestId (optional)
@@ -28,14 +28,15 @@ contract RequestEthereum is RequestEthereumCollect {
     mapping(bytes32 => address) public payerRefundAddress;
 
     /*
-     *  Events 
+     *  Events
      */
 	event EtherAvailableToWithdraw(bytes32 indexed requestId, address indexed recipient, uint256 amount);
 
 	/*
 	 * @dev Constructor
 	 * @param _requestCoreAddress Request Core address
-	 */  
+	 * @param _requestBurnerAddress Request Burner contract address
+	 */
 	function RequestEthereum(address _requestCoreAddress, address _requestBurnerAddress) RequestEthereumCollect(_requestBurnerAddress) public
 	{
 		requestCore=RequestCore(_requestCoreAddress);
@@ -50,9 +51,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payer Entity supposed to pay
+	 * @param _payerRefundAddress Address of refund for the payer (optional)
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
-	 * @return Returns the id of the request 
+	 * @return Returns the id of the request
 	 */
 	function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)
 		external
@@ -65,6 +67,7 @@ contract RequestEthereum is RequestEthereumCollect {
 		uint256 fees;
 		(requestId, fees) = createRequest(_payer, _payeesIdAddress, _payeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
+		// check if the value send match exactly the fees (no under or over payment allowed)
 		require(fees == msg.value);
 
 		return requestId;
@@ -77,11 +80,12 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
+	 * @param _payerRefundAddress Address of refund for the payer (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
-	 * @return Returns the id of the request 
+	 * @return Returns the id of the request
 	 */
 	function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
 		external
@@ -96,6 +100,7 @@ contract RequestEthereum is RequestEthereumCollect {
 		uint256 fees;
 		(requestId, fees) = createRequest(msg.sender, _payeesIdAddress, emptyPayeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
 
+		// accept and pay the request with the value remaining after the fee collect
 		acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value.sub(fees));
 
 		return requestId;
@@ -106,23 +111,23 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function to broadcast and accept an offchain signed request (can be paid and additionals also)
 	 *
 	 * @dev msg.sender must be _payer
-	 * @dev the _payer can additionals 
+	 * @dev only the _payer can additionals
 	 *
-	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
+	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
 	 * @param _signature ECDSA signature in bytes
 	 *
-	 * @return Returns the id of the request 
+	 * @return Returns the id of the request
 	 */
 	function broadcastSignedRequestAsPayer(
 		bytes _requestData, // gather data to avoid "stack too deep"
 		address[] _payeesPaymentAddress,
-		uint256[] _payeeAmounts, 
+		uint256[] _payeeAmounts,
 		uint256[] _additionals,
-		uint256 _expirationDate, 
+		uint256 _expirationDate,
 		bytes _signature)
 		external
 		payable
@@ -135,6 +140,7 @@ contract RequestEthereum is RequestEthereumCollect {
 		// check the signature
 		require(checkRequestSignature(_requestData, _payeesPaymentAddress, _expirationDate, _signature));
 
+		// create accept and pay the request
 		return createAcceptAndPayFromBytes(_requestData,  _payeesPaymentAddress, _payeeAmounts, _additionals);
 	}
 
@@ -143,38 +149,53 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev msg.sender must be _payer
 	 *
-	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
+	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
 	 *
-	 * @return Returns the id of the request 
+	 * @return Returns the id of the request
 	 */
-	function createAcceptAndPayFromBytes(bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals)
+	function createAcceptAndPayFromBytes(
+		bytes _requestData,
+		address[] _payeesPaymentAddress,
+		uint256[] _payeeAmounts,
+		uint256[] _additionals)
 		internal
 		returns(bytes32 requestId)
 	{
-		address firstPayee = extractAddress(_requestData, 41); 
-		require(msg.sender != firstPayee && firstPayee != 0);  
-		require( extractAddress(_requestData, 0) == firstPayee );
+		// extract main payee
+		address mainPayee = extractAddress(_requestData, 41);
+		require(msg.sender != mainPayee && mainPayee != 0);
+		// creator must be the main payee
+		require(extractAddress(_requestData, 0) == mainPayee);
 
-		int256 totalExpectedAmounts = 0;
+		// extract the number of payees
 		uint8 payeesCount = uint8(_requestData[40]);
+		int256 totalExpectedAmounts = 0;
 		for(uint8 i = 0; i < payeesCount; i++) {
-			totalExpectedAmounts = totalExpectedAmounts.add(int256(extractBytes32(_requestData, uint256(i).mul(52).add(61))));
-			require(totalExpectedAmounts>0);
+			// extract the expectedAmount for the payee[i]
+			int256 expectedAmountTemp = int256(extractBytes32(_requestData, uint256(i).mul(52).add(61)));
+			// compute the total expected amount of the request
+			totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
+			// all expected amount must be positibe
+			require(expectedAmountTemp>0);
 		}
+
 		// collect the fees
 		uint256 fees = collectEstimation(totalExpectedAmounts);
+		// check fees has been well received
 		require(collectForREQBurning(fees));
 
+		// store request in the core, but first insert the msg.sender as the payer in the bytes
 		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
 
-		// set payees payment addresses
-		for (uint8 j = 0; j < _payeesPaymentAddress.length ; j = j.add(1)) {
+		// set payment addresses for payees
+		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
 			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
 		}
 
+		// accept and pay the request with the value remaining after the fee collect
 		acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value.sub(fees));
 
 		return requestId;
@@ -186,37 +207,47 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev msg.sender is the creator of the request
 	 *
-	 * @param _payer Payer identity address 
-	 * @param _payees Payees identity address 
-	 * @param _payeesPaymentAddress Payees payment address 
+	 * @param _payer Payer identity address
+	 * @param _payees Payees identity address
+	 * @param _payeesPaymentAddress Payees payment address
 	 * @param _expectedAmounts Expected amounts to be received by payees
-	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
 	 * @param _payerRefundAddress payer refund address
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
-	 * @return Returns the id of the request 
+	 * @return Returns the id of the request
 	 */
-	function createRequest(address _payer, address[] _payees, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payerRefundAddress, string _data)
+	function createRequest(
+		address _payer,
+		address[] _payees,
+		address[] _payeesPaymentAddress,
+		int256[] _expectedAmounts,
+		address _payerRefundAddress,
+		string _data)
 		internal
 		returns(bytes32 requestId, uint256 fees)
 	{
 		int256 totalExpectedAmounts = 0;
 		for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
 		{
+			// all expected amount must be positibe
 			require(_expectedAmounts[i]>=0);
+			// compute the total expected amount of the request
 			totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
 		}
 
 		// collect the fees
 		fees = collectEstimation(totalExpectedAmounts);
+		// check fees has been well received
 		require(collectForREQBurning(fees));
 
+		// store request in the core
 		requestId= requestCore.createRequest(msg.sender, _payees, _expectedAmounts, _payer, _data);
 
-		// set payment addresses
+		// set payment addresses for payees
 		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
 			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
 		}
+		// set payment address for payer
 		if(_payerRefundAddress != 0) {
 			payerRefundAddress[requestId] = _payerRefundAddress;
 		}
@@ -225,12 +256,17 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Internal function to accept, add additionals and pay a request as Payer
 	 *
-	 * @param _requestId id of the request 
-	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+	 * @param _requestId id of the request
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to _amountPaid)
 	 * @param _additionals Will increase the ExpectedAmounts of payees
+	 * @param _amountPaid amount in msg.value minus the fees
 	 *
 	 */	
-	function acceptAndPay(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _amountPaid)
+	function acceptAndPay(
+		bytes32 _requestId,
+		uint256[] _payeeAmounts,
+		uint256[] _additionals,
+		uint256 _amountPaid)
 		internal
 	{
 		requestCore.accept(_requestId);
@@ -250,11 +286,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev msg.sender must be _payer
 	 * @dev A request can also be accepted by using directly the payment function on a request in the Created status
 	 *
-	 * @param _requestId id of the request 
-	 *
-	 * @return true if the request is accepted, false otherwise
+	 * @param _requestId id of the request
 	 */
-	function accept(bytes32 _requestId) 
+	function accept(bytes32 _requestId)
 		external
 		whenNotPaused
 		condition(requestCore.getPayer(_requestId)==msg.sender)
@@ -269,14 +303,15 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev msg.sender must be the _payer or the _payee.
 	 * @dev only request with balance equals to zero can be cancel
 	 *
-	 * @param _requestId id of the request 
-	 *
-	 * @return true if the request is canceled
+	 * @param _requestId id of the request
 	 */
 	function cancel(bytes32 _requestId)
 		external
 		whenNotPaused
 	{
+		// TODO this should change because of request created but paid by someone else
+		// payer can cancel if request is just created
+		// payee can cancel when request is not canceled yet
 		require((requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created)
 				|| (requestCore.getPayeeAddress(_requestId,0)==msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled));
 
@@ -297,16 +332,20 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev the request will be automatically accepted if msg.sender==payer
 	 *
 	 * @param _requestId id of the request
-	 * @param _additionals amount of additionals in wei to declare 
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+	 * @param _additionals amount of additionals in wei to declare
 	 */
-	function paymentAction(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionalAmounts)
+	function paymentAction(
+		bytes32 _requestId,
+		uint256[] _payeeAmounts,
+		uint256[] _additionalAmounts)
 		external
 		whenNotPaused
 		payable
 		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		condition(_additionalAmounts.length == 0 || msg.sender == requestCore.getPayer(_requestId))
 	{
-		// automatically accept request
+		// automatically accept request if request is created and msg.sender is payer
 		if(requestCore.getState(_requestId)==RequestCore.State.Created && msg.sender == requestCore.getPayer(_requestId)) {
 			requestCore.accept(_requestId);
 		}
@@ -346,14 +385,13 @@ contract RequestEthereum is RequestEthereumCollect {
 		external
 		whenNotPaused
 		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
-
 		onlyRequestPayee(_requestId)
 	{
 		for(uint8 i = 0; i < _subtractAmounts.length; i = i.add(1)) {
 			if(_subtractAmounts[i] != 0) {
 				// subtract must be equal or lower than amount expected
 				require(requestCore.getPayeeExpectedAmount(_requestId,i) >= _subtractAmounts[i].toInt256Safe());
-
+				// store and declare the subtract in the core
 				requestCore.updateExpectedAmount(_requestId, i, -_subtractAmounts[i].toInt256Safe());
 			}
 		}
@@ -366,7 +404,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _amount amounts of additional in wei to declare (position 0 is for )
+	 * @param _additionalAmounts amounts of additional in wei to declare (position 0 is for )
 	 */
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
 		public
@@ -395,7 +433,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function internal to manage additional declaration
 	 *
 	 * @param _requestId id of the request
-	 * @param _additionalAmounts amount of additional to declare 
+	 * @param _additionalAmounts amount of additional to declare
 	 *
 	 * @return true if the payment is done, false otherwise
 	 */
@@ -404,6 +442,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	{
 		for(uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
 			if(_additionalAmounts[i] != 0) {
+				// Store and declare the additional in the core
 				requestCore.updateExpectedAmount(_requestId, i, _additionalAmounts[i].toInt256Safe());
 			}
 		}
@@ -413,18 +452,25 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function internal to manage payment declaration
 	 *
 	 * @param _requestId id of the request
-	 * @param _amount amount of payment in wei to declare 
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+	 * @param _value amount paid
 	 *
 	 * @return true if the payment is done, false otherwise
 	 */
-	function paymentInternal(bytes32 _requestId, uint256[] _payeeAmounts, uint256 _value) 
+	function paymentInternal(
+		bytes32 _requestId,
+		uint256[] _payeeAmounts,
+		uint256 _value)
 		internal
 	{
 		uint256 totalPayeeAmounts = 0;
 
 		for(uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
-			totalPayeeAmounts = totalPayeeAmounts.add(_payeeAmounts[i]);
 			if(_payeeAmounts[i] != 0) {
+				// compute the total amount declared
+				totalPayeeAmounts = totalPayeeAmounts.add(_payeeAmounts[i]);
+
+				// Store and declare the payment to the core
 				requestCore.updateBalance(_requestId, i, _payeeAmounts[i].toInt256Safe());
 
 				// pay the payment address if given, the id address otherwise
@@ -448,28 +494,34 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function internal to manage refund declaration
 	 *
 	 * @param _requestId id of the request
-	 * @param _amount amount of the refund in wei to declare 
+	 * @param _address address from where the refund have been done
+	 * @param _amount amount of the refund in wei to declare
 	 *
 	 * @return true if the refund is done, false otherwise
 	 */
-	function refundInternal(bytes32 _requestId, address _address, uint256 _amount) 
+	function refundInternal(
+		bytes32 _requestId,
+		address _address,
+		uint256 _amount)
 		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		internal
 	{
 		// Check if the _address is a payeesId
 		int16 position = requestCore.getPayeePosition(_requestId, _address);
-		if(position < 0) { // not a payee from the core
-			// maybe in the payee payments address1
+		if(position < 0) {
+			// if not ID addresses maybe in the payee payments addresses
 	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && position == -1; i = i.add(1))
 	        {
 	            if(payeesPaymentAddress[_requestId][i] == _address) {
+	            	// get the position
 	                position = int16(i);
 	            }
 	        }
 		}
+		// the address must be found somewhere
+		require(position >= 0); 
 
-		require(position >= 0); // address must be found
-		// useless (subPayee size <256): require(position < 265); // avoid overflow for the uint8 cast
+		// useless (subPayee size <256): require(position < 265);
 		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
 
 		// pay the payment address if given, the id address otherwise
@@ -478,23 +530,26 @@ contract RequestEthereum is RequestEthereumCollect {
 			addressToPay = requestCore.getPayer(_requestId);
 		}
 
-		// payment done, the money is ready to withdraw by the payer
+		// refund declared, the money is ready to be send to the payer
 		fundOrderInternal(_requestId, addressToPay, _amount);
 	}
 
 	/*
 	 * @dev Function internal to manage fund mouvement
 	 *
-	 * @param _requestId id of the request 
+	 * @param _requestId id of the request
 	 * @param _recipient adress where the wei has to me send to
 	 * @param _amount amount in wei to send
 	 *
 	 * @return true if the fund mouvement is done, false otherwise
 	 */
-	function fundOrderInternal(bytes32 _requestId, address _recipient, uint256 _amount) 
+	function fundOrderInternal(
+		bytes32 _requestId,
+		address _recipient,
+		uint256 _amount)
 		internal
 	{
-		// try to send the fund 
+		// try to send the fund
 		if(!_recipient.send(_amount)) {
 			// if sendding fail, the funds are availbale to withdraw
 			ethToWithdraw[_recipient] = ethToWithdraw[_recipient].add(_amount);
@@ -506,19 +561,16 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
 	 *
-	 * @param _payees array of payees address (the position 0 will be the payee the others are subPayees)
-	 * @param _expectedAmounts array of Expected amount to be received by each payees
-	 * @param _payer Entity supposed to pay.
-	 * @param _data Hash linking to additional data on the Request stored on IPFS
+     * @param _data bytes containing all the data packed
+	 * @param _payeesPaymentAddress array of payees payment addresses
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
 	 *
-	 * @return Keccak-256 hash of a request
+	 * @return Keccak-256 hash of (this,_requestData, _payeesPaymentAddress, _expirationDate)
 	 */
 	function getRequestHash(
 		bytes _requestData,
 		address[] _payeesPaymentAddress,
-		uint256 _expirationDate
-		)
+		uint256 _expirationDate)
 		internal
 		view
 		returns(bytes32)
@@ -553,29 +605,50 @@ contract RequestEthereum is RequestEthereumCollect {
 		);
 	}
 
+	/*
+	 * @dev Check the validity of a signed request & the expiration date
+     * @param _data bytes containing all the data packed :
+            address(creator)
+            address(payer)
+            uint8(number_of_payees)
+            [
+                address(main_payee_address)
+                int256(main_payee_expected_amount)
+                address(second_payee_address)
+                int256(second_payee_expected_amount)
+                ...
+            ]
+            uint8(data_string_size)
+            size(data)
+	 * @param _payeesPaymentAddress array of payees payment addresses (the position 0 will be the payee the others are subPayees)
+	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+  	 * @param _signature ECDSA signature containing v, r and s as bytes
+  	 *
+	 * @return Validity of order signature.
+	 */	
 	function checkRequestSignature(
 		bytes _requestData,
 		address[] _payeesPaymentAddress,
-		uint256 expirationDate,
-		bytes signature)
+		uint256 _expirationDate,
+		bytes _signature)
 		public
 		view
 		returns (bool)
 	{
-		bytes32 hash = getRequestHash(_requestData, _payeesPaymentAddress, expirationDate);
+		bytes32 hash = getRequestHash(_requestData, _payeesPaymentAddress, _expirationDate);
 
-		// signature as "v, r, s"
-		uint8 v = uint8(signature[64]);
+		// extract "v, r, s" from the signature
+		uint8 v = uint8(_signature[64]);
 		v = v < 27 ? v.add(27) : v;
-		bytes32 r = extractBytes32(signature, 0);
-		bytes32 s = extractBytes32(signature, 32);
+		bytes32 r = extractBytes32(_signature, 0);
+		bytes32 s = extractBytes32(_signature, 32);
 
+		// check signature of the hash with the creator address
 		return isValidSignature(extractAddress(_requestData, 0), hash, v, r, s);
 	}
 
-
 	//modifier
-	modifier condition(bool c) 
+	modifier condition(bool c)
 	{
 		require(c);
 		_;
@@ -584,9 +657,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Modifier to check if msg.sender is payer
 	 * @dev Revert if msg.sender is not payer
-	 * @param _requestId id of the request 
+	 * @param _requestId id of the request
 	 */	
-	modifier onlyRequestPayer(bytes32 _requestId) 
+	modifier onlyRequestPayer(bytes32 _requestId)
 	{
 		require(requestCore.getPayer(_requestId)==msg.sender);
 		_;
@@ -595,9 +668,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Modifier to check if msg.sender is payee
 	 * @dev Revert if msg.sender is not payee
-	 * @param _requestId id of the request 
+	 * @param _requestId id of the request
 	 */	
-	modifier onlyRequestPayee(bytes32 _requestId) 
+	modifier onlyRequestPayee(bytes32 _requestId)
 	{
 		require(requestCore.getPayeeAddress(_requestId, 0)==msg.sender);
 		_;
@@ -609,7 +682,7 @@ contract RequestEthereum is RequestEthereumCollect {
      * @param offset position of the first byte to modify
      * @param b bytes20 to insert
      * @return address
-     */ 
+     */
     function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
         for(uint8 j = 0; j <20; j++) {
             data[offset+j] = b[j];
@@ -622,8 +695,9 @@ contract RequestEthereum is RequestEthereumCollect {
      * @param data bytes from where the address will be extract
      * @param offset position of the first byte of the address
      * @return address
-     */ 
+     */
     function extractAddress(bytes _data, uint offset) internal pure returns (address) {
+        // no "for" pattern to optimize gas cost
         uint160 m = uint160(_data[offset]); // 2576 gas
         m = m*256 + uint160(_data[offset+1]);
         m = m*256 + uint160(_data[offset+2]);
@@ -647,7 +721,14 @@ contract RequestEthereum is RequestEthereumCollect {
         return address(m);
     }
 
+    /*
+     * @dev extract a bytes32 from a bytes
+     * @param data bytes from where the bytes32 will be extract
+     * @param offset position of the first byte of the bytes32
+     * @return address
+     */ 
     function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
+        // no "for" pattern to optimize gas cost
         uint256 m = uint256(_data[offset]); // 3930
         m = m*256 + uint256(_data[offset+1]);
         m = m*256 + uint256(_data[offset+2]);
@@ -681,9 +762,5 @@ contract RequestEthereum is RequestEthereumCollect {
         m = m*256 + uint256(_data[offset+30]);
         m = m*256 + uint256(_data[offset+31]);
         return bytes32(m);
-    }
-
-    function isIntInBytesPositive(bytes data, uint offset) internal pure returns(bool) {
-        return int8(data[offset]) >= 0;
     }
 }
