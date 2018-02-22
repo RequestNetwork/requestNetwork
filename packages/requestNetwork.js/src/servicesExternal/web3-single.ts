@@ -228,6 +228,16 @@ export class Web3Single {
     }
 
     /**
+     * Check if an array contains only eth addresses valid (ignoring case)
+     * @param    _array   array to check
+     * @return   true if array contains only eth addresses valid
+     */
+    public isArrayOfAddressesNoChecksum(_array: string[]): boolean {
+        if (!_array) return false;
+        return _array.filter((addr) => !this.isAddressNoChecksum(addr)).length === 0;
+    }
+
+    /**
      * Check if two addresses are equals (ignoring case)
      * @param    _address1   address to check
      * @param    _address2   address to check

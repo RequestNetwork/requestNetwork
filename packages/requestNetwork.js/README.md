@@ -120,8 +120,11 @@ Functions
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
-* @param   `_payer`             address of the payer
-* @param   `_amountInitial`     amount initial expected of the request
+* @param   `_payeesIdAddress`          ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+* @param   `_expectedAmounts`           amount initial expected per payees for the request
+* @param   `_payer`                     address of the payer
+* @param   `_payeesPaymentAddress`      payment addresses of the payees (the position 0 will be the main payee) (optional)
+* @param   `_payerRefundAddress`        refund address of the payer (optional)
 * @param   `_data`              Json of the request's details (optional)
 * @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
 * @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
