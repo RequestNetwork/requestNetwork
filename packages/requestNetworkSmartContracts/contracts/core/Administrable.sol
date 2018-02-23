@@ -24,7 +24,7 @@ contract Administrable is Pausable {
 		external
 		onlyOwner
 	{
-		trustedCurrencyContracts[_newContractAddress] = 1;
+		trustedCurrencyContracts[_newContractAddress] = 1; //Using int instead of boolean in case we need several states in the future.
 		NewTrustedContract(_newContractAddress);
 	}
 
@@ -44,6 +44,7 @@ contract Administrable is Pausable {
 
 	/**
 	 * @dev get the status of a trusted currencyContract 
+	 * @dev Not used today, useful if we have several states in the future.
 	 *
 	 * @param _contractAddress The address of the currencyContract
 	 * @return The status of the currencyContract. If trusted 1, otherwise 0

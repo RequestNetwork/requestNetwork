@@ -60,7 +60,7 @@ contract RequestCore is Administrable {
     event UpdatePayer(bytes32 indexed requestId, address payer);
 
     // Event for Payee & subPayees
-    event NewSubPayee(bytes32 indexed requestId, address indexed payee);
+    event NewSubPayee(bytes32 indexed requestId, address indexed payee); // Separated from the Created Event to allow a 4th indexed parameter (subpayees)
     event UpdatePayee(bytes32 indexed requestId, address payee);
     event UpdateAddressPayee(bytes32 indexed requestId, uint8 position, address indexed payee);
     event UpdateExpectedAmount(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
@@ -161,9 +161,7 @@ contract RequestCore is Administrable {
         }
 
         // Generate the requestId
-        numRequests = numRequests.add(1);
-        // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
-        requestId = bytes32((uint256(this) << 96).add(numRequests));
+        requestId = generateRequestId();
 
         // Store and declare the new request
         requests[requestId] = Request(payer, msg.sender, State.Created, mainPayee, mainExpectedAmount, 0);
@@ -485,6 +483,20 @@ contract RequestCore is Administrable {
             bytesString[j] = data[_offset+j];
         }
         return string(bytesString);
+    }
+
+    /*
+     * @dev generate a new unique requestId
+     * @return a bytes32 requestId 
+     */ 
+    function generateRequestId()
+        internal
+        return (bytes32)
+    {
+        // Update numRequest
+        numRequests = numRequests.add(1);
+        // requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
+        return bytes32((uint256(this) << 96).add(numRequests));
     }
 
     /*

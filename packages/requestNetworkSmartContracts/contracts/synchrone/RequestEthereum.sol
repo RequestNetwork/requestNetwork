@@ -8,6 +8,7 @@ import './RequestEthereumCollect.sol';
  * @title RequestEthereum
  *
  * @dev RequestEthereum is the currency contract managing the request in Ethereum
+ * @dev The contract can be paused. In this case, nobody can create Requests anymore but people can still interact with them or withdraw funds.
  *
  * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
@@ -431,8 +432,6 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @param _requestId id of the request
 	 * @param _additionalAmounts amount of additional to declare
-	 *
-	 * @return true if the payment is done, false otherwise
 	 */
 	function additionalInternal(bytes32 _requestId, uint256[] _additionalAmounts)
 		internal
@@ -451,8 +450,6 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @param _requestId id of the request
 	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
 	 * @param _value amount paid
-	 *
-	 * @return true if the payment is done, false otherwise
 	 */
 	function paymentInternal(
 		bytes32 _requestId,
@@ -478,7 +475,7 @@ contract RequestEthereum is RequestEthereumCollect {
 					addressToPay = payeesPaymentAddress[_requestId][i];
 				}
 
-				// payment done, the money is ready to withdraw by the payee
+				//payment done, the money was sent
 				fundOrderInternal(_requestId, addressToPay, _payeeAmounts[i]);
 			}
 		}
@@ -533,6 +530,9 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	/*
 	 * @dev Function internal to manage fund mouvement
+	 * @dev We had to chose between a withdraw pattern, a send pattern or a send + withdraw pattern and chose the last. 
+	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The send pattern would have allow someone to lock a request. 
+	 * @dev The send + withdraw pattern will have to be clearly explained to users. If the payee is a contract which can let a transfer fail, it will need to be able to call a withdraw function from Request. 
 	 *
 	 * @param _requestId id of the request
 	 * @param _recipient address where the wei has to be sent to
