@@ -115,20 +115,6 @@ contract('RequestCore Create Request From Bytes', function(accounts) {
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		assert.equal(newReq[2],0,"new request wrong data : state");
 		
-		var r = await requestCore.setPayer(utils.getRequestId(requestCore.address,2), payer, {from:fakeContract});
-		assert.equal(r.logs[0].event,"UpdatePayer","Event is missing after setPayer()");
-		assert.equal(r.logs[0].args.requestId, utils.getRequestId(requestCore.address,2),"wrong args requestId");
-		assert.equal(r.logs[0].args.payer,payer,"wrong args payer");
-
-		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address,2));
-		
-		assert.equal(newReq[3],payee,"new request wrong data : payee");
-		assert.equal(newReq[0],payer,"new request wrong data : payer");
-		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[1],fakeContract,"new request wrong data : currencyContract");
-		assert.equal(newReq[5],0,"new request wrong data : balance");
-		assert.equal(newReq[2],0,"new request wrong data : state");
-		
 		// new request payee==payer OK
 		r = await requestCore.createRequestFromBytes(createBytesRequest(creator, [payee], [arbitraryAmount], payee, ""), {from:fakeContract});
 		assert.equal(r.logs[0].event,"Created","Event Created is missing after createRequest()");

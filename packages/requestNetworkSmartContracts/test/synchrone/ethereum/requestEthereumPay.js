@@ -61,7 +61,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -97,19 +97,19 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 2),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 2),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],1,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],1,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],1,"Event UpdateBalance wrong args amountPaid");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 2),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],2,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],2,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],2,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 2));
@@ -152,7 +152,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 2),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 2));
@@ -175,7 +175,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 2),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 2));
@@ -204,7 +204,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -226,7 +226,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -249,7 +249,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -274,7 +274,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -320,7 +320,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount3,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -341,7 +341,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount2,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -362,7 +362,7 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -394,13 +394,13 @@ contract('RequestEthereum Pay', function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after paymentAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryTips,"Event UpdateExpectedAmount wrong args amountAdditional");
 
 		l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
 		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after paymentAction()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));

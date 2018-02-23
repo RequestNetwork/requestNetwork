@@ -53,7 +53,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after additionalAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -77,7 +77,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after additionalAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -98,7 +98,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after additionalAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -132,7 +132,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after additionalAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -165,7 +165,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after additionalAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateExpectedAmount wrong args amount");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -186,13 +186,13 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after subtractAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],1,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],1,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
 		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after subtractAction()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
-		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args position");
+		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount20percent,"Event UpdateExpectedAmount wrong args amount");
 		
 
