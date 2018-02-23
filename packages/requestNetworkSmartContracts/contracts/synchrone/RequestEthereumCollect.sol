@@ -22,7 +22,8 @@ contract RequestEthereumCollect is Pausable {
 
 	/*
 	 * @dev Constructor
-	 * @param _requestBurnerContract Request burning address
+	 * @param _requestBurnerContract Address of the contract where to send the ethers. 
+	 * This burner contract will have a function that can be called by anyone and will exchange ethers to req via Kyber and burn the REQ
 	 */  
 	function RequestEthereumCollect(address _requestBurnerContract) 
 		public

@@ -56,11 +56,9 @@ contract RequestCore is Administrable {
     event Created(bytes32 indexed requestId, address indexed payee, address indexed payer, address creator, string data);
     event Accepted(bytes32 indexed requestId);
     event Canceled(bytes32 indexed requestId);
-    event UpdatePayer(bytes32 indexed requestId, address payer);
 
     // Event for Payee & subPayees
     event NewSubPayee(bytes32 indexed requestId, address indexed payee); // Separated from the Created Event to allow a 4th indexed parameter (subpayees)
-    event UpdatePayee(bytes32 indexed requestId, address payee);
     event UpdateAddressPayee(bytes32 indexed requestId, uint8 payeeIndex, address indexed payee);
     event UpdateExpectedAmount(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount);
     event UpdateBalance(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount);
