@@ -308,7 +308,6 @@ contract RequestEthereum is RequestEthereumCollect {
 		external
 		whenNotPaused
 	{
-		// TODO this should change because of request created but paid by someone else
 		// payer can cancel if request is just created
 		// payee can cancel when request is not canceled yet
 		require((requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created)
@@ -327,7 +326,6 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function PAYABLE to pay in ether a request.
 	 *
-	 * @dev the request must be accepted if msg.sender!=payer
 	 * @dev the request will be automatically accepted if msg.sender==payer. 
 	 *
 	 * @param _requestId id of the request
@@ -378,7 +376,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for )
+	 * @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for main payee)
 	 */
 	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
 		external
