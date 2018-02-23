@@ -12,7 +12,7 @@ module.exports = function(deployer) {
         return deployer.deploy(RequestEthereum, RequestCore.address).then(function() {
             createInstances().then(function() {
                 setupContracts().then(function() {
-                    checks()
+                    checks();
                 });
             });
         });
@@ -22,22 +22,27 @@ module.exports = function(deployer) {
 var createInstances = function() {
     return RequestCore.deployed().then(function(instance) {
         requestCore = instance;
-        return RequestEthereum.deployed().then(function(instance) {
+        return RequestEthereum.deployed(addressContractBurner).then(function(instance) {
             requestEthereum = instance;
-            console.log("Instances set.")
+            console.log("Instances set.");
         });
     });
 }
 
 var setupContracts = function() {
     return requestCore.adminAddTrustedCurrencyContract(requestEthereum.address).then(function() {
-        console.log("Contracts set up.")
+        return requestEthereum.setFeesPerTenThousand(feesPerTenThousand).then(function() {
+            console.log("Contracts set up.");
+        });
     });
 }
 
 var checks = function() {
   requestCore.getStatusContract(requestEthereum.address).then(function(d) {
-    console.log("getStatusContract: " + requestEthereum.address + " => " + d)
-    console.log("Checks complete")
+    console.log("getStatusContract: " + requestEthereum.address + " => " + d);
+    requestEthereum.feesPer10000.call().then(function(d) {
+        console.log("request ethereum fees per 10000: " + d);
+        console.log("Checks complete");
+    });
   });
 }

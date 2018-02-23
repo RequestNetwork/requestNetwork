@@ -16,6 +16,8 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 
 const BN = Web3Single.BN();
 
+const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
+
 /**
  * The RequestEthereumService class is the interface for the Request Ethereum currency contract
  */
@@ -70,8 +72,11 @@ export default class RequestEthereumService {
     /**
      * create a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payer             address of the payer
-     * @param   _amountInitial     amount initial expected of the request
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   _expectedAmounts           amount initial expected per payees for the request
+     * @param   _payer                     address of the payer
+     * @param   _payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee) (optional)
+     * @param   _payerRefundAddress        refund address of the payer (optional)
      * @param   _data              Json of the request's details (optional)
      * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
      * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
@@ -79,24 +84,54 @@ export default class RequestEthereumService {
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public createRequestAsPayee(
+        _payeesIdAddress: string[],
+        _expectedAmounts: any[],
         _payer: string,
-        _amountInitial: any,
+        _payeesPaymentAddress ?: Array<string|undefined>,
+        _payerRefundAddress ?: string,
         _data ?: string,
         _extension ?: string,
         _extensionParams ?: any[] ,
         _options ?: any,
         ): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
-        _amountInitial = new BN(_amountInitial);
+        _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
+
+        let _payeesPaymentAddressParsed: string[] = [];
+        if (_payeesPaymentAddress) {
+            _payeesPaymentAddressParsed = _payeesPaymentAddress.map((addr) => addr ? addr : EMPTY_BYTES_20);
+        }
+
+        const expectedAmountsTotal = _expectedAmounts.reduce((a, b) => a.add(b), new BN(0));
+
         _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
-            if (_amountInitial.isNeg()) return promiEvent.reject(Error('_amountInitial must a positive integer'));
+
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
+                return promiEvent.reject(Error('account broadcaster must be the main payee'));
+            }
+
+            if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+            }
+
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
+            }
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
+                return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
+            }
+
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
             }
+            if (_payerRefundAddress && !this.web3Single.isAddressNoChecksum(_payerRefundAddress)) {
+                return promiEvent.reject(Error('_payerRefundAddress must be a valid eth address'));
+            }
+
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
             }
@@ -110,35 +145,36 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
             // get the amount to collect
-            this.requestCoreServices.getCollectEstimation(  _amountInitial,
-                                                            this.addressRequestEthereumLast,
-                                                            _extension ).then((collectEstimation: any) => {
+            this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call().then((collectEstimation: any) => {
                 _options.value = collectEstimation;
 
-                // parse extension parameters
-                let paramsParsed: any[];
-                if (!_extension || _extension === '') {
-                    paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
-                } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)) {
-                    const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)
-                                                                    .parseParameters(_extensionParams);
-                    if (parsing.error) {
-                      return promiEvent.reject(parsing.error);
-                    }
-                    paramsParsed = parsing.result;
-                } else {
-                    return promiEvent.reject(Error('_extension is not supported'));
-                }
+                // parse extension parameters useless for now
+                // let paramsParsed: any[];
+                // if (!_extension || _extension === '') {
+                //     paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
+                // } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)) {
+                //     const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)
+                //                                                     .parseParameters(_extensionParams);
+                //     if (parsing.error) {
+                //       return promiEvent.reject(parsing.error);
+                //     }
+                //     paramsParsed = parsing.result;
+                // } else {
+                //     return promiEvent.reject(Error('_extension is not supported'));
+                // }
+
                 // add file to ipfs
                 this.ipfs.addFile(_data).then((hashIpfs: string) => {
                     if (err) return promiEvent.reject(err);
 
                     const method = this.instanceRequestEthereumLast.methods.createRequestAsPayee(
+                        _payeesIdAddress,
+                        _payeesPaymentAddressParsed,
+                        _expectedAmounts,
                         _payer,
-                        _amountInitial,
-                        _extension,
-                        paramsParsed,
+                        _payerRefundAddress,
                         hashIpfs);
+
                     // submit transaction
                     this.web3Single.broadcastMethod(
                         method,
@@ -843,9 +879,31 @@ export default class RequestEthereumService {
      * @return  promise of the information from the currency contract of the request (always {} here)
      */
     public getRequestCurrencyContractInfo(
-        _requestId: string): Promise < any > {
+        _requestId: string,
+        currencyContractAddress: string,
+        coreContract: any): Promise < any > {
         return new Promise(async (resolve, reject) => {
-            return resolve({});
+            try {
+                const currencyContract = this.web3Single.getContractInstance(currencyContractAddress);
+
+                let payeePaymentAddress: string|undefined = await currencyContract.instance.methods.payeesPaymentAddress(_requestId, 0).call();
+                payeePaymentAddress = payeePaymentAddress !== EMPTY_BYTES_20 ? payeePaymentAddress : undefined;
+
+                // get subPayees payment addresses
+                const subPayeesCount = await coreContract.instance.methods.getSubPayeesCount(_requestId).call();
+                const subPayeesPaymentAddress: string[] = [];
+                for (let i = 0; i < subPayeesCount; i++) {
+                    const paymentAddress = await currencyContract.instance.methods.payeesPaymentAddress(_requestId, i + 1).call();
+                    subPayeesPaymentAddress.push(paymentAddress !== EMPTY_BYTES_20 ? paymentAddress : undefined);
+                }
+
+                let payerRefundAddress: string|undefined = await currencyContract.instance.methods.payerRefundAddress(_requestId).call();
+                payerRefundAddress = payerRefundAddress !== EMPTY_BYTES_20 ? payerRefundAddress : undefined;
+
+                return resolve({payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress});
+            } catch (e) {
+                return reject(e);
+            }
         });
     }
 

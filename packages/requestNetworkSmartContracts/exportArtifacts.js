@@ -1,5 +1,5 @@
 const artifacts = ['RequestCore',
-					'RequestBurnManagerSimple',
+					// 'RequestBurnManagerSimple',
 					'RequestEthereum'];
 
 const PACKAGE = require('./package.json');

@@ -7,7 +7,7 @@ import Ipfs from '../servicesExternal/ipfs-service';
 import { Web3Single } from '../servicesExternal/web3-single';
 
 const BN = Web3Single.BN();
-const EMPTY_BYTES_32 = '0x0000000000000000000000000000000000000000';
+const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
 const requestArtifactsJson = require('requestnetworkartifacts/index.json');
 
 /**
@@ -62,98 +62,136 @@ export default class RequestCoreService {
     }
 
     /**
-     * get the estimation of ether (in wei) needed to create a request
-     * @param   _expectedAmount    amount expected of the request
-     * @param   _currencyContract  address of the currency contract of the request
-     * @param   _extension         address of the extension contract of the request
-     * @return  promise of the number of wei needed to create the request
-     */
-    public getCollectEstimation(
-        _expectedAmount: any,
-        _currencyContract: string,
-        _extension: string): Promise < any > {
-        _expectedAmount = new BN(_expectedAmount);
-
-        return new Promise((resolve, reject) => {
-            if (!this.web3Single.isAddressNoChecksum(_currencyContract)) {
-                return reject(Error('_currencyContract must be a valid eth address'));
-            }
-            if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
-                return reject(Error('_extension must be a valid eth address'));
-            }
-
-            this.instanceRequestCoreLast.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension)
-              .call(async (err: Error, data: any) => {
-                if (err) return reject(err);
-                return resolve(data);
-            });
-        });
-    }
-
-    /**
      * get a request by its requestId
      * @param   _requestId    requestId of the request
      * @return  promise of the object containing the request
      */
     public getRequest(_requestId: string): Promise < any > {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (!this.web3Single.isHexStrictBytes32(_requestId)) {
                 return reject(Error('_requestId must be a 32 bytes hex string'));
             }
 
-            const coreContract = this.getCoreContractFromRequestId(_requestId);
-            // get information from the core
-            coreContract.instance.methods.requests(_requestId).call(async (err: Error, data: any) => {
-                if (err) return reject(err);
+            try {
+                const coreContract = this.getCoreContractFromRequestId(_requestId);
 
-                try {
-                    if (data.creator === EMPTY_BYTES_32) {
-                        return reject(Error('request not found'));
-                    }
-
-                    const dataResult: any = {
-                        balance: new BN(data.balance),
-                        creator: data.creator,
-                        currencyContract: data.currencyContract,
-                        data: data.data,
-                        expectedAmount: new BN(data.expectedAmount),
-                        extension: data.extension !== EMPTY_BYTES_32 ? data.extension : undefined,
-                        payee: data.payee,
-                        payer: data.payer,
-                        requestId: _requestId,
-                        state: parseInt(data.state, 10)};
-
-                    // get information from the currency contract
-                    const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.currencyContract);
-                    if (serviceContract) {
-                        const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId);
-                        dataResult.currencyContract = Object.assign(ccyContractDetails,
-                                                                    {address: dataResult.currencyContract});
-                    }
-
-                    // get information from the extension contract
-                    const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.extension);
-                    if (data.extension
-                            && data.extension !== ''
-                            && serviceExtension) {
-                        const extensionDetails = await serviceExtension.getRequestExtensionInfo(_requestId);
-                        dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                    }
-
-                    // get ipfs data if needed
-                    if (dataResult.data && dataResult.data !== '') {
-                        dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
-                                            hash: dataResult.data};
-                    } else {
-                        dataResult.data = undefined;
-                    }
-                    return resolve(dataResult);
-                } catch (e) {
-                    return reject(e);
+                // get information from the core
+                const dataRequest = await coreContract.instance.methods.requests(_requestId).call();
+                if (dataRequest.creator === EMPTY_BYTES_20) {
+                    return reject(Error('request not found'));
                 }
-            });
+                // get subPayees
+                const subPayeesCount = await coreContract.instance.methods.getSubPayeesCount(_requestId).call();
+                const subPayees: any[] = [];
+                for (let i = 0; i < subPayeesCount; i++) {
+                    const sub = await coreContract.instance.methods.subPayees(_requestId, i).call();
+                    subPayees.push({address: sub.addr,
+                                    balance: new BN(sub.balance),
+                                    expectedAmount: new BN(sub.expectedAmount)});
+                }
+
+                // get creator and data
+                const eventCoreRaw = await coreContract.instance.getPastEvents('Created', {
+                    filter: {requestId: _requestId},
+                    fromBlock: coreContract.blockNumber,
+                    toBlock: 'latest'});
+                const creator = eventCoreRaw[0].returnValues.creator;
+                const data = eventCoreRaw[0].returnValues.data;
+
+                // create payee object
+                const payee = {address: dataRequest.payee,
+                                balance: new BN(dataRequest.balance),
+                                expectedAmount: new BN(dataRequest.expectedAmount)};
+
+                const dataResult: any = {
+                    creator,
+                    currencyContract: dataRequest.currencyContract,
+                    data,
+                    payee,
+                    payer: dataRequest.payer,
+                    requestId: _requestId,
+                    state: parseInt(dataRequest.state, 10),
+                    subPayees};
+
+                // get information from the currency contract
+                const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, dataRequest.currencyContract);
+                if (serviceContract) {
+                    const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId, dataRequest.currencyContract, coreContract);
+                    dataResult.currencyContract = Object.assign(ccyContractDetails,
+                                                                {address: dataResult.currencyContract});
+                }
+
+                // get ipfs data if needed
+                if (dataResult.data && dataResult.data !== '') {
+                    dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
+                                        hash: dataResult.data};
+                } else {
+                    dataResult.data = undefined;
+                }
+                return resolve(dataResult);
+            } catch (e) {
+                return reject(e);
+            }
         });
     }
+    // public getRequest(_requestId: string): Promise < any > {
+    //     return new Promise((resolve, reject) => {
+    //         if (!this.web3Single.isHexStrictBytes32(_requestId)) {
+    //             return reject(Error('_requestId must be a 32 bytes hex string'));
+    //         }
+
+    //         const coreContract = this.getCoreContractFromRequestId(_requestId);
+    //         // get information from the core
+    //         coreContract.instance.methods.requests(_requestId).call(async (err: Error, data: any) => {
+    //             if (err) return reject(err);
+
+    //             try {
+    //                 if (data.creator === EMPTY_BYTES_20) {
+    //                     return reject(Error('request not found'));
+    //                 }
+
+    //                 const dataResult: any = {
+    //                     creator: data.creator,
+    //                     currencyContract: data.currencyContract,
+    //                     data: data.data,
+    //                     mainPayeeAddress: data.payee,
+    //                     mainPayeeBalance: new BN(data.balance),
+    //                     mainPayeeExpectedAmount: new BN(data.expectedAmount),
+    //                     payer: data.payer,
+    //                     requestId: _requestId,
+    //                     state: parseInt(data.state, 10)};
+
+    //                 // get information from the currency contract
+    //                 const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.currencyContract);
+    //                 if (serviceContract) {
+    //                     const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId);
+    //                     dataResult.currencyContract = Object.assign(ccyContractDetails,
+    //                                                                 {address: dataResult.currencyContract});
+    //                 }
+
+    //                 // get information from the extension contract
+    //                 // const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.extension);
+    //                 // if (data.extension
+    //                 //         && data.extension !== ''
+    //                 //         && serviceExtension) {
+    //                 //     const extensionDetails = await serviceExtension.getRequestExtensionInfo(_requestId);
+    //                 //     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
+    //                 // }
+
+    //                 // get ipfs data if needed
+    //                 if (dataResult.data && dataResult.data !== '') {
+    //                     dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
+    //                                         hash: dataResult.data};
+    //                 } else {
+    //                     dataResult.data = undefined;
+    //                 }
+    //                 return resolve(dataResult);
+    //             } catch (e) {
+    //                 return reject(e);
+    //             }
+    //         });
+    //     });
+    // }
 
     /**
      * get a request and method called by the hash of a transaction
@@ -262,7 +300,7 @@ export default class RequestCoreService {
 
                 try {
                     const currencyContract = request.currencyContract;
-                    const extension = request.extension !== EMPTY_BYTES_32 ? request.extension : undefined;
+                    // const extension = request.extension !== EMPTY_BYTES_20 ? request.extension : undefined;
 
                     // let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
                     //     // allEvents and filter don't work together so far. issues created on web3 github
@@ -307,11 +345,11 @@ export default class RequestCoreService {
                                         });
                                     }));
 
-                    let eventsExtensions = [];
-                    const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, extension);
-                    if (serviceExtension) {
-                        eventsExtensions = await serviceExtension.getRequestEventsExtensionInfo(request, _fromBlock, _toBlock);
-                    }
+                    // let eventsExtensions = [];
+                    // const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, extension);
+                    // if (serviceExtension) {
+                    //     eventsExtensions = await serviceExtension.getRequestEventsExtensionInfo(request, _fromBlock, _toBlock);
+                    // }
 
                     let eventsCurrencyContract = [];
                     const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, currencyContract);
@@ -321,7 +359,7 @@ export default class RequestCoreService {
                     }
 
                     return resolve(eventsCore
-                                    .concat(eventsExtensions)
+                                    // .concat(eventsExtensions)
                                     .concat(eventsCurrencyContract)
                                     .sort( (a: any, b: any) => {
                                       const diffBlockNum = a._meta.blockNumber - b._meta.blockNumber;
