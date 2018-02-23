@@ -29,9 +29,7 @@ contract RequestCore is Administrable {
         address payer; // ID address of the payer
         address currencyContract; // address of the contract managing the request
         State state; // state of the request
-        address payee; // ID address of the main payee
-        int256 expectedAmount; // amount expected for the main payee
-        int256 balance; // balance of the main payee
+        Payee payee; // main payee
     }
 
     // structure for the sub Payee. A sub payee is an additional entity which will be paid during the processing of the invoice.
@@ -46,7 +44,8 @@ contract RequestCore is Administrable {
     uint96 public numRequests; 
     
     // mapping of all the Requests. The bytes32 is the request ID.
-    mapping(bytes32 => Request) public requests;
+    // not anymore public to avoid "UnimplementedFeatureError: Only in-memory reference type can be stored."
+    mapping(bytes32 => Request) requests;
 
     // mapping of subPayees of the requests. This array is outside the Request structure to optimize the gas cost when there is only 1 payee.
     mapping(bytes32 => Payee[256]) public subPayees;
@@ -98,8 +97,10 @@ contract RequestCore is Administrable {
             mainExpectedAmount = _expectedAmounts[0];
         }
 
-        // Store and declare the new request
-        requests[requestId] = Request(_payer, msg.sender, State.Created, mainPayee, mainExpectedAmount, 0);
+        // Store the new request
+        requests[requestId] = Request(_payer, msg.sender, State.Created, Payee(mainPayee, mainExpectedAmount, 0));
+
+        // Declare the new request
         Created(requestId, mainPayee, _payer, _creator, _data);
         
         // Store and declare the sub payees (needed in internal function to avoid "stack too deep")
@@ -165,8 +166,10 @@ contract RequestCore is Administrable {
         // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
         requestId = bytes32((uint256(this) << 96).add(numRequests));
 
-        // Store and declare the new request
-        requests[requestId] = Request(payer, msg.sender, State.Created, mainPayee, mainExpectedAmount, 0);
+        // Store the new request
+        requests[requestId] = Request(payer, msg.sender, State.Created, Payee(mainPayee, mainExpectedAmount, 0));
+
+        // Declare the new request
         Created(requestId, mainPayee, payer, creator, dataStr);
 
         // Store and declare the sub payees
@@ -222,7 +225,7 @@ contract RequestCore is Administrable {
 
         if( _position == 0 ) {
             // modify the main payee
-            r.balance = r.balance.add(_deltaAmount);
+            r.payee.balance = r.payee.balance.add(_deltaAmount);
         } else {
             // modify the sub payee
             Payee storage sp = subPayees[_requestId][_position-1];
@@ -246,7 +249,7 @@ contract RequestCore is Administrable {
 
         if( _position == 0 ) {
             // modify the main payee
-            r.expectedAmount = r.expectedAmount.add(_deltaAmount);    
+            r.payee.expectedAmount = r.payee.expectedAmount.add(_deltaAmount);    
         } else {
             // modify the sub payee
             Payee storage sp = subPayees[_requestId][_position-1];
@@ -287,7 +290,7 @@ contract RequestCore is Administrable {
         returns(address)
     {
         if(_position == 0) {
-            return requests[_requestId].payee;    
+            return requests[_requestId].payee.addr;    
         } else {
             return subPayees[_requestId][_position-1].addr;
         }
@@ -318,7 +321,7 @@ contract RequestCore is Administrable {
         returns(int256)
     {   
         if(_position == 0) {
-            return requests[_requestId].expectedAmount;    
+            return requests[_requestId].payee.expectedAmount;    
         } else {
             return subPayees[_requestId][_position-1].expectedAmount;
         }
@@ -365,7 +368,7 @@ contract RequestCore is Administrable {
         returns(int256)
     {
         if(_position == 0) {
-            return requests[_requestId].balance;    
+            return requests[_requestId].payee.balance;    
         } else {
             return subPayees[_requestId][_position-1].balance;
         }
@@ -381,7 +384,7 @@ contract RequestCore is Administrable {
         constant
         returns(int256)
     {
-        int256 balance = requests[_requestId].balance;
+        int256 balance = requests[_requestId].payee.balance;
 
         for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
@@ -402,7 +405,7 @@ contract RequestCore is Administrable {
         constant
         returns(bool isNull)
     {
-        isNull = requests[_requestId].balance == 0;
+        isNull = requests[_requestId].payee.balance == 0;
 
         for (uint8 i = 0; isNull && i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
@@ -422,7 +425,7 @@ contract RequestCore is Administrable {
         constant
         returns(int256)
     {
-        int256 expectedAmount = requests[_requestId].expectedAmount;
+        int256 expectedAmount = requests[_requestId].payee.expectedAmount;
 
         for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
@@ -456,7 +459,7 @@ contract RequestCore is Administrable {
         returns(int16)
     {
         // return 0 if main payee
-        if(requests[_requestId].payee == _address) return 0;
+        if(requests[_requestId].payee.addr == _address) return 0;
 
         for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
@@ -466,6 +469,25 @@ contract RequestCore is Administrable {
             }
         }
         return -1;
+    }
+
+    /*
+     * @dev getter of a request
+     * @param _requestId Request id
+     * @return request as a tuple : (address payer, address currencyContract, State state, address payeeAddr, int256 payeeExpectedAmount, int256 payeeBalance)
+     */ 
+    function getRequest(bytes32 _requestId) 
+        external
+        constant
+        returns(address payer, address currencyContract, State state, address payeeAddr, int256 payeeExpectedAmount, int256 payeeBalance)
+    {
+        Request storage r = requests[_requestId];
+        return ( r.payer, 
+                 r.currencyContract, 
+                 r.state, 
+                 r.payee.addr, 
+                 r.payee.expectedAmount, 
+                 r.payee.balance );
     }
 
     /*
