@@ -42,7 +42,7 @@ contract RequestCore is Administrable {
         int256 balance; // balance of the sub payee
     }
 
-    // index of the Request in the mapping
+    // index of the Request in the mapping. A maximum of 2^96 requests can be created per Core contract.
     uint96 public numRequests; 
     
     // mapping of all the Requests. The bytes32 is the request ID.
@@ -87,7 +87,7 @@ contract RequestCore is Administrable {
 
         // Generate the requestId
         numRequests = numRequests.add(1);
-        // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST)
+        // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST). 
         requestId = bytes32((uint256(this) << 96).add(numRequests));
 
         address mainPayee;
@@ -110,6 +110,7 @@ contract RequestCore is Administrable {
 
     /*
      * @dev Function used by currency contracts to create a request in the Core from bytes
+     * @dev Used to avoid receiving a stack too deep error when called from a currency contract with too many parameters.
      * @param _data bytes containing all the data packed :
             address(creator)
             address(payer)
@@ -272,36 +273,6 @@ contract RequestCore is Administrable {
         }
     }
 
-    /* SETTER */
-    /*
-     * @dev Set payee of a request
-     * @dev callable only by the currency contract of the request
-     * @param _requestId Request id
-     * @param _payee new payee
-     */ 
-    function setPayee(bytes32 _requestId, address _payee)
-        external
-    {
-        Request storage r = requests[_requestId];
-        require(r.currencyContract==msg.sender);
-        requests[_requestId].payee = _payee;
-        UpdatePayee(_requestId, _payee);
-    }
-
-    /*
-     * @dev Get payer of a request
-     * @dev callable only by the currency contract of the request
-     * @param _requestId Request id
-     * @param _payee new payer
-     */ 
-    function setPayer(bytes32 _requestId, address _payer)
-        external
-    {
-        Request storage r = requests[_requestId];
-        require(r.currencyContract==msg.sender);
-        requests[_requestId].payer = _payer;
-        UpdatePayer(_requestId, _payer);
-    }
 
     /* GETTER */
     /*
