@@ -50,7 +50,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -71,7 +71,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -104,7 +104,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	it("cancel by payee request already accepted OK if amount == 0", async function () {
 		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -121,7 +121,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [10], [0], {from:payer,value:10});
 		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -153,7 +153,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");

@@ -78,7 +78,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -94,7 +94,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 		var r = await (requestEthereum.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent], "", 
 													{from:payer, value:arbitraryAmount}));
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -136,7 +136,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -200,7 +200,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -285,7 +285,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],2,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount3+3,"Event UpdateBalance wrong args amountPaid");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));		
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));		
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],arbitraryAmount+1,"new request wrong data : expectedAmount");
@@ -354,7 +354,7 @@ contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args position");
 		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");

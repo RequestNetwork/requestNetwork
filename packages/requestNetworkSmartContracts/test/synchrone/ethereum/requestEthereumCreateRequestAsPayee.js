@@ -60,7 +60,7 @@ contract('RequestEthereum createRequestAsPayee',  function(accounts) {
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args subPayee");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(r[0],payer,"request wrong data : payer");
 		assert.equal(r[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(r[2],0,"new request wrong data : state");
@@ -115,7 +115,7 @@ contract('RequestEthereum createRequestAsPayee',  function(accounts) {
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args subPayee");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(r[0],payer,"request wrong data : payer");
 		assert.equal(r[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(r[2],0,"new request wrong data : state");
@@ -200,7 +200,7 @@ contract('RequestEthereum createRequestAsPayee',  function(accounts) {
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args subPayee");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(r[0],payer,"request wrong data : payer");
 		assert.equal(r[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(r[2],0,"new request wrong data : state");

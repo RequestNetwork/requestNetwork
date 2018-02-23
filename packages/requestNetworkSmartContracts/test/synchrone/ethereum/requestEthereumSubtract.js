@@ -54,7 +54,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 		
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -78,7 +78,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : expectedAmount");
@@ -98,7 +98,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 		
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],arbitraryAmount-arbitraryAmount10percent,"new request wrong data : expectedAmount");
@@ -130,7 +130,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 		
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -158,7 +158,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args position");
 		assert.equal(l.data[1],-arbitraryAmount,"Event UpdateExpectedAmount wrong args amount");
 		
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],0,"new request wrong data : expectedAmount");
@@ -184,7 +184,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		assert.equal(l.data[1],-arbitraryAmount20percent,"Event UpdateExpectedAmount wrong args amount");
 		
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
