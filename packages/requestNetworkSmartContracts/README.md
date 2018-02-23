@@ -36,15 +36,15 @@ not available yet
 ### Create a new request as the payee
 ` function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
  
-	 * @dev msg.sender will be the payee
+* @dev msg.sender will be the payee
 
-	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
-	 * @param _payeesPaymentAddress array of payees address for payment (optional)
-	 * @param _expectedAmounts array of Expected amount to be received by each payees
-	 * @param _payer Entity supposed to pay
-	 * @param _data Hash linking to additional data on the Request stored on IPFS
+* @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+* @param _payeesPaymentAddress array of payees address for payment (optional)
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payer Entity supposed to pay
+* @param _data Hash linking to additional data on the Request stored on IPFS
 
-	 * @return Returns the id of the request 
+* @return Returns the id of the request 
 
 
 ### Create a new request as the payer
