@@ -62,14 +62,14 @@ contract RequestCore is Administrable {
     // Event for Payee & subPayees
     event NewSubPayee(bytes32 indexed requestId, address indexed payee); // Separated from the Created Event to allow a 4th indexed parameter (subpayees)
     event UpdatePayee(bytes32 indexed requestId, address payee);
-    event UpdateAddressPayee(bytes32 indexed requestId, uint8 position, address indexed payee);
-    event UpdateExpectedAmount(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
-    event UpdateBalance(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
+    event UpdateAddressPayee(bytes32 indexed requestId, uint8 payeeIndex, address indexed payee);
+    event UpdateExpectedAmount(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount);
+    event UpdateBalance(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount);
 
     /*
      * @dev Function used by currency contracts to create a request in the Core
      * @param _creator Request creator. The creator is the one who initiated the request (create or sign) and not necessarily the one who broadcasted it
-     * @param _payees array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 255.
+     * @param _payees array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 255.
      * @param _expectedAmounts array of Expected amount to be received by each payees. Must be in same order than the payees. Size must be smaller than 255.
      * @param _payer Entity expected to pay
      * @param _data data of the request
@@ -86,9 +86,7 @@ contract RequestCore is Administrable {
         require(isTrustedContract(msg.sender)); // not as modifier to lighten the stack
 
         // Generate the requestId
-        numRequests = numRequests.add(1);
-        // create requestId = ADDRESS_CONTRACT_CORE + numRequests (0xADRRESSCONTRACT00000NUMREQUEST). 
-        requestId = bytes32((uint256(this) << 96).add(numRequests));
+        requestId = generateRequestId();
 
         address mainPayee;
         int256 mainExpectedAmount;
@@ -209,48 +207,48 @@ contract RequestCore is Administrable {
      * @dev Function used to update the balance
      * @dev callable only by the currency contract of the request
      * @param _requestId Request id
-     * @param _position position of the payee (0 = main payee)
+     * @param _payeeIndex index of the payee (0 = main payee)
      * @param _deltaAmount modifier amount
      */ 
-    function updateBalance(bytes32 _requestId, uint8 _position, int256 _deltaAmount)
+    function updateBalance(bytes32 _requestId, uint8 _payeeIndex, int256 _deltaAmount)
         external
     {   
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender);
 
-        if( _position == 0 ) {
+        if( _payeeIndex == 0 ) {
             // modify the main payee
             r.balance = r.balance.add(_deltaAmount);
         } else {
             // modify the sub payee
-            Payee storage sp = subPayees[_requestId][_position-1];
+            Payee storage sp = subPayees[_requestId][_payeeIndex-1];
             sp.balance = sp.balance.add(_deltaAmount);
         }
-        UpdateBalance(_requestId, _position, _deltaAmount);
+        UpdateBalance(_requestId, _payeeIndex, _deltaAmount);
     }
 
     /*
      * @dev Function update the expectedAmount adding additional or subtract
      * @dev callable only by the currency contract of the request
      * @param _requestId Request id
-     * @param _position position of the payee (0 = main payee)
+     * @param _payeeIndex index of the payee (0 = main payee)
      * @param _deltaAmount modifier amount
      */ 
-    function updateExpectedAmount(bytes32 _requestId, uint8 _position, int256 _deltaAmount)
+    function updateExpectedAmount(bytes32 _requestId, uint8 _payeeIndex, int256 _deltaAmount)
         external
     {   
         Request storage r = requests[_requestId];
         require(r.currencyContract==msg.sender); 
 
-        if( _position == 0 ) {
+        if( _payeeIndex == 0 ) {
             // modify the main payee
             r.expectedAmount = r.expectedAmount.add(_deltaAmount);    
         } else {
             // modify the sub payee
-            Payee storage sp = subPayees[_requestId][_position-1];
+            Payee storage sp = subPayees[_requestId][_payeeIndex-1];
             sp.expectedAmount = sp.expectedAmount.add(_deltaAmount);
         }
-        UpdateExpectedAmount(_requestId, _position, _deltaAmount);
+        UpdateExpectedAmount(_requestId, _payeeIndex, _deltaAmount);
     }
 
     /*
@@ -276,18 +274,18 @@ contract RequestCore is Administrable {
     /*
      * @dev Get address of a payee
      * @param _requestId Request id
-     * @param _position payee position (0 = main payee)
+     * @param _payeeIndex payee index (0 = main payee)
      * @return payee address
      */ 
-    function getPayeeAddress(bytes32 _requestId, uint8 _position)
+    function getPayeeAddress(bytes32 _requestId, uint8 _payeeIndex)
         public
         constant
         returns(address)
     {
-        if(_position == 0) {
+        if(_payeeIndex == 0) {
             return requests[_requestId].payee;    
         } else {
-            return subPayees[_requestId][_position-1].addr;
+            return subPayees[_requestId][_payeeIndex-1].addr;
         }
     }
 
@@ -307,18 +305,18 @@ contract RequestCore is Administrable {
     /*
      * @dev Get amount expected of a payee
      * @param _requestId Request id
-     * @param _position payee position (0 = main payee)
+     * @param _payeeIndex payee index (0 = main payee)
      * @return amount expected
      */     
-    function getPayeeExpectedAmount(bytes32 _requestId, uint8 _position)
+    function getPayeeExpectedAmount(bytes32 _requestId, uint8 _payeeIndex)
         public
         constant
         returns(int256)
     {   
-        if(_position == 0) {
+        if(_payeeIndex == 0) {
             return requests[_requestId].expectedAmount;    
         } else {
-            return subPayees[_requestId][_position-1].expectedAmount;
+            return subPayees[_requestId][_payeeIndex-1].expectedAmount;
         }
     }
 
@@ -354,18 +352,18 @@ contract RequestCore is Administrable {
     /*
      * @dev Get balance of a payee
      * @param _requestId Request id
-     * @param _position payee position (0 = main payee)
+     * @param _payeeIndex payee index (0 = main payee)
      * @return balance
      */     
-    function getPayeeBalance(bytes32 _requestId, uint8 _position)
+    function getPayeeBalance(bytes32 _requestId, uint8 _payeeIndex)
         public
         constant
         returns(int256)
     {
-        if(_position == 0) {
+        if(_payeeIndex == 0) {
             return requests[_requestId].balance;    
         } else {
-            return subPayees[_requestId][_position-1].balance;
+            return subPayees[_requestId][_payeeIndex-1].balance;
         }
     }
 
@@ -446,9 +444,9 @@ contract RequestCore is Administrable {
     /*
      * @dev Get address of a payee
      * @param _requestId Request id
-     * @return payee position (0 = main payee) or -1 if not address not found
+     * @return payee index (0 = main payee) or -1 if not address not found
      */
-    function getPayeePosition(bytes32 _requestId, address _address)
+    function getPayeeIndex(bytes32 _requestId, address _address)
         public
         constant
         returns(int16)
@@ -459,7 +457,7 @@ contract RequestCore is Administrable {
         for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             if(subPayees[_requestId][i].addr == _address) {
-                // if found return subPayee position + 1 (0 is main payee)
+                // if found return subPayee index + 1 (0 is main payee)
                 return i+1;
             }
         }

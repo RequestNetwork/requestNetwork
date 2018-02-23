@@ -47,7 +47,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev msg.sender will be the payee
 	 *
-	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payer Entity expected to pay
@@ -78,7 +78,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev msg.sender will be the payer
 	 *
-	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
 	 * @param _payerRefundAddress Address of refund for the payer (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
@@ -377,7 +377,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for main payee)
+	 * @param _subtractAmounts amounts of subtract in wei to declare (index 0 is for main payee)
 	 */
 	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
 		external
@@ -402,7 +402,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _additionalAmounts amounts of additional in wei to declare (position 0 is for )
+	 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
 	 */
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
 		public
@@ -501,22 +501,22 @@ contract RequestEthereum is RequestEthereumCollect {
 		internal
 	{
 		// Check if the _address is a payeesId
-		int16 position = requestCore.getPayeePosition(_requestId, _address);
-		if(position < 0) {
+		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _address);
+		if(payeeIndex < 0) {
 			// if not ID addresses maybe in the payee payments addresses
-	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && position == -1; i = i.add(1))
+	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1))
 	        {
 	            if(payeesPaymentAddress[_requestId][i] == _address) {
-	            	// get the position
-	                position = int16(i);
+	            	// get the payeeIndex
+	                payeeIndex = int16(i);
 	            }
 	        }
 		}
 		// the address must be found somewhere
-		require(position >= 0); 
+		require(payeeIndex >= 0); 
 
-		// useless (subPayee size <256): require(position < 265);
-		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
+		// useless (subPayee size <256): require(payeeIndex < 265);
+		requestCore.updateBalance(_requestId, uint8(payeeIndex), -_amount.toInt256Safe());
 
 		// refund to the payment address if given, the id address otherwise
 		address addressToPay = payerRefundAddress[_requestId];
@@ -617,7 +617,7 @@ contract RequestEthereum is RequestEthereumCollect {
             ]
             uint8(data_string_size)
             size(data)
-	 * @param _payeesPaymentAddress array of payees payment addresses (the position 0 will be the payee the others are subPayees)
+	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
   	 * @param _signature ECDSA signature containing v, r and s as bytes
   	 *
