@@ -12,10 +12,10 @@ contract RequestEthereumCollect is Pausable {
 	using SafeMath for uint256;
 
 	// fees percentage (per 10 000)
-	uint256 public feesPer10000 = 0;
+	uint256 public feesPer10000;
 
 	// maximum fees in wei
-	uint256 public maxFees = 0.002 ether;
+	uint256 public maxFees;
 
 	// address of the contract that will burn req token (probably through Kyber)
 	address public requestBurnerContract;
@@ -86,7 +86,7 @@ contract RequestEthereumCollect is Pausable {
 	 * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
 	 * @return 
 	 */  
-	function setrequestBurnerContract(address _requestBurnerContract) 
+	function setRequestBurnerContract(address _requestBurnerContract) 
 		external
 		onlyOwner
 	{
