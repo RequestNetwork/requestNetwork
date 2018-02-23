@@ -23,7 +23,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	// Ethereum available to withdraw (only in case of sending fail)
 	mapping(address => uint256) public ethToWithdraw;
 
-	// payment addresses by requestId (optional)
+	// payment addresses by requestId (optional). We separate the Identity of the payee/payer (in the core) and the wallet address in the currency contract
     mapping(bytes32 => address[256]) public payeesPaymentAddress;
     mapping(bytes32 => address) public payerRefundAddress;
 
@@ -50,7 +50,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
-	 * @param _payer Entity supposed to pay
+	 * @param _payer Entity expected to pay
 	 * @param _payerRefundAddress Address of refund for the payer (optional)
 	 * @param _data Hash linking to additional data on the Request stored on IPFS
 	 *
@@ -326,14 +326,14 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	// ---- CONTRACT FUNCTIONS ------------------------------------------------------------------------------------
 	/*
-	 * @dev Function PAYABLE to pay in ether a request
+	 * @dev Function PAYABLE to pay in ether a request.
 	 *
 	 * @dev the request must be accepted if msg.sender!=payer
-	 * @dev the request will be automatically accepted if msg.sender==payer
+	 * @dev the request will be automatically accepted if msg.sender==payer. 
 	 *
 	 * @param _requestId id of the request
 	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
-	 * @param _additionals amount of additionals in wei to declare
+	 * @param _additionalsAmount amount of additionals per payee in wei to declare
 	 */
 	function paymentAction(
 		bytes32 _requestId,
@@ -358,7 +358,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function PAYABLE to pay back in ether a request to the payee
 	 *
-	 * @dev msg.sender must be on of the payees
+	 * @dev msg.sender must be one of the payees
 	 * @dev the request must be accepted
 	 * @dev the payback must be lower than the amount already paid for the request
 	 *
@@ -524,13 +524,13 @@ contract RequestEthereum is RequestEthereumCollect {
 		// useless (subPayee size <256): require(position < 265);
 		requestCore.updateBalance(_requestId, uint8(position), -_amount.toInt256Safe());
 
-		// pay the payment address if given, the id address otherwise
+		// refund to the payment address if given, the id address otherwise
 		address addressToPay = payerRefundAddress[_requestId];
 		if(addressToPay == 0) {
 			addressToPay = requestCore.getPayer(_requestId);
 		}
 
-		// refund declared, the money is ready to be send to the payer
+		// refund declared, the money is ready to be sent to the payer
 		fundOrderInternal(_requestId, addressToPay, _amount);
 	}
 
@@ -538,7 +538,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function internal to manage fund mouvement
 	 *
 	 * @param _requestId id of the request
-	 * @param _recipient adress where the wei has to me send to
+	 * @param _recipient address where the wei has to be sent to
 	 * @param _amount amount in wei to send
 	 *
 	 * @return true if the fund mouvement is done, false otherwise
@@ -563,7 +563,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
      * @param _data bytes containing all the data packed
 	 * @param _payeesPaymentAddress array of payees payment addresses
-	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+	 * @param _expirationDate timestamp after what the signed request cannot be broadcasted
 	 *
 	 * @return Keccak-256 hash of (this,_requestData, _payeesPaymentAddress, _expirationDate)
 	 */
@@ -666,8 +666,8 @@ contract RequestEthereum is RequestEthereumCollect {
 	}
 	
 	/*
-	 * @dev Modifier to check if msg.sender is payee
-	 * @dev Revert if msg.sender is not payee
+	 * @dev Modifier to check if msg.sender is the main payee
+	 * @dev Revert if msg.sender is not the main payee
 	 * @param _requestId id of the request
 	 */	
 	modifier onlyRequestPayee(bytes32 _requestId)

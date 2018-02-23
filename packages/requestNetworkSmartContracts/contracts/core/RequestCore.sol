@@ -29,25 +29,26 @@ contract RequestCore is Administrable {
         address payer; // ID address of the payer
         address currencyContract; // address of the contract managing the request
         State state; // state of the request
-
         address payee; // ID address of the main payee
         int256 expectedAmount; // amount expected for the main payee
         int256 balance; // balance of the main payee
     }
 
-    // structur for the sub Payee
+    // structure for the sub Payee. A sub payee is an additional entity which will be paid during the processing of the invoice.
+    // ex: can be use for routing taxes or fees at the moment of the payment.
     struct Payee {
         address addr; // ID address of the sub payee
         int256 expectedAmount; // amount expected for the sub payee
-        int256 balance; // balance of the main payee
+        int256 balance; // balance of the sub payee
     }
 
     // index of the Request in the mapping
     uint96 public numRequests; 
     
-    // mapping of all the Requests
+    // mapping of all the Requests. The bytes32 is the request ID.
     mapping(bytes32 => Request) public requests;
-    // mapping of subPayees of the requests
+
+    // mapping of subPayees of the requests. This array is outside the Request structure to optimize the gas cost when there is only 1 payee.
     mapping(bytes32 => Payee[256]) public subPayees;
 
     /*
@@ -66,22 +67,13 @@ contract RequestCore is Administrable {
     event UpdateBalance(bytes32 indexed requestId, uint8 position, int256 deltaAmount);
 
     /*
-     *  Constructor 
-     */
-    function RequestCore() 
-        public
-    {
-        numRequests = 0;
-    }
-
-    /*
      * @dev Function used by currency contracts to create a request in the Core
-     * @param _creator Request creator
+     * @param _creator Request creator. The creator is the one who initiated the request (create or sign) and not necessarily the one who broadcasted it
      * @param _payees array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 255.
-     * @param _expectedAmounts array of Expected amount to be received by each payees. Size must be smaller than 255.
-     * @param _payer Entity supposed to pay
+     * @param _expectedAmounts array of Expected amount to be received by each payees. Must be in same order than the payees. Size must be smaller than 255.
+     * @param _payer Entity expected to pay
      * @param _data data of the request
-     * @return Returns the id of the request 
+     * @return Returns the id of the request
      */   
     function createRequest(address _creator, address[] _payees, int256[] _expectedAmounts, address _payer, string _data) 
         external
@@ -100,7 +92,7 @@ contract RequestCore is Administrable {
 
         address mainPayee;
         int256 mainExpectedAmount;
-        // extract the main payee if possible
+        // extract the main payee if filled
         if(_payees.length!=0) {
             mainPayee = _payees[0];
             mainExpectedAmount = _expectedAmounts[0];
@@ -201,7 +193,7 @@ contract RequestCore is Administrable {
     }
 
     /*
-     * @dev Function used by currency contracts to cancel a request in the Core. Several reasons can lead to cancel a reason, see request life cycle for more info.
+     * @dev Function used by currency contracts to cancel a request in the Core. Several reasons can lead to cancel a request, see request life cycle for more info.
      * @dev callable only by the currency contract of the request
      * @param _requestId Request id
      */ 
@@ -225,11 +217,11 @@ contract RequestCore is Administrable {
         external
     {   
         Request storage r = requests[_requestId];
-        require(r.currencyContract==msg.sender); 
+        require(r.currencyContract==msg.sender);
 
         if( _position == 0 ) {
             // modify the main payee
-            r.balance = r.balance.add(_deltaAmount);    
+            r.balance = r.balance.add(_deltaAmount);
         } else {
             // modify the sub payee
             Payee storage sp = subPayees[_requestId][_position-1];
@@ -266,7 +258,7 @@ contract RequestCore is Administrable {
      * @dev Internal: Init payees for a request (needed to avoid 'stack too deep' in createRequest())
      * @param _requestId Request id
      * @param _payees array of payees address
-     * @param _expectedAmounts array of payees initialAmount
+     * @param _expectedAmounts array of payees initial expected amounts
      */ 
     function initSubPayees(bytes32 _requestId, address[] _payees, int256[] _expectedAmounts)
         internal
