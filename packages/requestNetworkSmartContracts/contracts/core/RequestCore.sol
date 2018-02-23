@@ -475,7 +475,11 @@ contract RequestCore is Administrable {
      * @param _offset position of the first byte of the string
      * @return string
      */ 
-    function extractString(bytes data, uint8 size, uint _offset) internal pure returns (string) {
+    function extractString(bytes data, uint8 size, uint _offset) 
+        internal 
+        pure 
+        returns (string) 
+    {
         bytes memory bytesString = new bytes(size);
         for (uint j = 0; j < size; j++) {
             bytesString[j] = data[_offset+j];
@@ -489,7 +493,11 @@ contract RequestCore is Administrable {
      * @param _offset position of the first byte of the address
      * @return address
      */ 
-    function extractAddress(bytes _data, uint offset) internal pure returns (address) {
+    function extractAddress(bytes _data, uint offset) 
+        internal 
+        pure 
+        returns (address) 
+    {
         // no "for" pattern to optimise gas cost
         uint160 m = uint160(_data[offset]); // 2576 gas
         m = m*256 + uint160(_data[offset+1]);

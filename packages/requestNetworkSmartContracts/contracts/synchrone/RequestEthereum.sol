@@ -1,7 +1,6 @@
 pragma solidity 0.4.18;
 
 import '../core/RequestCore.sol';
-import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathUint8.sol';
 import './RequestEthereumCollect.sol';
 
