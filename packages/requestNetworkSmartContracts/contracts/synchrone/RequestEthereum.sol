@@ -371,7 +371,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function PAYABLE to pay back in ether a request to the payee
 	 *
 	 * @dev msg.sender must be one of the payees
-	 * @dev the request must be accepted
+	 * @dev the request must be created or accepted
 	 * @dev the payback must be lower than the amount already paid for the request
 	 *
 	 * @param _requestId id of the request
