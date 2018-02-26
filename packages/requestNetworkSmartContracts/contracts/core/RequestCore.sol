@@ -71,7 +71,12 @@ contract RequestCore is Administrable {
      * @param _data data of the request
      * @return Returns the id of the request
      */   
-    function createRequest(address _creator, address[] _payees, int256[] _expectedAmounts, address _payer, string _data) 
+    function createRequest(
+        address     _creator,
+        address[]   _payees,
+        int256[]    _expectedAmounts,
+        address     _payer,
+        string      _data)
         external
         whenNotPaused 
         returns (bytes32 requestId) 

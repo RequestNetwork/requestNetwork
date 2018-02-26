@@ -56,7 +56,13 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @return Returns the id of the request
 	 */
-	function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)
+	function createRequestAsPayee(
+		address[] 	_payeesIdAddress,
+		address[] 	_payeesPaymentAddress,
+		int256[] 	_expectedAmounts,
+		address 	_payer,
+		address 	_payerRefundAddress,
+		string 		_data)
 		external
 		payable
 		whenNotPaused
@@ -87,7 +93,13 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @return Returns the id of the request
 	 */
-	function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)
+	function createRequestAsPayer(
+		address[] 	_payeesIdAddress,
+		int256[] 	_expectedAmounts,
+		address 	_payerRefundAddress,
+		uint256[] 	_payeeAmounts,
+		uint256[] 	_additionals,
+		string 		_data)
 		external
 		payable
 		whenNotPaused
@@ -123,12 +135,12 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @return Returns the id of the request
 	 */
 	function broadcastSignedRequestAsPayer(
-		bytes _requestData, // gather data to avoid "stack too deep"
-		address[] _payeesPaymentAddress,
-		uint256[] _payeeAmounts,
-		uint256[] _additionals,
-		uint256 _expirationDate,
-		bytes _signature)
+		bytes 		_requestData, // gather data to avoid "stack too deep"
+		address[] 	_payeesPaymentAddress,
+		uint256[] 	_payeeAmounts,
+		uint256[] 	_additionals,
+		uint256 	_expirationDate,
+		bytes 		_signature)
 		external
 		payable
 		whenNotPaused
@@ -157,10 +169,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @return Returns the id of the request
 	 */
 	function createAcceptAndPayFromBytes(
-		bytes _requestData,
-		address[] _payeesPaymentAddress,
-		uint256[] _payeeAmounts,
-		uint256[] _additionals)
+		bytes 		_requestData,
+		address[] 	_payeesPaymentAddress,
+		uint256[] 	_payeeAmounts,
+		uint256[] 	_additionals)
 		internal
 		returns(bytes32 requestId)
 	{
@@ -217,12 +229,12 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @return Returns the id of the request
 	 */
 	function createRequest(
-		address _payer,
-		address[] _payees,
-		address[] _payeesPaymentAddress,
-		int256[] _expectedAmounts,
-		address _payerRefundAddress,
-		string _data)
+		address 	_payer,
+		address[] 	_payees,
+		address[] 	_payeesPaymentAddress,
+		int256[] 	_expectedAmounts,
+		address 	_payerRefundAddress,
+		string 		_data)
 		internal
 		returns(bytes32 requestId, uint256 fees)
 	{
@@ -452,9 +464,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @param _value amount paid
 	 */
 	function paymentInternal(
-		bytes32 _requestId,
-		uint256[] _payeeAmounts,
-		uint256 _value)
+		bytes32 	_requestId,
+		uint256[] 	_payeeAmounts,
+		uint256 	_value)
 		internal
 	{
 		uint256 totalPayeeAmounts = 0;
@@ -565,9 +577,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @return Keccak-256 hash of (this,_requestData, _payeesPaymentAddress, _expirationDate)
 	 */
 	function getRequestHash(
-		bytes _requestData,
-		address[] _payeesPaymentAddress,
-		uint256 _expirationDate)
+		bytes 		_requestData,
+		address[] 	_payeesPaymentAddress,
+		uint256 	_expirationDate)
 		internal
 		view
 		returns(bytes32)
@@ -587,7 +599,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	function isValidSignature(
 		address signer,
 		bytes32 hash,
-		uint8 v,
+		uint8 	v,
 		bytes32 r,
 		bytes32 s)
 		public
@@ -624,10 +636,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @return Validity of order signature.
 	 */	
 	function checkRequestSignature(
-		bytes _requestData,
-		address[] _payeesPaymentAddress,
-		uint256 _expirationDate,
-		bytes _signature)
+		bytes 		_requestData,
+		address[] 	_payeesPaymentAddress,
+		uint256 	_expirationDate,
+		bytes 		_signature)
 		public
 		view
 		returns (bool)
