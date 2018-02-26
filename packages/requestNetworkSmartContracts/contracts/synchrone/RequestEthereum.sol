@@ -450,6 +450,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	function additionalInternal(bytes32 _requestId, uint256[] _additionalAmounts)
 		internal
 	{
+		// we cannot have more amounts declared than actual payees
+		require(_additionalAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+
 		for(uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
 			if(_additionalAmounts[i] != 0) {
 				// Store and declare the additional in the core
@@ -471,6 +474,9 @@ contract RequestEthereum is RequestEthereumCollect {
 		uint256 	_value)
 		internal
 	{
+		// we cannot have more amounts declared than actual payees
+		require(_payeeAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+
 		uint256 totalPayeeAmounts = 0;
 
 		for(uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
@@ -708,27 +714,11 @@ contract RequestEthereum is RequestEthereumCollect {
      * @return address
      */
     function extractAddress(bytes _data, uint offset) internal pure returns (address) {
-        // no "for" pattern to optimize gas cost
-        uint160 m = uint160(_data[offset]); // 2576 gas
-        m = m*256 + uint160(_data[offset+1]);
-        m = m*256 + uint160(_data[offset+2]);
-        m = m*256 + uint160(_data[offset+3]);
-        m = m*256 + uint160(_data[offset+4]);
-        m = m*256 + uint160(_data[offset+5]);
-        m = m*256 + uint160(_data[offset+6]);
-        m = m*256 + uint160(_data[offset+7]);
-        m = m*256 + uint160(_data[offset+8]);
-        m = m*256 + uint160(_data[offset+9]);
-        m = m*256 + uint160(_data[offset+10]);
-        m = m*256 + uint160(_data[offset+11]);
-        m = m*256 + uint160(_data[offset+12]);
-        m = m*256 + uint160(_data[offset+13]);
-        m = m*256 + uint160(_data[offset+14]);
-        m = m*256 + uint160(_data[offset+15]);
-        m = m*256 + uint160(_data[offset+16]);
-        m = m*256 + uint160(_data[offset+17]);
-        m = m*256 + uint160(_data[offset+18]);
-        m = m*256 + uint160(_data[offset+19]);
+        // for pattern to reduce contract size
+        uint160 m = uint160(_data[offset]);
+        for(uint8 i = 1; i < 20; i++) {
+        	m = m*256 + uint160(_data[offset+i]);
+        }
         return address(m);
     }
 
