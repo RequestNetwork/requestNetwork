@@ -51,7 +51,7 @@ contract('RequestEthereum Accept',  function(accounts) {
 		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -97,7 +97,7 @@ contract('RequestEthereum Accept',  function(accounts) {
 		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -117,7 +117,7 @@ contract('RequestEthereum Accept',  function(accounts) {
 		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayee()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");

@@ -54,9 +54,9 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].event,"UpdateBalance","Event UpdateBalance is missing after updateBalance()");
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateBalance wrong args balance");
-		assert.equal(r.logs[0].args.position,0,"Event UpdateBalance wrong args balance");
+		assert.equal(r.logs[0].args.payeeIndex,0,"Event UpdateBalance wrong args balance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
 		assert.equal(r[4],arbitraryAmount,"request wrong data : expectedAmount");
@@ -82,9 +82,9 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].event,"UpdateBalance","Event UpdateBalance is missing after updateBalance()");
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateBalance wrong args balance");
-		assert.equal(r.logs[0].args.position,1,"Event UpdateBalance wrong args balance");
+		assert.equal(r.logs[0].args.payeeIndex,1,"Event UpdateBalance wrong args balance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
 		assert.equal(r[4],arbitraryAmount,"request wrong data : expectedAmount");
@@ -113,7 +113,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateBalance wrong args balance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -131,7 +131,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateBalance wrong args balance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -161,9 +161,9 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].event,"UpdateBalance","Event UpdateBalance is missing after accept()");
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,0,"Event UpdateBalance wrong args balance");
-		assert.equal(r.logs[0].args.position,0,"Event UpdateBalance wrong args position");
+		assert.equal(r.logs[0].args.payeeIndex,0,"Event UpdateBalance wrong args payeeIndex");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -179,9 +179,9 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].event,"UpdateBalance","Event UpdateBalance is missing after accept()");
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,0,"Event UpdateBalance wrong args balance");
-		assert.equal(r.logs[0].args.position,1,"Event UpdateBalance wrong args position");
+		assert.equal(r.logs[0].args.payeeIndex,1,"Event UpdateBalance wrong args payeeIndex");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -220,7 +220,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount20percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -247,7 +247,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount20percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -278,7 +278,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount20percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -301,7 +301,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount20percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -323,7 +323,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount20percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -362,7 +362,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount30percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -380,7 +380,7 @@ contract('RequestCore UpdateBalance', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount20percent,"Event UpdateBalance wrong args amountUpdateBalance");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");

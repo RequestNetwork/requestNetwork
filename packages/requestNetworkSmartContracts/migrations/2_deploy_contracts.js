@@ -3,7 +3,7 @@ var RequestEthereum = artifacts.require("./RequestEthereum.sol");
 
 var addressContractBurner = 0;
 var feesPerTenThousand = 10; // 0.1 %
-
+var maxFees = web3.toWei(0.00012, 'ether');
 
 var requestCore;
 var requestEthereum;
@@ -32,7 +32,9 @@ var createInstances = function() {
 var setupContracts = function() {
     return requestCore.adminAddTrustedCurrencyContract(requestEthereum.address).then(function() {
         return requestEthereum.setFeesPerTenThousand(feesPerTenThousand).then(function() {
-            console.log("Contracts set up.");
+            return requestEthereum.setMaxCollectable(maxFees).then(function() {
+                console.log("Contracts set up.");
+            });
         });
     });
 }
@@ -40,9 +42,12 @@ var setupContracts = function() {
 var checks = function() {
   requestCore.getStatusContract(requestEthereum.address).then(function(d) {
     console.log("getStatusContract: " + requestEthereum.address + " => " + d);
-    requestEthereum.feesPer10000.call().then(function(d) {
-        console.log("request ethereum fees per 10000: " + d);
-        console.log("Checks complete");
+    requestEthereum.feesPer10000.call().then(function(feesPer10000) {
+        console.log("request ethereum fees per 10000: " + feesPer10000);
+        requestEthereum.maxFees.call().then(function(maxFees) {
+            console.log("request ethereum max fees: " + maxFees);
+            console.log("Checks complete");
+        });
     });
   });
 }

@@ -11,6 +11,9 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
+# artifact outputs
+/export
+
 # Windows Installer files
 *.cab
 *.msi

@@ -53,7 +53,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountAdded");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -80,7 +80,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountAdded");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -109,7 +109,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountAdded");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -128,7 +128,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountAdded");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -146,7 +146,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountAdded");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -172,7 +172,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 0, arbitraryAmount10percent, {from:fakeContract});
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 0, arbitraryAmount10percent, {from:fakeContract});
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -197,7 +197,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 1, arbitraryAmount10percent, {from:fakeContract});
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 1, arbitraryAmount10percent, {from:fakeContract});
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -223,7 +223,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,0,"Event UpdateExpectedAmount wrong args amountAdded");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -259,7 +259,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountSubtracted");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -286,7 +286,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountSubtracted");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -315,7 +315,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountSubtracted");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -334,7 +334,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountSubtracted");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -352,7 +352,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		assert.equal(r.logs[0].args.requestId,utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(r.logs[0].args.deltaAmount,-arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amountSubtracted");
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -382,7 +382,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 0, -arbitraryAmount10percent, {from:fakeContract});
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 0, -arbitraryAmount10percent, {from:fakeContract});
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -397,7 +397,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 0, -arbitraryAmount60percent, {from:fakeContract});
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");
@@ -422,7 +422,7 @@ contract('RequestCore updateExpectedAmount', function(accounts) {
 
 		await requestCore.updateExpectedAmount(utils.getRequestId(requestCore.address, 1), 1, -arbitraryAmount60percent, {from:fakeContract});
 
-		var r = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		
 		assert.equal(r[3],payee,"request wrong data : payee");
 		assert.equal(r[0],payer,"request wrong data : payer");

@@ -76,7 +76,7 @@ export default class RequestCoreService {
                 const coreContract = this.getCoreContractFromRequestId(_requestId);
 
                 // get information from the core
-                const dataRequest = await coreContract.instance.methods.requests(_requestId).call();
+                const dataRequest = await coreContract.instance.methods.getRequest(_requestId).call();
                 if (dataRequest.creator === EMPTY_BYTES_20) {
                     return reject(Error('request not found'));
                 }
@@ -99,9 +99,9 @@ export default class RequestCoreService {
                 const data = eventCoreRaw[0].returnValues.data;
 
                 // create payee object
-                const payee = {address: dataRequest.payee,
-                                balance: new BN(dataRequest.balance),
-                                expectedAmount: new BN(dataRequest.expectedAmount)};
+                const payee = {address: dataRequest.payeeAddr,
+                                balance: new BN(dataRequest.payeeBalance),
+                                expectedAmount: new BN(dataRequest.payeeExpectedAmount)};
 
                 const dataResult: any = {
                     creator,
@@ -134,65 +134,7 @@ export default class RequestCoreService {
             }
         });
     }
-    // public getRequest(_requestId: string): Promise < any > {
-    //     return new Promise((resolve, reject) => {
-    //         if (!this.web3Single.isHexStrictBytes32(_requestId)) {
-    //             return reject(Error('_requestId must be a 32 bytes hex string'));
-    //         }
-
-    //         const coreContract = this.getCoreContractFromRequestId(_requestId);
-    //         // get information from the core
-    //         coreContract.instance.methods.requests(_requestId).call(async (err: Error, data: any) => {
-    //             if (err) return reject(err);
-
-    //             try {
-    //                 if (data.creator === EMPTY_BYTES_20) {
-    //                     return reject(Error('request not found'));
-    //                 }
-
-    //                 const dataResult: any = {
-    //                     creator: data.creator,
-    //                     currencyContract: data.currencyContract,
-    //                     data: data.data,
-    //                     mainPayeeAddress: data.payee,
-    //                     mainPayeeBalance: new BN(data.balance),
-    //                     mainPayeeExpectedAmount: new BN(data.expectedAmount),
-    //                     payer: data.payer,
-    //                     requestId: _requestId,
-    //                     state: parseInt(data.state, 10)};
-
-    //                 // get information from the currency contract
-    //                 const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.currencyContract);
-    //                 if (serviceContract) {
-    //                     const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId);
-    //                     dataResult.currencyContract = Object.assign(ccyContractDetails,
-    //                                                                 {address: dataResult.currencyContract});
-    //                 }
-
-    //                 // get information from the extension contract
-    //                 // const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.extension);
-    //                 // if (data.extension
-    //                 //         && data.extension !== ''
-    //                 //         && serviceExtension) {
-    //                 //     const extensionDetails = await serviceExtension.getRequestExtensionInfo(_requestId);
-    //                 //     dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-    //                 // }
-
-    //                 // get ipfs data if needed
-    //                 if (dataResult.data && dataResult.data !== '') {
-    //                     dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
-    //                                         hash: dataResult.data};
-    //                 } else {
-    //                     dataResult.data = undefined;
-    //                 }
-    //                 return resolve(dataResult);
-    //             } catch (e) {
-    //                 return reject(e);
-    //             }
-    //         });
-    //     });
-    // }
-
+ 
     /**
      * get a request and method called by the hash of a transaction
      * @param   _hash    hash of the ethereum transaction
@@ -295,7 +237,7 @@ export default class RequestCoreService {
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             const coreContract = this.getCoreContractFromRequestId(_requestId);
-            coreContract.instance.methods.requests(_requestId).call(async (err: Error, request: any) => {
+            coreContract.instance.methods.getRequest(_requestId).call(async (err: Error, request: any) => {
                 if (err) return reject(err);
 
                 try {

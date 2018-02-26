@@ -59,7 +59,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),testRequestPaymentStuckRevert.address,"Event EtherAvailableToWithdraw wrong args recipient");
 		assert.equal(l.data[0],arbitraryAmount,"Event EtherAvailableToWithdraw wrong args amount");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payer,"new request wrong data : creator");
 		assert.equal(newReq[3],testRequestPaymentStuckRevert.address,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -88,7 +88,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),testRequestPaymentStuckAssert.address,"Event EtherAvailableToWithdraw wrong args recipient");
 		assert.equal(l.data[0],arbitraryAmount,"Event EtherAvailableToWithdraw wrong args amount");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],testRequestPaymentStuckAssert.address,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
@@ -116,7 +116,7 @@ contract('RequestEthereum Payment stuck',  function(accounts) {
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),testRequestPaymentStuckNonPayable.address,"Event EtherAvailableToWithdraw wrong args recipient");
 		assert.equal(l.data[0],arbitraryAmount,"Event EtherAvailableToWithdraw wrong args amount");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],testRequestPaymentStuckNonPayable.address,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
 		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");

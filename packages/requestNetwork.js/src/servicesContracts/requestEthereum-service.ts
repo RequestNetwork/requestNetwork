@@ -224,8 +224,7 @@ export default class RequestEthereumService {
         _data ?: string,
         _extension ?: string,
         _extensionParams ?: any[] ,
-        _options ?: any,
-        ): Web3PromiEvent {
+        _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _amountInitial = new BN(_amountInitial);
         _amountToPay = new BN(_amountToPay || 0);

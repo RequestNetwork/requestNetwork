@@ -101,11 +101,12 @@ Only request with all payees balance equals to zero can be cancel
 ` paymentAction(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionalAmounts) ` 
 Function PAYABLE to pay in ether a request
  
-the request must be accepted if msg.sender!=payer
-the request will be automatically accepted if msg.sender==payer
+the request must be created or accepted
+the request will be automatically accepted if msg.sender==payer. 
 
 * @param _requestId id of the request
-* @param _additionals amount of additionals in wei to declare 
+* @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+* @param _additionalsAmount amount of additionals per payee in wei to declare
 
 
 ### Refund a request
@@ -113,6 +114,8 @@ the request will be automatically accepted if msg.sender==payer
 Function PAYABLE to pay back in ether a request to the payee
  
 msg.sender must be one of the payees
+the request must be created or accepted
+the payback must be lower than the amount already paid for the request
 
 * @param _requestId id of the request
 
@@ -121,7 +124,7 @@ msg.sender must be one of the payees
 ` subtractAction(bytes32 _requestId, uint256[] _subtractAmounts) ` 
 
  
-msg.sender must be _payee or an extension used by the request
+msg.sender must be _payee
 the request must be accepted or created
  
 * @param _requestId id of the request
@@ -131,11 +134,11 @@ the request must be accepted or created
 ### Declare an additional
 ` function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)` 
 
-msg.sender must be _payer or an extension used by the request
+msg.sender must be _payer
 the request must be accepted or created
  
 * @param _requestId id of the request
-* @param _amount amounts of additional in wei to declare (position 0 is for )
+* @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
 
 ### Withdraw
 ` function withdraw()` 
