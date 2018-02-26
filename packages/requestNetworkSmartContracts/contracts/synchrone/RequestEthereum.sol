@@ -46,6 +46,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function to create a request as payee
 	 *
 	 * @dev msg.sender will be the payee
+	 * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
 	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -124,9 +125,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev msg.sender must be _payer
 	 * @dev only the _payer can additionals
+	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
-	 * @param _payeesPaymentAddress array of payees address for payment (optional)
+	 * @param _payeesPaymentAddress array of payees address for payment (optional) 
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
