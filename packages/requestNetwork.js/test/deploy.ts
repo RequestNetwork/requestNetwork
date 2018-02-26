@@ -1,5 +1,6 @@
 const addressContractBurner = 0;
 const feesPerTenThousand = 10; // 0.1 %
+const maxFees = '120000000000000'; // 0.00012 ether in wei
 
 import requestArtifacts from 'requestnetworkartifacts';
 import { Web3Single } from '../src/servicesExternal/web3-Single';
@@ -112,6 +113,25 @@ web3Single.getDefaultAccount().then((creator) => {
                                 console.log('setFeesPerTenThousand - error ##########################')
                                 console.log(error)
                                 console.log('setFeesPerTenThousand - error ##########################')
+                            });
+
+                        web3Single.broadcastMethod(
+                            newContractInstanceRequestEthereum.methods.setMaxCollectable(maxFees),
+                            (transactionHash: string) => {
+                                // we do nothing here!
+                            },
+                            (receipt: any) => {
+                                if (receipt.status == 1) {
+                                    console.log('maxFees: ' + maxFees);
+                                }
+                            },
+                            (confirmationNumber: number, receipt: any) => {
+                                // we do nothing here!
+                            },
+                            (error: Error) => {
+                                console.log('setMaxCollectable - error ##########################')
+                                console.log(error)
+                                console.log('setMaxCollectable - error ##########################')
                             });
                 });
     });
