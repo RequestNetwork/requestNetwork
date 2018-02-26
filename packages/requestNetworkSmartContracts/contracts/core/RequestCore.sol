@@ -107,6 +107,7 @@ contract RequestCore is Administrable {
     /*
      * @dev Function used by currency contracts to create a request in the Core from bytes
      * @dev Used to avoid receiving a stack too deep error when called from a currency contract with too many parameters.
+     * @audit Note that to optimize the stack size and the gas cost we do not extract the params and store them in the stack. As a result there is some code redundancy
      * @param _data bytes containing all the data packed :
             address(creator)
             address(payer)
