@@ -191,4 +191,16 @@ describe('createRequestAsPayee', () => {
         }
     });
 
+    it('create request with different array size', async () => {
+        try { 
+            const result = await rn.requestEthereumService.createRequestAsPayee( 
+                    [defaultAccount, payee2],
+                    [arbitraryAmount],
+                    payer);
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsObject(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
+        }
+    });
+
 });
