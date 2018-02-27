@@ -135,33 +135,13 @@ export default class RequestEthereumService {
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
             }
-            // if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
-            //     return promiEvent.reject(Error('_extension must be a valid eth address'));
-            // }
-            // if (_extensionParams && _extensionParams.length > 9) {
-            //     return promiEvent.reject(Error('_extensionParams length must be less than 9'));
-            // }
+
             if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
             // get the amount to collect
             this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call().then((collectEstimation: any) => {
                 _options.value = collectEstimation;
-
-                // parse extension parameters useless for now
-                // let paramsParsed: any[];
-                // if (!_extension || _extension === '') {
-                //     paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
-                // } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)) {
-                //     const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)
-                //                                                     .parseParameters(_extensionParams);
-                //     if (parsing.error) {
-                //       return promiEvent.reject(parsing.error);
-                //     }
-                //     paramsParsed = parsing.result;
-                // } else {
-                //     return promiEvent.reject(Error('_extension is not supported'));
-                // }
 
                 // add file to ipfs
                 this.ipfs.addFile(_data).then((hashIpfs: string) => {
@@ -217,97 +197,99 @@ export default class RequestEthereumService {
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public createRequestAsPayer(
-        _payee: string,
-        _amountInitial: any,
-        _amountToPay ?: any,
-        _additionals ?: any,
+        _payeesIdAddress: string[],
+        _expectedAmounts: any[],
+        _payerRefundAddress ?: string,
+        _amountsToPay ?: any[],
+        _additionals ?: any[],
         _data ?: string,
         _extension ?: string,
-        _extensionParams ?: any[] ,
+        _extensionParams ?: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
-        _amountInitial = new BN(_amountInitial);
-        _amountToPay = new BN(_amountToPay || 0);
-        _additionals = new BN(_additionals);
+
+        _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
+        let amountsToPayParsed: any[] = [];
+        if (_amountsToPay) {
+            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
+        }
+        let additionalsParsed: any[] = [];
+        if (_additionals) {
+            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        }
+        const expectedAmountsTotal = _expectedAmounts.reduce((a, b) => a.add(b), new BN(0));
+        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
+
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback( async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
-            if (_amountInitial.isNeg()) return promiEvent.reject(Error('_amountInitial must a positive integer'));
-            if (_amountToPay.isNeg()) return promiEvent.reject(Error('_amountToPay must a positive integer'));
-            if (_additionals.isNeg()) return promiEvent.reject(Error('_additionals must a positive integer'));
-            if (!this.web3Single.isAddressNoChecksum(_payee)) {
-                return promiEvent.reject(Error('_payee must be a valid eth address'));
+
+            if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+            }
+            if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+            }
+            if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_additionals must be positives integer'));
+            }
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
             }
-            // if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
-            //     return promiEvent.reject(Error('_extension must be a valid eth address'));
-            // }
-            // if (_extensionParams && _extensionParams.length > 9) {
-            //     return promiEvent.reject(Error('_extensionParams length must be less than 9'));
-            // }
-            if ( this.web3Single.areSameAddressesNoChecksum(account, _payee) ) {
-                return promiEvent.reject(Error('_from must be different than _payee'));
+            if (_payerRefundAddress && !this.web3Single.isAddressNoChecksum(_payerRefundAddress)) {
+                return promiEvent.reject(Error('_payerRefundAddress must be a valid eth address'));
             }
-            // get the amount to collect
-            this.requestCoreServices.getCollectEstimation(  _amountInitial,
-                                                            this.addressRequestEthereumLast,
-                                                            _extension ).then((collectEstimation: any) => {
+            if (this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
+                return promiEvent.reject(Error('_from must be different than the main payee'));
+            }
 
-                _options.value = _amountToPay.add(new BN(collectEstimation));
+            try {
+                // get the amount to collect
+                const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
 
-                // parse extension parameters
-                let paramsParsed: any[];
-                if (!_extension || _extension === '') {
-                    paramsParsed = this.web3Single.arrayToBytes32(_extensionParams, 9);
-                } else if (ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)) {
-                    const parsing = ServiceContracts.getServiceFromAddress(this.web3Single.networkName, _extension)
-                                                                    .parseParameters(_extensionParams);
-                    if (parsing.error) {
-                      return promiEvent.reject(parsing.error);
-                    }
-                    paramsParsed = parsing.result;
-                } else {
-                    return promiEvent.reject(Error('_extension is not supported'));
-                }
+                _options.value = amountsToPayTotal.add(new BN(collectEstimation));
+
                 // add file to ipfs
-                this.ipfs.addFile(_data).then((hashIpfs: string) => {
-                    if (err) return promiEvent.reject(err);
+                const hashIpfs = await this.ipfs.addFile(_data);
 
-                    const method = this.instanceRequestEthereumLast.methods.createRequestAsPayer(
-                        _payee,
-                        _amountInitial,
-                        _extension,
-                        paramsParsed,
-                        _additionals,
-                        hashIpfs);
-                    // submit transaction
-                    this.web3Single.broadcastMethod(
-                        method,
-                        (hash: string) => {
-                            return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
-                        },
-                        (receipt: any) => {
-                            // we do nothing here!
-                        },
-                        (confirmationNumber: number, receipt: any) => {
-                            if (confirmationNumber === _options.numberOfConfirmation) {
-                                const eventRaw = receipt.events[0];
-                                const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                                this.getRequest(event.requestId).then((request) => {
-                                    promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
-                                }).catch((e: Error) => promiEvent.reject(e));
-                            }
-                        },
-                        (errBroadcast) => {
-                            return promiEvent.reject(errBroadcast);
-                        },
-                        _options);
-                }).catch((e: Error) => promiEvent.reject(e));
-            }).catch((e: Error) => promiEvent.reject(e));
+                const method = this.instanceRequestEthereumLast.methods.createRequestAsPayer(
+                    _payeesIdAddress,
+                    _expectedAmounts,
+                    _payerRefundAddress,
+                    amountsToPayParsed,
+                    additionalsParsed,
+                    hashIpfs);
+
+                // submit transaction
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
+                            this.getRequest(event.requestId).then((request) => {
+                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
+                            }).catch((e: Error) => promiEvent.reject(e));
+                        }
+                    },
+                    (errBroadcast) => {
+                        return promiEvent.reject(errBroadcast);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
         return promiEvent.eventEmitter;
     }
