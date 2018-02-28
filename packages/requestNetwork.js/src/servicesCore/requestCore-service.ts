@@ -1,10 +1,14 @@
 import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
+import * as ETH_UTIL from 'ethereumjs-util';
 import * as ServicesContracts from '../servicesContracts';
 import * as Types from '../types';
 
 import Ipfs from '../servicesExternal/ipfs-service';
 import { Web3Single } from '../servicesExternal/web3-single';
+
+// @ts-ignore
+const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 
 const BN = Web3Single.BN();
 const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
@@ -367,6 +371,44 @@ export default class RequestCoreService {
 
     public getCoreContractFromRequestId(_requestId: string): any {
         return this.web3Single.getContractInstance(_requestId.slice(0, 42));
+    }
+
+    /**
+     * create a bytes request
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   _expectedAmounts           amount initial expected per payees for the request
+     * @param   _payer                     address of the payer
+     * @param   _data                      hash of the data
+     * @return  the request in bytes
+     */
+    public createBytesRequest(
+                    payeesIdAddress: string[],
+                    expectedAmounts: any[],
+                    payer: string,
+                    data: string): any {
+        const requestParts = [
+                {value: payeesIdAddress[0], type: 'address'},
+                {value: payer, type: 'address'},
+                {value: payeesIdAddress.length, type: 'uint8'}];
+
+        for (const k in payeesIdAddress) {
+            if (payeesIdAddress.hasOwnProperty(k)) {
+                requestParts.push({value: payeesIdAddress[k], type: 'address'});
+                requestParts.push({value: expectedAmounts[k], type: 'int256'});
+            }
+        }
+
+        requestParts.push({value: data.length, type: 'uint8'});
+        requestParts.push({value: data, type: 'string'});
+
+        const types: string[] = [];
+        const values: any[] = [];
+        requestParts.forEach((o) => {
+            types.push(o.type);
+            values.push(o.value);
+        });
+
+        return this.web3Single.web3.utils.bytesToHex(ETH_ABI.solidityPack(types, values));
     }
 
     /**

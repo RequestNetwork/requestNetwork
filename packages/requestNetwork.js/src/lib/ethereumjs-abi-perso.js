@@ -488,11 +488,16 @@ ABI.solidityPack = function (types, values) {
         var typeArray = type.split('[')[0];
         var length = type.match(/\[(.*)\]/i)[1];
 
-        if (typeArray=='address') {
+        // allow dynamic size arrays
+        if (!length) {
+          length = value.length;
+        }
+
+        if(typeArray=='address') {
           for(var j=0;j<length;j++) {
             ret.push(utils.setLengthLeft(value[j], 32))
           };
-        }else if (typeArray=='bool') {
+        }else if(typeArray=='bool') {
           for(var j=0;j<length;j++) {
             ret.push(utils.setLengthLeft(value[j] ? 1 : 0, 32))
           };          
