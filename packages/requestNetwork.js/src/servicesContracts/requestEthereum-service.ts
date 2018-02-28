@@ -540,21 +540,24 @@ export default class RequestEthereumService {
             const account = _options.from || defaultAccount;
 
             this.getRequest(_requestId).then((request) => {
-
                 if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer)
-                        && !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
+                        && !this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) ) {
                     return promiEvent.reject(Error('account must be the payer or the payee'));
                 }
                 if ( this.web3Single.areSameAddressesNoChecksum(account, request.payer)
                         && request.state !== Types.State.Created ) {
                     return promiEvent.reject(Error('payer can cancel request in state \'created\''));
                 }
-                if ( this.web3Single.areSameAddressesNoChecksum(account, request.payee)
+                if ( this.web3Single.areSameAddressesNoChecksum(account, request.payee.address)
                         && request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('payee cannot cancel request already canceled'));
                 }
 
-                if ( ! request.balance.isZero() ) {
+                var balanceTotal = request.payee.balance;
+                for(const subPayee of request.subPayees) {
+                   balanceTotal = balanceTotal.add(subPayee.balance); 
+                }
+                if ( !balanceTotal.isZero() ) {
                     return promiEvent.reject(Error('impossible to cancel a Request with a balance !== 0'));
                 }
 
@@ -685,7 +688,7 @@ export default class RequestEthereumService {
                 if ( request.state !== Types.State.Accepted ) {
                     return promiEvent.reject(Error('request must be accepted'));
                 }
-                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) ) {
                     return promiEvent.reject(Error('account must be payee'));
                 }
 
@@ -752,7 +755,7 @@ export default class RequestEthereumService {
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
                 }
-                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee) ) {
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) ) {
                     return promiEvent.reject(Error('account must be payee'));
                 }
 
