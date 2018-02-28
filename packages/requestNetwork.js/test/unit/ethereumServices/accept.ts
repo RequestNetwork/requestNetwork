@@ -15,6 +15,11 @@ let web3: any;
 let defaultAccount: string;
 let payer: string;
 let payee: string;
+let payee2: string;
+let payee3: string;
+let payeePaymentAddress: string;
+let payee3PaymentAddress: string;
+let payerRefundAddress: string;
 let otherGuy: string;
 
 let coreVersion: any;
@@ -24,22 +29,33 @@ let requestId: any;
 
 describe('accept', () => {
     const arbitraryAmount = 100000000;
+    const arbitraryAmount2 = 2000000;
+    const arbitraryAmount3 = 300000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestEthereumService.web3Single.web3;
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
         defaultAccount = accounts[0].toLowerCase();
+        otherGuy = accounts[1].toLowerCase();
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
-        otherGuy = accounts[4].toLowerCase();
+        payee2 = accounts[4].toLowerCase();
+        payee3 = accounts[5].toLowerCase();
+        payerRefundAddress = accounts[6].toLowerCase();
+        payer = accounts[7].toLowerCase();
+        payeePaymentAddress = accounts[8].toLowerCase();
+        payee3PaymentAddress = accounts[9].toLowerCase();
         
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        const req = await rn.requestEthereumService.createRequestAsPayee( 
+        const req = await rn.requestEthereumService.createRequestAsPayee(
+            [payee],
+            [arbitraryAmount],
             payer,
-            arbitraryAmount,
-            '',
+            [payeePaymentAddress],
+            payerRefundAddress,
+            '{"reason":"weed purchased"}',
             '',
             [],
             {from: payee});
@@ -66,11 +82,11 @@ describe('accept', () => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-        utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
-        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
