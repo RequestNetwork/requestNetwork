@@ -106,7 +106,7 @@ export default class RequestEthereumService {
 
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
@@ -140,45 +140,47 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
             // get the amount to collect
-            this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call().then((collectEstimation: any) => {
+            try {
+                const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
+              
                 _options.value = collectEstimation;
 
                 // add file to ipfs
-                this.ipfs.addFile(_data).then((hashIpfs: string) => {
-                    if (err) return promiEvent.reject(err);
+                const hashIpfs = await this.ipfs.addFile(_data);
 
-                    const method = this.instanceRequestEthereumLast.methods.createRequestAsPayee(
-                        _payeesIdAddress,
-                        _payeesPaymentAddressParsed,
-                        _expectedAmounts,
-                        _payer,
-                        _payerRefundAddress,
-                        hashIpfs);
+                const method = this.instanceRequestEthereumLast.methods.createRequestAsPayee(
+                    _payeesIdAddress,
+                    _payeesPaymentAddressParsed,
+                    _expectedAmounts,
+                    _payer,
+                    _payerRefundAddress,
+                    hashIpfs);
 
-                    // submit transaction
-                    this.web3Single.broadcastMethod(
-                        method,
-                        (hash: string) => {
-                            return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
-                        },
-                        (receipt: any) => {
-                            // we do nothing here!
-                        },
-                        (confirmationNumber: number, receipt: any) => {
-                            if (confirmationNumber === _options.numberOfConfirmation) {
-                                const eventRaw = receipt.events[0];
-                                const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                                this.getRequest(event.requestId).then((request) => {
-                                    promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
-                                }).catch((e: Error) => promiEvent.reject(e));
-                            }
-                        },
-                        (errBroadcast) => {
-                            return promiEvent.reject(errBroadcast);
-                        },
-                        _options);
-                }).catch((e: Error) => promiEvent.reject(e));
-            }).catch((e: Error) => promiEvent.reject(e));
+                // submit transaction
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
+                            this.getRequest(event.requestId).then((request) => {
+                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
+                            }).catch((e: Error) => promiEvent.reject(e));
+                        }
+                    },
+                    (errBroadcast) => {
+                        return promiEvent.reject(errBroadcast);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
         return promiEvent.eventEmitter;
     }
@@ -222,7 +224,7 @@ export default class RequestEthereumService {
 
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback( async (err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
@@ -324,7 +326,7 @@ export default class RequestEthereumService {
         }
         _expirationDate = _expirationDate ? _expirationDate : 0;
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_from && err) return promiEvent.reject(err);
             const account: string = _from || defaultAccount || '';
 
@@ -350,9 +352,9 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('extensions are disabled for now'));
             }
 
-            // add file to ipfs
-            this.ipfs.addFile(_data).then(async (hashIpfs: string) => {
-                if (err) return promiEvent.reject(err);
+            try {
+                // add file to ipfs
+                const hashIpfs = await this.ipfs.addFile(_data);
 
                 const signedRequest = await this.createSignedRequest(
                                 this.addressRequestEthereumLast,
@@ -365,7 +367,9 @@ export default class RequestEthereumService {
                                 expirationDateSolidityTime);
 
                 promiEvent.resolve(signedRequest);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
         return promiEvent.eventEmitter;
     }
@@ -427,41 +431,46 @@ export default class RequestEthereumService {
             if (_signedRequest.extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
             }
-            // get the amount to collect
-            const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
 
-            _options.value = amountsToPayTotal.add(new BN(collectEstimation));
+            try {
+                // get the amount to collect
+                const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
 
-            const method = this.instanceRequestEthereumLast.methods.broadcastSignedRequestAsPayer(
-                                                this.requestCoreServices.createBytesRequest(_signedRequest.payeesIdAddress, _signedRequest.expectedAmounts, 0, _signedRequest.data),
-                                                _signedRequest.payeesPaymentAddress,
-                                                amountsToPayParsed,
-                                                additionalsParsed,
-                                                _signedRequest.expirationDate,
-                                                _signedRequest.signature);
+                _options.value = amountsToPayTotal.add(new BN(collectEstimation));
 
-            // submit transaction
-            this.web3Single.broadcastMethod(
-                method,
-                (hash: string) => {
-                    return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
-                },
-                (receipt: any) => {
-                    // we do nothing here!
-                },
-                (confirmationNumber: number, receipt: any) => {
-                    if (confirmationNumber === _options.numberOfConfirmation) {
-                        const eventRaw = receipt.events[0];
-                        const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                        this.getRequest(event.requestId).then((request) => {
-                            promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
-                        }).catch((e: Error) => promiEvent.reject(e));
-                    }
-                },
-                (errBroadcast) => {
-                    return promiEvent.reject(errBroadcast);
-                },
-                _options);
+                const method = this.instanceRequestEthereumLast.methods.broadcastSignedRequestAsPayer(
+                                                    this.requestCoreServices.createBytesRequest(_signedRequest.payeesIdAddress, _signedRequest.expectedAmounts, 0, _signedRequest.data),
+                                                    _signedRequest.payeesPaymentAddress,
+                                                    amountsToPayParsed,
+                                                    additionalsParsed,
+                                                    _signedRequest.expirationDate,
+                                                    _signedRequest.signature);
+
+                // submit transaction
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
+                            this.getRequest(event.requestId).then((request) => {
+                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
+                            }).catch((e: Error) => promiEvent.reject(e));
+                        }
+                    },
+                    (errBroadcast) => {
+                        return promiEvent.reject(errBroadcast);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
         return promiEvent.eventEmitter;
     }
@@ -479,11 +488,13 @@ export default class RequestEthereumService {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId).then((request) => {
+            try {
+                const request = await this.getRequest(_requestId);
+
                 if (request.state !== Types.State.Created) {
                     return promiEvent.reject(Error('request state is not \'created\''));
                 }
@@ -516,7 +527,9 @@ export default class RequestEthereumService {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -535,11 +548,13 @@ export default class RequestEthereumService {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback( async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId).then((request) => {
+            try {
+                const request = await this.getRequest(_requestId);
+
                 if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer)
                         && !this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) ) {
                     return promiEvent.reject(Error('account must be the payer or the payee'));
@@ -553,10 +568,11 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('payee cannot cancel request already canceled'));
                 }
 
-                var balanceTotal = request.payee.balance;
-                for(const subPayee of request.subPayees) {
-                   balanceTotal = balanceTotal.add(subPayee.balance); 
+                let balanceTotal = request.payee.balance;
+                for (const subPayee of request.subPayees) {
+                   balanceTotal = balanceTotal.add(subPayee.balance);
                 }
+
                 if ( !balanceTotal.isZero() ) {
                     return promiEvent.reject(Error('impossible to cancel a Request with a balance !== 0'));
                 }
@@ -586,7 +602,9 @@ export default class RequestEthereumService {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -620,11 +638,13 @@ export default class RequestEthereumService {
         const additionalsTotal = additionalsParsed.reduce((a, b) => a.add(b), new BN(0));
         _options = this.web3Single.setUpOptions(_options);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId).then((request) => {
+            try {
+                const request = await this.getRequest(_requestId);
+
                 if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('_amountsToPay must be positives integer'));
                 }
@@ -658,7 +678,7 @@ export default class RequestEthereumService {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
-                                        request.state === Types.State.Created && _options.from == request.payer ? receipt.events[1] : receipt.events[0]);
+                                        request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
@@ -668,7 +688,9 @@ export default class RequestEthereumService {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -690,11 +712,13 @@ export default class RequestEthereumService {
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new BN(_amountToRefund);
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId).then((request) => {
+            try {
+                const request = await this.getRequest(_requestId);
+
                 if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
 
                 if ( request.state === Types.State.Canceled ) {
@@ -744,7 +768,9 @@ export default class RequestEthereumService {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -770,11 +796,12 @@ export default class RequestEthereumService {
             subtractsParsed = _subtracts.map((amount) => new BN(amount || 0));
         }
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId).then((request) => {
+            try {
+                const request = await this.getRequest(_requestId);
 
                 if (subtractsParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('subtracts must be positives integer'));
@@ -834,7 +861,9 @@ export default class RequestEthereumService {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -860,11 +889,13 @@ export default class RequestEthereumService {
             additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
         }
 
-        this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            this.getRequest(_requestId).then((request) => {
+            try {
+                const request = await this.getRequest(_requestId);
+
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('additionals must be positives integer'));
                 }
@@ -914,7 +945,9 @@ export default class RequestEthereumService {
                         return promiEvent.reject(error);
                     },
                     _options);
-            }).catch((e: Error) => promiEvent.reject(e));
+            } catch (e) {
+                promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
