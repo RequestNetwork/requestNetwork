@@ -334,13 +334,16 @@ export default class RequestCoreService {
                 const allCoreContracts = this.getAllCoreInstance();
                 let allEventsCorePayee: any[] = [];
                 let allEventsCorePayer: any[] = [];
+                let allEventsCoreSubPayee: any[] = [];
                 for ( const contract of allCoreContracts ) {
                     const oneResult = await this.getRequestsByAddressForOneContract(_address, contract, _fromBlock, _toBlock);
                     allEventsCorePayee = allEventsCorePayee.concat(oneResult.asPayee);
                     allEventsCorePayer = allEventsCorePayer.concat(oneResult.asPayer);
+                    allEventsCoreSubPayee = allEventsCoreSubPayee.concat(oneResult.asSubPayee);
                 }
                 return resolve({asPayee : allEventsCorePayee,
-                                asPayer : allEventsCorePayer});
+                                asPayer : allEventsCorePayer,
+                                asSubPayee : allEventsCoreSubPayee});
             } catch (e) {
                 return reject(e);
             }
@@ -439,7 +442,13 @@ export default class RequestCoreService {
                     fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
-                // clean the data and get timestamp for request as payee
+                // get events Created with payer === address
+                let eventsCoreSubPayee = await _requestCoreContract.instance.getPastEvents('NewSubPayee', {
+                    filter: { payee: _address },
+                    fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
+                    toBlock: _toBlock ? _toBlock : 'latest'});
+
+                // clean the data and get timestamp for requests as payee
                 eventsCorePayee = await Promise.all(eventsCorePayee.map((e: any) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
                                         return resolveEvent({
@@ -450,7 +459,7 @@ export default class RequestCoreService {
                                     });
                                 }));
 
-                // clean the data and get timestamp for request as payer
+                // clean the data and get timestamp for requests as payer
                 eventsCorePayer = await Promise.all(eventsCorePayer.map((e: any) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
                                         return resolveEvent({
@@ -460,9 +469,21 @@ export default class RequestCoreService {
                                                 requestId: e.returnValues.requestId});
                                     });
                                 }));
+                // clean the data and get timestamp for requests as sub payee
+                eventsCoreSubPayee = await Promise.all(eventsCoreSubPayee.map((e: any) => {
+                                    return new Promise(async (resolveEvent, rejectEvent) => {
+                                        return resolveEvent({
+                                                _meta: {
+                                                    blockNumber: e.blockNumber,
+                                                    timestamp: await this.web3Single.getBlockTimestamp(e.blockNumber)},
+                                                requestId: e.returnValues.requestId});
+                                    });
+                                }));
 
-                return resolve({asPayee : eventsCorePayee,
-                                asPayer : eventsCorePayer});
+
+                return resolve({asPayee: eventsCorePayee,
+                                asPayer: eventsCorePayer,
+                                asSubPayee: eventsCoreSubPayee});
             } catch (e) {
                 return reject(e);
             }
