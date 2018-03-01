@@ -684,11 +684,11 @@ export default class RequestEthereumService {
      */
     public refundAction(
         _requestId: string,
-        _amount: any,
+        _amountToRefund: any,
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
-        _options.value = new BN(_amount);
+        _options.value = new BN(_amountToRefund);
 
         this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -697,11 +697,25 @@ export default class RequestEthereumService {
             this.getRequest(_requestId).then((request) => {
                 if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
 
-                if ( request.state !== Types.State.Accepted ) {
-                    return promiEvent.reject(Error('request must be accepted'));
+                if ( request.state === Types.State.Canceled ) {
+                    return promiEvent.reject(Error('request cannot be canceled'));
                 }
-                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) ) {
-                    return promiEvent.reject(Error('account must be payee'));
+
+                if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) && !this.web3Single.areSameAddressesNoChecksum(account, request.currencyContract.payeePaymentAddress) ) {
+                    let foundInSubPayee = false;
+                    for (const subPayee of request.subPayees) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee.address)) {
+                            foundInSubPayee = true;
+                        }
+                    }
+                    for (const subPayee of request.currencyContract.subPayeesPaymentAddress) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee)) {
+                            foundInSubPayee = true;
+                        }
+                    }
+                    if (!foundInSubPayee) {
+                        return promiEvent.reject(Error('account must be a payee'));
+                    }
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
