@@ -165,13 +165,16 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
                             const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                            this.getRequest(event.requestId).then((request) => {
-                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (errBroadcast) => {
@@ -276,13 +279,16 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
                             const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                            this.getRequest(event.requestId).then((request) => {
-                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (errBroadcast) => {
@@ -455,13 +461,16 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
                             const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                            this.getRequest(event.requestId).then((request) => {
-                                promiEvent.resolve({request, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (errBroadcast) => {
@@ -513,14 +522,17 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'Accepted', eventRaw);
-                            this.getRequest(event.requestId).then((requestAfter) => {
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -588,14 +600,17 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'Canceled', eventRaw);
-                            this.getRequest(event.requestId).then((requestAfter) => {
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -674,14 +689,17 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
                                         request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
-                            this.getRequest(event.requestId).then((requestAfter) => {
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -753,15 +771,18 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi,
                                                                         'UpdateBalance',
                                                                         receipt.events[0]);
-                            this.getRequest(event.requestId).then((requestAfter) => {
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -846,15 +867,18 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi,
                                                                         'UpdateExpectedAmount',
                                                                         receipt.events[0]);
-                            this.getRequest(event.requestId).then((requestAfter) => {
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
@@ -929,16 +953,19 @@ export default class RequestEthereumService {
                     (receipt: any) => {
                         // we do nothing here!
                     },
-                    (confirmationNumber: number, receipt: any) => {
+                    async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const eventRaw = receipt.events[0];
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi,
                                                                         'UpdateExpectedAmount',
                                                                         eventRaw);
-                            this.getRequest(event.requestId).then((requestAfter) => {
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            }).catch((e: Error) => promiEvent.reject(e));
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
                         }
                     },
                     (error: Error) => {
