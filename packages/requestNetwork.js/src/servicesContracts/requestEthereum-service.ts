@@ -406,7 +406,7 @@ export default class RequestEthereumService {
             _signedRequest.payeesPaymentAddress = [];
         }
 
-        _signedRequest.data = _signedRequest.data ? _signedRequest.data : "";
+        _signedRequest.data = _signedRequest.data ? _signedRequest.data : '';
         _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
@@ -603,36 +603,48 @@ export default class RequestEthereumService {
      */
     public paymentAction(
         _requestId: string,
-        _amount: any,
-        _additionals: any,
+        _amountsToPay ?: any[],
+        _additionals ?: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
 
-        _additionals = new BN(_additionals);
+        let amountsToPayParsed: any[] = [];
+        if (_amountsToPay) {
+            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
+        }
+        let additionalsParsed: any[] = [];
+        if (_additionals) {
+            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        }
+        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
+        const additionalsTotal = additionalsParsed.reduce((a, b) => a.add(b), new BN(0));
         _options = this.web3Single.setUpOptions(_options);
-        _options.value = new BN(_amount);
 
         this.web3Single.getDefaultAccountCallback((err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
             this.getRequest(_requestId).then((request) => {
-
-                if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
-                if (_additionals.isNeg()) return promiEvent.reject(Error('_additionals must a positive integer'));
+                if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                }
+                if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request cannot be canceled'));
                 }
-                if ( request.state === Types.State.Created
-                        && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
-                    return promiEvent.reject(Error('account must be payer if the request is created'));
-                }
-                if ( _additionals.gt(0) && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                if ( !additionalsTotal.isZero() && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
                     return promiEvent.reject(Error('only payer can add additionals'));
                 }
 
+                _options.value = amountsToPayTotal;
+
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.paymentAction(_requestId, _additionals);
+                const method = contract.instance.methods.paymentAction(
+                                                                    _requestId,
+                                                                    _amountsToPay,
+                                                                    _additionals);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -646,7 +658,7 @@ export default class RequestEthereumService {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
-                                        request.state === Types.State.Created ? receipt.events[1] : receipt.events[0]);
+                                        request.state === Types.State.Created && _options.from == request.payer ? receipt.events[1] : receipt.events[0]);
                             this.getRequest(event.requestId).then((requestAfter) => {
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
                             }).catch((e: Error) => promiEvent.reject(e));
