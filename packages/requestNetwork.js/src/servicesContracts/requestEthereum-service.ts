@@ -77,10 +77,10 @@ export default class RequestEthereumService {
      * @param   _payer                     address of the payer
      * @param   _payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee) (optional)
      * @param   _payerRefundAddress        refund address of the payer (optional)
-     * @param   _data              Json of the request's details (optional)
-     * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
-     * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @param   _data                      Json of the request's details (optional)
+     * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
+     * @param   _extensionParams           array of parameters for the extension (optional) NOT USED YET
+     * @param   _options                   options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public createRequestAsPayee(
@@ -96,6 +96,13 @@ export default class RequestEthereumService {
         ): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
+
+        if (_payeesIdAddress.length !== _expectedAmounts.length) {
+            return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+        }
+        if (_payeesPaymentAddress && _payeesIdAddress.length < _payeesPaymentAddress.length) {
+            return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
+        }
 
         let _payeesPaymentAddressParsed: string[] = [];
         if (_payeesPaymentAddress) {
@@ -1138,7 +1145,7 @@ export default class RequestEthereumService {
                 currencyContract,
                 data,
                 expectedAmounts,
-                expirationDate,
+                expirationDate: (expirationDate ? expirationDate : 0) * 1000,
                 extension,
                 extensionParams,
                 hash,
