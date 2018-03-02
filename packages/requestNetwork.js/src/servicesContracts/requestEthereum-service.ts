@@ -97,13 +97,6 @@ export default class RequestEthereumService {
         const promiEvent = Web3PromiEvent();
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
 
-        if (_payeesIdAddress.length !== _expectedAmounts.length) {
-            return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
-        }
-        if (_payeesPaymentAddress && _payeesIdAddress.length < _payeesPaymentAddress.length) {
-            return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
-        }
-
         let _payeesPaymentAddressParsed: string[] = [];
         if (_payeesPaymentAddress) {
             _payeesPaymentAddressParsed = _payeesPaymentAddress.map((addr) => addr ? addr : EMPTY_BYTES_20);
@@ -116,6 +109,13 @@ export default class RequestEthereumService {
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
+
+            if (_payeesIdAddress.length !== _expectedAmounts.length) {
+                return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+            }
+            if (_payeesPaymentAddress && _payeesIdAddress.length < _payeesPaymentAddress.length) {
+                return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
+            }
 
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
@@ -198,14 +198,15 @@ export default class RequestEthereumService {
     /**
      * create a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payee             address of the payee
-     * @param   _amountInitial     amount initial expected of the request
-     * @param   _amountToPay       amount to pay in wei
-     * @param   _additionals       additional to declaire in wei (optional)
-     * @param   _data              Json of the request's details (optional)
-     * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
-     * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   _expectedAmounts           amount initial expected per payees for the request
+     * @param   _payerRefundAddress        refund address of the payer (optional)
+     * @param   _amountsToPay              amounts to pay in wei for each payee (optional)
+     * @param   _additionals               amounts of additional in wei for each payee (optional)
+     * @param   _data                      Json of the request's details (optional)
+     * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
+     * @param   _extensionParams           array of parameters for the extension (optional) NOT USED YET
+     * @param   _options                   options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public createRequestAsPayer(
@@ -237,6 +238,17 @@ export default class RequestEthereumService {
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
+
+            // some controls on the arrays
+            if (_payeesIdAddress.length !== _expectedAmounts.length) {
+                return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+            }
+            if (_amountsToPay && _payeesIdAddress.length < _amountsToPay.length) {
+                return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+            }
+            if (_additionals && _payeesIdAddress.length < _additionals.length) {
+                return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+            }
 
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
@@ -311,12 +323,14 @@ export default class RequestEthereumService {
 
     /**
      * sign a request as payee
-     * @param   _amountInitial     amount initial expected of the request
-     * @param   _expirationDate    timestamp of the date after what the signed request is useless
-     * @param   _data              Json of the request's details (optional)
-     * @param   _extension         address of the extension contract of the request (optional) NOT USED YET
-     * @param   _extensionParams   array of parameters for the extension (optional) NOT USED YET
-     * @param   _from              address of the payee, default account will be used otherwise (optional)
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   _expectedAmounts           amount initial expected per payees for the request
+     * @param   _expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   _payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee) (optional)
+     * @param   _data                      Json of the request's details (optional)
+     * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
+     * @param   _extensionParams           array of parameters for the extension (optional) NOT USED YET
+     * @param   _from                      address of the payee, default account will be used otherwise (optional)
      * @return  promise of the object containing the request signed
      */
     public signRequestAsPayee(
@@ -337,15 +351,20 @@ export default class RequestEthereumService {
         if (_payeesPaymentAddress) {
             payeesPaymentAddressParsed = _payeesPaymentAddress.map((addr) => addr ? addr : EMPTY_BYTES_20);
         }
-        _expirationDate = _expirationDate ? _expirationDate : 0;
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_from && err) return promiEvent.reject(err);
             const account: string = _from || defaultAccount || '';
 
-            const expirationDateSolidityTime = _expirationDate / 1000;
+            if (_payeesIdAddress.length !== _expectedAmounts.length) {
+                return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+            }
+            if (_payeesPaymentAddress && _payeesIdAddress.length < _payeesPaymentAddress.length) {
+                return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
+            }
+
             const todaySolidityTime: number = (new Date().getTime()) / 1000;
-            if ( expirationDateSolidityTime <= todaySolidityTime ) {
+            if ( _expirationDate <= todaySolidityTime ) {
                 return promiEvent.reject(Error('_expirationDate must be greater than now'));
             }
 
@@ -374,10 +393,10 @@ export default class RequestEthereumService {
                                 _payeesIdAddress,
                                 _expectedAmounts,
                                 payeesPaymentAddressParsed,
+                                _expirationDate,
                                 hashIpfs,
                                 '',
-                                [],
-                                expirationDateSolidityTime);
+                                []);
 
                 promiEvent.resolve(signedRequest);
             } catch (e) {
@@ -391,8 +410,8 @@ export default class RequestEthereumService {
      * broadcast a signed transaction and fill it with his address as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _signedRequest     object signed request
-     * @param   _amountToPay       amount to pay in wei
-     * @param   _additionals       additional to declaire in wei (optional)
+     * @param   _amountsToPay      amounts to pay in wei for each payee (optional)
+     * @param   _additionals       amounts of additional in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -432,6 +451,12 @@ export default class RequestEthereumService {
             const error = this.signedRequestHasError(_signedRequest, account);
             if (error !== '') return promiEvent.reject(Error(error));
 
+            if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
+                return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+            }
+            if (_additionals && _signedRequest.payeesIdAddress.length < _additionals.length) {
+                return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+            }
             if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_amountsToPay must be positives integer'));
             }
@@ -636,8 +661,8 @@ export default class RequestEthereumService {
      * pay a request
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _amount            amount to pay in wei
-     * @param   _additionals       additional to declaire in wei (optional)
+     * @param   _amountsToPay      amounts to pay in wei for each payee (optional)
+     * @param   _additionals       amounts of additional in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -667,6 +692,12 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
+                if (_amountsToPay && request.subPayees.length + 1 < _amountsToPay.length) {
+                    return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+                }
+                if (_additionals && request.subPayees.length + 1 < _additionals.length) {
+                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                }
                 if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('_amountsToPay must be positives integer'));
                 }
@@ -724,8 +755,9 @@ export default class RequestEthereumService {
     /**
      * refund a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @dev only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
      * @param   _requestId         requestId of the payer
-     * @param   _amount            amount to refund in wei
+     * @param   _amountToRefund    amount to refund in wei
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -808,7 +840,7 @@ export default class RequestEthereumService {
      * add subtracts to a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _amount            subtract to declare in wei
+     * @param   _subtracts       amounts of subtracts in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -831,6 +863,9 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
+                if (_subtracts && request.subPayees.length + 1 < _subtracts.length) {
+                    return promiEvent.reject(Error('_subtracts cannot be bigger than _payeesIdAddress'));
+                }
                 if (subtractsParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('subtracts must be positives integer'));
                 }
@@ -904,7 +939,7 @@ export default class RequestEthereumService {
      * add addtionals to a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _amount            subtract to declare in wei
+     * @param   _additionals       amounts of additionals in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -927,6 +962,9 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
+                if (_additionals && request.subPayees.length + 1 < _additionals.length) {
+                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('additionals must be positives integer'));
                 }
@@ -1110,10 +1148,10 @@ export default class RequestEthereumService {
                         payeesIdAddress: string[],
                         expectedAmounts: any[],
                         payeesPaymentAddress: Array<string|undefined>,
+                        expirationDate : number,
                         data ?: string,
                         extension ?: string,
-                        extensionParams ?: any[],
-                        expirationDate ?: number): Promise<any> {
+                        extensionParams ?: any[]): Promise<any> {
 
         const hash = this.hashRequest(currencyContract,
                                         payeesIdAddress,
@@ -1121,7 +1159,7 @@ export default class RequestEthereumService {
                                         '',
                                         payeesPaymentAddress,
                                         data ? data : '',
-                                        expirationDate ? expirationDate : 0);
+                                        expirationDate);
 
         const signature = await this.web3Single.sign(hash, payeesIdAddress[0]);
 
@@ -1145,7 +1183,7 @@ export default class RequestEthereumService {
                 currencyContract,
                 data,
                 expectedAmounts,
-                expirationDate: (expirationDate ? expirationDate : 0) * 1000,
+                expirationDate,
                 extension,
                 extensionParams,
                 hash,
@@ -1210,13 +1248,18 @@ export default class RequestEthereumService {
         if (!_signedRequest) {
             return '_signedRequest must be defined';
         }
+        // some controls on the arrays
+        if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
+            return '_payeesIdAddress and _expectedAmounts must have the same size';
+        }
+
         if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
             return '_expectedAmounts must be positives integer';
         }
         if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestEthereumLast, _signedRequest.currencyContract)) {
             return 'currencyContract must be the last currencyContract of requestEthereum';
         }
-        if (_signedRequest.expirationDate < new Date().getTime() / 1000) {
+        if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
             return 'expirationDate must be greater than now';
         }
         if (hashComputed !== _signedRequest.hash) {

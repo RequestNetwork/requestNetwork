@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+/*import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
@@ -133,3 +133,4 @@ describe('accept', () => {
     });
 
 });
+*/

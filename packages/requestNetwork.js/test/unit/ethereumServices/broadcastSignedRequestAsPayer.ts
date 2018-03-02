@@ -277,10 +277,9 @@ describe('broadcastSignedRequestAsPayer', () => {
     it('sign + broadcast', async () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
         const resultSigned = await rn.requestEthereumService.signRequestAsPayee(
-            [defaultAccount],
-            [arbitraryAmount],
-            expirationDate);
-
+                                                                        [defaultAccount],
+                                                                        [arbitraryAmount],
+                                                                        expirationDate);
 
         const result = await rn.requestEthereumService.broadcastSignedRequestAsPayer(
                 resultSigned,

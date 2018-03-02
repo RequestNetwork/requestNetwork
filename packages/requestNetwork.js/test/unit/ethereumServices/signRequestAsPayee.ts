@@ -63,7 +63,7 @@ describe('signRequestAsPayee', () => {
         expect(result, 'data is wrong').to.have.property('data');
         expect(result, 'hash is wrong').to.have.property('hash');
         expect(result, 'signature is wrong').to.have.property('signature');
-        utils.expectEqualsBN(result.expirationDate, expirationDate / 1000, 'expirationDate is wrong');
+        utils.expectEqualsBN(result.expirationDate, expirationDate, 'expirationDate is wrong');
         expect(result.extension, 'extension is wrong').to.be.undefined;
         expect(result.extensionParams, 'extensionParams is wrong').to.be.undefined;
 
@@ -99,7 +99,7 @@ describe('signRequestAsPayee', () => {
         expect(result.data, 'data is wrong').to.be.undefined;
         expect(result, 'hash is wrong').to.have.property('hash');
         expect(result, 'signature is wrong').to.have.property('signature');
-        utils.expectEqualsBN(result.expirationDate, expirationDate / 1000, 'expirationDate is wrong');
+        utils.expectEqualsBN(result.expirationDate, expirationDate, 'expirationDate is wrong');
         expect(result.extension, 'extension is wrong').to.be.undefined;
         expect(result.extensionParams, 'extensionParams is wrong').to.be.undefined;
 
@@ -123,7 +123,7 @@ describe('signRequestAsPayee', () => {
     });
 
     it('sign request as payer expirationDate too soon', async () => {
-        const expirationDate: number = new Date('2000-01-01').getTime();
+        const expirationDate: number = (new Date('2000-01-01').getTime()) / 100;
         try {
             const result = await rn.requestEthereumService.signRequestAsPayee(
                 [defaultAccount, payee2, payee3],

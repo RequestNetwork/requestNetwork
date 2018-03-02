@@ -44,7 +44,6 @@ describe('createRequestAsPayee', () => {
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
     });
 
-
     it('create request (implicit parameters)', async () => {
         const result = await rn.requestEthereumService.createRequestAsPayee(
                     [defaultAccount, payee2, payee3],
