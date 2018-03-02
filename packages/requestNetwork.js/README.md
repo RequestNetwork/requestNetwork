@@ -116,31 +116,32 @@ Functions
 
 ## Functions
 ### Create a request as the payee
-`public createRequestAsPayee(_payer: string, _amountInitial: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)`
+`public createRequestAsPayee(_payeesIdAddress: string[], _expectedAmounts: any[], _payer: string, _payeesPaymentAddress ?: Array<string|undefined>, _payerRefundAddress ?: string, _data ?: string, _extension ?: string, _extensionParams ?: any[], _options ?: any)`
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
-* @param   `_payeesIdAddress`          ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
 * @param   `_payer`                     address of the payer
 * @param   `_payeesPaymentAddress`      payment addresses of the payees (the position 0 will be the main payee) (optional)
 * @param   `_payerRefundAddress`        refund address of the payer (optional)
-* @param   `_data`              Json of the request's details (optional)
-* @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
-* @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
-* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
-* @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
+* @param   `_data`                     Json of the request's details (optional)
+* @param   `_extension`                 address of the extension contract of the request (optional) NOT USED YET
+* @param   `_extensionParams`           array of parameters for the extension (optional) NOT USED YET
+* @param   `_options`                   options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
 ### Create a request as payer
-`public createRequestAsPayer(_payee: string, _amountInitial: any, _additionals: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)`
+`public createRequestAsPayer(_payeesIdAddress: string[], _expectedAmounts: any[], _payerRefundAddress ?: string, _amountsToPay ?: any[], _additionals ?: any[], _data ?: string, _extension ?: string, _extensionParams ?: any[], _options ?: any);`
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
-* @param   `_payee`             address of the payee
-* @param   `_amountInitial`     amount initial expected of the request
-* @param   `_amountToPay`       amount to pay in wei
-* @param   `_additionals`       additional to declaire in wei (optional)
+* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+* @param   `_expectedAmounts`           amount initial expected per payees for the request
+* @param   `_payerRefundAddress`        refund address of the payer (optional)
+* @param   `_amountsToPay`              amounts to pay in wei for each payee (optional)
+* @param   `_additionals`               amounts of additional in wei for each payee (optional)
 * @param   `_data`              Json of the request's details (optional)
 * @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
 * @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
@@ -149,10 +150,12 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Sign a request as payee
-`public signRequestAsPayee(_amountInitial: any, _amount: any, _additionals: any, _data ? : string, _extension ? : string, _extensionParams ? : Array < any >, _options ? : any)`
+`public signRequestAsPayee( _payeesIdAddress: string[], _expectedAmounts: any[], _expirationDate: number, _payeesPaymentAddress ?: Array<string|undefined>, _data ?: string, _extension ?: string, _extensionParams ?: any[], _from ?: string)`
 
-* @param   `_amountInitial`     amount initial expected of the request
-* @param   `_expirationDate`    timestamp of the date after what the signed request is useless
+* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
+* @param   `_expectedAmounts`           amount initial expected per payees for the request
+* @param   `_expirationDate`            timestamp is second of the date after what the signed request is not broadcastable
+* @param   `_payeesPaymentAddress`      payment addresses of the payees (the position 0 will be the main payee) (optional)
 * @param   `_data`              Json of the request's details (optional)
 * @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
 * @param   `_extensionParams`   array of parameters for the extension (optional) NOT USED YET
@@ -161,13 +164,13 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Broadcast a signed transaction and fill it with his address as payer
-`public broadcastSignedRequestAsPayer(_signedRequest: any, _amountToPay: any, _additionals: any, _options ? : any)`
+`public broadcastSignedRequestAsPayer( _signedRequest: any, _amountsToPay ?: any[], _additionals ?: any[], _options ?: any);`
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
 * @param   `_signedRequest`     object signed request (see Signed Request)
-* @param   `_amountToPay`       amount to pay in wei (optional)
-* @param   `_additionals`       additional to declaire in wei (optional)
+* @param   `_amountsToPay`      amounts to pay in wei for each payee (optional)
+* @param   `_additionals`       amounts of additional in wei for each payee (optional)
 * @param   `_options`           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
 * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
 
@@ -175,24 +178,38 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 ### Signed Request
 
 `{  
-   "amountInitial"      => Amount initial of the request
-   "currencyContract":  => Address of the currency contract
-   "data":              => hash of the ipfs file (optional)
-   "expirationDate":    => unix timestamp of expiration date (in second)
-   "hash":              => solidity hash of the request data
-   "payee":             => payee address (which must be the signer also)
-   "signature":         => signature by payee of the hash
+   "currencyContract"      => Address of the currency contract
+   "data"                  => hash of the ipfs file (optional)
+   "expectedAmounts"       => amount initial expected per payees for the request
+   "expirationDate"        => unix timestamp of expiration date (in second)
+   "hash"                  => solidity hash of the request data
+   "payeesIdAddress"       => ID addresses of the payees (the position 0 will be the main payee)
+   "payeesPaymentAddress"  => payment addresses of the payees (the position 0 will be the main payee) (optional)
+   "signature"             => signature by payee of the hash
 }`
 
 Example: 
 `{  
-   "amountInitial":"100000000",
    "currencyContract":"0xf12b5dd4ead5f743c6baa640b0216200e89b60da",
    "data":"QmbFpULNpMJEj9LfvhH4hSTfTse5YrS2JvhbHW6bDCNpwS",
-   "expirationDate":7952342400,
-   "hash":"0x45ba3046df9e10f5b32c893ad21749d69c473d6629756654f82b9528da6c1480",
-   "payee":"0x821aea9a577a9b44299b9c15c88cf3087f3b5544",
-   "signature":"0x6df09d4c90bafea043d555caeb3d01d2dc656df2e27741b2b7f66403a682c69070d3ba30119598b766e5eb6413d49d6d91c349e23207b96102f54c69fca967d800"
+   "expectedAmounts":[  
+      "100000000",
+      "20000000",
+      "3000000"
+   ],
+   "expirationDate":7952342400000,
+   "hash":"0x914512e0cc7597bea264a4741835257387b1fd66f81ea3947f113e4c20b4a679",
+   "payeesIdAddress":[  
+      "0x821aea9a577a9b44299b9c15c88cf3087f3b5544",
+      "0x0d1d4e623d10f9fba5db95830f7d3839406c6af2",
+      "0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e"
+   ],
+   "payeesPaymentAddress":[  
+      "0x6330a553fc93768f612722bb8c2ec78ac90b3bbc",
+      null,
+      "0x5aeda56215b167893e80b4fe645ba6d5bab767de"
+   ],
+   "signature":"0xbe2cc3516f1805ab619f550a16e39cb435a9873dd3c1a6dff430a345c30b206515217da7430306207c7cf06e092c84ef0fb3def78c87e4488a5babc8c6f9761a01"
 }`
 
 
@@ -216,20 +233,21 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Pay a request
-`public paymentAction(_requestId: string, _amount: any, _additionals: any, _options ? : any)` 
+`public paymentAction(_requestId: string, _amountsToPay ?: any[], _additionals ?: any[], _options ? : any)` 
 
 Emit the event `'broadcasted`' with `{transaction: {hash}}` when the transaction is submitted.
 
 * @param   `_requestId`         requestId of the payer
-* @param   `_amount`            amount to pay in wei
-* @param   `_additionals`       additional to declaire in wei (optional)
+* @param   `_amountsToPay`      amounts to pay in wei for each payee (optional)
+ * @param   `_additionals`       amounts of additional in wei for each payee (optional)
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 ### Refund a request    
-`public refundAction(_requestId: string, _amount: any, _options ? : any)`
+`public refundAction(_requestId: string, _amountToRefund: any, _options ? : any)`
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
+only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
 
 * @param   `_requestId`         requestId of the payer
 * @param   `_amount`            amount to refund in wei
@@ -238,22 +256,22 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Add subtracts to a request (only for the payee)
-`public subtractAction(_requestId: string, _amount: any, _options ? : any)`
+`public subtractAction(_requestId: string, _subtracts ?: any[], _options ? : any)`
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
 * @param   `_requestId`         requestId of the payer
-* @param   `_amount`            subtract to declare in wei
+* @param   `_subtracts`        amounts of subtracts in wei for each payee (optional)
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 
 ### Add additionals to a request (only for the payer)    
-`public additionalAction(_requestId: string, _amount: any, _options ? : any)`
+`public additionalAction(_requestId: string, _additionals ?: any[], _options ? : any)`
 
 Emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted.
 * @param   `_requestId`         requestId of the payer
-* @param   `_amount`            subtract to declare in wei
+* @param   `_additionals`       amounts of additionals in wei for each payee (optional)
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
@@ -309,11 +327,6 @@ Here is the list of events produced by the Request Network smarts contracts. Not
 * event `Created(bytes32 indexed requestId, address indexed payee, address indexed payer)`
 * event `Accepted(bytes32 indexed requestId)`
 * event `Canceled(bytes32 indexed requestId)`
-* event `UpdateBalance(bytes32 indexed requestId, int256 deltaAmount)`
-* event `UpdateExpectedAmount(bytes32 indexed requestId, int256 deltaAmount)`
-* event `NewPayee(bytes32 indexed requestId, address payee)`
-* event `NewPayer(bytes32 indexed requestId, address payer)`
-* event `NewExpectedAmount(bytes32 indexed requestId, int256 expectedAmount)`
-* event `NewExtension(bytes32 indexed requestId, address extension)`
-* event `NewData(bytes32 indexed requestId, string data)`
-
+* event `UpdateBalance(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount)`
+* event `UpdateExpectedAmount(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount)`
+* event `NewSubPayee(bytes32 indexed requestId, address indexed payee)`

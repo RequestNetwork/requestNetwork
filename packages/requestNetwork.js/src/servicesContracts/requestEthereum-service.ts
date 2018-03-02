@@ -198,7 +198,7 @@ export default class RequestEthereumService {
     /**
      * create a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   _expectedAmounts           amount initial expected per payees for the request
      * @param   _payerRefundAddress        refund address of the payer (optional)
      * @param   _amountsToPay              amounts to pay in wei for each payee (optional)
@@ -1198,7 +1198,7 @@ export default class RequestEthereumService {
     /**
      * internal create the object signed request
      * @param   currencyContract          Address of the ethereum currency contract
-     * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
      * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
@@ -1258,7 +1258,7 @@ export default class RequestEthereumService {
     /**
      * internal compute the hash of the request
      * @param   currencyContract          Address of the ethereum currency contract
-     * @param   payees                    ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   payees                    ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
      * @param   payer                     payer of the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)

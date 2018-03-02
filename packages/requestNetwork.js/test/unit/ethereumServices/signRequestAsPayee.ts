@@ -58,7 +58,6 @@ describe('signRequestAsPayee', () => {
             [],
             payee);
 
-
         expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
         expect(result, 'data is wrong').to.have.property('data');
         expect(result, 'hash is wrong').to.have.property('hash');
