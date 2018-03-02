@@ -448,7 +448,7 @@ export default class RequestEthereumService {
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
-            const error = this.signedRequestHasError(_signedRequest, account);
+            const error = this.isSignedRequestHasError(_signedRequest, account);
             if (error !== '') return promiEvent.reject(Error(error));
 
             if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
@@ -840,7 +840,7 @@ export default class RequestEthereumService {
      * add subtracts to a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _subtracts       amounts of subtracts in wei for each payee (optional)
+     * @param   _subtracts         amounts of subtracts in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -1098,6 +1098,58 @@ export default class RequestEthereumService {
     }
 
     /**
+     * check if a signed request is valid
+     * @param   _signedRequest    Signed request
+     * @param   _payer             Payer of the request
+     * @return  return a string with the error, or ''
+     */
+    public isSignedRequestHasError(_signedRequest: any, _payer: string): string {
+        _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
+
+        const hashComputed = this.hashRequest(
+                        _signedRequest.currencyContract,
+                        _signedRequest.payeesIdAddress,
+                        _signedRequest.expectedAmounts,
+                        '',
+                        _signedRequest.payeesPaymentAddress,
+                        _signedRequest.data ? _signedRequest.data : '',
+                        _signedRequest.expirationDate);
+
+        if (!_signedRequest) {
+            return '_signedRequest must be defined';
+        }
+        // some controls on the arrays
+        if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
+            return '_payeesIdAddress and _expectedAmounts must have the same size';
+        }
+
+        if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
+            return '_expectedAmounts must be positives integer';
+        }
+        if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestEthereumLast, _signedRequest.currencyContract)) {
+            return 'currencyContract must be the last currencyContract of requestEthereum';
+        }
+        if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
+            return 'expirationDate must be greater than now';
+        }
+        if (hashComputed !== _signedRequest.hash) {
+            return 'hash is not valid';
+        }
+        if (!this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesIdAddress)) {
+            return 'payeesIdAddress must be valid eth addresses';
+        }
+        if (!this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesPaymentAddress)) {
+            return 'payeesPaymentAddress must be valid eth addresses';
+        }
+        if (this.web3Single.areSameAddressesNoChecksum(_payer, _signedRequest.payeesIdAddress[0])) {
+            return '_from must be different than main payee';
+        }
+        if (!this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payeesIdAddress[0])) {
+            return 'payee is not the signer';
+        }
+        return '';
+    }
+    /**
      * Get request events from currency contract (generic method)
      * @param   _requestId    requestId of the request
      * @param   _fromBlock    search events from this block (optional)
@@ -1143,15 +1195,27 @@ export default class RequestEthereumService {
         });
     }
 
-    public async createSignedRequest(
-                        currencyContract: string,
-                        payeesIdAddress: string[],
-                        expectedAmounts: any[],
-                        payeesPaymentAddress: Array<string|undefined>,
-                        expirationDate : number,
-                        data ?: string,
-                        extension ?: string,
-                        extensionParams ?: any[]): Promise<any> {
+    /**
+     * internal create the object signed request
+     * @param   currencyContract          Address of the ethereum currency contract
+     * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   expectedAmounts           amount initial expected per payees for the request
+     * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
+     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   data                      Json of the request's details (optional)
+     * @param   extension                 address of the extension contract of the request (optional) NOT USED YET
+     * @param   extensionParams           array of parameters for the extension (optional) NOT USED YET
+     * @return  promise of the object containing the request signed
+     */
+    private async createSignedRequest(
+        currencyContract: string,
+        payeesIdAddress: string[],
+        expectedAmounts: any[],
+        payeesPaymentAddress: Array<string|undefined>,
+        expirationDate : number,
+        data ?: string,
+        extension ?: string,
+        extensionParams ?: any[]): Promise<any> {
 
         const hash = this.hashRequest(currencyContract,
                                         payeesIdAddress,
@@ -1175,12 +1239,11 @@ export default class RequestEthereumService {
 
         for (const k in payeesPaymentAddress) {
             if (payeesPaymentAddress.hasOwnProperty(k)) {
-                payeesPaymentAddress[k] = payeesPaymentAddress[k] == EMPTY_BYTES_20 ? undefined : payeesPaymentAddress[k];
+                payeesPaymentAddress[k] = payeesPaymentAddress[k] === EMPTY_BYTES_20 ? undefined : payeesPaymentAddress[k];
             }
         }
 
-        return {
-                currencyContract,
+        return {currencyContract,
                 data,
                 expectedAmounts,
                 expirationDate,
@@ -1192,6 +1255,17 @@ export default class RequestEthereumService {
                 signature};
     }
 
+    /**
+     * internal compute the hash of the request
+     * @param   currencyContract          Address of the ethereum currency contract
+     * @param   payees                    ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   expectedAmounts           amount initial expected per payees for the request
+     * @param   payer                     payer of the request
+     * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
+     * @param   data                      Json of the request's details (optional)
+     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @return  promise of the object containing the request's hash
+     */
     private hashRequest(currencyContract: string,
                         payees: string[],
                         expectedAmounts: any[],
@@ -1231,52 +1305,5 @@ export default class RequestEthereumService {
         });
 
         return this.web3Single.web3.utils.bytesToHex(ETH_ABI.soliditySHA3(types, values));
-    }
-
-    private signedRequestHasError(_signedRequest: any, payer: string): string {
-        _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
-
-        const hashComputed = this.hashRequest(
-                        _signedRequest.currencyContract,
-                        _signedRequest.payeesIdAddress,
-                        _signedRequest.expectedAmounts,
-                        '',
-                        _signedRequest.payeesPaymentAddress,
-                        _signedRequest.data ? _signedRequest.data : '',
-                        _signedRequest.expirationDate);
-
-        if (!_signedRequest) {
-            return '_signedRequest must be defined';
-        }
-        // some controls on the arrays
-        if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
-            return '_payeesIdAddress and _expectedAmounts must have the same size';
-        }
-
-        if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
-            return '_expectedAmounts must be positives integer';
-        }
-        if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestEthereumLast, _signedRequest.currencyContract)) {
-            return 'currencyContract must be the last currencyContract of requestEthereum';
-        }
-        if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
-            return 'expirationDate must be greater than now';
-        }
-        if (hashComputed !== _signedRequest.hash) {
-            return 'hash is not valid';
-        }
-        if (!this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesIdAddress)) {
-            return 'payeesIdAddress must be valid eth addresses';
-        }
-        if (!this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesPaymentAddress)) {
-            return 'payeesPaymentAddress must be valid eth addresses';
-        }
-        if (this.web3Single.areSameAddressesNoChecksum(payer, _signedRequest.payeesIdAddress[0])) {
-            return '_from must be different than main payee';
-        }
-        if (!this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payeesIdAddress[0])) {
-            return 'payee is not the signer';
-        }
-        return '';
     }
 }

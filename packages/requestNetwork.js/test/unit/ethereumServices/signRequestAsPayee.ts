@@ -123,7 +123,7 @@ describe('signRequestAsPayee', () => {
     });
 
     it('sign request as payer expirationDate too soon', async () => {
-        const expirationDate: number = (new Date('2000-01-01').getTime()) / 100;
+        const expirationDate: number = (new Date('2000-01-01').getTime()) / 1000;
         try {
             const result = await rn.requestEthereumService.signRequestAsPayee(
                 [defaultAccount, payee2, payee3],

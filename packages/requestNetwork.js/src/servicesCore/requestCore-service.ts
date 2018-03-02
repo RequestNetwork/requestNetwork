@@ -372,6 +372,11 @@ export default class RequestCoreService {
         return this.ipfs.getFile(_hash);
     }
 
+    /**
+     * get the core contract instance of a request
+     * @param   _requestId    requestId of the request
+     * @return  the contract information of the request : { abi, address, instance, blockNumber, version }
+     */
     public getCoreContractFromRequestId(_requestId: string): any {
         return this.web3Single.getContractInstance(_requestId.slice(0, 42));
     }
