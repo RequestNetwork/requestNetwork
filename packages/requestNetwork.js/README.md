@@ -216,6 +216,14 @@ Example:
 }
 ```
 
+### Check a signed request
+`public isSignedRequestHasError(_signedRequest: any, _payer: string): string`
+
+Check if a signed request is valid
+
+* @param   `_signedRequest`     Signed request
+* @param   `_payer`             Payer of the request
+* @return  return a string with the error, or ''
 
 ### Accept a request
 `public accept(_requestId: string, _options ? : any)`
