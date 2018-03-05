@@ -25,8 +25,8 @@ truffle deploy --network development
 
 ### Develop on Rinkeby
 Contract addresses
-* RequestCore: 0x964D72680ecE90cb9db0375ba2d7481F5cdc046b
-* RequestEthereum: 0x08474da803d2139d7ebe3312D7adf5F06689CA09
+* RequestCore: 0x21d995b5d48bc0ed038e95a3da1be88b37a38dd8
+* RequestEthereum: 0xafa312973909c3a541665e11c883a24a8eb10b2c
 
 ### Develop on the Main net 
 not available yet
@@ -34,33 +34,46 @@ not available yet
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee
-` function createRequestAsPayee(address _payer, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, string _data)` 
+` function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
  
-msg.sender will be the payee
- 
+* @dev msg.sender will be the payee
+
+* @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
+* @param _payeesPaymentAddress array of payees address for payment (optional)
+* @param _expectedAmounts array of Expected amount to be received by each payees
 * @param _payer Entity supposed to pay
-* @param _expectedAmount Expected amount to be received.
-* @param _extension an extension can be linked to a request and allows advanced payments conditions such as escrow. Extensions have to be whitelisted in Core
-* @param _extensionParams Parameters for the extensions. It is an array of 9 bytes32.
 * @param _data Hash linking to additional data on the Request stored on IPFS
 
 * @return Returns the id of the request 
 
 
 ### Create a new request as the payer
-` function createRequestAsPayer(address _payee, int256 _expectedAmount, address _extension, bytes32[9] _extensionParams, uint256 _additionals, string  _data) `
+` function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
 
-msg.sender will be the payer
- 
-* @param _payee Entity which will receive the payment
-* @param _expectedAmount Expected amount to be received.
-* @param _extension an extension can be linked to a request and allows advanced payments conditions such as escrow. Extensions have to be whitelisted in Core
-* @param _extensionParams Parameters for the extensions. It is an array of 9 bytes32.
-* @param _data Hash linking to additional data on the Request stored on IPFS 
-* @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
+* @dev msg.sender will be the payer
+
+* @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payeeAmounts array of amount repartition for the payment
+* @param _additionals array to increase the ExpectedAmount for payees
+* @param _data Hash linking to additional data on the Request stored on IPFS
 
 * @return Returns the id of the request 
 
+### Broadcast a signed request
+` function broadcastSignedRequestAsPayer(bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _expirationDate, bytes _signature) `
+
+msg.sender must be _payer
+the _payer can additionals 
+
+* @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
+* @param _payeesPaymentAddress array of payees address for payment (optional)
+* @param _payeeAmounts array of amount repartition for the payment
+* @param _additionals array to increase the ExpectedAmount for payees
+* @param _expirationDate timestamp after that the signed request cannot be broadcasted
+* @param _signature ECDSA signature in bytes
+
+* @return Returns the id of the request 
 
 ### Accept a request 
 ` function accept(bytes32 _requestId) ` 
@@ -73,12 +86,11 @@ A request can also be accepted by using directly the payment function on a reque
 * @return true if the request is accepted, false otherwise
 
 
-
 ### Cancel a request
 ` function cancel(bytes32 _requestId)` 
  
 msg.sender must be the extension used by the request, the _payer or the _payee.
-Only request with balance equals to zero can be cancel
+Only request with all payees balance equals to zero can be cancel
  
 * @param _requestId id of the request 
  
@@ -86,44 +98,47 @@ Only request with balance equals to zero can be cancel
 
 
 ### Pay a request
-` function paymentAction(bytes32 _requestId, uint256 _additionals)` 
+` paymentAction(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionalAmounts) ` 
 Function PAYABLE to pay in ether a request
  
-the request must be accepted
- 
+the request must be created or accepted
+the request will be automatically accepted if msg.sender==payer. 
+
 * @param _requestId id of the request
-* @param _additionals amount of additionals in wei to declare 
+* @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+* @param _additionalsAmount amount of additionals per payee in wei to declare
 
 
 ### Refund a request
 ` function refundAction(bytes32 _requestId)` 
 Function PAYABLE to pay back in ether a request to the payee
  
-msg.sender must be _payer
-the request must be accepted
+msg.sender must be one of the payees
+the request must be created or accepted
 the payback must be lower than the amount already paid for the request
- 
+
 * @param _requestId id of the request
 
 
 ### Declare a subtract 
-` function subtractAction(bytes32 _requestId, uint256 _amount)` 
+` subtractAction(bytes32 _requestId, uint256[] _subtractAmounts) ` 
 
  
-msg.sender must be _payee or an extension used by the request
+msg.sender must be _payee
 the request must be accepted or created
  
 * @param _requestId id of the request
-* @param _amount amount of subtract in wei to declare 
+* @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for ) 
+
 
 ### Declare an additional
-` function additionalAction(bytes32 _requestId, uint256 _amount)` 
+` function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)` 
 
-msg.sender must be _payer or an extension used by the request
+msg.sender must be _payer
 the request must be accepted or created
  
 * @param _requestId id of the request
-* @param _amount amount of additional in wei to declare 
+* @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
 
 ### Withdraw
 ` function withdraw()` 

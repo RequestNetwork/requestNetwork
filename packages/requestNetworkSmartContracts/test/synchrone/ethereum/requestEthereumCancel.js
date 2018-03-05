@@ -3,14 +3,12 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 	return;
 }
 
-
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
 // contract for test
-var RequestBurnManagerSimple = artifacts.require("./collect/RequestBurnManagerSimple.sol");
-var BigNumber = require('bignumber.js');
 
+var BigNumber = require('bignumber.js');
 
 contract('RequestEthereum Cancel',  function(accounts) {
 	var admin = accounts[0];
@@ -18,22 +16,27 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	var fakeContract = accounts[2];
 	var payer = accounts[3];
 	var payee = accounts[4];
+	var payee2 = accounts[5];
+	var payee3 = accounts[6];
+	var burnerContract = accounts[7];
 
 	var requestCore;
 	var requestEthereum;
 	var newRequest;
 
 	var arbitraryAmount = 1000;
+	var arbitraryAmount2 = 200;
+	var arbitraryAmount3 = 300;
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new({from:admin});
-		var requestBurnManagerSimple = await RequestBurnManagerSimple.new(0); 
-		await requestCore.setBurnManager(requestBurnManagerSimple.address, {from:admin});
-    	requestEthereum = await RequestEthereum.new(requestCore.address,{from:admin});
+
+		
+    	requestEthereum = await RequestEthereum.new(requestCore.address, burnerContract, {from:admin});
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee(payer, arbitraryAmount, 0, [], "", {from:payee});
+		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
     });
 
 	// ##################################################################################################
@@ -47,16 +50,16 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],2,"new request wrong data : state");
+		assert.equal(newReq[2],2,"new request wrong data : state");
 	});	
 
 	it("cancel if untrusted currencyContract", async function () {
@@ -68,16 +71,16 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],2,"new request wrong data : state");
+		assert.equal(newReq[2],2,"new request wrong data : state");
 	});
 
 	it("cancel request Ethereum pause impossible", async function () {
@@ -101,33 +104,46 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	it("cancel by payee request already accepted OK if amount == 0", async function () {
 		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],2,"new request wrong data : state");
+		assert.equal(newReq[2],2,"new request wrong data : state");
 	});
 
-	it("cancel request amountPaid != 0 Impossible", async function () {
+	it("cancel request payee balance != 0 Impossible", async function () {
 		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
-		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), 0, {from:payer,value:10});
+		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [10], [0], {from:payer,value:10});
 		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(newReq[5],10,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],1,"new request wrong data : state");
+		assert.equal(newReq[2],1,"new request wrong data : state");
+	});
+
+	it("cancel request subPayee balance != 0 Impossible", async function () {
+		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payer,value:10});
+		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+	});
+
+	it("cancel request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
+		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payer,value:10});
+		await requestEthereum.refundAction(utils.getRequestId(requestCore.address, 1), {from:payee,value:10});
+		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
 	});
 
 	it("cancel request created OK", async function () {
@@ -137,16 +153,16 @@ contract('RequestEthereum Cancel',  function(accounts) {
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Canceled wrong args requestId");
 
-		var newReq = await requestCore.requests.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payee,"new request wrong data : creator");
-		assert.equal(newReq[1],payee,"new request wrong data : payee");
-		assert.equal(newReq[2],payer,"new request wrong data : payer");
-		assert.equal(newReq[3],arbitraryAmount,"new request wrong data : expectedAmount");
-		assert.equal(newReq[4],requestEthereum.address,"new request wrong data : currencyContract");
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+		// assert.equal(newReq[0],payee,"new request wrong data : creator");
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestEthereum.address,"new request wrong data : currencyContract");
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		
 		
-		assert.equal(newReq[6],2,"new request wrong data : state");
+		assert.equal(newReq[2],2,"new request wrong data : state");
 	});
 
 	// ##################################################################################################

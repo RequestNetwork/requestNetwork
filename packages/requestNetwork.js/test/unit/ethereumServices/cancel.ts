@@ -36,10 +36,13 @@ describe('cancel', () => {
         
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        const req = await rn.requestEthereumService.createRequestAsPayee( 
+        const req = await rn.requestEthereumService.createRequestAsPayee(
+            [payee],
+            [arbitraryAmount],
             payer,
-            arbitraryAmount,
+            [],
             '',
+            '{"reason":"weed purchased"}',
             '',
             [],
             {from: payee});
@@ -66,11 +69,11 @@ describe('cancel', () => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-        utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
-        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(2);
@@ -125,12 +128,11 @@ describe('cancel', () => {
                                 requestId,
                                 {from: payee});
 
-        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
-        
-        utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
-        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(2);
@@ -154,12 +156,12 @@ describe('cancel', () => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
         
-        utils.expectEqualsBN(result.request.balance, 0, 'balance is wrong');
+        utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
-        expect(result.request.payee.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(2);
@@ -169,14 +171,15 @@ describe('cancel', () => {
     });
 
     it('cancel request by payee when accepted and balance != 0', async () => {
+
         await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
         await rn.requestEthereumService.paymentAction(
                         requestId,
-                        1,
-                        0,
+                        [1],
+                        [0],
                         {from: payer});
 
         try {

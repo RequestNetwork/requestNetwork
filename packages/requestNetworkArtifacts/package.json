@@ -1,6 +1,6 @@
 {
   "name": "requestnetworkartifacts",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Artifacts for Request Network Ethereum contracts",
   "keywords": [
     "requestArtifacts",

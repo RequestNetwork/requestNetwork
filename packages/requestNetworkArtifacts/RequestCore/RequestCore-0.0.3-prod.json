@@ -2,25 +2,6 @@
   "contractName": "RequestCore",
   "abi": [
     {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_requestId",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getPayee",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "constant": false,
       "inputs": [
         {
@@ -32,6 +13,25 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_requestId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "areAllBalanceNull",
+      "outputs": [
+        {
+          "name": "isNull",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -54,124 +54,26 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_creator",
-          "type": "address"
-        },
-        {
-          "name": "_payee",
-          "type": "address"
-        },
-        {
-          "name": "_payer",
-          "type": "address"
-        },
-        {
-          "name": "_expectedAmount",
-          "type": "int256"
-        },
-        {
-          "name": "_extension",
-          "type": "address"
-        },
-        {
-          "name": "_data",
-          "type": "string"
-        }
-      ],
-      "name": "createRequest",
-      "outputs": [
-        {
-          "name": "requestId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestId",
-          "type": "bytes32"
-        },
-        {
-          "name": "_extension",
-          "type": "address"
-        }
-      ],
-      "name": "setExtension",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestId",
-          "type": "bytes32"
-        },
-        {
-          "name": "_payer",
-          "type": "address"
-        }
-      ],
-      "name": "setPayer",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "constant": true,
-      "inputs": [],
-      "name": "trustedNewBurnManager",
+      "inputs": [
+        {
+          "name": "_requestId",
+          "type": "bytes32"
+        },
+        {
+          "name": "_payeeIndex",
+          "type": "uint8"
+        }
+      ],
+      "name": "getPayeeExpectedAmount",
       "outputs": [
         {
           "name": "",
-          "type": "address"
+          "type": "int256"
         }
       ],
       "payable": false,
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestId",
-          "type": "bytes32"
-        },
-        {
-          "name": "_data",
-          "type": "string"
-        }
-      ],
-      "name": "setData",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_oldExtension",
-          "type": "address"
-        }
-      ],
-      "name": "adminRemoveExtension",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -187,18 +89,54 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_requestId",
-          "type": "bytes32"
+          "name": "_creator",
+          "type": "address"
         },
         {
-          "name": "_expectedAmount",
-          "type": "int256"
+          "name": "_payees",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payer",
+          "type": "address"
+        },
+        {
+          "name": "_data",
+          "type": "string"
         }
       ],
-      "name": "setExpectedAmount",
-      "outputs": [],
+      "name": "createRequest",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_contractAddress",
+          "type": "address"
+        }
+      ],
+      "name": "isTrustedContract",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -216,44 +154,53 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "_requestId",
+          "name": "",
           "type": "bytes32"
         },
         {
-          "name": "_deltaAmount",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "subPayees",
+      "outputs": [
+        {
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "name": "expectedAmount",
+          "type": "int256"
+        },
+        {
+          "name": "balance",
           "type": "int256"
         }
       ],
-      "name": "updateBalance",
-      "outputs": [],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "constant": true,
       "inputs": [
         {
-          "name": "_expectedAmount",
-          "type": "int256"
+          "name": "_requestId",
+          "type": "bytes32"
         },
         {
-          "name": "_currencyContract",
-          "type": "address"
-        },
-        {
-          "name": "_extension",
-          "type": "address"
+          "name": "_payeeIndex",
+          "type": "uint8"
         }
       ],
-      "name": "getCollectEstimation",
+      "name": "getPayeeBalance",
       "outputs": [
         {
           "name": "",
-          "type": "uint256"
+          "type": "int256"
         }
       ],
       "payable": false,
@@ -339,80 +286,19 @@
       "constant": true,
       "inputs": [
         {
-          "name": "_extension",
-          "type": "address"
-        }
-      ],
-      "name": "getStatusExtension",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_newBurnManager",
-          "type": "address"
-        }
-      ],
-      "name": "setBurnManager",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
+          "name": "_requestId",
           "type": "bytes32"
+        },
+        {
+          "name": "_payeeIndex",
+          "type": "uint8"
         }
       ],
-      "name": "requests",
+      "name": "getPayeeAddress",
       "outputs": [
         {
-          "name": "creator",
+          "name": "",
           "type": "address"
-        },
-        {
-          "name": "payee",
-          "type": "address"
-        },
-        {
-          "name": "payer",
-          "type": "address"
-        },
-        {
-          "name": "expectedAmount",
-          "type": "int256"
-        },
-        {
-          "name": "currencyContract",
-          "type": "address"
-        },
-        {
-          "name": "balance",
-          "type": "int256"
-        },
-        {
-          "name": "state",
-          "type": "uint8"
-        },
-        {
-          "name": "extension",
-          "type": "address"
-        },
-        {
-          "name": "data",
-          "type": "string"
         }
       ],
       "payable": false,
@@ -475,11 +361,19 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_newExtension",
-          "type": "address"
+          "name": "_requestId",
+          "type": "bytes32"
+        },
+        {
+          "name": "_payeeIndex",
+          "type": "uint8"
+        },
+        {
+          "name": "_deltaAmount",
+          "type": "int256"
         }
       ],
-      "name": "adminAddTrustedExtension",
+      "name": "updateBalance",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -489,19 +383,23 @@
       "constant": true,
       "inputs": [
         {
-          "name": "_requestId",
-          "type": "bytes32"
+          "name": "_data",
+          "type": "bytes"
+        },
+        {
+          "name": "_offset",
+          "type": "uint256"
         }
       ],
-      "name": "getExtension",
+      "name": "extractBytes32",
       "outputs": [
         {
           "name": "",
-          "type": "address"
+          "type": "bytes32"
         }
       ],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -522,11 +420,11 @@
       "constant": true,
       "inputs": [
         {
-          "name": "",
-          "type": "address"
+          "name": "_requestId",
+          "type": "bytes32"
         }
       ],
-      "name": "trustedExtensions",
+      "name": "getSubPayeesCount",
       "outputs": [
         {
           "name": "",
@@ -545,12 +443,35 @@
           "type": "bytes32"
         },
         {
-          "name": "_payee",
-          "type": "address"
+          "name": "_payeeIndex",
+          "type": "uint8"
+        },
+        {
+          "name": "_deltaAmount",
+          "type": "int256"
         }
       ],
-      "name": "setPayee",
+      "name": "updateExpectedAmount",
       "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "createRequestFromBytes",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -584,21 +505,26 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
           "name": "_requestId",
           "type": "bytes32"
         },
         {
-          "name": "_deltaAmount",
-          "type": "int256"
+          "name": "_address",
+          "type": "address"
         }
       ],
-      "name": "updateExpectedAmount",
-      "outputs": [],
+      "name": "getPayeeIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int16"
+        }
+      ],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -628,6 +554,45 @@
           "type": "bytes32"
         }
       ],
+      "name": "getRequest",
+      "outputs": [
+        {
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "name": "currencyContract",
+          "type": "address"
+        },
+        {
+          "name": "state",
+          "type": "uint8"
+        },
+        {
+          "name": "payeeAddr",
+          "type": "address"
+        },
+        {
+          "name": "payeeExpectedAmount",
+          "type": "int256"
+        },
+        {
+          "name": "payeeBalance",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_requestId",
+          "type": "bytes32"
+        }
+      ],
       "name": "getExpectedAmount",
       "outputs": [
         {
@@ -638,12 +603,6 @@
       "payable": false,
       "stateMutability": "view",
       "type": "function"
-    },
-    {
-      "inputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "constructor"
     },
     {
       "anonymous": false,
@@ -662,6 +621,16 @@
           "indexed": true,
           "name": "payer",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "data",
+          "type": "string"
         }
       ],
       "name": "Created",
@@ -700,12 +669,12 @@
           "type": "bytes32"
         },
         {
-          "indexed": false,
-          "name": "deltaAmount",
-          "type": "int256"
+          "indexed": true,
+          "name": "payee",
+          "type": "address"
         }
       ],
-      "name": "UpdateBalance",
+      "name": "NewSubPayee",
       "type": "event"
     },
     {
@@ -715,6 +684,11 @@
           "indexed": true,
           "name": "requestId",
           "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "payeeIndex",
+          "type": "uint8"
         },
         {
           "indexed": false,
@@ -735,79 +709,16 @@
         },
         {
           "indexed": false,
-          "name": "payee",
-          "type": "address"
-        }
-      ],
-      "name": "NewPayee",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "requestId",
-          "type": "bytes32"
+          "name": "payeeIndex",
+          "type": "uint8"
         },
         {
           "indexed": false,
-          "name": "payer",
-          "type": "address"
-        }
-      ],
-      "name": "NewPayer",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "requestId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "name": "expectedAmount",
+          "name": "deltaAmount",
           "type": "int256"
         }
       ],
-      "name": "NewExpectedAmount",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "requestId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "name": "extension",
-          "type": "address"
-        }
-      ],
-      "name": "NewExtension",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "requestId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "name": "data",
-          "type": "string"
-        }
-      ],
-      "name": "NewData",
+      "name": "UpdateBalance",
       "type": "event"
     },
     {
@@ -832,42 +743,6 @@
         }
       ],
       "name": "RemoveTrustedContract",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "name": "newExtension",
-          "type": "address"
-        }
-      ],
-      "name": "NewTrustedExtension",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "name": "oldExtension",
-          "type": "address"
-        }
-      ],
-      "name": "RemoveTrustedExtension",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "name": "newFeesManager",
-          "type": "address"
-        }
-      ],
-      "name": "NewBurnManager",
       "type": "event"
     },
     {
@@ -900,11 +775,11 @@
       "type": "event"
     }
   ],
-  "version": "0.0.1",
+  "version": "0.0.3",
   "networks": {
     "rinkeby": {
-      "address": "0x964D72680ecE90cb9db0375ba2d7481F5cdc046b",
-      "blockNumber": 1647267
+      "address": "0x21d995b5d48bc0ed038e95a3da1be88b37a38dd8",
+      "blockNumber": 1838199
     }
   }
 }

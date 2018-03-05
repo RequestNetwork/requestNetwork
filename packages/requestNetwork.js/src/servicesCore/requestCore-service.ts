@@ -1,13 +1,17 @@
 import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
+import * as ETH_UTIL from 'ethereumjs-util';
 import * as ServicesContracts from '../servicesContracts';
 import * as Types from '../types';
 
 import Ipfs from '../servicesExternal/ipfs-service';
 import { Web3Single } from '../servicesExternal/web3-single';
 
+// @ts-ignore
+const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
+
 const BN = Web3Single.BN();
-const EMPTY_BYTES_32 = '0x0000000000000000000000000000000000000000';
+const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
 const requestArtifactsJson = require('requestnetworkartifacts/index.json');
 
 /**
@@ -62,99 +66,79 @@ export default class RequestCoreService {
     }
 
     /**
-     * get the estimation of ether (in wei) needed to create a request
-     * @param   _expectedAmount    amount expected of the request
-     * @param   _currencyContract  address of the currency contract of the request
-     * @param   _extension         address of the extension contract of the request
-     * @return  promise of the number of wei needed to create the request
-     */
-    public getCollectEstimation(
-        _expectedAmount: any,
-        _currencyContract: string,
-        _extension: string): Promise < any > {
-        _expectedAmount = new BN(_expectedAmount);
-
-        return new Promise((resolve, reject) => {
-            if (!this.web3Single.isAddressNoChecksum(_currencyContract)) {
-                return reject(Error('_currencyContract must be a valid eth address'));
-            }
-            if (_extension && _extension !== '' && !this.web3Single.isAddressNoChecksum(_extension)) {
-                return reject(Error('_extension must be a valid eth address'));
-            }
-
-            this.instanceRequestCoreLast.methods.getCollectEstimation(_expectedAmount, _currencyContract, _extension)
-              .call(async (err: Error, data: any) => {
-                if (err) return reject(err);
-                return resolve(data);
-            });
-        });
-    }
-
-    /**
      * get a request by its requestId
      * @param   _requestId    requestId of the request
      * @return  promise of the object containing the request
      */
     public getRequest(_requestId: string): Promise < any > {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (!this.web3Single.isHexStrictBytes32(_requestId)) {
                 return reject(Error('_requestId must be a 32 bytes hex string'));
             }
 
-            const coreContract = this.getCoreContractFromRequestId(_requestId);
-            // get information from the core
-            coreContract.instance.methods.requests(_requestId).call(async (err: Error, data: any) => {
-                if (err) return reject(err);
+            try {
+                const coreContract = this.getCoreContractFromRequestId(_requestId);
 
-                try {
-                    if (data.creator === EMPTY_BYTES_32) {
-                        return reject(Error('request not found'));
-                    }
-
-                    const dataResult: any = {
-                        balance: new BN(data.balance),
-                        creator: data.creator,
-                        currencyContract: data.currencyContract,
-                        data: data.data,
-                        expectedAmount: new BN(data.expectedAmount),
-                        extension: data.extension !== EMPTY_BYTES_32 ? data.extension : undefined,
-                        payee: data.payee,
-                        payer: data.payer,
-                        requestId: _requestId,
-                        state: parseInt(data.state, 10)};
-
-                    // get information from the currency contract
-                    const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.currencyContract);
-                    if (serviceContract) {
-                        const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId);
-                        dataResult.currencyContract = Object.assign(ccyContractDetails,
-                                                                    {address: dataResult.currencyContract});
-                    }
-
-                    // get information from the extension contract
-                    const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, data.extension);
-                    if (data.extension
-                            && data.extension !== ''
-                            && serviceExtension) {
-                        const extensionDetails = await serviceExtension.getRequestExtensionInfo(_requestId);
-                        dataResult.extension = Object.assign(extensionDetails, { address: dataResult.extension });
-                    }
-
-                    // get ipfs data if needed
-                    if (dataResult.data && dataResult.data !== '') {
-                        dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
-                                            hash: dataResult.data};
-                    } else {
-                        dataResult.data = undefined;
-                    }
-                    return resolve(dataResult);
-                } catch (e) {
-                    return reject(e);
+                // get information from the core
+                const dataRequest = await coreContract.instance.methods.getRequest(_requestId).call();
+                if (dataRequest.creator === EMPTY_BYTES_20) {
+                    return reject(Error('request not found'));
                 }
-            });
+                // get subPayees
+                const subPayeesCount = await coreContract.instance.methods.getSubPayeesCount(_requestId).call();
+                const subPayees: any[] = [];
+                for (let i = 0; i < subPayeesCount; i++) {
+                    const sub = await coreContract.instance.methods.subPayees(_requestId, i).call();
+                    subPayees.push({address: sub.addr,
+                                    balance: new BN(sub.balance),
+                                    expectedAmount: new BN(sub.expectedAmount)});
+                }
+
+                // get creator and data
+                const eventCoreRaw = await coreContract.instance.getPastEvents('Created', {
+                    filter: {requestId: _requestId},
+                    fromBlock: coreContract.blockNumber,
+                    toBlock: 'latest'});
+                const creator = eventCoreRaw[0].returnValues.creator;
+                const data = eventCoreRaw[0].returnValues.data;
+
+                // create payee object
+                const payee = {address: dataRequest.payeeAddr,
+                                balance: new BN(dataRequest.payeeBalance),
+                                expectedAmount: new BN(dataRequest.payeeExpectedAmount)};
+
+                const dataResult: any = {
+                    creator,
+                    currencyContract: dataRequest.currencyContract,
+                    data,
+                    payee,
+                    payer: dataRequest.payer,
+                    requestId: _requestId,
+                    state: parseInt(dataRequest.state, 10),
+                    subPayees};
+
+                // get information from the currency contract
+                const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, dataRequest.currencyContract);
+                if (serviceContract) {
+                    const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId, dataRequest.currencyContract, coreContract);
+                    dataResult.currencyContract = Object.assign(ccyContractDetails,
+                                                                {address: dataResult.currencyContract});
+                }
+
+                // get ipfs data if needed
+                if (dataResult.data && dataResult.data !== '') {
+                    dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
+                                        hash: dataResult.data};
+                } else {
+                    dataResult.data = undefined;
+                }
+                return resolve(dataResult);
+            } catch (e) {
+                return reject(e);
+            }
         });
     }
-
+ 
     /**
      * get a request and method called by the hash of a transaction
      * @param   _hash    hash of the ethereum transaction
@@ -257,12 +241,12 @@ export default class RequestCoreService {
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
             const coreContract = this.getCoreContractFromRequestId(_requestId);
-            coreContract.instance.methods.requests(_requestId).call(async (err: Error, request: any) => {
+            coreContract.instance.methods.getRequest(_requestId).call(async (err: Error, request: any) => {
                 if (err) return reject(err);
 
                 try {
                     const currencyContract = request.currencyContract;
-                    const extension = request.extension !== EMPTY_BYTES_32 ? request.extension : undefined;
+                    // const extension = request.extension !== EMPTY_BYTES_20 ? request.extension : undefined;
 
                     // let eventsCoreRaw = await this.instanceRequestCore.getPastEvents('allEvents', {
                     //     // allEvents and filter don't work together so far. issues created on web3 github
@@ -307,11 +291,11 @@ export default class RequestCoreService {
                                         });
                                     }));
 
-                    let eventsExtensions = [];
-                    const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, extension);
-                    if (serviceExtension) {
-                        eventsExtensions = await serviceExtension.getRequestEventsExtensionInfo(request, _fromBlock, _toBlock);
-                    }
+                    // let eventsExtensions = [];
+                    // const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, extension);
+                    // if (serviceExtension) {
+                    //     eventsExtensions = await serviceExtension.getRequestEventsExtensionInfo(request, _fromBlock, _toBlock);
+                    // }
 
                     let eventsCurrencyContract = [];
                     const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, currencyContract);
@@ -321,7 +305,7 @@ export default class RequestCoreService {
                     }
 
                     return resolve(eventsCore
-                                    .concat(eventsExtensions)
+                                    // .concat(eventsExtensions)
                                     .concat(eventsCurrencyContract)
                                     .sort( (a: any, b: any) => {
                                       const diffBlockNum = a._meta.blockNumber - b._meta.blockNumber;
@@ -350,13 +334,16 @@ export default class RequestCoreService {
                 const allCoreContracts = this.getAllCoreInstance();
                 let allEventsCorePayee: any[] = [];
                 let allEventsCorePayer: any[] = [];
+                let allEventsCoreSubPayee: any[] = [];
                 for ( const contract of allCoreContracts ) {
                     const oneResult = await this.getRequestsByAddressForOneContract(_address, contract, _fromBlock, _toBlock);
                     allEventsCorePayee = allEventsCorePayee.concat(oneResult.asPayee);
                     allEventsCorePayer = allEventsCorePayer.concat(oneResult.asPayer);
+                    allEventsCoreSubPayee = allEventsCoreSubPayee.concat(oneResult.asSubPayee);
                 }
                 return resolve({asPayee : allEventsCorePayee,
-                                asPayer : allEventsCorePayer});
+                                asPayer : allEventsCorePayer,
+                                asSubPayee : allEventsCoreSubPayee});
             } catch (e) {
                 return reject(e);
             }
@@ -385,8 +372,51 @@ export default class RequestCoreService {
         return this.ipfs.getFile(_hash);
     }
 
+    /**
+     * get the core contract instance of a request
+     * @param   _requestId    requestId of the request
+     * @return  the contract information of the request : { abi, address, instance, blockNumber, version }
+     */
     public getCoreContractFromRequestId(_requestId: string): any {
         return this.web3Single.getContractInstance(_requestId.slice(0, 42));
+    }
+
+    /**
+     * create a bytes request
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+     * @param   _expectedAmounts           amount initial expected per payees for the request
+     * @param   _payer                     address of the payer
+     * @param   _data                      hash of the data
+     * @return  the request in bytes
+     */
+    public createBytesRequest(
+                    payeesIdAddress: string[],
+                    expectedAmounts: any[],
+                    payer: string,
+                    data: string): any {
+        const requestParts = [
+                {value: payeesIdAddress[0], type: 'address'},
+                {value: payer, type: 'address'},
+                {value: payeesIdAddress.length, type: 'uint8'}];
+
+        for (const k in payeesIdAddress) {
+            if (payeesIdAddress.hasOwnProperty(k)) {
+                requestParts.push({value: payeesIdAddress[k], type: 'address'});
+                requestParts.push({value: expectedAmounts[k], type: 'int256'});
+            }
+        }
+
+        requestParts.push({value: data.length, type: 'uint8'});
+        requestParts.push({value: data, type: 'string'});
+
+        const types: string[] = [];
+        const values: any[] = [];
+        requestParts.forEach((o) => {
+            types.push(o.type);
+            values.push(o.value);
+        });
+
+        return this.web3Single.web3.utils.bytesToHex(ETH_ABI.solidityPack(types, values));
     }
 
     /**
@@ -417,7 +447,13 @@ export default class RequestCoreService {
                     fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
-                // clean the data and get timestamp for request as payee
+                // get events Created with payer === address
+                let eventsCoreSubPayee = await _requestCoreContract.instance.getPastEvents('NewSubPayee', {
+                    filter: { payee: _address },
+                    fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
+                    toBlock: _toBlock ? _toBlock : 'latest'});
+
+                // clean the data and get timestamp for requests as payee
                 eventsCorePayee = await Promise.all(eventsCorePayee.map((e: any) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
                                         return resolveEvent({
@@ -428,7 +464,7 @@ export default class RequestCoreService {
                                     });
                                 }));
 
-                // clean the data and get timestamp for request as payer
+                // clean the data and get timestamp for requests as payer
                 eventsCorePayer = await Promise.all(eventsCorePayer.map((e: any) => {
                                     return new Promise(async (resolveEvent, rejectEvent) => {
                                         return resolveEvent({
@@ -438,9 +474,21 @@ export default class RequestCoreService {
                                                 requestId: e.returnValues.requestId});
                                     });
                                 }));
+                // clean the data and get timestamp for requests as sub payee
+                eventsCoreSubPayee = await Promise.all(eventsCoreSubPayee.map((e: any) => {
+                                    return new Promise(async (resolveEvent, rejectEvent) => {
+                                        return resolveEvent({
+                                                _meta: {
+                                                    blockNumber: e.blockNumber,
+                                                    timestamp: await this.web3Single.getBlockTimestamp(e.blockNumber)},
+                                                requestId: e.returnValues.requestId});
+                                    });
+                                }));
 
-                return resolve({asPayee : eventsCorePayee,
-                                asPayer : eventsCorePayer});
+
+                return resolve({asPayee: eventsCorePayee,
+                                asPayer: eventsCorePayer,
+                                asSubPayee: eventsCoreSubPayee});
             } catch (e) {
                 return reject(e);
             }
