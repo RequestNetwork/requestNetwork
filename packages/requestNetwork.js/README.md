@@ -56,11 +56,15 @@ You can now launch the unit tests:
 ### Constructor
 Default configuration (Infura and Rinkeby)
 
-`let requestNetwork = new RequestNetwork();`
+```js
+let requestNetwork = new RequestNetwork();
+```
 
 Custom configuration 
 
-`let requestNetwork = new RequestNetwork(provider, networkId, useIpfsPublic);`
+```js
+let requestNetwork = new RequestNetwork(provider, networkId, useIpfsPublic);
+```
 
 Instantiates a new RequestNetwork instance that provides the public interface to the requestNetwork.js library.
 
@@ -116,7 +120,9 @@ Functions
 
 ## Functions
 ### Create a request as the payee
-`public createRequestAsPayee(_payeesIdAddress: string[], _expectedAmounts: any[], _payer: string, _payeesPaymentAddress ?: Array<string|undefined>, _payerRefundAddress ?: string, _data ?: string, _extension ?: string, _extensionParams ?: any[], _options ?: any)`
+```js
+public createRequestAsPayee(_payeesIdAddress: string[], _expectedAmounts: any[], _payer: string, _payeesPaymentAddress ?: Array<string|undefined>, _payerRefundAddress ?: string, _data ?: string, _extension ?: string, _extensionParams ?: any[], _options ?: any)
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -133,7 +139,9 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Create a request as payer
-`public createRequestAsPayer(_payeesIdAddress: string[], _expectedAmounts: any[], _payerRefundAddress ?: string, _amountsToPay ?: any[], _additionals ?: any[], _data ?: string, _extension ?: string, _extensionParams ?: any[], _options ?: any);`
+```js
+public createRequestAsPayer(_payeesIdAddress: string[], _expectedAmounts: any[], _payerRefundAddress ?: string, _amountsToPay ?: any[], _additionals ?: any[], _data ?: string, _extension ?: string, _extensionParams ?: any[], _options ?: any);
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -150,7 +158,9 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Sign a request as payee
-`public signRequestAsPayee( _payeesIdAddress: string[], _expectedAmounts: any[], _expirationDate: number, _payeesPaymentAddress ?: Array<string|undefined>, _data ?: string, _extension ?: string, _extensionParams ?: any[], _from ?: string)`
+```js
+public signRequestAsPayee( _payeesIdAddress: string[], _expectedAmounts: any[], _expirationDate: number, _payeesPaymentAddress ?: Array<string|undefined>, _data ?: string, _extension ?: string, _extensionParams ?: any[], _from ?: string)
+```
 
 * @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
@@ -164,7 +174,9 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Broadcast a signed transaction and fill it with his address as payer
-`public broadcastSignedRequestAsPayer( _signedRequest: any, _amountsToPay ?: any[], _additionals ?: any[], _options ?: any);`
+```js
+public broadcastSignedRequestAsPayer( _signedRequest: any, _amountsToPay ?: any[], _additionals ?: any[], _options ?: any);
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -217,7 +229,9 @@ Example:
 ```
 
 ### Check a signed request
-`public isSignedRequestHasError(_signedRequest: any, _payer: string): string`
+```js
+public isSignedRequestHasError(_signedRequest: any, _payer: string): string;
+```
 
 Check if a signed request is valid
 
@@ -226,7 +240,9 @@ Check if a signed request is valid
 * @return  return a string with the error, or ''
 
 ### Accept a request
-`public accept(_requestId: string, _options ? : any)`
+```js
+public accept(_requestId: string, _options ? : any);
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -235,7 +251,9 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 ### Cancel a request    
-`public cancel(_requestId: string, _options ? : any)`
+```js
+public cancel(_requestId: string, _options ? : any);
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -245,7 +263,9 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Pay a request
-`public paymentAction(_requestId: string, _amountsToPay ?: any[], _additionals ?: any[], _options ? : any)` 
+```js
+public paymentAction(_requestId: string, _amountsToPay ?: any[], _additionals ?: any[], _options ? : any);
+```
 
 Emit the event `'broadcasted`' with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -256,7 +276,9 @@ Emit the event `'broadcasted`' with `{transaction: {hash}}` when the transaction
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 ### Refund a request    
-`public refundAction(_requestId: string, _amountToRefund: any, _options ? : any)`
+```js
+public refundAction(_requestId: string, _amountToRefund: any, _options ? : any);
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
@@ -268,7 +290,9 @@ only addresses from payeesIdAddress and payeesPaymentAddress can refund a reques
 
 
 ### Add subtracts to a request (only for the payee)
-`public subtractAction(_requestId: string, _subtracts ?: any[], _options ? : any)`
+```js
+public subtractAction(_requestId: string, _subtracts ?: any[], _options ? : any)
+```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
@@ -279,7 +303,9 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 
 ### Add additionals to a request (only for the payer)    
-`public additionalAction(_requestId: string, _additionals ?: any[], _options ? : any)`
+```js
+public additionalAction(_requestId: string, _additionals ?: any[], _options ? : any)
+```
 
 Emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted.
 * @param   `_requestId`         requestId of the payer
@@ -289,7 +315,9 @@ Emit the event 'broadcasted' with {transaction: {hash}} when the transaction is 
 
 
 ### Get Request Currency Contract info
-`public getRequestCurrencyContractInfo(_requestId: string)`
+```js
+public getRequestCurrencyContractInfo(_requestId: string)
+```
 
 return `{}` always
 
@@ -298,16 +326,18 @@ return `{}` always
 
 
 ### Get Request by ID(Alias of `requestCoreServices.getRequest()`)
-
-`public getRequest(_requestId: string)`
+```js
+public getRequest(_requestId: string)
+```
 
 * @param   `_requestId`    requestId of the request
 * @return  promise of the object containing the request
 
 
 ### Get Request by Transaction hash
-
-`public getRequestByTransactionHash(_hash: string)`
+```js
+public getRequestByTransactionHash(_hash: string)
+```
 
 Get a request and method called by the hash of a transaction
 * @param   _hash    hash of the ethereum transaction
@@ -315,7 +345,9 @@ Get a request and method called by the hash of a transaction
 
 
 ### Get Request's events (Alias of `requestCoreServices.getRequestEvents()`)
-`public getRequestEvents(_requestId: string, _fromBlock ?: number, _toBlock ?: number)`
+```js
+public getRequestEvents(_requestId: string, _fromBlock ?: number, _toBlock ?: number)
+```
 
 * @param   `_requestId`    requestId of the request
 * @param   `_fromBlock`    search events from this block (optional)
@@ -324,7 +356,9 @@ Get a request and method called by the hash of a transaction
 
 
 ### Get Request's events from currency contract (generic method)    
-`public getRequestEventsCurrencyContractInfo(_requestId: string, _fromBlock ?: number, _toBlock ?: number)`
+```js
+public getRequestEventsCurrencyContractInfo(_requestId: string, _fromBlock ?: number, _toBlock ?: number)
+```
 
 * @param   `_requestId`    requestId of the request
 * @param   `_fromBlock`    search events from this block (optional)
