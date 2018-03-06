@@ -270,11 +270,7 @@ export default class RequestCoreService {
                     eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('Canceled', optionFilters));
                     eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('UpdateBalance', optionFilters));
                     eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('UpdateExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewPayee', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewPayer', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewExtension', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewData', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewSubPayee', optionFilters));
                     /* tslint:enable:max-line-length */
 
                         // waiting for filter working (see above)
