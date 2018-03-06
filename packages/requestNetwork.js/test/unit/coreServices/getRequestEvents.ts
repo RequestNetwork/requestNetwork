@@ -127,30 +127,6 @@ describe('getRequestEvents', () => {
         expect(events[12].data.payeeIndex, 'payee is wrong').to.equal('2');
         expect(events[12].data.deltaAmount, 'payee is wrong').to.equal(arbitraryAmount3.toString());
         expect(events[12].data.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, currentNumRequest));
-
-
-
-        // expect(data.transaction.method.name, 'name is wrong').to.equal('paymentAction');
-        // expect(data.transaction.method.parameters._requestId, '_requestId is wrong').to.equal(resultCreateRequestAsPayee.request.requestId);
-        // expect(data.transaction.method.parameters._payeeAmounts[0], '_payeeAmounts[0] is wrong').to.equal(arbitraryAmount.toString());
-        // expect(data.transaction.method.parameters._payeeAmounts[1], '_payeeAmounts[1] is wrong').to.equal(arbitraryAmount2.toString());
-        // expect(data.transaction.method.parameters._payeeAmounts[2], '_payeeAmounts[2] is wrong').to.equal(arbitraryAmount3.toString());
-
-        // expect(data.transaction.method.parameters._additionalAmounts[0], '_additionals[0] is wrong').to.equal('1');
-        // expect(data.transaction.method.parameters._additionalAmounts[1], '_additionals[1] is wrong').to.equal('2');
-        // expect(data.transaction.method.parameters._additionalAmounts[2], '_additionals[2] is wrong').to.equal('3');
-
-        // utils.expectEqualsBN(data.request.payee.expectedAmount, arbitraryAmount + 1, 'expectedAmount is wrong');
-        // utils.expectEqualsBN(data.request.payee.balance, arbitraryAmount, 'balance is wrong');
-        // expect(data.request.creator.toLowerCase(), 'creator is wrong').to.equal(defaultAccount);
-        // expect(data.request.extension, 'extension is wrong').to.be.undefined;
-        // expect(data.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(defaultAccount);
-        // expect(data.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
-        // expect(data.request.requestId, 'requestId is wrong').to.equal(
-        //                             utils.getRequestId(addressRequestCore, currentNumRequest));
-        // expect(data.request.state, 'state is wrong').to.equal(1);
-        // expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-
     });
 });
 
