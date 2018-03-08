@@ -428,7 +428,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	}
 
 	/*
-	 * @dev Function to withdraw ether
+	 * @dev Function to withdraw locked up ether after a fail transfer. 
+	 * @dev This function is a security measure if you send money to a contract that might reject the money. 
+	 * @dev However it will protect only the contracts that can trigger the withdraw function afterwards.
 	 */
 	function withdraw()
 		public
