@@ -3,8 +3,8 @@ pragma solidity 0.4.18;
 import '../../synchrone/RequestEthereum.sol';
 
 
-// Reentrance test for Ether currency contract
-contract TestRequestReentrance {
+// Reentrancy test for Ether currency contract
+contract TestRequestReentrancy {
 
     address contractAdd;
     uint8 round;
@@ -14,7 +14,7 @@ contract TestRequestReentrance {
 
     event Log(bytes32 id);
 
-    function TestRequestReentrance(address _contract, uint8 _round) public {
+    function TestRequestReentrancy(address _contract, uint8 _round) public {
         contractAdd = _contract;
         round = _round;
     }
