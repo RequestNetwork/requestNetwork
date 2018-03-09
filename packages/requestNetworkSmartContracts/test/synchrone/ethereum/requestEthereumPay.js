@@ -1,3 +1,4 @@
+var BigNumber = require('bignumber.js');
 var config = require("../../config.js"); var utils = require("../../utils.js");
 if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 	return;
