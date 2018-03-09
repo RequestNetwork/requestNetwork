@@ -9,7 +9,7 @@ import '../base/math/SafeMathUint8.sol';
 /**
  * @title RequestCore
  *
- * @dev The Core is the main contract which store all the Requests.
+ * @dev The Core is the main contract which stores all the requests.
  *
  * @dev The Core philosophy is to be as much flexible as possible to adapt in the future to any new system
  * @dev All the important conditions and an important part of the business logic takes place in the currency contracts.
@@ -26,28 +26,45 @@ contract RequestCore is Administrable {
     enum State { Created, Accepted, Canceled }
 
     struct Request {
-        address payer; // ID address of the payer
-        address currencyContract; // address of the contract managing the request
-        State state; // state of the request
-        Payee payee; // main payee
+        // ID address of the payer
+        address payer;
+
+        // Address of the contract managing the request
+        address currencyContract;
+
+        // State of the request
+        State state;
+
+        // Main payee
+        Payee payee;
     }
 
-    // structure for the sub Payee. A sub payee is an additional entity which will be paid during the processing of the invoice.
-    // ex: can be use for routing taxes or fees at the moment of the payment.
+    // Structure for the sub Payee. A sub payee is an additional entity which will be paid during the processing of the invoice.
+    // ex: can be used for routing taxes or fees at the moment of the payment.
     struct Payee {
-        address addr; // ID address of the sub payee
-        int256 expectedAmount; // amount expected for the sub payee
-        int256 balance; // balance of the sub payee
+        // ID address of the sub payee
+        address addr;
+
+        // amount expected for the sub payee. 
+        // Not uint for evolution (may need negative amounts one day), and simpler operations
+        int256 expectedAmount;
+
+        // balance of the sub payee
+        int256 balance;
     }
 
-    // index of the Request in the mapping. A maximum of 2^96 requests can be created per Core contract.
+    // Count of request in the mapping. A maximum of 2^96 requests can be created per Core contract.
+    // Integer, incremented for each request of a Core contract, starting from 0
+    // RequestId (256bits) = contract address (160bits) + numRequest
     uint96 public numRequests; 
     
-    // mapping of all the Requests. The bytes32 is the request ID.
+    // Mapping of all the Requests. The key is the request ID.
     // not anymore public to avoid "UnimplementedFeatureError: Only in-memory reference type can be stored."
+    // https://github.com/ethereum/solidity/issues/3577
     mapping(bytes32 => Request) requests;
 
-    // mapping of subPayees of the requests. This array is outside the Request structure to optimize the gas cost when there is only 1 payee.
+    // Mapping of subPayees of the requests. The key is the request ID.
+    // This array is outside the Request structure to optimize the gas cost when there is only 1 payee.
     mapping(bytes32 => Payee[256]) public subPayees;
 
     /*
@@ -64,13 +81,14 @@ contract RequestCore is Administrable {
 
     /*
      * @dev Function used by currency contracts to create a request in the Core
+     *
      * @param _creator Request creator. The creator is the one who initiated the request (create or sign) and not necessarily the one who broadcasted it
-     * @param _payees array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 255.
-     * @param _expectedAmounts array of Expected amount to be received by each payees. Must be in same order than the payees. Size must be smaller than 255.
+     * @param _payees array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 256.
+     * @param _expectedAmounts array of Expected amount to be received by each payees. Must be in same order than the payees. Size must be smaller than 256.
      * @param _payer Entity expected to pay
      * @param _data data of the request
      * @return Returns the id of the request
-     */   
+     */
     function createRequest(
         address     _creator,
         address[]   _payees,
@@ -138,6 +156,7 @@ contract RequestCore is Administrable {
 
         // extract address creator & payer
         address creator = extractAddress(_data, 0);
+
         address payer = extractAddress(_data, 20);
 
         // creator must not be null
@@ -336,7 +355,7 @@ contract RequestCore is Administrable {
         constant
         returns(uint8)
     {
-        for (uint8 i = 0; i < 255 && subPayees[_requestId][i].addr != address(0); i = i.add(1)) {
+        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1)) {
             // nothing to do
         }
         return i;
@@ -490,10 +509,10 @@ contract RequestCore is Administrable {
     }
 
     /*
-     * @dev extract a string in a bytes
-     * @param data bytes from where the string will be extract
+     * @dev extract a string from a bytes. Extracts a sub-part from tha bytes and convert it to string
+     * @param data bytes from where the string will be extracted
      * @param size string size to extract
-     * @param _offset position of the first byte of the string
+     * @param _offset position of the first byte of the string in bytes
      * @return string
      */ 
     function extractString(bytes data, uint8 size, uint _offset) 
@@ -523,7 +542,7 @@ contract RequestCore is Administrable {
     }
 
     /*
-     * @dev extract an address from a bytes
+     * @dev extract an address from a bytes at a given position
      * @param _data bytes from where the address will be extract
      * @param _offset position of the first byte of the address
      * @return address

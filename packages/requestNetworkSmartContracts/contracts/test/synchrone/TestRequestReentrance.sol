@@ -2,6 +2,8 @@ pragma solidity 0.4.18;
 
 import '../../synchrone/RequestEthereum.sol';
 
+
+// Reentrance test for Ether currency contract
 contract TestRequestReentrance {
 
     address contractAdd;

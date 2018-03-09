@@ -1,5 +1,6 @@
 pragma solidity 0.4.18;
 
+// From https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/math/SafeMath.sol
 /**
  * @title SafeMath
  * @dev Math operations with safety checks that throw on error
@@ -7,6 +8,7 @@ pragma solidity 0.4.18;
 library SafeMath {
   function mul(uint256 a, uint256 b) internal pure returns (uint256) {
     uint256 c = a * b;
+
     assert(a == 0 || c / a == b);
     return c;
   }
@@ -30,7 +32,7 @@ library SafeMath {
   }
 
   function toInt256Safe(uint256 a) internal pure returns (int256) {
-    int b = int256(a);
+    int256 b = int256(a);
     assert(b >= 0);
     return b;
   }

@@ -10,7 +10,7 @@ import './RequestEthereumCollect.sol';
  * @dev RequestEthereum is the currency contract managing the request in Ethereum
  * @dev The contract can be paused. In this case, nobody can create Requests anymore but people can still interact with them or withdraw funds.
  *
- * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
+ * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer()
  */
 contract RequestEthereum is RequestEthereumCollect {
 	using SafeMath for uint256;
@@ -28,7 +28,7 @@ contract RequestEthereum is RequestEthereumCollect {
     mapping(bytes32 => address) public payerRefundAddress;
 
     /*
-     *  Events
+     *  Event sent when we send to fail. The ether will be avaialble for withdrawal.
      */
 	event EtherAvailableToWithdraw(bytes32 indexed requestId, address indexed recipient, uint256 amount);
 
@@ -81,7 +81,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	}
 
 	/*
-	 * @dev Function to create a request as payer
+	 * @dev Function to create a request as payer. The request is payed if _payeeAmounts > 0.
 	 *
 	 * @dev msg.sender will be the payer
 	 *
@@ -108,7 +108,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	{
 		require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0);
 
-		// payeesPaymentAddress not allowed here to avoid scam
+		// payeesPaymentAddress is not offered as argument here to avoid scam
 		address[] memory emptyPayeesPaymentAddress = new address[](0);
 		uint256 fees;
 		(requestId, fees) = createRequest(msg.sender, _payeesIdAddress, emptyPayeesPaymentAddress, _expectedAmounts, _payerRefundAddress, _data);
@@ -123,11 +123,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function to broadcast and accept an offchain signed request (can be paid and additionals also)
 	 *
-	 * @dev msg.sender must be _payer
-	 * @dev only the _payer can additionals
+	 * @dev _payer will be set msg.sender
 	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
-	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
+	 * @param _requestData nested bytes containing : creator, payer, payees, expectedAmounts, data
 	 * @param _payeesPaymentAddress array of payees address for payment (optional) 
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals array to increase the ExpectedAmount for payees
@@ -198,7 +197,9 @@ contract RequestEthereum is RequestEthereumCollect {
 
 		// collect the fees
 		uint256 fees = collectEstimation(totalExpectedAmounts);
+
 		// check fees has been well received
+		// do the action and assertion in one to save a variable
 		require(collectForREQBurning(fees));
 
 		// store request in the core, but first insert the msg.sender as the payer in the bytes
@@ -243,7 +244,7 @@ contract RequestEthereum is RequestEthereumCollect {
 		int256 totalExpectedAmounts = 0;
 		for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
 		{
-			// all expected amount must be positibe
+			// all expected amount must be positive
 			require(_expectedAmounts[i]>=0);
 			// compute the total expected amount of the request
 			totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
@@ -324,9 +325,12 @@ contract RequestEthereum is RequestEthereumCollect {
 		whenNotPaused
 	{
 		// payer can cancel if request is just created
+		bool isPayerAndCreated = requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created;
+
 		// payee can cancel when request is not canceled yet
-		require((requestCore.getPayer(_requestId)==msg.sender && requestCore.getState(_requestId)==RequestCore.State.Created)
-				|| (requestCore.getPayeeAddress(_requestId,0)==msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled));
+		bool isPayeeAndNotCanceled = requestCore.getPayeeAddress(_requestId,0)==msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled;
+
+		require(isPayerAndCreated || isPayeeAndNotCanceled);
 
 		// impossible to cancel a Request with any payees balance != 0
 		require(requestCore.areAllBalanceNull(_requestId));
@@ -339,12 +343,12 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	// ---- CONTRACT FUNCTIONS ------------------------------------------------------------------------------------
 	/*
-	 * @dev Function PAYABLE to pay in ether a request.
+	 * @dev Function PAYABLE to pay a request in ether.
 	 *
 	 * @dev the request will be automatically accepted if msg.sender==payer. 
 	 *
 	 * @param _requestId id of the request
-	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
 	 * @param _additionalsAmount amount of additionals per payee in wei to declare
 	 */
 	function paymentAction(
@@ -416,7 +420,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev the request must be accepted or created
 	 *
 	 * @param _requestId id of the request
-	 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
+	 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for main payee)
 	 */
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
 		public
@@ -450,7 +454,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	function additionalInternal(bytes32 _requestId, uint256[] _additionalAmounts)
 		internal
 	{
-		// we cannot have more amounts declared than actual payees
+		// we cannot have more additional amounts declared than actual payees but we can have fewer
 		require(_additionalAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
 
 		for(uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
@@ -508,25 +512,26 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function internal to manage refund declaration
 	 *
 	 * @param _requestId id of the request
-	 * @param _address address from where the refund have been done
+
+	 * @param _fromAddress address from where the refund has been done
 	 * @param _amount amount of the refund in wei to declare
 	 *
 	 * @return true if the refund is done, false otherwise
 	 */
 	function refundInternal(
 		bytes32 _requestId,
-		address _address,
+		address _fromAddress,
 		uint256 _amount)
 		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		internal
 	{
-		// Check if the _address is a payeesId
-		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _address);
+		// Check if the _fromAddress is a payeesId
+		// in16 to allow -1 value
+		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _fromAddress);
 		if(payeeIndex < 0) {
 			// if not ID addresses maybe in the payee payments addresses
-	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1))
-	        {
-	            if(payeesPaymentAddress[_requestId][i] == _address) {
+	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1)) {
+	            if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
 	            	// get the payeeIndex
 	                payeeIndex = int16(i);
 	            }
@@ -535,7 +540,7 @@ contract RequestEthereum is RequestEthereumCollect {
 		// the address must be found somewhere
 		require(payeeIndex >= 0); 
 
-		// useless (subPayee size <256): require(payeeIndex < 265);
+		// Casting to uin8 doesn't lose bits because payeeIndex < 256. payeeIndex was declared int16 to allow -1
 		requestCore.updateBalance(_requestId, uint8(payeeIndex), -_amount.toInt256Safe());
 
 		// refund to the payment address if given, the id address otherwise
@@ -551,14 +556,13 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function internal to manage fund mouvement
 	 * @dev We had to chose between a withdraw pattern, a send pattern or a send + withdraw pattern and chose the last. 
-	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The send pattern would have allow someone to lock a request. 
+	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The send pattern would have allowed someone to lock a request. 
 	 * @dev The send + withdraw pattern will have to be clearly explained to users. If the payee is a contract which can let a transfer fail, it will need to be able to call a withdraw function from Request. 
 	 *
 	 * @param _requestId id of the request
 	 * @param _recipient address where the wei has to be sent to
 	 * @param _amount amount in wei to send
 	 *
-	 * @return true if the fund mouvement is done, false otherwise
 	 */
 	function fundOrderInternal(
 		bytes32 _requestId,
@@ -568,7 +572,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	{
 		// try to send the fund
 		if(!_recipient.send(_amount)) {
-			// if sendding fail, the funds are availbale to withdraw
+			// if sendding fails, the funds are availbale to withdraw
 			ethToWithdraw[_recipient] = ethToWithdraw[_recipient].add(_amount);
 			// spread the word that the money is not sent but available to withdraw
 			EtherAvailableToWithdraw(_requestId, _recipient, _amount);
@@ -585,14 +589,17 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @return Keccak-256 hash of (this,_requestData, _payeesPaymentAddress, _expirationDate)
 	 */
 	function getRequestHash(
+		// _requestData is from the core
 		bytes 		_requestData,
+
+		// _payeesPaymentAddress and _expirationDate are not from the core but needs to be signed
 		address[] 	_payeesPaymentAddress,
 		uint256 	_expirationDate)
 		internal
 		view
 		returns(bytes32)
 	{
-		return keccak256(this,_requestData, _payeesPaymentAddress, _expirationDate);
+		return keccak256(this, _requestData, _payeesPaymentAddress, _expirationDate);
 	}
 
 	/*
