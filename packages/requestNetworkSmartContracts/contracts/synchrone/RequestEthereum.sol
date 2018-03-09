@@ -28,7 +28,7 @@ contract RequestEthereum is RequestEthereumCollect {
     mapping(bytes32 => address) public payerRefundAddress;
 
     /*
-     *  Event sent when we send to fail. The ether will be avaialble for withdrawal.
+     *  Event sent when we fail to send. The ether will be avaialble for withdrawal.
      */
 	event EtherAvailableToWithdraw(bytes32 indexed requestId, address indexed recipient, uint256 amount);
 
