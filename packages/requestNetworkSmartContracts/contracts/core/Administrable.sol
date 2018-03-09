@@ -2,9 +2,10 @@ pragma solidity 0.4.18;
 
 import '../base/lifecycle/Pausable.sol';
 
+
 /**
  * @title Administrable
- * @dev Administrable is a base contract to manage the list of trusted currency contract
+ * @dev Base contract for the administration of Core. Handles whitelisting of currency contracts
  */
 contract Administrable is Pausable {
 

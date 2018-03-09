@@ -1,8 +1,9 @@
 pragma solidity 0.4.18;
 
 /**
- * @title SafeMath
+ * @title SafeMathInt
  * @dev Math operations with safety checks that throw on error
+ * @dev SafeMath adapted for int256
  */
 library SafeMathInt {
   function mul(int256 a, int256 b) internal pure returns (int256) {
@@ -29,21 +30,6 @@ library SafeMathInt {
     assert((b >= 0 && c >= a) || (b < 0 && c < a));
     return c;
   }
-
-  // function sub(int256 a, uint256 b) internal pure returns (int256) {
-  //   assert(b<2^255); // avoid miss conversion
-  //   assert((a-int256(b))>a);
-
-  //   return a - int256(b);
-  // }
-
-  // function add(int256 a, uint256 b) internal pure returns (int256) {
-  //   assert(b<2^255); // avoid miss conversion
-  //   int256 c = a + int256(b);
-  //   assert(c <= a);
-  //   return c;
-  // }
-
 
   function toUint256Safe(int256 a) internal pure returns (uint256) {
     assert(a>=0);

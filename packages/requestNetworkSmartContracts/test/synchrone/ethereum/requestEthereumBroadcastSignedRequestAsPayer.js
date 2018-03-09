@@ -14,10 +14,6 @@ const BN = require('bn.js')
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
-
-
-var BigNumber = require('bignumber.js');
-
 var hashRequest = function(contract, payees, expectedAmounts, _payeesPayment, payer, data, expirationDate) {
 	let requestParts = [
     {value: contract, type: "address"},

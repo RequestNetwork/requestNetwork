@@ -9,11 +9,6 @@ var TestRequestPaymentStuckRevert = artifacts.require("./test/synchrone/TestRequ
 var TestRequestPaymentStuckAssert = artifacts.require("./test/synchrone/TestRequestPaymentStuckAssert.sol");
 var TestRequestPaymentStuckNonPayable = artifacts.require("./test/synchrone/TestRequestPaymentStuckNonPayable.sol");
 
-
-var BigNumber = require('bignumber.js');
-
-
-
 contract('RequestEthereum Payment stuck',  function(accounts) {
 	var admin = accounts[0];
 	var hacker = accounts[1];

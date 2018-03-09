@@ -14,9 +14,6 @@ const BN = require('bn.js')
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
-
-var BigNumber = require('bignumber.js');
-
 contract('RequestEthereum createRequestAsPayer',  function(accounts) {
 	var admin = accounts[0];
 	var burnerContract = accounts[1];
