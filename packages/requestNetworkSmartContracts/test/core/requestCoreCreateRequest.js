@@ -1,10 +1,12 @@
-var BigNumber = require('bignumber.js');
 var config = require("../config.js");
 var utils = require("../utils.js");
 if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 	return;
 }
 var RequestCore = artifacts.require("./core/RequestCore.sol");
+
+var BigNumber = require('bignumber.js');
+
 
 contract('RequestCore Create Request', function(accounts) {
 	var admin = accounts[0];

@@ -11,7 +11,6 @@ var BigNumber = require('bignumber.js');
 var BN = require('bn.js');
 
 contract('RequestCore UpdateBalance', function(accounts) {
-
 	var admin = accounts[0];
 	var otherguy = accounts[1];
 	var fakeContract = accounts[2];
