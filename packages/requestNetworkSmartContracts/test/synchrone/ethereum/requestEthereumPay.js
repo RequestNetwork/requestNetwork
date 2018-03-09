@@ -6,10 +6,6 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
-var BigNumber = require('bignumber.js');
-
-
-
 contract('RequestEthereum Pay', function(accounts) {
 	var admin = accounts[0];
 	var otherguy = accounts[1];

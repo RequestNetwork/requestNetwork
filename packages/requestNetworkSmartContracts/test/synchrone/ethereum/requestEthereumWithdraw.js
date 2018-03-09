@@ -5,10 +5,9 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
-
 // contract for test
 var TestRequestReentrancy = artifacts.require("./test/synchrone/TestRequestReentrancy.sol");
-var BigNumber = require('bignumber.js');
+
 
 contract('RequestEthereum Withdraw',  function(accounts) {
 	var admin = accounts[0];
