@@ -429,23 +429,24 @@ export default class RequestCoreService {
        const SIZE_ADDRESS = 20 * 2;
        const SIZE_INT256 = 32 * 2;
 
-       const creator = _requestBytes.slice(INDEX_CREATOR, INDEX_CREATOR + SIZE_ADDRESS);
-       const payer = _requestBytes.slice(INDEX_PAYER, INDEX_PAYER + SIZE_ADDRESS);
+       const creator = '0x' + _requestBytes.slice(INDEX_CREATOR, INDEX_CREATOR + SIZE_ADDRESS);
+       const payer = '0x' + _requestBytes.slice(INDEX_PAYER, INDEX_PAYER + SIZE_ADDRESS);
        const payeesCount = parseInt(_requestBytes.slice(INDEX_PAYEES_COUNT, INDEX_PAYEES_COUNT + 2), 16);
 
-       const mainPayee = {address: _requestBytes.slice(INDEX_PAYEES_ARRAY, INDEX_PAYEES_ARRAY + SIZE_ADDRESS),
-                       expectedAmount: _requestBytes.slice(INDEX_PAYEES_ARRAY + SIZE_ADDRESS, INDEX_PAYEES_ARRAY + SIZE_ADDRESS + SIZE_INT256)};
+       const mainPayee = {address: '0x' + _requestBytes.slice(INDEX_PAYEES_ARRAY, INDEX_PAYEES_ARRAY + SIZE_ADDRESS),
+                       expectedAmount: new BN(_requestBytes.slice(INDEX_PAYEES_ARRAY + SIZE_ADDRESS, INDEX_PAYEES_ARRAY + SIZE_ADDRESS + SIZE_INT256))};
 
        const subPayees: any[] = [];
        for (let i = 1; i < payeesCount; i++) {
            const indexSubPayee = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * i;
-           subPayees.push( {address: _requestBytes.slice(indexSubPayee, indexSubPayee + SIZE_ADDRESS),
-                       expectedAmount: _requestBytes.slice(indexSubPayee + SIZE_ADDRESS, indexSubPayee + SIZE_ADDRESS + SIZE_INT256)});
+           subPayees.push({address: '0x' + _requestBytes.slice(indexSubPayee, indexSubPayee + SIZE_ADDRESS),
+                            expectedAmount: new BN(_requestBytes.slice(indexSubPayee + SIZE_ADDRESS, indexSubPayee + SIZE_ADDRESS + SIZE_INT256))});
        }
 
        const dataCountOffset = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * payeesCount;
        const dataCount = parseInt(_requestBytes.slice(dataCountOffset, dataCountOffset + 2), 16);
-       const data = _requestBytes.slice(dataCountOffset + 2, dataCountOffset + 2 + dataCount * 2);
+       const dataHex = _requestBytes.slice(dataCountOffset + 2, dataCountOffset + 2 + dataCount * 2);
+       const data = this.web3Single.web3.utils.hexToUtf8('0x' + dataHex);
 
        return {
            creator,
