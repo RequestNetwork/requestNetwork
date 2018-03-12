@@ -415,6 +415,46 @@ export default class RequestCoreService {
         return this.web3Single.web3.utils.bytesToHex(ETH_ABI.solidityPack(types, values));
     }
 
+   /**
+    * Parse information from a request bytes
+    * @param   _requestBytes     the request in bytes
+    * @return  the request parsed as {creator, payer, mainPayee, subPayees, data}
+    */
+   public parseBytesRequest(_requestBytes: string): any {
+       const INDEX_CREATOR = 2;
+       const INDEX_PAYER = 21 * 2;
+       const INDEX_PAYEES_COUNT = 41 * 2;
+       const INDEX_PAYEES_ARRAY = 41 * 2 + 2;
+
+       const SIZE_ADDRESS = 20 * 2;
+       const SIZE_INT256 = 32 * 2;
+
+       const creator = _requestBytes.slice(INDEX_CREATOR, INDEX_CREATOR + SIZE_ADDRESS);
+       const payer = _requestBytes.slice(INDEX_PAYER, INDEX_PAYER + SIZE_ADDRESS);
+       const payeesCount = parseInt(_requestBytes.slice(INDEX_PAYEES_COUNT, INDEX_PAYEES_COUNT + 2), 16);
+
+       const mainPayee = {address: _requestBytes.slice(INDEX_PAYEES_ARRAY, INDEX_PAYEES_ARRAY + SIZE_ADDRESS),
+                       expectedAmount: _requestBytes.slice(INDEX_PAYEES_ARRAY + SIZE_ADDRESS, INDEX_PAYEES_ARRAY + SIZE_ADDRESS + SIZE_INT256)};
+
+       const subPayees: any[] = [];
+       for (let i = 1; i < payeesCount; i++) {
+           const indexSubPayee = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * i;
+           subPayees.push( {address: _requestBytes.slice(indexSubPayee, indexSubPayee + SIZE_ADDRESS),
+                       expectedAmount: _requestBytes.slice(indexSubPayee + SIZE_ADDRESS, indexSubPayee + SIZE_ADDRESS + SIZE_INT256)});
+       }
+
+       const dataCountOffset = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * payeesCount;
+       const dataCount = parseInt(_requestBytes.slice(dataCountOffset, dataCountOffset + 2), 16);
+       const data = _requestBytes.slice(dataCountOffset + 2, dataCountOffset + 2 + dataCount * 2);
+
+       return {
+           creator,
+           payer,
+           mainPayee,
+           subPayees,
+           data};
+   }
+
     /**
      * get the list of requests connected to an address for one contract
      * @param   _address                address to get the requests
