@@ -1,16 +1,18 @@
-var ethUtil = require('ethereumjs-util');
-var abiUtils = require("web3-eth-abi");
-var config = require("./config.js");
+const abiUtils = require('web3-eth-abi');
 
-exports.getRequestId = function(addressCore,num) {
-  let hex = num.toString(16);
-  for(i=0; i < 24 - hex.length; i++) addressCore+='0';
-  return addressCore + hex;
+// Builds the requestId from Core address and request number
+exports.getRequestId = function(addressCore, numRequest) {
+  // Convert humRequest to hex string
+  const hexNumRequest = numRequest.toString(16);
+
+  return addressCore + hexNumRequest.padStart(24, '0');
 }
 
+// Adapted from https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/test/helpers/expectThrow.js
 exports.expectThrow = async function(promise) {
   try {
     await promise;
+    assert.fail('Expected throw not received');
   } catch (error) {
     const invalidOpcode = error.message.search('invalid opcode') >= 0;
     const invalidJump = error.message.search('invalid JUMP') >= 0;
@@ -19,36 +21,38 @@ exports.expectThrow = async function(promise) {
 
     assert(
       invalidOpcode || invalidJump || outOfGas || revert,
-      "Expected throw, got '" + error + "' instead",
+      `Expected throw, got '${error}' instead`
     );
-    return;
   }
-  assert.fail('Expected throw not received');
 };
 
+// Adapted from https://ethereum.stackexchange.com/questions/1381/how-do-i-parse-the-transaction-receipt-log-with-web3-js
 exports.getEventFromReceipt = function(log, abi) {
-  var event = null;
+  // Find the event in the abi from the log
+  const event = abi
+    // Filter the 'event' items from the abi
+    .filter(item => item.type === 'event')
 
-  for (var i = 0; i < abi.length; i++) {
-    var item = abi[i];
-    if (item.type != "event") continue;
-    var signature = item.name + "(" + item.inputs.map(function(input) {return input.type;}).join(",") + ")";
-    var hash = web3.sha3(signature);
-    if (hash == log.topics[0]) {
-      event = item;
-      break;
-    }
+    // Find the event that has the same signature as the log
+    .find(item => {
+      const inputTypes = item.inputs.map(input => input.type).join(',');
+      const signature = `${item.name}(${inputTypes})`;
+      const hash = web3.sha3(signature);
+      return (hash === log.topics[0]);
+    });
+
+  if (!event) {
+    return null;
   }
 
-  if (event != null) {
-    var inputs = event.inputs.filter(function(input) {return !input.indexed;}).map(function(input) {return input.type;});
-    var data = abiUtils.decodeParameters(inputs, log.data.replace("0x", ""));
-    // Do something with the data. Depends on the log and what you're using the data for.
-    return {name:event.name , data:data};
-  }
-  return null;
+  const inputs = event.inputs
+    .filter(input => !input.indexed)
+    .map(input => input.type);
+  var data = abiUtils.decodeParameters(inputs, log.data.replace('0x', ''));
+
+  return { name: event.name , data: data};
 }
 
-exports.bytes32StrToAddressStr= function(bytes32) {
+exports.bytes32StrToAddressStr = function(bytes32) {
   return bytes32.replace('0x000000000000000000000000','0x');
 }
