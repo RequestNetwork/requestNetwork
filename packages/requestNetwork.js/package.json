@@ -26,7 +26,7 @@
     "chai-as-promised": "7.1.1",
     "dirty-chai": "2.0.1",
     "mocha": "4.1.0",
-    "rimraf": "2.6.2",
+    "rimraf": "^2.6.2",
     "shx": "0.2.2",
     "ts-node": "3.3.0",
     "tslint": "5.8.0",

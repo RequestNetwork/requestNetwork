@@ -1,12 +1,13 @@
-{
-	"private": {
+// Mapping of artifacts for each network and address
+exports.default = {
+	private: {
 		"last-requestcore": "RequestCore/RequestCore-0.0.3-test.json",
 		"last-requestethereum": "RequestEthereum/RequestEthereum-0.0.3-test.json",
 
 		"0x8cdaf0cd259887258bc13a92c0a6da92698644c0": "RequestCore/RequestCore-0.0.3-test.json",
 		"0xf12b5dd4ead5f743c6baa640b0216200e89b60da": "RequestEthereum/RequestEthereum-0.0.3-test.json"
 	},
-	"rinkeby": {
+	rinkeby: {
 		"last-requestcore": "RequestCore/RequestCore-0.0.3-prod.json",
 		"last-requestethereum": "RequestEthereum/RequestEthereum-0.0.3-prod.json",
 
