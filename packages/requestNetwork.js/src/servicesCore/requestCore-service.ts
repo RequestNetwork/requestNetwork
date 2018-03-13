@@ -12,7 +12,6 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 
 const BN = Web3Single.BN();
 const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
-const requestArtifactsJson = require('requestnetworkartifacts/index.json');
 
 /**
  * The RequestCoreService class is the interface for the Request Core contract
@@ -348,7 +347,7 @@ export default class RequestCoreService {
 
     public getAllCoreInstance(): any[] {
         const result: any[] = [];
-        const allArtifacts = requestArtifactsJson[this.web3Single.networkName];
+        const allArtifacts = requestArtifacts.getAllArtifactsForNetwork(this.web3Single.networkName);
         for ( const key in allArtifacts ) {
             if (key.slice(0, 2) === '0x' && allArtifacts[key].split('/')[0] === 'RequestCore') {
                 result.push( this.web3Single.getContractInstance(key) );
