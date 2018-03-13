@@ -5,8 +5,7 @@ const artifacts = require('./artifacts.js');
 // artifacts.js serves at mapping (network, address) => artifact
 exports.default = function(networkName, address) {
 	const artifact = artifacts[networkName] && artifacts[networkName][address.toLowerCase()];
-	if(!artifact) {
-		// TODO: Throw
+	if (!artifact) {
 		return null;
 	}
 

@@ -2,11 +2,13 @@
   "name": "@requestnetwork/request-network.js",
   "version": "0.3.2",
   "description": "A JavaScript library for interacting with the Request Network protocol",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetwork.js",
   "keywords": [
-    "requestnetwork.js",
+    "request",
     "requestnetwork",
-    "ethereum"
+    "requestnetwork.js"
   ],
+  "license": "MIT",
   "scripts": {
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
@@ -19,24 +21,24 @@
     "prepare": "npm run build"
   },
   "devDependencies": {
-    "@types/chai": "4.0.5",
-    "@types/mocha": "2.2.44",
-    "@types/node": "8.0.53",
-    "chai": "4.1.2",
-    "chai-as-promised": "7.1.1",
-    "dirty-chai": "2.0.1",
-    "mocha": "4.1.0",
+    "@types/chai": "^4.0.5",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.53",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "dirty-chai": "^2.0.1",
+    "mocha": "^4.1.0",
     "rimraf": "^2.6.2",
-    "shx": "0.2.2",
-    "ts-node": "3.3.0",
-    "tslint": "5.8.0",
-    "typings": "2.1.1"
+    "shx": "^0.2.2",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
+    "typings": "^2.1.1"
   },
   "dependencies": {
-    "ethereumjs-util": "5.1.2",
-    "ipfs-api": "15.1.0",
+    "ethereumjs-util": "^5.1.2",
+    "ipfs-api": "^15.1.0",
     "requestnetworkartifacts": "0.1.0",
-    "tslib": "1.8.1",
+    "tslib": "^1.8.1",
     "web3": "1.0.0-beta.26"
   },
   "main": "dist/src/requestNetwork.js",
