@@ -9,6 +9,7 @@
     "requestnetwork.js"
   ],
   "license": "MIT",
+  "repository": "github:RequestNetwork/requestNetwork",
   "scripts": {
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",

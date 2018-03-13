@@ -10,6 +10,7 @@
     "smart contracts"
   ],
   "license": "MIT",
+  "repository": "github:RequestNetwork/requestNetwork",
   "scripts": {
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "test": "truffle test"

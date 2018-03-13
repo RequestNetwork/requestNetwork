@@ -9,5 +9,6 @@
     "requestArtifacts",
     "requestnetwork"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": "github:RequestNetwork/requestNetwork"
 }
