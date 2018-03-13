@@ -5,12 +5,13 @@ const PACKAGE = require('./package.json');
 const fs = require('fs');
 const assert = require('assert');
 
-/// Outpout of truffle compile
+// Output of truffle compile
 const BUILD_DIR = './build/contracts/';
 
-/// commit directories?
+// Output of this script
 const EXPORT_DIR = './export/';
 
+// Checks that the input contracts have been generated
 const contractHaveBeenCompiled = fs.readdirSync(BUILD_DIR).find(file => file.includes('.json'));
 assert(contractHaveBeenCompiled, `No json compiled file found in ${BUILD_DIR}. Did you run \`truffle compile?\``);
 

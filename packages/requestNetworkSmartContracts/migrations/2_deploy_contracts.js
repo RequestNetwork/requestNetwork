@@ -5,7 +5,6 @@ const assert = require('assert');
 const RequestCore = artifacts.require("./RequestCore.sol");
 const RequestEthereum = artifacts.require("./RequestEthereum.sol");
 
-/// config.js
 const addressContractBurner = 0;
 const feesPerTenThousand = 10; // 0.1 %
 const maxFees = web3.toWei(0.00012, 'ether');
