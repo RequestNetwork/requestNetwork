@@ -10,6 +10,10 @@
     "smart contracts"
   ],
   "license": "MIT",
+  "scripts": {
+    "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "test": "truffle test"
+  },
   "devDependencies": {
     "bignumber.js": "^5.0.0",
     "bluebird": "^3.5.1",
