@@ -251,9 +251,8 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("new request with fees", async function () {
 		// 0.1% fees & 0.002 ether max
-		await requestERC20.setRateFeesNumerator(testToken.address,1);
-		await requestERC20.setRateFeesDenominator(testToken.address,1000);
-		await requestERC20.setMaxCollectable(testToken.address,'200000000000000');
+		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
+		await requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:admin}); // 0.01 ether
 
 		var fees = await requestERC20.collectEstimation(testToken.address,arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
 		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
@@ -324,9 +323,8 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("impossible to createRequest if msg.value < fees", async function () {
 		// 0.1% fees & 0.002 ether max
-		await requestERC20.setRateFeesNumerator(testToken.address,1);
-		await requestERC20.setRateFeesDenominator(testToken.address,1000);
-		await requestERC20.setMaxCollectable(testToken.address,'200000000000000');
+		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
+		await requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:admin}); // 0.002 ether
 
 		var fees = await requestERC20.collectEstimation(testToken.address,arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
@@ -341,9 +339,8 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	});
 	it("impossible to createRequest if msg.value > fees", async function () {
 		// 0.1% fees & 0.002 ether max
-		await requestERC20.setRateFeesNumerator(testToken.address,1);
-		await requestERC20.setRateFeesDenominator(testToken.address,1000);
-		await requestERC20.setMaxCollectable(testToken.address,'200000000000000');
+		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
+		await requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:admin}); // 0.002 ether
 
 		var fees = await requestERC20.collectEstimation(testToken.address,arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
@@ -359,8 +356,9 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 
 	it("impossible change fees if not admin", async function () {
-		await utils.expectThrow(requestERC20.setRateFeesNumerator(testToken.address,10,{from:payee})); 
-		await utils.expectThrow(requestERC20.setRateFeesDenominator(testToken.address,10,{from:payee})); 
+		// 0.1% fees & 0.002 ether max
+		await utils.expectThrow(requestERC20.setRateFees(testToken.address, 1, 1000, {from:payee})); // 0.1%
+		await utils.expectThrow(requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:payee})); // 0.002 ether
 	});
 	it("impossible change maxCollectable if not admin", async function () {
 		await utils.expectThrow(requestERC20.setMaxCollectable(testToken.address,10000000,{from:payee})); 
