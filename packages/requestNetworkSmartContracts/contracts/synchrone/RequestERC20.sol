@@ -78,6 +78,114 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	}
 
 	/*
+	 * @dev Function to broadcast and accept an offchain signed request (can be paid and additionals also)
+	 *
+	 * @dev msg.sender must be _payer
+	 * @dev only the _payer can additionals
+	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
+	 *
+	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
+	 * @param _payeesPaymentAddress array of payees address for payment (optional) 
+	 * @param _payeeAmounts array of amount repartition for the payment
+	 * @param _additionals array to increase the ExpectedAmount for payees
+	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+	 * @param _signature ECDSA signature in bytes
+	 *
+	 * @return Returns the id of the request
+	 */
+	function broadcastSignedRequestAsPayer(
+		address 	_addressToken,
+		bytes 		_requestData, // gather data to avoid "stack too deep"
+		address[] 	_payeesPaymentAddress,
+		uint256[] 	_payeeAmounts,
+		uint256[] 	_additionals,
+		uint256 	_expirationDate,
+		bytes 		_signature)
+		external
+		payable
+		whenNotPaused
+		returns(bytes32 requestId)
+	{
+		require(isTokenWhitelisted(_addressToken));
+
+		// check expiration date
+		require(_expirationDate >= block.timestamp);
+
+		// check the signature
+		require(checkRequestSignature(_requestData, _addressToken, _payeesPaymentAddress, _expirationDate, _signature));
+
+		return createAcceptAndPayFromBytes(_requestData, _addressToken, _payeesPaymentAddress, _payeeAmounts, _additionals);
+	}
+
+
+
+	function createAcceptAndPayFromBytes(
+		bytes 		_requestData,
+		address 	_addressToken,
+		address[] 	_payeesPaymentAddress,
+		uint256[] 	_payeeAmounts,
+		uint256[] 	_additionals)
+		internal
+		returns(bytes32 requestId)
+	{
+		// extract main payee
+		address mainPayee = extractAddress(_requestData, 41);
+		require(msg.sender != mainPayee && mainPayee != 0);
+		// creator must be the main payee
+		require(extractAddress(_requestData, 0) == mainPayee);
+
+		// extract the number of payees
+		uint8 payeesCount = uint8(_requestData[40]);
+		int256 totalExpectedAmounts = 0;
+		for(uint8 i = 0; i < payeesCount; i++) {
+			// extract the expectedAmount for the payee[i]
+			int256 expectedAmountTemp = int256(extractBytes32(_requestData, uint256(i).mul(52).add(61)));
+			// compute the total expected amount of the request
+			totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
+			// all expected amount must be positibe
+			require(expectedAmountTemp>0);
+		}
+
+		// compute and send fees
+		uint256 fees = collectEstimation(_addressToken, totalExpectedAmounts);
+		// check fees has been well received
+		require(fees == msg.value && collectForREQBurning(fees));
+
+		// store request in the core, but first insert the msg.sender as the payer in the bytes
+		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
+
+		// store the token used
+		requestTokens[requestId] = _addressToken;
+		
+		// set payment addresses for payees
+		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
+			payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
+		}
+
+		// accept and pay the request with the value remaining after the fee collect
+		acceptAndPay(requestId, _payeeAmounts, _additionals, totalExpectedAmounts);
+
+		return requestId;
+	}
+
+	function acceptAndPay(
+		bytes32 _requestId,
+		uint256[] _payeeAmounts,
+		uint256[] _additionals,
+		int256 _payeeAmountsSum)
+		internal
+	{
+		// requestCore.accept(_requestId);
+		acceptInternal(_requestId);
+		
+		additionalInternal(_requestId, _additionals);
+
+		if(_payeeAmountsSum > 0) {
+			paymentInternal(_requestId, _payeeAmounts);
+		}
+	}
+
+	/*
 	 * @dev Function to accept a request
 	 *
 	 * @dev msg.sender must be _payer
@@ -286,4 +394,149 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		require(erc20Token.transferFrom(_from, _recipient, _amount));
 	}
 	// -----------------------------------------------------------------------------
+
+	/*
+	 * @dev Check the validity of a signed request & the expiration date
+     * @param _data bytes containing all the data packed :
+            address(creator)
+            address(payer)
+            uint8(number_of_payees)
+            [
+                address(main_payee_address)
+                int256(main_payee_expected_amount)
+                address(second_payee_address)
+                int256(second_payee_expected_amount)
+                ...
+            ]
+            uint8(data_string_size)
+            size(data)
+	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
+	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+  	 * @param _signature ECDSA signature containing v, r and s as bytes
+  	 *
+	 * @return Validity of order signature.
+	 */	
+	function checkRequestSignature(
+		bytes 		_requestData,
+		address		_addressToken,
+		address[] 	_payeesPaymentAddress,
+		uint256 	_expirationDate,
+		bytes 		_signature)
+		public
+		view
+		returns (bool)
+	{
+		bytes32 hash = getRequestHash(_requestData, _addressToken, _payeesPaymentAddress, _expirationDate);
+
+		// extract "v, r, s" from the signature
+		uint8 v = uint8(_signature[64]);
+		v = v < 27 ? v.add(27) : v;
+		bytes32 r = extractBytes32(_signature, 0);
+		bytes32 s = extractBytes32(_signature, 32);
+
+		// check signature of the hash with the creator address
+		return isValidSignature(extractAddress(_requestData, 0), hash, v, r, s);
+	}
+
+	function getRequestHash(
+		bytes 		_requestData,
+		address		_addressToken,
+		address[] 	_payeesPaymentAddress,
+		uint256 	_expirationDate)
+		internal
+		view
+		returns(bytes32)
+	{
+		return keccak256(this,_requestData, _addressToken, _payeesPaymentAddress, _expirationDate);
+	}
+
+	function isValidSignature(
+		address signer,
+		bytes32 hash,
+		uint8 	v,
+		bytes32 r,
+		bytes32 s)
+		public
+		pure
+		returns (bool)
+	{
+		return signer == ecrecover(
+			keccak256("\x19Ethereum Signed Message:\n32", hash),
+			v,
+			r,
+			s
+		);
+	}
+
+    /*
+     * @dev extract an address in a bytes
+     * @param data bytes from where the address will be extract
+     * @param offset position of the first byte of the address
+     * @return address
+     */
+    function extractAddress(bytes _data, uint offset) internal pure returns (address) {
+        // for pattern to reduce contract size
+        uint160 m = uint160(_data[offset]);
+        for(uint8 i = 1; i < 20; i++) {
+        	m = m*256 + uint160(_data[offset+i]);
+        }
+        return address(m);
+    }
+
+    /*
+     * @dev extract a bytes32 from a bytes
+     * @param data bytes from where the bytes32 will be extract
+     * @param offset position of the first byte of the bytes32
+     * @return address
+     */ 
+    function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
+        // no "for" pattern to optimize gas cost
+        uint256 m = uint256(_data[offset]); // 3930
+        m = m*256 + uint256(_data[offset+1]);
+        m = m*256 + uint256(_data[offset+2]);
+        m = m*256 + uint256(_data[offset+3]);
+        m = m*256 + uint256(_data[offset+4]);
+        m = m*256 + uint256(_data[offset+5]);
+        m = m*256 + uint256(_data[offset+6]);
+        m = m*256 + uint256(_data[offset+7]);
+        m = m*256 + uint256(_data[offset+8]);
+        m = m*256 + uint256(_data[offset+9]);
+        m = m*256 + uint256(_data[offset+10]);
+        m = m*256 + uint256(_data[offset+11]);
+        m = m*256 + uint256(_data[offset+12]);
+        m = m*256 + uint256(_data[offset+13]);
+        m = m*256 + uint256(_data[offset+14]);
+        m = m*256 + uint256(_data[offset+15]);
+        m = m*256 + uint256(_data[offset+16]);
+        m = m*256 + uint256(_data[offset+17]);
+        m = m*256 + uint256(_data[offset+18]);
+        m = m*256 + uint256(_data[offset+19]);
+        m = m*256 + uint256(_data[offset+20]);
+        m = m*256 + uint256(_data[offset+21]);
+        m = m*256 + uint256(_data[offset+22]);
+        m = m*256 + uint256(_data[offset+23]);
+        m = m*256 + uint256(_data[offset+24]);
+        m = m*256 + uint256(_data[offset+25]);
+        m = m*256 + uint256(_data[offset+26]);
+        m = m*256 + uint256(_data[offset+27]);
+        m = m*256 + uint256(_data[offset+28]);
+        m = m*256 + uint256(_data[offset+29]);
+        m = m*256 + uint256(_data[offset+30]);
+        m = m*256 + uint256(_data[offset+31]);
+        return bytes32(m);
+    }
+
+	/*
+     * @dev modify 20 bytes in a bytes
+     * @param data bytes to modify
+     * @param offset position of the first byte to modify
+     * @param b bytes20 to insert
+     * @return address
+     */
+    function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
+        for(uint8 j = 0; j <20; j++) {
+            data[offset+j] = b[j];
+        }
+    	return data;
+    }
 }
