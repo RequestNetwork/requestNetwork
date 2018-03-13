@@ -16,6 +16,17 @@ Among other things, this documentation specifies the smart contract architecture
 ### Tutorials
 No tutorial available yet. Feel free to suggest yours and we will refer to it.
 
+### Testing
+`npm install -g ganache-cli`
+
+Launch a ganache-cli instance on a terminal:
+
+`npm run ganache`
+
+In a second terminal, run the tests:
+
+`npm run test`
+
 ### Develop on test-rpc
 You can deploy your own contracts on testrpc thanks to the truffle project:
 ```git clone https://github.com/RequestNetwork/requestNetwork 

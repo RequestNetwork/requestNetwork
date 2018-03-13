@@ -1,12 +1,23 @@
-const artifacts = ['RequestCore',
-					// 'RequestBurnManagerSimple',
-					'RequestEthereum'];
+// Core + ETH currency contract
+const artifacts = ['RequestCore', 'RequestEthereum'];
 
 const PACKAGE = require('./package.json');
 const fs = require('fs');
+const assert = require('assert');
+
+// Output of truffle compile
 const BUILD_DIR = './build/contracts/';
+
+// Output of this script
 const EXPORT_DIR = './export/';
 
+// Checks that the input contracts have been generated
+const contractHaveBeenCompiled = fs.readdirSync(BUILD_DIR).find(file => file.includes('.json'));
+assert(contractHaveBeenCompiled, `No json compiled file found in ${BUILD_DIR}. Did you run \`truffle compile?\``);
+
+
+// Takes the export of `truffle compile` and add and remove some information
+// Manually executed
 artifacts.forEach(function(name) {
 	const artifact = require(BUILD_DIR+name+'.json');
 
@@ -19,7 +30,7 @@ artifacts.forEach(function(name) {
 		version: PACKAGE.version,
 		networks: {
 			private: {
-				address: '0x8cdaf0cd259887258bc13a92c0a6da92698644c0',
+				address: '',
 				blockNumber: 0,
 			}
 		}

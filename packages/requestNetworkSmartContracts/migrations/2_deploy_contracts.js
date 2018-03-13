@@ -1,53 +1,53 @@
-var RequestCore = artifacts.require("./RequestCore.sol");
-var RequestEthereum = artifacts.require("./RequestEthereum.sol");
+// Override Promise with bluebird
+const Promise = require('bluebird');
+const assert = require('assert');
 
-var addressContractBurner = 0;
-var feesPerTenThousand = 10; // 0.1 %
-var maxFees = web3.toWei(0.00012, 'ether');
+const RequestCore = artifacts.require("./RequestCore.sol");
+const RequestEthereum = artifacts.require("./RequestEthereum.sol");
 
-var requestCore;
-var requestEthereum;
-module.exports = function(deployer) {
-    deployer.deploy(RequestCore).then(function() {
-        return deployer.deploy(RequestEthereum, RequestCore.address).then(function() {
-            createInstances().then(function() {
-                setupContracts().then(function() {
-                    checks();
-                });
-            });
-        });
-    });
+const addressContractBurner = 0;
+const feesPerTenThousand = 10; // 0.1 %
+const maxFees = web3.toWei(0.00012, 'ether');
+
+// Deploys, set up the contracts
+module.exports = async function(deployer) {
+  await deployer.deploy(RequestCore);
+  await deployer.deploy(RequestEthereum, RequestCore.address);
+  const instances = await createInstances();
+  await setupContracts(instances);
+  await checks(instances);
+  
+  console.log('Contract deployed, checks complete');
 };
 
-var createInstances = function() {
-    return RequestCore.deployed().then(function(instance) {
-        requestCore = instance;
-        return RequestEthereum.deployed(addressContractBurner).then(function(instance) {
-            requestEthereum = instance;
-            console.log("Instances set.");
-        });
-    });
-}
-
-var setupContracts = function() {
-    return requestCore.adminAddTrustedCurrencyContract(requestEthereum.address).then(function() {
-        return requestEthereum.setFeesPerTenThousand(feesPerTenThousand).then(function() {
-            return requestEthereum.setMaxCollectable(maxFees).then(function() {
-                console.log("Contracts set up.");
-            });
-        });
-    });
-}
-
-var checks = function() {
-  requestCore.getStatusContract(requestEthereum.address).then(function(d) {
-    console.log("getStatusContract: " + requestEthereum.address + " => " + d);
-    requestEthereum.feesPer10000.call().then(function(feesPer10000) {
-        console.log("request ethereum fees per 10000: " + feesPer10000);
-        requestEthereum.maxFees.call().then(function(maxFees) {
-            console.log("request ethereum max fees: " + maxFees);
-            console.log("Checks complete");
-        });
-    });
+function createInstances() {
+  return Promise.props({
+    core: RequestCore.deployed(),
+    ethereum: RequestEthereum.deployed(addressContractBurner)
   });
+}
+
+function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
+  return Promise.all([
+    coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
+    ethereumInstance.setFeesPerTenThousand(feesPerTenThousand),
+    ethereumInstance.setMaxCollectable(maxFees)
+  ]);
+}
+
+// Execute some assertions to ensure the contract are correctly deployed and set up
+function checks({ ethereum: ethereumInstance, core: coreInstance }) {
+  return Promise.all([
+    coreInstance.getStatusContract(ethereumInstance.address).then(status => {
+      assert(status.toNumber() === 1, 'Ethereum contract should be trusted in Core')
+    }),
+
+    ethereumInstance.feesPer10000.call().then(feesPer10000fromContract => {
+      assert(feesPer10000fromContract.toNumber() === feesPerTenThousand, `Ethereum contract fees should be ${feesPerTenThousand}`)
+    }),
+
+    ethereumInstance.maxFees.call().then(maxFeesFromContract => {
+      assert(maxFeesFromContract.toString() === maxFees, `Ethereum contract maxfees should be ${maxFees}`)
+    })
+  ]);
 }
