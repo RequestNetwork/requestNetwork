@@ -24,6 +24,12 @@ contract RequestERC20Collect is Pausable {
 	// address of the contract that will burn req token (probably through Kyber)
 	address public requestBurnerContract;
 
+    /*
+     *  Events 
+     */
+    event UpdateRateFees(address indexed token, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
+    event UpdateMaxFees(address indexed token, uint256 maxFees);
+
 	/*
 	 * @dev Constructor
 	 * @param _requestBurnerContract Address of the contract where to send the ethers. 
@@ -70,29 +76,18 @@ contract RequestERC20Collect is Pausable {
 	}
 
 	/*
-	 * @dev set the fees numerator rate
-	 * @param _newRate new rate
-	 * @param _newRate new rate
+	 * @dev set the fees rate
+	 * @param _addressToken 			token address
+	 * @param _rateFeesNumerator 		numerator rate
+	 * @param _rateFeesDenominator 		denominator rate
 	 * @return 
 	 */  
-	function setRateFeesNumerator(address _addressToken, uint256 _rateFeesNumerator)
+	function setRateFees(address _addressToken, uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
 		external
 		onlyOwner
 	{
 		tokensWhiteList[_addressToken].rateFeesNumerator = _rateFeesNumerator;
-	}
-
-	/*
-	 * @dev set the fees denominator rate
-	 * @param _newRate new rate
-	 * @param _newRate new rate
-	 * @return 
-	 */  
-	function setRateFeesDenominator(address _addressToken, uint256 _rateFeesDenominator)
-		external
-		onlyOwner
-	{
-		tokensWhiteList[_addressToken].rateFeesDenominator = _rateFeesDenominator;
+		UpdateRateFees(_addressToken, _rateFeesNumerator, _rateFeesDenominator);
 	}
 
 	/*
@@ -105,6 +100,7 @@ contract RequestERC20Collect is Pausable {
 		onlyOwner
 	{
 		tokensWhiteList[_addressToken].maxFees = _newMaxFees;
+		UpdateMaxFees(_addressToken, _newMaxFees);
 	}
 
 	/*
