@@ -1,6 +1,7 @@
 const artifacts = require('./artifacts.json');
 
-// Entry point for the package. Call this function from outside to get an artifact on a network and at an address
+// Entry point for the package, exports the artifacts to the outside.
+// Call this function to get an artifact on a network and at an address
 // The artifacts are stored in folders like RequestCore and RequestEthereum
 // artifacts.json serves at mapping (network, address) => artifact
 exports.default = function(networkName, address) {

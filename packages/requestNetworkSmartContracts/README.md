@@ -17,6 +17,7 @@ Among other things, this documentation specifies the smart contract architecture
 No tutorial available yet. Feel free to suggest yours and we will refer to it.
 
 ### Testing
+Install ganache globally if it isn't already installed
 `npm install -g ganache-cli`
 
 Launch a ganache-cli instance on a terminal:
@@ -26,6 +27,15 @@ Launch a ganache-cli instance on a terminal:
 In a second terminal, run the tests:
 
 `npm run test`
+
+### Building the artifacts
+To build the artifacts, run
+`npm run build`
+This will compile the contracts through truffle and run exportArtifacts.js on the export of truffle. 
+The output will be accessible in export/
+
+To clean build/ (temporary folder, output of truffle) and export/, run
+`npm run clean`
 
 ### Develop on test-rpc
 You can deploy your own contracts on testrpc thanks to the truffle project:
