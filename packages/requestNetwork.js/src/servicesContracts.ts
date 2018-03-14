@@ -1,8 +1,8 @@
 import requestArtifacts from 'requestnetworkartifacts';
 
 // services
+import RequestERC20Service from './servicesContracts/requestERC20-service';
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
-// import RequestSynchroneExtensionEscrowService from './servicesExtensions/requestSynchroneExtensionEscrow-service';
 
 /**
  * getServiceFromAddress return the service of a coresponding currency contract address
@@ -16,10 +16,10 @@ export const getServiceFromAddress = (_networkName: string, _address: string): a
     if (!artifact) return;
 
     switch (artifact.contractName) {
+        case 'RequestERC20':
+            return new RequestERC20Service();
         case 'RequestEthereum':
             return new RequestEthereumService();
-        // case 'RequestSynchroneExtensionEscrow':
-        //     return new RequestSynchroneExtensionEscrowService();
         default:
             return;
     }
