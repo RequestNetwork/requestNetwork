@@ -15,6 +15,9 @@ const EXPORT_DIR = './export/';
 const contractHaveBeenCompiled = fs.readdirSync(BUILD_DIR).find(file => file.includes('.json'));
 assert(contractHaveBeenCompiled, `No json compiled file found in ${BUILD_DIR}. Did you run \`truffle compile?\``);
 
+fs.mkdirSync(EXPORT_DIR);
+fs.mkdirSync(EXPORT_DIR+'test/');
+fs.mkdirSync(EXPORT_DIR+'prod/');
 
 // Takes the export of `truffle compile` and add and remove some information
 // Manually executed

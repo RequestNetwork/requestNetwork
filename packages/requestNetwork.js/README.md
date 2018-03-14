@@ -34,6 +34,7 @@ CommonJS (recommended):
 `import RequestNetwork from '@requestnetwork/request-network.js';`
 
 ### Tests
+Install ganache globally if it isn't already installed
 `npm install -g ganache-cli`
 
 Launch a ganache-cli instance on a terminal:

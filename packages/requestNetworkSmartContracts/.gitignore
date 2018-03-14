@@ -15,7 +15,7 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # artifact outputs
-/export
+export/
 
 # Windows Installer files
 *.cab
