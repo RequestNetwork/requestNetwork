@@ -433,13 +433,13 @@ export default class RequestCoreService {
        const payeesCount = parseInt(_requestBytes.slice(INDEX_PAYEES_COUNT, INDEX_PAYEES_COUNT + 2), 16);
 
        const mainPayee = {address: '0x' + _requestBytes.slice(INDEX_PAYEES_ARRAY, INDEX_PAYEES_ARRAY + SIZE_ADDRESS),
-                       expectedAmount: new BN(_requestBytes.slice(INDEX_PAYEES_ARRAY + SIZE_ADDRESS, INDEX_PAYEES_ARRAY + SIZE_ADDRESS + SIZE_INT256))};
+                       expectedAmount: new BN(_requestBytes.slice(INDEX_PAYEES_ARRAY + SIZE_ADDRESS, INDEX_PAYEES_ARRAY + SIZE_ADDRESS + SIZE_INT256), 16)};
 
        const subPayees: any[] = [];
        for (let i = 1; i < payeesCount; i++) {
            const indexSubPayee = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * i;
            subPayees.push({address: '0x' + _requestBytes.slice(indexSubPayee, indexSubPayee + SIZE_ADDRESS),
-                            expectedAmount: new BN(_requestBytes.slice(indexSubPayee + SIZE_ADDRESS, indexSubPayee + SIZE_ADDRESS + SIZE_INT256))});
+                            expectedAmount: new BN(_requestBytes.slice(indexSubPayee + SIZE_ADDRESS, indexSubPayee + SIZE_ADDRESS + SIZE_INT256), 16)});
        }
 
        const dataCountOffset = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * payeesCount;
