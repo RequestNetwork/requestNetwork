@@ -117,19 +117,19 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
             }
 
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
+            }
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
+                return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
+            }
+
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
             }
 
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
-            }
-
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
-                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
-            }
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
-                return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
             }
 
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
@@ -198,7 +198,7 @@ export default class RequestEthereumService {
     /**
      * create a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee)
      * @param   _expectedAmounts           amount initial expected per payees for the request
      * @param   _payerRefundAddress        refund address of the payer (optional)
      * @param   _amountsToPay              amounts to pay in wei for each payee (optional)
@@ -249,7 +249,9 @@ export default class RequestEthereumService {
             if (_additionals && _payeesIdAddress.length < _additionals.length) {
                 return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
             }
-
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
+            }
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
             }
@@ -258,9 +260,6 @@ export default class RequestEthereumService {
             }
             if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_additionals must be positives integer'));
-            }
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
-                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
@@ -1104,7 +1103,11 @@ export default class RequestEthereumService {
      * @return  return a string with the error, or ''
      */
     public isSignedRequestHasError(_signedRequest: any, _payer: string): string {
-        _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
+        if (_signedRequest.payeesPaymentAddress) {
+            _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
+        } else {
+            _signedRequest.payeesPaymentAddress = [];
+        }
 
         const hashComputed = this.hashRequest(
                         _signedRequest.currencyContract,
