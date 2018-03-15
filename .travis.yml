@@ -1,0 +1,29 @@
+os: osx
+language: node_js
+node_js:
+- '8'
+install:
+- npm install -g lerna
+- lerna bootstrap
+- npm install -g ganache-cli
+- npm install -g truffle@4.0.5
+- brew install ipfs
+- ipfs init
+before_script:
+- ipfs daemon > ipfs-travis.log &
+- lerna run --scope @requestnetwork/request-network.js ganache > ganache-travis.log &
+- sleep 3
+- lerna run --scope @requestnetwork/request-network.js testdeploy
+script:
+- lerna run --scope @requestnetwork/request-network.js test
+- lerna run --scope request-network-smart-contracts test
+after_failure:
+- cat ipfs-travis.log
+- cat ganache-travis.log
+- npm config list
+notifications:
+  slack:
+    secure: lvmNlLAeG1U1CpufhhpoOLIAOwzBpku+0x9TFO/PPPd0mfsXLwo3o4c11ngwfFgr9UgM/71z01zqukdwyhWgillB8Mpj4DwRzysztEEI8pMvtvnEzuMxa8LAbviAPSncLLFhEVnfNal416exzQofWdSH+KFu0QyBOn+GWJcUsB1DXb1z8o78hyAE/PWNMHPmaRE4sM3/3iPDrD9oGsWn1Pcos9zOLK0MjyyHdcg+Lwou3BNGqPhUckN1cVZ7U3UOO9dxf/RuNalAekQSjbsvI1qmvRIsza5P4YYqaddyLdMTDmbjyQtWDjprKmbyORJAq+oohShEOMx6UznWXkJdYg0VpoL/+zrm+ElQwU3eIPUbzqmNW0Jt4PBmlLeUZoAcjq+NX/WCo4/A116yLDf0qDAngK/UHUy1VWWhwuUCLdz4nqEi4txmRMA3/mW1AyVmgzdUScFIZ7PMxmWUv+cEaxSTJ3Mg8zVuZQHNkL3lq0ZCGofZJhQDwdioioq/gCKhCwZ0/QW5oWfYNrFm15dgf62UqN4FOTmuoz94L2zk91LtSBn4tuJaCq3UhWKzdqynY/E+xJm0Dz0SZp5vfKXC92a0VpineHbTF5k0ba1dkpRdtQ1Dvor60zMxa3DDhBpAQ6f4arF8YtjfrBRhWIEVptOAsAoYlglNrK5zfHfh7Xs=
+cache:
+  directories:
+  - "$HOME/Library/Caches/Homebrew"
