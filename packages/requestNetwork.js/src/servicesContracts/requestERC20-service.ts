@@ -210,6 +210,69 @@ export default class RequestERC20Service {
     }
 
     /**
+     * accept a request as payer
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public accept(
+        _requestId: string,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            try {
+                const request = await this.getRequest(_requestId);
+
+                if (request.state !== Types.State.Created) {
+                    return promiEvent.reject(Error('request state is not \'created\''));
+                }
+                if (!this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return promiEvent.reject(Error('account must be the payer'));
+                }
+
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.acceptAction(_requestId);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi, 'Accepted', eventRaw);
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (error: Error) => {
+                        return promiEvent.reject(error);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+
+        return promiEvent.eventEmitter;
+    }
+    
+    /**
      * Get info from currency contract (generic method)
      * @dev return {} always
      * @param   _requestId    requestId of the request
