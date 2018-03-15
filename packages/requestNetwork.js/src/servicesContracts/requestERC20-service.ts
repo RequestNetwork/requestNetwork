@@ -124,22 +124,18 @@ export default class RequestERC20Service {
             if (_payeesPaymentAddress && _payeesIdAddress.length < _payeesPaymentAddress.length) {
                 return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
             }
-
-            if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
-                return promiEvent.reject(Error('account broadcaster must be the main payee'));
-            }
-
-            if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
-            }
-
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
                 return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
                 return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
             }
-
+            if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
+                return promiEvent.reject(Error('account broadcaster must be the main payee'));
+            }
+            if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+            }
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
             }
