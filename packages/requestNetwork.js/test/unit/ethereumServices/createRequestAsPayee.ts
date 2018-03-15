@@ -136,19 +136,19 @@ describe('createRequestAsPayee', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payer must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_payeesIdAddress must be valid eth addresses'), 'exception not right');
         }
     });
 
     it('create request _payer not address', async () => {
         try {
             const result = await rn.requestEthereumService.createRequestAsPayee(
-                    [payee, payee2, payee3],
+                    [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     '0xNOTADDRESS');
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payer must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_payer must be a valid eth address'), 'exception not right');
         }
     });
 
@@ -162,7 +162,7 @@ describe('createRequestAsPayee', () => {
                     '0xNOTADDRESS');
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payerRefundAddress must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_payerRefundAddress must be a valid eth address'), 'exception not right');
         }
     });
 
@@ -174,7 +174,7 @@ describe('createRequestAsPayee', () => {
                     defaultAccount);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_from must be different than _payer'), 'exception not right');
+            utils.expectEqualsException(e, Error('_from must be different than _payer'), 'exception not right');
         }
     });
 
@@ -186,7 +186,7 @@ describe('createRequestAsPayee', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_expectedAmounts must a positive integers'), 'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'), 'exception not right');
         }
     });
 
@@ -198,7 +198,7 @@ describe('createRequestAsPayee', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
+            utils.expectEqualsException(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
         }
     });
 

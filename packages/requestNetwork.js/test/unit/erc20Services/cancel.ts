@@ -25,7 +25,7 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('cancel', () => {
+describe('erc20 cancel', () => {
     const arbitraryAmount = 100000000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestERC20Service.web3Single.web3;
@@ -63,7 +63,7 @@ describe('cancel', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
+            utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'),'exception not right');
         }
     });
 
@@ -95,7 +95,7 @@ describe('cancel', () => {
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('account must be the payer or the payee'),'exception not right');
+            utils.expectEqualsException(e, Error('account must be the payer or the payee'),'exception not right');
         }
     })
 
@@ -110,7 +110,7 @@ describe('cancel', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('payer can cancel request in state \'created\''),'exception not right');
+            utils.expectEqualsException(e, Error('payer can cancel request in state \'created\''),'exception not right');
         }
     })
 
@@ -125,7 +125,7 @@ describe('cancel', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('payee cannot cancel request already canceled'),'exception not right');
+            utils.expectEqualsException(e, Error('payee cannot cancel request already canceled'),'exception not right');
         }
     })
 
@@ -195,7 +195,7 @@ describe('cancel', () => {
     //                             {from: payee});
     //         expect(false, 'exception not thrown').to.be.true; 
     //     } catch (e) {
-    //         utils.expectEqualsObject(e, Error('impossible to cancel a Request with a balance != 0'),'exception not right');
+    //         utils.expectEqualsException(e, Error('impossible to cancel a Request with a balance != 0'),'exception not right');
     //     }
     // });
 

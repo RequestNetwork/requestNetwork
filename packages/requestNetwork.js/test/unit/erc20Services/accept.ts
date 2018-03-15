@@ -28,7 +28,7 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('accept', () => {
+describe('erc20 accept', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
@@ -74,7 +74,7 @@ describe('accept', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string'),'exception not right');
+            utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'),'exception not right');
         }
     });
 
@@ -107,7 +107,7 @@ describe('accept', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('account must be the payer'),'exception not right');
+            utils.expectEqualsException(e, Error('account must be the payer'),'exception not right');
         }
 
         try {
@@ -116,7 +116,7 @@ describe('accept', () => {
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('account must be the payer'),'exception not right');
+            utils.expectEqualsException(e, Error('account must be the payer'),'exception not right');
         }
     });
 
@@ -132,7 +132,7 @@ describe('accept', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('request state is not \'created\''),'exception not right');
+            utils.expectEqualsException(e, Error('request state is not \'created\''),'exception not right');
         }
     });
 

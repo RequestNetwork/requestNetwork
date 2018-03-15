@@ -134,7 +134,7 @@ describe('subtracts Action', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), 'exception not right');
+            utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'), 'exception not right');
         }
     });
 
@@ -147,7 +147,7 @@ describe('subtracts Action', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('subtracts must be positives integer'), 'exception not right');
+            utils.expectEqualsException(e, Error('subtracts must be positives integer'), 'exception not right');
         }
     });
 
@@ -160,7 +160,7 @@ describe('subtracts Action', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('subtracts must be positives integer'), 'exception not right');
+            utils.expectEqualsException(e, Error('subtracts must be lower than amountExpected\'s'), 'exception not right');
         }
     });
 
@@ -170,38 +170,38 @@ describe('subtracts Action', () => {
                                 {from: payer});
 
         try {
-            const result = await rn.requestEthereumService.paymentAction(
+            const result = await rn.requestEthereumService.subtractAction(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('request must be accepted'), 'exception not right');
+            utils.expectEqualsException(e, Error('request must be accepted or created'), 'exception not right');
         }
     });
 
     it('subtracts request from otherGuy', async () => {
         try {
-            const result = await rn.requestEthereumService.paymentAction(
+            const result = await rn.requestEthereumService.subtractAction(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('account must be payee'), 'exception not right');
+            utils.expectEqualsException(e, Error('account must be payee'), 'exception not right');
         }
     });
 
 
     it('subtracts too long', async () => {
         try {
-            const result = await rn.requestEthereumService.paymentAction(
+            const result = await rn.requestEthereumService.subtractAction(
                                 requestId,
                                 [3, 2, 1, 1],
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('subtracts size must be lower than number of payees'), 'exception not right');
+            utils.expectEqualsException(e, Error('_subtracts cannot be bigger than _payeesIdAddress'), 'exception not right');
         }
     });
 });

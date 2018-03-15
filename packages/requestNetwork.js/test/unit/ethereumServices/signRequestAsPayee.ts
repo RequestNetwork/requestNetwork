@@ -130,7 +130,7 @@ describe('signRequestAsPayee', () => {
                 expirationDate);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_expirationDate must be greater than now'), 'exception not right');
+            utils.expectEqualsException(e, Error('_expirationDate must be greater than now'), 'exception not right');
         }
     });
 
@@ -143,7 +143,7 @@ describe('signRequestAsPayee', () => {
                     expirationDate);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_amountInitial must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'),'exception not right');
         }
     });
 

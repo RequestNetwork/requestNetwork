@@ -25,7 +25,7 @@ let payerRefundAddress: string;
 let randomAddress: string;
 let currentNumRequest: any;
 
-describe('createRequestAsPayeeAction', () => {
+describe('erc20 createRequestAsPayeeAction', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 20000000;
     const arbitraryAmount3 =  3000000;
@@ -146,7 +146,7 @@ describe('createRequestAsPayeeAction', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payer must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_payeesIdAddress must be valid eth addresses'), 'exception not right');
         }
     });
 
@@ -154,12 +154,12 @@ describe('createRequestAsPayeeAction', () => {
         try {
             const result = await rn.requestERC20Service.createRequestAsPayee(
                     addressTestToken,
-                    [payee, payee2, payee3],
+                    [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     '0xNOTADDRESS');
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payer must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_payer must be a valid eth address'), 'exception not right');
         }
     });
 
@@ -175,7 +175,7 @@ describe('createRequestAsPayeeAction', () => {
                     '0xNOTADDRESS');
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payerRefundAddress must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_payerRefundAddress must be a valid eth address'), 'exception not right');
         }
     });
 
@@ -188,7 +188,7 @@ describe('createRequestAsPayeeAction', () => {
                     defaultAccount);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_from must be different than _payer'), 'exception not right');
+            utils.expectEqualsException(e, Error('_from must be different than _payer'), 'exception not right');
         }
     });
 
@@ -201,7 +201,7 @@ describe('createRequestAsPayeeAction', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_expectedAmounts must a positive integers'), 'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'), 'exception not right');
         }
     });
 
@@ -215,7 +215,7 @@ describe('createRequestAsPayeeAction', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
+            utils.expectEqualsException(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
         }
     });
 
@@ -223,12 +223,12 @@ describe('createRequestAsPayeeAction', () => {
         try {
             const result = await rn.requestERC20Service.createRequestAsPayee(
                     '0xNOTADDRESS',
-                    [payee, payee2, payee3],
+                    [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_addressToken must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_addressToken must be a valid eth address'), 'exception not right');
         }
     });
 
@@ -236,12 +236,12 @@ describe('createRequestAsPayeeAction', () => {
         try {
             const result = await rn.requestERC20Service.createRequestAsPayee(
                     randomAddress,
-                    [payee, payee2, payee3],
+                    [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('token must be whitelisted'), 'exception not right');
+            utils.expectEqualsException(e, Error('token must be whitelisted'), 'exception not right');
         }
     });
 
