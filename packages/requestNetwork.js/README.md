@@ -125,7 +125,7 @@ public createRequestAsPayer(_payeesIdAddress: string[], _expectedAmounts: any[],
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
-* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee)
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
 * @param   `_payerRefundAddress`        refund address of the payer (optional)
 * @param   `_amountsToPay`              amounts to pay in wei for each payee (optional)
