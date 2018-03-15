@@ -11,8 +11,7 @@ install:
 - ipfs init
 before_script:
 - ipfs daemon > ipfs-travis.log &
-- lerna run --scope @requestnetwork/request-network.js ganache > ganache-travis.log
-&
+- lerna run --scope @requestnetwork/request-network.js ganache > ganache-travis.log &
 - sleep 3
 - lerna run --scope @requestnetwork/request-network.js testdeploy
 script:
