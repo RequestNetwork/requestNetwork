@@ -25,7 +25,7 @@ let payerRefundAddress: string;
 let randomAddress: string;
 let currentNumRequest: any;
 
-describe.only('createRequestAsPayeeAction', () => {
+describe('createRequestAsPayeeAction', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 20000000;
     const arbitraryAmount3 =  3000000;
