@@ -357,7 +357,7 @@ Here is the list of events produced by the Request Network smarts contracts. Not
 * event `UpdateExpectedAmount(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount)`
 * event `NewSubPayee(bytes32 indexed requestId, address indexed payee)`
 
-## Developping
+## Developing
 ### Set up
 
 Install ganache globally if it isn't already installed
