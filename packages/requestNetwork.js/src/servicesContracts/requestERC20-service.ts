@@ -268,8 +268,6 @@ export default class RequestERC20Service {
         return promiEvent.eventEmitter;
     }
 
-
-
     /**
      * cancel a request as payer or payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
@@ -328,6 +326,96 @@ export default class RequestERC20Service {
                             const eventRaw = receipt.events[0];
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'Canceled', eventRaw);
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (error: Error) => {
+                        return promiEvent.reject(error);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * add addtionals to a request as payer
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _additionals       amounts of additionals in wei for each payee (optional)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public additionalAction(
+        _requestId: string,
+        _additionals ?: any[],
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+
+        let additionalsParsed: any[] = [];
+        if (_additionals) {
+            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        }
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            try {
+                const request = await this.getRequest(_requestId);
+
+                if (_additionals && request.subPayees.length + 1 < _additionals.length) {
+                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                }
+                if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('additionals must be positives integer'));
+                }
+                if ( request.state === Types.State.Canceled ) {
+                    return promiEvent.reject(Error('request must be accepted or created'));
+                }
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return promiEvent.reject(Error('account must be payer'));
+                }
+
+                let subtractsTooLong = false;
+                for (const k in additionalsParsed) {
+                    if (k === '0') continue;
+                    if (!request.subPayees.hasOwnProperty(parseInt(k, 10) - 1)) {
+                        subtractsTooLong = true;
+                        break;
+                    }
+                }
+                if (subtractsTooLong) {
+                    return promiEvent.reject(Error('additionals size must be lower than number of payees'));
+                }
+
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.additionalAction(_requestId, additionalsParsed);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi,
+                                                                        'UpdateExpectedAmount',
+                                                                        eventRaw);
                             try {
                                 const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
