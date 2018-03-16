@@ -363,8 +363,9 @@ Here is the list of events produced by the Request Network smarts contracts. Not
 Install ganache globally if it isn't already installed
 `npm install -g ganache-cli`
 
-Install lerna and bootstrap it, to link the packages together
+Install lerna and bootstrap it, to install the dependencies and link the packages together
 `npm install --global lerna`
+
 `lerna bootstrap`
 
 ### Running the tests
