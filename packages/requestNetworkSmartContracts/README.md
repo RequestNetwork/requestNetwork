@@ -16,27 +16,6 @@ Among other things, this documentation specifies the smart contract architecture
 ### Tutorials
 No tutorial available yet. Feel free to suggest yours and we will refer to it.
 
-### Testing
-Install ganache globally if it isn't already installed
-`npm install -g ganache-cli`
-
-Launch a ganache-cli instance on a terminal:
-
-`npm run ganache`
-
-In a second terminal, run the tests:
-
-`npm run test`
-
-### Building the artifacts
-To build the artifacts, run
-`npm run build`
-This will compile the contracts through truffle and run exportArtifacts.js on the export of truffle. 
-The output will be accessible in export/
-
-To clean build/ (temporary folder, output of truffle) and export/, run
-`npm run clean`
-
 ### Develop on test-rpc
 You can deploy your own contracts on testrpc thanks to the truffle project:
 ```git clone https://github.com/RequestNetwork/requestNetwork 
@@ -173,4 +152,31 @@ However it will protect only the contracts that can trigger the withdraw functio
 Will only be available after the audit during Q1 2018.
 
 
+## Developing
+### Set up
+Install ganache globally if it isn't already installed
+`npm install -g ganache-cli`
 
+Install lerna and bootstrap it, to install the dependencies and link the packages together
+`npm install --global lerna`
+
+`lerna bootstrap`
+
+### Running the tests
+Launch a ganache-cli instance on a terminal:
+
+`npm run ganache`
+
+You can now launch the unit tests:
+
+`npm run test`
+
+
+### Building the artifacts
+To build the artifacts, run
+`npm run build`
+This will compile the contracts through truffle and run exportArtifacts.js on the export of truffle. 
+The output will be accessible in export/
+
+To clean build/ (temporary folder, output of truffle) and export/, run
+`npm run clean`
