@@ -39,6 +39,23 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		// nothing to do
 	}
 
+	/*
+	 * @dev Function to create a request as payee
+	 *
+	 * @dev msg.sender must be the main payee
+	 * @dev _addressToken must be a whitelisted token
+	 * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
+	 *
+	 * @param _addressToken address of the erc20 token used for this request
+	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
+	 * @param _payeesPaymentAddress array of payees address for payment (optional)
+	 * @param _expectedAmounts array of Expected amount to be received by each payees
+	 * @param _payer Entity expected to pay
+	 * @param _payerRefundAddress Address of refund for the payer (optional)
+	 * @param _data Hash linking to additional data on the Request stored on IPFS
+	 *
+	 * @return Returns the id of the request
+	 */
 	function createRequestAsPayeeAction(
 		address 	_addressToken,
 		address[] 	_payeesIdAddress,
@@ -80,10 +97,12 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	/*
 	 * @dev Function to broadcast and accept an offchain signed request (can be paid and additionals also)
 	 *
-	 * @dev msg.sender must be _payer
+	 * @dev msg.sender vill be the _payer
+	 * @dev _addressToken must be a whitelisted token
 	 * @dev only the _payer can additionals
 	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
+	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
 	 * @param _payeesPaymentAddress array of payees address for payment (optional) 
 	 * @param _payeeAmounts array of amount repartition for the payment
@@ -117,8 +136,19 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		return createAcceptAndPayFromBytes(_requestData, _addressToken, _payeesPaymentAddress, _payeeAmounts, _additionals);
 	}
 
-
-
+	/*
+	 * @dev Internal function to create, accept, add additionals and pay a request as Payer
+	 *
+	 * @dev msg.sender must be _payer
+	 *
+	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
+	 * @param _addressToken address of the erc20 token used for this request
+	 * @param _payeesPaymentAddress array of payees address for payment (optional)
+	 * @param _payeeAmounts array of amount repartition for the payment
+	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
+	 *
+	 * @return Returns the id of the request
+	 */
 	function createAcceptAndPayFromBytes(
 		bytes 		_requestData,
 		address 	_addressToken,
@@ -168,6 +198,15 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		return requestId;
 	}
 
+	/*
+	 * @dev Internal function to accept, add additionals and pay a request as Payer
+	 *
+	 * @param _requestId id of the request
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to _amountPaid)
+	 * @param _additionals Will increase the ExpectedAmounts of payees
+	 * @param _payeeAmountsSum total of amount token send for this transaction
+	 *
+	 */	
 	function acceptAndPay(
 		bytes32 _requestId,
 		uint256[] _payeeAmounts,
@@ -214,13 +253,13 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	}
 
 	/*
-	 * @dev Function to declare an additional
+	 * @dev Function PAYABLE to pay a request in ether.
 	 *
-	 * @dev msg.sender must be _payer
-	 * @dev the request must be accepted or created
+	 * @dev the request will be automatically accepted if msg.sender==payer. 
 	 *
 	 * @param _requestId id of the request
-	 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
+	 * @param _payeesAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
+	 * @param _additionalsAmount amount of additionals per payee in wei to declare
 	 */
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
 		public
@@ -244,13 +283,15 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	}
 
 	/*
-	 * @dev Function PAYABLE to pay in ether a request.
+	 * @dev Function to pay a request in ERC20 token
 	 *
+	 * @dev msg.sender must have a balance of the token higher or equal to the sum of _payeeAmounts
+	 * @dev msg.sender must have approved an amount of the token higher or equal to the sum of _payeeAmounts to the current contract
 	 * @dev the request will be automatically accepted if msg.sender==payer. 
 	 *
 	 * @param _requestId id of the request
-	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
-	 * @param _additionalsAmount amount of additionals per payee in wei to declare
+	 * @param _payeeAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
+	 * @param _additionalAmounts amount of additionals per payee in wei to declare
 	 */
 	function paymentAction(
 		bytes32 _requestId,
@@ -272,12 +313,14 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		paymentInternal(_requestId, _payeeAmounts);
 	}
 
+
 	/*
-	 * @dev Function to pay back in ether a request to the payee
+	 * @dev Function to pay back in ERC20 token a request to the payees
 	 *
-	 * @dev msg.sender must be one of the payees
+	 * @dev msg.sender must have a balance of the token higher or equal to _amountToRefund
+	 * @dev msg.sender must have approved an amount of the token higher or equal to _amountToRefund to the current contract
+	 * @dev msg.sender must be one of the payees or one of the payees payment address
 	 * @dev the request must be created or accepted
-	 * @dev the payback must be lower than the amount already paid for the request
 	 *
 	 * @param _requestId id of the request
 	 */
@@ -295,7 +338,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 *
 	 * @param _requestId id of the request
 	 * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
-	 * @param _value amount paid
 	 */
 	function paymentInternal(
 		bytes32 	_requestId,
@@ -326,13 +368,13 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		}
 	}
 
+
 	/*
 	 * @dev Function internal to manage refund declaration
 	 *
 	 * @param _requestId id of the request
-	 * @param _address address from where the refund have been done
-	 *
-	 * @return true if the refund is done, false otherwise
+	 * @param _address address from where the refund has been done
+	 * @param _amount amount of the refund in ERC20 token to declare
 	 */
 	function refundInternal(
 		bytes32 _requestId,
@@ -379,9 +421,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @param _requestId id of the request
 	 * @param _recipient address where the token will get from
 	 * @param _recipient address where the token has to be sent to
-	 * @param _amount amount in wei to send
-	 *
-	 * @return true if the fund mouvement is done, false otherwise
+	 * @param _amount amount in ERC20 token to send
 	 */
 	function fundOrderInternal(
 		bytes32 _requestId,
@@ -410,6 +450,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
             ]
             uint8(data_string_size)
             size(data)
+	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
   	 * @param _signature ECDSA signature containing v, r and s as bytes
@@ -438,6 +479,16 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		return isValidSignature(extractAddress(_requestData, 0), hash, v, r, s);
 	}
 
+	/*
+	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
+	 *
+     * @param _data bytes containing all the data packed
+	 * @param _addressToken address of the erc20 token used for this request
+	 * @param _payeesPaymentAddress array of payees payment addresses
+	 * @param _expirationDate timestamp after what the signed request cannot be broadcasted
+	 *
+	 * @return Keccak-256 hash of (this,_requestData, _payeesPaymentAddress, _expirationDate)
+	 */
 	function getRequestHash(
 		bytes 		_requestData,
 		address		_addressToken,
@@ -450,6 +501,15 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		return keccak256(this,_requestData, _addressToken, _payeesPaymentAddress, _expirationDate);
 	}
 
+	/*
+	 * @dev Verifies that a hash signature is valid. 0x style
+	 * @param signer address of signer.
+	 * @param hash Signed Keccak-256 hash.
+	 * @param v ECDSA signature parameter v.
+	 * @param r ECDSA signature parameters r.
+	 * @param s ECDSA signature parameters s.
+	 * @return Validity of order signature.
+	 */
 	function isValidSignature(
 		address signer,
 		bytes32 hash,
