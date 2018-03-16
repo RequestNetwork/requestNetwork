@@ -641,6 +641,103 @@ export default class RequestERC20Service {
     }
 
     /**
+     * refund a request as payee
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @dev only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
+     * @param   _requestId         requestId of the payer
+     * @param   _amountToRefund    amount to refund in wei
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public refundAction(
+        _requestId: string,
+        _amountToRefund: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+        _amountToRefund = new BN(_amountToRefund);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            try {
+                const request = await this.getRequest(_requestId);
+
+                if (_amountToRefund.isNeg()) return promiEvent.reject(Error('_amountToRefund must a positive integer'));
+
+                if ( request.state === Types.State.Canceled ) {
+                    return promiEvent.reject(Error('request cannot be canceled'));
+                }
+
+                if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) && !this.web3Single.areSameAddressesNoChecksum(account, request.currencyContract.payeePaymentAddress) ) {
+                    let foundInSubPayee = false;
+                    for (const subPayee of request.subPayees) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee.address)) {
+                            foundInSubPayee = true;
+                        }
+                    }
+                    for (const subPayee of request.currencyContract.subPayeesPaymentAddress) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee)) {
+                            foundInSubPayee = true;
+                        }
+                    }
+                    if (!foundInSubPayee) {
+                        return promiEvent.reject(Error('account must be a payee'));
+                    }
+                }
+
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+
+                const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+                // check token Balance
+                const balanceAccount = new BN(await tokenErc20.balanceOf(account));
+                if ( balanceAccount.lt(_amountToRefund) ) {
+                    return promiEvent.reject(Error('balance of token is too low'));
+                }
+                // check allowance
+                const allowance = new BN(await tokenErc20.allowance(account, contract.address));
+                if ( allowance.lt(_amountToRefund) ) {
+                    return promiEvent.reject(Error('allowance of token is too low'));
+                }
+
+                const method = contract.instance.methods.refundAction(_requestId, _amountToRefund);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi,
+                                                                        'UpdateBalance',
+                                                                        receipt.events[0]);
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (error: Error) => {
+                        return promiEvent.reject(error);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
      * Do a token allowance for a request
      * @param   _requestId     requestId of the request
      * @param   _amount        amount to allowed
