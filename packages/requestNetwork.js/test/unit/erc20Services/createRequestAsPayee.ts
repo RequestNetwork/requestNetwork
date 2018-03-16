@@ -228,7 +228,7 @@ describe('erc20 createRequestAsPayeeAction', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_addressToken must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('_tokenAddress must be a valid eth address'), 'exception not right');
         }
     });
 

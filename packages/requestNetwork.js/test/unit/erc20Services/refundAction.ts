@@ -311,6 +311,7 @@ describe('erc20 refundAction', () => {
 
     it('refund created request with not enough token', async () => {
         // approve but balance too low
+        await testToken.transfer(defaultAccount, await testToken.balanceOf(payeeWithoutToken), {from: payeeWithoutToken});
         await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payeeWithoutToken})
 
         try {
