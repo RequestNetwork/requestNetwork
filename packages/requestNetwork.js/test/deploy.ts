@@ -3,7 +3,7 @@ const feesPerTenThousand = 10; // 0.1 %
 const maxFees = '120000000000000'; // 0.00012 ether in wei
 
 import requestArtifacts from 'requestnetworkartifacts';
-import { Web3Single } from '../src/servicesExternal/web3-Single';
+import { Web3Single } from '../src/servicesExternal/web3-single';
 
 const requestCoreJson = requestArtifacts('private', 'last-RequestCore');
 const requestEthereumJson = requestArtifacts('private', 'last-RequestEthereum');
