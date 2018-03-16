@@ -82,9 +82,7 @@ the _payer can additionals
 msg.sender must be _payer or an extension used by the request
 A request can also be accepted by using directly the payment function on a request in the Created status
  
-* @param _requestId id of the request 
- 
-* @return true if the request is accepted, false otherwise
+* @param _requestId id of the request
 
 
 ### Cancel a request
@@ -93,9 +91,7 @@ A request can also be accepted by using directly the payment function on a reque
 msg.sender must be the extension used by the request, the _payer or the _payee.
 Only request with all payees balance equals to zero can be cancel
  
-* @param _requestId id of the request 
- 
-* @return true if the request is canceled
+* @param _requestId id of the request
 
 
 ### Pay a request
@@ -193,9 +189,7 @@ Function to broadcast and accept an offchain signed request (can be paid and add
 msg.sender must be _payer or an extension used by the request
 A request can also be accepted by using directly the payment function on a request in the Created status
  
-* @param _requestId id of the request 
- 
-* @return true if the request is accepted, false otherwise
+* @param _requestId id of the request
 
 
 ### Cancel a request
@@ -204,9 +198,7 @@ A request can also be accepted by using directly the payment function on a reque
 msg.sender must be the extension used by the request, the _payer or the _payee.
 Only request with all payees balance equals to zero can be cancel
  
-* @param _requestId id of the request 
- 
-* @return true if the request is canceled
+* @param _requestId id of the request
 
 
 ### Pay a request
