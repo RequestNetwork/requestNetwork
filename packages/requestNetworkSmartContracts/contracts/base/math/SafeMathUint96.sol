@@ -3,6 +3,7 @@ pragma solidity 0.4.18;
 /**
  * @title SafeMath
  * @dev Math operations with safety checks that throw on error
+ * @dev SafeMath adapted for uint96
  */
 library SafeMathUint96 {
   function mul(uint96 a, uint96 b) internal pure returns (uint96) {

@@ -8,9 +8,6 @@ var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
 // contract for test
 
-var BigNumber = require('bignumber.js');
-
-
 contract('RequestEthereum Cancel by payer',  function(accounts) {
 	var admin = accounts[0];
 	var otherguy = accounts[1];

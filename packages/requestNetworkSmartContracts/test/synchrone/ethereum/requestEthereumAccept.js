@@ -8,10 +8,6 @@ var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
 // contract for test
 
-var BigNumber = require('bignumber.js');
-
-
-
 contract('RequestEthereum Accept',  function(accounts) {
 	var admin = accounts[0];
 	var otherguy = accounts[1];

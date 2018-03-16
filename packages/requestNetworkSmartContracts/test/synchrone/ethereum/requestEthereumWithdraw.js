@@ -5,10 +5,9 @@ if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
 var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestEthereum = artifacts.require("./synchrone/RequestEthereum.sol");
 
-
 // contract for test
-var TestRequestReentrance = artifacts.require("./test/synchrone/TestRequestReentrance.sol");
-var BigNumber = require('bignumber.js');
+var TestRequestReentrancy = artifacts.require("./test/synchrone/TestRequestReentrancy.sol");
+
 
 contract('RequestEthereum Withdraw',  function(accounts) {
 	var admin = accounts[0];
@@ -29,7 +28,7 @@ contract('RequestEthereum Withdraw',  function(accounts) {
 	var arbitraryAmount2 = 200;
 	var arbitraryAmount3 = 300; 
 	var arbitraryAmount10percent = 100;
-	var testRequestReentrance;
+	var testRequestReentrancy;
 
     beforeEach(async () => {
 		requestCore = await RequestCore.new({from:admin});
@@ -47,16 +46,16 @@ contract('RequestEthereum Withdraw',  function(accounts) {
 	// ##################################################################################################
 	// ### withdraw test unit ###########################################################################
 	// ##################################################################################################
-	it("challenge reentrance 2 rounds", async function () {
+	it("challenge reentrancy 2 rounds", async function () {
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [0], {from:payer,value:arbitraryAmount});
-		testRequestReentrance = await TestRequestReentrance.new(requestEthereum.address, 2,{from:hacker});
-		var r = await testRequestReentrance.init(hacker, {from:hacker2});
+		testRequestReentrancy = await TestRequestReentrancy.new(requestEthereum.address, 2,{from:hacker});
+		var r = await testRequestReentrancy.init(hacker, {from:hacker2});
 		assert.equal(r.logs[0].event,"Log","Event Log is missing");
 		assert.equal(r.logs[0].args.id,utils.getRequestId(requestCore.address, 2),"Event Payment wrong args id");
 		await requestEthereum.accept(r.logs[0].args.id, {from:hacker});
 		await requestEthereum.paymentAction(r.logs[0].args.id, [arbitraryAmount10percent], [0], {from:hacker,value:arbitraryAmount10percent});
-		var r = await utils.expectThrow(testRequestReentrance.start({from:hacker}));
-		assert.equal(await web3.eth.getBalance(testRequestReentrance.address), 0, 'Contract hacking balance must remain 0');
+		var r = await utils.expectThrow(testRequestReentrancy.start({from:hacker}));
+		assert.equal(await web3.eth.getBalance(testRequestReentrancy.address), 0, 'Contract hacking balance must remain 0');
 	});
 
 

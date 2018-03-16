@@ -3,6 +3,7 @@ pragma solidity 0.4.18;
 /**
  * @title SafeMath
  * @dev Math operations with safety checks that throw on error
+ * @dev SafeMath adapted for uint8
  */
 library SafeMathUint8 {
   function mul(uint8 a, uint8 b) internal pure returns (uint8) {

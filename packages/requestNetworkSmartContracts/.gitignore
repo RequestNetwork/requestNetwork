@@ -1,3 +1,6 @@
+# node_modules
+node_modules/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -12,7 +15,7 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # artifact outputs
-/export
+export/
 
 # Windows Installer files
 *.cab

@@ -36,3 +36,6 @@ test/test.ts
 *.maybe
 *Kovan*
 *Rinkeby*
+
+# logs
+lerna-debug.log

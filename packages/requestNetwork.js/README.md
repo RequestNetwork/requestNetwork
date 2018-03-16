@@ -17,7 +17,7 @@ Among other things, this documentation specifies the smart contract architecture
 No tutorials available yet. Feel free to suggest yours and we will refer to it.
 If you’re looking for an example, you can browse the app.request.network website and github
 
-## Installation
+## Using
 requestNetwork.js ships as a CommonJS package.
 CommonJS (recommended):
 ### Install
@@ -32,26 +32,6 @@ CommonJS (recommended):
 
 ### Import
 `import RequestNetwork from '@requestnetwork/request-network.js';`
-
-### Tests
-`npm install -g ganache-cli`
-
-Launch a ganache-cli instance on a terminal:
-
-`npm run ganache`
-
-In a second terminal, Launch an ipfs node:
-
-`ipfs daemon`
-
-In a third terminal, deploy the contracts:
-
-`npm run testdeploy`
-
-You can now launch the unit tests:
-
-`npm run testunit`
-
 
 ### Constructor
 Default configuration (Infura and Rinkeby)
@@ -145,7 +125,7 @@ public createRequestAsPayer(_payeesIdAddress: string[], _expectedAmounts: any[],
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
-* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
+* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee)
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
 * @param   `_payerRefundAddress`        refund address of the payer (optional)
 * @param   `_amountsToPay`              amounts to pay in wei for each payee (optional)
@@ -376,3 +356,31 @@ Here is the list of events produced by the Request Network smarts contracts. Not
 * event `UpdateBalance(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount)`
 * event `UpdateExpectedAmount(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount)`
 * event `NewSubPayee(bytes32 indexed requestId, address indexed payee)`
+
+## Developing
+### Set up
+
+Install ganache globally if it isn't already installed
+`npm install -g ganache-cli`
+
+Install lerna and bootstrap it, to install the dependencies and link the packages together
+`npm install --global lerna`
+
+`lerna bootstrap`
+
+### Running the tests
+Launch a ganache-cli instance on a terminal:
+
+`npm run ganache`
+
+In a second terminal, Launch an ipfs node:
+
+`ipfs daemon`
+
+In a third terminal, deploy the contracts:
+
+`npm run testdeploy`
+
+You can now launch the unit tests:
+
+`npm run test`

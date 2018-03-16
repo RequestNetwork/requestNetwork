@@ -52,14 +52,16 @@ contract RequestEthereumCollect is Pausable {
 		view
 		returns(uint256)
 	{
-		if(_expectedAmount<0) return 0;
+		// Force potential negative number to 0
+		if (_expectedAmount <= 0) {
+			return 0;
+		}
 		uint256 computedCollect = uint256(_expectedAmount).mul(feesPer10000).div(10000);
 		return computedCollect < maxFees ? computedCollect : maxFees;
 	}
 
-
 	/*
-	 * @dev set the fees pourcentage (per 10 000)
+	 * @dev set the fees rate (per 10 000)
 	 * @param _newRate new rate
 	 * @return 
 	 */  

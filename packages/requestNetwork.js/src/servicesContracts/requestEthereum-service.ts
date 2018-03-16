@@ -149,7 +149,7 @@ export default class RequestEthereumService {
             // get the amount to collect
             try {
                 const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
-              
+
                 _options.value = collectEstimation;
 
                 // add file to ipfs
@@ -1103,6 +1103,8 @@ export default class RequestEthereumService {
      * @return  return a string with the error, or ''
      */
     public isSignedRequestHasError(_signedRequest: any, _payer: string): string {
+        _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
+
         if (_signedRequest.payeesPaymentAddress) {
             _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
         } else {

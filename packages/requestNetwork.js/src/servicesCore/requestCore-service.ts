@@ -12,7 +12,6 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 
 const BN = Web3Single.BN();
 const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
-const requestArtifactsJson = require('requestnetworkartifacts/index.json');
 
 /**
  * The RequestCoreService class is the interface for the Request Core contract
@@ -270,11 +269,7 @@ export default class RequestCoreService {
                     eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('Canceled', optionFilters));
                     eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('UpdateBalance', optionFilters));
                     eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('UpdateExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewPayee', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewPayer', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewExpectedAmount', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewExtension', optionFilters));
-                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewData', optionFilters));
+                    eventsCoreRaw = eventsCoreRaw.concat(await coreContract.instance.getPastEvents('NewSubPayee', optionFilters));
                     /* tslint:enable:max-line-length */
 
                         // waiting for filter working (see above)
@@ -352,7 +347,7 @@ export default class RequestCoreService {
 
     public getAllCoreInstance(): any[] {
         const result: any[] = [];
-        const allArtifacts = requestArtifactsJson[this.web3Single.networkName];
+        const allArtifacts = requestArtifacts.getAllArtifactsForNetwork(this.web3Single.networkName);
         for ( const key in allArtifacts ) {
             if (key.slice(0, 2) === '0x' && allArtifacts[key].split('/')[0] === 'RequestCore') {
                 result.push( this.web3Single.getContractInstance(key) );
@@ -418,6 +413,47 @@ export default class RequestCoreService {
 
         return this.web3Single.web3.utils.bytesToHex(ETH_ABI.solidityPack(types, values));
     }
+
+   /**
+    * Parse information from a request bytes
+    * @param   _requestBytes     the request in bytes
+    * @return  the request parsed as {creator, payer, mainPayee, subPayees, data}
+    */
+   public parseBytesRequest(_requestBytes: string): any {
+       const INDEX_CREATOR = 2;
+       const INDEX_PAYER = 21 * 2;
+       const INDEX_PAYEES_COUNT = 41 * 2;
+       const INDEX_PAYEES_ARRAY = 41 * 2 + 2;
+
+       const SIZE_ADDRESS = 20 * 2;
+       const SIZE_INT256 = 32 * 2;
+
+       const creator = '0x' + _requestBytes.slice(INDEX_CREATOR, INDEX_CREATOR + SIZE_ADDRESS);
+       const payer = '0x' + _requestBytes.slice(INDEX_PAYER, INDEX_PAYER + SIZE_ADDRESS);
+       const payeesCount = parseInt(_requestBytes.slice(INDEX_PAYEES_COUNT, INDEX_PAYEES_COUNT + 2), 16);
+
+       const mainPayee = {address: '0x' + _requestBytes.slice(INDEX_PAYEES_ARRAY, INDEX_PAYEES_ARRAY + SIZE_ADDRESS),
+                       expectedAmount: new BN(_requestBytes.slice(INDEX_PAYEES_ARRAY + SIZE_ADDRESS, INDEX_PAYEES_ARRAY + SIZE_ADDRESS + SIZE_INT256), 16)};
+
+       const subPayees: any[] = [];
+       for (let i = 1; i < payeesCount; i++) {
+           const indexSubPayee = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * i;
+           subPayees.push({address: '0x' + _requestBytes.slice(indexSubPayee, indexSubPayee + SIZE_ADDRESS),
+                            expectedAmount: new BN(_requestBytes.slice(indexSubPayee + SIZE_ADDRESS, indexSubPayee + SIZE_ADDRESS + SIZE_INT256), 16)});
+       }
+
+       const dataCountOffset = INDEX_PAYEES_ARRAY + (SIZE_ADDRESS + SIZE_INT256) * payeesCount;
+       const dataCount = parseInt(_requestBytes.slice(dataCountOffset, dataCountOffset + 2), 16);
+       const dataHex = _requestBytes.slice(dataCountOffset + 2, dataCountOffset + 2 + dataCount * 2);
+       const data = this.web3Single.web3.utils.hexToUtf8('0x' + dataHex);
+
+       return {
+           creator,
+           payer,
+           mainPayee,
+           subPayees,
+           data};
+   }
 
     /**
      * get the list of requests connected to an address for one contract
