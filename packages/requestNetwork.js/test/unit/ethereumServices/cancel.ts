@@ -40,11 +40,11 @@ describe('cancel', () => {
             [payee],
             [arbitraryAmount],
             payer,
-            [],
-            '',
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;

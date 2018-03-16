@@ -58,9 +58,9 @@ describe('erc20 refundAction', () => {
             payer,
             [payeePaymentAddress,undefined,payee3PaymentAddress],
             payerRefundAddress,
-            '',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;
@@ -318,7 +318,7 @@ describe('erc20 refundAction', () => {
             const result = await rn.requestERC20Service.paymentAction(
                                 requestId,
                                 [arbitraryAmount],
-                                [],
+                                undefined,
                                 {from: payeeWithoutToken})
                 .on('broadcasted', (data: any) => {
                     expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -341,7 +341,7 @@ describe('erc20 refundAction', () => {
             const result = await rn.requestERC20Service.paymentAction(
                                 requestId,
                                 [arbitraryAmount],
-                                [],
+                                undefined,
                                 {from: payeeWithoutToken})
                 .on('broadcasted', (data: any) => {
                     expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');

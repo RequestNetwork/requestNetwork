@@ -46,11 +46,11 @@ describe('erc20 cancel', () => {
             [payee],
             [arbitraryAmount],
             payer,
-            [],
-            0,
-            '',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;

@@ -91,8 +91,8 @@ describe('createRequestAsPayee', () => {
                     [payeePaymentAddress, 0, payee3PaymentAddress],
                     payerRefundAddress,
                     '{"reason":"weed purchased"}',
-                    '',
-                    [],
+                    undefined,
+                    undefined,
                     {from: payee})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');

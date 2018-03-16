@@ -55,8 +55,8 @@ describe('createRequestAsPayer', () => {
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     [additional, 0, additional3],
                     '{"reason":"weed purchased"}',
-                    '',
-                    [],
+                    undefined,
+                    undefined,
                     {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');

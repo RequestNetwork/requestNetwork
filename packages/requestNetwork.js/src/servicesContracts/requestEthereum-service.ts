@@ -660,14 +660,14 @@ export default class RequestEthereumService {
      * pay a request
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _amountsToPay      amounts to pay in wei for each payee (optional)
+     * @param   _amountsToPay      amounts to pay in wei for each payee
      * @param   _additionals       amounts of additional in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public paymentAction(
         _requestId: string,
-        _amountsToPay ?: any[],
+        _amountsToPay: any[],
         _additionals ?: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
@@ -715,8 +715,8 @@ export default class RequestEthereumService {
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
                 const method = contract.instance.methods.paymentAction(
                                                                     _requestId,
-                                                                    _amountsToPay,
-                                                                    _additionals);
+                                                                    amountsToPayParsed,
+                                                                    additionalsParsed);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -839,13 +839,13 @@ export default class RequestEthereumService {
      * add subtracts to a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _subtracts         amounts of subtracts in wei for each payee (optional)
+     * @param   _subtracts         amounts of subtracts in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public subtractAction(
         _requestId: string,
-        _subtracts ?: any[],
+        _subtracts: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
@@ -938,13 +938,13 @@ export default class RequestEthereumService {
      * add addtionals to a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _additionals       amounts of additionals in wei for each payee (optional)
+     * @param   _additionals       amounts of additionals in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public additionalAction(
         _requestId: string,
-        _additionals ?: any[],
+        _additionals: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);

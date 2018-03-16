@@ -99,7 +99,7 @@ describe('erc20 createRequestAsPayeeAction', () => {
                     payerRefundAddress,
                     '{"reason":"weed purchased"}',
                     '',
-                    [],
+                    undefined,
                     {from: payee})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');

@@ -53,9 +53,9 @@ describe('signRequestAsPayee', () => {
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             expirationDate,
             [payeePaymentAddress, 0, payee3PaymentAddress],
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             payee);
 
         expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);

@@ -59,9 +59,9 @@ describe('erc20 accept', () => {
             payer,
             [payeePaymentAddress],
             payerRefundAddress,
-            '',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;

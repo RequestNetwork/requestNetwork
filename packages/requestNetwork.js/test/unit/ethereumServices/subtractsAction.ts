@@ -52,9 +52,9 @@ describe('subtracts Action', () => {
             payer,
             [payeePaymentAddress, undefined, payee3PaymentAddress],
             payerRefundAddress,
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;

@@ -56,9 +56,9 @@ describe('erc20 additionals Action', () => {
             payer,
             [payeePaymentAddress],
             payerRefundAddress,
-            '',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;

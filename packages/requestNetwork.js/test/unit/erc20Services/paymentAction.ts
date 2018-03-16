@@ -58,9 +58,9 @@ describe('erc20 paymentAction', () => {
             payer,
             [payeePaymentAddress],
             payerRefundAddress,
-            '',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;
@@ -78,7 +78,7 @@ describe('erc20 paymentAction', () => {
         const result = await rn.requestERC20Service.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [],
+                            undefined,
                             {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -107,7 +107,7 @@ describe('erc20 paymentAction', () => {
         const result = await rn.requestERC20Service.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [],
+                            undefined,
                             {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -165,7 +165,7 @@ describe('erc20 paymentAction', () => {
             const result = await rn.requestERC20Service.paymentAction(
                                 '0x00000000000000',
                                 [arbitraryAmount],
-                                [],
+                                undefined,
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
@@ -240,7 +240,7 @@ describe('erc20 paymentAction', () => {
         const result = await rn.requestERC20Service.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [],
+                            undefined,
                             {from: otherGuy})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -283,12 +283,13 @@ describe('erc20 paymentAction', () => {
     it('pay created request with not enough token', async () => {
         // approve but balance too low
         await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payerWithoutToken})
+        await testToken.transfer(defaultAccount, await testToken.balanceOf(payerWithoutToken), {from: payerWithoutToken});
 
         try {
             const result = await rn.requestERC20Service.paymentAction(
                                 requestId,
                                 [arbitraryAmount],
-                                [],
+                                undefined,
                                 {from: payerWithoutToken})
                 .on('broadcasted', (data: any) => {
                     expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -309,7 +310,7 @@ describe('erc20 paymentAction', () => {
             const result = await rn.requestERC20Service.paymentAction(
                                 requestId,
                                 [arbitraryAmount],
-                                [],
+                                undefined,
                                 {from: payerWithoutToken})
                 .on('broadcasted', (data: any) => {
                     expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');

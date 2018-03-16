@@ -55,9 +55,9 @@ describe('accept', () => {
             payer,
             [payeePaymentAddress],
             payerRefundAddress,
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;

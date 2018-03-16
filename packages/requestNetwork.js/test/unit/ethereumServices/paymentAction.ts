@@ -51,9 +51,9 @@ describe('paymentAction', () => {
             payer,
             [payeePaymentAddress],
             payerRefundAddress,
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;
@@ -67,7 +67,7 @@ describe('paymentAction', () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [0],
+                            undefined,
                             {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -91,7 +91,7 @@ describe('paymentAction', () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [0],
+                            undefined,
                             {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -196,7 +196,7 @@ describe('paymentAction', () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [],
+                            undefined,
                             {from: otherGuy})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');

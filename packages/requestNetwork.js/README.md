@@ -244,13 +244,13 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 
 ### Pay a request
 ```js
-public paymentAction(_requestId: string, _amountsToPay ?: any[], _additionals ?: any[], _options ? : any);
+public paymentAction(_requestId: string, _amountsToPay: any[], _additionals ?: any[], _options ? : any);
 ```
 
 Emit the event `'broadcasted`' with `{transaction: {hash}}` when the transaction is submitted.
 
 * @param   `_requestId`         requestId of the payer
-* @param   `_amountsToPay`      amounts to pay in wei for each payee (optional)
+* @param   `_amountsToPay`      amounts to pay in wei for each payee
  * @param   `_additionals`       amounts of additional in wei for each payee (optional)
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
@@ -271,25 +271,25 @@ only addresses from payeesIdAddress and payeesPaymentAddress can refund a reques
 
 ### Add subtracts to a request (only for the payee)
 ```js
-public subtractAction(_requestId: string, _subtracts ?: any[], _options ? : any)
+public subtractAction(_requestId: string, _subtracts: any[], _options ? : any)
 ```
 
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
 * @param   `_requestId`         requestId of the payer
-* @param   `_subtracts`        amounts of subtracts in wei for each payee (optional)
+* @param   `_subtracts`        amounts of subtracts in wei for each payee
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 
 ### Add additionals to a request (only for the payer)    
 ```js
-public additionalAction(_requestId: string, _additionals ?: any[], _options ? : any)
+public additionalAction(_requestId: string, _additionals: any[], _options ? : any)
 ```
 
 Emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted.
 * @param   `_requestId`         requestId of the payer
-* @param   `_additionals`       amounts of additionals in wei for each payee (optional)
+* @param   `_additionals`       amounts of additionals in wei for each payee
 * @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
