@@ -66,17 +66,11 @@ export default class Erc20Service {
             },
             async (confirmationNumber: number, receipt: any) => {
                 if (confirmationNumber === _options.numberOfConfirmation) {
-                    const eventRaw = receipt.events[0];
-                    const event = Erc20Service.web3Single.decodeEvent(Erc20Service.abiERC20, 'Approval', eventRaw);
-                    // if (event) {
-                    //     return promiEvent.reject(Error(''));
-                    // }
-                    console.log('event ----------------------------------');
-                    console.log('event ----------------------------------');
-                    console.log(event);
-                    console.log('event ----------------------------------');
-                    console.log('event ----------------------------------');
-                    promiEvent.resolve();
+                    if ( ! receipt.events.Approval ) {
+                        return promiEvent.reject('approve faied');
+                    } else {
+                        return promiEvent.resolve(true);
+                    }
                 }
             },
             (errBroadcast) => {
@@ -105,17 +99,14 @@ export default class Erc20Service {
             },
             async (confirmationNumber: number, receipt: any) => {
                 if (confirmationNumber === _options.numberOfConfirmation) {
-                    const eventRaw = receipt.events[0];
-                    const event = Erc20Service.web3Single.decodeEvent(Erc20Service.abiERC20, 'Transfer', eventRaw);
-                    // if (event) {
-                    //     return promiEvent.reject(Error(''));
-                    // }
-                    console.log('event ----------------------------------');
-                    console.log('event ----------------------------------');
-                    console.log(event);
-                    console.log('event ----------------------------------');
-                    console.log('event ----------------------------------');
-                    promiEvent.resolve();
+                    // const eventRaw = receipt.events[0];
+                    // const event = Erc20Service.web3Single.decodeEvent(Erc20Service.abiERC20, 'Transfer', eventRaw);
+                    // promiEvent.resolve();
+                    if ( ! receipt.events.Transfer ) {
+                        return promiEvent.reject('transfer faied');
+                    } else {
+                        return promiEvent.resolve(true);
+                    }
                 }
             },
             (errBroadcast) => {
@@ -144,17 +135,11 @@ export default class Erc20Service {
             },
             async (confirmationNumber: number, receipt: any) => {
                 if (confirmationNumber === _options.numberOfConfirmation) {
-                    const eventRaw = receipt.events[0];
-                    const event = Erc20Service.web3Single.decodeEvent(Erc20Service.abiERC20, 'Transfer', eventRaw);
-                    // if (event) {
-                    //     return promiEvent.reject(Error(''));
-                    // }
-                    console.log('event ----------------------------------');
-                    console.log('event ----------------------------------');
-                    console.log(event);
-                    console.log('event ----------------------------------');
-                    console.log('event ----------------------------------');
-                    promiEvent.resolve();
+                    if ( ! receipt.events.Transfer ) {
+                        return promiEvent.reject('transfer faied');
+                    } else {
+                        return promiEvent.resolve(true);
+                    }
                 }
             },
             (errBroadcast) => {

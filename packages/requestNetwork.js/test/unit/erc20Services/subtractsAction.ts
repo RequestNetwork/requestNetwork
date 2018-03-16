@@ -26,7 +26,7 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe.only('erc20 subtracts Action', () => {
+describe('erc20 subtracts Action', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
@@ -34,6 +34,7 @@ describe.only('erc20 subtracts Action', () => {
     web3 = rn.requestERC20Service.web3Single.web3;
     const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
     const addressTestToken = testToken.getAddress();
+
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
         defaultAccount = accounts[0].toLowerCase();

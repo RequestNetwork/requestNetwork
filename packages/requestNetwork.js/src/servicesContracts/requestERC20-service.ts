@@ -536,6 +536,139 @@ export default class RequestERC20Service {
     }
 
     /**
+     * pay a request
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _amountsToPay      amounts to pay in token for each payee (optional)
+     * @param   _additionals       amounts of additional in token for each payee (optional)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public paymentAction(
+        _requestId: string,
+        _amountsToPay ?: any[],
+        _additionals ?: any[],
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+
+        let amountsToPayParsed: any[] = [];
+        if (_amountsToPay) {
+            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
+        }
+        let additionalsParsed: any[] = [];
+        if (_additionals) {
+            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        }
+        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
+        const additionalsTotal = additionalsParsed.reduce((a, b) => a.add(b), new BN(0));
+        _options = this.web3Single.setUpOptions(_options);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            try {
+                const request = await this.getRequest(_requestId);
+
+                if (_amountsToPay && request.subPayees.length + 1 < _amountsToPay.length) {
+                    return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+                }
+                if (_additionals && request.subPayees.length + 1 < _additionals.length) {
+                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                }
+                if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                }
+                if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                }
+                if ( request.state === Types.State.Canceled ) {
+                    return promiEvent.reject(Error('request cannot be canceled'));
+                }
+                if ( !additionalsTotal.isZero() && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return promiEvent.reject(Error('only payer can add additionals'));
+                }
+
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+
+                const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+                // check token Balance
+                const balanceAccount = new BN(await tokenErc20.balanceOf(account));
+                if ( balanceAccount.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('balance of token is too low'));
+                }
+                // check allowance
+                const allowance = new BN(await tokenErc20.allowance(account, contract.address));
+                if ( allowance.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('allowance of token is too low'));
+                }
+
+                const method = contract.instance.methods.paymentAction(
+                                                                    _requestId,
+                                                                    amountsToPayParsed,
+                                                                    additionalsParsed);
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
+                                        request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (error: Error) => {
+                        return promiEvent.reject(error);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * Do a token allowance for a request
+     * @param   _requestId     requestId of the request
+     * @param   _amount        amount to allowed
+     * @param   _options       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise
+     */
+    public approveTokenForRequest(_requestId: string, _amount: any, _options ?: any): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            _amount = new BN(_amount);
+
+            this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+                if (!_options.from && err) return reject(err);
+                _options.from = _options.from ? _options.from : defaultAccount;
+
+                const request = await this.getRequest(_requestId);
+                const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+
+                try {
+                    await tokenErc20.approve(request.currencyContract.address, _amount, _options);
+                    return resolve();
+                } catch (e) {
+                    return reject(e);
+                }
+            });
+        });
+    }
+
+    /**
      * Get info from currency contract (generic method)
      * @dev return {} always
      * @param   _requestId    requestId of the request
