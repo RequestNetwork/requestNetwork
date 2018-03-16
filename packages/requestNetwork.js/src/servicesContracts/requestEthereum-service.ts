@@ -1152,6 +1152,7 @@ export default class RequestEthereumService {
         }
         return '';
     }
+
     /**
      * Get request events from currency contract (generic method)
      * @param   _requestId    requestId of the request
@@ -1215,7 +1216,7 @@ export default class RequestEthereumService {
         payeesIdAddress: string[],
         expectedAmounts: any[],
         payeesPaymentAddress: Array<string|undefined>,
-        expirationDate : number,
+        expirationDate: number,
         data ?: string,
         extension ?: string,
         extensionParams ?: any[]): Promise<any> {

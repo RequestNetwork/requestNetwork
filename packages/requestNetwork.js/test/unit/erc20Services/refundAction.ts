@@ -27,7 +27,7 @@ let payeeWithoutToken: any;
 
 let requestId: any;
 
-describe.only('erc20 refundAction', () => {
+describe('erc20 refundAction', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
