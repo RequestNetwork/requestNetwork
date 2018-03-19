@@ -137,7 +137,7 @@ export default class RequestCoreService {
             }
         });
     }
- 
+
     /**
      * get a request and method called by the hash of a transaction
      * @param   _hash    hash of the ethereum transaction
@@ -520,7 +520,6 @@ export default class RequestCoreService {
                                                 requestId: e.returnValues.requestId});
                                     });
                                 }));
-
 
                 return resolve({asPayee: eventsCorePayee,
                                 asPayer: eventsCorePayer,

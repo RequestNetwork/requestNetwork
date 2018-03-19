@@ -1055,6 +1055,75 @@ export default class RequestERC20Service {
         return this.requestCoreServices.getRequestEvents(_requestId, _fromBlock, _toBlock);
     }
 
+    /**
+     * check if a signed request is valid
+     * @param   _signedRequest    Signed request
+     * @param   _payer             Payer of the request
+     * @return  return a string with the error, or ''
+     */
+    public isSignedRequestHasError(_signedRequest: any, _payer: string): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
+
+            if (_signedRequest.payeesPaymentAddress) {
+                _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
+            } else {
+                _signedRequest.payeesPaymentAddress = [];
+            }
+
+            if ( ! this.web3Single.isAddressNoChecksum(_signedRequest.tokenAddress)) {
+                return reject(Error('_tokenAddress must be a valid eth address'));
+            }
+            if ( ! await this.isTokenWhiteListed(_signedRequest.tokenAddress) ) {
+                return reject(Error('token must be whitelisted'));
+            }
+
+            const hashComputed = this.hashRequest(
+                            _signedRequest.tokenAddress,
+                            _signedRequest.currencyContract,
+                            _signedRequest.payeesIdAddress,
+                            _signedRequest.expectedAmounts,
+                            '',
+                            _signedRequest.payeesPaymentAddress,
+                            _signedRequest.data ? _signedRequest.data : '',
+                            _signedRequest.expirationDate);
+
+            if ( ! _signedRequest) {
+                return reject(Error('_signedRequest must be defined'));
+            }
+            // some controls on the arrays
+            if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
+                return reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+            }
+
+            if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
+                return reject(Error('_expectedAmounts must be positives integer'));
+            }
+            if ( ! this.web3Single.areSameAddressesNoChecksum(this.addressRequestERC20Last, _signedRequest.currencyContract)) {
+                return reject(Error('currencyContract must be the last currencyContract of requestERC20'));
+            }
+            if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
+                return reject(Error('expirationDate must be greater than now'));
+            }
+            if (hashComputed !== _signedRequest.hash) {
+                return reject(Error('hash is not valid'));
+            }
+            if ( ! this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesIdAddress)) {
+                return reject(Error('payeesIdAddress must be valid eth addresses'));
+            }
+            if ( ! this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesPaymentAddress)) {
+                return reject(Error('payeesPaymentAddress must be valid eth addresses'));
+            }
+            if (this.web3Single.areSameAddressesNoChecksum(_payer, _signedRequest.payeesIdAddress[0])) {
+                return reject(Error('_from must be different than main payee'));
+            }
+            if ( ! this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payeesIdAddress[0])) {
+                return reject(Error('payee is not the signer'));
+            }
+            return resolve();
+        });
+    }
+    
     private async isTokenWhiteListed(_tokenAddress: string): Promise<boolean> {
         return (await this.instanceRequestERC20Last.methods.tokensWhiteList(_tokenAddress).call()).whiteListed;
     }
@@ -1135,7 +1204,8 @@ export default class RequestERC20Service {
      * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
      * @return  promise of the object containing the request's hash
      */
-    private hashRequest(tokenAddress: string,
+    private hashRequest(
+        tokenAddress: string,
         currencyContract: string,
         payees: string[],
         expectedAmounts: any[],
@@ -1179,74 +1249,4 @@ export default class RequestERC20Service {
 
         return this.web3Single.web3.utils.bytesToHex(ETH_ABI.soliditySHA3(types, values));
     }
-
-    /**
-     * check if a signed request is valid
-     * @param   _signedRequest    Signed request
-     * @param   _payer             Payer of the request
-     * @return  return a string with the error, or ''
-     */
-    public isSignedRequestHasError(_signedRequest: any, _payer: string): Promise<string> {
-        return new Promise(async (resolve, reject) => {
-            _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
-
-            if (_signedRequest.payeesPaymentAddress) {
-                _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
-            } else {
-                _signedRequest.payeesPaymentAddress = [];
-            }
-
-            if ( ! this.web3Single.isAddressNoChecksum(_signedRequest.tokenAddress)) {
-                return reject(Error('_tokenAddress must be a valid eth address'));
-            }
-            if ( ! await this.isTokenWhiteListed(_signedRequest.tokenAddress) ) {
-                return reject(Error('token must be whitelisted'));
-            }
-
-            const hashComputed = this.hashRequest(
-                            _signedRequest.tokenAddress,
-                            _signedRequest.currencyContract,
-                            _signedRequest.payeesIdAddress,
-                            _signedRequest.expectedAmounts,
-                            '',
-                            _signedRequest.payeesPaymentAddress,
-                            _signedRequest.data ? _signedRequest.data : '',
-                            _signedRequest.expirationDate);
-
-            if ( ! _signedRequest) {
-                return reject(Error('_signedRequest must be defined'));
-            }
-            // some controls on the arrays
-            if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
-                return reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
-            }
-
-            if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
-                return reject(Error('_expectedAmounts must be positives integer'));
-            }
-            if ( ! this.web3Single.areSameAddressesNoChecksum(this.addressRequestERC20Last, _signedRequest.currencyContract)) {
-                return reject(Error('currencyContract must be the last currencyContract of requestERC20'));
-            }
-            if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
-                return reject(Error('expirationDate must be greater than now'));
-            }
-            if (hashComputed !== _signedRequest.hash) {
-                return reject(Error('hash is not valid'));
-            }
-            if ( ! this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesIdAddress)) {
-                return reject(Error('payeesIdAddress must be valid eth addresses'));
-            }
-            if ( ! this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesPaymentAddress)) {
-                return reject(Error('payeesPaymentAddress must be valid eth addresses'));
-            }
-            if (this.web3Single.areSameAddressesNoChecksum(_payer, _signedRequest.payeesIdAddress[0])) {
-                return reject(Error('_from must be different than main payee'));
-            }
-            if ( ! this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payeesIdAddress[0])) {
-                return reject(Error('payee is not the signer'));
-            }
-            return resolve();
-        });
-    }
-
 }
