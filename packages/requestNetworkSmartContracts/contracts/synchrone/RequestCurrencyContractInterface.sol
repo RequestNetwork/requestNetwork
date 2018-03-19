@@ -28,7 +28,7 @@ contract RequestCurrencyContractInterface is Pausable {
 	 * @param _requestCoreAddress Request Core address
 	 */
 	function RequestCurrencyContractInterface(address _requestCoreAddress) 
-			public
+		public
 	{
 		requestCore=RequestCore(_requestCoreAddress);
 	}

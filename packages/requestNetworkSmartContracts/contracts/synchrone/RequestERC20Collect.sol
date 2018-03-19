@@ -54,6 +54,7 @@ contract RequestERC20Collect is Pausable {
 
 	/*
 	 * @dev compute the fees
+	 * @param _tokenAddress ERC20 token address of the request
 	 * @param _expectedAmount amount expected for the request
 	 * @return 
 	 */  
@@ -92,6 +93,7 @@ contract RequestERC20Collect is Pausable {
 
 	/*
 	 * @dev set the maximum fees in wei
+	 * @param _addressToken 			token address
 	 * @param _newMax new max
 	 * @return 
 	 */  
@@ -115,8 +117,12 @@ contract RequestERC20Collect is Pausable {
 		requestBurnerContract=_requestBurnerContract;
 	}
 
-		// -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------
 	// Function for token Whitelist ------------------------------------------------
+	/*
+	 * Check id a token is whitelisted
+	 * @return true if token is whitelisted, false otherwise
+	 */  
 	function isTokenWhitelisted(address _addressToken)
 		constant
 		internal
@@ -124,7 +130,9 @@ contract RequestERC20Collect is Pausable {
 	{
 		return tokensWhiteList[_addressToken].whiteListed;
 	}
-
+	/*
+	 * Whitelist or Blacklist a token
+	 */ 
 	function updateTokenWhitelist(address _addressToken, bool _state)
 		external
 		onlyOwner
