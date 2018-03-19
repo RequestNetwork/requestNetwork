@@ -139,7 +139,8 @@ contract('RequestERC20 PaymentAction', function(accounts) {
 	});
 
 	it("pay request not exist impossible", async function () {
-		await utils.expectThrow(requestERC20.paymentAction(666, [arbitraryAmount], [], {from:payer}));
+		await testToken.approve(requestERC20.address, arbitraryAmount2, {from:payerRefund});
+		await utils.expectThrow(requestERC20.paymentAction(666, [arbitraryAmount], [], {from:payerRefund}));
 	});
 
 
@@ -303,7 +304,6 @@ contract('RequestERC20 PaymentAction', function(accounts) {
 	// ##################################################################################################
 	// ##################################################################################################
 	// ##################################################################################################
-
 	it("msg.value == 0 OK", async function () {
 		var balancePayeeBefore = await testToken.balanceOf(payeePayment);
 		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
@@ -319,9 +319,7 @@ contract('RequestERC20 PaymentAction', function(accounts) {
 		assert.equal(newReq[1],requestERC20.address,"new request wrong data : currencyContract");
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		assert.equal(newReq[2],1,"new request wrong data : state");
-
 	});
-
 
 	it("3 pay request ", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount+arbitraryAmount2+arbitraryAmount3, {from:payerRefund});
@@ -443,5 +441,16 @@ contract('RequestERC20 PaymentAction', function(accounts) {
 		assert.equal(newReq[2],1,"new request wrong data : state");
 	});
 
+
+
+	it("cannot pay request with more amounts than expected", async function () {
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
+		await utils.expectThrow(requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount,arbitraryAmount2,arbitraryAmount3,arbitraryAmount], [], {from:payerRefund}));
+	});
+
+	it("cannot pay request with more additionals than expected", async function () {
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
+		await utils.expectThrow(requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3,arbitraryAmount], {from:payerRefund}));
+	});
 });
 
