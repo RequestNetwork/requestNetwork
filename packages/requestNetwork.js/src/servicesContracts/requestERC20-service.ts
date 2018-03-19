@@ -1188,6 +1188,8 @@ export default class RequestERC20Service {
      */
     public isSignedRequestHasError(_signedRequest: any, _payer: string): Promise<string> {
         return new Promise(async (resolve, reject) => {
+            _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
+
             if (_signedRequest.payeesPaymentAddress) {
                 _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
             } else {
