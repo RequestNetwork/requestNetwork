@@ -131,6 +131,46 @@ contract('RequestERC20 Cancel',  function(accounts) {
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		assert.equal(newReq[2],2,"new request wrong data : state");
 	});
+
+
+
+
+	it("cancel request payee balance != 0 Impossible", async function () {
+		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
+		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [10], [], {from:payerRefund});
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+	});
+
+	it("cancel request subPayee balance != 0 Impossible", async function () {
+		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
+		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payerRefund});
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+	});
+
+	it("cancel request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
+		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payerRefund});
+
+		await testToken.approve(requestERC20.address, 10, {from:payee});
+		await requestERC20.refundAction(utils.getRequestId(requestCore.address, 1), 10, {from:payee});
+
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+	});
+
+	it("cancel accepted request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
+		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
+
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
+		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payerRefund});
+
+		await testToken.approve(requestERC20.address, 10, {from:payee});
+		await requestERC20.refundAction(utils.getRequestId(requestCore.address, 1), 10, {from:payee});
+
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+	});	
+
 	// ##################################################################################################
 	// ##################################################################################################
 	// ##################################################################################################

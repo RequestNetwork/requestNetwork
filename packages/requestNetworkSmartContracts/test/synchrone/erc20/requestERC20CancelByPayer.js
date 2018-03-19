@@ -128,17 +128,15 @@ contract('RequestERC20 Cancel by payer',  function(accounts) {
 	});
 
 	it("cancel request payee balance != 0 Impossible", async function () {
-		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
 		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [10], [], {from:payerRefund});
-		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payer}));
 	});
 
 	it("cancel request subPayee balance != 0 Impossible", async function () {
-		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
 		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payerRefund});
-		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payer}));
 	});
 
 	it("cancel request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
@@ -148,19 +146,17 @@ contract('RequestERC20 Cancel by payer',  function(accounts) {
 		await testToken.approve(requestERC20.address, 10, {from:payee});
 		await requestERC20.refundAction(utils.getRequestId(requestCore.address, 1), 10, {from:payee});
 
-		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payer}));
 	});
 
 	it("cancel accepted request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
-		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
-
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payerRefund});
 		await requestERC20.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payerRefund});
 
 		await testToken.approve(requestERC20.address, 10, {from:payee});
 		await requestERC20.refundAction(utils.getRequestId(requestCore.address, 1), 10, {from:payee});
 
-		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payer}));
 	});	
 
 	it("cancel request created OK", async function () {
