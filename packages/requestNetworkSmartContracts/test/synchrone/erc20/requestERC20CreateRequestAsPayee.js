@@ -106,7 +106,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 		assert.equal(r,testToken.address,"wrong requestTokens");
 	});
 
-
 	it("new request second payee without payment address", async function () {
 		var r = await requestERC20.createRequestAsPayeeAction(
 										testToken.address,
@@ -203,7 +202,7 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 								[payee,payee2,payee3],
 								[payeePayment,0,payee3Payment],
 								[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
-								payee,
+								0,
 								payerRefund,
 								"",
 								{from:payee}));
@@ -247,7 +246,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 			"",
 			{from:payee}));
 	});
-
 
 	it("new request with fees", async function () {
 		// 0.1% fees & 0.002 ether max
@@ -337,6 +335,7 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 										"",
 										{from:payee, value:fees-1}));
 	});
+
 	it("impossible to createRequest if msg.value > fees", async function () {
 		// 0.1% fees & 0.002 ether max
 		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
@@ -354,14 +353,92 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 										{from:payee, value:fees+1}));
 	});
 
-
 	it("impossible change fees if not admin", async function () {
 		// 0.1% fees & 0.002 ether max
 		await utils.expectThrow(requestERC20.setRateFees(testToken.address, 1, 1000, {from:payee})); // 0.1%
 		await utils.expectThrow(requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:payee})); // 0.002 ether
 	});
+
 	it("impossible change maxCollectable if not admin", async function () {
 		await utils.expectThrow(requestERC20.setMaxCollectable(testToken.address,10000000,{from:payee})); 
+	});
+
+	it("new request with more amounts than payees Impossible", async function () {
+		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
+			testToken.address,
+			[payee,payee2,payee3],
+			[payeePayment,0,payee3Payment],
+			[arbitraryAmount,arbitraryAmount2,arbitraryAmount3,arbitraryAmount3],
+			payer,
+			payerRefund,
+			"",
+			{from:payee}));
+	});	
+
+	it("new request with more payment address than payees OK (extra ignored)", async function () {
+		var r = await requestERC20.createRequestAsPayeeAction(
+										testToken.address,
+										[payee,payee2,payee3],
+										[payeePayment,payee2Payment,payee3Payment,payee3Payment],
+										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
+										payer,
+										payerRefund,
+										"",
+										{from:payee});
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayee()");
+		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
+		assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
+		assert.equal(l.data[1],'',"Event Created wrong args data");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayee()");
+		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args subPayee");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayee()");
+		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args subPayee");
+
+		var r = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+		assert.equal(r[0],payer,"request wrong data : payer");
+		assert.equal(r[1],requestERC20.address,"new request wrong data : currencyContract");
+		assert.equal(r[2],0,"new request wrong data : state");
+		assert.equal(r[3],payee,"request wrong data : payee");
+		assert.equal(r[4],arbitraryAmount,"request wrong data : expectedAmount");
+		assert.equal(r[5],0,"new request wrong data : balance");
+
+		var count = await requestCore.getSubPayeesCount.call(utils.getRequestId(requestCore.address,1));
+		assert.equal(count,2,"number of subPayee wrong");
+
+		var r = await requestCore.subPayees.call(utils.getRequestId(requestCore.address, 1),0);	
+		assert.equal(r[0],payee2,"request wrong data : payer");
+		assert.equal(r[1],arbitraryAmount2,"new request wrong data : expectedAmount");
+		assert.equal(r[2],0,"new request wrong data : balance");
+
+		var r = await requestCore.subPayees.call(utils.getRequestId(requestCore.address, 1),1);	
+		assert.equal(r[0],payee3,"request wrong data : payer");
+		assert.equal(r[1],arbitraryAmount3,"new request wrong data : expectedAmount");
+		assert.equal(r[2],0,"new request wrong data : balance");
+
+		var r = await requestERC20.payeesPaymentAddress.call(utils.getRequestId(requestCore.address, 1),0);	
+		assert.equal(r,payeePayment,"wrong payeesPaymentAddress 2");
+
+		var r = await requestERC20.payeesPaymentAddress.call(utils.getRequestId(requestCore.address, 1),1);	
+		assert.equal(r,payee2Payment,"wrong payeesPaymentAddress 2");
+
+		var r = await requestERC20.payeesPaymentAddress.call(utils.getRequestId(requestCore.address, 1),2);	
+		assert.equal(r,payee3Payment,"wrong payeesPaymentAddress 3");
+
+		var r = await requestERC20.payerRefundAddress.call(utils.getRequestId(requestCore.address, 1));
+		assert.equal(r,payerRefund,"wrong payerRefundAddress");
+
+		var r = await requestERC20.requestTokens.call(utils.getRequestId(requestCore.address, 1));
+		assert.equal(r,testToken.address,"wrong requestTokens");
 	});
 });
 
