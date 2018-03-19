@@ -59,7 +59,7 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 	// ##################################################################################################
 	// ### Accept test unit #############################################################################
 	// ##################################################################################################
-	it("discount if Core Paused OK", async function () {
+	it("subtract if Core Paused OK", async function () {
 		await requestCore.pause({from:admin});
 		var r = await requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payee});
 
@@ -79,11 +79,11 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("discount request not exist impossible", async function () {
+	it("subtract request not exist impossible", async function () {
 		await utils.expectThrow(requestERC20.subtractAction(666, [arbitraryAmount10percent], {from:payee}));
 	});
 
-	it("discount request just created OK", async function () {
+	it("subtract request just created OK", async function () {
 		var r = await requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payee});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
@@ -102,7 +102,7 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("discount request just created OK - untrusted currencyContract", async function () {
+	it("subtract request just created OK - untrusted currencyContract", async function () {
 		await requestCore.adminRemoveTrustedCurrencyContract(requestERC20.address, {from:admin});
 		var r = await requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payee});
 
@@ -122,20 +122,20 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("discount by payee request canceled impossible", async function () {
+	it("subtract by payee request canceled impossible", async function () {
 		await requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		await utils.expectThrow(requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:payee}));
 	});
 
-	it("discount request from a random guy Impossible", async function () {
+	it("subtract request from a random guy Impossible", async function () {
 		await utils.expectThrow(requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:burnerContract}));
 	});
 
-	it("discount request from payer Impossible", async function () {
+	it("subtract request from payer Impossible", async function () {
 		await utils.expectThrow(requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:payer}));
 	});
 
-	it("discount request accepted OK", async function () {
+	it("subtract request accepted OK", async function () {
 		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		var r = await requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payee});
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
@@ -155,15 +155,15 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 		assert.equal(newReq[2],1,"new request wrong data : state");
 	});
 
-	it("discount request with amount > expectedAmount Impossible", async function () {
+	it("subtract request with amount > expectedAmount Impossible", async function () {
 		await utils.expectThrow(requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount+1], {from:payee}));
 	});
 
-	it("discount request with amount > expectedAmount on subPayee Impossible", async function () {
+	it("subtract request with amount > expectedAmount on subPayee Impossible", async function () {
 		await utils.expectThrow(requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[0, arbitraryAmount2+1], {from:payee}));
 	});
 
-	it("discount request with amount <= expectedAmountAfterAddSub - amountPaid OK", async function () {
+	it("subtract request with amount <= expectedAmount OK", async function () {
 		var r = await requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount], {from:payee});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
@@ -183,7 +183,7 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 	});
 
 
-	it("discount subPayees", async function () {
+	it("subtract subPayees", async function () {
 		var r = await requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[0,arbitraryAmount10percent,arbitraryAmount20percent], {from:payee});
 		assert.equal(r.receipt.logs.length,2,"Wrong number of events");
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
@@ -218,5 +218,10 @@ contract('RequestERC20 SubtractAction',  function(accounts) {
 		assert.equal(r[2],0,"new request wrong data : balance");
 	});
 
+
+
+	it("cannot subtract with more amounts than expected", async function () {
+		await utils.expectThrow(requestERC20.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent,arbitraryAmount10percent,arbitraryAmount10percent,arbitraryAmount10percent], {from:payee}));
+	});
 });
 

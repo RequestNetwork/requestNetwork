@@ -235,7 +235,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(r[2],0,"new request wrong data : balance");
 	});
 
-	it("cannot make additionals on more subPayees than expected (extra are ignored)", async function () {
+	it("cannot make additionals on more subPayees than expected", async function () {
 		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[0,arbitraryAmount10percent,arbitraryAmount20percent,arbitraryAmount30percent], {from:payer}));
 	});
 });
