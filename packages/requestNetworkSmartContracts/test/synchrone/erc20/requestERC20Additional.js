@@ -33,6 +33,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 	var arbitraryAmount2 = 20000;
 	var arbitraryAmount20percent = 2000;
 	var arbitraryAmount3 = 30000;
+	var arbitraryAmount30percent = 3000;
 
 	beforeEach(async () => {
 		testToken = await TestToken.new(payerRefund, minterAmount);
@@ -59,7 +60,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 	// ##################################################################################################
 	// ### Accept test unit #############################################################################
 	// ##################################################################################################
-	it("additionalAction if Core Paused OK", async function () {
+	it("can make additionals if Core Paused", async function () {
 		await requestCore.pause({from:admin});
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payer});
 
@@ -80,11 +81,11 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("additionalAction request not exist impossible", async function () {
+	it("cannot make additionals if request does not exist", async function () {
 		await utils.expectThrow(requestERC20.additionalAction(666, [arbitraryAmount10percent], {from:payer}));
 	});
 
-	it("additionalAction request just created OK", async function () {
+	it("can make additionals on request just created", async function () {
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payer});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
@@ -104,7 +105,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("additionalAction request just created OK - untrusted currencyContract", async function () {
+	it("can make additionals request with the currencyContract untrusted", async function () {
 		await requestCore.adminRemoveTrustedCurrencyContract(requestERC20.address, {from:admin});
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payer});
 
@@ -125,20 +126,28 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("additionalAction by payer request canceled impossible", async function () {
+	it("cannot make additionals on request canceled", async function () {
 		await requestERC20.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:payer}));
 	});
 
-	it("additionalAction request from a random guy Impossible", async function () {
+	it("cannot make additionals on request from a random guy", async function () {
 		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:burnerContract}));
 	});
 
-	it("additionalAction request from payee Impossible", async function () {
+	it("cannot make additionals on request from payee", async function () {
 		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:payee}));
 	});
 
-	it("additionalAction request accepted OK", async function () {
+	it("cannot make negative additionals on main payee", async function () {
+		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1), [-1], {from:payer}));
+	});
+
+	it("cannot make negative additionals on sub payee", async function () {
+		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1), [0, -1], {from:payer}));
+	});
+
+	it("can make additionals on accepted request", async function () {
 		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payer});
 
@@ -159,7 +168,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],1,"new request wrong data : state");
 	});
 
-	it("additionalAction request with amount > expectedAmountAfterAddSub - amountPaid Impossible", async function () {
+	it("can make additionals with amount > expectedAmount", async function () {
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount+1], {from:payer});
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -172,7 +181,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("additionalAction request with amount <= expectedAmountAfterAddSub - amountPaid OK", async function () {
+	it("can make additionals with amount <= expectedAmount", async function () {
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount], {from:payer});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
@@ -192,9 +201,7 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-
-
-	it("additionalAction subPayees", async function () {
+	it("can make additionals on subPayees", async function () {
 		var r = await requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[0,arbitraryAmount10percent,arbitraryAmount20percent], {from:payer});
 		assert.equal(r.receipt.logs.length,2,"Wrong number of events");
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
@@ -209,7 +216,6 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount20percent,"Event UpdateExpectedAmount wrong args amount");
 		
-
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
 		assert.equal(newReq[0],payer,"new request wrong data : payer");
@@ -227,6 +233,10 @@ contract('RequestERC20 AdditionalAction',  function(accounts) {
 		assert.equal(r[0],payee3,"request wrong data : payer");
 		assert.equal(r[1],arbitraryAmount3+arbitraryAmount20percent,"new request wrong data : expectedAmount");
 		assert.equal(r[2],0,"new request wrong data : balance");
+	});
+
+	it("cannot make additionals on more subPayees than expected (extra are ignored)", async function () {
+		await utils.expectThrow(requestERC20.additionalAction(utils.getRequestId(requestCore.address, 1),[0,arbitraryAmount10percent,arbitraryAmount20percent,arbitraryAmount30percent], {from:payer}));
 	});
 });
 
