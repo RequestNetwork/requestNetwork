@@ -94,7 +94,6 @@ describe('erc20 additionals Action', () => {
         utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 + 3, 'payee3 expectedAmount is wrong');
     });
 
-
     it('additionals accepted request', async () => {
         await rn.requestERC20Service.accept(
                                 requestId,
@@ -182,7 +181,6 @@ describe('erc20 additionals Action', () => {
             utils.expectEqualsException(e, Error('account must be payer'), 'exception not right');
         }
     });
-
 
     it('additionals too long', async () => {
         try {

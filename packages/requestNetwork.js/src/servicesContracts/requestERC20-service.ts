@@ -552,7 +552,7 @@ export default class RequestERC20Service {
     }
 
     /**
-     * add addtionals to a request as payer
+     * add additionals to a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
      * @param   _additionals       amounts of additionals in wei for each payee
