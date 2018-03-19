@@ -102,7 +102,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 		await requestCore.adminAddTrustedCurrencyContract(requestERC20.address, {from:admin});
     });
 
-	it("new quick request more than expectedAmount OK", async function () {
+	it("can broadcast request with tips", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount, arbitraryAmount2];
@@ -161,15 +161,15 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],arbitraryAmount,"Event Transfer wrong args value");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[1],requestERC20.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[2],1,"new quick request wrong data : state");
-		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[0],payer,"can broadcast request wrong data : payer");		
+		assert.equal(newReq[1],requestERC20.address,"can broadcast request wrong data : currencyContract");
+		assert.equal(newReq[2],1,"can broadcast request wrong data : state");
+		assert.equal(newReq[3],payee,"can broadcast request wrong data : payee");
+		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"can broadcast request wrong data : expectedAmount");
+		assert.equal(newReq[5],arbitraryAmount,"can broadcast request wrong data : amountPaid");
 	});
 
-	it("new quick request pay more than expectedAmount (without tips) OK", async function () {
+	it("can broadcast request without tips", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -192,16 +192,15 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer});
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[1],requestERC20.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[2],1,"new quick request wrong data : state");
-		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[4],arbitraryAmount,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : amountPaid");
+		assert.equal(newReq[0],payer,"can broadcast request wrong data : payer");		
+		assert.equal(newReq[1],requestERC20.address,"can broadcast request wrong data : currencyContract");
+		assert.equal(newReq[2],1,"can broadcast request wrong data : state");
+		assert.equal(newReq[3],payee,"can broadcast request wrong data : payee");
+		assert.equal(newReq[4],arbitraryAmount,"can broadcast request wrong data : expectedAmount");
+		assert.equal(newReq[5],arbitraryAmount,"can broadcast request wrong data : amountPaid");
 	});
 
-
-	it("new quick request payee==payer impossible", async function () {
+	it("cannot broadcast request if payee==payer", async function () {
 		var payees = [payer, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -224,7 +223,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("new quick request payee==0 impossible", async function () {
+	it("cannot broadcast request if payee==0", async function () {
 		var payees = [0, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -247,7 +246,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("impossible to broadcastSignedRequestAsPayer if Core Paused", async function () {
+	it("cannot broadcast if Core Paused", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -272,8 +271,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-
-	it("new quick request signed by payer Impossible", async function () {
+	it("can broadcast request signed by payer", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -296,7 +294,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("new quick request signed by otherguy Impossible", async function () {
+	it("cannot broadcast request signed by otherguy", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -319,7 +317,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("new quick request signature doest match data impossible", async function () {
+	it("cannot broadcast request signature that does not match data", async function () {
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -344,7 +342,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("new request when currencyContract not trusted Impossible", async function () {
+	it("cannot broadcast request when currencyContract not trusted", async function () {
 		var requestERC202 = await RequestERC20.new(requestCore.address,{from:admin});
 		var payees = [payee, payee2];
 		var payeesPayment = [];
@@ -368,7 +366,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("new quick request expired", async function () {
+	it("cannot broadcast request expired", async function () {
 		timeExpiration = (new Date().getTime() / 1000) - 60;
 
 		var payees = [payee, payee2];
@@ -393,7 +391,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer}));
 	});
 
-	it("new request from payer with 3 payees all paid OK with tips with payments addresses", async function () {
+	it("can broadcast request from payer with 3 payees all paid with tips with payments addresses", async function () {
 		var payees = [payee, payee2, payee3];
 		var payeesPayment = [payeeAddressPayment,payee2AddressPayment,payee3AddressPayment];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2,arbitraryAmount3];
@@ -515,7 +513,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(r[2],arbitraryAmount3+3,"new request wrong data : balance");
 	});
 
-	it("new quick request more than expectedAmount OK", async function () {
+	it("can broadcast request more than expectedAmount", async function () {
 		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
 		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
 		await requestERC20.setMaxCollectable(testToken.address, '10000000000000000', {from:admin}); // 0.01 ether
@@ -580,18 +578,17 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],arbitraryAmount,"Event Transfer wrong args value");
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(newReq[3],payee,"new quick request wrong data : payee");
-		assert.equal(newReq[0],payer,"new quick request wrong data : payer");		
-		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"new quick request wrong data : expectedAmount");
-		assert.equal(newReq[1],requestERC20.address,"new quick request wrong data : currencyContract");
-		assert.equal(newReq[5],arbitraryAmount,"new quick request wrong data : amountPaid");
-		assert.equal(newReq[2],1,"new quick request wrong data : state");
+		assert.equal(newReq[3],payee,"can broadcast request wrong data : payee");
+		assert.equal(newReq[0],payer,"can broadcast request wrong data : payer");		
+		assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"can broadcast request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestERC20.address,"can broadcast request wrong data : currencyContract");
+		assert.equal(newReq[5],arbitraryAmount,"can broadcast request wrong data : amountPaid");
+		assert.equal(newReq[2],1,"can broadcast request wrong data : state");
 
 		assert((await web3.eth.getBalance(burnerContract)).sub(balanceBurnerContractBefore).equals(fees),"new request wrong data : amount to burnerContract");	
 	});
 
-
-	it("impossible to createRequest if msg.value < fees", async function () {
+	it("cannot broadcast request if msg.value < fees", async function () {
 		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
 		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
 		await requestERC20.setMaxCollectable(testToken.address, '10000000000000000', {from:admin}); // 0.01 ether
@@ -620,7 +617,7 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer, value:fees.minus(1)}));
 	});
 	
-	it("impossible to createRequest if msg.value > fees", async function () {
+	it("cannot broadcast request if msg.value > fees", async function () {
 		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
 		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
 		await requestERC20.setMaxCollectable(testToken.address, '10000000000000000', {from:admin}); // 0.01 ether
@@ -649,4 +646,80 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer, value:fees.add(1)}));
 	});
 
+	it("cannot broadcast request without enough token approved", async function () {
+		var payees = [payee, payee2];
+		var payeesPayment = [];
+		var expectedAmounts = [arbitraryAmount, arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent];
+		var data = "";
+
+		var hash = hashRequest(requestERC20.address, testToken.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		await testToken.approve(requestERC20.address, arbitraryAmount-1, {from:payer});
+		await utils.expectThrow(requestERC20.broadcastSignedRequestAsPayer(
+						testToken.address,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer}));
+	});
+
+	it("cannot broadcast request with more additionals than expected", async function () {
+		var payees = [payee, payee2];
+		var payeesPayment = [];
+		var expectedAmounts = [arbitraryAmount, arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [arbitraryAmount10percent,arbitraryAmount10percent,arbitraryAmount10percent];
+		var data = "";
+
+		var hash = hashRequest(requestERC20.address, testToken.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
+		await utils.expectThrow(requestERC20.broadcastSignedRequestAsPayer(
+						testToken.address,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer}));
+	});
+
+	it("can broadcast request with more payees payment (extra are ignored)", async function () {
+		var payees = [payee, payee2];
+		var payeesPayment = [payeeAddressPayment, payee2AddressPayment, payee3AddressPayment];
+		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
+		var payeeAmounts = [arbitraryAmount];
+		var additionals = [];
+		var data = "";
+
+		var hash = hashRequest(requestERC20.address, testToken.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+		var signature = await signHashRequest(hash,payee);
+
+		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
+		var r = await requestERC20.broadcastSignedRequestAsPayer(
+						testToken.address,
+						createBytesRequest(payees, expectedAmounts, 0, data),
+						payeesPayment,
+						payeeAmounts,
+						additionals,
+						timeExpiration,
+						signature,
+						{from:payer});
+
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+		assert.equal(newReq[0],payer,"can broadcast request wrong data : payer");		
+		assert.equal(newReq[1],requestERC20.address,"can broadcast request wrong data : currencyContract");
+		assert.equal(newReq[2],1,"can broadcast request wrong data : state");
+		assert.equal(newReq[3],payee,"can broadcast request wrong data : payee");
+		assert.equal(newReq[4],arbitraryAmount,"can broadcast request wrong data : expectedAmount");
+		assert.equal(newReq[5],arbitraryAmount,"can broadcast request wrong data : amountPaid");
+	});
 });
