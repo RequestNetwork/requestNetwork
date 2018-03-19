@@ -1,8 +1,10 @@
 pragma solidity 0.4.18;
 
+import "../lib/KyberNetwork.sol";
 
 /// @dev From https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/ERC20Interface.sol
-interface ERC20 {
+/// @dev Added burn function
+interface BurnableErc20 {
     function totalSupply() public view returns (uint supply);
     function balanceOf(address _owner) public view returns (uint balance);
     function transfer(address _to, uint _value) public returns (bool success);
@@ -11,6 +13,8 @@ interface ERC20 {
     function allowance(address _owner, address _spender) public view returns (uint remaining);
     function decimals() public view returns(uint digits);
     event Approval(address indexed _owner, address indexed _spender, uint _value);
+
+    function burn(uint _value);
 }
 
 
@@ -19,14 +23,14 @@ interface ERC20 {
 contract Burn {
     ERC20 constant internal ETH_TOKEN_ADDRESS = ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee);
 
-    address public kyberContract;
-    ERC20 public destErc20;
+    KyberNetwork public kyberContract;
+    BurnableErc20 public destErc20;
 
     /// @param _destErc20 Destination token
     /// @param _kyberContract Kyber contract to use
-    function Burn(ERC20 _destErc20, address _kyberContract) public {
-        this.destErc20 = _destErc20;
-        this.kyberContract = _kyberContract;
+    function Burn(BurnableErc20 _destErc20, address _kyberContract) public {
+        destErc20 = _destErc20;
+        kyberContract = KyberNetwork(_kyberContract);
     }
     
     /// Fallback
@@ -63,7 +67,20 @@ contract Burn {
             ethToConvert,
             
             // Destination
-            destErc20);
+            ERC20(destErc20),
+            
+            // destAddress,
+            0,
+            
+            // maxDestAmount
+            0,
+            
+            // minConversionRate
+            0,
+            
+            // walletId
+            0
+            );
 
         // Burn the ERC20
         destErc20.burn(erc20ToBurn);
