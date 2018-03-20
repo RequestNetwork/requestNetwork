@@ -29,6 +29,7 @@ contract RequestERC20Collect is Pausable {
      */
     event UpdateRateFees(address indexed token, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
     event UpdateMaxFees(address indexed token, uint256 maxFees);
+    event UpdateTokens(address indexed token, uint256 rateFeesNumerator, uint256 rateFeesDenominator, uint256 maxFees, bool whiteListed);
 
 	/*
 	 * @dev Constructor
@@ -141,4 +142,27 @@ contract RequestERC20Collect is Pausable {
 	}
 	// -----------------------------------------------------------------------------
 
+
+	/*
+	 * @dev set the fees rate
+	 * @param _addressToken 			array of tokens address
+	 * @param _rateFeesNumerator 		array of numerator rate
+	 * @param _rateFeesDenominator 		array of denominator rate
+	 * @param _newMaxFees 				array of max fees
+	 * @param _whitelisted 				array of bool, true if the token is whitelisted
+	 */  
+	function updateTokens(address[] _addressToken, uint256[] _rateFeesNumerator, uint256[] _rateFeesDenominator, uint256[] _newMaxFees, bool[] _whitelisted)
+		external
+		onlyOwner
+	{
+		require(_addressToken.length == _rateFeesNumerator.length
+				&& _rateFeesNumerator.length == _rateFeesDenominator.length
+				&& _rateFeesDenominator.length == _newMaxFees.length
+				&& _newMaxFees.length == _whitelisted.length);
+
+		for(uint256 i = 0; i < _addressToken.length; i = i.add(1)) {
+			tokensWhiteList[_addressToken[i]] = Token(_rateFeesNumerator[i], _rateFeesDenominator[i], _newMaxFees[i], _whitelisted[i]);
+			UpdateTokens(_addressToken[i], _rateFeesNumerator[i], _rateFeesDenominator[i], _newMaxFees[i], _whitelisted[i]);
+		}
+	}
 }

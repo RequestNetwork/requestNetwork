@@ -33,6 +33,7 @@ var config = {
 				"requestERC20Additional.js":false,
 				"requestERC20PaymentAction.js":false,
 				"requestERC20RefundAction.js":false,
+				"requestERC20UpdateTokens.js":false,
 	//		}
 	// },
 };
