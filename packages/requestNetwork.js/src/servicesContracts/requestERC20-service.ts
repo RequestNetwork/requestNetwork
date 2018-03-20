@@ -1005,7 +1005,7 @@ export default class RequestERC20Service {
      * Get info from currency contract (generic method)
      * @dev return {} always
      * @param   _requestId    requestId of the request
-     * @return  promise of the information from the currency contract of the request (always {} here)
+     * @return  promise of the information from the currency contract of the request
      */
     public getRequestCurrencyContractInfo(
         _requestId: string,
@@ -1123,7 +1123,7 @@ export default class RequestERC20Service {
             return resolve();
         });
     }
-    
+
     private async isTokenWhiteListed(_tokenAddress: string): Promise<boolean> {
         return (await this.instanceRequestERC20Last.methods.tokensWhiteList(_tokenAddress).call()).whiteListed;
     }
