@@ -17,53 +17,53 @@ var BigNumber = require('bignumber.js');
 
 var hashRequest = function(contract, addressToken, payees, expectedAmounts, _payeesPayment, payer, data, expirationDate) {
 	let requestParts = [
-    {value: contract, type: "address"},
-    {value: payees[0], type: "address"},
-    {value: payer, type: "address"},
-    {value: payees.length, type: "uint8"}];
+	{value: contract, type: "address"},
+	{value: payees[0], type: "address"},
+	{value: payer, type: "address"},
+	{value: payees.length, type: "uint8"}];
 
-    for (k in payees) {
-    	requestParts.push({value: payees[k], type: "address"})
-    	requestParts.push({value: expectedAmounts[k], type: "int256"})
-    }
+	for (k in payees) {
+		requestParts.push({value: payees[k], type: "address"})
+		requestParts.push({value: expectedAmounts[k], type: "int256"})
+	}
 
-    requestParts.push({value: data.length, type: "uint8"});
-    requestParts.push({value: data, type: "string"});
+	requestParts.push({value: data.length, type: "uint8"});
+	requestParts.push({value: data, type: "string"});
 
-    requestParts.push({value: addressToken, type: "address"});
-    requestParts.push({value: _payeesPayment, type: "address[]"});
-    requestParts.push({value: expirationDate, type: "uint256"});
+	requestParts.push({value: addressToken, type: "address"});
+	requestParts.push({value: _payeesPayment, type: "address[]"});
+	requestParts.push({value: expirationDate, type: "uint256"});
 
-    var types = [];
-    var values = [];
-    requestParts.forEach(function(o,i) {
-    	types.push(o.type);
-    	values.push(o.value);
-    });
-    return ethABI.soliditySHA3(types, values);
+	var types = [];
+	var values = [];
+	requestParts.forEach(function(o,i) {
+		types.push(o.type);
+		values.push(o.value);
+	});
+	return ethABI.soliditySHA3(types, values);
 }
 
 var createBytesRequest = function(payees, expectedAmounts, payer, data) {
 	let requestParts = [
-    {value: payees[0], type: "address"},
-    {value: payer, type: "address"},
-    {value: payees.length, type: "uint8"}];
+	{value: payees[0], type: "address"},
+	{value: payer, type: "address"},
+	{value: payees.length, type: "uint8"}];
 
-    for (k in payees) {
-    	requestParts.push({value: payees[k], type: "address"})
-    	requestParts.push({value: expectedAmounts[k], type: "int256"})
-    }
+	for (k in payees) {
+		requestParts.push({value: payees[k], type: "address"})
+		requestParts.push({value: expectedAmounts[k], type: "int256"})
+	}
 
-    requestParts.push({value: data.length, type: "uint8"});
-    requestParts.push({value: data, type: "string"});
+	requestParts.push({value: data.length, type: "uint8"});
+	requestParts.push({value: data, type: "string"});
 
-    var types = [];
-    var values = [];
-    requestParts.forEach(function(o,i) {
-    	types.push(o.type);
-    	values.push(o.value);
-    });
-    return ethUtil.bufferToHex(ethABI.solidityPack(types, values));
+	var types = [];
+	var values = [];
+	requestParts.forEach(function(o,i) {
+		types.push(o.type);
+		values.push(o.value);
+	});
+	return ethUtil.bufferToHex(ethABI.solidityPack(types, values));
 }
 
 var signHashRequest = function (hash, address) {
@@ -97,10 +97,10 @@ contract('RequestERC20 broadcastSignedRequestAsPayer',  function(accounts) {
 		timeExpiration = (new Date("01/01/2222").getTime() / 1000);
 		testToken = await TestToken.new(payer, minterAmount);
 		requestCore = await RequestCore.new();
-    	requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
-    	await requestERC20.updateTokenWhitelist(testToken.address, true);
+		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
+		await requestERC20.updateTokenWhitelist(testToken.address, true);
 		await requestCore.adminAddTrustedCurrencyContract(requestERC20.address, {from:admin});
-    });
+	});
 
 	it("can broadcast request with tips", async function () {
 		var payees = [payee, payee2];

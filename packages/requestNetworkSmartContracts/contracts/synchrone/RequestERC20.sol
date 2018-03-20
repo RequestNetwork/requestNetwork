@@ -9,7 +9,7 @@ import './RequestERC20Collect.sol';
 /**
  * @title RequestERC20
  *
- * @dev RequestERC20 is the currency contract managing the request in Ethereum
+ * @dev RequestERC20 is the currency contract managing the request in ERC20 token
  * @dev The contract can be paused. In this case, nobody can create Requests anymore but people can still interact with them or withdraw funds.
  *
  * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
@@ -20,11 +20,11 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	using SafeMathUint8 for uint8;
 
 	// payment addresses by requestId (optional). We separate the Identity of the payee/payer (in the core) and the wallet address in the currency contract
-    mapping(bytes32 => address[256]) public payeesPaymentAddress;
-    mapping(bytes32 => address) public payerRefundAddress;
+	mapping(bytes32 => address[256]) public payeesPaymentAddress;
+	mapping(bytes32 => address) public payerRefundAddress;
 
- 	// token addresses
-    mapping(bytes32 => address) public requestTokens;
+	// token addresses
+	mapping(bytes32 => address) public requestTokens;
 
 	/*
 	 * @dev Constructor
@@ -95,7 +95,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	}
 
 	/*
-	 * @dev Function to broadcast and accept an offchain signed request (can be paid and additionals also)
+	 * @dev Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals )
 	 *
 	 * @dev msg.sender vill be the _payer
 	 * @dev _addressToken must be a whitelisted token
@@ -172,7 +172,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 			int256 expectedAmountTemp = int256(extractBytes32(_requestData, uint256(i).mul(52).add(61)));
 			// compute the total expected amount of the request
 			totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
-			// all expected amount must be positibe
+			// all expected amount must be positive
 			require(expectedAmountTemp>0);
 		}
 
@@ -302,8 +302,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	{
 		// automatically accept request if request is created and msg.sender is payer
 		if (requestCore.getState(_requestId)==RequestCore.State.Created && msg.sender == requestCore.getPayer(_requestId)) {
-			acceptInternal(_requestId); // TODO more costy than just call requestCore
-			// requestCore.accept(_requestId);
+			acceptInternal(_requestId);
 		}
 
 		if (_additionalAmounts.length != 0) {
@@ -388,13 +387,13 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _address);
 		if(payeeIndex < 0) {
 			// if not ID addresses maybe in the payee payments addresses
-	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1))
-	        {
-	            if(payeesPaymentAddress[_requestId][i] == _address) {
-	            	// get the payeeIndex
-	                payeeIndex = int16(i);
-	            }
-	        }
+			for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1))
+			{
+				if(payeesPaymentAddress[_requestId][i] == _address) {
+					// get the payeeIndex
+					payeeIndex = int16(i);
+				}
+			}
 		}
 		// the address must be found somewhere
 		require(payeeIndex >= 0); 
@@ -437,19 +436,19 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 
 	/*
 	 * @dev Check the validity of a signed request & the expiration date
-     * @param _data bytes containing all the data packed :
-            address(creator)
-            address(payer)
-            uint8(number_of_payees)
-            [
-                address(main_payee_address)
-                int256(main_payee_expected_amount)
-                address(second_payee_address)
-                int256(second_payee_expected_amount)
-                ...
-            ]
-            uint8(data_string_size)
-            size(data)
+	 * @param _data bytes containing all the data packed :
+			address(creator)
+			address(payer)
+			uint8(number_of_payees)
+			[
+				address(main_payee_address)
+				int256(main_payee_expected_amount)
+				address(second_payee_address)
+				int256(second_payee_expected_amount)
+				...
+			]
+			uint8(data_string_size)
+			size(data)
 	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
@@ -482,7 +481,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	/*
 	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
 	 *
-     * @param _data bytes containing all the data packed
+	 * @param _data bytes containing all the data packed
 	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesPaymentAddress array of payees payment addresses
 	 * @param _expirationDate timestamp after what the signed request cannot be broadcasted
@@ -528,75 +527,75 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		);
 	}
 
-    /*
-     * @dev extract an address in a bytes
-     * @param data bytes from where the address will be extract
-     * @param offset position of the first byte of the address
-     * @return address
-     */
-    function extractAddress(bytes _data, uint offset) internal pure returns (address) {
-        // for pattern to reduce contract size
-        uint160 m = uint160(_data[offset]);
-        for(uint8 i = 1; i < 20; i++) {
-        	m = m*256 + uint160(_data[offset+i]);
-        }
-        return address(m);
-    }
-
-    /*
-     * @dev extract a bytes32 from a bytes
-     * @param data bytes from where the bytes32 will be extract
-     * @param offset position of the first byte of the bytes32
-     * @return address
-     */ 
-    function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
-        // no "for" pattern to optimize gas cost
-        uint256 m = uint256(_data[offset]); // 3930
-        m = m*256 + uint256(_data[offset+1]);
-        m = m*256 + uint256(_data[offset+2]);
-        m = m*256 + uint256(_data[offset+3]);
-        m = m*256 + uint256(_data[offset+4]);
-        m = m*256 + uint256(_data[offset+5]);
-        m = m*256 + uint256(_data[offset+6]);
-        m = m*256 + uint256(_data[offset+7]);
-        m = m*256 + uint256(_data[offset+8]);
-        m = m*256 + uint256(_data[offset+9]);
-        m = m*256 + uint256(_data[offset+10]);
-        m = m*256 + uint256(_data[offset+11]);
-        m = m*256 + uint256(_data[offset+12]);
-        m = m*256 + uint256(_data[offset+13]);
-        m = m*256 + uint256(_data[offset+14]);
-        m = m*256 + uint256(_data[offset+15]);
-        m = m*256 + uint256(_data[offset+16]);
-        m = m*256 + uint256(_data[offset+17]);
-        m = m*256 + uint256(_data[offset+18]);
-        m = m*256 + uint256(_data[offset+19]);
-        m = m*256 + uint256(_data[offset+20]);
-        m = m*256 + uint256(_data[offset+21]);
-        m = m*256 + uint256(_data[offset+22]);
-        m = m*256 + uint256(_data[offset+23]);
-        m = m*256 + uint256(_data[offset+24]);
-        m = m*256 + uint256(_data[offset+25]);
-        m = m*256 + uint256(_data[offset+26]);
-        m = m*256 + uint256(_data[offset+27]);
-        m = m*256 + uint256(_data[offset+28]);
-        m = m*256 + uint256(_data[offset+29]);
-        m = m*256 + uint256(_data[offset+30]);
-        m = m*256 + uint256(_data[offset+31]);
-        return bytes32(m);
-    }
+	/*
+	 * @dev extract an address in a bytes
+	 * @param data bytes from where the address will be extract
+	 * @param offset position of the first byte of the address
+	 * @return address
+	 */
+	function extractAddress(bytes _data, uint offset) internal pure returns (address) {
+		// for pattern to reduce contract size
+		uint160 m = uint160(_data[offset]);
+		for(uint8 i = 1; i < 20; i++) {
+			m = m*256 + uint160(_data[offset+i]);
+		}
+		return address(m);
+	}
 
 	/*
-     * @dev modify 20 bytes in a bytes
-     * @param data bytes to modify
-     * @param offset position of the first byte to modify
-     * @param b bytes20 to insert
-     * @return address
-     */
-    function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
-        for(uint8 j = 0; j <20; j++) {
-            data[offset+j] = b[j];
-        }
-    	return data;
-    }
+	 * @dev extract a bytes32 from a bytes
+	 * @param data bytes from where the bytes32 will be extract
+	 * @param offset position of the first byte of the bytes32
+	 * @return address
+	 */ 
+	function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
+		// no "for" pattern to optimize gas cost
+		uint256 m = uint256(_data[offset]); // 3930
+		m = m*256 + uint256(_data[offset+1]);
+		m = m*256 + uint256(_data[offset+2]);
+		m = m*256 + uint256(_data[offset+3]);
+		m = m*256 + uint256(_data[offset+4]);
+		m = m*256 + uint256(_data[offset+5]);
+		m = m*256 + uint256(_data[offset+6]);
+		m = m*256 + uint256(_data[offset+7]);
+		m = m*256 + uint256(_data[offset+8]);
+		m = m*256 + uint256(_data[offset+9]);
+		m = m*256 + uint256(_data[offset+10]);
+		m = m*256 + uint256(_data[offset+11]);
+		m = m*256 + uint256(_data[offset+12]);
+		m = m*256 + uint256(_data[offset+13]);
+		m = m*256 + uint256(_data[offset+14]);
+		m = m*256 + uint256(_data[offset+15]);
+		m = m*256 + uint256(_data[offset+16]);
+		m = m*256 + uint256(_data[offset+17]);
+		m = m*256 + uint256(_data[offset+18]);
+		m = m*256 + uint256(_data[offset+19]);
+		m = m*256 + uint256(_data[offset+20]);
+		m = m*256 + uint256(_data[offset+21]);
+		m = m*256 + uint256(_data[offset+22]);
+		m = m*256 + uint256(_data[offset+23]);
+		m = m*256 + uint256(_data[offset+24]);
+		m = m*256 + uint256(_data[offset+25]);
+		m = m*256 + uint256(_data[offset+26]);
+		m = m*256 + uint256(_data[offset+27]);
+		m = m*256 + uint256(_data[offset+28]);
+		m = m*256 + uint256(_data[offset+29]);
+		m = m*256 + uint256(_data[offset+30]);
+		m = m*256 + uint256(_data[offset+31]);
+		return bytes32(m);
+	}
+
+	/*
+	 * @dev modify 20 bytes in a bytes
+	 * @param data bytes to modify
+	 * @param offset position of the first byte to modify
+	 * @param b bytes20 to insert
+	 * @return address
+	 */
+	function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
+		for(uint8 j = 0; j <20; j++) {
+			data[offset+j] = b[j];
+		}
+		return data;
+	}
 }

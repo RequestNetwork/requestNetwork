@@ -6,7 +6,7 @@ import '../base/lifecycle/Pausable.sol';
 /**
  * @title RequestERC20Collect
  *
- * @dev RequestERC20Collect is a contract managing the fees for ethereum currency contract
+ * @dev RequestERC20Collect is a contract managing the fees for ERC20 currency contract
  */
 contract RequestERC20Collect is Pausable {
 	using SafeMath for uint256;
@@ -18,7 +18,7 @@ contract RequestERC20Collect is Pausable {
         bool whiteListed;
     }
 
-	// fees rate per token
+	// information about tokens : rate, max fees and whiteList
 	mapping(address => Token) public tokensWhiteList;
 
 	// address of the contract that will burn req token (probably through Kyber)

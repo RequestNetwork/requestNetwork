@@ -32,13 +32,13 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	var arbitraryAmount2 = 20000;
 	var arbitraryAmount3 = 30000;
 
-    beforeEach(async () => {
+	beforeEach(async () => {
 		testToken = await TestToken.new(payerRefund, minterAmount);
 		requestCore = await RequestCore.new();
-    	requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
-    	await requestERC20.updateTokenWhitelist(testToken.address, true);
+		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
+		await requestERC20.updateTokenWhitelist(testToken.address, true);
 		await requestCore.adminAddTrustedCurrencyContract(requestERC20.address, {from:admin});
-    });
+	});
 
 	it("new request OK", async function () {
 		var r = await requestERC20.createRequestAsPayeeAction(
