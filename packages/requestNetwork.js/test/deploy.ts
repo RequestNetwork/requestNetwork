@@ -6,7 +6,7 @@ import requestArtifacts from 'requestnetworkartifacts';
 // const TestToken = require('TestToken.json');
 import TestToken from '../test/TestToken';
 
-import { Web3Single } from '../src/servicesExternal/web3-Single';
+import { Web3Single } from '../src/servicesExternal/web3-single';
 
 const requestCoreJson = requestArtifacts('private', 'last-RequestCore');
 const requestEthereumJson = requestArtifacts('private', 'last-RequestEthereum');
