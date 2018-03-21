@@ -19,9 +19,13 @@ interface BurnableErc20 {
 }
 
 
-/// @title Burn contract. Converts the received ETH to REQ and burn the REQ.
+/// @title Burn contract. Converts the received ETH to and ERC20 and burn the converted ERC20.
+/// @dev Used to burn the REQ fees. Request fees are paid in ETH. The ETH is sent by the 
+///  currency contracts to this burn contract. When the burn contract is called, it converts
+///  the ETH to REQ and burn the REQ.
 /// @author Request Network
 contract Burn {
+    /// @notice From Kyber docs: use token address ETH_TOKEN_ADDRESS for ether
     ERC20 constant internal ETH_TOKEN_ADDRESS = ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee);
 
     KyberNetwork public kyberContract;
@@ -33,34 +37,40 @@ contract Burn {
     /// @param _destErc20 Destination token
     /// @param _kyberContract Kyber contract to use
     function Burn(address _destErc20, address _kyberContract) public {
+        // Check inputs
         require(_destErc20 != address(0));
         require(_kyberContract != address(0));
+
+        // Cast the ERC20 contract to burnable ERC20 for us and to ERC20 for Kyber
         burnableDestErc20 = BurnableErc20(_destErc20);
         kyberDestErc20 = ERC20(_destErc20);
+
+        // Create KyberNetwork contract
         kyberContract = KyberNetwork(_kyberContract);
     }
     
-    /// Fallback
+    /// Fallback function to receive the ETH to burn later
     function() public payable { }
 
-    /// @notice use token address ETH_TOKEN_ADDRESS for ether
     /// @dev makes a trade between src and dest token and send dest token to destAddress
-    /// @param srcAmount amount of src tokens
+    /// @param maxSrcAmount amount of src tokens
     /// @param maxDestAmount A limit on the amount of dest tokens
     /// @param minConversionRate The minimal conversion rate. If actual rate is lower, trade is canceled.
     /// @return amount of actual dest tokens
     function doBurn(
-        uint srcAmount,
+        uint maxSrcAmount,
         uint maxDestAmount,
         uint minConversionRate
     )
         public
         returns(uint)
     {
-        // Current money on the contract
-        // TODO: handle parameters of function
-        // TODO: leave some ETH for the gas
+        // ETH to convert on Kyber, by default the amount of ETH on the contract
+        // If maxSrcAmount is defined, ethToConvert = min(balance on contract, maxSrcAmount)
         uint ethToConvert = this.balance;
+        if (maxSrcAmount != 0 && maxSrcAmount < ethToConvert) {
+            ethToConvert = maxSrcAmount;
+        }
 
         // Amount of the ERC20 converted by Kyber that will be burned
         uint erc20ToBurn = 0;
@@ -80,14 +90,14 @@ contract Burn {
             0,
             
             // maxDestAmount
-            0,
+            maxDestAmount,
             
             // minConversionRate
-            0,
+            minConversionRate,
             
             // walletId
             0
-            );
+        );
 
         // Burn the ERC20
         burnableDestErc20.burn(erc20ToBurn);
