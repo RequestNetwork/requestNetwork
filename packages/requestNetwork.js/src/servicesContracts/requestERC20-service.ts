@@ -1124,6 +1124,16 @@ export default class RequestERC20Service {
         });
     }
 
+    /**
+     * decode data from input tx (generic method)
+     * @param   _data    requestId of the request
+     * @return  return an object with the name of the function and the parameters
+     */
+    public decodeInputData(_address: string, _data: any): any {
+        const contract = this.web3Single.getContractInstance(_address);
+        return this.web3Single.decodeInputData(contract.abi, _data);
+    }
+
     private async isTokenWhiteListed(_tokenAddress: string): Promise<boolean> {
         return (await this.instanceRequestERC20Last.methods.tokensWhiteList(_tokenAddress).call()).whiteListed;
     }
