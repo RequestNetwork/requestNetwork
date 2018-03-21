@@ -324,7 +324,7 @@ export default class RequestEthereumService {
      * sign a request as payee
      * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
      * @param   _expectedAmounts           amount initial expected per payees for the request
-     * @param   _expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   _expirationDate            timestamp in second of the date after which the signed request is not broadcastable
      * @param   _payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee) (optional)
      * @param   _data                      Json of the request's details (optional)
      * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
@@ -1207,7 +1207,7 @@ export default class RequestEthereumService {
      * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
-     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   expirationDate            timestamp in second of the date after which the signed request is not broadcastable
      * @param   data                      Json of the request's details (optional)
      * @param   extension                 address of the extension contract of the request (optional) NOT USED YET
      * @param   extensionParams           array of parameters for the extension (optional) NOT USED YET
@@ -1269,7 +1269,7 @@ export default class RequestEthereumService {
      * @param   payer                     payer of the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
      * @param   data                      Json of the request's details (optional)
-     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   expirationDate            timestamp in second of the date after which the signed request is not broadcastable
      * @return  promise of the object containing the request's hash
      */
     private hashRequest(currencyContract: string,

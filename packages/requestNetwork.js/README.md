@@ -144,7 +144,7 @@ public signRequestAsPayee( _payeesIdAddress: string[], _expectedAmounts: any[], 
 
 * @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
-* @param   `_expirationDate`            timestamp is second of the date after what the signed request is not broadcastable
+* @param   `_expirationDate`            timestamp in second of the date after which the signed request is not broadcastable
 * @param   `_payeesPaymentAddress`      payment addresses of the payees (the position 0 will be the main payee) (optional)
 * @param   `_data`              Json of the request's details (optional)
 * @param   `_extension`         address of the extension contract of the request (optional) NOT USED YET
@@ -375,7 +375,7 @@ public signRequestAsPayee(_tokenAddress: string, _payeesIdAddress: string[], _ex
 * @param   `_tokenAddress`              Address token used for payment
 * @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
-* @param   `_expirationDate`            timestamp is second of the date after what the signed request is not broadcastable
+* @param   `_expirationDate`            timestamp in second of the date after which the signed request is not broadcastable
 * @param   `_payeesPaymentAddress`      payment addresses of the payees (the position 0 will be the main payee) (optional)
 * @param   `_data`                      Json of the request's details (optional)
 * @param   `_extension`                 address of the extension contract of the request (optional) NOT USED YET
