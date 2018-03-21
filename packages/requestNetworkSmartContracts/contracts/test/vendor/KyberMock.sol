@@ -17,7 +17,7 @@ interface ERC20 {
 /// @title A mock contract for KyberNetwork, simplified to have only the trade() function
 /// @author Request Network
 /// @dev From https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/KyberNetwork.sol
-contract KyberNetwork {
+contract KyberMock {
     ERC20 constant internal ETH_TOKEN_ADDRESS = ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee);
 
     event ExecuteTrade(address indexed sender, ERC20 src, ERC20 dest, uint actualSrcAmount, uint actualDestAmount);

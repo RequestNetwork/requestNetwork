@@ -1,6 +1,7 @@
 pragma solidity 0.4.18;
 
-import "../lib/KyberNetwork.sol";
+import "../vendor/KyberNetwork.sol";
+
 
 /// @dev From https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/ERC20Interface.sol
 /// @dev Added burn function
@@ -14,7 +15,7 @@ interface BurnableErc20 {
     function decimals() public view returns(uint digits);
     event Approval(address indexed _owner, address indexed _spender, uint _value);
 
-    function burn(uint _value);
+    function burn(uint _value) public;
 }
 
 
@@ -47,7 +48,7 @@ contract Burn {
         uint maxDestAmount,
         uint minConversionRate
     )
-        external
+        public
         returns(uint)
     {
         // Current money on the contract
