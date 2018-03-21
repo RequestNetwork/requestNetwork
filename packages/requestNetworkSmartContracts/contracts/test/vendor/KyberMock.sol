@@ -22,12 +22,19 @@ contract KyberMock {
 
     event ExecuteTrade(address indexed sender, ERC20 src, ERC20 dest, uint actualSrcAmount, uint actualDestAmount);
 
+    event Log(uint);
+
     /// @dev Mock contract to trade and ERC for another. 
     /// @dev Converts with a 1:1 conversion rate
     function trade(
         ERC20 src,
         uint srcAmount,
-        ERC20 dest
+        ERC20 dest,
+        
+        address destAddress,
+        uint maxDestAmount,
+        uint minConversionRate,
+        address walletId
     )
         external
         payable

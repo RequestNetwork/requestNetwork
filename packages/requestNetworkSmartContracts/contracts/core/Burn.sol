@@ -25,12 +25,18 @@ contract Burn {
     ERC20 constant internal ETH_TOKEN_ADDRESS = ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee);
 
     KyberNetwork public kyberContract;
-    BurnableErc20 public destErc20;
+    BurnableErc20 public burnableDestErc20;
+    ERC20 public kyberDestErc20;
+
+    event Log(uint);
 
     /// @param _destErc20 Destination token
     /// @param _kyberContract Kyber contract to use
-    function Burn(BurnableErc20 _destErc20, address _kyberContract) public {
-        destErc20 = _destErc20;
+    function Burn(address _destErc20, address _kyberContract) public {
+        require(_destErc20 != address(0));
+        require(_kyberContract != address(0));
+        burnableDestErc20 = BurnableErc20(_destErc20);
+        kyberDestErc20 = ERC20(_destErc20);
         kyberContract = KyberNetwork(_kyberContract);
     }
     
@@ -43,7 +49,7 @@ contract Burn {
     /// @param maxDestAmount A limit on the amount of dest tokens
     /// @param minConversionRate The minimal conversion rate. If actual rate is lower, trade is canceled.
     /// @return amount of actual dest tokens
-    function burn(
+    function doBurn(
         uint srcAmount,
         uint maxDestAmount,
         uint minConversionRate
@@ -54,7 +60,7 @@ contract Burn {
         // Current money on the contract
         // TODO: handle parameters of function
         // TODO: leave some ETH for the gas
-        uint ethToConvert = address(this).balance;
+        uint ethToConvert = this.balance;
 
         // Amount of the ERC20 converted by Kyber that will be burned
         uint erc20ToBurn = 0;
@@ -68,7 +74,7 @@ contract Burn {
             ethToConvert,
             
             // Destination
-            ERC20(destErc20),
+            kyberDestErc20,
             
             // destAddress,
             0,
@@ -84,7 +90,7 @@ contract Burn {
             );
 
         // Burn the ERC20
-        destErc20.burn(erc20ToBurn);
+        burnableDestErc20.burn(erc20ToBurn);
 
         return erc20ToBurn;
     }
