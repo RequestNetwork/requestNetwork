@@ -25,14 +25,14 @@ interface BurnableErc20 {
 ///  The converted ERC20 is then burned
 /// @dev Used to burn the REQ fees. Request fees are paid in ETH. The ETH is sent by the 
 ///  currency contracts to this burn contract. When the burn contract is called, it converts
-///  the ETH to REQ and burn the REQ.
+///  the ETH to REQ and burn the REQ
 /// @author Request Network
 contract Burn {
     /// Kyber contract that will be used for the conversion
     KyberNetwork public kyberContract;
 
     // Contract for the ERC20
-    BurnableErc20 public desErc20;
+    BurnableErc20 public destErc20;
 
     /// @param _destErc20 Destination token
     /// @param _kyberContract Kyber contract to use
@@ -41,7 +41,7 @@ contract Burn {
         require(_destErc20 != address(0));
         require(_kyberContract != address(0));
 
-        desErc20 = BurnableErc20(_destErc20);
+        destErc20 = BurnableErc20(_destErc20);
         kyberContract = KyberNetwork(_kyberContract);
     }
     
@@ -51,8 +51,8 @@ contract Burn {
     /// @dev Main function. Trade the ETH for ERC20 and burn them
     /// @param maxSrcAmount Maximum amount of ETH to convert. If set to 0, all ETH on the
     ///  contract will be burned
-    /// @param maxDestAmount A limit on the amount of converted ERC20 tokens. Sent as is to Kyber
-    /// @param minConversionRate The minimal conversion rate. Sent as is to Kyber
+    /// @param maxDestAmount A limit on the amount of converted ERC20 tokens. Default value is MAX_UINT
+    /// @param minConversionRate The minimal conversion rate. Default value is 1 (market rate)
     /// @return amount of dest ERC20 tokens burned
     function doBurn(uint maxSrcAmount, uint maxDestAmount, uint minConversionRate)
         public
@@ -86,7 +86,7 @@ contract Burn {
             ethToConvert,
 
             // Destination. Downcast BurnableErc20 to ERC20
-            ERC20(desErc20),
+            ERC20(destErc20),
             
             // destAddress: this contract
             this,
@@ -102,7 +102,7 @@ contract Burn {
         );
 
         // Burn the converted ERC20 tokens
-        desErc20.burn(erc20ToBurn);
+        destErc20.burn(erc20ToBurn);
 
         return erc20ToBurn;
     }
