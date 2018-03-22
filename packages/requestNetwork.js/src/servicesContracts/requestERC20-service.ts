@@ -1134,6 +1134,22 @@ export default class RequestERC20Service {
         return this.web3Single.decodeInputData(contract.abi, _data);
     }
 
+    /**
+     * Get request events from currency contract (generic method)
+     * @param   _requestId    requestId of the request
+     * @param   _fromBlock    search events from this block (optional)
+     * @param   _toBlock    search events until this block (optional)
+     * @return  promise of the object containing the events from the currency contract of the request (always {} here)
+     */
+    public getRequestEventsCurrencyContractInfo(
+        _request: any,
+        _fromBlock ?: number,
+        _toBlock ?: number): Promise < any > {
+        return new Promise(async (resolve, reject) => {
+            return resolve([]);
+        });
+    }
+
     private async isTokenWhiteListed(_tokenAddress: string): Promise<boolean> {
         return (await this.instanceRequestERC20Last.methods.tokensWhiteList(_tokenAddress).call()).whiteListed;
     }
