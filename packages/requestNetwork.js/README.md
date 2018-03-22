@@ -96,7 +96,6 @@ As is the convention with promise-based libraries, if an error occurs, it is thr
 ### Versioning
 The library adheres to the Semantic Versioning 2.0.0 specification. 
 Note that major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable since the library is still an alpha and we will introduce backward incompatible changes to the interface without incrementing the major version until the 1.0.0 release. Our convention until then will be to increment the minor version whenever we introduce backward incompatible changes to the public interface, and to increment the patch version otherwise. 
-Functions
 
 ## Functions
 ### Create a request as the payee
