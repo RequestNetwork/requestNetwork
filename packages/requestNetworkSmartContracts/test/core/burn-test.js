@@ -1,9 +1,3 @@
-var config = require("../config.js");
-var utils = require("../utils.js");
-if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
-	return;
-}
-
 const BigNumber = require('bignumber.js');
 
 const BurnContract = artifacts.require("./core/Burn.sol");
@@ -35,7 +29,7 @@ contract('burn contract ', accounts => {
     
     // Send 100 ETH (/e+18) to burn contract (simulates request creations fees)
     await burnInstance.send(100);
-  })
+  });
 
 	// Creation and event
 	it("converts the ETH and burns the REQ", async () => {
