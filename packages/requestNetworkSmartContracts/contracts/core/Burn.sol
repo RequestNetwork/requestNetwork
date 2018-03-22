@@ -65,25 +65,36 @@ contract Burn {
             ethToConvert = maxSrcAmount;
         }
 
+        // Set maxDestAmount to MAX_UINT if not sent as parameter
+        if (maxDestAmount == 0) {
+            maxDestAmount = 2**256 - 1;
+        }
+
+        // Set minConversionRate to 1 if not sent as parameter
+        // A value of 1 will execute the trade according to market price in the time of the transaction confirmation
+        if (minConversionRate == 0) {
+            minConversionRate = 1;
+        }
+
         // Convert the ETH to ERC20
         // erc20ToBurn is the amount of the ERC20 tokens converted by Kyber that will be burned
         uint erc20ToBurn = kyberContract.trade.value(ethToConvert)(
             // Source. From Kyber docs, this value denotes ETH
             ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
             
-            // Source amount. ETH to convert on Kyber, min(balance on contract, maxSrcAmount)
+            // Source amount
             ethToConvert,
 
             // Destination. Downcast BurnableErc20 to ERC20
             ERC20(desErc20),
             
-            // destAddress
-            0,
+            // destAddress: this contract
+            this,
             
             // maxDestAmount
             maxDestAmount,
             
-            // minConversionRate
+            // minConversionRate 
             minConversionRate,
             
             // walletId
