@@ -19,7 +19,7 @@ No tutorial available yet. Feel free to suggest yours and we will refer to it.
 ### Develop on test-rpc
 You can deploy your own contracts on testrpc thanks to the truffle project:
 ```git clone https://github.com/RequestNetwork/requestNetwork 
-cd package/requestNetworkSmartContracts 
+cd packages/requestNetworkSmartContracts 
 truffle deploy --network development
 ```
 
