@@ -9,7 +9,7 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/packages/requestNetworkSmartContracts/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test", "./test/core/burn-test.js"],
+            "args": ["test", "./test/core/burner-test.js"],
             "cwd": "${workspaceFolder}/packages/requestNetworkSmartContracts",
             "outFiles": [
                 "${workspaceRoot}/test/**/*"

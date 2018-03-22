@@ -1,13 +1,13 @@
 const BigNumber = require('bignumber.js');
 
-const BurnContract = artifacts.require("./core/Burn.sol");
+const BurnerContract = artifacts.require("./core/Burner.sol");
 const RequestToken = artifacts.require("./test/RequestToken.sol");
 const KyberContract = artifacts.require("./test/vendor/KyberMock.sol");
 
-contract('burn contract ', accounts => {
+contract('burner contract ', accounts => {
   const admin = accounts[0];
   let reqInstance = null;
-  let burnInstance = null;
+  let burnerInstance = null;
 
   beforeEach(async () => {
     // Create 1000 REQ
@@ -25,16 +25,16 @@ contract('burn contract ', accounts => {
     reqInstance.transfer(kyberInstance.address, 100);
     
     // Create burn contract
-    burnInstance = await BurnContract.new(reqInstance.address, kyberInstance.address);
+    burnerInstance = await BurnerContract.new(reqInstance.address, kyberInstance.address);
     
     // Send 100 ETH (/e+18) to burn contract (simulates request creations fees)
-    await burnInstance.send(100);
+    await burnerInstance.send(100);
   });
 
 	// Creation and event
 	it("converts the ETH and burns the REQ", async () => {
     // Call burn. It will burn all 100 ETH
-    await burnInstance.doBurn(0,0,0);
+    await burnerInstance.burn(0,0,0);
 
     // Check REQ burn. REQ supply should now be (1000 - 100) REQ
     const initialSupply = new BigNumber(10).pow(18).times(1000);
@@ -46,7 +46,7 @@ contract('burn contract ', accounts => {
 	// Creation and event
 	it("converts a maximum of `maxSrcAmount` ETH", async () => {
     // Call burn. It will burn only 5 ETH
-    await burnInstance.doBurn(5,0,0);
+    await burnerInstance.burn(5,0,0);
 
     // Check REQ burn. REQ supply should now be (1000 - 5) REQ
     const initialSupply = new BigNumber(10).pow(18).times(1000);

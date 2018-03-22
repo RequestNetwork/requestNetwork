@@ -1,5 +1,7 @@
 pragma solidity 0.4.18;
 
+// From https://etherscan.io/address/kybernetwork.eth#code
+
 contract Utils {
 
     ERC20 constant internal ETH_TOKEN_ADDRESS = ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee);

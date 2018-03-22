@@ -27,7 +27,7 @@ interface BurnableErc20 {
 ///  currency contracts to this burn contract. When the burn contract is called, it converts
 ///  the ETH to REQ and burn the REQ
 /// @author Request Network
-contract Burn {
+contract Burner {
     /// Kyber contract that will be used for the conversion
     KyberNetwork public kyberContract;
 
@@ -36,7 +36,7 @@ contract Burn {
 
     /// @param _destErc20 Destination token
     /// @param _kyberContract Kyber contract to use
-    function Burn(address _destErc20, address _kyberContract) public {
+    function Burner(address _destErc20, address _kyberContract) public {
         // Check inputs
         require(_destErc20 != address(0));
         require(_kyberContract != address(0));
@@ -54,7 +54,7 @@ contract Burn {
     /// @param maxDestAmount A limit on the amount of converted ERC20 tokens. Default value is MAX_UINT
     /// @param minConversionRate The minimal conversion rate. Default value is 1 (market rate)
     /// @return amount of dest ERC20 tokens burned
-    function doBurn(uint maxSrcAmount, uint maxDestAmount, uint minConversionRate)
+    function burn(uint maxSrcAmount, uint maxDestAmount, uint minConversionRate)
         public
         returns(uint)
     {
