@@ -25,14 +25,8 @@ interface BurnableErc20 {
 ///  the ETH to REQ and burn the REQ.
 /// @author Request Network
 contract Burn {
-    /// @notice From Kyber docs: use token address ETH_TOKEN_ADDRESS for ether
-    ERC20 constant internal ETH_TOKEN_ADDRESS = ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee);
-
     KyberNetwork public kyberContract;
-    BurnableErc20 public burnableDestErc20;
-    ERC20 public kyberDestErc20;
-
-    event Log(uint);
+    BurnableErc20 public desErc20;
 
     /// @param _destErc20 Destination token
     /// @param _kyberContract Kyber contract to use
@@ -41,11 +35,7 @@ contract Burn {
         require(_destErc20 != address(0));
         require(_kyberContract != address(0));
 
-        // Cast the ERC20 contract to burnable ERC20 for us and to ERC20 for Kyber
-        burnableDestErc20 = BurnableErc20(_destErc20);
-        kyberDestErc20 = ERC20(_destErc20);
-
-        // Create KyberNetwork contract
+        desErc20 = BurnableErc20(_destErc20);
         kyberContract = KyberNetwork(_kyberContract);
     }
     
@@ -57,11 +47,7 @@ contract Burn {
     /// @param maxDestAmount A limit on the amount of dest tokens
     /// @param minConversionRate The minimal conversion rate. If actual rate is lower, trade is canceled.
     /// @return amount of actual dest tokens
-    function doBurn(
-        uint maxSrcAmount,
-        uint maxDestAmount,
-        uint minConversionRate
-    )
+    function doBurn(uint maxSrcAmount, uint maxDestAmount, uint minConversionRate)
         public
         returns(uint)
     {
@@ -72,19 +58,17 @@ contract Burn {
             ethToConvert = maxSrcAmount;
         }
 
-        // Amount of the ERC20 converted by Kyber that will be burned
-        uint erc20ToBurn = 0;
-
         // Convert the ETH to ERC20
-        erc20ToBurn = kyberContract.trade.value(ethToConvert)(
-            // Source
-            ETH_TOKEN_ADDRESS,
+        // erc20ToBurn is the amount of the ERC20 converted by Kyber that will be burned
+        uint erc20ToBurn = kyberContract.trade.value(ethToConvert)(
+            // Source. From Kyber docs, this value denotes ETH
+            ERC20(0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
             
-            // Source amount
+            // Source amount. ETH to convert on Kyber, min(balance on contract, maxSrcAmount)
             ethToConvert,
-            
-            // Destination
-            kyberDestErc20,
+
+            // Destination. Downcast BurnableErc20 => ERC20
+            ERC20(desErc20),
             
             // destAddress,
             0,
@@ -100,7 +84,7 @@ contract Burn {
         );
 
         // Burn the ERC20
-        burnableDestErc20.burn(erc20ToBurn);
+        desErc20.burn(erc20ToBurn);
 
         return erc20ToBurn;
     }
