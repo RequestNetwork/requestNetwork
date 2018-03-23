@@ -149,7 +149,7 @@ However it will protect only the contracts that can trigger the withdraw functio
 
 
 ## Bug bounty
-Will only be available after the audit during Q1 2018.
+See this article https://blog.request.network/request-network-bug-bounty-live-ee3297e46695
 
 
 ## Developing
