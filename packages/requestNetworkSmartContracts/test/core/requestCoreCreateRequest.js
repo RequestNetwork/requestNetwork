@@ -26,17 +26,12 @@ contract('RequestCore Create Request', function(accounts) {
 	// requestId start at 1 when Core is created
 	it("Creation Core, requestId start at 0", async function () {
 		var requestCore = await RequestCore.new();
-		;
-		
-
 		assert.equal(await requestCore.numRequests.call(),"0","RequestId start by 0");
 	});
 
 	// new request from non trustable sender (contract trusted) impossible
 	it("request from non trustable sender (contract trusted) impossible", async function () {
 		var requestCore = await RequestCore.new();
-		;
-		
 
 		await utils.expectThrow(requestCore.createRequest(creator, [payee], [arbitraryAmount], payer, "", {from:fakeContract}));
 	});
@@ -44,9 +39,6 @@ contract('RequestCore Create Request', function(accounts) {
 	// impossible to createRequest if Core Paused
 	it("impossible to createRequest if Core Paused", async function () {
 		var requestCore = await RequestCore.new();
-		;
-		
-
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		await requestCore.pause({from:admin});
 
@@ -337,6 +329,12 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 	
+	it("impossible to createRequest if one of the subPayees is 0", async function () {
+		var requestCore = await RequestCore.new();
+
+		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
+		await utils.expectThrow(requestCore.createRequest(creator, [payee, 0], [arbitraryAmount, arbitraryAmount2], payer, "", {from:fakeContract}));
+	});
 });
 
 

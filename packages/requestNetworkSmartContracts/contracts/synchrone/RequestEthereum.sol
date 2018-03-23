@@ -375,11 +375,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	}
 
 	/*
-	 * @dev Function PAYABLE to pay back in ether a request to the payee
+	 * @dev Function PAYABLE to pay back in ether a request to the payer
 	 *
 	 * @dev msg.sender must be one of the payees
 	 * @dev the request must be created or accepted
-	 * @dev the payback must be lower than the amount already paid for the request
 	 *
 	 * @param _requestId id of the request
 	 */
@@ -531,11 +530,13 @@ contract RequestEthereum is RequestEthereumCollect {
 		internal
 	{
 		// Check if the _fromAddress is a payeesId
-		// in16 to allow -1 value
+		// int16 to allow -1 value
 		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _fromAddress);
 		if(payeeIndex < 0) {
+			uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
+
 			// if not ID addresses maybe in the payee payments addresses
-	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1)) {
+	        for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1)) {
 	            if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
 	            	// get the payeeIndex
 	                payeeIndex = int16(i);

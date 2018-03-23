@@ -39,17 +39,17 @@ contract RequestCore is Administrable {
         Payee payee;
     }
 
-    // Structure for the sub Payee. A sub payee is an additional entity which will be paid during the processing of the invoice.
+    // Structure for the payees. A sub payee is an additional entity which will be paid during the processing of the invoice.
     // ex: can be used for routing taxes or fees at the moment of the payment.
     struct Payee {
-        // ID address of the sub payee
+        // ID address of the payee
         address addr;
 
-        // amount expected for the sub payee. 
+        // amount expected for the payee. 
         // Not uint for evolution (may need negative amounts one day), and simpler operations
         int256 expectedAmount;
 
-        // balance of the sub payee
+        // balance of the payee
         int256 balance;
     }
 
@@ -193,6 +193,10 @@ contract RequestCore is Administrable {
         // Store and declare the sub payees
         for(uint8 i = 1; i < payeesCount; i = i.add(1)) {
             address subPayeeAddress = extractAddress(_data, uint256(i).mul(52).add(41));
+
+            // payees address cannot be 0x0
+            require(subPayeeAddress != 0);
+
             subPayees[requestId][i-1] =  Payee(subPayeeAddress, int256(extractBytes32(_data, uint256(i).mul(52).add(61))), 0);
             NewSubPayee(requestId, subPayeeAddress);
         }
@@ -289,6 +293,8 @@ contract RequestCore is Administrable {
      
         for (uint8 i = 1; i < _payees.length; i = i.add(1))
         {
+            // payees address cannot be 0x0
+            require(_payees[i] != 0);
             subPayees[_requestId][i-1] = Payee(_payees[i], _expectedAmounts[i], 0);
             NewSubPayee(_requestId, _payees[i]);
         }
