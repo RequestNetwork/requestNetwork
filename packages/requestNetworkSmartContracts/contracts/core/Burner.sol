@@ -20,12 +20,9 @@ interface BurnableErc20 {
 }
 
 
-/// @title A contract to burn ERC20 tokens from ETH on the contract
+/// @title A contract to burn ERC20 tokens from ETH
 /// @notice Sends the ETH on the contract to kyber for conversion to ERC20
 ///  The converted ERC20 is then burned
-/// @dev Used to burn the REQ fees. Request fees are paid in ETH. The ETH is sent by the 
-///  currency contracts to this burn contract. When the burn contract is called, it converts
-///  the ETH to REQ and burn the REQ
 /// @author Request Network
 contract Burner {
     /// Kyber contract that will be used for the conversion
@@ -55,7 +52,7 @@ contract Burner {
     /// @param minConversionRate The minimal conversion rate. Default value is 1 (market rate)
     /// @return amount of dest ERC20 tokens burned
     function burn(uint maxSrcAmount, uint maxDestAmount, uint minConversionRate)
-        public
+        external
         returns(uint)
     {
         // ETH to convert on Kyber, by default the amount of ETH on the contract
