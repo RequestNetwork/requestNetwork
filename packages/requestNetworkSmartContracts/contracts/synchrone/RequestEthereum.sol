@@ -3,6 +3,7 @@ pragma solidity 0.4.18;
 import '../core/RequestCore.sol';
 import '../base/math/SafeMathUint8.sol';
 import './RequestEthereumCollect.sol';
+import '../base/token/ERC20.sol';
 
 /**
  * @title RequestEthereum
@@ -760,4 +761,17 @@ contract RequestEthereum is RequestEthereumCollect {
 			bs := mload(add(_data, add(32, offset)))
 		}
 	}
+
+
+    /**
+     * @dev transfer to owner any tokens send by mistake on this contracts
+     * @param token The address of the token to transfer.
+     * @param amount The amount to be transfered.
+     */
+    function emergencyERC20Drain(ERC20 token, uint amount )
+        public
+        onlyOwner 
+    {
+        token.transfer(owner, amount);
+    }
 }

@@ -5,6 +5,7 @@ import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathInt.sol';
 import '../base/math/SafeMathUint96.sol';
 import '../base/math/SafeMathUint8.sol';
+import '../base/token/ERC20.sol';
 
 /**
  * @title RequestCore
@@ -580,5 +581,17 @@ contract RequestCore is Administrable {
         assembly {
             bs := mload(add(_data, add(32, offset)))
         }
+    }
+
+    /**
+     * @dev transfer to owner any tokens send by mistake on this contracts
+     * @param token The address of the token to transfer.
+     * @param amount The amount to be transfered.
+     */
+    function emergencyERC20Drain(ERC20 token, uint amount )
+        public
+        onlyOwner 
+    {
+        token.transfer(owner, amount);
     }
 }
