@@ -46,32 +46,28 @@ contract Burner {
     function() public payable { }
 
     /// @dev Main function. Trade the ETH for ERC20 and burn them
-    /// @param maxSrcAmount Maximum amount of ETH to convert. If set to 0, all ETH on the
+    /// @param _maxSrcAmount Maximum amount of ETH to convert. If set to 0, all ETH on the
     ///  contract will be burned
-    /// @param maxDestAmount A limit on the amount of converted ERC20 tokens. Default value is MAX_UINT
-    /// @param minConversionRate The minimal conversion rate. Default value is 1 (market rate)
+    /// @param _maxDestAmount A limit on the amount of converted ERC20 tokens. Default value is MAX_UINT
+    /// @param _minConversionRate The minimal conversion rate. Default value is 1 (market rate)
     /// @return amount of dest ERC20 tokens burned
-    function burn(uint maxSrcAmount, uint maxDestAmount, uint minConversionRate)
+    function burn(uint _maxSrcAmount, uint _maxDestAmount, uint _minConversionRate)
         external
         returns(uint)
     {
         // ETH to convert on Kyber, by default the amount of ETH on the contract
-        // If maxSrcAmount is defined, ethToConvert = min(balance on contract, maxSrcAmount)
+        // If _maxSrcAmount is defined, ethToConvert = min(balance on contract, _maxSrcAmount)
         uint ethToConvert = this.balance;
-        if (maxSrcAmount != 0 && maxSrcAmount < ethToConvert) {
-            ethToConvert = maxSrcAmount;
+        if (_maxSrcAmount != 0 && _maxSrcAmount < ethToConvert) {
+            ethToConvert = _maxSrcAmount;
         }
 
         // Set maxDestAmount to MAX_UINT if not sent as parameter
-        if (maxDestAmount == 0) {
-            maxDestAmount = 2**256 - 1;
-        }
+        uint maxDestAmount = _maxDestAmount != 0 ? _maxDestAmount : 2**256 - 1;
 
         // Set minConversionRate to 1 if not sent as parameter
         // A value of 1 will execute the trade according to market price in the time of the transaction confirmation
-        if (minConversionRate == 0) {
-            minConversionRate = 1;
-        }
+        uint minConversionRate = _minConversionRate != 0 ? _minConversionRate : 1;
 
         // Convert the ETH to ERC20
         // erc20ToBurn is the amount of the ERC20 tokens converted by Kyber that will be burned
