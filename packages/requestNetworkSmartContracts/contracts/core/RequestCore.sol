@@ -83,8 +83,10 @@ contract RequestCore is Administrable {
     /*
      * @dev Function used by currency contracts to create a request in the Core
      *
+     * @dev _payees and _expectedAmounts must have the same size
+     *
      * @param _creator Request creator. The creator is the one who initiated the request (create or sign) and not necessarily the one who broadcasted it
-     * @param _payees array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees). Size must be smaller than 256.
+     * @param _payees array of payees address (the index 0 will be the payee the others are subPayees). Size must be smaller than 256.
      * @param _expectedAmounts array of Expected amount to be received by each payees. Must be in same order than the payees. Size must be smaller than 256.
      * @param _payer Entity expected to pay
      * @param _data data of the request
