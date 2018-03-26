@@ -5,6 +5,7 @@ import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathInt.sol';
 import '../base/math/SafeMathUint96.sol';
 import '../base/math/SafeMathUint8.sol';
+import '../base/token/ERC20.sol';
 
 /**
  * @title RequestCore
@@ -39,17 +40,17 @@ contract RequestCore is Administrable {
         Payee payee;
     }
 
-    // Structure for the sub Payee. A sub payee is an additional entity which will be paid during the processing of the invoice.
+    // Structure for the payees. A sub payee is an additional entity which will be paid during the processing of the invoice.
     // ex: can be used for routing taxes or fees at the moment of the payment.
     struct Payee {
-        // ID address of the sub payee
+        // ID address of the payee
         address addr;
 
-        // amount expected for the sub payee. 
+        // amount expected for the payee. 
         // Not uint for evolution (may need negative amounts one day), and simpler operations
         int256 expectedAmount;
 
-        // balance of the sub payee
+        // balance of the payee
         int256 balance;
     }
 
@@ -193,6 +194,10 @@ contract RequestCore is Administrable {
         // Store and declare the sub payees
         for(uint8 i = 1; i < payeesCount; i = i.add(1)) {
             address subPayeeAddress = extractAddress(_data, uint256(i).mul(52).add(41));
+
+            // payees address cannot be 0x0
+            require(subPayeeAddress != 0);
+
             subPayees[requestId][i-1] =  Payee(subPayeeAddress, int256(extractBytes32(_data, uint256(i).mul(52).add(61))), 0);
             NewSubPayee(requestId, subPayeeAddress);
         }
@@ -289,6 +294,8 @@ contract RequestCore is Administrable {
      
         for (uint8 i = 1; i < _payees.length; i = i.add(1))
         {
+            // payees address cannot be 0x0
+            require(_payees[i] != 0);
             subPayees[_requestId][i-1] = Payee(_payees[i], _expectedAmounts[i], 0);
             NewSubPayee(_requestId, _payees[i]);
         }
@@ -355,7 +362,7 @@ contract RequestCore is Administrable {
         constant
         returns(uint8)
     {
-        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1)) {
+        for (uint8 i = 0; subPayees[_requestId][i].addr != address(0); i = i.add(1)) {
             // nothing to do
         }
         return i;
@@ -404,7 +411,7 @@ contract RequestCore is Administrable {
     {
         int256 balance = requests[_requestId].payee.balance;
 
-        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
+        for (uint8 i = 0; subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             balance = balance.add(subPayees[_requestId][i].balance);
         }
@@ -425,7 +432,7 @@ contract RequestCore is Administrable {
     {
         isNull = requests[_requestId].payee.balance == 0;
 
-        for (uint8 i = 0; isNull && i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
+        for (uint8 i = 0; isNull && subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             isNull = subPayees[_requestId][i].balance == 0;
         }
@@ -445,7 +452,7 @@ contract RequestCore is Administrable {
     {
         int256 expectedAmount = requests[_requestId].payee.expectedAmount;
 
-        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
+        for (uint8 i = 0; subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             expectedAmount = expectedAmount.add(subPayees[_requestId][i].expectedAmount);
         }
@@ -479,7 +486,7 @@ contract RequestCore is Administrable {
         // return 0 if main payee
         if(requests[_requestId].payee.addr == _address) return 0;
 
-        for (uint8 i = 0; i < 256 && subPayees[_requestId][i].addr != address(0); i = i.add(1))
+        for (uint8 i = 0; subPayees[_requestId][i].addr != address(0); i = i.add(1))
         {
             if(subPayees[_requestId][i].addr == _address) {
                 // if found return subPayee index + 1 (0 is main payee)
@@ -546,34 +553,17 @@ contract RequestCore is Administrable {
      * @param _data bytes from where the address will be extract
      * @param _offset position of the first byte of the address
      * @return address
-     */ 
-    function extractAddress(bytes _data, uint offset) 
-        internal 
-        pure 
-        returns (address) 
+     */
+    function extractAddress(bytes _data, uint offset)
+        internal
+        pure
+        returns (address m)
     {
-        // no "for" pattern to optimise gas cost
-        uint160 m = uint160(_data[offset]); // 2576 gas
-        m = m*256 + uint160(_data[offset+1]);
-        m = m*256 + uint160(_data[offset+2]);
-        m = m*256 + uint160(_data[offset+3]);
-        m = m*256 + uint160(_data[offset+4]);
-        m = m*256 + uint160(_data[offset+5]);
-        m = m*256 + uint160(_data[offset+6]);
-        m = m*256 + uint160(_data[offset+7]);
-        m = m*256 + uint160(_data[offset+8]);
-        m = m*256 + uint160(_data[offset+9]);
-        m = m*256 + uint160(_data[offset+10]);
-        m = m*256 + uint160(_data[offset+11]);
-        m = m*256 + uint160(_data[offset+12]);
-        m = m*256 + uint160(_data[offset+13]);
-        m = m*256 + uint160(_data[offset+14]);
-        m = m*256 + uint160(_data[offset+15]);
-        m = m*256 + uint160(_data[offset+16]);
-        m = m*256 + uint160(_data[offset+17]);
-        m = m*256 + uint160(_data[offset+18]);
-        m = m*256 + uint160(_data[offset+19]);
-        return address(m);
+        require(offset >=0 && offset + 20 <= _data.length);
+        assembly {
+            m := and( mload(add(_data, add(20, offset))), 
+                      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+        }
     }
 
     /*
@@ -581,42 +571,27 @@ contract RequestCore is Administrable {
      * @param data bytes from where the bytes32 will be extract
      * @param offset position of the first byte of the bytes32
      * @return address
-     */ 
-    function extractBytes32(bytes _data, uint _offset) public pure returns (bytes32) {
-        // no "for" pattern to optimise gas cost
-        uint256 m = uint256(_data[_offset]); // 3930 gas
-        m = m*256 + uint256(_data[_offset+1]);
-        m = m*256 + uint256(_data[_offset+2]);
-        m = m*256 + uint256(_data[_offset+3]);
-        m = m*256 + uint256(_data[_offset+4]);
-        m = m*256 + uint256(_data[_offset+5]);
-        m = m*256 + uint256(_data[_offset+6]);
-        m = m*256 + uint256(_data[_offset+7]);
-        m = m*256 + uint256(_data[_offset+8]);
-        m = m*256 + uint256(_data[_offset+9]);
-        m = m*256 + uint256(_data[_offset+10]);
-        m = m*256 + uint256(_data[_offset+11]);
-        m = m*256 + uint256(_data[_offset+12]);
-        m = m*256 + uint256(_data[_offset+13]);
-        m = m*256 + uint256(_data[_offset+14]);
-        m = m*256 + uint256(_data[_offset+15]);
-        m = m*256 + uint256(_data[_offset+16]);
-        m = m*256 + uint256(_data[_offset+17]);
-        m = m*256 + uint256(_data[_offset+18]);
-        m = m*256 + uint256(_data[_offset+19]);
-        m = m*256 + uint256(_data[_offset+20]);
-        m = m*256 + uint256(_data[_offset+21]);
-        m = m*256 + uint256(_data[_offset+22]);
-        m = m*256 + uint256(_data[_offset+23]);
-        m = m*256 + uint256(_data[_offset+24]);
-        m = m*256 + uint256(_data[_offset+25]);
-        m = m*256 + uint256(_data[_offset+26]);
-        m = m*256 + uint256(_data[_offset+27]);
-        m = m*256 + uint256(_data[_offset+28]);
-        m = m*256 + uint256(_data[_offset+29]);
-        m = m*256 + uint256(_data[_offset+30]);
-        m = m*256 + uint256(_data[_offset+31]);
-        return bytes32(m);
+     */
+    function extractBytes32(bytes _data, uint offset)
+        public
+        pure
+        returns (bytes32 bs)
+    {
+        require(offset >=0 && offset + 32 <= _data.length);
+        assembly {
+            bs := mload(add(_data, add(32, offset)))
+        }
     }
 
+    /**
+     * @dev transfer to owner any tokens send by mistake on this contracts
+     * @param token The address of the token to transfer.
+     * @param amount The amount to be transfered.
+     */
+    function emergencyERC20Drain(ERC20 token, uint amount )
+        public
+        onlyOwner 
+    {
+        token.transfer(owner, amount);
+    }
 }
