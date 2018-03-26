@@ -25,12 +25,12 @@ contract RequestEthereum is RequestEthereumCollect {
 	mapping(address => uint256) public ethToWithdraw;
 
 	// payment addresses by requestId (optional). We separate the Identity of the payee/payer (in the core) and the wallet address in the currency contract
-    mapping(bytes32 => address[256]) public payeesPaymentAddress;
-    mapping(bytes32 => address) public payerRefundAddress;
+	mapping(bytes32 => address[256]) public payeesPaymentAddress;
+	mapping(bytes32 => address) public payerRefundAddress;
 
-    /*
-     *  Event sent when we fail to send. The ether will be available for withdrawal.
-     */
+	/*
+	 *  Event sent when we fail to send. The ether will be available for withdrawal.
+	 */
 	event EtherAvailableToWithdraw(bytes32 indexed requestId, address indexed recipient, uint256 amount);
 
 	/*
@@ -537,12 +537,12 @@ contract RequestEthereum is RequestEthereumCollect {
 			uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
 
 			// if not ID addresses maybe in the payee payments addresses
-	        for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1)) {
-	            if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
-	            	// get the payeeIndex
-	                payeeIndex = int16(i);
-	            }
-	        }
+			for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1)) {
+				if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
+					// get the payeeIndex
+					payeeIndex = int16(i);
+				}
+			}
 		}
 		// the address must be found somewhere
 		require(payeeIndex >= 0); 
@@ -589,7 +589,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
 	 *
-     * @param _data bytes containing all the data packed
+	 * @param _data bytes containing all the data packed
 	 * @param _payeesPaymentAddress array of payees payment addresses
 	 * @param _expirationDate timestamp after what the signed request cannot be broadcasted
 	 *
@@ -638,19 +638,19 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	/*
 	 * @dev Check the validity of a signed request & the expiration date
-     * @param _data bytes containing all the data packed :
-            address(creator)
-            address(payer)
-            uint8(number_of_payees)
-            [
-                address(main_payee_address)
-                int256(main_payee_expected_amount)
-                address(second_payee_address)
-                int256(second_payee_expected_amount)
-                ...
-            ]
-            uint8(data_string_size)
-            size(data)
+	 * @param _data bytes containing all the data packed :
+			address(creator)
+			address(payer)
+			uint8(number_of_payees)
+			[
+				address(main_payee_address)
+				int256(main_payee_expected_amount)
+				address(second_payee_address)
+				int256(second_payee_expected_amount)
+				...
+			]
+			uint8(data_string_size)
+			size(data)
 	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
   	 * @param _signature ECDSA signature containing v, r and s as bytes
@@ -707,13 +707,13 @@ contract RequestEthereum is RequestEthereumCollect {
 		_;
 	}
 
-    /*
-     * @dev modify 20 bytes in a bytes
-     * @param data bytes to modify
-     * @param offset position of the first byte to modify
-     * @param b bytes20 to insert
-     * @return address
-     */
+	/*
+	 * @dev modify 20 bytes in a bytes
+	 * @param data bytes to modify
+	 * @param offset position of the first byte to modify
+	 * @param b bytes20 to insert
+	 * @return address
+	 */
 	function updateBytes20inBytes(bytes data, uint offset, bytes20 b)
 		internal
 		pure
@@ -727,12 +727,12 @@ contract RequestEthereum is RequestEthereumCollect {
 		}
 	}
 
-    /*
-     * @dev extract an address in a bytes
-     * @param data bytes from where the address will be extract
-     * @param offset position of the first byte of the address
-     * @return address
-     */
+	/*
+	 * @dev extract an address in a bytes
+	 * @param data bytes from where the address will be extract
+	 * @param offset position of the first byte of the address
+	 * @return address
+	 */
 	function extractAddress(bytes _data, uint offset)
 		internal
 		pure
@@ -745,16 +745,16 @@ contract RequestEthereum is RequestEthereumCollect {
 		}
 	}
 
-    /*
-     * @dev extract a bytes32 from a bytes
-     * @param data bytes from where the bytes32 will be extract
-     * @param offset position of the first byte of the bytes32
-     * @return address
-     */
-    function extractBytes32(bytes _data, uint offset)
-	    public
-	    pure
-	    returns (bytes32 bs)
+	/*
+	 * @dev extract a bytes32 from a bytes
+	 * @param data bytes from where the bytes32 will be extract
+	 * @param offset position of the first byte of the bytes32
+	 * @return address
+	 */
+	function extractBytes32(bytes _data, uint offset)
+		public
+		pure
+		returns (bytes32 bs)
 	{
 		require(offset >=0 && offset + 32 <= _data.length);
 		assembly {
@@ -763,15 +763,15 @@ contract RequestEthereum is RequestEthereumCollect {
 	}
 
 
-    /**
-     * @dev transfer to owner any tokens send by mistake on this contracts
-     * @param token The address of the token to transfer.
-     * @param amount The amount to be transfered.
-     */
-    function emergencyERC20Drain(ERC20 token, uint amount )
-        public
-        onlyOwner 
-    {
-        token.transfer(owner, amount);
-    }
+	/**
+	 * @dev transfer to owner any tokens send by mistake on this contracts
+	 * @param token The address of the token to transfer.
+	 * @param amount The amount to be transfered.
+	 */
+	function emergencyERC20Drain(ERC20 token, uint amount )
+		public
+		onlyOwner 
+	{
+		token.transfer(owner, amount);
+	}
 }
