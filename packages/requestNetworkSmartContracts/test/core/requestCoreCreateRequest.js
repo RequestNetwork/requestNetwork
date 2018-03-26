@@ -22,7 +22,7 @@ contract('RequestCore Create Request', function(accounts) {
 	var arbitraryAmount = 100000000;
 	var arbitraryAmount2 = 200000;
 	var arbitraryAmount3 = 30000;
-
+/*
 	// requestId start at 1 when Core is created
 	it("Creation Core, requestId start at 0", async function () {
 		var requestCore = await RequestCore.new();
@@ -336,7 +336,17 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
-	
+	*/
+
+	it("new request with different size array", async function () {
+		var requestCore = await RequestCore.new();
+
+		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
+
+		var r = await requestCore.createRequest(creator, [], [], payer, '', {from:fakeContract});
+
+		console.log(r);
+	});
 });
 
 
