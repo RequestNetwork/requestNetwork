@@ -69,7 +69,8 @@ export default class Erc20Service {
                     if ( ! receipt.events.Approval ) {
                         return promiEvent.reject('approve faied');
                     } else {
-                        return promiEvent.resolve(true);
+                        const currentAllowance = await this.allowance(_options.from, _spender);
+                        return promiEvent.resolve(currentAllowance);
                     }
                 }
             },

@@ -947,56 +947,88 @@ export default class RequestERC20Service {
      * @param   _requestId     requestId of the request
      * @param   _amount        amount to allowed
      * @param   _options       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-     * @return  promise
+     * @return  promise of the amount allowed
      */
-    public approveTokenForRequest(_requestId: string, _amount: any, _options ?: any): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            _amount = new BN(_amount);
+    public approveTokenForRequest(
+        _requestId: string,
+        _amount: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _amount = new BN(_amount);
 
-            this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
-                if (!_options.from && err) return reject(err);
-                _options.from = _options.from ? _options.from : defaultAccount;
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) {
+                return promiEvent.reject(err);
+            }
+            _options.from = _options.from ? _options.from : defaultAccount;
 
-                const request = await this.getRequest(_requestId);
-                const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+            const request = await this.getRequest(_requestId);
+            const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
 
-                try {
-                    await tokenErc20.approve(request.currencyContract.address, _amount, _options);
-                    return resolve();
-                } catch (e) {
-                    return reject(e);
-                }
-            });
+            const result = await tokenErc20.approve(request.currencyContract.address, _amount, _options)
+                    .on('broadcasted', (data: any) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', data);
+                    });
+            return promiEvent.resolve(result);
         });
+
+        return promiEvent.eventEmitter;
     }
 
     /**
-     * Do a token allowance for a request
+     * Do a token allowance for a signed request
      * @param   _signedRequest     object signed request
-     * @param   _amount        amount to allowed
-     * @param   _options       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-     * @return  promise
+     * @param   _amount            amount to allowed
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the amount allowed
      */
-    public approveTokenForSignedRequest(_signedRequest: any, _amount: any, _options ?: any): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            _amount = new BN(_amount);
+    public approveTokenForSignedRequest(
+        _signedRequest: any,
+        _amount: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _amount = new BN(_amount);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            _options.from = _options.from ? _options.from : defaultAccount;
 
             if ( _signedRequest.currencyContract !== this.addressRequestERC20Last ) {
-                return reject('currency contract given is not the last contract');
+                return promiEvent.reject('currency contract given is not the last contract');
             }
 
+            const tokenErc20 = new Erc20Service(_signedRequest.tokenAddress);
+
+            const result = await tokenErc20.approve(_signedRequest.currencyContract.address, _amount, _options)
+                    .on('broadcasted', (data: any) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', data);
+                    });
+            return promiEvent.resolve(result);
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * Get a token allowance for a request
+     * @param   _tokenAddress                  token address
+     * @param   _currencyContractAddress       currency contract address
+     * @param   _options                       options for the method (here only from)
+     * @return  promise of the amount allowed
+     */
+    public getTokenAllowance(
+        _tokenAddress: string,
+        _currencyContractAddress: string,
+        _options: any): Promise<any> {
+        return new Promise(async (resolve, reject) => {
             this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
-                if (!_options.from && err) return reject(err);
+                if (!_options.from && err) {
+                    return reject(err);
+                }
                 _options.from = _options.from ? _options.from : defaultAccount;
 
-                const tokenErc20 = new Erc20Service(_signedRequest.tokenAddress);
-
-                try {
-                    await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options);
-                    return resolve();
-                } catch (e) {
-                    return reject(e);
-                }
+                const tokenErc20 = new Erc20Service(_tokenAddress);
+                return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
             });
         });
     }

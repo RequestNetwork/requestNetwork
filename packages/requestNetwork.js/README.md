@@ -566,6 +566,44 @@ public getRequestEvents(_requestId: string, _fromBlock ?: number, _toBlock ?: nu
 * @param   `_toBlock`    search events until this block (optional)
 * @return  promise of the array of events about the request
 
+
+
+
+
+
+### Do a token allowance for a request
+```js
+public approveTokenForRequest(_requestId: string, _amount: any, _options ?: any)
+```
+
+* @param   _requestId     requestId of the request
+* @param   _amount        amount to allowed
+* @param   _options       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @return  promise of the amount allowed
+
+
+### Do a token allowance for a signed request
+```js
+public approveTokenForSignedRequest(_signedRequest: any, _amount: any, _options ?: any)
+```
+
+* @param   _signedRequest     object signed request
+* @param   _amount            amount to allowed
+* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @return  promise of the amount allowed
+
+
+### Get a token allowance for a request
+```js
+public getTokenAllowance(_tokenAddress: string, _currencyContractAddress: string, _options: any)
+```
+
+* @param   _tokenAddress                  token address
+* @param   _currencyContractAddress       currency contract address
+* @param   _options                       options for the method (here only from)
+* @return  promise of the amount allowed
+
+
 ## Events
 Here is the list of events produced by the Request Network smarts contracts. Note that the solidity types will be converted in strings when you receive them.
 
