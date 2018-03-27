@@ -484,7 +484,7 @@ contract RequestEthereum is RequestEthereumCollect {
 				}
 
 				//payment done, the money was sent
-				fundOrderInternal(_requestId, addressToPay, _payeeAmounts[i]);
+				fundOrderInternal(addressToPay, _payeeAmounts[i]);
 			}
 		}
 
@@ -534,7 +534,7 @@ contract RequestEthereum is RequestEthereumCollect {
 		}
 
 		// refund declared, the money is ready to be sent to the payer
-		fundOrderInternal(_requestId, addressToPay, _amount);
+		fundOrderInternal(addressToPay, _amount);
 	}
 
 	/*
@@ -543,13 +543,11 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev The withdrawal pattern would make UX difficult. The transfer+withdrawal pattern would make contracts interacting with the request protocol complex.
 	 * @dev N.B.: The transfer pattern will have to be clearly explained to users. It enables a payee to create unpayable requests.
 	 *
-	 * @param _requestId id of the request
 	 * @param _recipient address where the wei has to be sent to
 	 * @param _amount amount in wei to send
 	 *
 	 */
 	function fundOrderInternal(
-		bytes32 _requestId,
 		address _recipient,
 		uint256 _amount)
 		internal
