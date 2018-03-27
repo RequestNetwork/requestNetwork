@@ -1166,9 +1166,7 @@ export default class RequestEthereumService {
         _request: any,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
-        return new Promise(async (resolve, reject) => {
-            return resolve([]);
-        });
+        return Promise.resolve([]);
     }
 
     /**
