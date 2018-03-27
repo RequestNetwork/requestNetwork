@@ -4,6 +4,7 @@ const assert = require('assert');
 
 const RequestCore = artifacts.require("./RequestCore.sol");
 const RequestEthereum = artifacts.require("./RequestEthereum.sol");
+const RequestERC20 = artifacts.require("./RequestERC20.sol");
 
 const addressContractBurner = 0;
 const feesPerTenThousand = 10; // 0.1 %
@@ -12,7 +13,8 @@ const maxFees = web3.toWei(0.00012, 'ether');
 // Deploys, set up the contracts
 module.exports = async function(deployer) {
   await deployer.deploy(RequestCore);
-  await deployer.deploy(RequestEthereum, RequestCore.address);
+  await deployer.deploy(RequestEthereum, RequestCore.address, addressContractBurner);
+  await deployer.deploy(RequestERC20, RequestCore.address, addressContractBurner);
   const instances = await createInstances();
   await setupContracts(instances);
   await checks(instances);
@@ -23,15 +25,16 @@ module.exports = async function(deployer) {
 function createInstances() {
   return Promise.props({
     core: RequestCore.deployed(),
-    ethereum: RequestEthereum.deployed(addressContractBurner)
+    ethereum: RequestEthereum.deployed(),
+    erc20: RequestERC20.deployed()
   });
 }
 
-function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
+function setupContracts({ ethereum: ethereumInstance, core: coreInstance, erc20: erc20Instance }) {
   return Promise.all([
     coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
     ethereumInstance.setFeesPerTenThousand(feesPerTenThousand),
-    ethereumInstance.setMaxCollectable(maxFees)
+    ethereumInstance.setMaxCollectable(maxFees),
   ]);
 }
 

@@ -16,6 +16,10 @@ export const expectEqualsObject = (obj1: any, obj2: any, msg: string): void => {
     expect(JSON.stringify(obj1), msg).to.be.equal(JSON.stringify(obj2));
 };
 
+export const expectEqualsException = (err1: any, err2: any, msg: string): void => {
+    expect(err1.message, msg).to.be.equal(err2.message);
+};
+
 export const expectEqualsBN = (obj1: any, obj2: any, msg: string): void => {
     expect(new BN(obj1).eq(new BN(obj2)), msg).to.be.true;
 };

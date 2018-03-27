@@ -2,12 +2,13 @@ import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -22,19 +23,23 @@ let payee3PaymentAddress: string;
 let otherGuy: string;
 let payerRefundAddress: string;
 let currentNumRequest: any;
+let payeeWithoutToken: any;
 
 let requestId: any;
 
-describe('refundAction', () => {
+describe('erc20 refundAction', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestEthereumService.web3Single.web3;
+    web3 = rn.requestERC20Service.web3Single.web3;
+    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
         defaultAccount = accounts[0].toLowerCase();
+        payeeWithoutToken = accounts[1].toLowerCase();
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
         payee2 = accounts[4].toLowerCase();
@@ -43,11 +48,12 @@ describe('refundAction', () => {
         payee3PaymentAddress = accounts[7].toLowerCase();
         payeePaymentAddress = accounts[8].toLowerCase();
         otherGuy = accounts[9].toLowerCase();
-        
+
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        const req = await rn.requestEthereumService.createRequestAsPayee(
-            [payee , payee2, payee3],
+        const req = await rn.requestERC20Service.createRequestAsPayee(
+            addressTestToken,
+            [payee, payee2, payee3],
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             payer,
             [payeePaymentAddress,undefined,payee3PaymentAddress],
@@ -60,9 +66,12 @@ describe('refundAction', () => {
         requestId = req.request.requestId;
     });
 
-
     it('payBack created request', async () => {
-        const result = await rn.requestEthereumService.refundAction(
+        // approve
+        await testToken.transfer(payee, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payee})
+
+        const result = await rn.requestERC20Service.refundAction(
                             requestId,
                             arbitraryAmount,
                             {from: payee})
@@ -79,7 +88,7 @@ describe('refundAction', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -93,11 +102,15 @@ describe('refundAction', () => {
     });
 
     it('payBack accepted request', async () => {
-        await rn.requestEthereumService.accept(
+        // approve
+        await testToken.transfer(payee, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payee})
+
+        await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: payer});
 
-        const result = await rn.requestEthereumService.refundAction(
+        const result = await rn.requestERC20Service.refundAction(
                             requestId,
                             arbitraryAmount,
                             {from: payee})
@@ -114,7 +127,7 @@ describe('refundAction', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(1);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -128,7 +141,11 @@ describe('refundAction', () => {
     });
 
     it('payBack request by payee2', async () => {
-        const result = await rn.requestEthereumService.refundAction(
+        // approve
+        await testToken.transfer(payee2, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payee2})
+
+        const result = await rn.requestERC20Service.refundAction(
                             requestId,
                             arbitraryAmount,
                             {from: payee2})
@@ -145,7 +162,7 @@ describe('refundAction', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -159,7 +176,11 @@ describe('refundAction', () => {
     });
 
     it('payBack request by payee3paymentAddress', async () => {
-        const result = await rn.requestEthereumService.refundAction(
+        // approve
+        await testToken.transfer(payee3PaymentAddress, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payee3PaymentAddress})
+
+        const result = await rn.requestERC20Service.refundAction(
                             requestId,
                             arbitraryAmount,
                             {from: payee3PaymentAddress})
@@ -176,7 +197,7 @@ describe('refundAction', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -190,7 +211,11 @@ describe('refundAction', () => {
     });
 
     it('payBack created request by payeePaymentAddress', async () => {
-        const result = await rn.requestEthereumService.refundAction(
+        // approve
+        await testToken.transfer(payeePaymentAddress, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payeePaymentAddress})
+
+        const result = await rn.requestERC20Service.refundAction(
                             requestId,
                             arbitraryAmount,
                             {from: payeePaymentAddress})
@@ -207,7 +232,7 @@ describe('refundAction', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -221,8 +246,12 @@ describe('refundAction', () => {
     });
 
     it('payback request with not valid requestId', async () => {
+        // approve
+        await testToken.transfer(payee, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payee})
+
         try {
-            const result = await rn.requestEthereumService.refundAction(
+            const result = await rn.requestERC20Service.refundAction(
                                 '0x00000000000000',
                                 arbitraryAmount,
                                 {from: payee});
@@ -234,19 +263,23 @@ describe('refundAction', () => {
 
     it('payback request with not valid amount', async () => {
         try {
-            const result = await rn.requestEthereumService.refundAction(
+            const result = await rn.requestERC20Service.refundAction(
                                 requestId,
                                 -1,
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_amount must a positive integer'), 'exception not right');
+            utils.expectEqualsException(e, Error('_amountToRefund must a positive integer'), 'exception not right');
         }
     });
 
     it('payback request by payer', async () => {
+        // approve
+        await testToken.transfer(payer, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payer})
+
         try {
-            const result = await rn.requestEthereumService.refundAction(
+            const result = await rn.requestERC20Service.refundAction(
                                 requestId,
                                 arbitraryAmount,
                                 {from: payer});
@@ -257,8 +290,12 @@ describe('refundAction', () => {
     });
 
     it('payback request by otherGuy', async () => {
+        // approve
+        await testToken.transfer(otherGuy, arbitraryAmount, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: otherGuy})
+
         try {
-            const result = await rn.requestEthereumService.refundAction(
+            const result = await rn.requestERC20Service.refundAction(
                                 requestId,
                                 arbitraryAmount,
                                 {from: otherGuy});
@@ -266,5 +303,53 @@ describe('refundAction', () => {
         } catch (e) {
             utils.expectEqualsException(e, Error('account must be a payee'), 'exception not right');
         }
+    });
+
+
+
+
+
+    it('refund created request with not enough token', async () => {
+        // approve but balance too low
+        await testToken.transfer(defaultAccount, await testToken.balanceOf(payeeWithoutToken), {from: payeeWithoutToken});
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payeeWithoutToken})
+
+        try {
+            const result = await rn.requestERC20Service.paymentAction(
+                                requestId,
+                                [arbitraryAmount],
+                                undefined,
+                                {from: payeeWithoutToken})
+                .on('broadcasted', (data: any) => {
+                    expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+                });
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsException(e, Error('balance of token is too low'),'exception not right');
+        }
+        await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payeeWithoutToken})
+    });
+
+
+
+    it('refund created request with token allowance too low', async () => {
+        // approve but balance ok but allowance too low
+        await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payeeWithoutToken})
+        await testToken.transfer(payeeWithoutToken, arbitraryAmount, {from: defaultAccount});   
+
+        try {
+            const result = await rn.requestERC20Service.paymentAction(
+                                requestId,
+                                [arbitraryAmount],
+                                undefined,
+                                {from: payeeWithoutToken})
+                .on('broadcasted', (data: any) => {
+                    expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+                });
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsException(e, Error('allowance of token is too low'),'exception not right');
+        }
+        await testToken.transfer(defaultAccount, arbitraryAmount, {from: payeeWithoutToken});
     });
 });

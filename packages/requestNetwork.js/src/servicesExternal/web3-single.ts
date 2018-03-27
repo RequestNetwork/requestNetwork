@@ -350,7 +350,6 @@ export class Web3Single {
             }
             return false;
         });
-
         return this.web3.eth.abi.decodeLog(eventInput, _event.raw.data, _event.raw.topics.slice(1));
     }
 
@@ -359,7 +358,7 @@ export class Web3Single {
      * @param    _options    options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return   options cleaned
      */
-    public setUpOptions(_options: any): any {
+    public setUpOptions(_options ?: any): any {
         if (!_options) _options = {};
         if (!_options.numberOfConfirmation) _options.numberOfConfirmation = 0;
         if (_options.gasPrice) _options.gasPrice = new WEB3.utils.BN(_options.gasPrice);

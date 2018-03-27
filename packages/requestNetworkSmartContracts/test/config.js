@@ -22,6 +22,18 @@ var config = {
 				"requestEthereumPay.js":false, 
 				"requestEthereumPayBack.js":false, 
 				"requestEthereumPaymentStuck.js":false,
+	//		},
+	//	 	"erc20.js": {
+				"requestERC20CreateRequestAsPayee.js":false,
+				"requestERC20BroadcastSignedRequestAsPayer.js":false,
+				"requestERC20Accept.js":false,
+				"requestERC20Cancel.js":false,
+				"requestERC20CancelByPayer.js":false,
+				"requestERC20Subtract.js":false,
+				"requestERC20Additional.js":false,
+				"requestERC20PaymentAction.js":false,
+				"requestERC20RefundAction.js":false,
+				"requestERC20UpdateTokens.js":false,
 	//		}
 	// },
 };

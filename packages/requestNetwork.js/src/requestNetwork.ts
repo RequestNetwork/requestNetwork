@@ -2,6 +2,7 @@
 import RequestCoreService from '../src/servicesCore/requestCore-service';
 
 // Contract ---------------------------------
+import RequestERC20Service from '../src/servicesContracts/requestERC20-service';
 import RequestEthereumService from '../src/servicesContracts/requestEthereum-service';
 
 // Synchrone Extension ----------------------
@@ -20,8 +21,10 @@ export default class RequestNetwork {
      */
     public requestEthereumService: RequestEthereumService;
     /**
-     * requestSynchroneExtensionEscrowService class containing methods for interacting with the Extension Escrow
+     * requestERC20Service class containing methods for interacting with the ERC20 currencies contract
      */
+    public requestERC20Service: RequestERC20Service;
+
     /**
      * requestCoreService class containing methods for interacting with the Request Core
      */
@@ -45,5 +48,6 @@ export default class RequestNetwork {
         // init interface services
         this.requestCoreService = new RequestCoreService();
         this.requestEthereumService = new RequestEthereumService();
+        this.requestERC20Service = new RequestERC20Service();
     }
 }

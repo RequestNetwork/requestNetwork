@@ -1,6 +1,8 @@
 import RequestCoreService from '../servicesCore/requestCore-service';
 import Ipfs from '../servicesExternal/ipfs-service';
 
+import Erc20Service from '../servicesExternal/erc20-service';
+
 import { Web3Single } from '../servicesExternal/web3-single';
 
 import * as ServiceContracts from '../servicesContracts';
@@ -19,9 +21,9 @@ const BN = Web3Single.BN();
 const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
 
 /**
- * The RequestEthereumService class is the interface for the Request Ethereum currency contract
+ * The RequestERC20Service class is the interface for the Request Ethereum currency contract
  */
-export default class RequestEthereumService {
+export default class RequestERC20Service {
     protected ipfs: any;
 
     // RequestCore on blockchain
@@ -34,24 +36,24 @@ export default class RequestEthereumService {
      */
     protected requestCoreServices: any;
 
-    // RequestEthereum on blockchain
+    // RequestERC20 on blockchain
     /**
-     * RequestEthereum contract's abi
+     * RequestERC20 contract's abi
      */
-    protected abiRequestEthereumLast: any;
+    protected abiRequestERC20Last: any;
     /**
-     * RequestEthereum contract's address
+     * RequestERC20 contract's address
      */
-    protected addressRequestEthereumLast: string;
+    protected addressRequestERC20Last: string;
     /**
-     * RequestEthereum contract's web3 instance
+     * RequestERC20 contract's web3 instance
      */
-    protected instanceRequestEthereumLast: any;
+    protected instanceRequestERC20Last: any;
 
     private web3Single: Web3Single;
 
     /**
-     * constructor to Instantiates a new RequestEthereumService
+     * constructor to Instantiates a new RequestERC20Service
      */
     constructor() {
         this.web3Single = Web3Single.getInstance();
@@ -60,18 +62,19 @@ export default class RequestEthereumService {
         this.abiRequestCoreLast = this.web3Single.getContractInstance('last-RequestCore').abi;
         this.requestCoreServices = new RequestCoreService();
 
-        const requestEthereumLastArtifact = this.web3Single.getContractInstance('last-RequestEthereum');
-        if (!requestEthereumLastArtifact) {
-            throw Error('RequestEthereum Artifact: no config for network : "' + this.web3Single.networkName + '"');
+        const requestERC20LastArtifact = this.web3Single.getContractInstance('last-RequestERC20');
+        if (!requestERC20LastArtifact) {
+            throw Error('RequestERC20 Artifact: no config for network : "' + this.web3Single.networkName + '"');
         }
-        this.abiRequestEthereumLast = requestEthereumLastArtifact.abi;
-        this.addressRequestEthereumLast = requestEthereumLastArtifact.address;
-        this.instanceRequestEthereumLast = requestEthereumLastArtifact.instance;
+        this.abiRequestERC20Last = requestERC20LastArtifact.abi;
+        this.addressRequestERC20Last = requestERC20LastArtifact.address;
+        this.instanceRequestERC20Last = requestERC20LastArtifact.instance;
     }
 
     /**
      * create a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _tokenAddress              Address token used for payment
      * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
      * @param   _expectedAmounts           amount initial expected per payees for the request
      * @param   _payer                     address of the payer
@@ -84,6 +87,7 @@ export default class RequestEthereumService {
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public createRequestAsPayee(
+        _tokenAddress: string,
         _payeesIdAddress: string[],
         _expectedAmounts: any[],
         _payer: string,
@@ -110,28 +114,27 @@ export default class RequestEthereumService {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
+            if (!this.web3Single.isAddressNoChecksum(_tokenAddress)) {
+                return promiEvent.reject(Error('_tokenAddress must be a valid eth address'));
+            }
             if (_payeesIdAddress.length !== _expectedAmounts.length) {
                 return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
             }
             if (_payeesPaymentAddress && _payeesIdAddress.length < _payeesPaymentAddress.length) {
                 return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
             }
-
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
                 return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
                 return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
             }
-
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
             }
-
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
             }
-
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
             }
@@ -146,16 +149,22 @@ export default class RequestEthereumService {
             if ( this.web3Single.areSameAddressesNoChecksum(account, _payer) ) {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
+
+            if ( ! await this.isTokenWhiteListed(_tokenAddress) ) {
+                return promiEvent.reject(Error('token must be whitelisted'));
+            }
+
             // get the amount to collect
             try {
-                const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
+                const collectEstimation = await this.instanceRequestERC20Last.methods.collectEstimation(_tokenAddress, expectedAmountsTotal).call();
 
                 _options.value = collectEstimation;
 
                 // add file to ipfs
                 const hashIpfs = await this.ipfs.addFile(_data);
 
-                const method = this.instanceRequestEthereumLast.methods.createRequestAsPayee(
+                const method = this.instanceRequestERC20Last.methods.createRequestAsPayeeAction(
+                    _tokenAddress,
                     _payeesIdAddress,
                     _payeesPaymentAddressParsed,
                     _expectedAmounts,
@@ -196,135 +205,11 @@ export default class RequestEthereumService {
     }
 
     /**
-     * create a request as payer
-     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee)
-     * @param   _expectedAmounts           amount initial expected per payees for the request
-     * @param   _payerRefundAddress        refund address of the payer (optional)
-     * @param   _amountsToPay              amounts to pay in wei for each payee (optional)
-     * @param   _additionals               amounts of additional in wei for each payee (optional)
-     * @param   _data                      Json of the request's details (optional)
-     * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
-     * @param   _extensionParams           array of parameters for the extension (optional) NOT USED YET
-     * @param   _options                   options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
-     */
-    public createRequestAsPayer(
-        _payeesIdAddress: string[],
-        _expectedAmounts: any[],
-        _payerRefundAddress ?: string,
-        _amountsToPay ?: any[],
-        _additionals ?: any[],
-        _data ?: string,
-        _extension ?: string,
-        _extensionParams ?: any[],
-        _options ?: any): Web3PromiEvent {
-        const promiEvent = Web3PromiEvent();
-
-        _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
-        let amountsToPayParsed: any[] = [];
-        if (_amountsToPay) {
-            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
-        }
-        let additionalsParsed: any[] = [];
-        if (_additionals) {
-            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
-        }
-        const expectedAmountsTotal = _expectedAmounts.reduce((a, b) => a.add(b), new BN(0));
-        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
-
-        _options = this.web3Single.setUpOptions(_options);
-
-        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
-            if (!_options.from && err) return promiEvent.reject(err);
-            const account = _options.from || defaultAccount;
-
-            // some controls on the arrays
-            if (_payeesIdAddress.length !== _expectedAmounts.length) {
-                return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
-            }
-            if (_amountsToPay && _payeesIdAddress.length < _amountsToPay.length) {
-                return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
-            }
-            if (_additionals && _payeesIdAddress.length < _additionals.length) {
-                return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
-            }
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
-                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
-            }
-            if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
-            }
-            if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
-            }
-            if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_additionals must be positives integer'));
-            }
-            if (_extension) {
-                return promiEvent.reject(Error('extensions are disabled for now'));
-            }
-            if (_payerRefundAddress && !this.web3Single.isAddressNoChecksum(_payerRefundAddress)) {
-                return promiEvent.reject(Error('_payerRefundAddress must be a valid eth address'));
-            }
-            if (this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
-                return promiEvent.reject(Error('_from must be different than the main payee'));
-            }
-
-            try {
-                // get the amount to collect
-                const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
-
-                _options.value = amountsToPayTotal.add(new BN(collectEstimation));
-
-                // add file to ipfs
-                const hashIpfs = await this.ipfs.addFile(_data);
-
-                const method = this.instanceRequestEthereumLast.methods.createRequestAsPayer(
-                    _payeesIdAddress,
-                    _expectedAmounts,
-                    _payerRefundAddress,
-                    amountsToPayParsed,
-                    additionalsParsed,
-                    hashIpfs);
-
-                // submit transaction
-                this.web3Single.broadcastMethod(
-                    method,
-                    (hash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
-                    },
-                    (receipt: any) => {
-                        // we do nothing here!
-                    },
-                    async (confirmationNumber: number, receipt: any) => {
-                        if (confirmationNumber === _options.numberOfConfirmation) {
-                            const eventRaw = receipt.events[0];
-                            const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
-                            try {
-                                const requestAfter = await this.getRequest(event.requestId);
-                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            } catch (e) {
-                                return promiEvent.reject(e);
-                            }
-                        }
-                    },
-                    (errBroadcast) => {
-                        return promiEvent.reject(errBroadcast);
-                    },
-                    _options);
-            } catch (e) {
-                promiEvent.reject(e);
-            }
-        });
-        return promiEvent.eventEmitter;
-    }
-
-    /**
      * sign a request as payee
+     * @param   _tokenAddress              Address token used for payment
      * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
      * @param   _expectedAmounts           amount initial expected per payees for the request
-     * @param   _expirationDate            timestamp in second of the date after which the signed request is not broadcastable
+     * @param   _expirationDate            timestamp is second of the date after what the signed request is not broadcastable
      * @param   _payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee) (optional)
      * @param   _data                      Json of the request's details (optional)
      * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
@@ -333,6 +218,7 @@ export default class RequestEthereumService {
      * @return  promise of the object containing the request signed
      */
     public signRequestAsPayee(
+        _tokenAddress: string,
         _payeesIdAddress: string[],
         _expectedAmounts: any[],
         _expirationDate: number,
@@ -362,11 +248,18 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
             }
 
+            if (!this.web3Single.isAddressNoChecksum(_tokenAddress)) {
+                return promiEvent.reject(Error('_tokenAddress must be a valid eth address'));
+            }
+
+            if ( ! await this.isTokenWhiteListed(_tokenAddress) ) {
+                return promiEvent.reject(Error('token must be whitelisted'));
+            }
+
             const todaySolidityTime: number = (new Date().getTime()) / 1000;
             if ( _expirationDate <= todaySolidityTime ) {
                 return promiEvent.reject(Error('_expirationDate must be greater than now'));
             }
-
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
             }
@@ -388,7 +281,8 @@ export default class RequestEthereumService {
                 const hashIpfs = await this.ipfs.addFile(_data);
 
                 const signedRequest = await this.createSignedRequest(
-                                this.addressRequestEthereumLast,
+                                _tokenAddress,
+                                this.addressRequestERC20Last,
                                 _payeesIdAddress,
                                 _expectedAmounts,
                                 payeesPaymentAddressParsed,
@@ -447,35 +341,36 @@ export default class RequestEthereumService {
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
-            const error = this.isSignedRequestHasError(_signedRequest, account);
-            if (error !== '') return promiEvent.reject(Error(error));
-
-            if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
-                return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
-            }
-            if (_additionals && _signedRequest.payeesIdAddress.length < _additionals.length) {
-                return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
-            }
-            if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
-            }
-            if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_additionals must be positives integer'));
-            }
-            if (this.web3Single.areSameAddressesNoChecksum(account, _signedRequest.payeesIdAddress[0]) ) {
-                return promiEvent.reject(Error('_from must be different than the main payee'));
-            }
-            if (_signedRequest.extension) {
-                return promiEvent.reject(Error('extensions are disabled for now'));
-            }
 
             try {
+                await this.isSignedRequestHasError(_signedRequest, account);
+
+                if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
+                    return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+                }
+                if (_additionals && _signedRequest.payeesIdAddress.length < _additionals.length) {
+                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                }
+                if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                }
+                if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                }
+                if (this.web3Single.areSameAddressesNoChecksum(account, _signedRequest.payeesIdAddress[0]) ) {
+                    return promiEvent.reject(Error('_from must be different than the main payee'));
+                }
+                if (_signedRequest.extension) {
+                    return promiEvent.reject(Error('extensions are disabled for now'));
+                }
+
                 // get the amount to collect
-                const collectEstimation = await this.instanceRequestEthereumLast.methods.collectEstimation(expectedAmountsTotal).call();
+                const collectEstimation = await this.instanceRequestERC20Last.methods.collectEstimation(_signedRequest.tokenAddress, expectedAmountsTotal).call();
 
-                _options.value = amountsToPayTotal.add(new BN(collectEstimation));
+                _options.value = new BN(collectEstimation);
 
-                const method = this.instanceRequestEthereumLast.methods.broadcastSignedRequestAsPayer(
+                const method = this.instanceRequestERC20Last.methods.broadcastSignedRequestAsPayer(
+                                                    _signedRequest.tokenAddress,
                                                     this.requestCoreServices.createBytesRequest(_signedRequest.payeesIdAddress, _signedRequest.expectedAmounts, 0, _signedRequest.data),
                                                     _signedRequest.payeesPaymentAddress,
                                                     amountsToPayParsed,
@@ -543,7 +438,7 @@ export default class RequestEthereumService {
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.accept(_requestId);
+                const method = contract.instance.methods.acceptAction(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -621,7 +516,7 @@ export default class RequestEthereumService {
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.cancel(_requestId);
+                const method = contract.instance.methods.cancelAction(_requestId);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -657,32 +552,24 @@ export default class RequestEthereumService {
     }
 
     /**
-     * pay a request
+     * add additionals to a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _amountsToPay      amounts to pay in wei for each payee
-     * @param   _additionals       amounts of additional in wei for each payee (optional)
+     * @param   _additionals       amounts of additionals in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
-    public paymentAction(
+    public additionalAction(
         _requestId: string,
-        _amountsToPay: any[],
-        _additionals ?: any[],
+        _additionals: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
 
-        let amountsToPayParsed: any[] = [];
-        if (_amountsToPay) {
-            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
-        }
         let additionalsParsed: any[] = [];
         if (_additionals) {
             additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
         }
-        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
-        const additionalsTotal = additionalsParsed.reduce((a, b) => a.add(b), new BN(0));
-        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -691,32 +578,33 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
-                if (_amountsToPay && request.subPayees.length + 1 < _amountsToPay.length) {
-                    return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
-                }
                 if (_additionals && request.subPayees.length + 1 < _additionals.length) {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
-                if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
-                }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                    return promiEvent.reject(Error('additionals must be positives integer'));
                 }
                 if ( request.state === Types.State.Canceled ) {
-                    return promiEvent.reject(Error('request cannot be canceled'));
+                    return promiEvent.reject(Error('request must be accepted or created'));
                 }
-                if ( !additionalsTotal.isZero() && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
-                    return promiEvent.reject(Error('only payer can add additionals'));
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return promiEvent.reject(Error('account must be payer'));
                 }
 
-                _options.value = amountsToPayTotal;
+                let subtractsTooLong = false;
+                for (const k in additionalsParsed) {
+                    if (k === '0') continue;
+                    if (!request.subPayees.hasOwnProperty(parseInt(k, 10) - 1)) {
+                        subtractsTooLong = true;
+                        break;
+                    }
+                }
+                if (subtractsTooLong) {
+                    return promiEvent.reject(Error('additionals size must be lower than number of payees'));
+                }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.paymentAction(
-                                                                    _requestId,
-                                                                    amountsToPayParsed,
-                                                                    additionalsParsed);
+                const method = contract.instance.methods.additionalAction(_requestId, additionalsParsed);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -728,93 +616,11 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
-                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
-                            const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
-                                        request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
-                            try {
-                                const requestAfter = await this.getRequest(event.requestId);
-                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
-                            } catch (e) {
-                                return promiEvent.reject(e);
-                            }
-                        }
-                    },
-                    (error: Error) => {
-                        return promiEvent.reject(error);
-                    },
-                    _options);
-            } catch (e) {
-                promiEvent.reject(e);
-            }
-        });
-
-        return promiEvent.eventEmitter;
-    }
-
-    /**
-     * refund a request as payee
-     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @dev only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
-     * @param   _requestId         requestId of the payer
-     * @param   _amountToRefund    amount to refund in wei
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
-     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
-     */
-    public refundAction(
-        _requestId: string,
-        _amountToRefund: any,
-        _options ?: any): Web3PromiEvent {
-        const promiEvent = Web3PromiEvent();
-        _options = this.web3Single.setUpOptions(_options);
-        _options.value = new BN(_amountToRefund);
-
-        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
-            if (!_options.from && err) return promiEvent.reject(err);
-            const account = _options.from || defaultAccount;
-
-            try {
-                const request = await this.getRequest(_requestId);
-
-                if (_options.value.isNeg()) return promiEvent.reject(Error('_amount must a positive integer'));
-
-                if ( request.state === Types.State.Canceled ) {
-                    return promiEvent.reject(Error('request cannot be canceled'));
-                }
-
-                if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) && !this.web3Single.areSameAddressesNoChecksum(account, request.currencyContract.payeePaymentAddress) ) {
-                    let foundInSubPayee = false;
-                    for (const subPayee of request.subPayees) {
-                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee.address)) {
-                            foundInSubPayee = true;
-                        }
-                    }
-                    for (const subPayee of request.currencyContract.subPayeesPaymentAddress) {
-                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee)) {
-                            foundInSubPayee = true;
-                        }
-                    }
-                    if (!foundInSubPayee) {
-                        return promiEvent.reject(Error('account must be a payee'));
-                    }
-                }
-
-                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.refundAction(_requestId);
-
-                this.web3Single.broadcastMethod(
-                    method,
-                    (hash: string) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
-                    },
-                    (receipt: any) => {
-                        // we do nothing here!
-                    },
-                    async (confirmationNumber: number, receipt: any) => {
-                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi,
-                                                                        'UpdateBalance',
-                                                                        receipt.events[0]);
+                                                                        'UpdateExpectedAmount',
+                                                                        eventRaw);
                             try {
                                 const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
@@ -935,24 +741,32 @@ export default class RequestEthereumService {
     }
 
     /**
-     * add additionals to a request as payer
+     * pay a request
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _additionals       amounts of additionals in wei for each payee
+     * @param   _amountsToPay      amounts to pay in token for each payee
+     * @param   _additionals       amounts of additional in token for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
-    public additionalAction(
+    public paymentAction(
         _requestId: string,
-        _additionals: any[],
+        _amountsToPay: any[],
+        _additionals ?: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
-        _options = this.web3Single.setUpOptions(_options);
 
+        let amountsToPayParsed: any[] = [];
+        if (_amountsToPay) {
+            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
+        }
         let additionalsParsed: any[] = [];
         if (_additionals) {
             additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
         }
+        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
+        const additionalsTotal = additionalsParsed.reduce((a, b) => a.add(b), new BN(0));
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -961,34 +775,43 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
+                if (_amountsToPay && request.subPayees.length + 1 < _amountsToPay.length) {
+                    return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+                }
                 if (_additionals && request.subPayees.length + 1 < _additionals.length) {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
+                if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('additionals must be positives integer'));
+                    return promiEvent.reject(Error('_additionals must be positives integer'));
                 }
                 if ( request.state === Types.State.Canceled ) {
-                    return promiEvent.reject(Error('request must be accepted or created'));
+                    return promiEvent.reject(Error('request cannot be canceled'));
                 }
-                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
-                    return promiEvent.reject(Error('account must be payer'));
-                }
-
-                let subtractsTooLong = false;
-                for (const k in additionalsParsed) {
-                    if (k === '0') continue;
-                    if (!request.subPayees.hasOwnProperty(parseInt(k, 10) - 1)) {
-                        subtractsTooLong = true;
-                        break;
-                    }
-                }
-                if (subtractsTooLong) {
-                    return promiEvent.reject(Error('additionals size must be lower than number of payees'));
+                if ( !additionalsTotal.isZero() && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return promiEvent.reject(Error('only payer can add additionals'));
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.additionalAction(_requestId, additionalsParsed);
 
+                const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+                // check token Balance
+                const balanceAccount = new BN(await tokenErc20.balanceOf(account));
+                if ( balanceAccount.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('balance of token is too low'));
+                }
+                // check allowance
+                const allowance = new BN(await tokenErc20.allowance(account, contract.address));
+                if ( allowance.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('allowance of token is too low'));
+                }
+
+                const method = contract.instance.methods.paymentAction(
+                                                                    _requestId,
+                                                                    amountsToPayParsed,
+                                                                    additionalsParsed);
                 this.web3Single.broadcastMethod(
                     method,
                     (hash: string) => {
@@ -999,11 +822,9 @@ export default class RequestEthereumService {
                     },
                     async (confirmationNumber: number, receipt: any) => {
                         if (confirmationNumber === _options.numberOfConfirmation) {
-                            const eventRaw = receipt.events[0];
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
-                            const event = this.web3Single.decodeEvent(coreContract.abi,
-                                                                        'UpdateExpectedAmount',
-                                                                        eventRaw);
+                            const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
+                                        request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
                             try {
                                 const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
@@ -1025,10 +846,198 @@ export default class RequestEthereumService {
     }
 
     /**
+     * refund a request as payee
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @dev only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
+     * @param   _requestId         requestId of the payer
+     * @param   _amountToRefund    amount to refund in wei
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public refundAction(
+        _requestId: string,
+        _amountToRefund: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+        _amountToRefund = new BN(_amountToRefund);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            try {
+                const request = await this.getRequest(_requestId);
+
+                if (_amountToRefund.isNeg()) return promiEvent.reject(Error('_amountToRefund must a positive integer'));
+
+                if ( request.state === Types.State.Canceled ) {
+                    return promiEvent.reject(Error('request cannot be canceled'));
+                }
+
+                if (!this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) && !this.web3Single.areSameAddressesNoChecksum(account, request.currencyContract.payeePaymentAddress) ) {
+                    let foundInSubPayee = false;
+                    for (const subPayee of request.subPayees) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee.address)) {
+                            foundInSubPayee = true;
+                        }
+                    }
+                    for (const subPayee of request.currencyContract.subPayeesPaymentAddress) {
+                        if (this.web3Single.areSameAddressesNoChecksum(account, subPayee)) {
+                            foundInSubPayee = true;
+                        }
+                    }
+                    if (!foundInSubPayee) {
+                        return promiEvent.reject(Error('account must be a payee'));
+                    }
+                }
+
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+
+                const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+                // check token Balance
+                const balanceAccount = new BN(await tokenErc20.balanceOf(account));
+                if ( balanceAccount.lt(_amountToRefund) ) {
+                    return promiEvent.reject(Error('balance of token is too low'));
+                }
+                // check allowance
+                const allowance = new BN(await tokenErc20.allowance(account, contract.address));
+                if ( allowance.lt(_amountToRefund) ) {
+                    return promiEvent.reject(Error('allowance of token is too low'));
+                }
+
+                const method = contract.instance.methods.refundAction(_requestId, _amountToRefund);
+
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
+                            const event = this.web3Single.decodeEvent(coreContract.abi,
+                                                                        'UpdateBalance',
+                                                                        receipt.events[0]);
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (error: Error) => {
+                        return promiEvent.reject(error);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * Do a token allowance for a request
+     * @param   _requestId     requestId of the request
+     * @param   _amount        amount to allowed
+     * @param   _options       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the amount allowed
+     */
+    public approveTokenForRequest(
+        _requestId: string,
+        _amount: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _amount = new BN(_amount);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) {
+                return promiEvent.reject(err);
+            }
+            _options.from = _options.from ? _options.from : defaultAccount;
+
+            const request = await this.getRequest(_requestId);
+            const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+
+            const result = await tokenErc20.approve(request.currencyContract.address, _amount, _options)
+                    .on('broadcasted', (data: any) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', data);
+                    });
+            return promiEvent.resolve(result);
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * Do a token allowance for a signed request
+     * @param   _signedRequest     object signed request
+     * @param   _amount            amount to allowed
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the amount allowed
+     */
+    public approveTokenForSignedRequest(
+        _signedRequest: any,
+        _amount: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _amount = new BN(_amount);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            _options.from = _options.from ? _options.from : defaultAccount;
+
+            if ( _signedRequest.currencyContract !== this.addressRequestERC20Last ) {
+                return promiEvent.reject('currency contract given is not the last contract');
+            }
+
+            const tokenErc20 = new Erc20Service(_signedRequest.tokenAddress);
+
+            const result = await tokenErc20.approve(_signedRequest.currencyContract.address, _amount, _options)
+                    .on('broadcasted', (data: any) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', data);
+                    });
+            return promiEvent.resolve(result);
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * Get a token allowance for a request
+     * @param   _tokenAddress                  token address
+     * @param   _currencyContractAddress       currency contract address
+     * @param   _options                       options for the method (here only from)
+     * @return  promise of the amount allowed
+     */
+    public getTokenAllowance(
+        _tokenAddress: string,
+        _currencyContractAddress: string,
+        _options: any): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+                if (!_options.from && err) {
+                    return reject(err);
+                }
+                _options.from = _options.from ? _options.from : defaultAccount;
+
+                const tokenErc20 = new Erc20Service(_tokenAddress);
+                return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
+            });
+        });
+    }
+
+    /**
      * Get info from currency contract (generic method)
      * @dev return {} always
      * @param   _requestId    requestId of the request
-     * @return  promise of the information from the currency contract of the request (always {} here)
+     * @return  promise of the information from the currency contract of the request
      */
     public getRequestCurrencyContractInfo(
         _requestId: string,
@@ -1052,7 +1061,9 @@ export default class RequestEthereumService {
                 let payerRefundAddress: string|undefined = await currencyContract.instance.methods.payerRefundAddress(_requestId).call();
                 payerRefundAddress = payerRefundAddress !== EMPTY_BYTES_20 ? payerRefundAddress : undefined;
 
-                return resolve({payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress});
+                const tokenAddress: string = await currencyContract.instance.methods.requestTokens(_requestId).call();
+
+                return resolve({tokenAddress, payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress});
             } catch (e) {
                 return reject(e);
             }
@@ -1077,6 +1088,75 @@ export default class RequestEthereumService {
     }
 
     /**
+     * check if a signed request is valid
+     * @param   _signedRequest    Signed request
+     * @param   _payer             Payer of the request
+     * @return  return a string with the error, or ''
+     */
+    public isSignedRequestHasError(_signedRequest: any, _payer: string): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
+
+            if (_signedRequest.payeesPaymentAddress) {
+                _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
+            } else {
+                _signedRequest.payeesPaymentAddress = [];
+            }
+
+            if ( ! this.web3Single.isAddressNoChecksum(_signedRequest.tokenAddress)) {
+                return reject(Error('_tokenAddress must be a valid eth address'));
+            }
+            if ( ! await this.isTokenWhiteListed(_signedRequest.tokenAddress) ) {
+                return reject(Error('token must be whitelisted'));
+            }
+
+            const hashComputed = this.hashRequest(
+                            _signedRequest.tokenAddress,
+                            _signedRequest.currencyContract,
+                            _signedRequest.payeesIdAddress,
+                            _signedRequest.expectedAmounts,
+                            '',
+                            _signedRequest.payeesPaymentAddress,
+                            _signedRequest.data ? _signedRequest.data : '',
+                            _signedRequest.expirationDate);
+
+            if ( ! _signedRequest) {
+                return reject(Error('_signedRequest must be defined'));
+            }
+            // some controls on the arrays
+            if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
+                return reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+            }
+
+            if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
+                return reject(Error('_expectedAmounts must be positives integer'));
+            }
+            if ( ! this.web3Single.areSameAddressesNoChecksum(this.addressRequestERC20Last, _signedRequest.currencyContract)) {
+                return reject(Error('currencyContract must be the last currencyContract of requestERC20'));
+            }
+            if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
+                return reject(Error('expirationDate must be greater than now'));
+            }
+            if (hashComputed !== _signedRequest.hash) {
+                return reject(Error('hash is not valid'));
+            }
+            if ( ! this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesIdAddress)) {
+                return reject(Error('payeesIdAddress must be valid eth addresses'));
+            }
+            if ( ! this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesPaymentAddress)) {
+                return reject(Error('payeesPaymentAddress must be valid eth addresses'));
+            }
+            if (this.web3Single.areSameAddressesNoChecksum(_payer, _signedRequest.payeesIdAddress[0])) {
+                return reject(Error('_from must be different than main payee'));
+            }
+            if ( ! this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payeesIdAddress[0])) {
+                return reject(Error('payee is not the signer'));
+            }
+            return resolve();
+        });
+    }
+
+    /**
      * decode data from input tx (generic method)
      * @param   _data    requestId of the request
      * @return  return an object with the name of the function and the parameters
@@ -1084,75 +1164,6 @@ export default class RequestEthereumService {
     public decodeInputData(_address: string, _data: any): any {
         const contract = this.web3Single.getContractInstance(_address);
         return this.web3Single.decodeInputData(contract.abi, _data);
-    }
-
-    /**
-     * generate web3 method of the contract from name and parameters in array (generic method)
-     * @param   _data    requestId of the request
-     * @return  return a web3 method object
-     */
-    public generateWeb3Method(_address: string, _name: string, _parameters: any[]): any {
-        const contract = this.web3Single.getContractInstance(_address);
-        return this.web3Single.generateWeb3Method(contract.instance, _name, _parameters);
-    }
-
-    /**
-     * check if a signed request is valid
-     * @param   _signedRequest    Signed request
-     * @param   _payer             Payer of the request
-     * @return  return a string with the error, or ''
-     */
-    public isSignedRequestHasError(_signedRequest: any, _payer: string): string {
-        _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
-
-        if (_signedRequest.payeesPaymentAddress) {
-            _signedRequest.payeesPaymentAddress = _signedRequest.payeesPaymentAddress.map((addr: any) => addr ? addr : EMPTY_BYTES_20);
-        } else {
-            _signedRequest.payeesPaymentAddress = [];
-        }
-
-        const hashComputed = this.hashRequest(
-                        _signedRequest.currencyContract,
-                        _signedRequest.payeesIdAddress,
-                        _signedRequest.expectedAmounts,
-                        '',
-                        _signedRequest.payeesPaymentAddress,
-                        _signedRequest.data ? _signedRequest.data : '',
-                        _signedRequest.expirationDate);
-
-        if (!_signedRequest) {
-            return '_signedRequest must be defined';
-        }
-        // some controls on the arrays
-        if (_signedRequest.payeesIdAddress.length !== _signedRequest.expectedAmounts.length) {
-            return '_payeesIdAddress and _expectedAmounts must have the same size';
-        }
-
-        if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
-            return '_expectedAmounts must be positives integer';
-        }
-        if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestEthereumLast, _signedRequest.currencyContract)) {
-            return 'currencyContract must be the last currencyContract of requestEthereum';
-        }
-        if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
-            return 'expirationDate must be greater than now';
-        }
-        if (hashComputed !== _signedRequest.hash) {
-            return 'hash is not valid';
-        }
-        if (!this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesIdAddress)) {
-            return 'payeesIdAddress must be valid eth addresses';
-        }
-        if (!this.web3Single.isArrayOfAddressesNoChecksum(_signedRequest.payeesPaymentAddress)) {
-            return 'payeesPaymentAddress must be valid eth addresses';
-        }
-        if (this.web3Single.areSameAddressesNoChecksum(_payer, _signedRequest.payeesIdAddress[0])) {
-            return '_from must be different than main payee';
-        }
-        if (!this.web3Single.isValidSignatureForSolidity(_signedRequest.signature, _signedRequest.hash, _signedRequest.payeesIdAddress[0])) {
-            return 'payee is not the signer';
-        }
-        return '';
     }
 
     /**
@@ -1167,53 +1178,29 @@ export default class RequestEthereumService {
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return new Promise(async (resolve, reject) => {
-
-            const contract = this.web3Single.getContractInstance(_request.currencyContract);
-            // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
-            //     // allEvents and filter don't work together so far. issues created on web3 github
-            //     // filter: {requestId: _requestId},
-            //     fromBlock: requestEthereumArtifact.networks[this.web3Single.networkName].blockNumber,
-            //     toBlock: 'latest'
-            // });
-
-            // TODO: events by event waiting for a patch of web3
-            const optionFilters = {
-                filter: { requestId: _request.requestId },
-                fromBlock: contract.blockNumber,
-                toBlock: 'latest'};
-
-            // waiting for filter working (see above)
-            let events: any[] = [];
-            events = events.concat(
-                        await contract.instance.getPastEvents('EtherAvailableToWithdraw', optionFilters));
-
-            return resolve(await Promise.all(events.map(async (e) => {
-                                        return new Promise(async (resolveEvent, rejectEvent) => {
-                                            resolveEvent({
-                                                _meta: {
-                                                    blockNumber: e.blockNumber,
-                                                    logIndex: e.logIndex,
-                                                    timestamp: await this.web3Single.getBlockTimestamp(e.blockNumber)},
-                                                data: e.returnValues,
-                                                name: e.event});
-                                        });
-                                    })));
+            return resolve([]);
         });
+    }
+
+    private async isTokenWhiteListed(_tokenAddress: string): Promise<boolean> {
+        return (await this.instanceRequestERC20Last.methods.tokensWhiteList(_tokenAddress).call()).whiteListed;
     }
 
     /**
      * internal create the object signed request
+     * @param   tokenAddress              Address token used for payment
      * @param   currencyContract          Address of the ethereum currency contract
      * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
-     * @param   expirationDate            timestamp in second of the date after which the signed request is not broadcastable
+     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
      * @param   data                      Json of the request's details (optional)
      * @param   extension                 address of the extension contract of the request (optional) NOT USED YET
      * @param   extensionParams           array of parameters for the extension (optional) NOT USED YET
      * @return  promise of the object containing the request signed
      */
     private async createSignedRequest(
+        tokenAddress: string,
         currencyContract: string,
         payeesIdAddress: string[],
         expectedAmounts: any[],
@@ -1223,7 +1210,8 @@ export default class RequestEthereumService {
         extension ?: string,
         extensionParams ?: any[]): Promise<any> {
 
-        const hash = this.hashRequest(currencyContract,
+        const hash = this.hashRequest(tokenAddress,
+                                        currencyContract,
                                         payeesIdAddress,
                                         expectedAmounts,
                                         '',
@@ -1249,7 +1237,8 @@ export default class RequestEthereumService {
             }
         }
 
-        return {currencyContract,
+        return {tokenAddress,
+                currencyContract,
                 data,
                 expectedAmounts,
                 expirationDate,
@@ -1263,22 +1252,26 @@ export default class RequestEthereumService {
 
     /**
      * internal compute the hash of the request
+     * @param   tokenAddress              Address token used for payment
      * @param   currencyContract          Address of the ethereum currency contract
      * @param   payees                    ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
      * @param   payer                     payer of the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
      * @param   data                      Json of the request's details (optional)
-     * @param   expirationDate            timestamp in second of the date after which the signed request is not broadcastable
+     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
      * @return  promise of the object containing the request's hash
      */
-    private hashRequest(currencyContract: string,
-                        payees: string[],
-                        expectedAmounts: any[],
-                        payer: string,
-                        payeesPayment: any[],
-                        data: string,
-                        expirationDate: number): any {
+    private hashRequest(
+        tokenAddress: string,
+        currencyContract: string,
+        payees: string[],
+        expectedAmounts: any[],
+        payer: string,
+        payeesPayment: any[],
+        data: string,
+        expirationDate: number): any {
+
         interface InterfaceAbi {
             value: any;
             type: string;
@@ -1299,6 +1292,8 @@ export default class RequestEthereumService {
 
         requestParts.push({value: data.length, type: 'uint8'});
         requestParts.push({value: data, type: 'string'});
+
+        requestParts.push({value: tokenAddress, type: 'address'});
 
         requestParts.push({value: payeesPayment, type: 'address[]'});
         requestParts.push({value: expirationDate, type: 'uint256'});

@@ -2,12 +2,13 @@ import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -27,12 +28,14 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('accept', () => {
+describe('erc20 accept', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestEthereumService.web3Single.web3;
+    web3 = rn.requestERC20Service.web3Single.web3;
+    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
@@ -49,7 +52,8 @@ describe('accept', () => {
         
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        const req = await rn.requestEthereumService.createRequestAsPayee(
+        const req = await rn.requestERC20Service.createRequestAsPayee(
+            addressTestToken,
             [payee],
             [arbitraryAmount],
             payer,
@@ -65,7 +69,7 @@ describe('accept', () => {
 
     it('accept request with not valid requestId', async () => {
         try {
-            const result = await rn.requestEthereumService.accept(
+            const result = await rn.requestERC20Service.accept(
                                 '0x00000000000000',
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
@@ -75,7 +79,7 @@ describe('accept', () => {
     });
 
     it('accept request', async () => {
-        const result = await rn.requestEthereumService.accept(
+        const result = await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: payer})
             .on('broadcasted', (data: any) => {
@@ -91,14 +95,14 @@ describe('accept', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(1);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
     it('accept request by payee or otherguy', async () => {
         try {
-            const result = await rn.requestEthereumService.accept(
+            const result = await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true; 
@@ -107,7 +111,7 @@ describe('accept', () => {
         }
 
         try {
-            const result = await rn.requestEthereumService.accept(
+            const result = await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true;
@@ -119,11 +123,11 @@ describe('accept', () => {
     it('accept request not in created state', async () => {
         try {
             // accept first
-            await rn.requestEthereumService.accept(
+            await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: payer});
 
-            const result = await rn.requestEthereumService.accept(
+            const result = await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 

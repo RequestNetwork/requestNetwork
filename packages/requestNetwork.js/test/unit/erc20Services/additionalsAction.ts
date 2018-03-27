@@ -2,12 +2,13 @@ import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -25,12 +26,14 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('additionals Action', () => {
+describe('erc20 additionals Action', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestEthereumService.web3Single.web3;
+    web3 = rn.requestERC20Service.web3Single.web3;
+    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
@@ -46,11 +49,12 @@ describe('additionals Action', () => {
 
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        const req = await rn.requestEthereumService.createRequestAsPayee(
-            [payee , payee2, payee3],
+        const req = await rn.requestERC20Service.createRequestAsPayee(
+            addressTestToken,
+            [payee, payee2, payee3],
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             payer,
-            [payeePaymentAddress, undefined, payee3PaymentAddress],
+            [payeePaymentAddress],
             payerRefundAddress,
             undefined,
             undefined,
@@ -61,7 +65,7 @@ describe('additionals Action', () => {
     });
 
     it('additionals request', async () => {
-        const result = await rn.requestEthereumService.additionalAction(
+        const result = await rn.requestERC20Service.additionalAction(
                             requestId,
                             [1, 2, 3],
                             {from: payer})
@@ -78,7 +82,7 @@ describe('additionals Action', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(0);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
@@ -90,13 +94,12 @@ describe('additionals Action', () => {
         utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 + 3, 'payee3 expectedAmount is wrong');
     });
 
-
     it('additionals accepted request', async () => {
-        await rn.requestEthereumService.accept(
+        await rn.requestERC20Service.accept(
                                 requestId,
                                 {from: payer});
 
-        const result = await rn.requestEthereumService.additionalAction(
+        const result = await rn.requestERC20Service.additionalAction(
                             requestId,
                             [1, 2, 3],
                             {from: payer})
@@ -113,7 +116,7 @@ describe('additionals Action', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(1);
-        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
@@ -128,7 +131,7 @@ describe('additionals Action', () => {
     it('pay request with not valid requestId', async () => {
 
         try {
-            const result = await rn.requestEthereumService.additionalAction(
+            const result = await rn.requestERC20Service.additionalAction(
                                 '0x00000000000000',
                                 [arbitraryAmount],
                                 {from: payer});
@@ -141,7 +144,7 @@ describe('additionals Action', () => {
     it('pay request with not valid additional (negative)', async () => {
 
         try {
-            const result = await rn.requestEthereumService.additionalAction(
+            const result = await rn.requestERC20Service.additionalAction(
                                 requestId,
                                 [-1],
                                 {from: payer});
@@ -152,12 +155,12 @@ describe('additionals Action', () => {
     });
 
     it('additionals request canceled', async () => {
-        await rn.requestEthereumService.cancel(
+        await rn.requestERC20Service.cancel(
                                 requestId,
                                 {from: payer});
 
         try {
-            const result = await rn.requestEthereumService.additionalAction(
+            const result = await rn.requestERC20Service.additionalAction(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: payer});
@@ -169,7 +172,7 @@ describe('additionals Action', () => {
 
     it('additionals request from otherGuy', async () => {
         try {
-            const result = await rn.requestEthereumService.additionalAction(
+            const result = await rn.requestERC20Service.additionalAction(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: otherGuy});
@@ -179,10 +182,9 @@ describe('additionals Action', () => {
         }
     });
 
-
     it('additionals too long', async () => {
         try {
-            const result = await rn.requestEthereumService.additionalAction(
+            const result = await rn.requestERC20Service.additionalAction(
                                 requestId,
                                 [3, 2, 1, 1],
                                 {from: payer});

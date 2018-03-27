@@ -3,12 +3,14 @@ import 'mocha';
 import * as ETH_UTIL from 'ethereumjs-util';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
+
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -18,22 +20,25 @@ let payer: string;
 let payee: string;
 let payee2: string;
 let payee3: string;
-let payerRefundAddress: string;
 let payeePaymentAddress: string;
 let payee3PaymentAddress: string;
-
+let payerRefundAddress: string;
+let randomAddress: string;
 let currentNumRequest: any;
 
-describe('signRequestAsPayee', () => {
+describe('erc20 signRequestAsPayee', () => {
     const arbitraryAmount = '100000000';
     const arbitraryAmount2 = '20000000';
     const arbitraryAmount3 =  '3000000';
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestEthereumService.web3Single.web3;
+    web3 = rn.requestERC20Service.web3Single.web3;
+    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
         defaultAccount = accounts[0].toLowerCase();
+        randomAddress = accounts[1].toLowerCase();
         payer = accounts[2].toLowerCase();
         payee = accounts[3].toLowerCase();
         payee2 = accounts[4].toLowerCase();
@@ -42,13 +47,14 @@ describe('signRequestAsPayee', () => {
         payer = accounts[7].toLowerCase();
         payeePaymentAddress = accounts[8].toLowerCase();
         payee3PaymentAddress = accounts[9].toLowerCase();
-        currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
+        currentNumRequest = await rn.requestCoreService.getCurrentNumRequest(); 
     });
 
     it('sign request as payer without extension', async () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
 
-        const result = await rn.requestEthereumService.signRequestAsPayee(
+        const result = await rn.requestERC20Service.signRequestAsPayee(
+            addressTestToken,
             [payee, payee2, payee3],
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             expirationDate,
@@ -58,7 +64,7 @@ describe('signRequestAsPayee', () => {
             undefined,
             payee);
 
-        expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
         expect(result, 'data is wrong').to.have.property('data');
         expect(result, 'hash is wrong').to.have.property('hash');
         expect(result, 'signature is wrong').to.have.property('signature');
@@ -85,16 +91,16 @@ describe('signRequestAsPayee', () => {
         expect(payee.toLowerCase(), 'signature is wrong').to.equal(addr.toLowerCase());
     });
 
-
     it('sign request as payer without extension (implicit parameters)', async () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
 
-        const result = await rn.requestEthereumService.signRequestAsPayee(
+        const result = await rn.requestERC20Service.signRequestAsPayee(
+            addressTestToken,
             [defaultAccount, payee2, payee3],
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             expirationDate);
 
-        expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
         expect(result.data, 'data is wrong').to.be.undefined;
         expect(result, 'hash is wrong').to.have.property('hash');
         expect(result, 'signature is wrong').to.have.property('signature');
@@ -124,7 +130,8 @@ describe('signRequestAsPayee', () => {
     it('sign request as payer expirationDate too soon', async () => {
         const expirationDate: number = (new Date('2000-01-01').getTime()) / 1000;
         try {
-            const result = await rn.requestEthereumService.signRequestAsPayee(
+            const result = await rn.requestERC20Service.signRequestAsPayee(
+                addressTestToken,
                 [defaultAccount, payee2, payee3],
                 [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                 expirationDate);
@@ -137,7 +144,8 @@ describe('signRequestAsPayee', () => {
     it('sign request as payer amount < 0', async () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
         try {
-            const result = await rn.requestEthereumService.signRequestAsPayee(
+            const result = await rn.requestERC20Service.signRequestAsPayee(
+                    addressTestToken,
                     [defaultAccount, payee2, payee3],
                     [new WEB3.utils.BN(-1), arbitraryAmount2, arbitraryAmount3],
                     expirationDate);
@@ -146,5 +154,4 @@ describe('signRequestAsPayee', () => {
             utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'),'exception not right');
         }
     });
-
 });
