@@ -539,9 +539,9 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	/*
 	 * @dev Function internal to manage fund mouvement
-	 * @dev We had to chose between a withdraw pattern, a transfer pattern or a transfer+withdraw pattern and chose the transfer pattern. 
-	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The transfer+withdraw pattern would have complexify to much the other contracts around the request protocol.
-	 * @dev N.B: The send pattern will have to be clearly explained to users. The transfer pattern allow a payee to make a request unpayable.
+	 * @dev We had to chose between a withdrawal pattern, a transfer pattern or a transfer+withdrawal pattern and chose the transfer pattern.
+	 * @dev The withdrawal pattern would make UX difficult. The transfer+withdrawal pattern would make contracts interacting with the request protocol complex.
+	 * @dev N.B.: The transfer pattern will have to be clearly explained to users. It enables a payee to create unpayable requests.
 	 *
 	 * @param _requestId id of the request
 	 * @param _recipient address where the wei has to be sent to
