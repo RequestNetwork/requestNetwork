@@ -9,7 +9,7 @@ import '../base/token/ERC20.sol';
  * @title RequestEthereum
  *
  * @dev RequestEthereum is the currency contract managing the request in Ethereum
- * @dev The contract can be paused. In this case, nobody can create Requests anymore but people can still interact with them or withdraw funds.
+ * @dev The contract can be paused. In this case, nobody can create Requests anymore but people can still interact with them.
  *
  * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer()
  */
@@ -21,17 +21,9 @@ contract RequestEthereum is RequestEthereumCollect {
 	// RequestCore object
 	RequestCore public requestCore;
 
-	// Ethereum available to withdraw (only in case of sending fail)
-	mapping(address => uint256) public ethToWithdraw;
-
 	// payment addresses by requestId (optional). We separate the Identity of the payee/payer (in the core) and the wallet address in the currency contract
 	mapping(bytes32 => address[256]) public payeesPaymentAddress;
 	mapping(bytes32 => address) public payerRefundAddress;
-
-	/*
-	 *  Event sent when we fail to send. The ether will be available for withdrawal.
-	 */
-	event EtherAvailableToWithdraw(bytes32 indexed requestId, address indexed recipient, uint256 amount);
 
 	/*
 	 * @dev Constructor
@@ -48,6 +40,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev msg.sender will be the payee
 	 * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
+	 * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 	 *
 	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -85,6 +78,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @dev Function to create a request as payer. The request is payed if _payeeAmounts > 0.
 	 *
 	 * @dev msg.sender will be the payer
+	 * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 	 *
 	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -126,6 +120,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 *
 	 * @dev _payer will be set msg.sender
 	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
+	 * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 	 *
 	 * @param _requestData nested bytes containing : creator, payer, payees, expectedAmounts, data
 	 * @param _payeesPaymentAddress array of payees address for payment (optional) 
@@ -349,7 +344,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function PAYABLE to pay a request in ether.
 	 *
-	 * @dev the request will be automatically accepted if msg.sender==payer. 
+	 * @dev the request will be automatically accepted if msg.sender==payer.
 	 *
 	 * @param _requestId id of the request
 	 * @param _payeesAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
@@ -433,19 +428,6 @@ contract RequestEthereum is RequestEthereumCollect {
 	{
 		additionalInternal(_requestId, _additionalAmounts);
 	}
-
-	/*
-	 * @dev Function to withdraw locked up ether after a fail transfer. 
-	 * @dev This function is a security measure if you send money to a contract that might reject the money. 
-	 * @dev However it will protect only the contracts that can trigger the withdraw function afterwards.
-	 */
-	function withdraw()
-		external
-	{
-		uint256 amount = ethToWithdraw[msg.sender];
-		ethToWithdraw[msg.sender] = 0;
-		msg.sender.transfer(amount);
-	}
 	// ----------------------------------------------------------------------------------------
 
 
@@ -505,7 +487,7 @@ contract RequestEthereum is RequestEthereumCollect {
 				}
 
 				//payment done, the money was sent
-				fundOrderInternal(_requestId, addressToPay, _payeeAmounts[i]);
+				fundOrderInternal(addressToPay, _payeeAmounts[i]);
 			}
 		}
 
@@ -557,33 +539,25 @@ contract RequestEthereum is RequestEthereumCollect {
 		}
 
 		// refund declared, the money is ready to be sent to the payer
-		fundOrderInternal(_requestId, addressToPay, _amount);
+		fundOrderInternal(addressToPay, _amount);
 	}
 
 	/*
 	 * @dev Function internal to manage fund mouvement
-	 * @dev We had to chose between a withdraw pattern, a send pattern or a send + withdraw pattern and chose the last. 
-	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The send pattern would have allowed someone to lock a request. 
-	 * @dev The send + withdraw pattern will have to be clearly explained to users. If the payee is a contract which can let a transfer fail, it will need to be able to call a withdraw function from Request. 
+	 * @dev We had to chose between a withdrawal pattern, a transfer pattern or a transfer+withdrawal pattern and chose the transfer pattern.
+	 * @dev The withdrawal pattern would make UX difficult. The transfer+withdrawal pattern would make contracts interacting with the request protocol complex.
+	 * @dev N.B.: The transfer pattern will have to be clearly explained to users. It enables a payee to create unpayable requests.
 	 *
-	 * @param _requestId id of the request
 	 * @param _recipient address where the wei has to be sent to
 	 * @param _amount amount in wei to send
 	 *
 	 */
 	function fundOrderInternal(
-		bytes32 _requestId,
 		address _recipient,
 		uint256 _amount)
 		internal
 	{
-		// try to send the fund
-		if(!_recipient.send(_amount)) {
-			// if sendding fails, the funds are availbale to withdraw
-			ethToWithdraw[_recipient] = ethToWithdraw[_recipient].add(_amount);
-			// spread the word that the money is not sent but available to withdraw
-			EtherAvailableToWithdraw(_requestId, _recipient, _amount);
-		}
+		_recipient.transfer(_amount);
 	}
 
 	/*

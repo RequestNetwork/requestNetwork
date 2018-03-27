@@ -328,7 +328,7 @@ contract('RequestCore Create Request', function(accounts) {
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
-	
+
 	it("impossible to createRequest if one of the subPayees is 0", async function () {
 		var requestCore = await RequestCore.new();
 

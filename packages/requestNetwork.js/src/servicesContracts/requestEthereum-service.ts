@@ -1166,39 +1166,7 @@ export default class RequestEthereumService {
         _request: any,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
-        return new Promise(async (resolve, reject) => {
-
-            const contract = this.web3Single.getContractInstance(_request.currencyContract);
-            // let events = await this.instanceSynchroneExtensionEscrow.getPastEvents('allEvents', {
-            //     // allEvents and filter don't work together so far. issues created on web3 github
-            //     // filter: {requestId: _requestId},
-            //     fromBlock: requestEthereumArtifact.networks[this.web3Single.networkName].blockNumber,
-            //     toBlock: 'latest'
-            // });
-
-            // TODO: events by event waiting for a patch of web3
-            const optionFilters = {
-                filter: { requestId: _request.requestId },
-                fromBlock: contract.blockNumber,
-                toBlock: 'latest'};
-
-            // waiting for filter working (see above)
-            let events: any[] = [];
-            events = events.concat(
-                        await contract.instance.getPastEvents('EtherAvailableToWithdraw', optionFilters));
-
-            return resolve(await Promise.all(events.map(async (e) => {
-                                        return new Promise(async (resolveEvent, rejectEvent) => {
-                                            resolveEvent({
-                                                _meta: {
-                                                    blockNumber: e.blockNumber,
-                                                    logIndex: e.logIndex,
-                                                    timestamp: await this.web3Single.getBlockTimestamp(e.blockNumber)},
-                                                data: e.returnValues,
-                                                name: e.event});
-                                        });
-                                    })));
-        });
+        return Promise.resolve([]);
     }
 
     /**

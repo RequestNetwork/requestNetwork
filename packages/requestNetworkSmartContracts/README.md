@@ -36,8 +36,9 @@ not available yet
 ### Create a new request as the payee
 ` function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
  
-* @dev msg.sender will be the payee
-
+msg.sender will be the payee
+If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+ 
 * @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
 * @param _payeesPaymentAddress array of payees address for payment (optional)
 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -50,7 +51,8 @@ not available yet
 ### Create a new request as the payer
 ` function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
 
-* @dev msg.sender will be the payer
+msg.sender will be the payer
+If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 
 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -65,6 +67,7 @@ not available yet
 
 msg.sender must be _payer
 the _payer can additionals 
+If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 
 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
 * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -138,14 +141,6 @@ the request must be accepted or created
  
 * @param _requestId id of the request
 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
-
-### Withdraw
-` function withdraw()` 
-
-Function to withdraw locked up ether after a fail transfer. 
-This function is a security measure if you send money to a contract that might reject the money. 
-However it will protect only the contracts that can trigger the withdraw function afterwards.
-
 
 ## Bug bounty
 See this article https://blog.request.network/request-network-bug-bounty-live-ee3297e46695
