@@ -576,9 +576,9 @@ public getRequestEvents(_requestId: string, _fromBlock ?: number, _toBlock ?: nu
 public approveTokenForRequest(_requestId: string, _amount: any, _options ?: any)
 ```
 
-* @param   _requestId     requestId of the request
-* @param   _amount        amount to allowed
-* @param   _options       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @param   `_requestId`     requestId of the request
+* @param   `_amount`        amount to allowed
+* @param   `_options`       options for the method (gasPrice, gas, value, from, numberOfConfirmation)
 * @return  promise of the amount allowed
 
 
@@ -587,20 +587,20 @@ public approveTokenForRequest(_requestId: string, _amount: any, _options ?: any)
 public approveTokenForSignedRequest(_signedRequest: any, _amount: any, _options ?: any)
 ```
 
-* @param   _signedRequest     object signed request
-* @param   _amount            amount to allowed
-* @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @param   `_signedRequest`     object signed request
+* @param   `_amount`            amount to allowed
+* @param   `_options`           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
 * @return  promise of the amount allowed
 
 
-### Get a token allowance for a request
+### Get a token allowance
 ```js
 public getTokenAllowance(_tokenAddress: string, _currencyContractAddress: string, _options: any)
 ```
 
-* @param   _tokenAddress                  token address
-* @param   _currencyContractAddress       currency contract address
-* @param   _options                       options for the method (here only from)
+* @param   `_tokenAddress`                  token address
+* @param   `_currencyContractAddress`       currency contract address
+* @param   `_options`                       options for the method (here only from)
 * @return  promise of the amount allowed
 
 
