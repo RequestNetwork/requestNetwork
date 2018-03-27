@@ -118,7 +118,6 @@ Function PAYABLE to pay back in ether a request to the payee
  
 msg.sender must be one of the payees
 the request must be created or accepted
-the payback must be lower than the amount already paid for the request
 
 * @param _requestId id of the request
 

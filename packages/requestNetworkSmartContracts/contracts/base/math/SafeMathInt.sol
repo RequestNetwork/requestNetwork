@@ -7,12 +7,20 @@ pragma solidity 0.4.18;
  */
 library SafeMathInt {
   function mul(int256 a, int256 b) internal pure returns (int256) {
+    // Prevent overflow when multiplying INT256_MIN with -1
+    // https://github.com/RequestNetwork/requestNetwork/issues/43
+    assert(!(a == - 2**255 && b == -1) && !(b == - 2**255 && a == -1));
+
     int256 c = a * b;
     assert((b == 0) || (c / b == a));
     return c;
   }
 
   function div(int256 a, int256 b) internal pure returns (int256) {
+    // Prevent overflow when dividing INT256_MIN by -1
+    // https://github.com/RequestNetwork/requestNetwork/issues/43
+    assert(!(a == - 2**255 && b == -1));
+
     // assert(b > 0); // Solidity automatically throws when dividing by 0
     int256 c = a / b;
     // assert(a == b * c + a % b); // There is no case in which this doesn't hold

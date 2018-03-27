@@ -3,6 +3,7 @@ pragma solidity 0.4.18;
 import '../core/RequestCore.sol';
 import '../base/math/SafeMathUint8.sol';
 import './RequestEthereumCollect.sol';
+import '../base/token/ERC20.sol';
 
 /**
  * @title RequestEthereum
@@ -21,8 +22,8 @@ contract RequestEthereum is RequestEthereumCollect {
 	RequestCore public requestCore;
 
 	// payment addresses by requestId (optional). We separate the Identity of the payee/payer (in the core) and the wallet address in the currency contract
-    mapping(bytes32 => address[256]) public payeesPaymentAddress;
-    mapping(bytes32 => address) public payerRefundAddress;
+	mapping(bytes32 => address[256]) public payeesPaymentAddress;
+	mapping(bytes32 => address) public payerRefundAddress;
 
 	/*
 	 * @dev Constructor
@@ -183,7 +184,8 @@ contract RequestEthereum is RequestEthereumCollect {
 		int256 totalExpectedAmounts = 0;
 		for(uint8 i = 0; i < payeesCount; i++) {
 			// extract the expectedAmount for the payee[i]
-			int256 expectedAmountTemp = int256(extractBytes32(_requestData, uint256(i).mul(52).add(61)));
+			// NB: no need of SafeMath here because 0 < i < 256 (uint8)
+			int256 expectedAmountTemp = int256(extractBytes32(_requestData, 61 + 52 * uint256(i)));
 			// compute the total expected amount of the request
 			totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
 			// all expected amount must be positibe
@@ -197,8 +199,10 @@ contract RequestEthereum is RequestEthereumCollect {
 		// do the action and assertion in one to save a variable
 		require(collectForREQBurning(fees));
 
-		// store request in the core, but first insert the msg.sender as the payer in the bytes
-		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
+		// insert the msg.sender as the payer in the bytes
+		updateBytes20inBytes(_requestData, 20, bytes20(msg.sender));
+		// store request in the core,
+		requestId = requestCore.createRequestFromBytes(_requestData);
 
 		// set payment addresses for payees
 		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
@@ -367,11 +371,10 @@ contract RequestEthereum is RequestEthereumCollect {
 	}
 
 	/*
-	 * @dev Function PAYABLE to pay back in ether a request to the payee
+	 * @dev Function PAYABLE to pay back in ether a request to the payer
 	 *
 	 * @dev msg.sender must be one of the payees
 	 * @dev the request must be created or accepted
-	 * @dev the payback must be lower than the amount already paid for the request
 	 *
 	 * @param _requestId id of the request
 	 */
@@ -418,7 +421,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for main payee)
 	 */
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
-		public
+		external
 		whenNotPaused
 		condition(requestCore.getState(_requestId)!=RequestCore.State.Canceled)
 		onlyRequestPayer(_requestId)
@@ -510,16 +513,18 @@ contract RequestEthereum is RequestEthereumCollect {
 		internal
 	{
 		// Check if the _fromAddress is a payeesId
-		// in16 to allow -1 value
+		// int16 to allow -1 value
 		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _fromAddress);
 		if(payeeIndex < 0) {
+			uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
+
 			// if not ID addresses maybe in the payee payments addresses
-	        for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1)) {
-	            if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
-	            	// get the payeeIndex
-	                payeeIndex = int16(i);
-	            }
-	        }
+			for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1)) {
+				if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
+					// get the payeeIndex
+					payeeIndex = int16(i);
+				}
+			}
 		}
 		// the address must be found somewhere
 		require(payeeIndex >= 0); 
@@ -558,7 +563,7 @@ contract RequestEthereum is RequestEthereumCollect {
 	/*
 	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
 	 *
-     * @param _data bytes containing all the data packed
+	 * @param _data bytes containing all the data packed
 	 * @param _payeesPaymentAddress array of payees payment addresses
 	 * @param _expirationDate timestamp after what the signed request cannot be broadcasted
 	 *
@@ -607,19 +612,19 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	/*
 	 * @dev Check the validity of a signed request & the expiration date
-     * @param _data bytes containing all the data packed :
-            address(creator)
-            address(payer)
-            uint8(number_of_payees)
-            [
-                address(main_payee_address)
-                int256(main_payee_expected_amount)
-                address(second_payee_address)
-                int256(second_payee_expected_amount)
-                ...
-            ]
-            uint8(data_string_size)
-            size(data)
+	 * @param _data bytes containing all the data packed :
+			address(creator)
+			address(payer)
+			uint8(number_of_payees)
+			[
+				address(main_payee_address)
+				int256(main_payee_expected_amount)
+				address(second_payee_address)
+				int256(second_payee_expected_amount)
+				...
+			]
+			uint8(data_string_size)
+			size(data)
 	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
   	 * @param _signature ECDSA signature containing v, r and s as bytes
@@ -676,75 +681,71 @@ contract RequestEthereum is RequestEthereumCollect {
 		_;
 	}
 
-    /*
-     * @dev modify 20 bytes in a bytes
-     * @param data bytes to modify
-     * @param offset position of the first byte to modify
-     * @param b bytes20 to insert
-     * @return address
-     */
-    function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
-        for(uint8 j = 0; j <20; j++) {
-            data[offset+j] = b[j];
-        }
-    	return data;
-    }
+	/*
+	 * @dev modify 20 bytes in a bytes
+	 * @param data bytes to modify
+	 * @param offset position of the first byte to modify
+	 * @param b bytes20 to insert
+	 * @return address
+	 */
+	function updateBytes20inBytes(bytes data, uint offset, bytes20 b)
+		internal
+		pure
+	{
+		require(offset >=0 && offset + 20 <= data.length);
+		assembly {
+			let m := mload(add(data, add(20, offset)))
+			m := and(m, 0xFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000000000000000000000)
+			m := or(m, div(b, 0x1000000000000000000000000))
+			mstore(add(data, add(20, offset)), m)
+		}
+	}
 
-    /*
-     * @dev extract an address in a bytes
-     * @param data bytes from where the address will be extract
-     * @param offset position of the first byte of the address
-     * @return address
-     */
-    function extractAddress(bytes _data, uint offset) internal pure returns (address) {
-        // for pattern to reduce contract size
-        uint160 m = uint160(_data[offset]);
-        for(uint8 i = 1; i < 20; i++) {
-        	m = m*256 + uint160(_data[offset+i]);
-        }
-        return address(m);
-    }
+	/*
+	 * @dev extract an address in a bytes
+	 * @param data bytes from where the address will be extract
+	 * @param offset position of the first byte of the address
+	 * @return address
+	 */
+	function extractAddress(bytes _data, uint offset)
+		internal
+		pure
+		returns (address m) 
+	{
+		require(offset >=0 && offset + 20 <= _data.length);
+		assembly {
+			m := and( mload(add(_data, add(20, offset))), 
+					  0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+		}
+	}
 
-    /*
-     * @dev extract a bytes32 from a bytes
-     * @param data bytes from where the bytes32 will be extract
-     * @param offset position of the first byte of the bytes32
-     * @return address
-     */ 
-    function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
-        // no "for" pattern to optimize gas cost
-        uint256 m = uint256(_data[offset]); // 3930
-        m = m*256 + uint256(_data[offset+1]);
-        m = m*256 + uint256(_data[offset+2]);
-        m = m*256 + uint256(_data[offset+3]);
-        m = m*256 + uint256(_data[offset+4]);
-        m = m*256 + uint256(_data[offset+5]);
-        m = m*256 + uint256(_data[offset+6]);
-        m = m*256 + uint256(_data[offset+7]);
-        m = m*256 + uint256(_data[offset+8]);
-        m = m*256 + uint256(_data[offset+9]);
-        m = m*256 + uint256(_data[offset+10]);
-        m = m*256 + uint256(_data[offset+11]);
-        m = m*256 + uint256(_data[offset+12]);
-        m = m*256 + uint256(_data[offset+13]);
-        m = m*256 + uint256(_data[offset+14]);
-        m = m*256 + uint256(_data[offset+15]);
-        m = m*256 + uint256(_data[offset+16]);
-        m = m*256 + uint256(_data[offset+17]);
-        m = m*256 + uint256(_data[offset+18]);
-        m = m*256 + uint256(_data[offset+19]);
-        m = m*256 + uint256(_data[offset+20]);
-        m = m*256 + uint256(_data[offset+21]);
-        m = m*256 + uint256(_data[offset+22]);
-        m = m*256 + uint256(_data[offset+23]);
-        m = m*256 + uint256(_data[offset+24]);
-        m = m*256 + uint256(_data[offset+25]);
-        m = m*256 + uint256(_data[offset+26]);
-        m = m*256 + uint256(_data[offset+27]);
-        m = m*256 + uint256(_data[offset+28]);
-        m = m*256 + uint256(_data[offset+29]);
-        m = m*256 + uint256(_data[offset+30]);
-        m = m*256 + uint256(_data[offset+31]);
-        return bytes32(m);
-    }
+	/*
+	 * @dev extract a bytes32 from a bytes
+	 * @param data bytes from where the bytes32 will be extract
+	 * @param offset position of the first byte of the bytes32
+	 * @return address
+	 */
+	function extractBytes32(bytes _data, uint offset)
+		public
+		pure
+		returns (bytes32 bs)
+	{
+		require(offset >=0 && offset + 32 <= _data.length);
+		assembly {
+			bs := mload(add(_data, add(32, offset)))
+		}
+	}
+
+
+	/**
+	 * @dev transfer to owner any tokens send by mistake on this contracts
+	 * @param token The address of the token to transfer.
+	 * @param amount The amount to be transfered.
+	 */
+	function emergencyERC20Drain(ERC20 token, uint amount )
+		public
+		onlyOwner 
+	{
+		token.transfer(owner, amount);
+	}
 }
