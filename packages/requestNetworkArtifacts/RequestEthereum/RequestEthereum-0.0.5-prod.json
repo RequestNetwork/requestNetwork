@@ -116,15 +116,6 @@
     {
       "constant": false,
       "inputs": [],
-      "name": "withdraw",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [],
       "name": "unpause",
       "outputs": [],
       "payable": false,
@@ -392,7 +383,7 @@
       "name": "extractBytes32",
       "outputs": [
         {
-          "name": "",
+          "name": "bs",
           "type": "bytes32"
         }
       ],
@@ -480,6 +471,24 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "emergencyERC20Drain",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [],
       "name": "requestBurnerContract",
@@ -522,25 +531,6 @@
       "type": "function"
     },
     {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "ethToWithdraw",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "constant": false,
       "inputs": [
         {
@@ -568,28 +558,6 @@
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "requestId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "name": "recipient",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "EtherAvailableToWithdraw",
-      "type": "event"
     },
     {
       "anonymous": false,
@@ -621,11 +589,15 @@
       "type": "event"
     }
   ],
-  "version": "0.0.3",
+  "version": "0.0.5",
   "networks": {
     "rinkeby": {
-      "address": "0xafa312973909c3a541665e11c883a24a8eb10b2c",
-      "blockNumber": 1838205
+      "address": "0xd88ab9b1691340e04a5bbf78529c11d592d35f57",
+      "blockNumber": 2007227
+    },
+    "main": {
+      "address": "0x3038045cd883abff0c6eea4b1954843c0fa5a735",
+      "blockNumber": 5333287
     }
   }
 }

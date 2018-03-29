@@ -387,14 +387,14 @@
           "type": "bytes"
         },
         {
-          "name": "_offset",
+          "name": "offset",
           "type": "uint256"
         }
       ],
       "name": "extractBytes32",
       "outputs": [
         {
-          "name": "",
+          "name": "bs",
           "type": "bytes32"
         }
       ],
@@ -452,6 +452,24 @@
         }
       ],
       "name": "updateExpectedAmount",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "emergencyERC20Drain",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -775,11 +793,15 @@
       "type": "event"
     }
   ],
-  "version": "0.0.3",
+  "version": "0.0.5",
   "networks": {
     "rinkeby": {
-      "address": "0x21d995b5d48bc0ed038e95a3da1be88b37a38dd8",
-      "blockNumber": 1838199
+      "address": "0x8fc2e7f2498f1d06461ee2d547002611b801202b",
+      "blockNumber": 2007225
+    },
+    "main": {
+      "address": "0xdb600fda54568a35b78565b5257125bebc51eb27",
+      "blockNumber": 5333283
     }
   }
 }

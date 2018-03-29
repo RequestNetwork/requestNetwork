@@ -25,12 +25,13 @@ truffle deploy --network development
 
 ### Develop on Rinkeby
 Contract addresses
-* RequestCore: 0x21d995b5d48bc0ed038e95a3da1be88b37a38dd8
-* RequestEthereum: 0xafa312973909c3a541665e11c883a24a8eb10b2c
+* RequestCore: 0x8fc2e7f2498f1d06461ee2d547002611b801202b
+* RequestEthereum: 0xd88ab9b1691340e04a5bbf78529c11d592d35f57
 
 ### Develop on the Main net 
-not available yet
-
+Contract addresses
+* RequestCore: 0xdb600fda54568a35b78565b5257125bebc51eb27
+* RequestEthereum: 0x3038045cd883abff0c6eea4b1954843c0fa5a735
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee

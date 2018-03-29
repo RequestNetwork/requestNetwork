@@ -13,7 +13,7 @@
   "repository": "github:RequestNetwork/requestNetwork",
   "scripts": {
     "clean": "rimraf -rf ./build ./export",
-    "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "test": "truffle test",
     "build": "npm run clean && truffle compile && node exportArtifacts"
   },
