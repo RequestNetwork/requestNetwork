@@ -55,8 +55,8 @@ contract RequestCurrencyContractInterface is Pausable {
 		requestId= requestCore.createRequest(msg.sender, _payeesIdAddress, _expectedAmounts, _payer, _data);
 	}
 
-	function acceptInternal(bytes32 _requestId)
-		internal
+	function acceptAction(bytes32 _requestId)
+		public
 		whenNotPaused
 		onlyRequestPayer(_requestId)
 	{
@@ -67,8 +67,8 @@ contract RequestCurrencyContractInterface is Pausable {
 		requestCore.accept(_requestId);
 	}
 
-	function cancelInternal(bytes32 _requestId)
-		internal
+	function cancelAction(bytes32 _requestId)
+		public
 		whenNotPaused
 	{
 		// payer can cancel if request is just created
@@ -83,8 +83,8 @@ contract RequestCurrencyContractInterface is Pausable {
 		requestCore.cancel(_requestId);
 	}
 
-	function additionalInternal(bytes32 _requestId, uint256[] _additionalAmounts)
-		internal
+	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
+		public
 		whenNotPaused
 		onlyRequestPayer(_requestId)
 	{
@@ -104,8 +104,8 @@ contract RequestCurrencyContractInterface is Pausable {
 		}
 	}
 
-	function subtractInternal(bytes32 _requestId, uint256[] _subtractAmounts)
-		internal
+	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
+		public
 		whenNotPaused
 		onlyRequestPayee(_requestId)
 	{

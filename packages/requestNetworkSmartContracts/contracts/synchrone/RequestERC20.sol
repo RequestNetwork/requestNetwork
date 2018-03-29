@@ -197,72 +197,13 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		int256 _payeeAmountsSum)
 		internal
 	{
-		// requestCore.accept(_requestId);
-		acceptInternal(_requestId);
+		acceptAction(_requestId);
 		
-		additionalInternal(_requestId, _additionals);
+		additionalAction(_requestId, _additionals);
 
 		if(_payeeAmountsSum > 0) {
 			paymentInternal(_requestId, _payeeAmounts);
 		}
-	}
-
-	/*
-	 * @dev Function to accept a request
-	 *
-	 * @dev msg.sender must be _payer
-	 * @dev A request can also be accepted by using directly the payment function on a request in the Created status
-	 *
-	 * @param _requestId id of the request
-	 */
-	function acceptAction(bytes32 _requestId)
-		external
-	{
-		acceptInternal(_requestId);
-	}
-
-	/*
-	 * @dev Function to cancel a request
-	 *
-	 * @dev msg.sender must be the _payer or the _payee.
-	 * @dev only request with balance equals to zero can be cancel
-	 *
-	 * @param _requestId id of the request
-	 */
-	function cancelAction(bytes32 _requestId)
-		external
-	{
-		cancelInternal(_requestId);
-	}
-
-	/*
-	 * @dev Function PAYABLE to pay a request in ether.
-	 *
-	 * @dev the request will be automatically accepted if msg.sender==payer. 
-	 *
-	 * @param _requestId id of the request
-	 * @param _payeesAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
-	 * @param _additionalsAmount amount of additionals per payee in wei to declare
-	 */
-	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
-		public
-	{
-		additionalInternal(_requestId, _additionalAmounts);
-	}
-
-	/*
-	 * @dev Function to declare a subtract
-	 *
-	 * @dev msg.sender must be _payee
-	 * @dev the request must be accepted or created
-	 *
-	 * @param _requestId id of the request
-	 * @param _subtractAmounts amounts of subtract in wei to declare (index 0 is for main payee)
-	 */
-	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
-		external
-	{
-		subtractInternal(_requestId, _subtractAmounts);
 	}
 
 	/*
@@ -285,11 +226,11 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	{
 		// automatically accept request if request is created and msg.sender is payer
 		if (requestCore.getState(_requestId)==RequestCore.State.Created && msg.sender == requestCore.getPayer(_requestId)) {
-			acceptInternal(_requestId);
+			acceptAction(_requestId);
 		}
 
 		if (_additionalAmounts.length != 0) {
-			additionalInternal(_requestId, _additionalAmounts);
+			additionalAction(_requestId, _additionalAmounts);
 		}
 
 		paymentInternal(_requestId, _payeeAmounts);
@@ -345,7 +286,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 				}
 
 				// payment done, the token need to be sent
-				fundOrderInternal(_requestId, msg.sender, addressToPay, _payeeAmounts[i]);
+				fundOrderInternal(msg.sender, addressToPay, _payeeAmounts[i]);
 			}
 		}
 	}
@@ -391,7 +332,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		}
 
 		// refund declared, the money is ready to be sent to the payer
-		fundOrderInternal(_requestId, _address, addressToPay, _amount);
+		fundOrderInternal(_address, addressToPay, _amount);
 	}
 
 	/*
@@ -400,13 +341,11 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The send pattern would have allow someone to lock a request. 
 	 * @dev The send + withdraw pattern will have to be clearly explained to users. If the payee is a contract which can let a transfer fail, it will need to be able to call a withdraw function from Request. 
 	 *
-	 * @param _requestId id of the request
 	 * @param _recipient address where the token will get from
 	 * @param _recipient address where the token has to be sent to
 	 * @param _amount amount in ERC20 token to send
 	 */
 	function fundOrderInternal(
-		bytes32 _requestId,
 		address _from,
 		address _recipient,
 		uint256 _amount)
