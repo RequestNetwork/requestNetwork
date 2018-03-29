@@ -31,8 +31,8 @@ contract('burner contract ', accounts => {
     await burnerInstance.send(100);
   });
 
-	// Creation and event
-	it("converts the ETH and burns the REQ", async () => {
+  // Creation and event
+  it("converts the ETH and burns the REQ", async () => {
     // Call burn. It will burn all 100 ETH
     await burnerInstance.burn(0,0,0);
 
@@ -43,8 +43,8 @@ contract('burner contract ', accounts => {
     assert.ok(totalSupply.plus(100).eq(initialSupply));
   });
   
-	// Creation and event
-	it("converts a maximum of `maxSrcAmount` ETH", async () => {
+  // Creation and event
+  it("converts a maximum of `maxSrcAmount` ETH", async () => {
     // Call burn. It will burn only 5 ETH
     await burnerInstance.burn(5,0,0);
 
@@ -53,7 +53,7 @@ contract('burner contract ', accounts => {
     const totalSupply = await reqInstance.totalSupply();
 
     assert.ok(totalSupply.plus(5).eq(initialSupply));
-	});
+  });
 });
 
 
