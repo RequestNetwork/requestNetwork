@@ -4,12 +4,15 @@ import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
 import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
+import TestToken from '../../centralBank';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
+const ADDRESS_TOKEN_TEST = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-'+ADDRESS_TOKEN_TEST).networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
+
 
 let rn: any;
 let web3: any;
@@ -28,12 +31,15 @@ let payerWithoutToken: any;
 let requestId: any;
 
 describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
-    const arbitraryAmount = 100000000;
-    const arbitraryAmount2 = 200000;
-    const arbitraryAmount3 = 30000;
+    const arbitraryAmount = 1000;
+    const arbitraryAmount2 = 200;
+    const arbitraryAmount3 = 30;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestERC20Service.web3Single.web3;
-    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+
+    const instanceCentralBank = new web3.eth.Contract(TestToken.abi, ADDRESS_TOKEN_TEST);
+
+    const testToken = new Erc20Service('0x345cA3e014Aaf5dcA488057592ee47305D9B3e10');
     const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
@@ -67,7 +73,7 @@ describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
     });
 
     it('approve Token For Request', async () => {
-        await testToken.transfer(payer, arbitraryAmount, {from: defaultAccount});        
+        await instanceCentralBank.methods.mint(arbitraryAmount).send({from: payer});       
       
         const res = await rn.requestERC20Service.approveTokenForRequest(
                     requestId,
@@ -80,10 +86,9 @@ describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
     });
 
     it('approve Token For Signed Request', async () => {
-        const partialPignedRequest = { tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                          currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10' };
+        const partialPignedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf' };
 
-        await testToken.transfer(payee2, arbitraryAmount2, {from: defaultAccount});        
+        await instanceCentralBank.methods.mint(arbitraryAmount2).send({from: payee2});     
 
         const res = await rn.requestERC20Service.approveTokenForSignedRequest(
                     partialPignedRequest,
@@ -96,15 +101,15 @@ describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
     });
 
     it('get allowance for a Request', async () => {
-        const tokenAddress = '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF';
-        const currencyContract = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+        const partialPignedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf' };
 
-        await testToken.transfer(payee2, arbitraryAmount3, {from: defaultAccount});        
-        await testToken.approve(currencyContract, arbitraryAmount3, {from: payee2});
-      
+        const res2 = await rn.requestERC20Service.approveTokenForSignedRequest(
+                    partialPignedRequest,
+                    arbitraryAmount3,
+                    {from: payee2});
+
         const res = await rn.requestERC20Service.getTokenAllowance(
-                                tokenAddress,
-                                currencyContract,
+                                partialPignedRequest.currencyContract,
                                 {from: payee2});
 
         utils.expectEqualsBN(res, arbitraryAmount3, 'new allowance is wrong');

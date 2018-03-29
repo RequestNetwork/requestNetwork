@@ -8,7 +8,9 @@ import * as utils from '../../utils';
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
+
+const ADDRESS_TOKEN_TEST = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-'+ADDRESS_TOKEN_TEST).networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -31,7 +33,7 @@ describe('erc20 getRequestByTransactionHash', () => {
     const arbitraryAmount3 = 30000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000);
     web3 = rn.requestERC20Service.web3Single.web3;
-    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const testToken = new Erc20Service(ADDRESS_TOKEN_TEST);
     const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
@@ -49,14 +51,14 @@ describe('erc20 getRequestByTransactionHash', () => {
 
     it('createRequestAsPayee getRequestByTransactionHash', async () => {
         const result = await rn.requestERC20Service.createRequestAsPayee(
-                    addressTestToken,
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
+
         const data: any = await rn.requestCoreService.getRequestByTransactionHash(result.transaction.hash);
 
         expect(data.transaction.method.name, 'name is wrong').to.equal('createRequestAsPayeeAction');
-        expect(data.transaction.method.parameters._addressToken.toLowerCase(), '_addressToken is wrong').to.equal(addressTestToken.toLowerCase());
         expect(data.transaction.method.parameters._payer.toLowerCase(), '_payer is wrong').to.equal(payer);
         expect(data.transaction.method.parameters._expectedAmounts[0], '_expectedAmount is wrong').to.equal(arbitraryAmount.toString());
         expect(data.transaction.method.parameters._expectedAmounts[1], '_expectedAmount is wrong').to.equal(arbitraryAmount2.toString());
@@ -66,7 +68,7 @@ describe('erc20 getRequestByTransactionHash', () => {
 
     it('accept getRequestByTransactionHash', async () => {
         const resultCreateRequestAsPayee = await rn.requestERC20Service.createRequestAsPayee(
-                    addressTestToken,
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
@@ -102,7 +104,7 @@ describe('erc20 getRequestByTransactionHash', () => {
 
     it('paymentAction getRequestByTransactionHash', async () => {
         const resultCreateRequestAsPayee = await rn.requestERC20Service.createRequestAsPayee(
-                    addressTestToken,
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);

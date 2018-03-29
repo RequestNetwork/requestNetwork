@@ -4,12 +4,14 @@ import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/requestNetwork';
 import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
+import TestToken from '../../centralBank';
 
 const WEB3 = require('web3');
 
 const BN = WEB3.utils.BN;
 
-const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
+const ADDRESS_TOKEN_TEST = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-'+ADDRESS_TOKEN_TEST).networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -30,10 +32,12 @@ let signedRequest: any;
 describe('erc20 broadcastSignedRequestAsPayer', () => {
     const arbitraryAmount = 1000;
     const arbitraryAmount2 = 200;
-    const arbitraryAmount3 = 300;
+    const arbitraryAmount3 = 30;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestERC20Service.web3Single.web3;
-    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    
+    const instanceCentralBank = new web3.eth.Contract(TestToken.abi, ADDRESS_TOKEN_TEST);
+    const testToken = new Erc20Service('0x345cA3e014Aaf5dcA488057592ee47305D9B3e10');
     const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
@@ -49,23 +53,23 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         payee3PaymentAddress = accounts[9].toLowerCase();
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
 
-        signedRequest = { tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                          currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                          data: 'QmbFpULNpMJEj9LfvhH4hSTfTse5YrS2JvhbHW6bDCNpwS',
-                          expectedAmounts: [ '100000000', '20000000', '3000000' ],
-                          expirationDate: 7952342400000,
-                          extension: undefined,
-                          extensionParams: undefined,
-                          hash: '0x7226fcac983f28898c1478e3f1e83fa3c4b27126fc056594b8538cb5392800ae',
-                          payeesIdAddress:
-                           [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544',
-                             '0x0d1d4e623d10f9fba5db95830f7d3839406c6af2',
-                             '0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e' ],
-                          payeesPaymentAddress:
-                           [ '0x6330a553fc93768f612722bb8c2ec78ac90b3bbc',
-                             undefined,
-                             '0x5aeda56215b167893e80b4fe645ba6d5bab767de' ],
-                          signature: '0x40ce18afe3833b06c89f0909e23dc6482973b74261672500edfaf978de1c8f983b98367be26d90e0ba2e158d8f831d5939bc65d82543205c866f8d607a005b8c01' };
+        signedRequest = { 
+            currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+            data: 'QmbFpULNpMJEj9LfvhH4hSTfTse5YrS2JvhbHW6bDCNpwS',
+            expectedAmounts: [ '1000', '200', '30' ],
+            expirationDate: 7952342400000,
+            extension: undefined,
+            extensionParams: undefined,
+            hash: '0xe03268113d12c1a728ba6bc5631649d041d905e2a4dd19b8e5789a22b7800c5e',
+            payeesIdAddress:
+                [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544',
+                 '0x0d1d4e623d10f9fba5db95830f7d3839406c6af2',
+                 '0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e' ],
+            payeesPaymentAddress:
+                [ '0x6330a553fc93768f612722bb8c2ec78ac90b3bbc',
+                 undefined,
+                 '0x5aeda56215b167893e80b4fe645ba6d5bab767de' ],
+            signature: '0x3d3e6110c4d6f851e444aee6740446dec0bad1fd22cda8d892565188a3fe6d3e6739efb7a6b3c6fef201e60b36300cb3200d162259422a0eda1da1e2fe96c98001' };
     });
 
     it('broadcast request as payer no payment no additionals', async () => {
@@ -78,7 +82,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
 
         expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
-        utils.expectEqualsBN(result.request.payee.expectedAmount, '100000000', 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
 
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(defaultAccount);
@@ -92,18 +96,17 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, 0, 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, '20000000', 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, 0, 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, '3000000', 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3, 'payee3 expectedAmount is wrong');
 
         expect(result.request.currencyContract.payeePaymentAddress.toLowerCase(), 'payeePaymentAddress is wrong').to.equal(payeePaymentAddress);
         expect(result.request.currencyContract.payerRefundAddress, 'payerRefundAddress is wrong').to.be.undefined;
         expect(result.request.currencyContract.subPayeesPaymentAddress[0], 'subPayeesPaymentAddress0 is wrong').to.be.undefined;
         expect(result.request.currencyContract.subPayeesPaymentAddress[1].toLowerCase(), 'payer is wrong').to.equal(payee3PaymentAddress);
     });
-
 
     it('broadcast request as payer with payments & additionals', async () => {
         // approve
@@ -121,7 +124,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
 
         expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
-        utils.expectEqualsBN(result.request.payee.expectedAmount, '100000003', 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount+3, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, arbitraryAmount+3, 'balance is wrong');
 
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(defaultAccount);
@@ -135,11 +138,11 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, arbitraryAmount2+2, 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, '20000002', 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2+2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, arbitraryAmount3+1, 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, '3000001', 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3+1, 'payee3 expectedAmount is wrong');
 
         expect(result.request.currencyContract.payeePaymentAddress.toLowerCase(), 'payeePaymentAddress is wrong').to.equal(payeePaymentAddress);
         expect(result.request.currencyContract.payerRefundAddress, 'payerRefundAddress is wrong').to.be.undefined;
@@ -148,14 +151,12 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
     });
 
     it('broadcast request simplest', async () => {
-        signedRequest = {  
-                tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                expectedAmounts: [ '100000000' ],
-                expirationDate: 7952342400000,
-                hash: '0x7d6a390e8ce21b5e55bba9a38e9516982d0d040601c080e8bb8330d613cae107',
-                payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
-                signature: '0xc35fc55e1649bd371e27b09ced70e596d2715a96288d6f63536a30103f665fa433aa864f4d719535fab8d48f8de39fa5579cca819a1dd20a36b5be6e1855ef1000' };
+        signedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+                          expectedAmounts: [ '1000' ],
+                          expirationDate: 7952342400000,
+                          hash: '0x41813608ee5d1b1716cf9bf6705da4ae1f019ebfcfcd129cdd27d01ed02140a9',
+                          payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
+                          signature: '0xcf21f170df2aa3c80dd2b40e68b4b5af8f26b2097bd3c33922fa68e68819ce4f797a11724f9ef94f7730b03e7e82db926b9bfbe5b9d83d6204115173eaaf136700' }
 
         const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(signedRequest)
             .on('broadcasted', (data: any) => {
@@ -166,7 +167,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
 
         expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
-        utils.expectEqualsBN(result.request.payee.expectedAmount, '100000000', 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
 
         expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(defaultAccount);
@@ -176,14 +177,12 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
     });
 
     it('broadcast request as payer payer == payee', async () => {
-        signedRequest = {  
-                tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                expectedAmounts: [ '100000000' ],
-                expirationDate: 7952342400000,
-                hash: '0x7d6a390e8ce21b5e55bba9a38e9516982d0d040601c080e8bb8330d613cae107',
-                payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
-                signature: '0xc35fc55e1649bd371e27b09ced70e596d2715a96288d6f63536a30103f665fa433aa864f4d719535fab8d48f8de39fa5579cca819a1dd20a36b5be6e1855ef1000' };
+        signedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+                          expectedAmounts: [ '1000' ],
+                          expirationDate: 7952342400000,
+                          hash: '0x41813608ee5d1b1716cf9bf6705da4ae1f019ebfcfcd129cdd27d01ed02140a9',
+                          payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
+                          signature: '0xcf21f170df2aa3c80dd2b40e68b4b5af8f26b2097bd3c33922fa68e68819ce4f797a11724f9ef94f7730b03e7e82db926b9bfbe5b9d83d6204115173eaaf136700' }
 
         try { 
             const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(
@@ -198,15 +197,13 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
     });
 
     it('broadcast request as payer amount to pay < 0', async () => {
-        signedRequest = {  
-                tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                expectedAmounts: [ '100000000' ],
-                expirationDate: 7952342400000,
-                hash: '0x7d6a390e8ce21b5e55bba9a38e9516982d0d040601c080e8bb8330d613cae107',
-                payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
-                signature: '0xc35fc55e1649bd371e27b09ced70e596d2715a96288d6f63536a30103f665fa433aa864f4d719535fab8d48f8de39fa5579cca819a1dd20a36b5be6e1855ef1000' };
-        
+        signedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+                          expectedAmounts: [ '1000' ],
+                          expirationDate: 7952342400000,
+                          hash: '0x41813608ee5d1b1716cf9bf6705da4ae1f019ebfcfcd129cdd27d01ed02140a9',
+                          payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
+                          signature: '0xcf21f170df2aa3c80dd2b40e68b4b5af8f26b2097bd3c33922fa68e68819ce4f797a11724f9ef94f7730b03e7e82db926b9bfbe5b9d83d6204115173eaaf136700' }
+
         try { 
             const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(
                     signedRequest,
@@ -220,14 +217,12 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
     });
 
     it('broadcast request as payer additionals < 0', async () => {
-        signedRequest = {  
-                tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                expectedAmounts: [ '100000000' ],
-                expirationDate: 7952342400000,
-                hash: '0x7d6a390e8ce21b5e55bba9a38e9516982d0d040601c080e8bb8330d613cae107',
-                payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
-                signature: '0xc35fc55e1649bd371e27b09ced70e596d2715a96288d6f63536a30103f665fa433aa864f4d719535fab8d48f8de39fa5579cca819a1dd20a36b5be6e1855ef1000' };
+        signedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+                          expectedAmounts: [ '1000' ],
+                          expirationDate: 7952342400000,
+                          hash: '0x41813608ee5d1b1716cf9bf6705da4ae1f019ebfcfcd129cdd27d01ed02140a9',
+                          payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
+                          signature: '0xcf21f170df2aa3c80dd2b40e68b4b5af8f26b2097bd3c33922fa68e68819ce4f797a11724f9ef94f7730b03e7e82db926b9bfbe5b9d83d6204115173eaaf136700' }
 
         try { 
             const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(
@@ -243,15 +238,13 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
 
     it('broadcast request as hash not valid', async () => {
         try { 
-            signedRequest = {  
-                tokenAddress: '0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF',
-                currencyContract: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                expectedAmounts: [ '100000000' ],
-                expirationDate: 7952342400000,
-                hash: '0x0d6a390e8ce21b5e55bba9a38e9516982d0d040601c080e8bb8330d613cae107',
-                payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
-                signature: '0xc35fc55e1649bd371e27b09ced70e596d2715a96288d6f63536a30103f665fa433aa864f4d719535fab8d48f8de39fa5579cca819a1dd20a36b5be6e1855ef1000' };
-        
+            signedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+                          expectedAmounts: [ '1000' ],
+                          expirationDate: 7952342400000,
+                          hash: '0x000000000000001716cf9bf6705da4ae1f019ebfcfcd129cdd27d01ed02140a9',
+                          payeesIdAddress: [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544' ],
+                          signature: '0xcf21f170df2aa3c80dd2b40e68b4b5af8f26b2097bd3c33922fa68e68819ce4f797a11724f9ef94f7730b03e7e82db926b9bfbe5b9d83d6204115173eaaf136700' }
+
             const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(signedRequest)
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
@@ -261,7 +254,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
 
     it('broadcast request as signature not valid', async () => {
         try { 
-            signedRequest.signature = '0x479de55dc2de60873a72f3f59f2d167388ca31163ebd272702ae4fcd750e6b8b5caa13c34958cd33282703ecad5146960cd7004714b8fd3a0e7db26dfbccdcb501';
+            signedRequest.signature = '0xcf21f170df2aa3c80dd2b40e68b4b5af8f26b2097bd3c33922fa68e68819ce4f797a11724f9ef94f7730b03e7e82db926b9bfbe5b9d83d6204115173eaaf136700';
  
             const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(
                     signedRequest,
@@ -274,7 +267,6 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         }
     });
 
-
     it('sign + broadcast', async () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
         const resultSigned = await rn.requestERC20Service.signRequestAsPayee(
@@ -282,9 +274,11 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
                                                                         [defaultAccount],
                                                                         [arbitraryAmount],
                                                                         expirationDate);
+
         // approve
-        await testToken.transfer(payer, arbitraryAmount, {from: defaultAccount});        
-        await rn.requestERC20Service.approveTokenForSignedRequest(resultSigned, arbitraryAmount, {from: payer})
+        await instanceCentralBank.methods.mint(arbitraryAmount).send({from: payer});
+        await rn.requestERC20Service.approveTokenForSignedRequest(resultSigned, arbitraryAmount, {from: payer});
+
         const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(
                 resultSigned,
                 [arbitraryAmount],

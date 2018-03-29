@@ -9,7 +9,7 @@ const WEB3 = require('web3');
 
 const BN = WEB3.utils.BN;
 
-const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10').networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -31,7 +31,7 @@ describe('erc20 createRequestAsPayeeAction', () => {
     const arbitraryAmount3 =  3000000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestERC20Service.web3Single.web3;
-    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const testToken = new Erc20Service('0x345cA3e014Aaf5dcA488057592ee47305D9B3e10');
     const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
@@ -208,7 +208,7 @@ describe('erc20 createRequestAsPayeeAction', () => {
 
     it('create request with different array size', async () => {
         try { 
-            const result = await rn.requestERC20Service.createRequestAsPayee( 
+            const result = await rn.requestERC20Service.createRequestAsPayee(
                     addressTestToken,
                     [defaultAccount, payee2],
                     [arbitraryAmount],
@@ -219,30 +219,17 @@ describe('erc20 createRequestAsPayeeAction', () => {
         }
     });
 
-    it('create request token not address', async () => {
-        try {
+    it('token not supported', async () => {
+        try { 
             const result = await rn.requestERC20Service.createRequestAsPayee(
-                    '0xNOTADDRESS',
-                    [defaultAccount, payee2, payee3],
-                    [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
+                    '0x0000000000000000000000000000000000000000',
+                    [defaultAccount],
+                    [arbitraryAmount],
                     payer);
-            expect(false, 'exception not thrown').to.be.true;
+            expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_tokenAddress must be a valid eth address'), 'exception not right');
+            utils.expectEqualsException(e, Error('token not supported'),'exception not right');
         }
     });
-
-    it('create request token not whitelisted', async () => {
-        try {
-            const result = await rn.requestERC20Service.createRequestAsPayee(
-                    randomAddress,
-                    [defaultAccount, payee2, payee3],
-                    [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
-                    payer);
-            expect(false, 'exception not thrown').to.be.true;
-        } catch (e) {
-            utils.expectEqualsException(e, Error('token must be whitelisted'), 'exception not right');
-        }
-    });
-
 });
+

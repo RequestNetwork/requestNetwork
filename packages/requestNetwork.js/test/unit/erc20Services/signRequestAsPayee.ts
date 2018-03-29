@@ -10,7 +10,8 @@ const WEB3 = require('web3');
 
 const BN = WEB3.utils.BN;
 
-const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20').networks.private.address;
+const ADDRESS_TOKEN_TEST = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-'+ADDRESS_TOKEN_TEST).networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -32,7 +33,7 @@ describe('erc20 signRequestAsPayee', () => {
     const arbitraryAmount3 =  '3000000';
     rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
     web3 = rn.requestERC20Service.web3Single.web3;
-    const testToken = new Erc20Service('0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF');
+    const testToken = new Erc20Service(ADDRESS_TOKEN_TEST);
     const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
@@ -54,7 +55,7 @@ describe('erc20 signRequestAsPayee', () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
 
         const result = await rn.requestERC20Service.signRequestAsPayee(
-            addressTestToken,
+            ADDRESS_TOKEN_TEST,
             [payee, payee2, payee3],
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             expirationDate,
@@ -95,7 +96,7 @@ describe('erc20 signRequestAsPayee', () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
 
         const result = await rn.requestERC20Service.signRequestAsPayee(
-            addressTestToken,
+            ADDRESS_TOKEN_TEST,
             [defaultAccount, payee2, payee3],
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             expirationDate);
@@ -131,7 +132,7 @@ describe('erc20 signRequestAsPayee', () => {
         const expirationDate: number = (new Date('2000-01-01').getTime()) / 1000;
         try {
             const result = await rn.requestERC20Service.signRequestAsPayee(
-                addressTestToken,
+            ADDRESS_TOKEN_TEST,
                 [defaultAccount, payee2, payee3],
                 [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                 expirationDate);
@@ -145,13 +146,28 @@ describe('erc20 signRequestAsPayee', () => {
         const expirationDate: number = new Date('2222-01-01').getTime();
         try {
             const result = await rn.requestERC20Service.signRequestAsPayee(
-                    addressTestToken,
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [new WEB3.utils.BN(-1), arbitraryAmount2, arbitraryAmount3],
                     expirationDate);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'),'exception not right');
+        }
+    });
+
+
+    it('token not supported', async () => {
+        const expirationDate: number = new Date('2222-01-01').getTime();
+        try { 
+            const result = await rn.requestERC20Service.signRequestAsPayee(
+                    '0x0000000000000000000000000000000000000000',
+                    [defaultAccount],
+                    [arbitraryAmount],
+                    expirationDate);
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsException(e, Error('token not supported'),'exception not right');
         }
     });
 });
