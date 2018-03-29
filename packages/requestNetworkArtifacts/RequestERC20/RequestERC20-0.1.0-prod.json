@@ -5,15 +5,29 @@
       "constant": true,
       "inputs": [
         {
-          "name": "",
-          "type": "bytes32"
+          "name": "_expectedAmount",
+          "type": "int256"
         }
       ],
-      "name": "requestTokens",
+      "name": "collectEstimation",
       "outputs": [
         {
           "name": "",
-          "type": "address"
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rateFeesNumerator",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -70,12 +84,39 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "_addressToken",
-          "type": "address"
+          "name": "_requestData",
+          "type": "bytes"
         },
+        {
+          "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expirationDate",
+          "type": "uint256"
+        },
+        {
+          "name": "_signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "checkRequestSignature",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
         {
           "name": "_requestData",
           "type": "bytes"
@@ -101,7 +142,7 @@
           "type": "bytes"
         }
       ],
-      "name": "broadcastSignedRequestAsPayer",
+      "name": "broadcastSignedRequestAsPayerAction",
       "outputs": [
         {
           "name": "requestId",
@@ -141,6 +182,45 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payeesIdAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payer",
+          "type": "address"
+        },
+        {
+          "name": "_payerRefundAddress",
+          "type": "address"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "createRequestAsPayeeAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [],
       "name": "requestCore",
@@ -148,6 +228,20 @@
         {
           "name": "",
           "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rateFeesDenominator",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -166,6 +260,20 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "addressToken",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -248,63 +356,6 @@
       "constant": true,
       "inputs": [
         {
-          "name": "_requestData",
-          "type": "bytes"
-        },
-        {
-          "name": "_addressToken",
-          "type": "address"
-        },
-        {
-          "name": "_payeesPaymentAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_expirationDate",
-          "type": "uint256"
-        },
-        {
-          "name": "_signature",
-          "type": "bytes"
-        }
-      ],
-      "name": "checkRequestSignature",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_addressToken",
-          "type": "address"
-        },
-        {
-          "name": "_rateFeesNumerator",
-          "type": "uint256"
-        },
-        {
-          "name": "_rateFeesDenominator",
-          "type": "uint256"
-        }
-      ],
-      "name": "setRateFees",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
           "name": "",
           "type": "bytes32"
         }
@@ -381,43 +432,26 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "",
-          "type": "address"
+          "name": "_rateFeesNumerator",
+          "type": "uint256"
+        },
+        {
+          "name": "_rateFeesDenominator",
+          "type": "uint256"
         }
       ],
-      "name": "tokensWhiteList",
-      "outputs": [
-        {
-          "name": "rateFeesNumerator",
-          "type": "uint256"
-        },
-        {
-          "name": "rateFeesDenominator",
-          "type": "uint256"
-        },
-        {
-          "name": "maxFees",
-          "type": "uint256"
-        },
-        {
-          "name": "whiteListed",
-          "type": "bool"
-        }
-      ],
+      "name": "setRateFees",
+      "outputs": [],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_addressToken",
-          "type": "address"
-        },
         {
           "name": "_newMaxFees",
           "type": "uint256"
@@ -427,29 +461,6 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_tokenAddress",
-          "type": "address"
-        },
-        {
-          "name": "_expectedAmount",
-          "type": "int256"
-        }
-      ],
-      "name": "collectEstimation",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -467,21 +478,17 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
+      "constant": true,
+      "inputs": [],
+      "name": "maxFees",
+      "outputs": [
         {
-          "name": "_addressToken",
-          "type": "address"
-        },
-        {
-          "name": "_state",
-          "type": "bool"
+          "name": "",
+          "type": "uint256"
         }
       ],
-      "name": "updateTokenWhitelist",
-      "outputs": [],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -517,49 +524,6 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_addressToken",
-          "type": "address"
-        },
-        {
-          "name": "_payeesIdAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_payeesPaymentAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_expectedAmounts",
-          "type": "int256[]"
-        },
-        {
-          "name": "_payer",
-          "type": "address"
-        },
-        {
-          "name": "_payerRefundAddress",
-          "type": "address"
-        },
-        {
-          "name": "_data",
-          "type": "string"
-        }
-      ],
-      "name": "createRequestAsPayeeAction",
-      "outputs": [
-        {
-          "name": "requestId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "name": "_requestCoreAddress",
@@ -567,6 +531,10 @@
         },
         {
           "name": "_requestBurnerAddress",
+          "type": "address"
+        },
+        {
+          "name": "_addressToken",
           "type": "address"
         }
       ],
@@ -577,11 +545,6 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "token",
-          "type": "address"
-        },
         {
           "indexed": false,
           "name": "rateFeesNumerator",
@@ -599,11 +562,6 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "token",
-          "type": "address"
-        },
         {
           "indexed": false,
           "name": "maxFees",
@@ -646,8 +604,8 @@
   "version": "0.1.0",
   "networks": {
     "rinkeby": {
-      "address": "",
-      "blockNumber": 0
+      "address": "0x9e55fe1223b84100fb59857e2f1293d14ecad150",
+      "blockNumber": 2018508
     }
   }
 }
