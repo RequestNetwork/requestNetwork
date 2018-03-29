@@ -52,8 +52,6 @@ contract('RequestCore Create Request From Bytes', function(accounts) {
 	it("request from non trustable sender (contract trusted) impossible", async function () {
 		var requestCore = await RequestCore.new();
 		
-		
-
 		await utils.expectThrow(requestCore.createRequest(creator, [payee], [arbitraryAmount], payer, "", {from:fakeContract}));
 	});
 
@@ -61,8 +59,6 @@ contract('RequestCore Create Request From Bytes', function(accounts) {
 	it("impossible to createRequest if Core Paused", async function () {
 		var requestCore = await RequestCore.new();
 		
-		
-
 		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
 		await requestCore.pause({from:admin});
 		await utils.expectThrow(requestCore.createRequestFromBytes(createBytesRequest(payee, [payee], [arbitraryAmount], payer, ""), {from:fakeContract}));
@@ -344,7 +340,14 @@ contract('RequestCore Create Request From Bytes', function(accounts) {
 		assert.equal(newReq[5],0,"new request wrong data : balance");
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
-	
+
+	it("request with subPayees 0", async function () {
+		var requestCore = await RequestCore.new();
+		
+		await requestCore.adminAddTrustedCurrencyContract(fakeContract, {from:admin});
+
+		await utils.expectThrow(requestCore.createRequestFromBytes(createBytesRequest(payee, [payee, 0], [arbitraryAmount, arbitraryAmount2], payer, ""), {from:fakeContract}));
+	});
 });
 
 

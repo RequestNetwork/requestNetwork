@@ -13,7 +13,7 @@
   "repository": "github:RequestNetwork/requestNetwork",
   "scripts": {
     "clean": "rimraf -rf ./build ./export",
-    "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "test": "truffle test",
     "build": "npm run clean && truffle compile && node exportArtifacts"
   },
@@ -23,6 +23,7 @@
     "ethereumjs-util": "^5.1.5",
     "rimraf": "^2.6.2",
     "truffle": "^4.0.5",
+    "truffle-hdwallet-provider": "0.0.3",
     "web3-eth-abi": "1.0.0-beta.30"
   },
   "private": true

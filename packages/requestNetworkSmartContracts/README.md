@@ -20,25 +20,27 @@ No tutorial available yet. Feel free to suggest yours and we will refer to it.
 ### Develop on test-rpc
 You can deploy your own contracts on testrpc thanks to the truffle project:
 ```git clone https://github.com/RequestNetwork/requestNetwork 
-cd package/requestNetworkSmartContracts 
+cd packages/requestNetworkSmartContracts 
 truffle deploy --network development
 ```
 
 ### Develop on Rinkeby
 Contract addresses
-* RequestCore: 0x21d995b5d48bc0ed038e95a3da1be88b37a38dd8
-* RequestEthereum: 0xafa312973909c3a541665e11c883a24a8eb10b2c
+* RequestCore: 0x8fc2e7f2498f1d06461ee2d547002611b801202b
+* RequestEthereum: 0xd88ab9b1691340e04a5bbf78529c11d592d35f57
 
 ### Develop on the Main net 
-not available yet
-
+Contract addresses
+* RequestCore: 0xdb600fda54568a35b78565b5257125bebc51eb27
+* RequestEthereum: 0x3038045cd883abff0c6eea4b1954843c0fa5a735
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee
 ` function createRequestAsPayee(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
  
-* @dev msg.sender will be the payee
-
+msg.sender will be the payee
+If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+ 
 * @param _payeesIdAddress array of payees address (the position 0 will be the payee - must be msg.sender - the others are subPayees)
 * @param _payeesPaymentAddress array of payees address for payment (optional)
 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -51,7 +53,8 @@ not available yet
 ### Create a new request as the payer
 ` function createRequestAsPayer(address[] _payeesIdAddress, int256[] _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
 
-* @dev msg.sender will be the payer
+msg.sender will be the payer
+If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 
 * @param _payeesIdAddress array of payees address (the position 0 will be the payee the others are subPayees)
 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -66,6 +69,7 @@ not available yet
 
 msg.sender must be _payer
 the _payer can additionals 
+If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
 
 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data 
 * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -112,7 +116,6 @@ Function PAYABLE to pay back in ether a request to the payee
  
 msg.sender must be one of the payees
 the request must be created or accepted
-the payback must be lower than the amount already paid for the request
 
 * @param _requestId id of the request
 
@@ -137,6 +140,7 @@ the request must be accepted or created
 * @param _requestId id of the request
 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
 
+
 ### Withdraw
 ` function withdraw()` 
 
@@ -146,14 +150,12 @@ However it will protect only the contracts that can trigger the withdraw functio
 
 ## Functions from RequestERC20
 ### Create a new request as the payee
-`createRequestAsPayeeAction(address _addressToken, address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
+`createRequestAsPayeeAction(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
 Function to create a request as payee
 
 * @dev msg.sender must be the main payee
-* @dev _addressToken must be a whitelisted token
 * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
 
-* @param _addressToken address of the erc20 token used for this request
 * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
 * @param _payeesPaymentAddress array of payees address for payment (optional)
 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -164,16 +166,14 @@ Function to create a request as payee
 * @return Returns the id of the request
 
 ### Broadcast a signed request
-` function broadcastSignedRequestAsPayer(address _addressToken, bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _expirationDate, bytes _signature)`
+` function broadcastSignedRequestAsPayer(bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _expirationDate, bytes _signature)`
 Function to broadcast and accept an offchain signed request (can be paid and additionals also)
 
 
  * @dev msg.sender vill be the _payer
- * @dev _addressToken must be a whitelisted token
  * @dev only the _payer can additionals
  * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
 
- * @param _addressToken address of the erc20 token used for this request
  * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
  * @param _payeesPaymentAddress array of payees address for payment (optional) 
  * @param _payeeAmounts array of amount repartition for the payment
@@ -247,8 +247,9 @@ the request must be accepted or created
 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
 
 
+
 ## Bug bounty
-Will only be available after the audit during Q1 2018.
+See this article https://blog.request.network/request-network-bug-bounty-live-ee3297e46695
 
 
 ## Developing

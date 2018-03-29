@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Truffle tests smart contracts",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/packages/requestNetworkSmartContracts/node_modules/truffle/build/cli.bundled.js",
+            "args": ["test"],
+            "cwd": "${workspaceFolder}/packages/requestNetworkSmartContracts",
+            "outFiles": [
+                "${workspaceRoot}/test/**/*"
+            ],
+            "protocol": "inspector",
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Mocha Tests requestNetwork.js",

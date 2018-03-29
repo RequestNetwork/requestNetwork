@@ -1,12 +1,13 @@
 {
     "ethereum": 
     {    
-        "default": "rinkeby",
+        "default": "main",
         "nodeUrlDefault": 
         {
             "private": "http://localhost:8545",
             "kovan": "https://kovan.infura.io/BQBjfSi5EKSCQQpXebO",
-            "rinkeby": "https://rinkeby.infura.io/BQBjfSi5EKSCQQpXebO"
+            "rinkeby": "https://rinkeby.infura.io/BQBjfSi5EKSCQQpXebO",
+            "main": "https://mainnet.infura.io/BQBjfSi5EKSCQQpXebO"
         },
         "gasPriceDefault": "1",
         "gasPriceDefaultUnit": "gwei",
