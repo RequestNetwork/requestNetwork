@@ -3,14 +3,13 @@ const feesPerTenThousand = 10; // 0.1 %
 const maxFees = '120000000000000'; // 0.00012 ether in wei
 
 import requestArtifacts from 'requestnetworkartifacts';
-// const TestToken = require('TestToken.json');
-import TestToken from '../test/TestToken';
+import TestToken from '../test/centralBank';
 
 import { Web3Single } from '../src/servicesExternal/web3-single';
 
 const requestCoreJson = requestArtifacts('private', 'last-RequestCore');
 const requestEthereumJson = requestArtifacts('private', 'last-RequestEthereum');
-const requestERC20Json = requestArtifacts('private', 'last-RequestErc20');
+const requestERC20Json = requestArtifacts('private', 'last-RequestErc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10');
 
 
 
@@ -26,12 +25,16 @@ let addressRequestCore: string;
 let addressRequestEthereum: string;
 let addressRequestERC20: string;
 
+let addressCentralBank: string;
+
+
 let newContractInstanceRequestCore: any;
 let newContractInstanceRequestEthereum: any;
 let newContractInstanceRequestERC20: any;
 
 web3Single.getDefaultAccount().then((creator) => {
     console.log('creator: ' + creator);
+
 
     instanceRequestCore.deploy({
         data: requestCoreJson.bytecode
@@ -84,153 +87,136 @@ web3Single.getDefaultAccount().then((creator) => {
                 addressRequestEthereum = newContractInstance.options.address;
                 newContractInstanceRequestEthereum = newContractInstance;
 
-                instanceRequestERC20.deploy({
-                    data: requestERC20Json.bytecode,
-                    arguments: [addressRequestCore, addressContractBurner]
+
+                instanceERC20TestToken.deploy({
+                    data: TestToken.bytecode,
+                    arguments: ['100000000000000000000000000000000000000000000000000000000']
                 })
                 .send({
                     from: creator,
-                    gas: 15000000
+                    gas: 1500000
                 }, (error: Error, transactionHash: string) => {
                     if (error) {
-                        console.log('RequestERC20 - error transactionHash ##########################')
+                        console.log('TestToken - error transactionHash ##########################')
                         console.log(error)
                         console.log(transactionHash)
-                        console.log('RequestERC20 - error transactionHash ##########################')
+                        console.log('TestToken - error transactionHash ##########################')
                     }
                     // console.log('RequestCore - transactionHash : '+transactionHash);
                 })
                 .on('error', (error: Error) => {
-                    console.log('RequestERC20 - error transactionHash ##########################')
+                    console.log('TestToken - error transactionHash ##########################')
                     console.log(error)
-                    console.log('RequestERC20 - error transactionHash ##########################')
+                    console.log('TestToken - error transactionHash ##########################')
                 })
-                .then((newContractInstance: any) => {
-                    console.log('RequestERC20 - address : ' + newContractInstance.options.address) // instance with the new contract address
-                    addressRequestERC20 = newContractInstance.options.address;
-                    newContractInstanceRequestERC20 = newContractInstance;
+                .then( (newContractInstance: any) => {
+                    console.log('TestToken - address : ' + newContractInstance.options.address);
+                    addressCentralBank = newContractInstance.options.address;
 
-
-                    web3Single.broadcastMethod(
-                        newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestERC20),
-                        (transactionHash: string) => {
-                            // we do nothing here!
-                        },
-                        (receipt: any) => {
-                            if (receipt.status == 1) {
-                                console.log('adminAddTrustedCurrencyContract: ' + addressRequestERC20);
-                            }
-                        },
-                        (confirmationNumber: number, receipt: any) => {
-                            // we do nothing here!
-                        },
-                        (error: Error) => {
-                            console.log('adminAddTrustedCurrencyContract - error ##########################')
-                            console.log(error)
-                            console.log('adminAddTrustedCurrencyContract - error ##########################')
-                        });
-
-                    web3Single.broadcastMethod(
-                        newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestEthereum),
-                        (transactionHash: string) => {
-                            // we do nothing here!
-                        },
-                        (receipt: any) => {
-                            if (receipt.status == 1) {
-                                console.log('adminAddTrustedCurrencyContract: ' + addressRequestEthereum);
-                            }
-                        },
-                        (confirmationNumber: number, receipt: any) => {
-                            // we do nothing here!
-                        },
-                        (error: Error) => {
-                            console.log('adminAddTrustedCurrencyContract - error ##########################')
-                            console.log(error)
-                            console.log('adminAddTrustedCurrencyContract - error ##########################')
-                        });
-
-                    web3Single.broadcastMethod(
-                        newContractInstanceRequestEthereum.methods.setFeesPerTenThousand(feesPerTenThousand),
-                        (transactionHash: string) => {
-                            // we do nothing here!
-                        },
-                        (receipt: any) => {
-                            if (receipt.status == 1) {
-                                console.log('setFeesPerTenThousand: ' + feesPerTenThousand);
-                            }
-                        },
-                        (confirmationNumber: number, receipt: any) => {
-                            // we do nothing here!
-                        },
-                        (error: Error) => {
-                            console.log('setFeesPerTenThousand - error ##########################')
-                            console.log(error)
-                            console.log('setFeesPerTenThousand - error ##########################')
-                        });
-
-                    web3Single.broadcastMethod(
-                        newContractInstanceRequestEthereum.methods.setMaxCollectable(maxFees),
-                        (transactionHash: string) => {
-                            // we do nothing here!
-                        },
-                        (receipt: any) => {
-                            if (receipt.status == 1) {
-                                console.log('maxFees: ' + maxFees);
-                            }
-                        },
-                        (confirmationNumber: number, receipt: any) => {
-                            // we do nothing here!
-                        },
-                        (error: Error) => {
-                            console.log('setMaxCollectable - error ##########################')
-                            console.log(error)
-                            console.log('setMaxCollectable - error ##########################')
-                        });
-
-
-                    instanceERC20TestToken.deploy({
-                        data: TestToken.bytecode,
-                        arguments: [creator, '100000000000000000000000000000000000000000000000000000000']
+                    instanceRequestERC20.deploy({
+                        data: requestERC20Json.bytecode,
+                        arguments: [addressRequestCore, addressContractBurner, addressCentralBank]
                     })
                     .send({
                         from: creator,
-                        gas: 1500000
+                        gas: 15000000
                     }, (error: Error, transactionHash: string) => {
                         if (error) {
-                            console.log('TestToken - error transactionHash ##########################')
+                            console.log('RequestERC20 - error transactionHash ##########################')
                             console.log(error)
                             console.log(transactionHash)
-                            console.log('TestToken - error transactionHash ##########################')
+                            console.log('RequestERC20 - error transactionHash ##########################')
                         }
                         // console.log('RequestCore - transactionHash : '+transactionHash);
                     })
                     .on('error', (error: Error) => {
-                        console.log('TestToken - error transactionHash ##########################')
+                        console.log('RequestERC20 - error transactionHash ##########################')
                         console.log(error)
-                        console.log('TestToken - error transactionHash ##########################')
+                        console.log('RequestERC20 - error transactionHash ##########################')
                     })
-                    .then( (newContractInstance: any) => {
-                        console.log('TestToken - address : ' + newContractInstance.options.address);
+                    .then((newContractInstance: any) => {
+                        console.log('RequestERC20 - address : ' + newContractInstance.options.address) // instance with the new contract address
+                        addressRequestERC20 = newContractInstance.options.address;
+                        newContractInstanceRequestERC20 = newContractInstance;
+
 
                         web3Single.broadcastMethod(
-                            newContractInstanceRequestERC20.methods.updateTokenWhitelist(newContractInstance.options.address, true),
+                            newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestERC20),
                             (transactionHash: string) => {
                                 // we do nothing here!
                             },
                             (receipt: any) => {
                                 if (receipt.status == 1) {
-                                    console.log('updateTokenWhitelist: ' + newContractInstance.options.address);
+                                    console.log('adminAddTrustedCurrencyContract: ' + addressRequestERC20);
                                 }
                             },
                             (confirmationNumber: number, receipt: any) => {
                                 // we do nothing here!
                             },
                             (error: Error) => {
-                                console.log('updateTokenWhitelist - error ##########################')
+                                console.log('adminAddTrustedCurrencyContract - error ##########################')
                                 console.log(error)
-                                console.log('updateTokenWhitelist - error ##########################')
+                                console.log('adminAddTrustedCurrencyContract - error ##########################')
                             });
-                    });
+
+                        web3Single.broadcastMethod(
+                            newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestEthereum),
+                            (transactionHash: string) => {
+                                // we do nothing here!
+                            },
+                            (receipt: any) => {
+                                if (receipt.status == 1) {
+                                    console.log('adminAddTrustedCurrencyContract: ' + addressRequestEthereum);
+                                }
+                            },
+                            (confirmationNumber: number, receipt: any) => {
+                                // we do nothing here!
+                            },
+                            (error: Error) => {
+                                console.log('adminAddTrustedCurrencyContract - error ##########################')
+                                console.log(error)
+                                console.log('adminAddTrustedCurrencyContract - error ##########################')
+                            });
+
+                        web3Single.broadcastMethod(
+                            newContractInstanceRequestEthereum.methods.setFeesPerTenThousand(feesPerTenThousand),
+                            (transactionHash: string) => {
+                                // we do nothing here!
+                            },
+                            (receipt: any) => {
+                                if (receipt.status == 1) {
+                                    console.log('setFeesPerTenThousand: ' + feesPerTenThousand);
+                                }
+                            },
+                            (confirmationNumber: number, receipt: any) => {
+                                // we do nothing here!
+                            },
+                            (error: Error) => {
+                                console.log('setFeesPerTenThousand - error ##########################')
+                                console.log(error)
+                                console.log('setFeesPerTenThousand - error ##########################')
+                            });
+
+                        web3Single.broadcastMethod(
+                            newContractInstanceRequestEthereum.methods.setMaxCollectable(maxFees),
+                            (transactionHash: string) => {
+                                // we do nothing here!
+                            },
+                            (receipt: any) => {
+                                if (receipt.status == 1) {
+                                    console.log('maxFees: ' + maxFees);
+                                }
+                            },
+                            (confirmationNumber: number, receipt: any) => {
+                                // we do nothing here!
+                            },
+                            (error: Error) => {
+                                console.log('setMaxCollectable - error ##########################')
+                                console.log(error)
+                                console.log('setMaxCollectable - error ##########################')
+                            });
+
+                        });
 
                 });
             });
