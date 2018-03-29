@@ -103,7 +103,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 *
 	 * @return Returns the id of the request
 	 */
-	function broadcastSignedRequestAsPayer(
+	function broadcastSignedRequestAsPayerAction(
 		bytes 		_requestData, // gather data to avoid "stack too deep"
 		address[] 	_payeesPaymentAddress,
 		uint256[] 	_payeeAmounts,
