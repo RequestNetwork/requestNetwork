@@ -11,15 +11,9 @@ import '../base/lifecycle/Pausable.sol';
 contract RequestERC20Collect is Pausable {
 	using SafeMath for uint256;
 
-    struct Token {
-        uint256 rateFeesNumerator;
-        uint256 rateFeesDenominator;
-        uint256 maxFees;
-        bool whiteListed;
-    }
-
-	// information about tokens : rate, max fees and whiteList
-	mapping(address => Token) public tokensWhiteList;
+    uint256 public rateFeesNumerator;
+    uint256 public rateFeesDenominator;
+    uint256 public maxFees;
 
 	// address of the contract that will burn req token (probably through Kyber)
 	address public requestBurnerContract;
@@ -27,9 +21,8 @@ contract RequestERC20Collect is Pausable {
     /*
      *  Events 
      */
-    event UpdateRateFees(address indexed token, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
-    event UpdateMaxFees(address indexed token, uint256 maxFees);
-    event UpdateTokens(address indexed token, uint256 rateFeesNumerator, uint256 rateFeesDenominator, uint256 maxFees, bool whiteListed);
+    event UpdateRateFees(uint256 rateFeesNumerator, uint256 rateFeesDenominator);
+    event UpdateMaxFees(uint256 maxFees);
 
 	/*
 	 * @dev Constructor
@@ -59,17 +52,15 @@ contract RequestERC20Collect is Pausable {
 	 * @param _expectedAmount amount expected for the request
 	 * @return 
 	 */  
-	function collectEstimation(address _tokenAddress, int256 _expectedAmount)
+	function collectEstimation(int256 _expectedAmount)
 		public
 		view
 		returns(uint256)
 	{
 		if(_expectedAmount<0) return 0;
 
-		uint256 maxFees = tokensWhiteList[_tokenAddress].maxFees;
-		uint256 computedCollect = uint256(_expectedAmount).mul(tokensWhiteList[_tokenAddress].rateFeesNumerator);
+		uint256 computedCollect = uint256(_expectedAmount).mul(rateFeesNumerator);
 
-		uint256 rateFeesDenominator = tokensWhiteList[_tokenAddress].rateFeesDenominator;
 		if(rateFeesDenominator != 0) {
 			computedCollect = computedCollect.div(rateFeesDenominator);
 		}
@@ -79,31 +70,29 @@ contract RequestERC20Collect is Pausable {
 
 	/*
 	 * @dev set the fees rate
-	 * @param _addressToken 			token address
 	 * @param _rateFeesNumerator 		numerator rate
 	 * @param _rateFeesDenominator 		denominator rate
 	 * @return 
 	 */  
-	function setRateFees(address _addressToken, uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
+	function setRateFees(uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
 		external
 		onlyOwner
 	{
-		tokensWhiteList[_addressToken].rateFeesNumerator = _rateFeesNumerator;
-		UpdateRateFees(_addressToken, _rateFeesNumerator, _rateFeesDenominator);
+		rateFeesNumerator = _rateFeesNumerator;
+		UpdateRateFees(_rateFeesNumerator, _rateFeesDenominator);
 	}
 
 	/*
 	 * @dev set the maximum fees in wei
-	 * @param _addressToken 			token address
 	 * @param _newMax new max
 	 * @return 
 	 */  
-	function setMaxCollectable(address _addressToken, uint256 _newMaxFees) 
+	function setMaxCollectable(uint256 _newMaxFees) 
 		external
 		onlyOwner
 	{
-		tokensWhiteList[_addressToken].maxFees = _newMaxFees;
-		UpdateMaxFees(_addressToken, _newMaxFees);
+		maxFees = _newMaxFees;
+		UpdateMaxFees(_newMaxFees);
 	}
 
 	/*
@@ -118,51 +107,4 @@ contract RequestERC20Collect is Pausable {
 		requestBurnerContract=_requestBurnerContract;
 	}
 
-	// -----------------------------------------------------------------------------
-	// Function for token Whitelist ------------------------------------------------
-	/*
-	 * Check id a token is whitelisted
-	 * @return true if token is whitelisted, false otherwise
-	 */  
-	function isTokenWhitelisted(address _addressToken)
-		constant
-		internal
-		returns(bool)
-	{
-		return tokensWhiteList[_addressToken].whiteListed;
-	}
-	/*
-	 * Whitelist or Blacklist a token
-	 */ 
-	function updateTokenWhitelist(address _addressToken, bool _state)
-		external
-		onlyOwner
-	{
-		tokensWhiteList[_addressToken].whiteListed = _state;
-	}
-	// -----------------------------------------------------------------------------
-
-
-	/*
-	 * @dev set the fees rate
-	 * @param _addressToken 			array of tokens address
-	 * @param _rateFeesNumerator 		array of numerator rate
-	 * @param _rateFeesDenominator 		array of denominator rate
-	 * @param _newMaxFees 				array of max fees
-	 * @param _whitelisted 				array of bool, true if the token is whitelisted
-	 */  
-	function updateTokens(address[] _addressToken, uint256[] _rateFeesNumerator, uint256[] _rateFeesDenominator, uint256[] _newMaxFees, bool[] _whitelisted)
-		external
-		onlyOwner
-	{
-		require(_addressToken.length == _rateFeesNumerator.length
-				&& _rateFeesNumerator.length == _rateFeesDenominator.length
-				&& _rateFeesDenominator.length == _newMaxFees.length
-				&& _newMaxFees.length == _whitelisted.length);
-
-		for(uint256 i = 0; i < _addressToken.length; i = i.add(1)) {
-			tokensWhiteList[_addressToken[i]] = Token(_rateFeesNumerator[i], _rateFeesDenominator[i], _newMaxFees[i], _whitelisted[i]);
-			UpdateTokens(_addressToken[i], _rateFeesNumerator[i], _rateFeesDenominator[i], _newMaxFees[i], _whitelisted[i]);
-		}
-	}
 }

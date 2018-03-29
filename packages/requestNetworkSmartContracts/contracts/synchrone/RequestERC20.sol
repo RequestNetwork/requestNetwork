@@ -23,30 +23,28 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	mapping(bytes32 => address[256]) public payeesPaymentAddress;
 	mapping(bytes32 => address) public payerRefundAddress;
 
-	// token addresses
-	mapping(bytes32 => address) public requestTokens;
+	// token address
+	address public addressToken;
 
 	/*
 	 * @dev Constructor
 	 * @param _requestCoreAddress Request Core address
 	 * @param _requestBurnerAddress Request Burner contract address
 	 */
-	function RequestERC20(address _requestCoreAddress, address _requestBurnerAddress) 
+	function RequestERC20(address _requestCoreAddress, address _requestBurnerAddress, address _addressToken) 
 			RequestCurrencyContractInterface(_requestCoreAddress)
 			RequestERC20Collect(_requestBurnerAddress)
 			public
 	{
-		// nothing to do
+		addressToken = _addressToken;
 	}
 
 	/*
 	 * @dev Function to create a request as payee
 	 *
 	 * @dev msg.sender must be the main payee
-	 * @dev _addressToken must be a whitelisted token
 	 * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
-	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _expectedAmounts array of Expected amount to be received by each payees
@@ -57,7 +55,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @return Returns the id of the request
 	 */
 	function createRequestAsPayeeAction(
-		address 	_addressToken,
 		address[] 	_payeesIdAddress,
 		address[] 	_payeesPaymentAddress,
 		int256[] 	_expectedAmounts,
@@ -69,18 +66,14 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		require(isTokenWhitelisted(_addressToken));
 		require(msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0);
 
 		int256 totalExpectedAmounts;
 		(requestId, totalExpectedAmounts) = createCoreRequestInternal(_payer, _payeesIdAddress, _expectedAmounts, _data);
 		
 		// compute and send fees
-		uint256 fees = collectEstimation(_addressToken, totalExpectedAmounts);
+		uint256 fees = collectEstimation(totalExpectedAmounts);
 		require(fees == msg.value && collectForREQBurning(fees));
-
-		// store the token used
-		requestTokens[requestId] = _addressToken;
 
 		// set payment addresses for payees
 		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
@@ -98,11 +91,9 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @dev Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals )
 	 *
 	 * @dev msg.sender vill be the _payer
-	 * @dev _addressToken must be a whitelisted token
 	 * @dev only the _payer can additionals
 	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
-	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
 	 * @param _payeesPaymentAddress array of payees address for payment (optional) 
 	 * @param _payeeAmounts array of amount repartition for the payment
@@ -113,7 +104,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @return Returns the id of the request
 	 */
 	function broadcastSignedRequestAsPayer(
-		address 	_addressToken,
 		bytes 		_requestData, // gather data to avoid "stack too deep"
 		address[] 	_payeesPaymentAddress,
 		uint256[] 	_payeeAmounts,
@@ -125,15 +115,13 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		whenNotPaused
 		returns(bytes32 requestId)
 	{
-		require(isTokenWhitelisted(_addressToken));
-
 		// check expiration date
 		require(_expirationDate >= block.timestamp);
 
 		// check the signature
-		require(checkRequestSignature(_requestData, _addressToken, _payeesPaymentAddress, _expirationDate, _signature));
+		require(checkRequestSignature(_requestData, _payeesPaymentAddress, _expirationDate, _signature));
 
-		return createAcceptAndPayFromBytes(_requestData, _addressToken, _payeesPaymentAddress, _payeeAmounts, _additionals);
+		return createAcceptAndPayFromBytes(_requestData, _payeesPaymentAddress, _payeeAmounts, _additionals);
 	}
 
 	/*
@@ -142,7 +130,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @dev msg.sender must be _payer
 	 *
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
-	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesPaymentAddress array of payees address for payment (optional)
 	 * @param _payeeAmounts array of amount repartition for the payment
 	 * @param _additionals Will increase the ExpectedAmount of the request right after its creation by adding additionals
@@ -151,7 +138,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 */
 	function createAcceptAndPayFromBytes(
 		bytes 		_requestData,
-		address 	_addressToken,
 		address[] 	_payeesPaymentAddress,
 		uint256[] 	_payeeAmounts,
 		uint256[] 	_additionals)
@@ -177,15 +163,12 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		}
 
 		// compute and send fees
-		uint256 fees = collectEstimation(_addressToken, totalExpectedAmounts);
+		uint256 fees = collectEstimation(totalExpectedAmounts);
 		// check fees has been well received
 		require(fees == msg.value && collectForREQBurning(fees));
 
 		// store request in the core, but first insert the msg.sender as the payer in the bytes
 		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
-
-		// store the token used
-		requestTokens[requestId] = _addressToken;
 		
 		// set payment addresses for payees
 		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
@@ -429,7 +412,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		uint256 _amount)
 		internal
 	{
-		ERC20 erc20Token = ERC20(requestTokens[_requestId]);		
+		ERC20 erc20Token = ERC20(addressToken);		
 		require(erc20Token.transferFrom(_from, _recipient, _amount));
 	}
 	// -----------------------------------------------------------------------------
@@ -449,7 +432,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 			]
 			uint8(data_string_size)
 			size(data)
-	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
 	 * @param _expirationDate timestamp after that the signed request cannot be broadcasted
   	 * @param _signature ECDSA signature containing v, r and s as bytes
@@ -458,7 +440,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 */	
 	function checkRequestSignature(
 		bytes 		_requestData,
-		address		_addressToken,
 		address[] 	_payeesPaymentAddress,
 		uint256 	_expirationDate,
 		bytes 		_signature)
@@ -466,7 +447,7 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		view
 		returns (bool)
 	{
-		bytes32 hash = getRequestHash(_requestData, _addressToken, _payeesPaymentAddress, _expirationDate);
+		bytes32 hash = getRequestHash(_requestData, _payeesPaymentAddress, _expirationDate);
 
 		// extract "v, r, s" from the signature
 		uint8 v = uint8(_signature[64]);
@@ -482,7 +463,6 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
 	 *
 	 * @param _data bytes containing all the data packed
-	 * @param _addressToken address of the erc20 token used for this request
 	 * @param _payeesPaymentAddress array of payees payment addresses
 	 * @param _expirationDate timestamp after what the signed request cannot be broadcasted
 	 *
@@ -490,14 +470,13 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 */
 	function getRequestHash(
 		bytes 		_requestData,
-		address		_addressToken,
 		address[] 	_payeesPaymentAddress,
 		uint256 	_expirationDate)
 		internal
 		view
 		returns(bytes32)
 	{
-		return keccak256(this,_requestData, _addressToken, _payeesPaymentAddress, _expirationDate);
+		return keccak256(this,_requestData, _payeesPaymentAddress, _expirationDate);
 	}
 
 	/*
