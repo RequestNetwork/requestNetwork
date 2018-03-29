@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-network.js",
-  "version": "0.4.0",
+  "version": "0.5.0-erc20beta",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetwork.js",
   "keywords": [
@@ -37,7 +37,7 @@
   "dependencies": {
     "ethereumjs-util": "5.1.2",
     "ipfs-api": "15.1.0",
-    "requestnetworkartifacts": "1.0.1",
+    "requestnetworkartifacts": "1.1.0",
     "tslib": "1.8.1",
     "typescript": "2.7.2",
     "web3": "1.0.0-beta.26"
