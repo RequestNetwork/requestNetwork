@@ -41,13 +41,12 @@ contract('RequestERC20 PayBack',  function(accounts) {
 
 		requestCore = await RequestCore.new({from:admin});
 
-		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
+		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, testToken.address, {from:admin});
 
 		await requestCore.adminAddTrustedCurrencyContract(requestERC20.address, {from:admin});
-		await requestERC20.updateTokenWhitelist(testToken.address, true);
+		
 
 		await requestERC20.createRequestAsPayeeAction(
-							testToken.address,
 							[payee,payee2,payee3],
 							[payeePayment,payee2Payment,payee3Payment],
 							[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -65,7 +64,7 @@ contract('RequestERC20 PayBack',  function(accounts) {
 
 	it("can refund request just created ok", async function () {
 		await requestERC20.createRequestAsPayeeAction(
-					testToken.address,
+					
 					[payee,payee2,payee3],
 					[payeePayment,payee2Payment,payee3Payment],
 					[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -132,7 +131,7 @@ contract('RequestERC20 PayBack',  function(accounts) {
 
 	it("can refund with no refund address", async function () {
 		await requestERC20.createRequestAsPayeeAction(
-					testToken.address,
+					
 					[payee,payee2,payee3],
 					[payeePayment,payee2Payment,payee3Payment],
 					[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -181,7 +180,7 @@ contract('RequestERC20 PayBack',  function(accounts) {
 
 	it("can refund request canceled impossible", async function () {
 		await requestERC20.createRequestAsPayeeAction(
-			testToken.address,
+			
 			[payee,payee2,payee3],
 			[payeePayment,payee2Payment,payee3Payment],
 			[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],

@@ -35,14 +35,12 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	beforeEach(async () => {
 		testToken = await TestToken.new(payerRefund, minterAmount);
 		requestCore = await RequestCore.new();
-		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
-		await requestERC20.updateTokenWhitelist(testToken.address, true);
+		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, testToken.address, {from:admin});
 		await requestCore.adminAddTrustedCurrencyContract(requestERC20.address, {from:admin});
 	});
 
 	it("new request OK", async function () {
 		var r = await requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,payee2Payment,payee3Payment],
 										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -101,14 +99,10 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 		var r = await requestERC20.payerRefundAddress.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(r,payerRefund,"wrong payerRefundAddress");
-
-		var r = await requestERC20.requestTokens.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(r,testToken.address,"wrong requestTokens");
 	});
 
 	it("new request second payee without payment address", async function () {
 		var r = await requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,0,payee3Payment],
 										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -167,14 +161,10 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 		var r = await requestERC20.payerRefundAddress.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(r,payerRefund,"wrong payerRefundAddress");
-
-		var r = await requestERC20.requestTokens.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(r,testToken.address,"wrong requestTokens");
 	});
 
 	it("new request with negative amount", async function () {
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,0,payee3Payment],
 										[arbitraryAmount,-1,arbitraryAmount3],
@@ -187,7 +177,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	it("basic check on payee payer", async function () {
 		// new request payer==0
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-								testToken.address,
 								[payee,payee2,payee3],
 								[payeePayment,0,payee3Payment],
 								[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -198,7 +187,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 		// new request payee==payer impossible
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-								testToken.address,
 								[payee,payee2,payee3],
 								[payeePayment,0,payee3Payment],
 								[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -211,7 +199,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	it("basic check on expectedAmount", async function () {
 		// new request _expectedAmount >= 2^256 impossible
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-						testToken.address,
 						[payee,payee2,payee3],
 						[payeePayment,0,payee3Payment],
 						[new BigNumber(2).pow(256),arbitraryAmount2,arbitraryAmount3],
@@ -224,7 +211,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	it("impossible to createRequest if Core Paused", async function () {
 		await requestCore.pause({from:admin});
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-				testToken.address,
 				[payee,payee2,payee3],
 				[payeePayment,0,payee3Payment],
 				[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -235,9 +221,8 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 	});
 
 	it("new request when currencyContract not trusted Impossible", async function () {
-		var requestERC202 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
+		var requestERC202 = await RequestERC20.new(requestCore.address, burnerContract, testToken.address, {from:admin});
 		await utils.expectThrow(requestERC202.createRequestAsPayeeAction(
-			testToken.address,
 			[payee,payee2,payee3],
 			[payeePayment,0,payee3Payment],
 			[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -249,14 +234,13 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("new request with fees", async function () {
 		// 0.1% fees & 0.002 ether max
-		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
-		await requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:admin}); // 0.01 ether
+		await requestERC20.setRateFees(1, 1000, {from:admin}); // 0.1%
+		await requestERC20.setMaxCollectable('2000000000000000', {from:admin}); // 0.01 ether
 
-		var fees = await requestERC20.collectEstimation(testToken.address,arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
+		var fees = await requestERC20.collectEstimation(arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
 		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
 
 		var r = await requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,payee2Payment,payee3Payment],
 										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -321,12 +305,11 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("impossible to createRequest if msg.value < fees", async function () {
 		// 0.1% fees & 0.002 ether max
-		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
-		await requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:admin}); // 0.002 ether
+		await requestERC20.setRateFees(1, 1000, {from:admin}); // 0.1%
+		await requestERC20.setMaxCollectable('2000000000000000', {from:admin}); // 0.002 ether
 
-		var fees = await requestERC20.collectEstimation(testToken.address,arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
+		var fees = await requestERC20.collectEstimation(arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,payee2Payment,payee3Payment],
 										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -338,12 +321,11 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("impossible to createRequest if msg.value > fees", async function () {
 		// 0.1% fees & 0.002 ether max
-		await requestERC20.setRateFees(testToken.address, 1, 1000, {from:admin}); // 0.1%
-		await requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:admin}); // 0.002 ether
+		await requestERC20.setRateFees(1, 1000, {from:admin}); // 0.1%
+		await requestERC20.setMaxCollectable('2000000000000000', {from:admin}); // 0.002 ether
 
-		var fees = await requestERC20.collectEstimation(testToken.address,arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
+		var fees = await requestERC20.collectEstimation(arbitraryAmount+arbitraryAmount2+arbitraryAmount3);
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,payee2Payment,payee3Payment],
 										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -355,17 +337,16 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("impossible change fees if not admin", async function () {
 		// 0.1% fees & 0.002 ether max
-		await utils.expectThrow(requestERC20.setRateFees(testToken.address, 1, 1000, {from:payee})); // 0.1%
-		await utils.expectThrow(requestERC20.setMaxCollectable(testToken.address, '2000000000000000', {from:payee})); // 0.002 ether
+		await utils.expectThrow(requestERC20.setRateFees(1, 1000, {from:payee})); // 0.1%
+		await utils.expectThrow(requestERC20.setMaxCollectable('2000000000000000', {from:payee})); // 0.002 ether
 	});
 
 	it("impossible change maxCollectable if not admin", async function () {
-		await utils.expectThrow(requestERC20.setMaxCollectable(testToken.address,10000000,{from:payee})); 
+		await utils.expectThrow(requestERC20.setMaxCollectable(10000000,{from:payee})); 
 	});
 
 	it("new request with more amounts than payees Impossible", async function () {
 		await utils.expectThrow(requestERC20.createRequestAsPayeeAction(
-			testToken.address,
 			[payee,payee2,payee3],
 			[payeePayment,0,payee3Payment],
 			[arbitraryAmount,arbitraryAmount2,arbitraryAmount3,arbitraryAmount3],
@@ -377,7 +358,6 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 	it("new request with more payment address than payees OK (extra ignored)", async function () {
 		var r = await requestERC20.createRequestAsPayeeAction(
-										testToken.address,
 										[payee,payee2,payee3],
 										[payeePayment,payee2Payment,payee3Payment,payee3Payment],
 										[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
@@ -436,9 +416,7 @@ contract('RequestERC20 createRequestAsPayee',  function(accounts) {
 
 		var r = await requestERC20.payerRefundAddress.call(utils.getRequestId(requestCore.address, 1));
 		assert.equal(r,payerRefund,"wrong payerRefundAddress");
-
-		var r = await requestERC20.requestTokens.call(utils.getRequestId(requestCore.address, 1));
-		assert.equal(r,testToken.address,"wrong requestTokens");
 	});
+
 });
 

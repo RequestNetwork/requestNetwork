@@ -40,13 +40,12 @@ contract('RequestERC20 Cancel by payer',  function(accounts) {
 
 		requestCore = await RequestCore.new({from:admin});
 
-		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, {from:admin});
+		requestERC20 = await RequestERC20.new(requestCore.address, burnerContract, testToken.address, {from:admin});
 
 		await requestCore.adminAddTrustedCurrencyContract(requestERC20.address, {from:admin});
-		await requestERC20.updateTokenWhitelist(testToken.address, true);
+		
 
 		await requestERC20.createRequestAsPayeeAction(
-							testToken.address,
 							[payee,payee2,payee3],
 							[payeePayment,payee2Payment,payee3Payment],
 							[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
