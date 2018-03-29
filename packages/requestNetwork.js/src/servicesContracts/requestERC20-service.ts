@@ -3,6 +3,8 @@ import Ipfs from '../servicesExternal/ipfs-service';
 
 import Erc20Service from '../servicesExternal/erc20-service';
 
+import * as ServicesContracts from '../servicesContracts';
+
 import { Web3Single } from '../servicesExternal/web3-single';
 
 import * as ServiceContracts from '../servicesContracts';
@@ -36,20 +38,6 @@ export default class RequestERC20Service {
      */
     protected requestCoreServices: any;
 
-    // RequestERC20 on blockchain
-    /**
-     * RequestERC20 contract's abi
-     */
-    protected abiRequestERC20Last: any;
-    /**
-     * RequestERC20 contract's address
-     */
-    protected addressRequestERC20Last: string;
-    /**
-     * RequestERC20 contract's web3 instance
-     */
-    protected instanceRequestERC20Last: any;
-
     private web3Single: Web3Single;
 
     /**
@@ -61,14 +49,6 @@ export default class RequestERC20Service {
 
         this.abiRequestCoreLast = this.web3Single.getContractInstance('last-RequestCore').abi;
         this.requestCoreServices = new RequestCoreService();
-
-        const requestERC20LastArtifact = this.web3Single.getContractInstance('last-RequestERC20');
-        if (!requestERC20LastArtifact) {
-            throw Error('RequestERC20 Artifact: no config for network : "' + this.web3Single.networkName + '"');
-        }
-        this.abiRequestERC20Last = requestERC20LastArtifact.abi;
-        this.addressRequestERC20Last = requestERC20LastArtifact.address;
-        this.instanceRequestERC20Last = requestERC20LastArtifact.instance;
     }
 
     /**
@@ -117,6 +97,7 @@ export default class RequestERC20Service {
             if (!this.web3Single.isAddressNoChecksum(_tokenAddress)) {
                 return promiEvent.reject(Error('_tokenAddress must be a valid eth address'));
             }
+
             if (_payeesIdAddress.length !== _expectedAmounts.length) {
                 return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
             }
@@ -150,21 +131,21 @@ export default class RequestERC20Service {
                 return promiEvent.reject(Error('_from must be different than _payer'));
             }
 
-            if ( ! await this.isTokenWhiteListed(_tokenAddress) ) {
-                return promiEvent.reject(Error('token must be whitelisted'));
+            const instanceRequestERC20Last = this.getLastInstanceRequestERC20(_tokenAddress);
+            if (!instanceRequestERC20Last) {
+                return promiEvent.reject(Error('token not supported'));
             }
 
             // get the amount to collect
             try {
-                const collectEstimation = await this.instanceRequestERC20Last.methods.collectEstimation(_tokenAddress, expectedAmountsTotal).call();
+                const collectEstimation = await instanceRequestERC20Last.instance.methods.collectEstimation(expectedAmountsTotal).call();
 
                 _options.value = collectEstimation;
 
                 // add file to ipfs
                 const hashIpfs = await this.ipfs.addFile(_data);
 
-                const method = this.instanceRequestERC20Last.methods.createRequestAsPayeeAction(
-                    _tokenAddress,
+                const method = instanceRequestERC20Last.instance.methods.createRequestAsPayeeAction(
                     _payeesIdAddress,
                     _payeesPaymentAddressParsed,
                     _expectedAmounts,
@@ -248,14 +229,6 @@ export default class RequestERC20Service {
                 return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
             }
 
-            if (!this.web3Single.isAddressNoChecksum(_tokenAddress)) {
-                return promiEvent.reject(Error('_tokenAddress must be a valid eth address'));
-            }
-
-            if ( ! await this.isTokenWhiteListed(_tokenAddress) ) {
-                return promiEvent.reject(Error('token must be whitelisted'));
-            }
-
             const todaySolidityTime: number = (new Date().getTime()) / 1000;
             if ( _expirationDate <= todaySolidityTime ) {
                 return promiEvent.reject(Error('_expirationDate must be greater than now'));
@@ -276,13 +249,21 @@ export default class RequestERC20Service {
                 return promiEvent.reject(Error('extensions are disabled for now'));
             }
 
+            if (!this.web3Single.isAddressNoChecksum(_tokenAddress)) {
+                return promiEvent.reject(Error('_tokenAddress must be a valid eth address'));
+            }
+
+            const instanceRequestERC20Last = this.getLastInstanceRequestERC20(_tokenAddress);
+            if (!instanceRequestERC20Last) {
+                return promiEvent.reject(Error('token not supported'));
+            }
+
             try {
                 // add file to ipfs
                 const hashIpfs = await this.ipfs.addFile(_data);
 
                 const signedRequest = await this.createSignedRequest(
-                                _tokenAddress,
-                                this.addressRequestERC20Last,
+                                instanceRequestERC20Last.address,
                                 _payeesIdAddress,
                                 _expectedAmounts,
                                 payeesPaymentAddressParsed,
@@ -343,6 +324,13 @@ export default class RequestERC20Service {
             const account = _options.from || defaultAccount;
 
             try {
+                const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);
+                const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+                const instanceRequestERC20Last = this.getLastInstanceRequestERC20(tokenAddressERC20);
+                if (!instanceRequestERC20Last) {
+                    return promiEvent.reject(Error('token not supported'));
+                }
+
                 await this.isSignedRequestHasError(_signedRequest, account);
 
                 if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
@@ -365,12 +353,11 @@ export default class RequestERC20Service {
                 }
 
                 // get the amount to collect
-                const collectEstimation = await this.instanceRequestERC20Last.methods.collectEstimation(_signedRequest.tokenAddress, expectedAmountsTotal).call();
+                const collectEstimation = await instanceRequestERC20Last.instance.methods.collectEstimation(expectedAmountsTotal).call();
 
                 _options.value = new BN(collectEstimation);
 
-                const method = this.instanceRequestERC20Last.methods.broadcastSignedRequestAsPayer(
-                                                    _signedRequest.tokenAddress,
+                const method = instanceRequestERC20Last.instance.methods.broadcastSignedRequestAsPayerAction(
                                                     this.requestCoreServices.createBytesRequest(_signedRequest.payeesIdAddress, _signedRequest.expectedAmounts, 0, _signedRequest.data),
                                                     _signedRequest.payeesPaymentAddress,
                                                     amountsToPayParsed,
@@ -438,6 +425,7 @@ export default class RequestERC20Service {
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+
                 const method = contract.instance.methods.acceptAction(_requestId);
 
                 this.web3Single.broadcastMethod(
@@ -795,8 +783,8 @@ export default class RequestERC20Service {
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-
                 const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+
                 // check token Balance
                 const balanceAccount = new BN(await tokenErc20.balanceOf(account));
                 if ( balanceAccount.lt(amountsToPayTotal) ) {
@@ -893,8 +881,8 @@ export default class RequestERC20Service {
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-
                 const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
+
                 // check token Balance
                 const balanceAccount = new BN(await tokenErc20.balanceOf(account));
                 if ( balanceAccount.lt(_amountToRefund) ) {
@@ -993,13 +981,20 @@ export default class RequestERC20Service {
             if (!_options.from && err) return promiEvent.reject(err);
             _options.from = _options.from ? _options.from : defaultAccount;
 
-            if ( _signedRequest.currencyContract !== this.addressRequestERC20Last ) {
+            const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);
+            const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+            const instanceRequestERC20Last = this.getLastInstanceRequestERC20(tokenAddressERC20);
+            if (!instanceRequestERC20Last) {
+                return promiEvent.reject(Error('token not supported'));
+            }
+
+            if ( _signedRequest.currencyContract.toLowerCase() !== instanceRequestERC20Last.address ) {
                 return promiEvent.reject('currency contract given is not the last contract');
             }
 
-            const tokenErc20 = new Erc20Service(_signedRequest.tokenAddress);
+            const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
-            const result = await tokenErc20.approve(_signedRequest.currencyContract.address, _amount, _options)
+            const result = await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options)
                     .on('broadcasted', (data: any) => {
                         return promiEvent.eventEmitter.emit('broadcasted', data);
                     });
@@ -1011,13 +1006,11 @@ export default class RequestERC20Service {
 
     /**
      * Get a token allowance for a request
-     * @param   _tokenAddress                  token address
      * @param   _currencyContractAddress       currency contract address
      * @param   _options                       options for the method (here only from)
      * @return  promise of the amount allowed
      */
     public getTokenAllowance(
-        _tokenAddress: string,
         _currencyContractAddress: string,
         _options: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
@@ -1027,7 +1020,10 @@ export default class RequestERC20Service {
                 }
                 _options.from = _options.from ? _options.from : defaultAccount;
 
-                const tokenErc20 = new Erc20Service(_tokenAddress);
+                const contract = this.web3Single.getContractInstance(_currencyContractAddress);
+                const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+                const tokenErc20 = new Erc20Service(tokenAddressERC20);
+
                 return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
             });
         });
@@ -1061,7 +1057,7 @@ export default class RequestERC20Service {
                 let payerRefundAddress: string|undefined = await currencyContract.instance.methods.payerRefundAddress(_requestId).call();
                 payerRefundAddress = payerRefundAddress !== EMPTY_BYTES_20 ? payerRefundAddress : undefined;
 
-                const tokenAddress: string = await currencyContract.instance.methods.requestTokens(_requestId).call();
+                const tokenAddress: string = await currencyContract.instance.methods.addressToken().call();
 
                 return resolve({tokenAddress, payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress});
             } catch (e) {
@@ -1103,15 +1099,7 @@ export default class RequestERC20Service {
                 _signedRequest.payeesPaymentAddress = [];
             }
 
-            if ( ! this.web3Single.isAddressNoChecksum(_signedRequest.tokenAddress)) {
-                return reject(Error('_tokenAddress must be a valid eth address'));
-            }
-            if ( ! await this.isTokenWhiteListed(_signedRequest.tokenAddress) ) {
-                return reject(Error('token must be whitelisted'));
-            }
-
             const hashComputed = this.hashRequest(
-                            _signedRequest.tokenAddress,
                             _signedRequest.currencyContract,
                             _signedRequest.payeesIdAddress,
                             _signedRequest.expectedAmounts,
@@ -1131,7 +1119,14 @@ export default class RequestERC20Service {
             if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
                 return reject(Error('_expectedAmounts must be positives integer'));
             }
-            if ( ! this.web3Single.areSameAddressesNoChecksum(this.addressRequestERC20Last, _signedRequest.currencyContract)) {
+
+            const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);
+            const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+            const instanceRequestERC20Last = this.getLastInstanceRequestERC20(tokenAddressERC20);
+            if (!instanceRequestERC20Last) {
+                return reject(Error('token not supported'));
+            }
+            if ( ! this.web3Single.areSameAddressesNoChecksum(instanceRequestERC20Last.address, _signedRequest.currencyContract)) {
                 return reject(Error('currencyContract must be the last currencyContract of requestERC20'));
             }
             if (_signedRequest.expirationDate < (new Date().getTime()) / 1000) {
@@ -1177,18 +1172,11 @@ export default class RequestERC20Service {
         _request: any,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
-        return new Promise(async (resolve, reject) => {
-            return resolve([]);
-        });
-    }
-
-    private async isTokenWhiteListed(_tokenAddress: string): Promise<boolean> {
-        return (await this.instanceRequestERC20Last.methods.tokensWhiteList(_tokenAddress).call()).whiteListed;
+        return Promise.resolve([]);
     }
 
     /**
      * internal create the object signed request
-     * @param   tokenAddress              Address token used for payment
      * @param   currencyContract          Address of the ethereum currency contract
      * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
@@ -1200,7 +1188,6 @@ export default class RequestERC20Service {
      * @return  promise of the object containing the request signed
      */
     private async createSignedRequest(
-        tokenAddress: string,
         currencyContract: string,
         payeesIdAddress: string[],
         expectedAmounts: any[],
@@ -1210,8 +1197,7 @@ export default class RequestERC20Service {
         extension ?: string,
         extensionParams ?: any[]): Promise<any> {
 
-        const hash = this.hashRequest(tokenAddress,
-                                        currencyContract,
+        const hash = this.hashRequest(currencyContract,
                                         payeesIdAddress,
                                         expectedAmounts,
                                         '',
@@ -1237,8 +1223,7 @@ export default class RequestERC20Service {
             }
         }
 
-        return {tokenAddress,
-                currencyContract,
+        return {currencyContract,
                 data,
                 expectedAmounts,
                 expirationDate,
@@ -1252,7 +1237,6 @@ export default class RequestERC20Service {
 
     /**
      * internal compute the hash of the request
-     * @param   tokenAddress              Address token used for payment
      * @param   currencyContract          Address of the ethereum currency contract
      * @param   payees                    ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
@@ -1263,7 +1247,6 @@ export default class RequestERC20Service {
      * @return  promise of the object containing the request's hash
      */
     private hashRequest(
-        tokenAddress: string,
         currencyContract: string,
         payees: string[],
         expectedAmounts: any[],
@@ -1293,8 +1276,6 @@ export default class RequestERC20Service {
         requestParts.push({value: data.length, type: 'uint8'});
         requestParts.push({value: data, type: 'string'});
 
-        requestParts.push({value: tokenAddress, type: 'address'});
-
         requestParts.push({value: payeesPayment, type: 'address[]'});
         requestParts.push({value: expirationDate, type: 'uint256'});
 
@@ -1306,5 +1287,9 @@ export default class RequestERC20Service {
         });
 
         return this.web3Single.web3.utils.bytesToHex(ETH_ABI.soliditySHA3(types, values));
+    }
+
+    private getLastInstanceRequestERC20(_tokenAddress: string): any {
+        return this.web3Single.getContractInstance('last-requesterc20-' + _tokenAddress);
     }
 }
