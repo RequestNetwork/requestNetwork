@@ -1,7 +1,5 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-var mnemonicLocalhost = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-
 var mnemonicRinkeby = "";
 
 var mnemonicMainnet = "";
@@ -9,8 +7,9 @@ var mnemonicMainnet = "";
 module.exports = {
   networks: {
     development: {
-      provider: new HDWalletProvider(mnemonicLocalhost, "http://localhost:8545/"),
-      network_id: "*"
+      host: "localhost",
+      port: 8545,
+      network_id: "*" // Match any network id
     },
     rinkeby: {
       provider: new HDWalletProvider(mnemonicRinkeby, "https://rinkeby.infura.io/"),
