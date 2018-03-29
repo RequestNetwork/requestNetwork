@@ -5,14 +5,14 @@ const assert = require('assert');
 const RequestCore = artifacts.require("./RequestCore.sol");
 const RequestEthereum = artifacts.require("./RequestEthereum.sol");
 
-const addressContractBurner = 0;
+const addressContractBurner = "0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8";
 const feesPerTenThousand = 10; // 0.1 %
-const maxFees = web3.toWei(0.00012, 'ether');
+const maxFees = web3.toWei(0.002, 'ether');
 
 // Deploys, set up the contracts
 module.exports = async function(deployer) {
   await deployer.deploy(RequestCore);
-  await deployer.deploy(RequestEthereum, RequestCore.address);
+  await deployer.deploy(RequestEthereum, RequestCore.address, addressContractBurner);
   const instances = await createInstances();
   await setupContracts(instances);
   await checks(instances);
@@ -23,7 +23,7 @@ module.exports = async function(deployer) {
 function createInstances() {
   return Promise.props({
     core: RequestCore.deployed(),
-    ethereum: RequestEthereum.deployed(addressContractBurner)
+    ethereum: RequestEthereum.deployed()
   });
 }
 
