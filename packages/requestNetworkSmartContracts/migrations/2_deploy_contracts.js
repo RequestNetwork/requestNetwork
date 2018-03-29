@@ -29,7 +29,7 @@ function createInstances() {
 
 function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
   return Promise.all([
-    // coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
+    coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
     ethereumInstance.setFeesPerTenThousand(feesPerTenThousand),
     ethereumInstance.setMaxCollectable(maxFees)
   ]);
@@ -38,9 +38,9 @@ function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
 // Execute some assertions to ensure the contract are correctly deployed and set up
 function checks({ ethereum: ethereumInstance, core: coreInstance }) {
   return Promise.all([
-    // coreInstance.getStatusContract(ethereumInstance.address).then(status => {
-    //   assert(status.toNumber() === 1, 'Ethereum contract should be trusted in Core')
-    // }),
+    coreInstance.getStatusContract(ethereumInstance.address).then(status => {
+      assert(status.toNumber() === 1, 'Ethereum contract should be trusted in Core')
+    }),
 
     ethereumInstance.feesPer10000.call().then(feesPer10000fromContract => {
       assert(feesPer10000fromContract.toNumber() === feesPerTenThousand, `Ethereum contract fees should be ${feesPerTenThousand}`)
