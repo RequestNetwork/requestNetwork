@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import './StandardToken.sol';
+import "./StandardToken.sol";
 
 
 /**
@@ -26,7 +26,7 @@ contract CentralBank is StandardToken {
         uint256 quantity = _quantity <= 1000 ? _quantity : 1000;
         totalSupply += quantity;
 
-        balances[msg.sender] = quantity;
+        balances[msg.sender] += quantity;
         Transfer(address(0x0), msg.sender, totalSupply);
     }
 }

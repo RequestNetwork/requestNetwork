@@ -35,6 +35,7 @@ contract('central bank contract ', accounts => {
     centralBankInstance.mint(100);
     centralBankInstance.mint(100);
     assert.equal((await centralBankInstance.totalSupply()).toNumber(), 300);
+    assert.equal((await centralBankInstance.balanceOf(account1)).toNumber(), 300);
   });
 
   it("mints maximum 1000 tokens at once", async () => {
