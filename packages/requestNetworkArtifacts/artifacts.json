@@ -12,12 +12,12 @@
 		"last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
 		"last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
 		"last-requesterc20-0x962719293f2f4518d350899560c546867b404acf": "RequestERC20/RequestERC20-0.1.0-prod.json",
-		"last-requesterc20-0x5e95e65c5d11348179973a06f309a473d686e360": "RequestERC20/RequestERC20-0.1.0-prod.json",
+		"last-requesterc20-0x5e95e65c5d11348179973a06f309a473d686e360": "RequestERC20/RequestERC20-0.1.1-prod.json",
 		
 		"0x8fc2e7f2498f1d06461ee2d547002611b801202b": "RequestCore/RequestCore-0.0.5-prod.json",
 		"0xd88ab9b1691340e04a5bbf78529c11d592d35f57": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
 		"0x9e55fe1223b84100fb59857e2f1293d14ecad150": "RequestERC20/RequestERC20-0.1.0-prod.json",
-		"0xda0f313fe18063d378dbd333ac927dd681b1a65c": "RequestERC20/RequestERC20-0.1.1-prod.json",
+		"0xda0f313fe18063d378dbd333ac927dd681b1a65c": "RequestERC20/RequestERC20-0.1.1-prod.json"
 	},
 	"main": {
 		"last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
