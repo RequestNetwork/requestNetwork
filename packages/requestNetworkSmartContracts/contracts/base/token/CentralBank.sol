@@ -13,7 +13,7 @@ import "./StandardToken.sol";
 contract CentralBank is StandardToken {
     string public constant name = "Central Bank Token";
     string public constant symbol = "CTBK";
-    uint8 public constant decimals = 0;
+    uint8 public constant decimals = 18;
 
     function CentralBank(uint256 initialSupply) public {
         totalSupply = initialSupply;
