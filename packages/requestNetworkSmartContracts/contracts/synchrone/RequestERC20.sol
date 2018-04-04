@@ -167,8 +167,10 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		// check fees has been well received
 		require(fees == msg.value && collectForREQBurning(fees));
 
-		// store request in the core, but first insert the msg.sender as the payer in the bytes
-		requestId = requestCore.createRequestFromBytes(insertBytes20inBytes(_requestData, 20, bytes20(msg.sender)));
+		// insert the msg.sender as the payer in the bytes
+		updateBytes20inBytes(_requestData, 20, bytes20(msg.sender));
+		// store request in the core
+		requestId = requestCore.createRequestFromBytes(_requestData);
 		
 		// set payment addresses for payees
 		for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
@@ -451,13 +453,16 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @param offset position of the first byte of the address
 	 * @return address
 	 */
-	function extractAddress(bytes _data, uint offset) internal pure returns (address) {
-		// for pattern to reduce contract size
-		uint160 m = uint160(_data[offset]);
-		for(uint8 i = 1; i < 20; i++) {
-			m = m*256 + uint160(_data[offset+i]);
+	function extractAddress(bytes _data, uint offset)
+		internal
+		pure
+		returns (address m) 
+	{
+		require(offset >=0 && offset + 20 <= _data.length);
+		assembly {
+			m := and( mload(add(_data, add(20, offset))), 
+					  0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
 		}
-		return address(m);
 	}
 
 	/*
@@ -465,42 +470,16 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @param data bytes from where the bytes32 will be extract
 	 * @param offset position of the first byte of the bytes32
 	 * @return address
-	 */ 
-	function extractBytes32(bytes _data, uint offset) public pure returns (bytes32) {
-		// no "for" pattern to optimize gas cost
-		uint256 m = uint256(_data[offset]); // 3930
-		m = m*256 + uint256(_data[offset+1]);
-		m = m*256 + uint256(_data[offset+2]);
-		m = m*256 + uint256(_data[offset+3]);
-		m = m*256 + uint256(_data[offset+4]);
-		m = m*256 + uint256(_data[offset+5]);
-		m = m*256 + uint256(_data[offset+6]);
-		m = m*256 + uint256(_data[offset+7]);
-		m = m*256 + uint256(_data[offset+8]);
-		m = m*256 + uint256(_data[offset+9]);
-		m = m*256 + uint256(_data[offset+10]);
-		m = m*256 + uint256(_data[offset+11]);
-		m = m*256 + uint256(_data[offset+12]);
-		m = m*256 + uint256(_data[offset+13]);
-		m = m*256 + uint256(_data[offset+14]);
-		m = m*256 + uint256(_data[offset+15]);
-		m = m*256 + uint256(_data[offset+16]);
-		m = m*256 + uint256(_data[offset+17]);
-		m = m*256 + uint256(_data[offset+18]);
-		m = m*256 + uint256(_data[offset+19]);
-		m = m*256 + uint256(_data[offset+20]);
-		m = m*256 + uint256(_data[offset+21]);
-		m = m*256 + uint256(_data[offset+22]);
-		m = m*256 + uint256(_data[offset+23]);
-		m = m*256 + uint256(_data[offset+24]);
-		m = m*256 + uint256(_data[offset+25]);
-		m = m*256 + uint256(_data[offset+26]);
-		m = m*256 + uint256(_data[offset+27]);
-		m = m*256 + uint256(_data[offset+28]);
-		m = m*256 + uint256(_data[offset+29]);
-		m = m*256 + uint256(_data[offset+30]);
-		m = m*256 + uint256(_data[offset+31]);
-		return bytes32(m);
+	 */
+	function extractBytes32(bytes _data, uint offset)
+		public
+		pure
+		returns (bytes32 bs)
+	{
+		require(offset >=0 && offset + 32 <= _data.length);
+		assembly {
+			bs := mload(add(_data, add(32, offset)))
+		}
 	}
 
 	/*
@@ -510,10 +489,16 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @param b bytes20 to insert
 	 * @return address
 	 */
-	function insertBytes20inBytes(bytes data, uint offset, bytes20 b) internal pure returns(bytes) {
-		for(uint8 j = 0; j <20; j++) {
-			data[offset+j] = b[j];
+	function updateBytes20inBytes(bytes data, uint offset, bytes20 b)
+		internal
+		pure
+	{
+		require(offset >=0 && offset + 20 <= data.length);
+		assembly {
+			let m := mload(add(data, add(20, offset)))
+			m := and(m, 0xFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000000000000000000000)
+			m := or(m, div(b, 0x1000000000000000000000000))
+			mstore(add(data, add(20, offset)), m)
 		}
-		return data;
 	}
 }
