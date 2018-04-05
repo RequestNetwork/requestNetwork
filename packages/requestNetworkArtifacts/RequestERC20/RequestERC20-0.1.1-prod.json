@@ -604,8 +604,8 @@
   "version": "0.1.1",
   "networks": {
     "rinkeby": {
-      "address": "0xda0f313fe18063d378dbd333ac927dd681b1a65c",
-      "blockNumber":  2051543
+      "address": "0xc3ba385addea98bb0af084b1e8bdc909f0215bbf",
+      "blockNumber":  2059105
     }
   }
 }
