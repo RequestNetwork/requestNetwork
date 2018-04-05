@@ -23,7 +23,7 @@ contract CentralBank is StandardToken {
     }
 
     function mint(uint256 _quantity) external {
-        uint256 quantity = _quantity <= 1000 ? _quantity : 1000;
+        uint256 quantity = _quantity <= 10e21 ? _quantity : 10e21;
         totalSupply += quantity;
 
         balances[msg.sender] += quantity;
