@@ -1,6 +1,7 @@
 const addressContractBurner = 0;
 const feesPerTenThousand = 10; // 0.1 %
 const maxFees = '120000000000000'; // 0.00012 ether in wei
+const tokenMintAtStart = '100000000000000000000000000000000000000000000000000000000';
 
 import requestArtifacts from 'requestnetworkartifacts';
 import TestToken from '../test/centralBank';
@@ -52,9 +53,9 @@ web3Single.getDefaultAccount().then((creator) => {
         // console.log('RequestCore - transactionHash : '+transactionHash);
     })
     .on('error', (error: Error) => {
-        console.log('RequestCore - error transactionHash ##########################')
+        console.log('RequestCore - error ##########################')
         console.log(error)
-        console.log('RequestCore - error transactionHash ##########################')
+        console.log('RequestCore - error ##########################')
     })
     .then((newContractInstance: any) => {
         addressRequestCore = newContractInstance.options.address;
@@ -75,22 +76,21 @@ web3Single.getDefaultAccount().then((creator) => {
                     console.log(transactionHash)
                     console.log('RequestEthereum - error transactionHash ##########################')
                 }
-                // console.log('RequestCore - transactionHash : '+transactionHash);
             })
             .on('error', (error: Error) => {
-                console.log('RequestEthereum - error transactionHash ##########################')
+                console.log('RequestEthereum - error ##########################')
                 console.log(error)
-                console.log('RequestEthereum - error transactionHash ##########################')
+                console.log('RequestEthereum - error ##########################')
             })
             .then((newContractInstance: any) => {
                 console.log('RequestEthereum - address : ' + newContractInstance.options.address) // instance with the new contract address
                 addressRequestEthereum = newContractInstance.options.address;
                 newContractInstanceRequestEthereum = newContractInstance;
 
-
+                // Create a testing token that can be mint by anyone
                 instanceERC20TestToken.deploy({
                     data: TestToken.bytecode,
-                    arguments: ['100000000000000000000000000000000000000000000000000000000']
+                    arguments: [tokenMintAtStart]
                 })
                 .send({
                     from: creator,
@@ -105,9 +105,9 @@ web3Single.getDefaultAccount().then((creator) => {
                     // console.log('RequestCore - transactionHash : '+transactionHash);
                 })
                 .on('error', (error: Error) => {
-                    console.log('TestToken - error transactionHash ##########################')
+                    console.log('TestToken - error ##########################')
                     console.log(error)
-                    console.log('TestToken - error transactionHash ##########################')
+                    console.log('TestToken - error ##########################')
                 })
                 .then( (newContractInstance: any) => {
                     console.log('TestToken - address : ' + newContractInstance.options.address);
@@ -130,9 +130,9 @@ web3Single.getDefaultAccount().then((creator) => {
                         // console.log('RequestCore - transactionHash : '+transactionHash);
                     })
                     .on('error', (error: Error) => {
-                        console.log('RequestERC20 - error transactionHash ##########################')
+                        console.log('RequestERC20 - error ##########################')
                         console.log(error)
-                        console.log('RequestERC20 - error transactionHash ##########################')
+                        console.log('RequestERC20 - error ##########################')
                     })
                     .then((newContractInstance: any) => {
                         console.log('RequestERC20 - address : ' + newContractInstance.options.address) // instance with the new contract address

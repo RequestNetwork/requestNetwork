@@ -1,6 +1,6 @@
 {
   "name": "requestnetworkartifacts",
-  "version": "1.1.3-erc20beta",
+  "version": "1.1.4-erc20beta",
   "description": "Artifacts for Request Network Ethereum contracts",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkArtifacts",
   "keywords": [

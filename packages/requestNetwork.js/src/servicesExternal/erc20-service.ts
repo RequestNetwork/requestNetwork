@@ -19,7 +19,7 @@ export default class Erc20Service {
     /**
      * ERC20 contract's address
      */
-    private addressERC20: any = ERC20.abi;
+    private addressERC20: string;
 
     /**
      * Erc20 contract's web3 instance

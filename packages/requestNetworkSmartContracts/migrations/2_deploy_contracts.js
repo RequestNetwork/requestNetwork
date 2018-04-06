@@ -28,7 +28,7 @@ function createInstances() {
   });
 }
 
-function setupContracts({ ethereum: ethereumInstance, core: coreInstance, erc20: erc20Instance }) {
+function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
   return Promise.all([
     coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
     ethereumInstance.setFeesPerTenThousand(feesPerTenThousand),

@@ -15,7 +15,7 @@ before_script:
 - sleep 3
 - lerna run --scope @requestnetwork/request-network.js testdeploy
 script:
-- travis_wait lerna run --scope @requestnetwork/request-network.js test --stream
+- lerna run --scope @requestnetwork/request-network.js test --stream
 - lerna run --scope request-network-smart-contracts test --stream
 after_failure:
 - cat ipfs-travis.log
