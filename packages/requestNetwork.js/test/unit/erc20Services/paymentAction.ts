@@ -322,4 +322,47 @@ describe('erc20 paymentAction', () => {
         }
         await testToken.transfer(defaultAccount, arbitraryAmount, {from: payer});
     });
+
+
+    it('pay created request with token allowance too low but skipERC20checkAllowance', async () => {
+        // approve but balance ok but allowance too low
+        await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payerWithoutToken})
+        await testToken.transfer(payerWithoutToken, arbitraryAmount, {from: defaultAccount});   
+
+        try {
+            const result = await rn.requestERC20Service.paymentAction(
+                                requestId,
+                                [arbitraryAmount],
+                                undefined,
+                                {from: payerWithoutToken, skipERC20checkAllowance:true})
+                .on('broadcasted', (data: any) => {
+                    expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+                });
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsException(e, Error('Returned error: VM Exception while processing transaction: revert'),'exception not right');
+        }
+        await testToken.transfer(defaultAccount, arbitraryAmount, {from: payer});
+    });
+
+    it('pay created request with not enough token but skipERC20checkAllowance', async () => {
+        // approve but balance too low
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payerWithoutToken})
+        await testToken.transfer(defaultAccount, await testToken.balanceOf(payerWithoutToken), {from: payerWithoutToken});
+
+        try {
+            const result = await rn.requestERC20Service.paymentAction(
+                                requestId,
+                                [arbitraryAmount],
+                                undefined,
+                                {from: payerWithoutToken, skipERC20checkAllowance:true})
+                .on('broadcasted', (data: any) => {
+                    expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+                });
+            expect(false, 'exception not thrown').to.be.true; 
+        } catch (e) {
+            utils.expectEqualsException(e, Error('Returned error: VM Exception while processing transaction: revert'),'exception not right');
+        }
+        await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payerWithoutToken})
+    });
 });

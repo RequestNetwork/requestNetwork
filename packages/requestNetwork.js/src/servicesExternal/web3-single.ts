@@ -109,6 +109,19 @@ export class Web3Single {
                             : this.web3.utils.toWei(config.ethereum.gasPriceDefault,
                                                     config.ethereum.gasPriceDefaultUnit);
 
+        if (options.skipSimulation && !forcedGas) {
+            return _callbackTransactionError(Error('you must give a gas limit if you use the flag "skipSimulation"'));
+        } else if (options.force) {
+            options.skipSimulation = undefined;
+            _method.send(options)
+                .on('transactionHash', _callbackTransactionHash)
+                .on('receipt', _callbackTransactionReceipt)
+                .on('confirmation', _callbackTransactionConfirmation)
+                .on('error', _callbackTransactionError);
+
+            return;
+        }
+
         // get the gas estimation
         _method.estimateGas(options, (err: any, estimateGas: number) => {
             if (err) return _callbackTransactionError(err);

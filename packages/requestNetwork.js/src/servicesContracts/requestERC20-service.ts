@@ -21,7 +21,9 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 const BN = Web3Single.BN();
 
 const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
-
+const DEFAULT_GAS_ERC20_PAYMENTACTION = '120000';
+const DEFAULT_GAS_ERC20_BROADCASTACTION = '700000';
+const DEFAULT_GAS_ERC20_REFUNDACTION = '100000';
 /**
  * The RequestERC20Service class is the interface for the Request Ethereum currency contract
  */
@@ -286,7 +288,7 @@ export default class RequestERC20Service {
      * @param   _signedRequest     object signed request
      * @param   _amountsToPay      amounts to pay in wei for each payee (optional)
      * @param   _additionals       amounts of additional in wei for each payee (optional)
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation, skipERC20checkAllowance)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public broadcastSignedRequestAsPayer(
@@ -352,6 +354,18 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('extensions are disabled for now'));
                 }
 
+                const tokenErc20 = new Erc20Service(tokenAddressERC20);
+                // check token Balance
+                const balanceAccount = new BN(await tokenErc20.balanceOf(account));
+                if ( !_options.skipERC20checkAllowance && balanceAccount.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('balance of token is too low'));
+                }
+                // check allowance
+                const allowance = new BN(await tokenErc20.allowance(account, contract.address));
+                if ( !_options.skipERC20checkAllowance && allowance.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('allowance of token is too low'));
+                }
+
                 // get the amount to collect
                 const collectEstimation = await instanceRequestERC20Last.instance.methods.collectEstimation(expectedAmountsTotal).call();
 
@@ -364,6 +378,13 @@ export default class RequestERC20Service {
                                                     additionalsParsed,
                                                     _signedRequest.expirationDate,
                                                     _signedRequest.signature);
+
+                _options = this.web3Single.setUpOptions(_options);
+                if (_options.skipERC20checkAllowance) {
+                    _options.gas = DEFAULT_GAS_ERC20_BROADCASTACTION;
+                    _options.skipERC20checkAllowance = undefined;
+                    _options.skipSimulation = true;
+                }
 
                 // submit transaction
                 this.web3Single.broadcastMethod(
@@ -734,7 +755,7 @@ export default class RequestERC20Service {
      * @param   _requestId         requestId of the payer
      * @param   _amountsToPay      amounts to pay in token for each payee
      * @param   _additionals       amounts of additional in token for each payee (optional)
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation, skipERC20checkAllowance)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public paymentAction(
@@ -754,7 +775,6 @@ export default class RequestERC20Service {
         }
         const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
         const additionalsTotal = additionalsParsed.reduce((a, b) => a.add(b), new BN(0));
-        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -787,12 +807,12 @@ export default class RequestERC20Service {
 
                 // check token Balance
                 const balanceAccount = new BN(await tokenErc20.balanceOf(account));
-                if ( balanceAccount.lt(amountsToPayTotal) ) {
+                if (!_options.skipERC20checkAllowance && balanceAccount.lt(amountsToPayTotal) ) {
                     return promiEvent.reject(Error('balance of token is too low'));
                 }
                 // check allowance
                 const allowance = new BN(await tokenErc20.allowance(account, contract.address));
-                if ( allowance.lt(amountsToPayTotal) ) {
+                if (!_options.skipERC20checkAllowance && allowance.lt(amountsToPayTotal) ) {
                     return promiEvent.reject(Error('allowance of token is too low'));
                 }
 
@@ -800,6 +820,14 @@ export default class RequestERC20Service {
                                                                     _requestId,
                                                                     amountsToPayParsed,
                                                                     additionalsParsed);
+
+                _options = this.web3Single.setUpOptions(_options);
+                if (_options.skipERC20checkAllowance) {
+                    _options.gas = DEFAULT_GAS_ERC20_PAYMENTACTION;
+                    _options.skipERC20checkAllowance = undefined;
+                    _options.skipSimulation = true;
+                }
+
                 this.web3Single.broadcastMethod(
                     method,
                     (hash: string) => {
@@ -839,7 +867,7 @@ export default class RequestERC20Service {
      * @dev only addresses from payeesIdAddress and payeesPaymentAddress can refund a request
      * @param   _requestId         requestId of the payer
      * @param   _amountToRefund    amount to refund in wei
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation, skipERC20checkAllowance)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public refundAction(
@@ -885,16 +913,23 @@ export default class RequestERC20Service {
 
                 // check token Balance
                 const balanceAccount = new BN(await tokenErc20.balanceOf(account));
-                if ( balanceAccount.lt(_amountToRefund) ) {
+                if ( !_options.skipERC20checkAllowance && balanceAccount.lt(_amountToRefund) ) {
                     return promiEvent.reject(Error('balance of token is too low'));
                 }
                 // check allowance
                 const allowance = new BN(await tokenErc20.allowance(account, contract.address));
-                if ( allowance.lt(_amountToRefund) ) {
+                if ( !_options.skipERC20checkAllowance && allowance.lt(_amountToRefund) ) {
                     return promiEvent.reject(Error('allowance of token is too low'));
                 }
 
                 const method = contract.instance.methods.refundAction(_requestId, _amountToRefund);
+
+                _options = this.web3Single.setUpOptions(_options);
+                if (_options.skipERC20checkAllowance) {
+                    _options.gas = DEFAULT_GAS_ERC20_REFUNDACTION;
+                    _options.skipERC20checkAllowance = undefined;
+                    _options.skipSimulation = true;
+                }
 
                 this.web3Single.broadcastMethod(
                     method,

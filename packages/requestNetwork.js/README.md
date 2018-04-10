@@ -393,7 +393,7 @@ Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 * @param   `_signedRequest`     object signed request (see Signed Request)
 * @param   `_amountsToPay`      amounts to pay in wei for each payee (optional)
 * @param   `_additionals`       amounts of additional in wei for each payee (optional)
-* @param   `_options`           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`, `skipERC20checkAllowance`)
 * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
 
 
@@ -485,7 +485,7 @@ Emit the event `'broadcasted`' with `{transaction: {hash}}` when the transaction
 * @param   `_requestId`         requestId of the payer
 * @param   `_amountsToPay`      amounts to pay in wei for each payee
 * @param   `_additionals`       amounts of additional in wei for each payee (optional)
-* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`, `skipERC20checkAllowance`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 ### Refund a request    
@@ -498,7 +498,7 @@ only addresses from payeesIdAddress and payeesPaymentAddress can refund a reques
 
 * @param   `_requestId`         requestId of the payer
 * @param   `_amountToRefund`    amount to refund in wei
-* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @param   `_options`           options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`, `skipERC20checkAllowance`)
 * @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 
