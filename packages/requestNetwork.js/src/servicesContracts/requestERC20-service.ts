@@ -966,6 +966,18 @@ export default class RequestERC20Service {
     }
 
     /**
+     * get the token address of a currency contract
+     * @param   _currencyContractAddress     currency contract
+     * @return  promise of the token address
+     */
+    public async getTokenAddressFromCurrencyContract(
+        _currencyContractAddress: string): Promise<string> {
+        const contract = this.web3Single.getContractInstance(_currencyContractAddress);
+        if (! contract) return '';
+        return contract.instance.methods.addressToken().call();
+    }
+
+    /**
      * Do a token allowance for a request
      * @param   _requestId     requestId of the request
      * @param   _amount        amount to allowed
