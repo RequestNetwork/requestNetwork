@@ -308,10 +308,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
     });
 
 
-    it.only('broadcast request as payer with allowance too low', async function () {
-        // Disable timeout for this test. Need to investigate why it takes so long on Travis
-        this.timeout(0);
-
+    it('broadcast request as payer with allowance too low', async function () {
         // approve
         await rn.requestERC20Service.approveTokenForSignedRequest(signedRequest, arbitraryAmount+arbitraryAmount2+arbitraryAmount3+6-1, {from: defaultAccount});
 
@@ -330,10 +327,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
 
     });
 
-    it.only('broadcast request as payer with allowance too low but skipERC20checkAllowance', async function () {
-        // Disable timeout for this test. Need to investigate why it takes so long on Travis
-        this.timeout(0);
-
+    it('broadcast request as payer with allowance too low but skipERC20checkAllowance', async function () {
         // approve
         await rn.requestERC20Service.approveTokenForSignedRequest(signedRequest, 0, {from: defaultAccount});
 
