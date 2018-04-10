@@ -66,7 +66,6 @@ describe('erc20 signRequestAsPayee', () => {
             payee);
 
         expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
-        expect(result.tokenAddress.toLowerCase(), 'tokenAddress is wrong').to.equal(ADDRESS_TOKEN_TEST);
         expect(result, 'data is wrong').to.have.property('data');
         expect(result, 'hash is wrong').to.have.property('hash');
         expect(result, 'signature is wrong').to.have.property('signature');
@@ -103,7 +102,6 @@ describe('erc20 signRequestAsPayee', () => {
             expirationDate);
 
         expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
-        expect(result.tokenAddress.toLowerCase(), 'tokenAddress is wrong').to.equal(ADDRESS_TOKEN_TEST);
         expect(result.data, 'data is wrong').to.be.undefined;
         expect(result, 'hash is wrong').to.have.property('hash');
         expect(result, 'signature is wrong').to.have.property('signature');

@@ -1240,9 +1240,6 @@ export default class RequestERC20Service {
                                         data ? data : '',
                                         expirationDate);
 
-        const contract = this.web3Single.getContractInstance(currencyContract);
-        const tokenAddress = await contract.instance.methods.addressToken().call();
-
         const signature = await this.web3Single.sign(hash, payeesIdAddress[0]);
 
         extension = extension ? extension : undefined;
@@ -1270,8 +1267,7 @@ export default class RequestERC20Service {
                 hash,
                 payeesIdAddress,
                 payeesPaymentAddress,
-                signature,
-                tokenAddress};
+                signature};
     }
 
     /**

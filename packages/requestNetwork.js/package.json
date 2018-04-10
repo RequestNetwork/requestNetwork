@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-network.js",
-  "version": "0.5.4-erc20beta2",
+  "version": "0.5.4-erc20beta3",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetwork.js",
   "keywords": [
