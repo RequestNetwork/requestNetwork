@@ -137,7 +137,7 @@ export default class RequestCoreService {
             }
         });
     }
- 
+
     /**
      * get a request and method called by the hash of a transaction
      * @param   _hash    hash of the ethereum transaction
@@ -483,7 +483,7 @@ export default class RequestCoreService {
                     fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
-                // get events Created with payer === address
+                // get events NewSubPayee with subPayee === address
                 let eventsCoreSubPayee = await _requestCoreContract.instance.getPastEvents('NewSubPayee', {
                     filter: { payee: _address },
                     fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
@@ -520,7 +520,6 @@ export default class RequestCoreService {
                                                 requestId: e.returnValues.requestId});
                                     });
                                 }));
-
 
                 return resolve({asPayee: eventsCorePayee,
                                 asPayer: eventsCorePayer,

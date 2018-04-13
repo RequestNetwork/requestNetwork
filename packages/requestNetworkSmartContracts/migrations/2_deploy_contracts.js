@@ -4,6 +4,7 @@ const assert = require('assert');
 
 const RequestCore = artifacts.require("./RequestCore.sol");
 const RequestEthereum = artifacts.require("./RequestEthereum.sol");
+const RequestERC20 = artifacts.require("./RequestERC20.sol");
 
 const addressContractBurner = "0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8";
 const feesPerTenThousand = 10; // 0.1 %
@@ -31,7 +32,7 @@ function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
   return Promise.all([
     coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
     ethereumInstance.setFeesPerTenThousand(feesPerTenThousand),
-    ethereumInstance.setMaxCollectable(maxFees)
+    ethereumInstance.setMaxCollectable(maxFees),
   ]);
 }
 

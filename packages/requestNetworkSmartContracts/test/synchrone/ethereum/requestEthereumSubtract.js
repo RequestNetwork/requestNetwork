@@ -146,7 +146,7 @@ contract('RequestEthereum SubtractAction',  function(accounts) {
 		await utils.expectThrow(requestEthereum.subtractAction(utils.getRequestId(requestCore.address, 1),[0, arbitraryAmount2+1], {from:payee}));
 	});
 
-	it("discount request with amount <= expectedAmountAfterAddSub - amountPaid OK", async function () {
+	it("discount request with amount <= expectedAmount OK", async function () {
 		var r = await requestEthereum.subtractAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount], {from:payee});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");

@@ -55,8 +55,8 @@ describe('createRequestAsPayer', () => {
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     [additional, 0, additional3],
                     '{"reason":"weed purchased"}',
-                    '',
-                    [],
+                    undefined,
+                    undefined,
                     {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -142,7 +142,7 @@ describe('createRequestAsPayer', () => {
                 });;
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payee must be a valid eth address'),'exception not right');
+            utils.expectEqualsException(e, Error('_payeesIdAddress must be valid eth addresses'),'exception not right');
         }
     });
 
@@ -153,7 +153,7 @@ describe('createRequestAsPayer', () => {
                     [arbitraryAmount]);
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_from must be different than _payee'),'exception not right');
+            utils.expectEqualsException(e, Error('_from must be different than the main payee'),'exception not right');
         }
     });
 
@@ -164,7 +164,7 @@ describe('createRequestAsPayer', () => {
                     [new WEB3.utils.BN(-1)]);
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_expectedAmount must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'),'exception not right');
         }
     });
 
@@ -175,7 +175,7 @@ describe('createRequestAsPayer', () => {
                     [arbitraryAmount]);
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
+            utils.expectEqualsException(e, Error('_payeesIdAddress and _expectedAmounts must have the same size'),'exception not right');
         }
     });
 });

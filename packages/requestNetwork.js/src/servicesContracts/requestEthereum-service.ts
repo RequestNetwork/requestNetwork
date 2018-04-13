@@ -117,19 +117,19 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_payeesPaymentAddress cannot be bigger than _payeesIdAddress'));
             }
 
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
+            }
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
+                return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
+            }
+
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
             }
 
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
-            }
-
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
-                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
-            }
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesPaymentAddressParsed)) {
-                return promiEvent.reject(Error('_payeesPaymentAddress must be valid eth addresses'));
             }
 
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
@@ -198,7 +198,7 @@ export default class RequestEthereumService {
     /**
      * create a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee)
      * @param   _expectedAmounts           amount initial expected per payees for the request
      * @param   _payerRefundAddress        refund address of the payer (optional)
      * @param   _amountsToPay              amounts to pay in wei for each payee (optional)
@@ -249,7 +249,9 @@ export default class RequestEthereumService {
             if (_additionals && _payeesIdAddress.length < _additionals.length) {
                 return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
             }
-
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
+            }
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
             }
@@ -258,9 +260,6 @@ export default class RequestEthereumService {
             }
             if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_additionals must be positives integer'));
-            }
-            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
-                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
@@ -325,7 +324,7 @@ export default class RequestEthereumService {
      * sign a request as payee
      * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
      * @param   _expectedAmounts           amount initial expected per payees for the request
-     * @param   _expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   _expirationDate            timestamp in second of the date after which the signed request is not broadcastable
      * @param   _payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee) (optional)
      * @param   _data                      Json of the request's details (optional)
      * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
@@ -661,14 +660,14 @@ export default class RequestEthereumService {
      * pay a request
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _amountsToPay      amounts to pay in wei for each payee (optional)
+     * @param   _amountsToPay      amounts to pay in wei for each payee
      * @param   _additionals       amounts of additional in wei for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public paymentAction(
         _requestId: string,
-        _amountsToPay ?: any[],
+        _amountsToPay: any[],
         _additionals ?: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
@@ -716,8 +715,8 @@ export default class RequestEthereumService {
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
                 const method = contract.instance.methods.paymentAction(
                                                                     _requestId,
-                                                                    _amountsToPay,
-                                                                    _additionals);
+                                                                    amountsToPayParsed,
+                                                                    additionalsParsed);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -840,13 +839,13 @@ export default class RequestEthereumService {
      * add subtracts to a request as payee
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _subtracts         amounts of subtracts in wei for each payee (optional)
+     * @param   _subtracts         amounts of subtracts in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public subtractAction(
         _requestId: string,
-        _subtracts ?: any[],
+        _subtracts: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
@@ -936,16 +935,16 @@ export default class RequestEthereumService {
     }
 
     /**
-     * add addtionals to a request as payer
+     * add additionals to a request as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _additionals       amounts of additionals in wei for each payee (optional)
+     * @param   _additionals       amounts of additionals in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public additionalAction(
         _requestId: string,
-        _additionals ?: any[],
+        _additionals: any[],
         _options ?: any): Web3PromiEvent {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
@@ -1155,6 +1154,7 @@ export default class RequestEthereumService {
         }
         return '';
     }
+
     /**
      * Get request events from currency contract (generic method)
      * @param   _requestId    requestId of the request
@@ -1175,7 +1175,7 @@ export default class RequestEthereumService {
      * @param   payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the signer address)
      * @param   expectedAmounts           amount initial expected per payees for the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
-     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   expirationDate            timestamp in second of the date after which the signed request is not broadcastable
      * @param   data                      Json of the request's details (optional)
      * @param   extension                 address of the extension contract of the request (optional) NOT USED YET
      * @param   extensionParams           array of parameters for the extension (optional) NOT USED YET
@@ -1186,7 +1186,7 @@ export default class RequestEthereumService {
         payeesIdAddress: string[],
         expectedAmounts: any[],
         payeesPaymentAddress: Array<string|undefined>,
-        expirationDate : number,
+        expirationDate: number,
         data ?: string,
         extension ?: string,
         extensionParams ?: any[]): Promise<any> {
@@ -1237,7 +1237,7 @@ export default class RequestEthereumService {
      * @param   payer                     payer of the request
      * @param   payeesPaymentAddress      payment addresses of the payees (the position 0 will be the main payee)
      * @param   data                      Json of the request's details (optional)
-     * @param   expirationDate            timestamp is second of the date after what the signed request is not broadcastable
+     * @param   expirationDate            timestamp in second of the date after which the signed request is not broadcastable
      * @return  promise of the object containing the request's hash
      */
     private hashRequest(currencyContract: string,

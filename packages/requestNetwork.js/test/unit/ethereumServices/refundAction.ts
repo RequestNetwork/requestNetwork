@@ -52,9 +52,9 @@ describe('refundAction', () => {
             payer,
             [payeePaymentAddress,undefined,payee3PaymentAddress],
             payerRefundAddress,
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;
@@ -228,7 +228,7 @@ describe('refundAction', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''), 'exception not right');
+            utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'), 'exception not right');
         }
     });
 
@@ -240,7 +240,7 @@ describe('refundAction', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_amount must a positive integer'), 'exception not right');
+            utils.expectEqualsException(e, Error('_amount must a positive integer'), 'exception not right');
         }
     });
 
@@ -252,7 +252,7 @@ describe('refundAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('account must be a payee'), 'exception not right');
+            utils.expectEqualsException(e, Error('account must be a payee'), 'exception not right');
         }
     });
 
@@ -264,7 +264,7 @@ describe('refundAction', () => {
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('account must be a payee'), 'exception not right');
+            utils.expectEqualsException(e, Error('account must be a payee'), 'exception not right');
         }
     });
 });

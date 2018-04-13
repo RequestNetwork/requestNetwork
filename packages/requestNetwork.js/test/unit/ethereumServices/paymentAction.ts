@@ -51,9 +51,9 @@ describe('paymentAction', () => {
             payer,
             [payeePaymentAddress],
             payerRefundAddress,
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             {from: payee});
 
         requestId = req.request.requestId;
@@ -67,7 +67,7 @@ describe('paymentAction', () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [0],
+                            undefined,
                             {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -91,7 +91,7 @@ describe('paymentAction', () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [0],
+                            undefined,
                             {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -145,7 +145,7 @@ describe('paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_requestId must be a 32 bytes hex string (eg.: \'0x0000000000000000000000000000000000000000000000000000000000000000\''),'exception not right');
+            utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'),'exception not right');
         }
     });
 
@@ -158,7 +158,7 @@ describe('paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_additional must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_additionals must be positives integer'),'exception not right');
         }
     });
 
@@ -171,7 +171,7 @@ describe('paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_amount must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_amountsToPay must be positives integer'),'exception not right');
         }
     });
 
@@ -188,7 +188,7 @@ describe('paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('request must be accepted'),'exception not right');
+            utils.expectEqualsException(e, Error('request cannot be canceled'),'exception not right');
         }
     });
 
@@ -196,7 +196,7 @@ describe('paymentAction', () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
-                            [],
+                            undefined,
                             {from: otherGuy})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -225,7 +225,7 @@ describe('paymentAction', () => {
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('only payer can add additionals'),'exception not right');
+            utils.expectEqualsException(e, Error('only payer can add additionals'),'exception not right');
         }
     });
 
