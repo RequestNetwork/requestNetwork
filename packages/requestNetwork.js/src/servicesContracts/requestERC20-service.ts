@@ -188,6 +188,156 @@ export default class RequestERC20Service {
     }
 
     /**
+     * create a request as payer
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee)
+     * @param   _expectedAmounts           amount initial expected per payees for the request
+     * @param   _payerRefundAddress        refund address of the payer (optional)
+     * @param   _amountsToPay              amounts to pay for each payee (optional)
+     * @param   _additionals               amounts of additional for each payee (optional)
+     * @param   _data                      Json of the request's details (optional)
+     * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
+     * @param   _extensionParams           array of parameters for the extension (optional) NOT USED YET
+     * @param   _options                   options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public createRequestAsPayer(
+        _tokenAddress: string,
+        _payeesIdAddress: string[],
+        _expectedAmounts: any[],
+        _payerRefundAddress ?: string,
+        _amountsToPay ?: any[],
+        _additionals ?: any[],
+        _data ?: string,
+        _extension ?: string,
+        _extensionParams ?: any[],
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+
+        _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
+        let amountsToPayParsed: any[] = [];
+        if (_amountsToPay) {
+            amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
+        }
+        let additionalsParsed: any[] = [];
+        if (_additionals) {
+            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        }
+        const expectedAmountsTotal = _expectedAmounts.reduce((a, b) => a.add(b), new BN(0));
+        const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
+
+        _options = this.web3Single.setUpOptions(_options);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            // some controls on the arrays
+            if (_payeesIdAddress.length !== _expectedAmounts.length) {
+                return promiEvent.reject(Error('_payeesIdAddress and _expectedAmounts must have the same size'));
+            }
+            if (_amountsToPay && _payeesIdAddress.length < _amountsToPay.length) {
+                return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
+            }
+            if (_additionals && _payeesIdAddress.length < _additionals.length) {
+                return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+            }
+            if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
+                return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
+            }
+            if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+            }
+            if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+            }
+            if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_additionals must be positives integer'));
+            }
+            if (_extension) {
+                return promiEvent.reject(Error('extensions are disabled for now'));
+            }
+            if (_payerRefundAddress && !this.web3Single.isAddressNoChecksum(_payerRefundAddress)) {
+                return promiEvent.reject(Error('_payerRefundAddress must be a valid eth address'));
+            }
+            if (this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
+                return promiEvent.reject(Error('_from must be different than the main payee'));
+            }
+
+            try {
+                const instanceRequestERC20Last = this.getLastInstanceRequestERC20(_tokenAddress);
+                if (!instanceRequestERC20Last) {
+                    return promiEvent.reject(Error('token not supported'));
+                }
+
+                const tokenErc20 = new Erc20Service(_tokenAddress);
+                // check token Balance
+                const balanceAccount = new BN(await tokenErc20.balanceOf(account));
+                if ( !_options.skipERC20checkAllowance && balanceAccount.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('balance of token is too low'));
+                }
+                // check allowance
+                const allowance = new BN(await tokenErc20.allowance(account, instanceRequestERC20Last.address));
+                if ( !_options.skipERC20checkAllowance && allowance.lt(amountsToPayTotal) ) {
+                    return promiEvent.reject(Error('allowance of token is too low'));
+                }
+
+                // add file to ipfs
+                const hashIpfs = await this.ipfs.addFile(_data);
+
+                // get the amount to collect
+                const collectEstimation = await instanceRequestERC20Last.instance.methods.collectEstimation(expectedAmountsTotal).call();
+
+                _options.value = new BN(collectEstimation);
+
+                const method = instanceRequestERC20Last.instance.methods.createRequestAsPayerAction(
+                                _payeesIdAddress,
+                                _expectedAmounts,
+                                _payerRefundAddress,
+                                amountsToPayParsed,
+                                additionalsParsed,
+                                hashIpfs);
+
+                _options = this.web3Single.setUpOptions(_options);
+                if (_options.skipERC20checkAllowance) {
+                    _options.gas = DEFAULT_GAS_ERC20_BROADCASTACTION;
+                    _options.skipERC20checkAllowance = undefined;
+                    _options.skipSimulation = true;
+                }
+
+                // submit transaction
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            const eventRaw = receipt.events[0];
+                            const event = this.web3Single.decodeEvent(this.abiRequestCoreLast, 'Created', eventRaw);
+                            try {
+                                const requestAfter = await this.getRequest(event.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (errBroadcast) => {
+                        return promiEvent.reject(errBroadcast);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+        return promiEvent.eventEmitter;
+    }
+
+    /**
      * sign a request as payee
      * @param   _tokenAddress              Address token used for payment
      * @param   _payeesIdAddress           ID addresses of the payees (the position 0 will be the main payee, must be the broadcaster address)
@@ -286,8 +436,8 @@ export default class RequestERC20Service {
      * broadcast a signed transaction and fill it with his address as payer
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _signedRequest     object signed request
-     * @param   _amountsToPay      amounts to pay in wei for each payee (optional)
-     * @param   _additionals       amounts of additional in wei for each payee (optional)
+     * @param   _amountsToPay      amounts to pay for each payee (optional)
+     * @param   _additionals       amounts of additional for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation, skipERC20checkAllowance)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
@@ -1042,6 +1192,41 @@ export default class RequestERC20Service {
             const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
             const result = await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options)
+                    .on('broadcasted', (data: any) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', data);
+                    });
+            return promiEvent.resolve(result);
+        });
+
+        return promiEvent.eventEmitter;
+    }
+
+    /**
+     * Do a token allowance for a token address
+     * @param   _tokenAddress      token address
+     * @param   _amount            amount to allowed
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the amount allowed
+     */
+    public approveTokenFromTokenAddress(
+        _tokenAddress: string,
+        _amount: any,
+        _options ?: any): Web3PromiEvent {
+        const promiEvent = Web3PromiEvent();
+        _amount = new BN(_amount);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            _options.from = _options.from ? _options.from : defaultAccount;
+
+            const instanceRequestERC20Last = this.getLastInstanceRequestERC20(_tokenAddress);
+            if (!instanceRequestERC20Last) {
+                return promiEvent.reject(Error('token not supported'));
+            }
+
+            const tokenErc20 = new Erc20Service(_tokenAddress);
+
+            const result = await tokenErc20.approve(instanceRequestERC20Last.address, _amount, _options)
                     .on('broadcasted', (data: any) => {
                         return promiEvent.eventEmitter.emit('broadcasted', data);
                     });

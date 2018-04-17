@@ -3,8 +3,7 @@ pragma solidity 0.4.18;
 import '../core/RequestCore.sol';
 import '../base/math/SafeMathUint8.sol';
 import '../base/token/ERC20.sol';
-import './RequestCurrencyContractInterface.sol';
-import './RequestERC20Collect.sol';
+import '../core/RequestCurrencyContractInterface.sol';
 
 /**
  * @title RequestERC20
@@ -14,7 +13,7 @@ import './RequestERC20Collect.sol';
  *
  * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
-contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
+contract RequestERC20 is RequestCurrencyContractInterface {
 	using SafeMath for uint256;
 	using SafeMathInt for int256;
 	using SafeMathUint8 for uint8;
@@ -32,9 +31,8 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @param _requestBurnerAddress Request Burner contract address
 	 */
 	function RequestERC20(address _requestCoreAddress, address _requestBurnerAddress, address _addressToken) 
-			RequestCurrencyContractInterface(_requestCoreAddress)
-			RequestERC20Collect(_requestBurnerAddress)
-			public
+		RequestCurrencyContractInterface(_requestCoreAddress, _requestBurnerAddress)
+		public
 	{
 		addressToken = _addressToken;
 	}
@@ -83,6 +81,50 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 		if(_payerRefundAddress != 0) {
 			payerRefundAddress[requestId] = _payerRefundAddress;
 		}
+
+		return requestId;
+	}
+
+
+	/*
+	 * @dev Function to create a request as payer. The request is payed if _payeeAmounts > 0.
+	 *
+	 * @dev msg.sender will be the payer
+	 * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+	 *
+	 * @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
+	 * @param _expectedAmounts array of Expected amount to be received by each payees
+	 * @param _payerRefundAddress Address of refund for the payer (optional)
+	 * @param _payeeAmounts array of amount repartition for the payment
+	 * @param _additionals array to increase the ExpectedAmount for payees
+	 * @param _data Hash linking to additional data on the Request stored on IPFS
+	 *
+	 * @return Returns the id of the request
+	 */
+	function createRequestAsPayerAction(
+		address[] 	_payeesIdAddress,
+		int256[] 	_expectedAmounts,
+		address 	_payerRefundAddress,
+		uint256[] 	_payeeAmounts,
+		uint256[] 	_additionals,
+		string 		_data)
+		external
+		payable
+		whenNotPaused
+		returns(bytes32 requestId)
+	{
+		require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0);
+
+		int256 totalExpectedAmounts;
+		(requestId, totalExpectedAmounts) = createCoreRequestInternal(msg.sender, _payeesIdAddress, _expectedAmounts, _data);
+
+		// set payment address for payer
+		if(_payerRefundAddress != 0) {
+			payerRefundAddress[requestId] = _payerRefundAddress;
+		}
+
+		// accept and pay the request with the value remaining after the fee collect
+		acceptAndPay(requestId, _payeeAmounts, _additionals, totalExpectedAmounts);
 
 		return requestId;
 	}

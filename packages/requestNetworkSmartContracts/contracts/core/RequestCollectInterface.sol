@@ -4,18 +4,18 @@ import '../base/math/SafeMath.sol';
 import '../base/lifecycle/Pausable.sol';
 
 /**
- * @title RequestERC20Collect
+ * @title RequestCollectInterface
  *
- * @dev RequestERC20Collect is a contract managing the fees for ERC20 currency contract
+ * @dev RequestCollectInterface is a contract managing the fees for currency contracts
  */
-contract RequestERC20Collect is Pausable {
+contract RequestCollectInterface is Pausable {
 	using SafeMath for uint256;
 
     uint256 public rateFeesNumerator;
     uint256 public rateFeesDenominator;
     uint256 public maxFees;
 
-	// address of the contract that will burn req token (probably through Kyber)
+	// address of the contract that will burn req token (through Kyber)
 	address public requestBurnerContract;
 
     /*
@@ -29,7 +29,7 @@ contract RequestERC20Collect is Pausable {
 	 * @param _requestBurnerContract Address of the contract where to send the ethers. 
 	 * This burner contract will have a function that can be called by anyone and will exchange ethers to req via Kyber and burn the REQ
 	 */  
-	function RequestERC20Collect(address _requestBurnerContract) 
+	function RequestCollectInterface(address _requestBurnerContract) 
 		public
 	{
 		requestBurnerContract = _requestBurnerContract;

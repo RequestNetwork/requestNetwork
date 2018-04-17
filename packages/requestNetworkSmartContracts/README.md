@@ -166,6 +166,24 @@ Function to create a request as payee
 
 * @return Returns the id of the request
 
+
+### Create a new request as the payer
+`createRequestAsPayerAction( address[] _payeesIdAddress, int256[]  _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
+    /*
+
+* @dev msg.sender will be the payer
+* @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+
+* @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payerRefundAddress Address of refund for the payer (optional)
+* @param _payeeAmounts array of amount repartition for the payment
+* @param _additionals array to increase the ExpectedAmount for payees
+* @param _data Hash linking to additional data on the Request stored on IPFS
+
+* @return Returns the id of the request
+
+
 ### Broadcast a signed request
 ` function broadcastSignedRequestAsPayer(bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _expirationDate, bytes _signature)`
 Function to broadcast and accept an offchain signed request (can be paid and additionals also)

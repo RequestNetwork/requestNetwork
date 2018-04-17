@@ -366,6 +366,24 @@ emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 * @return  promise of the object containing the request and the transaction hash (`{request, transactionHash}`)
 
 
+### Create a request as the payer
+```js
+createRequestAsPayer(_tokenAddress: string,_payeesIdAddress: string[],_expectedAmounts: any[],_payerRefundAddress ?: string,_amountsToPay ?: any[],_additionals ?: any[],_data ?: string,_extension ?: string,_extensionParams ?: any[], _options ?: any)
+```
+
+emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+* @param   `_payeesIdAddress`           ID addresses of the payees (the position 0 will be the main payee)
+* @param   `_expectedAmounts`           amount initial expected per payees for the request
+* @param   `_payerRefundAddress`        refund address of the payer (optional)
+* @param   `_amountsToPay`              amounts to pay for each payee (optional)
+* @param   `_additionals`               amounts of additional for each payee (optional)
+* @param   `_data`                      Json of the request's details (optional)
+* @param   `_extension`                 address of the extension contract of the request (optional) NOT USED YET
+* @param   `_extensionParams`           array of parameters for the extension (optional) NOT USED YET
+* @param   `_options`                   options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+* @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+
+
 ### Sign a request as payee
 ```js
 public signRequestAsPayee(_tokenAddress: string, _payeesIdAddress: string[], _expectedAmounts: any[], _expirationDate: number, _payeesPaymentAddress ?: Array<string|undefined>, _data ?: string, _extension ?: string, _extensionParams ?: any[], _from ?: string);
