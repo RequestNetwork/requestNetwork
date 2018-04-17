@@ -15,7 +15,7 @@ var RequestCore = artifacts.require("./core/RequestCore.sol");
 var RequestERC20 = artifacts.require("./synchrone/RequestERC20.sol");
 var TestToken = artifacts.require("./test/synchrone/TestToken.sol");
 
-contract('RequestERC20 createRequestAsPayer',  function(accounts) {
+contract('RequestERC20 createRequestAsPayerAction',  function(accounts) {
 	var admin = accounts[0];
 	var burnerContract = accounts[1];
 
@@ -49,12 +49,12 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 
 	it("new request more than expectedAmount OK", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount+1, {from:payer});
-		var r = await requestERC20.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount+1], [arbitraryAmount10percent],"", {from:payer});
+		var r = await requestERC20.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount+1], [arbitraryAmount10percent],"", {from:payer});
 
 		assert.equal(r.receipt.logs.length,5,"Wrong number of events");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
@@ -62,17 +62,17 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[1],'',"Event Created wrong args data");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
@@ -95,12 +95,12 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 
 	it("new request with tips OK", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
-		var r = await requestERC20.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer});
+		var r = await requestERC20.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer});
 
 		assert.equal(r.receipt.logs.length,5,"Wrong number of events");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
@@ -108,17 +108,17 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[1],'',"Event Created wrong args data");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
@@ -142,26 +142,26 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 	it("new request empty arrays impossible", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
 
-		var r = await utils.expectThrow(requestERC20.createRequestAsPayer([], [], 0, [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestERC20.createRequestAsPayerAction([], [], 0, [arbitraryAmount], [], "", 
 									{from:payer}));
 	});
 
 	it("new request payee==payer impossible", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
 
-		var r = await utils.expectThrow(requestERC20.createRequestAsPayer([payer], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestERC20.createRequestAsPayerAction([payer], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payer}));
 	});
 
 	it("new request payee==0 impossible", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
-		var r = await utils.expectThrow(requestERC20.createRequestAsPayer([0], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestERC20.createRequestAsPayerAction([0], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payer}));
 	});
 
 	it("new request msg.sender==payee impossible", async function () {
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
-		var r = await utils.expectThrow(requestERC20.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestERC20.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payee}));
 	});
 
@@ -169,27 +169,27 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		await requestCore.pause({from:admin});
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
 
-		var r = await utils.expectThrow(requestERC20.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
+		var r = await utils.expectThrow(requestERC20.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", 
 									{from:payer}));
 	});
 
 	it("new request when currencyContract not trusted Impossible", async function () {
 		var requestERC202 = await RequestERC20.new(requestCore.address,{from:admin});
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
-		await utils.expectThrow(requestERC202.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", {from:payer}));
+		await utils.expectThrow(requestERC202.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", {from:payer}));
 	});
 
 	it("new request from payer with 3 payees all paid OK with tips no payment address", async function () {
 
 		await testToken.approve(requestERC20.address, arbitraryAmount+arbitraryAmount2+arbitraryAmount3+6, {from:payer});
 
-		var r = await requestERC20.createRequestAsPayer([payee, payee2, payee3], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], 0, [arbitraryAmount+1,arbitraryAmount2+2,arbitraryAmount3+3], [1,2,3], "", 
+		var r = await requestERC20.createRequestAsPayerAction([payee, payee2, payee3], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], 0, [arbitraryAmount+1,arbitraryAmount2+2,arbitraryAmount3+3], [1,2,3], "", 
 													{from:payer});
 
 		assert.equal(r.receipt.logs.length,13,"Wrong number of events");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
-		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Created","Event Created is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
@@ -197,39 +197,39 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[1],'',"Event Created wrong args data");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
-		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayer()");
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args payee");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
-		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayer()");
+		assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
 		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[2].topics[2]).toLowerCase(),payee3,"Event NewSubPayee wrong args payee");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
-		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayer()");
+		assert.equal(l.name,"Accepted","Event Accepted is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Accepted wrong args requestId");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[4], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[4].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],1,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[5], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[5].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],1,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],2,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[6], requestCore.abi);
-		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[6].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateExpectedAmount wrong args requestId");
 		assert.equal(l.data[0],2,"Event UpdateExpectedAmount wrong args payeeIndex");
 		assert.equal(l.data[1],3,"Event UpdateExpectedAmount wrong args amount");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[7], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[7].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount+1,"Event UpdateBalance wrong args amountPaid");
@@ -241,7 +241,7 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],arbitraryAmount+1,"Event Transfer wrong args value");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[9], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[9].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],1,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount2+2,"Event UpdateBalance wrong args amountPaid");
@@ -253,7 +253,7 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		assert.equal(l.data[0],arbitraryAmount2+2,"Event Transfer wrong args value");
 
 		var l = utils.getEventFromReceipt(r.receipt.logs[11], requestCore.abi);
-		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayer()");
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after createRequestAsPayerAction()");
 		assert.equal(r.receipt.logs[11].topics[1],utils.getRequestId(requestCore.address, 1),"Event UpdateBalance wrong args requestId");
 		assert.equal(l.data[0],2,"Event UpdateBalance wrong args payeeIndex");
 		assert.equal(l.data[1],arbitraryAmount3+3,"Event UpdateBalance wrong args amountPaid");
@@ -292,7 +292,7 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		await requestERC20.setMaxCollectable('2000000000000000', {from:admin}); // 0.002 ether
 
 		var fees = await requestERC20.collectEstimation(arbitraryAmount);
-		await utils.expectThrow(requestERC20.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer, value:fees.add(arbitraryAmount).minus(1)}));
+		await utils.expectThrow(requestERC20.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer, value:fees.add(arbitraryAmount).minus(1)}));
 	});
 
 	it("impossible to createRequest if msg.value > fees", async function () {
@@ -301,7 +301,7 @@ contract('RequestERC20 createRequestAsPayer',  function(accounts) {
 		await requestERC20.setMaxCollectable('2000000000000000', {from:admin}); // 0.002 ether
 
 		var fees = await requestERC20.collectEstimation(arbitraryAmount);
-		await utils.expectThrow(requestERC20.createRequestAsPayer([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer, value:fees.add(arbitraryAmount).add(1)}));
+		await utils.expectThrow(requestERC20.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [arbitraryAmount10percent],"", {from:payer, value:fees.add(arbitraryAmount).add(1)}));
 	});
 
 });

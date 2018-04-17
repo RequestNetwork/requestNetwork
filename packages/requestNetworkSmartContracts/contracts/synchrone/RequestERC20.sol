@@ -101,7 +101,7 @@ contract RequestERC20 is RequestCurrencyContractInterface {
 	 *
 	 * @return Returns the id of the request
 	 */
-	function createRequestAsPayer(
+	function createRequestAsPayerAction(
 		address[] 	_payeesIdAddress,
 		int256[] 	_expectedAmounts,
 		address 	_payerRefundAddress,
