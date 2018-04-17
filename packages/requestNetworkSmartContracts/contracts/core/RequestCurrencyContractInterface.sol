@@ -1,7 +1,8 @@
 pragma solidity 0.4.18;
 
 import '../base/lifecycle/Pausable.sol';
-import '../core/RequestCore.sol';
+import './RequestCore.sol';
+import './RequestCollectInterface.sol';
 import '../base/math/SafeMath.sol';
 import '../base/math/SafeMathInt.sol';
 import '../base/math/SafeMathUint8.sol';
@@ -15,7 +16,7 @@ import '../base/math/SafeMathUint8.sol';
  *
  * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
-contract RequestCurrencyContractInterface is Pausable {
+contract RequestCurrencyContractInterface is RequestCollectInterface {
 	using SafeMath for uint256;
 	using SafeMathInt for int256;
 	using SafeMathUint8 for uint8;
@@ -27,7 +28,8 @@ contract RequestCurrencyContractInterface is Pausable {
 	 * @dev Constructor
 	 * @param _requestCoreAddress Request Core address
 	 */
-	function RequestCurrencyContractInterface(address _requestCoreAddress) 
+	function RequestCurrencyContractInterface(address _requestCoreAddress, address _addressBurner) 
+		RequestCollectInterface(_addressBurner)
 		public
 	{
 		requestCore=RequestCore(_requestCoreAddress);

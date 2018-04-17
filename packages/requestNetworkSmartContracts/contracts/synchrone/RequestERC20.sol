@@ -3,8 +3,7 @@ pragma solidity 0.4.18;
 import '../core/RequestCore.sol';
 import '../base/math/SafeMathUint8.sol';
 import '../base/token/ERC20.sol';
-import './RequestCurrencyContractInterface.sol';
-import './RequestERC20Collect.sol';
+import '../core/RequestCurrencyContractInterface.sol';
 
 /**
  * @title RequestERC20
@@ -14,7 +13,7 @@ import './RequestERC20Collect.sol';
  *
  * @dev Requests can be created by the Payee with createRequestAsPayee(), by the payer with createRequestAsPayer() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
-contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
+contract RequestERC20 is RequestCurrencyContractInterface {
 	using SafeMath for uint256;
 	using SafeMathInt for int256;
 	using SafeMathUint8 for uint8;
@@ -32,9 +31,8 @@ contract RequestERC20 is RequestCurrencyContractInterface, RequestERC20Collect {
 	 * @param _requestBurnerAddress Request Burner contract address
 	 */
 	function RequestERC20(address _requestCoreAddress, address _requestBurnerAddress, address _addressToken) 
-			RequestCurrencyContractInterface(_requestCoreAddress)
-			RequestERC20Collect(_requestBurnerAddress)
-			public
+		RequestCurrencyContractInterface(_requestCoreAddress, _requestBurnerAddress)
+		public
 	{
 		addressToken = _addressToken;
 	}
