@@ -24,6 +24,7 @@ var config = {
 	//		},
 	//	 	"erc20.js": {
 				"requestERC20CreateRequestAsPayee.js":false,
+				"requestERC20CreateRequestAsPayer.js":false,
 				"requestERC20BroadcastSignedRequestAsPayer.js":false,
 				"requestERC20Accept.js":false,
 				"requestERC20Cancel.js":false,
