@@ -290,7 +290,7 @@ export default class RequestERC20Service {
 
                 _options.value = new BN(collectEstimation);
 
-                const method = instanceRequestERC20Last.instance.methods.createRequestAsPayer(
+                const method = instanceRequestERC20Last.instance.methods.createRequestAsPayerAction(
                                 _payeesIdAddress,
                                 _expectedAmounts,
                                 _payerRefundAddress,
