@@ -48,7 +48,7 @@ export default class Erc20Service {
         return this.instanceERC20.methods.allowance(_owner, _spender).call();
     }
 
-    public approve(_spender: string, _value: any, _options ?: any): Web3PromiEvent {
+    public approve(_spender: string, _value: any, _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         _options = Erc20Service.web3Single.setUpOptions(_options);
@@ -82,7 +82,7 @@ export default class Erc20Service {
         return promiEvent.eventEmitter;
     }
 
-    public transfer(_to: string, _value: any, _options ?: any): Web3PromiEvent {
+    public transfer(_to: string, _value: any, _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         _options = Erc20Service.web3Single.setUpOptions(_options);
@@ -118,7 +118,7 @@ export default class Erc20Service {
         return promiEvent.eventEmitter;
     }
 
-    public transferFrom(_from: string, _to: string, _value: any, _options ?: any): Web3PromiEvent {
+    public transferFrom(_from: string, _to: string, _value: any, _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         _options = Erc20Service.web3Single.setUpOptions(_options);

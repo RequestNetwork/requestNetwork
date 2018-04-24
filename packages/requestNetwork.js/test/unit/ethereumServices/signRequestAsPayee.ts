@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import 'mocha';
 import * as ETH_UTIL from 'ethereumjs-util';
 import requestArtifacts from 'requestnetworkartifacts';
-import RequestNetwork from '../../../src/requestNetwork';
+import RequestNetwork from '../../../src/index';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');

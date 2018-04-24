@@ -93,7 +93,7 @@ export default class RequestEthereumService {
         _extension ?: string,
         _extensionParams ?: any[] ,
         _options ?: any,
-        ): Web3PromiEvent {
+        ): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
 
@@ -218,7 +218,7 @@ export default class RequestEthereumService {
         _data ?: string,
         _extension ?: string,
         _extensionParams ?: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
 
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
@@ -341,7 +341,7 @@ export default class RequestEthereumService {
         _extension ?: string,
         _extensionParams ?: any[],
         _from ?: string,
-        ): Web3PromiEvent {
+        ): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
 
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
@@ -419,7 +419,7 @@ export default class RequestEthereumService {
         _amountsToPay ?: any[],
         _additionals ?: any[],
         _options ?: any,
-        ): Web3PromiEvent {
+        ): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
 
         let amountsToPayParsed: any[] = [];
@@ -524,7 +524,7 @@ export default class RequestEthereumService {
      */
     public accept(
         _requestId: string,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -587,7 +587,7 @@ export default class RequestEthereumService {
      */
     public cancel(
         _requestId: string,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -669,7 +669,7 @@ export default class RequestEthereumService {
         _requestId: string,
         _amountsToPay: any[],
         _additionals ?: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
 
         let amountsToPayParsed: any[] = [];
@@ -763,7 +763,7 @@ export default class RequestEthereumService {
     public refundAction(
         _requestId: string,
         _amountToRefund: any,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _options.value = new BN(_amountToRefund);
@@ -846,7 +846,7 @@ export default class RequestEthereumService {
     public subtractAction(
         _requestId: string,
         _subtracts: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -945,7 +945,7 @@ export default class RequestEthereumService {
     public additionalAction(
         _requestId: string,
         _additionals: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 

@@ -9,7 +9,9 @@
       "quotemark": [true, "single"],
       "curly": [true, "ignore-same-line"],
       "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
-      "max-line-length": [false]
+      "max-line-length": [false],
+      "arrow-parens": [false],
+      "no-var-requires": [false]
     },
     "rulesDirectory": [],
     "linterOptions": {

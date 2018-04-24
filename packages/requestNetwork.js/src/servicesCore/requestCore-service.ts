@@ -1,6 +1,6 @@
+import * as ETH_UTIL from 'ethereumjs-util';
 import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
-import * as ETH_UTIL from 'ethereumjs-util';
 import * as ServicesContracts from '../servicesContracts';
 import * as Types from '../types';
 

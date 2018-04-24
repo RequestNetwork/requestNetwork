@@ -79,7 +79,7 @@ export default class RequestERC20Service {
         _extension ?: string,
         _extensionParams ?: any[] ,
         _options ?: any,
-        ): Web3PromiEvent {
+        ): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
 
@@ -211,7 +211,7 @@ export default class RequestERC20Service {
         _data ?: string,
         _extension ?: string,
         _extensionParams ?: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
@@ -360,7 +360,7 @@ export default class RequestERC20Service {
         _extension ?: string,
         _extensionParams ?: any[],
         _from ?: string,
-        ): Web3PromiEvent {
+        ): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         _expectedAmounts = _expectedAmounts.map((amount) => new BN(amount));
@@ -446,7 +446,7 @@ export default class RequestERC20Service {
         _amountsToPay ?: any[],
         _additionals ?: any[],
         _options ?: any,
-        ): Web3PromiEvent {
+        ): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         let amountsToPayParsed: any[] = [];
@@ -577,7 +577,7 @@ export default class RequestERC20Service {
      */
     public accept(
         _requestId: string,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -641,7 +641,7 @@ export default class RequestERC20Service {
      */
     public cancel(
         _requestId: string,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -721,7 +721,7 @@ export default class RequestERC20Service {
     public additionalAction(
         _requestId: string,
         _additionals: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -811,7 +811,7 @@ export default class RequestERC20Service {
     public subtractAction(
         _requestId: string,
         _subtracts: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
@@ -912,7 +912,7 @@ export default class RequestERC20Service {
         _requestId: string,
         _amountsToPay: any[],
         _additionals ?: any[],
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
 
         let amountsToPayParsed: any[] = [];
@@ -1023,7 +1023,7 @@ export default class RequestERC20Service {
     public refundAction(
         _requestId: string,
         _amountToRefund: any,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
         _amountToRefund = new BN(_amountToRefund);
@@ -1137,7 +1137,7 @@ export default class RequestERC20Service {
     public approveTokenForRequest(
         _requestId: string,
         _amount: any,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
 
@@ -1170,7 +1170,7 @@ export default class RequestERC20Service {
     public approveTokenForSignedRequest(
         _signedRequest: any,
         _amount: any,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
 
@@ -1211,7 +1211,7 @@ export default class RequestERC20Service {
     public approveTokenFromTokenAddress(
         _tokenAddress: string,
         _amount: any,
-        _options ?: any): Web3PromiEvent {
+        _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
 

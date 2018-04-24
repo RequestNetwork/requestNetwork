@@ -1,7 +1,7 @@
     import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
-import RequestNetwork from '../../../src/requestNetwork';
+import RequestNetwork from '../../../src/index';
 import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 

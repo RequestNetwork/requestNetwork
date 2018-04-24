@@ -17,3 +17,13 @@ exports.default = function(networkName, address) {
 exports.default.getAllArtifactsForNetwork = function(networkName) {
 	return artifacts[networkName];
 }
+
+// Temporary hack that should be properly fixed. Needs some refactor to remove the default export
+// Returns the contract name of an address
+exports.default.getContractNameForAddress = function(contractAddress) {
+	const artifactPath = Object.keys(artifacts).reduce(
+		(result, network) =>  result || artifacts[network][contractAddress],
+		''
+	);
+	return artifactPath && artifactPath.split('/')[0];
+}
