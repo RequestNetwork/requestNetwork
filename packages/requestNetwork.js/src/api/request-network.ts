@@ -3,6 +3,7 @@ import RequestBitcoinNodesValidationService from '../servicesContracts/requestBi
 import RequestERC20Service from '../servicesContracts/requestERC20-service';
 import RequestEthereumService from '../servicesContracts/requestEthereum-service';
 import RequestCoreService from '../servicesCore/requestCore-service';
+import BitcoinService from '../servicesExternal/bitcoin-service';
 import Ipfs from '../servicesExternal/ipfs-service';
 import Web3Single from '../servicesExternal/web3-single';
 import * as Types from '../types';
@@ -55,32 +56,39 @@ export default class RequestNetwork {
 
     /**
      * Creates an instance of RequestNetwork.
-     * Recommended usage: new RequestNetwork({ provider, networkId, useIpfsPublic})
-     * Supported usage (for backward-compatibility): new RequestNetwork(provider, networkId, useIpfsPublic)
+     * Recommended usage: new RequestNetwork({ provider, ethNetworkId, useIpfsPublic, bitoinNetworkId})
+     * Supported usage (for backward-compatibility): new RequestNetwork(provider, ethNetworkId, useIpfsPublic)
+     * note: bitoinNetworkId parameter is only available in options because the "supported usage" is only to ensure a backward compatibilty
      *
      * @param {object=} options
-     * @param {object=} options.provider - The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network.
-     * @param {number=} options.networkId - the Ethereum network ID.
+     * @param {object=} options.provider - The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network. (can be a provider instance or an url as string)
+     * @param {number=} options.ethNetworkId - the Ethereum network ID.
      * @param {boolean=} options.useIpfsPublic - use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise (default : true)
+     * @param {number=} options.bitoinNetworkId - the bitcoin network ID
      * @memberof RequestNetwork
      */
-    constructor(options?: { provider?: string, networkId?: number, useIpfsPublic?: boolean } | string, networkId?: number, useIpfsPublic?: boolean) {
+    constructor(options?: { provider?: any, ethNetworkId?: number, useIpfsPublic?: boolean, bitoinNetworkId?: number} | any, ethNetworkId?: number, useIpfsPublic?: boolean) {
+        let bitoinNetworkId;
         // Parameter handling
         let provider = options;
         if (typeof options === 'object') {
             provider = options.provider;
-            networkId = options.networkId;
+            ethNetworkId = options.ethNetworkId;
             useIpfsPublic = options.useIpfsPublic;
+            bitoinNetworkId = options.bitoinNetworkId;
         }
         if (typeof useIpfsPublic === 'undefined') {
             useIpfsPublic = true;
         }
-        if (provider && ! networkId) {
+        if (provider && ! ethNetworkId) {
             throw new Error('if you give provider you have to give the networkId too');
         }
 
         // init web3 wrapper singleton
-        Web3Single.init(provider, networkId);
+        Web3Single.init(provider, ethNetworkId);
+
+        // init bitcoin service wrapper singleton
+        BitcoinService.init(bitoinNetworkId);
 
         // init ipfs wrapper singleton
         Ipfs.init(useIpfsPublic);
