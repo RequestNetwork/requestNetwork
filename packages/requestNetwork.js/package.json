@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-network.js",
-  "version": "0.5.4-erc20beta3",
+  "version": "0.6.0-bitcoinNodesValidationBeta",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetwork.js",
   "keywords": [
@@ -36,12 +36,14 @@
     "typings": "^2.1.1"
   },
   "dependencies": {
+    "blockchain.info": "2.11.0",
     "bn.js": "4.11.8",
     "ethereumjs-util": "5.1.2",
     "ipfs-api": "15.1.0",
-    "requestnetworkartifacts": "1.1.4-erc20beta",
-    "tslib": "^1.9.0",
-    "typescript": "^2.8.1",
+    "requestnetworkartifacts": "1.2.0-bitcoinNodesValidationBeta",
+    "tslib": "1.9.0",
+    "typescript": "2.8.1",
+    "wallet-address-validator": "0.1.6",
     "web3": "1.0.0-beta.26",
     "web3-core-promievent": "1.0.0-beta.26"
   },

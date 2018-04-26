@@ -11,7 +11,7 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 /**
  * The Web3Single class is the singleton class containing the web3.js interface
  */
-export class Web3Single {
+export default class Web3Single {
     /**
      * Initialized the class Web3Single
      * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library
@@ -211,7 +211,7 @@ export class Web3Single {
 
     /**
      * Convert an array to an array in solidity bytes32 string
-     * TODO : only support addresses so far.
+     * only support addresses so far.
      * @param    _array   array to convert
      * @param    _length  length of the final array
      * @return   array of solidity like bytes32 string

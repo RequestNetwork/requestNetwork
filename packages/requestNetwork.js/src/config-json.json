@@ -13,6 +13,10 @@
         "gasPriceDefaultUnit": "gwei",
         "gasPriceMinimumCriticalInWei": 100000000 
     },
+    "bitcoin": 
+    {  
+        "default": 3
+    },
     "ipfs": 
     {    
         "nodeUrlDefault": {

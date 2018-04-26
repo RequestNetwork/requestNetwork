@@ -267,6 +267,109 @@ the request must be accepted or created
 
 
 
+## Functions from Request Bitcoin offline
+### Create a new request as the payee
+`createRequestAsPayeeAction(address[] _payeesIdAddress, bytes _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, bytes _payerRefundAddress, string _data)` 
+
+* @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
+* @param _payeesPaymentAddress array of payees bitcoin address for payment as bytes
+*               [
+*                uint8(payee1_bitcoin_address_size)
+*                string(payee1_bitcoin_address)
+*                uint8(payee2_bitcoin_address_size)
+*                string(payee2_bitcoin_address)
+*                ...
+*               ]
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payer Entity expected to pay
+* @param _payerRefundAddress payer bitcoin addresses for refund as bytes
+*               [
+*                uint8(payee1_refund_bitcoin_address_size)
+*                string(payee1_refund_bitcoin_address)
+*                uint8(payee2_refund_bitcoin_address_size)
+*                string(payee2_refund_bitcoin_address)
+*                ...
+*               ]
+* @param _data Hash linking to additional data on the Request stored on IPFS
+
+
+### Broadcast a signed request
+`broadcastSignedRequestAsPayer(bytes _requestData, bytes _payeesPaymentAddress, bytes _payerRefundAddress, uint256[] _additionals, uint256 _expirationDate, bytes _signature)`
+Function to broadcast and accept an offchain signed request (can be paid and additionals also)
+
+
+* @dev msg.sender vill be the _payer
+* @dev only the _payer can additionals
+
+* @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
+* @param _payeesPaymentAddress array of payees bitcoin address for payment as bytes
+*               [
+*                uint8(payee1_bitcoin_address_size)
+*                string(payee1_bitcoin_address)
+*                uint8(payee2_bitcoin_address_size)
+*                string(payee2_bitcoin_address)
+*                ...
+*               ]
+* @param _payerRefundAddress payer bitcoin addresses for refund as bytes
+*               [
+*                uint8(payee1_refund_bitcoin_address_size)
+*                string(payee1_refund_bitcoin_address)
+*                uint8(payee2_refund_bitcoin_address_size)
+*                string(payee2_refund_bitcoin_address)
+*                ...
+*               ]
+* @param _additionals array to increase the ExpectedAmount for payees
+* @param _expirationDate timestamp after that the signed request cannot be broadcasted
+* @param _signature ECDSA signature in bytes
+
+* @return Returns the id of the request
+
+
+### Accept a request 
+` function accept(bytes32 _requestId) ` 
+
+msg.sender must be _payer or an extension used by the request
+A request can also be accepted by using directly the payment function on a request in the Created status
+ 
+* @param _requestId id of the request
+
+
+### Cancel a request
+` function cancel(bytes32 _requestId)` 
+ 
+msg.sender must be the extension used by the request, the _payer or the _payee.
+Only request with all payees balance equals to zero can be cancel
+ 
+* @param _requestId id of the request
+
+
+### Pay a request
+The payments are made direclty on the bitcoin blockchain
+
+### Refund a request
+The refunds are made direclty on the bitcoin blockchain
+
+### Declare a subtract 
+` subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)` 
+
+ 
+msg.sender must be _payee
+the request must be accepted or created
+ 
+* @param _requestId id of the request
+* @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for ) 
+
+
+### Declare an additional
+` function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)` 
+
+msg.sender must be _payer
+the request must be accepted or created
+ 
+* @param _requestId id of the request
+* @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
+
+
 ## Bug bounty
 See this article https://blog.request.network/request-network-bug-bounty-live-ee3297e46695
 

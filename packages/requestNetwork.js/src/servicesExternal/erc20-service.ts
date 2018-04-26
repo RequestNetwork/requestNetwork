@@ -1,4 +1,4 @@
-import { Web3Single } from './web3-single';
+import Web3Single from './web3-single';
 
 // @ts-ignore
 import * as Web3PromiEvent from 'web3-core-promievent';

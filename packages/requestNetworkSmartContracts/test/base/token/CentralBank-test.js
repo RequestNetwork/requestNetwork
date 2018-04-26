@@ -1,4 +1,7 @@
-const utils = require("../../utils.js");
+var config = require("../../config.js"); var utils = require("../../utils.js");
+if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
+  return;
+}
 
 const CentralBankContract = artifacts.require("./base/token/CentralBank");
 var BigNumber = require('bignumber.js');
@@ -24,7 +27,7 @@ contract('central bank contract ', accounts => {
     const centralBankInstance = await CentralBankContract.new();
     assert.equal(await centralBankInstance.totalSupply(), 0);
     
-    centralBankInstance.mint(100);
+    await centralBankInstance.mint(100);
     assert.equal((await centralBankInstance.totalSupply()).toNumber(), 100);
   });
 
@@ -32,9 +35,9 @@ contract('central bank contract ', accounts => {
     const centralBankInstance = await CentralBankContract.new();
     assert.equal(await centralBankInstance.totalSupply(), 0);
     
-    centralBankInstance.mint(100);
-    centralBankInstance.mint(100);
-    centralBankInstance.mint(100);
+    await centralBankInstance.mint(100);
+    await centralBankInstance.mint(100);
+    await centralBankInstance.mint(100);
     assert.equal((await centralBankInstance.totalSupply()).toNumber(), 300);
     assert.equal((await centralBankInstance.balanceOf(account1)).toNumber(), 300);
   });
@@ -42,7 +45,7 @@ contract('central bank contract ', accounts => {
   it("mints maximum 10e21 tokens at once", async () => {
     const centralBankInstance = await CentralBankContract.new();
     assert.equal(await centralBankInstance.totalSupply(), 0);
-    
+
     await centralBankInstance.mint(new BigNumber(10).pow(21).add(1));
     
     assert.equal((await centralBankInstance.totalSupply()).toNumber(), new BigNumber(10).pow(21));

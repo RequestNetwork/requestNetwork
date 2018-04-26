@@ -42,6 +42,7 @@ export interface IPayee {
 export interface IPayer {
     idAddress: string;
     refundAddress?: string;
+    bitcoinRefundAddresses?: string[];
 }
 
 // Data of a Request
@@ -92,6 +93,11 @@ export interface IRequestCreationOptions {
     data?: any;
     extensions?: object;
     transactionOptions?: ITransactionOptions;
+}
+
+// options depending on currency when broadcasting a Request
+export interface IBroadcastCurrencyOptions {
+    amountsToPayAtCreation?: Amount[];
 }
 
 // Type for every amount information coming to the library

@@ -5,6 +5,7 @@ declare module '*.json' {
 
 declare module 'requestnetworkartifacts';
 declare module 'ethereumjs-util';
+declare module 'wallet-address-validator';
 declare module 'bn.js';
 declare module 'web3-core-promievent';
 declare module 'ipfs-api';

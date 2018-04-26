@@ -1,3 +1,9 @@
+var config = require("../config.js");
+var utils = require("../utils.js");
+if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
+  return;
+}
+
 const BigNumber = require('bignumber.js');
 
 const BurnerContract = artifacts.require("./core/Burner.sol");

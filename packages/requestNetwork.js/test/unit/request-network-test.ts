@@ -53,6 +53,7 @@ describe('Request Network API', () => {
        expect(requestNetwork.requestCoreService).to.exist;
        expect(requestNetwork.requestERC20Service).to.exist;
        expect(requestNetwork.requestEthereumService).to.exist;
+       expect(requestNetwork.requestBitcoinNodesValidationService).to.exist;
     });
 
     it('creates a ETH request from payee', async () => {
@@ -404,6 +405,63 @@ describe('Request Network API', () => {
         );
 
         const { request } = await requestNetwork.broadcastSignedRequest(signedRequest, examplePayer);
+
+        const data = await request.getData();
+        expect(data.payee.balance.toNumber()).to.equal(0);
+    });
+
+    it('creates a Bitcoin request from payee', async () => {
+        const examplePayeesBTC = [{
+            idAddress: accounts[0],
+            paymentAddress: 'mxp1Nmde8EyuB93YanAvQg8uSxzCs1iycs',
+            additional: 5,
+            expectedAmount: 100,
+        }];
+        const examplePayerBTC = {
+            idAddress: accounts[1],
+            bitcoinRefundAddresses: ['mg5AMpbvbKU6D6k3eUe4R7Q4jbcFimPTF9'],
+        };
+
+        const role = Types.Role.Payee;
+        const { request } = await requestNetwork.createRequest(
+            role,
+            Types.Currency.BTC,
+            examplePayeesBTC,
+            examplePayerBTC
+        );
+
+        expect(request.requestId).to.exist;
+        expect(request.currency).to.equal(Types.Currency.BTC);
+        
+        const requestData = await request.getData();
+        expect(requestData.creator).to.equal(examplePayees[0].idAddress);
+        expect(requestData.payee.address).to.equal(examplePayees[0].idAddress);
+        expect(requestData.payee.balance.toNumber()).to.equal(0);
+        expect(requestData.payee.expectedAmount.toNumber()).to.equal(examplePayees[0].expectedAmount);
+        expect(requestData.payer).to.equal(examplePayer.idAddress);
+        expect(requestData.subPayees.length).to.equal(0);
+    });
+
+    it('broadcasts a BTC signed request', async () => {
+        const examplePayeesBTC = [{
+            idAddress: accounts[0],
+            paymentAddress: 'mxp1Nmde8EyuB93YanAvQg8uSxzCs1iycs',
+            additional: 5,
+            expectedAmount: 100,
+        }];
+        const examplePayerBTC = {
+            idAddress: accounts[1],
+            bitcoinRefundAddresses: ['mg5AMpbvbKU6D6k3eUe4R7Q4jbcFimPTF9'],
+        };
+
+        const signedRequest = await requestNetwork.createSignedRequest(
+            Types.Role.Payee,
+            Types.Currency.BTC,
+            examplePayeesBTC,
+            Date.now() + 3600*1000
+        );
+
+        const { request } = await requestNetwork.broadcastSignedRequest(signedRequest, examplePayerBTC);
 
         const data = await request.getData();
         expect(data.payee.balance.toNumber()).to.equal(0);

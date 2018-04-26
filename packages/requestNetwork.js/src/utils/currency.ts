@@ -1,4 +1,5 @@
 import requestArtifacts from 'requestnetworkartifacts';
+import RequestBitcoinNodesValidationService from '../servicesContracts/requestBitcoinNodesValidation-service';
 import RequestERC20Service from '../servicesContracts/requestERC20-service';
 import RequestEthereumService from '../servicesContracts/requestEthereum-service';
 import Erc20Service from '../servicesExternal/erc20-service';
@@ -10,6 +11,9 @@ let requestEthereumService: RequestEthereumService;
 // Service containing methods for interacting with the ERC20 currency contract
 let requestERC20Service: RequestERC20Service;
 
+// Service containing methods for interacting with the bitcoin currency contract
+let requestBitcoinNodesValidationService: RequestBitcoinNodesValidationService;
+
 /**
  * Configuration for each currency. The objective is to regroup every information specific to each currency here.
  * It is currently a function to allow instanciation of the services and make a temporary singleton services hack.
@@ -20,11 +24,16 @@ let requestERC20Service: RequestERC20Service;
 function getCurrencyConfig(currency: Types.Currency): {erc20TokenContractAddress: string|null, service: any} {
     // Hack until services are singletons
     if (!requestEthereumService) {
-        requestEthereumService = new RequestEthereumService();
-        requestERC20Service = new RequestERC20Service();
+        requestEthereumService = RequestEthereumService.getInstance();
+        requestERC20Service = RequestERC20Service.getInstance();
+        requestBitcoinNodesValidationService = RequestBitcoinNodesValidationService.getInstance();
     }
 
     return {
+        [Types.Currency.BTC as number]: {
+            erc20TokenContractAddress: null,
+            service: requestBitcoinNodesValidationService,
+        },
         [Types.Currency.ETH as number]: {
             erc20TokenContractAddress: null,
             service: requestEthereumService,
@@ -52,6 +61,7 @@ export default {
     currencyFromContractAddress(address: string): Types.Currency {
         // TODO: Consider merging with the currecny config object
         const currencyMapping: { [index: string]: Types.Currency } = {
+            'RequestBitcoinNodesValidation': Types.Currency.BTC,
             'RequestEthereum': Types.Currency.ETH,
             'RequestERC20': Types.Currency.REQ, // TODO: Update when refactoring artifacts.json
             'TODO DGX': Types.Currency.DGX,
@@ -73,8 +83,8 @@ export default {
             throw new Error(`${currency} is not an ERC20`);
         }
 
-        const testToken = new Erc20Service(currencyContractAddress);
-        return testToken.getAddress();
+        const erc20Token = new Erc20Service(currencyContractAddress);
+        return erc20Token.getAddress();
     },
 
     /**

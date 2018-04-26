@@ -5,7 +5,7 @@ import Erc20Service from '../servicesExternal/erc20-service';
 
 import * as ServicesContracts from '../servicesContracts';
 
-import { Web3Single } from '../servicesExternal/web3-single';
+import Web3Single from '../servicesExternal/web3-single';
 
 import * as ServiceContracts from '../servicesContracts';
 
@@ -28,6 +28,21 @@ const DEFAULT_GAS_ERC20_REFUNDACTION = '100000';
  * The RequestERC20Service class is the interface for the Request Ethereum currency contract
  */
 export default class RequestERC20Service {
+    /**
+     * get the instance of RequestERC20Service
+     * @return  The instance of the RequestERC20Service class.
+     */
+    public static getInstance() {
+        if (!RequestERC20Service._instance) {
+            RequestERC20Service._instance = new this();
+        }
+        return RequestERC20Service._instance;
+    }
+
+    private static _instance: RequestERC20Service;
+
+    public web3Single: Web3Single;
+
     protected ipfs: any;
 
     // RequestCore on blockchain
@@ -40,17 +55,15 @@ export default class RequestERC20Service {
      */
     protected requestCoreServices: any;
 
-    private web3Single: Web3Single;
-
     /**
      * constructor to Instantiates a new RequestERC20Service
      */
-    constructor() {
+    private constructor() {
         this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
 
         this.abiRequestCoreLast = this.web3Single.getContractInstance('last-RequestCore').abi;
-        this.requestCoreServices = new RequestCoreService();
+        this.requestCoreServices = RequestCoreService.getInstance();
     }
 
     /**
@@ -1268,30 +1281,31 @@ export default class RequestERC20Service {
      * @return  promise of the information from the currency contract of the request
      */
     public getRequestCurrencyContractInfo(
-        _requestId: string,
-        currencyContractAddress: string,
+        requestData: any,
         coreContract: any): Promise < any > {
         return new Promise(async (resolve, reject) => {
             try {
-                const currencyContract = this.web3Single.getContractInstance(currencyContractAddress);
+                const currencyContract = this.web3Single.getContractInstance(requestData.currencyContract);
 
-                let payeePaymentAddress: string|undefined = await currencyContract.instance.methods.payeesPaymentAddress(_requestId, 0).call();
+                let payeePaymentAddress: string|undefined = await currencyContract.instance.methods.payeesPaymentAddress(requestData.requestId, 0).call();
                 payeePaymentAddress = payeePaymentAddress !== EMPTY_BYTES_20 ? payeePaymentAddress : undefined;
 
                 // get subPayees payment addresses
-                const subPayeesCount = await coreContract.instance.methods.getSubPayeesCount(_requestId).call();
+                const subPayeesCount = await coreContract.instance.methods.getSubPayeesCount(requestData.requestId).call();
                 const subPayeesPaymentAddress: string[] = [];
                 for (let i = 0; i < subPayeesCount; i++) {
-                    const paymentAddress = await currencyContract.instance.methods.payeesPaymentAddress(_requestId, i + 1).call();
+                    const paymentAddress = await currencyContract.instance.methods.payeesPaymentAddress(requestData.requestId, i + 1).call();
                     subPayeesPaymentAddress.push(paymentAddress !== EMPTY_BYTES_20 ? paymentAddress : undefined);
                 }
 
-                let payerRefundAddress: string|undefined = await currencyContract.instance.methods.payerRefundAddress(_requestId).call();
+                let payerRefundAddress: string|undefined = await currencyContract.instance.methods.payerRefundAddress(requestData.requestId).call();
                 payerRefundAddress = payerRefundAddress !== EMPTY_BYTES_20 ? payerRefundAddress : undefined;
 
                 const tokenAddress: string = await currencyContract.instance.methods.addressToken().call();
 
-                return resolve({tokenAddress, payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress});
+                requestData.currencyContract = {tokenAddress, payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress, address: requestData.currencyContract};
+
+                return resolve(requestData);
             } catch (e) {
                 return reject(e);
             }
@@ -1400,8 +1414,9 @@ export default class RequestERC20Service {
      * @param   _toBlock    search events until this block (optional)
      * @return  promise of the object containing the events from the currency contract of the request (always {} here)
      */
-    public getRequestEventsCurrencyContractInfo(
+    public async getRequestEventsCurrencyContractInfo(
         _request: any,
+        _coreContract: any,
         _fromBlock ?: number,
         _toBlock ?: number): Promise < any > {
         return Promise.resolve([]);
@@ -1524,4 +1539,5 @@ export default class RequestERC20Service {
     private getLastInstanceRequestERC20(_tokenAddress: string): any {
         return this.web3Single.getContractInstance('last-requesterc20-' + _tokenAddress);
     }
+
 }

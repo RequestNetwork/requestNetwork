@@ -1,9 +1,10 @@
 import Web3PromiEvent = require('web3-core-promievent');
+import RequestBitcoinNodesValidationService from '../servicesContracts/requestBitcoinNodesValidation-service';
 import RequestERC20Service from '../servicesContracts/requestERC20-service';
 import RequestEthereumService from '../servicesContracts/requestEthereum-service';
 import RequestCoreService from '../servicesCore/requestCore-service';
 import Ipfs from '../servicesExternal/ipfs-service';
-import { Web3Single } from '../servicesExternal/web3-single';
+import Web3Single from '../servicesExternal/web3-single';
 import * as Types from '../types';
 import currencyUtils from '../utils/currency';
 import Request from './request';
@@ -24,6 +25,15 @@ export default class RequestNetwork {
      * @memberof RequestNetwork
      */
     public requestCoreService: RequestCoreService;
+
+    /**
+     * RequestBitcoinNodesValidationService instance to interact directly with the bitcoin currency contract
+     * Not the recommended way to interract with the library.
+     *
+     * @type {RequestBitcoinNodesValidationService}
+     * @memberof RequestNetwork
+     */
+    public requestBitcoinNodesValidationService: RequestBitcoinNodesValidationService;
 
     /**
      * RequestERC20Service instance to interact directly with the ERC20 currency contract
@@ -77,7 +87,8 @@ export default class RequestNetwork {
 
         // Initialize the services
         // Let currencyUtils instanciate the currency services
-        this.requestCoreService = new RequestCoreService();
+        this.requestCoreService = RequestCoreService.getInstance();
+        this.requestBitcoinNodesValidationService = currencyUtils.serviceForCurrency(Types.Currency.BTC);
         this.requestERC20Service = currencyUtils.serviceForCurrency(Types.Currency.REQ);
         this.requestEthereumService = currencyUtils.serviceForCurrency(Types.Currency.ETH);
     }
@@ -176,6 +187,33 @@ export default class RequestNetwork {
             }
         }
 
+        // Create a BTCRequest
+        if (currency === Types.Currency.BTC) {
+            const requestBitcoinNodesValidationService: RequestBitcoinNodesValidationService = currencyUtils.serviceForCurrency(currency);
+            if (as === Types.Role.Payee) {
+                if (payer.refundAddress) {
+                    throw new Error('payer.refundAddress cannot be provided for currency BTC. Use payer.bitcoinRefundAddresses instead.');
+                }
+                // Create a BTCRequest as Payee
+                promise = requestBitcoinNodesValidationService.createRequestAsPayee(
+                    payees.map(payee => payee.idAddress),
+                    payees.map(payee => payee.expectedAmount),
+                    payer.idAddress,
+                    payees.map(payee => payee.paymentAddress),
+                    payer.bitcoinRefundAddresses || [],
+                    requestOptions.data && JSON.stringify(requestOptions.data),
+                    undefined, // _extension,
+                    undefined, // _extensionParams,
+                    requestOptions.transactionOptions,
+                );
+            }
+
+            if (as === Types.Role.Payer) {
+                // Create a BTCRequest as Payer
+                throw new Error(`'createRequestAsPayer' not implemented for BTC`);
+            }
+        }
+
         if (!promise) {
             throw new Error('Currency not implemented');
         }
@@ -234,7 +272,7 @@ export default class RequestNetwork {
         if (currencyUtils.isErc20(currency)) {
             const addressTestToken = currencyUtils.erc20TokenAddress(currency);
             const requestERC20: RequestERC20Service = currencyUtils.serviceForCurrency(currency);
-            // Create an ERC20 Signed Request as Payer
+            // Create an ERC20 Signed Request as Payee
             signedRequestData = await requestERC20.signRequestAsPayee(
                 addressTestToken,
                 payees.map(payee => payee.idAddress),
@@ -250,8 +288,23 @@ export default class RequestNetwork {
         if (currency === Types.Currency.ETH) {
             const requestEthereumService = currencyUtils.serviceForCurrency(currency);
 
-            // Create an ETH Signed Request as Payer
+            // Create an ETH Signed Request as Payee
             signedRequestData = await requestEthereumService.signRequestAsPayee(
+                payees.map(payee => payee.idAddress),
+                payees.map(payee => payee.expectedAmount),
+                expirationDate,
+                payees.map(payee => payee.paymentAddress),
+                requestOptions.data && JSON.stringify(requestOptions.data),
+                undefined, // _extension,
+                undefined, // _extensionParams,
+                requestOptions.transactionOptions && requestOptions.transactionOptions.from,
+            );
+        }
+        if (currency === Types.Currency.BTC) {
+            const requestBitcoinNodesValidationService = currencyUtils.serviceForCurrency(currency);
+
+            // Create an BTC Signed Request as Payee
+            signedRequestData = await requestBitcoinNodesValidationService.signRequestAsPayee(
                 payees.map(payee => payee.idAddress),
                 payees.map(payee => payee.expectedAmount),
                 expirationDate,
@@ -280,27 +333,60 @@ export default class RequestNetwork {
     public broadcastSignedRequest(
         signedRequest: SignedRequest,
         payer: Types.IPayer,
-        amountsToPayAtCreation: Types.Amount[] = [],
         additionals: Types.Amount[] = [],
+        broadcastCurrencyOptions: Types.IBroadcastCurrencyOptions = {},
         requestOptions: Types.IRequestCreationOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
-        if (payer.refundAddress && payer.idAddress !== payer.refundAddress) {
-            throw new Error('Different idAddress and paymentAddress for Payer of signed request not yet supported');
-        }
-
         const currency: Types.Currency = currencyUtils.currencyFromContractAddress(
             signedRequest.signedRequestData.currencyContract,
         );
+        let promise;
 
         // new promiEvent to wrap the promiEvent returned by the service. It is necessary, in order to add the Request object in the resolution of the promise
         const promiEvent = Web3PromiEvent();
-        const service = currencyUtils.serviceForCurrency(currency);
-        const promise = service.broadcastSignedRequestAsPayer(
-            signedRequest.signedRequestData,
-            amountsToPayAtCreation,
-            additionals,
-            Object.assign({ from: payer.idAddress }, requestOptions.transactionOptions),
-        );
+
+        // Broadcast an Ethereum or ERC20 Request
+        if (currencyUtils.isErc20(currency) || currency === Types.Currency.ETH) {
+            if (payer.refundAddress && payer.idAddress !== payer.refundAddress) {
+                throw new Error('Different idAddress and paymentAddress for Payer of signed request not yet supported');
+            }
+            const service = currencyUtils.serviceForCurrency(currency);
+            promise = service.broadcastSignedRequestAsPayer(
+                signedRequest.signedRequestData,
+                broadcastCurrencyOptions.amountsToPayAtCreation,
+                additionals,
+                Object.assign({ from: payer.idAddress }, requestOptions.transactionOptions),
+            );
+        }
+
+        // Broadcast a BTCRequest
+        if (currency === Types.Currency.BTC) {
+            const requestBitcoinNodesValidationService: RequestBitcoinNodesValidationService = currencyUtils.serviceForCurrency(currency);
+
+            if (payer.refundAddress) {
+                throw new Error('payer.refundAddress cannot be provided for currency BTC. Use payer.bitcoinRefundAddresses instead.');
+            }
+
+            if (!payer.bitcoinRefundAddresses) {
+                throw new Error('payer.bitcoinRefundAddresses must be given for currency BTC');
+            }
+
+            if (broadcastCurrencyOptions.amountsToPayAtCreation) {
+                throw new Error('amountsToPayAtCreation cannot be provided broadcastCurrencyOptions for currency BTC');
+            }
+
+            // Create a BTCRequest as Payee
+            promise = requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(
+                signedRequest.signedRequestData,
+                payer.bitcoinRefundAddresses,
+                additionals,
+                Object.assign({ from: payer.idAddress }, requestOptions.transactionOptions),
+            );
+        }
+
+        if (!promise) {
+            throw new Error('Currency not implemented');
+        }
 
         promise.then(({ request, transaction }: { request: Types.IRequestData, transaction: { hash: string } }) => {
             return promiEvent.resolve({

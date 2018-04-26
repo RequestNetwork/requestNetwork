@@ -1,6 +1,7 @@
 import requestArtifacts from 'requestnetworkartifacts';
 
 // services
+import RequestBitcoinNodesValidationService from './servicesContracts/requestBitcoinNodesValidation-service';
 import RequestERC20Service from './servicesContracts/requestERC20-service';
 import RequestEthereumService from './servicesContracts/requestEthereum-service';
 
@@ -17,9 +18,11 @@ export const getServiceFromAddress = (_networkName: string, _address: string): a
 
     switch (artifact.contractName) {
         case 'RequestERC20':
-            return new RequestERC20Service();
+            return RequestERC20Service.getInstance();
         case 'RequestEthereum':
-            return new RequestEthereumService();
+            return RequestEthereumService.getInstance();
+        case 'RequestBitcoinNodesValidation':
+            return RequestBitcoinNodesValidationService.getInstance();
         default:
             return;
     }

@@ -6,12 +6,12 @@ const tokenMintAtStart = '100000000000000000000000000000000000000000000000000000
 import requestArtifacts from 'requestnetworkartifacts';
 import TestToken from '../test/centralBank';
 
-import { Web3Single } from '../src/servicesExternal/web3-single';
+import Web3Single from '../src/servicesExternal/web3-single';
 
 const requestCoreJson = requestArtifacts('private', 'last-RequestCore');
 const requestEthereumJson = requestArtifacts('private', 'last-RequestEthereum');
 const requestERC20Json = requestArtifacts('private', 'last-RequestErc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10');
-
+const requestBitcoinNodesValidationJson = requestArtifacts('private', 'last-RequestBitcoinNodesValidation');
 
 
 Web3Single.init('http://localhost:8545', 10000000000);
@@ -21,10 +21,12 @@ const instanceRequestCore = new web3Single.web3.eth.Contract(requestCoreJson.abi
 const instanceRequestEthereum = new web3Single.web3.eth.Contract(requestEthereumJson.abi);
 const instanceRequestERC20 = new web3Single.web3.eth.Contract(requestERC20Json.abi);
 const instanceERC20TestToken = new web3Single.web3.eth.Contract(TestToken.abi);
+const instanceRequestBitcoinNodesValidation = new web3Single.web3.eth.Contract(requestBitcoinNodesValidationJson.abi);
 
 let addressRequestCore: string;
 let addressRequestEthereum: string;
 let addressRequestERC20: string;
+let addressRequestBitcoinNodesValidation: string;
 
 let addressCentralBank: string;
 
@@ -45,17 +47,16 @@ web3Single.getDefaultAccount().then((creator) => {
         gas: 15000000
     }, (error: Error, transactionHash: string) => {
         if (error) {
-            console.log('RequestCore - error transactionHash ##########################')
-            console.log(error)
-            console.log(transactionHash)
-            console.log('RequestCore - error transactionHash ##########################')
+            console.error('RequestCore - error transactionHash ##########################')
+            console.error(error)
+            console.error(transactionHash)
+            console.error('RequestCore - error transactionHash ##########################')
         }
-        // console.log('RequestCore - transactionHash : '+transactionHash);
     })
     .on('error', (error: Error) => {
-        console.log('RequestCore - error ##########################')
-        console.log(error)
-        console.log('RequestCore - error ##########################')
+        console.error('RequestCore - error ##########################')
+        console.error(error)
+        console.error('RequestCore - error ##########################')
     })
     .then((newContractInstance: any) => {
         addressRequestCore = newContractInstance.options.address;
@@ -71,16 +72,16 @@ web3Single.getDefaultAccount().then((creator) => {
                 gas: 15000000
             }, (error: Error, transactionHash: string) => {
                 if (error) {
-                    console.log('RequestEthereum - error transactionHash ##########################')
-                    console.log(error)
-                    console.log(transactionHash)
-                    console.log('RequestEthereum - error transactionHash ##########################')
+                    console.error('RequestEthereum - error transactionHash ##########################')
+                    console.error(error)
+                    console.error(transactionHash)
+                    console.error('RequestEthereum - error transactionHash ##########################')
                 }
             })
             .on('error', (error: Error) => {
-                console.log('RequestEthereum - error ##########################')
-                console.log(error)
-                console.log('RequestEthereum - error ##########################')
+                console.error('RequestEthereum - error ##########################')
+                console.error(error)
+                console.error('RequestEthereum - error ##########################')
             })
             .then((newContractInstance: any) => {
                 console.log('RequestEthereum - address : ' + newContractInstance.options.address) // instance with the new contract address
@@ -97,17 +98,16 @@ web3Single.getDefaultAccount().then((creator) => {
                     gas: 1500000
                 }, (error: Error, transactionHash: string) => {
                     if (error) {
-                        console.log('TestToken - error transactionHash ##########################')
-                        console.log(error)
-                        console.log(transactionHash)
-                        console.log('TestToken - error transactionHash ##########################')
+                        console.error('TestToken - error transactionHash ##########################')
+                        console.error(error)
+                        console.error(transactionHash)
+                        console.error('TestToken - error transactionHash ##########################')
                     }
-                    // console.log('RequestCore - transactionHash : '+transactionHash);
                 })
                 .on('error', (error: Error) => {
-                    console.log('TestToken - error ##########################')
-                    console.log(error)
-                    console.log('TestToken - error ##########################')
+                    console.error('TestToken - error ##########################')
+                    console.error(error)
+                    console.error('TestToken - error ##########################')
                 })
                 .then( (newContractInstance: any) => {
                     console.log('TestToken - address : ' + newContractInstance.options.address);
@@ -122,17 +122,16 @@ web3Single.getDefaultAccount().then((creator) => {
                         gas: 15000000
                     }, (error: Error, transactionHash: string) => {
                         if (error) {
-                            console.log('RequestERC20 - error transactionHash ##########################')
-                            console.log(error)
-                            console.log(transactionHash)
-                            console.log('RequestERC20 - error transactionHash ##########################')
+                            console.error('RequestERC20 - error transactionHash ##########################')
+                            console.error(error)
+                            console.error(transactionHash)
+                            console.error('RequestERC20 - error transactionHash ##########################')
                         }
-                        // console.log('RequestCore - transactionHash : '+transactionHash);
                     })
                     .on('error', (error: Error) => {
-                        console.log('RequestERC20 - error ##########################')
-                        console.log(error)
-                        console.log('RequestERC20 - error ##########################')
+                        console.error('RequestERC20 - error ##########################')
+                        console.error(error)
+                        console.error('RequestERC20 - error ##########################')
                     })
                     .then((newContractInstance: any) => {
                         console.log('RequestERC20 - address : ' + newContractInstance.options.address) // instance with the new contract address
@@ -154,9 +153,9 @@ web3Single.getDefaultAccount().then((creator) => {
                                 // we do nothing here!
                             },
                             (error: Error) => {
-                                console.log('adminAddTrustedCurrencyContract - error ##########################')
-                                console.log(error)
-                                console.log('adminAddTrustedCurrencyContract - error ##########################')
+                                console.error('adminAddTrustedCurrencyContract - error ##########################')
+                                console.error(error)
+                                console.error('adminAddTrustedCurrencyContract - error ##########################')
                             });
 
                         web3Single.broadcastMethod(
@@ -173,9 +172,9 @@ web3Single.getDefaultAccount().then((creator) => {
                                 // we do nothing here!
                             },
                             (error: Error) => {
-                                console.log('adminAddTrustedCurrencyContract - error ##########################')
-                                console.log(error)
-                                console.log('adminAddTrustedCurrencyContract - error ##########################')
+                                console.error('adminAddTrustedCurrencyContract - error ##########################')
+                                console.error(error)
+                                console.error('adminAddTrustedCurrencyContract - error ##########################')
                             });
 
                         web3Single.broadcastMethod(
@@ -192,9 +191,9 @@ web3Single.getDefaultAccount().then((creator) => {
                                 // we do nothing here!
                             },
                             (error: Error) => {
-                                console.log('setFeesPerTenThousand - error ##########################')
-                                console.log(error)
-                                console.log('setFeesPerTenThousand - error ##########################')
+                                console.error('setFeesPerTenThousand - error ##########################')
+                                console.error(error)
+                                console.error('setFeesPerTenThousand - error ##########################')
                             });
 
                         web3Single.broadcastMethod(
@@ -211,13 +210,57 @@ web3Single.getDefaultAccount().then((creator) => {
                                 // we do nothing here!
                             },
                             (error: Error) => {
-                                console.log('setMaxCollectable - error ##########################')
-                                console.log(error)
-                                console.log('setMaxCollectable - error ##########################')
+                                console.error('setMaxCollectable - error ##########################')
+                                console.error(error)
+                                console.error('setMaxCollectable - error ##########################')
                             });
-
                         });
 
+                    instanceRequestBitcoinNodesValidation.deploy({
+                            data: requestBitcoinNodesValidationJson.bytecode,
+                            arguments: [addressRequestCore, addressContractBurner]
+                        })
+                        .send({
+                            from: creator,
+                            gas: 15000000
+                        }, (error: Error, transactionHash: string) => {
+                            if (error) {
+                                console.error('RequestBitcoinNodesValidation - error transactionHash ##########################')
+                                console.error(error)
+                                console.error(transactionHash)
+                                console.error('RequestBitcoinNodesValidation - error transactionHash ##########################')
+                            }
+                        })
+                        .on('error', (error: Error) => {
+                            console.error('RequestBitcoinNodesValidation - error transactionHash ##########################')
+                            console.error(error)
+                            console.error('RequestBitcoinNodesValidation - error transactionHash ##########################')
+                        })
+                        .then((newContractInstance: any) => {
+                            addressRequestBitcoinNodesValidation = newContractInstance.options.address;
+                            console.log('RequestBitcoinNodesValidation - address : ' + addressRequestBitcoinNodesValidation) // instance with the new contract address
+
+
+                            web3Single.broadcastMethod(
+                                newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestBitcoinNodesValidation),
+                                (transactionHash: string) => {
+                                    // we do nothing here!
+                                },
+                                (receipt: any) => {
+                                    if (receipt.status == 1) {
+                                        console.log('adminAddTrustedCurrencyContract: ' + addressRequestBitcoinNodesValidation);
+                                    }
+                                },
+                                (confirmationNumber: number, receipt: any) => {
+                                    // we do nothing here!
+                                },
+                                (error: Error) => {
+                                    console.error('adminAddTrustedCurrencyContract - error ##########################')
+                                    console.error(error)
+                                    console.error('adminAddTrustedCurrencyContract - error ##########################')
+                                });
+
+                    });
                 });
             });
     });
