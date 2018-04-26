@@ -40,7 +40,7 @@
     "bn.js": "4.11.8",
     "ethereumjs-util": "5.1.2",
     "ipfs-api": "15.1.0",
-    "requestnetworkartifacts": "1.2.0-bitcoinNodesValidationBeta",
+    "requestnetworkartifacts": "1.2.0-bitcoinNodesValidationBeta1",
     "tslib": "1.9.0",
     "typescript": "2.8.1",
     "wallet-address-validator": "0.1.6",
