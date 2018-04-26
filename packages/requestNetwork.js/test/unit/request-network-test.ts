@@ -34,7 +34,7 @@ describe('Request Network API', () => {
 
         requestNetwork = new RequestNetwork({
             provider: 'http://localhost:8545',
-            networkId: 10000000000
+            ethNetworkId: 10000000000
         });
     });
 
