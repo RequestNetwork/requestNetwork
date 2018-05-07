@@ -10,5 +10,6 @@
     "requestnetwork"
   ],
   "license": "MIT",
-  "repository": "github:RequestNetwork/requestNetwork"
+  "repository": "github:RequestNetwork/requestNetwork",
+  "main": "index.js"
 }
