@@ -45,7 +45,7 @@ contract RequestEthereumCollect is Pausable {
 	/*
 	 * @dev compute the fees
 	 * @param _expectedAmount amount expected for the request
-	 * @return 
+	 * @return the expected amount of fees in wei
 	 */  
 	function collectEstimation(int256 _expectedAmount)
 		public

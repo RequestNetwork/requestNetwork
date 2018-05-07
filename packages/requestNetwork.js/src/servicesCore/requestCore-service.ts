@@ -186,7 +186,7 @@ export default class RequestCoreService {
 
                 // if already mined
                 if (txReceipt) {
-                    if (parseInt(txReceipt.status, 16) !== 1 && txReceipt.status !== 1) {
+                    if (parseInt(txReceipt.status, 16) !== 1 && txReceipt.status !== 1 && txReceipt.status !== true) {
                         errors.push('transaction has failed');
                     } else if (transaction.method
                         && transaction.method.parameters
