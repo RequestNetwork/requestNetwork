@@ -67,21 +67,11 @@ export default class Ipfs {
             if (!_hash || _hash === '') {
                 return resolve();
             }
-            let data = '';
-            this.ipfs.cat(_hash, (err: Error, stream: any) => {
-                if (err) return reject(err);
-
-                stream.on('data', (chunk: any) => {
-                   data += chunk;
-                });
-
-                stream.on('end', () => {
-                   return resolve(data);
-                });
-
-                stream.on('error', (errOnStrem: Error) => {
-                   return reject(errOnStrem);
-                });
+            this.ipfs.cat(_hash, {timeout: config.ipfs.timeout}, (err: Error, data: any) => {
+                if (err) {
+                    return reject(err);
+                }
+                return resolve(data.toString());
             });
         });
     }

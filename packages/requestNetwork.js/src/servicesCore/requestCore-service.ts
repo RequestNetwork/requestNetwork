@@ -137,8 +137,13 @@ export default class RequestCoreService {
 
                 // get ipfs data if needed
                 if (dataResult.data && dataResult.data !== '') {
-                    dataResult.data = {data: JSON.parse(await this.ipfs.getFile(dataResult.data)),
-                                        hash: dataResult.data};
+                    try {
+                        const dataStr = dataResult.data;
+                        dataResult.data = {hash: dataStr};
+                        dataResult.data.data = JSON.parse(await this.ipfs.getFile(dataStr));
+                    } catch (exception) {
+                        dataResult.data.warning = exception.message;
+                    }
                 } else {
                     dataResult.data = undefined;
                 }

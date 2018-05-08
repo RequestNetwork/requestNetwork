@@ -128,5 +128,6 @@ describe('getRequestEvents', () => {
         expect(events[12].data.deltaAmount, 'payee is wrong').to.equal(arbitraryAmount3.toString());
         expect(events[12].data.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, currentNumRequest));
     });
+
 });
 
