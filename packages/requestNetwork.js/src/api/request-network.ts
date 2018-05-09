@@ -71,7 +71,7 @@ export default class RequestNetwork {
         let bitoinNetworkId;
         // Parameter handling
         let provider = options;
-        if (typeof options === 'object') {
+        if (typeof options === 'object' && options.constructor.name !== 'HttpProvider') {
             provider = options.provider;
             ethNetworkId = options.ethNetworkId;
             useIpfsPublic = options.useIpfsPublic;
