@@ -10,6 +10,7 @@ var config = {
         "CentralBank-test.js":false,
         "SafeMathInt-test.js":false,
         "burner-test.js":false,
+        "requestCollectInterface.js":false,
     // },
     // "synchrone": {
     //      "ethereum.js": {

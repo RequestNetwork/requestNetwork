@@ -78,7 +78,8 @@ contract RequestCollectInterface is Pausable {
 		onlyOwner
 	{
 		rateFeesNumerator = _rateFeesNumerator;
-		UpdateRateFees(_rateFeesNumerator, _rateFeesDenominator);
+        rateFeesDenominator = _rateFeesDenominator;
+		UpdateRateFees(rateFeesNumerator, rateFeesDenominator);
 	}
 
 	/*
@@ -90,7 +91,7 @@ contract RequestCollectInterface is Pausable {
 		onlyOwner
 	{
 		maxFees = _newMaxFees;
-		UpdateMaxFees(_newMaxFees);
+		UpdateMaxFees(maxFees);
 	}
 
 	/*

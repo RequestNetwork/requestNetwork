@@ -1,6 +1,6 @@
 {
   "name": "requestnetworkartifacts",
-  "version": "1.2.0-bitcoinNodesValidationBeta1",
+  "version": "1.2.0-bitcoinNodesValidationBeta2",
   "description": "Artifacts for Request Network Ethereum contracts",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkArtifacts",
   "keywords": [
