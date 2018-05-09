@@ -490,7 +490,7 @@ export default class RequestERC20Service {
 
             try {
                 const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);
-                const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+                const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
                 const instanceRequestERC20Last = this.getLastInstanceRequestERC20(tokenAddressERC20);
                 if (!instanceRequestERC20Last) {
                     return promiEvent.reject(Error('token not supported'));
@@ -1137,7 +1137,7 @@ export default class RequestERC20Service {
         _currencyContractAddress: string): Promise<string> {
         const contract = this.web3Single.getContractInstance(_currencyContractAddress);
         if (! contract) return '';
-        return contract.instance.methods.addressToken().call();
+        return contract.instance.methods.erc20Token().call();
     }
 
     /**
@@ -1192,7 +1192,7 @@ export default class RequestERC20Service {
             _options.from = _options.from ? _options.from : defaultAccount;
 
             const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);
-            const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+            const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
             const instanceRequestERC20Last = this.getLastInstanceRequestERC20(tokenAddressERC20);
             if (!instanceRequestERC20Last) {
                 return promiEvent.reject(Error('token not supported'));
@@ -1266,7 +1266,7 @@ export default class RequestERC20Service {
                 _options.from = _options.from ? _options.from : defaultAccount;
 
                 const contract = this.web3Single.getContractInstance(_currencyContractAddress);
-                const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+                const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
                 const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
                 return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
@@ -1301,7 +1301,7 @@ export default class RequestERC20Service {
                 let payerRefundAddress: string|undefined = await currencyContract.instance.methods.payerRefundAddress(requestData.requestId).call();
                 payerRefundAddress = payerRefundAddress !== EMPTY_BYTES_20 ? payerRefundAddress : undefined;
 
-                const tokenAddress: string = await currencyContract.instance.methods.addressToken().call();
+                const tokenAddress: string = await currencyContract.instance.methods.erc20Token().call();
 
                 requestData.currencyContract = {tokenAddress, payeePaymentAddress, subPayeesPaymentAddress, payerRefundAddress, address: requestData.currencyContract};
 
@@ -1367,7 +1367,7 @@ export default class RequestERC20Service {
             }
 
             const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);
-            const tokenAddressERC20 = await contract.instance.methods.addressToken().call();
+            const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
             const instanceRequestERC20Last = this.getLastInstanceRequestERC20(tokenAddressERC20);
             if (!instanceRequestERC20Last) {
                 return reject(Error('token not supported'));
