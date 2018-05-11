@@ -24,8 +24,16 @@
     "main": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
+        "last-requesterc20-0x8f8221afbb33998d8584a2b05749ba73c37a938a": "RequestERC20/RequestERC20-0.2.2-req-main.json",
+        "last-requesterc20-0xdd974d5c2e2928dea5f71b9825b8b646686bd200": "RequestERC20/RequestERC20-0.2.2-knc-main.json",
+        "last-requesterc20-0xd26114cd6ee289accf82350c8d8487fedb8a0c07": "RequestERC20/RequestERC20-0.2.2-omg-main.json",
+        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
 
         "0xdb600fda54568a35b78565b5257125bebc51eb27": "RequestCore/RequestCore-0.0.5-prod.json",
-        "0x3038045cd883abff0c6eea4b1954843c0fa5a735": "RequestEthereum/RequestEthereum-0.0.5-prod.json"
+        "0x3038045cd883abff0c6eea4b1954843c0fa5a735": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
+        "0xc77ceefa6960174accca0c6fdecb5dbd95042cda": "RequestERC20/RequestERC20-0.2.2-req-main.json",
+        "0xa9566758d054f6efcf9b00095538fda3d9d75844": "RequestERC20/RequestERC20-0.2.2-knc-main.json",
+        "0xe44d5393cc60d67c7858aa75cf307c00e837f0e5": "RequestERC20/RequestERC20-0.2.2-omg-main.json",
+        "0x60fc18f243656532fce2265a5278d95cb3afa034": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json"
     }
 }
