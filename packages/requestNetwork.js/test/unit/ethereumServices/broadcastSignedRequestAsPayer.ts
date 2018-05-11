@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
-import RequestNetwork from '../../../src/requestNetwork';
+import RequestNetwork from '../../../src/index';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
@@ -62,7 +62,6 @@ describe('broadcastSignedRequestAsPayer', () => {
                       undefined,
                       payee3PaymentAddress ],
                 signature: '0xcb24e672dd3c47f3599cf8be445072189af8a74c8cebb545b06e119985694fd9149af79b16cd48f2ec51ddfa3d54864bb46f1c3efe76f9b43445ad4fdde0317701' }
-
     });
 
     it('broadcast request as payer no payment no additionals', async () => {
@@ -188,7 +187,7 @@ describe('broadcastSignedRequestAsPayer', () => {
                     {from: payee})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_from must be different than main payee'),'exception not right');
+            utils.expectEqualsException(e, Error('_from must be different than main payee'),'exception not right');
         }
     });
 
@@ -209,7 +208,7 @@ describe('broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_amountToPay must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_amountsToPay must be positives integer'),'exception not right');
         }
     });
 
@@ -230,7 +229,7 @@ describe('broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_additionals must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_additionals must be positives integer'),'exception not right');
         }
     });
 
@@ -248,29 +247,22 @@ describe('broadcastSignedRequestAsPayer', () => {
             const result = await rn.requestEthereumService.broadcastSignedRequestAsPayer(signedRequest)
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('hash is not valid'),'exception not right');
+            utils.expectEqualsException(e, Error('hash is not valid'),'exception not right');
         }
     });
 
     it('broadcast request as signature not valid', async () => {
         try { 
-            const signedRequest = {
-                amountInitial: '100000000',
-                currencyContract: '0xf12b5dd4ead5f743c6baa640b0216200e89b60da',
-                data: 'QmbFpULNpMJEj9LfvhH4hSTfTse5YrS2JvhbHW6bDCNpwS',
-                expirationDate: 7952342400,
-                hash: '0x45ba3046df9e10f5b32c893ad21749d69c473d6629756654f82b9528da6c1480',
-                payee: '0x821aea9a577a9b44299b9c15c88cf3087f3b5544',
-                signature: '0x6df09d4c90bafea043d555caeb3d01d2dc656df2e27741b2b7f66403a682c69070d3ba30119598b766e5eb6413d49d6d91c349e23207b96102f54c69fca967d801'};
+            signedRequest.signature = '0x479de55dc2de60873a72f3f59f2d167388ca31163ebd272702ae4fcd750e6b8b5caa13c34958cd33282703ecad5146960cd7004714b8fd3a0e7db26dfbccdcb501';
  
             const result = await rn.requestEthereumService.broadcastSignedRequestAsPayer(
                     signedRequest,
-                    2000,
-                    1000,
+                    [2000],
+                    [1000],
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsObject(e, Error('payee is not the signer'),'exception not right');
+            utils.expectEqualsException(e, Error('payee is not the signer'),'exception not right');
         }
     });
 
@@ -301,6 +293,6 @@ describe('broadcastSignedRequestAsPayer', () => {
         expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-   
     });
+
 });

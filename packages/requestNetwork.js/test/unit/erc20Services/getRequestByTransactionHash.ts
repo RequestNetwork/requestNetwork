@@ -1,13 +1,16 @@
 import {expect} from 'chai';
 import 'mocha';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import requestArtifacts from 'requestnetworkartifacts';
-import RequestNetwork from '../../../src/requestNetwork';
+import RequestNetwork from '../../../src/index';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+
+const ADDRESS_TOKEN_TEST = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-'+ADDRESS_TOKEN_TEST).networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -24,12 +27,14 @@ let payerRefundAddress: string;
 let coreVersion: any;
 let currentNumRequest: any;
 
-describe('getRequestByTransactionHash', () => {
+describe('erc20 getRequestByTransactionHash', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 200000;
     const arbitraryAmount3 = 30000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000);
-    web3 = rn.requestEthereumService.web3Single.web3;
+    web3 = rn.requestERC20Service.web3Single.web3;
+    const testToken = new Erc20Service(ADDRESS_TOKEN_TEST);
+    const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
@@ -41,18 +46,19 @@ describe('getRequestByTransactionHash', () => {
         payer = accounts[7].toLowerCase();
         payeePaymentAddress = accounts[8].toLowerCase();
         payee3PaymentAddress = accounts[9].toLowerCase();;
-        
         currentNumRequest = await rn.requestCoreService.getCurrentNumRequest();
     });
 
     it('createRequestAsPayee getRequestByTransactionHash', async () => {
-        const result = await rn.requestEthereumService.createRequestAsPayee(
+        const result = await rn.requestERC20Service.createRequestAsPayee(
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
+
         const data: any = await rn.requestCoreService.getRequestByTransactionHash(result.transaction.hash);
 
-        expect(data.transaction.method.name, 'name is wrong').to.equal('createRequestAsPayee');
+        expect(data.transaction.method.name, 'name is wrong').to.equal('createRequestAsPayeeAction');
         expect(data.transaction.method.parameters._payer.toLowerCase(), '_payer is wrong').to.equal(payer);
         expect(data.transaction.method.parameters._expectedAmounts[0], '_expectedAmount is wrong').to.equal(arbitraryAmount.toString());
         expect(data.transaction.method.parameters._expectedAmounts[1], '_expectedAmount is wrong').to.equal(arbitraryAmount2.toString());
@@ -61,17 +67,18 @@ describe('getRequestByTransactionHash', () => {
     });
 
     it('accept getRequestByTransactionHash', async () => {
-        const resultCreateRequestAsPayee = await rn.requestEthereumService.createRequestAsPayee(
+        const resultCreateRequestAsPayee = await rn.requestERC20Service.createRequestAsPayee(
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
 
-        const resultAccept = await rn.requestEthereumService.accept(
+        const resultAccept = await rn.requestERC20Service.accept(
                             resultCreateRequestAsPayee.request.requestId,
                             {from: payer});
 
         const data: any = await rn.requestCoreService.getRequestByTransactionHash(resultAccept.transaction.hash);
-        expect(data.transaction.method.name, 'name is wrong').to.equal('accept');
+        expect(data.transaction.method.name, 'name is wrong').to.equal('acceptAction');
         expect(data.transaction.method.parameters._requestId, '_requestId is wrong').to.equal(resultCreateRequestAsPayee.request.requestId);
 
         utils.expectEqualsBN(data.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
@@ -83,7 +90,7 @@ describe('getRequestByTransactionHash', () => {
         expect(data.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(data.request.state, 'state is wrong').to.equal(1);
-        expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
+        expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
         expect(data.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(data.request.subPayees[0].balance, 0, 'payee2 balance is wrong');
@@ -96,16 +103,20 @@ describe('getRequestByTransactionHash', () => {
     });
 
     it('paymentAction getRequestByTransactionHash', async () => {
-        const resultCreateRequestAsPayee = await rn.requestEthereumService.createRequestAsPayee(
+        const resultCreateRequestAsPayee = await rn.requestERC20Service.createRequestAsPayee(
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
 
-        const resultAccept = await rn.requestEthereumService.accept(
+        const resultAccept = await rn.requestERC20Service.accept(
                             resultCreateRequestAsPayee.request.requestId,
                             {from: payer});
+        // approve
+        await testToken.transfer(payer, arbitraryAmount+arbitraryAmount2+arbitraryAmount3, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(resultCreateRequestAsPayee.request.requestId, arbitraryAmount+arbitraryAmount2+arbitraryAmount3, {from: payer})
 
-        const resultPaymentAction = await rn.requestEthereumService.paymentAction(
+        const resultPaymentAction = await rn.requestERC20Service.paymentAction(
                             resultCreateRequestAsPayee.request.requestId,
                             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                             [1, 2, 3],
@@ -132,28 +143,7 @@ describe('getRequestByTransactionHash', () => {
         expect(data.request.requestId, 'requestId is wrong').to.equal(
                                     utils.getRequestId(addressRequestCore, ++currentNumRequest));
         expect(data.request.state, 'state is wrong').to.equal(1);
-        expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
-
-    });
-
-    it('not valid txHash getRequestByTransactionHash', async () => {
-        try {
-            await rn.requestCoreService.getRequestByTransactionHash('0x9999999999999999999999999999999999999999999999999999999999999999');
-        } catch (e) {
-            expect(e.message, 'exception not right').to.equal('transaction not found');
-        }
-    });
-
-    it('not tx request getRequestByTransactionHash', async () => {
-        const tx = await web3.eth.sendTransaction({from: defaultAccount,
-                                                    to: payee3PaymentAddress,
-                                                    value: 100000});
-        try {
-            await rn.requestCoreService.getRequestByTransactionHash(tx.transactionHash);
-            expect(false, 'exception not thrown').to.be.true;
-        } catch (e) {
-            expect(e.message, 'exception not right').to.equal('Contract is not supported by request');
-        }
+        expect(data.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
     });
 
 });

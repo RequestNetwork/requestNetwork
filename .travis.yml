@@ -15,8 +15,8 @@ before_script:
 - sleep 3
 - lerna run --scope @requestnetwork/request-network.js testdeploy
 script:
-- lerna run --scope @requestnetwork/request-network.js test
-- lerna run --scope request-network-smart-contracts test
+- lerna run --scope @requestnetwork/request-network.js test --stream
+- lerna run --scope request-network-smart-contracts test --stream
 after_failure:
 - cat ipfs-travis.log
 - cat ganache-travis.log

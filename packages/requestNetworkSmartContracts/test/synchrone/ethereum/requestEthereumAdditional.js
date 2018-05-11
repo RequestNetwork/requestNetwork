@@ -140,7 +140,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],1,"new request wrong data : state");
 	});
 
-	it("additionalAction request with amount > expectedAmountAfterAddSub - amountPaid Impossible", async function () {
+	it("additionalAction request with amount > expectedAmount OK", async function () {
 		var r = await requestEthereum.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount+1], {from:payer});
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
@@ -153,7 +153,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 		assert.equal(newReq[2],0,"new request wrong data : state");
 	});
 
-	it("additionalAction request with amount <= expectedAmountAfterAddSub - amountPaid OK", async function () {
+	it("additionalAction request with amount <= expectedAmount OK", async function () {
 		var r = await requestEthereum.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount], {from:payer});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");

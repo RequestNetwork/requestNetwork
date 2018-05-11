@@ -8,11 +8,11 @@
             "name": "Truffle tests smart contracts",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/packages/requestNetworkSmartContracts/node_modules/truffle/build/cli.bundled.js",
+            "program": "${workspaceFolder}/packages/requestNetworkSmartContracts/node_modules/truffle/build/cli.bundled.js",
             "args": ["test"],
             "cwd": "${workspaceFolder}/packages/requestNetworkSmartContracts",
             "outFiles": [
-                "${workspaceRoot}/test/**/*"
+                "${workspaceFolder}/test/**/*"
             ],
             "protocol": "inspector",
         },

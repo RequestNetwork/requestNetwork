@@ -1,4 +1,5 @@
 # Request Smart Contracts Documentation 
+
 ## Introduction
 Welcome to the Request Network Smart Contracts documentation. 
 Using the smart contracts you can create new requests, pay them, consult them or update them from your own on-chain applications. 
@@ -27,11 +28,18 @@ truffle deploy --network development
 Contract addresses
 * RequestCore: 0x8fc2e7f2498f1d06461ee2d547002611b801202b
 * RequestEthereum: 0xd88ab9b1691340e04a5bbf78529c11d592d35f57
+* RequestERC20 token CTBK: 0xc3ba385addea98bb0af084b1e8bdc909f0215bbf  (test token CTBK 0x995d6a8c21f24be1dd04e105dd0d83758343e258)
+* RequestBitcoinNodesValidation: 0xC7450a94237761D2222F6BE4B04a1Dae7A1e6347
 
 ### Develop on the Main net 
 Contract addresses
 * RequestCore: 0xdb600fda54568a35b78565b5257125bebc51eb27
 * RequestEthereum: 0x3038045cd883abff0c6eea4b1954843c0fa5a735
+* RequestERC20 token REQ: 0xc77ceefa6960174accca0c6fdecb5dbd95042cda
+* RequestERC20 token KNC: 0xa9566758d054f6efcf9b00095538fda3d9d75844
+* RequestERC20 token OMG: 0xe44d5393cc60d67c7858aa75cf307c00e837f0e5
+* Request Bitcoin with node validation: 0x60fc18f243656532fce2265a5278d95cb3afa034
+
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee
@@ -85,9 +93,7 @@ If a contract is given as a payee make sure it is payable. Otherwise, the reques
 msg.sender must be _payer or an extension used by the request
 A request can also be accepted by using directly the payment function on a request in the Created status
  
-* @param _requestId id of the request 
- 
-* @return true if the request is accepted, false otherwise
+* @param _requestId id of the request
 
 
 ### Cancel a request
@@ -96,9 +102,7 @@ A request can also be accepted by using directly the payment function on a reque
 msg.sender must be the extension used by the request, the _payer or the _payee.
 Only request with all payees balance equals to zero can be cancel
  
-* @param _requestId id of the request 
- 
-* @return true if the request is canceled
+* @param _requestId id of the request
 
 
 ### Pay a request
@@ -142,6 +146,235 @@ the request must be accepted or created
  
 * @param _requestId id of the request
 * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
+
+
+### Withdraw
+` function withdraw()` 
+
+Function to withdraw locked up ether after a fail transfer. 
+This function is a security measure if you send money to a contract that might reject the money. 
+However it will protect only the contracts that can trigger the withdraw function afterwards.
+
+## Functions from RequestERC20
+### Create a new request as the payee
+`createRequestAsPayeeAction(address[] _payeesIdAddress, address[] _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, address _payerRefundAddress, string _data)` 
+Function to create a request as payee
+
+* @dev msg.sender must be the main payee
+* @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
+
+* @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
+* @param _payeesPaymentAddress array of payees address for payment (optional)
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payer Entity expected to pay
+* @param _payerRefundAddress Address of refund for the payer (optional)
+* @param _data Hash linking to additional data on the Request stored on IPFS
+
+* @return Returns the id of the request
+
+
+### Create a new request as the payer
+`createRequestAsPayerAction( address[] _payeesIdAddress, int256[]  _expectedAmounts, address _payerRefundAddress, uint256[] _payeeAmounts, uint256[] _additionals, string _data)`
+    /*
+
+* @dev msg.sender will be the payer
+* @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+
+* @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payerRefundAddress Address of refund for the payer (optional)
+* @param _payeeAmounts array of amount repartition for the payment
+* @param _additionals array to increase the ExpectedAmount for payees
+* @param _data Hash linking to additional data on the Request stored on IPFS
+
+* @return Returns the id of the request
+
+
+### Broadcast a signed request
+` function broadcastSignedRequestAsPayer(bytes _requestData, address[] _payeesPaymentAddress, uint256[] _payeeAmounts, uint256[] _additionals, uint256 _expirationDate, bytes _signature)`
+Function to broadcast and accept an offchain signed request (can be paid and additionals also)
+
+
+ * @dev msg.sender vill be the _payer
+ * @dev only the _payer can additionals
+ * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
+
+ * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
+ * @param _payeesPaymentAddress array of payees address for payment (optional) 
+ * @param _payeeAmounts array of amount repartition for the payment
+ * @param _additionals array to increase the ExpectedAmount for payees
+ * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+ * @param _signature ECDSA signature in bytes
+
+ * @return Returns the id of the request
+
+### Accept a request 
+` function accept(bytes32 _requestId) ` 
+
+msg.sender must be _payer or an extension used by the request
+A request can also be accepted by using directly the payment function on a request in the Created status
+ 
+* @param _requestId id of the request
+
+
+### Cancel a request
+` function cancel(bytes32 _requestId)` 
+ 
+msg.sender must be the extension used by the request, the _payer or the _payee.
+Only request with all payees balance equals to zero can be cancel
+ 
+* @param _requestId id of the request
+
+
+### Pay a request
+` paymentAction(bytes32 _requestId, uint256[] _payeeAmounts, uint256[] _additionalAmounts) ` 
+Function to pay a request in ERC20 token
+
+* @dev msg.sender must have a balance of the token higher or equal to the sum of _payeeAmounts
+* @dev msg.sender must have approved an amount of the token higher or equal to the sum of _payeeAmounts to the current contract
+* @dev the request will be automatically accepted if msg.sender==payer. 
+
+* @param _requestId id of the request
+* @param _payeeAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
+* @param _additionalAmounts amount of additionals per payee in wei to declare
+
+
+### Refund a request
+` function refundAction(bytes32 _requestId, uint256 _amountToRefund)` 
+Function to pay back in ERC20 token a request to the payees
+
+* @dev msg.sender must have a balance of the token higher or equal to _amountToRefund
+* @dev msg.sender must have approved an amount of the token higher or equal to _amountToRefund to the current contract
+* @dev msg.sender must be one of the payees or one of the payees payment address
+* @dev the request must be created or accepted
+
+* @param _requestId id of the request
+
+
+### Declare a subtract 
+` subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)` 
+
+ 
+msg.sender must be _payee
+the request must be accepted or created
+ 
+* @param _requestId id of the request
+* @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for ) 
+
+
+### Declare an additional
+` function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)` 
+
+msg.sender must be _payer
+the request must be accepted or created
+ 
+* @param _requestId id of the request
+* @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
+
+
+
+## Functions from Request Bitcoin nodes validation
+### Create a new request as the payee
+`createRequestAsPayeeAction(address[] _payeesIdAddress, bytes _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, bytes _payerRefundAddress, string _data)` 
+
+* @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
+* @param _payeesPaymentAddress array of payees bitcoin address for payment as bytes
+*               [
+*                uint8(payee1_bitcoin_address_size)
+*                string(payee1_bitcoin_address)
+*                uint8(payee2_bitcoin_address_size)
+*                string(payee2_bitcoin_address)
+*                ...
+*               ]
+* @param _expectedAmounts array of Expected amount to be received by each payees
+* @param _payer Entity expected to pay
+* @param _payerRefundAddress payer bitcoin addresses for refund as bytes
+*               [
+*                uint8(payee1_refund_bitcoin_address_size)
+*                string(payee1_refund_bitcoin_address)
+*                uint8(payee2_refund_bitcoin_address_size)
+*                string(payee2_refund_bitcoin_address)
+*                ...
+*               ]
+* @param _data Hash linking to additional data on the Request stored on IPFS
+
+
+### Broadcast a signed request
+`broadcastSignedRequestAsPayer(bytes _requestData, bytes _payeesPaymentAddress, bytes _payerRefundAddress, uint256[] _additionals, uint256 _expirationDate, bytes _signature)`
+Function to broadcast and accept an offchain signed request (can be paid and additionals also)
+
+
+* @dev msg.sender vill be the _payer
+* @dev only the _payer can additionals
+
+* @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
+* @param _payeesPaymentAddress array of payees bitcoin address for payment as bytes
+*               [
+*                uint8(payee1_bitcoin_address_size)
+*                string(payee1_bitcoin_address)
+*                uint8(payee2_bitcoin_address_size)
+*                string(payee2_bitcoin_address)
+*                ...
+*               ]
+* @param _payerRefundAddress payer bitcoin addresses for refund as bytes
+*               [
+*                uint8(payee1_refund_bitcoin_address_size)
+*                string(payee1_refund_bitcoin_address)
+*                uint8(payee2_refund_bitcoin_address_size)
+*                string(payee2_refund_bitcoin_address)
+*                ...
+*               ]
+* @param _additionals array to increase the ExpectedAmount for payees
+* @param _expirationDate timestamp after that the signed request cannot be broadcasted
+* @param _signature ECDSA signature in bytes
+
+* @return Returns the id of the request
+
+
+### Accept a request 
+` function accept(bytes32 _requestId) ` 
+
+msg.sender must be _payer or an extension used by the request
+A request can also be accepted by using directly the payment function on a request in the Created status
+ 
+* @param _requestId id of the request
+
+
+### Cancel a request
+` function cancel(bytes32 _requestId)` 
+ 
+msg.sender must be the extension used by the request, the _payer or the _payee.
+Only request with all payees balance equals to zero can be cancel
+ 
+* @param _requestId id of the request
+
+
+### Pay a request
+The payments are made direclty on the bitcoin blockchain
+
+### Refund a request
+The refunds are made direclty on the bitcoin blockchain
+
+### Declare a subtract 
+` subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)` 
+
+ 
+msg.sender must be _payee
+the request must be accepted or created
+ 
+* @param _requestId id of the request
+* @param _subtractAmounts amounts of subtract in wei to declare (position 0 is for ) 
+
+
+### Declare an additional
+` function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)` 
+
+msg.sender must be _payer
+the request must be accepted or created
+ 
+* @param _requestId id of the request
+* @param _additionalAmounts amounts of additional in wei to declare (index 0 is for )
+
 
 ## Bug bounty
 See this article https://blog.request.network/request-network-bug-bounty-live-ee3297e46695

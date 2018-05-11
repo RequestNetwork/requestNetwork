@@ -502,8 +502,6 @@ contract RequestEthereum is RequestEthereumCollect {
 
 	 * @param _fromAddress address from where the refund has been done
 	 * @param _amount amount of the refund in wei to declare
-	 *
-	 * @return true if the refund is done, false otherwise
 	 */
 	function refundInternal(
 		bytes32 _requestId,
@@ -572,7 +570,6 @@ contract RequestEthereum is RequestEthereumCollect {
 	function getRequestHash(
 		// _requestData is from the core
 		bytes 		_requestData,
-
 		// _payeesPaymentAddress and _expirationDate are not from the core but needs to be signed
 		address[] 	_payeesPaymentAddress,
 		uint256 	_expirationDate)

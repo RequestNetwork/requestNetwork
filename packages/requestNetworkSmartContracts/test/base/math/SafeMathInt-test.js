@@ -1,6 +1,10 @@
 // Inspired from https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/test/math/SafeMath.test.js
 
-const utils = require("../../utils.js");
+var config = require("../../config.js"); var utils = require("../../utils.js");
+if(!config['all'] && !config[__filename.split('\\').slice(-1)[0]]) {
+  return;
+}
+
 const BigNumber = require("bignumber.js");
 const SafeMathIntMock = artifacts.require('./test/SafeMathIntMock.sol');
 

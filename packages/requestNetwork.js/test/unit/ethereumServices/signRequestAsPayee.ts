@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import 'mocha';
 import * as ETH_UTIL from 'ethereumjs-util';
 import requestArtifacts from 'requestnetworkartifacts';
-import RequestNetwork from '../../../src/requestNetwork';
+import RequestNetwork from '../../../src/index';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
@@ -53,9 +53,9 @@ describe('signRequestAsPayee', () => {
             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
             expirationDate,
             [payeePaymentAddress, 0, payee3PaymentAddress],
-            '{"reason":"weed purchased"}',
-            '',
-            [],
+            undefined,
+            undefined,
+            undefined,
             payee);
 
         expect(result.currencyContract.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
@@ -130,7 +130,7 @@ describe('signRequestAsPayee', () => {
                 expirationDate);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_expirationDate must be greater than now'), 'exception not right');
+            utils.expectEqualsException(e, Error('_expirationDate must be greater than now'), 'exception not right');
         }
     });
 
@@ -143,7 +143,7 @@ describe('signRequestAsPayee', () => {
                     expirationDate);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsObject(e, Error('_amountInitial must a positive integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'),'exception not right');
         }
     });
 

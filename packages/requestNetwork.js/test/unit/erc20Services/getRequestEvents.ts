@@ -1,13 +1,16 @@
 import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
-import RequestNetwork from '../../../src/requestNetwork';
+import RequestNetwork from '../../../src/index';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
 
-const addressRequestEthereum = requestArtifacts('private', 'last-RequestEthereum').networks.private.address;
+
+const ADDRESS_TOKEN_TEST = '0x345ca3e014aaf5dca488057592ee47305d9b3e10';
+const addressRequestERC20 = requestArtifacts('private', 'last-RequestErc20-'+ADDRESS_TOKEN_TEST).networks.private.address;
 const addressRequestCore = requestArtifacts('private', 'last-RequestCore').networks.private.address;
 
 let rn: any;
@@ -24,12 +27,14 @@ let payerRefundAddress: string;
 let coreVersion: any;
 let currentNumRequest: any;
 
-describe('getRequestEvents', () => {
+describe('erc20 getRequestEvents', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 200000;
     const arbitraryAmount3 = 30000;
     rn = new RequestNetwork('http://localhost:8545', 10000000000);
-    web3 = rn.requestEthereumService.web3Single.web3;
+    web3 = rn.requestERC20Service.web3Single.web3;
+    const testToken = new Erc20Service(ADDRESS_TOKEN_TEST);
+    const addressTestToken = testToken.getAddress();
 
     beforeEach(async () => {
         const accounts = await web3.eth.getAccounts();
@@ -46,18 +51,22 @@ describe('getRequestEvents', () => {
     });
 
     it('getRequestEvents', async () => {
-        const resultCreateRequestAsPayee = await rn.requestEthereumService.createRequestAsPayee(
+        const resultCreateRequestAsPayee = await rn.requestERC20Service.createRequestAsPayee(
+                    ADDRESS_TOKEN_TEST,
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer);
         currentNumRequest++;
 
-        const resultSubtract = await rn.requestEthereumService.subtractAction(
+        const resultSubtract = await rn.requestERC20Service.subtractAction(
                             resultCreateRequestAsPayee.request.requestId,
                             [10, 20, 30],
                             {from: defaultAccount});
 
-        const resultPaymentAction = await rn.requestEthereumService.paymentAction(
+        await testToken.transfer(payer, arbitraryAmount+arbitraryAmount2+arbitraryAmount3, {from: defaultAccount});        
+        await rn.requestERC20Service.approveTokenForRequest(resultCreateRequestAsPayee.request.requestId, arbitraryAmount+arbitraryAmount2+arbitraryAmount3, {from: payer})
+
+        const resultPaymentAction = await rn.requestERC20Service.paymentAction(
                             resultCreateRequestAsPayee.request.requestId,
                             [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                             [1, 2, 3],

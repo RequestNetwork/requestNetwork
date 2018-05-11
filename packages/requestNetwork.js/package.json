@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-network.js",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetwork.js",
   "keywords": [
@@ -15,7 +15,7 @@
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
     "lint": "tslint --project tsconfig.json -c tslint.json",
-    "test": "npm run build && mocha --timeout 15000 dist/test/unit/**/*.js",
+    "test": "npm run build && mocha --timeout 60000 dist/test/unit/**/*.js",
     "testdeploy": "ts-node ./test/deploy",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "prepare": "npm run build"
@@ -26,6 +26,7 @@
     "@types/node": "^8.0.53",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
+    "chai-spies": "^1.0.0",
     "dirty-chai": "^2.0.1",
     "mocha": "^4.1.0",
     "rimraf": "^2.6.2",
@@ -35,14 +36,18 @@
     "typings": "^2.1.1"
   },
   "dependencies": {
+    "blockchain.info": "2.11.0",
+    "bn.js": "4.11.8",
     "ethereumjs-util": "5.1.2",
     "ipfs-api": "15.1.0",
-    "requestnetworkartifacts": "1.0.1",
-    "tslib": "1.8.1",
-    "typescript": "2.7.2",
-    "web3": "1.0.0-beta.30"
+    "requestnetworkartifacts": "1.2.0",
+    "tslib": "1.9.0",
+    "typescript": "2.8.1",
+    "wallet-address-validator": "0.1.6",
+    "web3": "1.0.0-beta.30",
+    "web3-core-promievent": "1.0.0-beta.30"
   },
-  "main": "dist/src/requestNetwork.js",
+  "main": "dist/src/index.js",
   "files": [
     "dist/src"
   ]

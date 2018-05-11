@@ -1,11 +1,11 @@
+import * as ETH_UTIL from 'ethereumjs-util';
 import requestArtifacts from 'requestnetworkartifacts';
 import config from '../config';
-import * as ETH_UTIL from 'ethereumjs-util';
 import * as ServicesContracts from '../servicesContracts';
 import * as Types from '../types';
 
 import Ipfs from '../servicesExternal/ipfs-service';
-import { Web3Single } from '../servicesExternal/web3-single';
+import Web3Single from '../servicesExternal/web3-single';
 
 // @ts-ignore
 const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
@@ -17,8 +17,21 @@ const EMPTY_BYTES_20 = '0x0000000000000000000000000000000000000000';
  * The RequestCoreService class is the interface for the Request Core contract
  */
 export default class RequestCoreService {
-    protected web3Single: Web3Single;
-    protected ipfs: any;
+    /**
+     * get the instance of RequestCoreService
+     * @return  The instance of the RequestCoreService class.
+     */
+    public static getInstance() {
+        if (!RequestCoreService._instance) {
+            RequestCoreService._instance = new this();
+        }
+        return RequestCoreService._instance;
+    }
+
+    private static _instance: RequestCoreService;
+
+    public web3Single: Web3Single;
+    public ipfs: any;
 
     // RequestCore on blockchain
     /**
@@ -37,7 +50,7 @@ export default class RequestCoreService {
     /**
      * constructor to Instantiates a new RequestCoreService
      */
-    constructor() {
+    private constructor() {
         this.web3Single = Web3Single.getInstance();
         this.ipfs = Ipfs.getInstance();
 
@@ -106,7 +119,7 @@ export default class RequestCoreService {
                                 balance: new BN(dataRequest.payeeBalance),
                                 expectedAmount: new BN(dataRequest.payeeExpectedAmount)};
 
-                const dataResult: any = {
+                let dataResult: any = {
                     creator,
                     currencyContract: dataRequest.currencyContract,
                     data,
@@ -119,9 +132,7 @@ export default class RequestCoreService {
                 // get information from the currency contract
                 const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, dataRequest.currencyContract);
                 if (serviceContract) {
-                    const ccyContractDetails = await serviceContract.getRequestCurrencyContractInfo(_requestId, dataRequest.currencyContract, coreContract);
-                    dataResult.currencyContract = Object.assign(ccyContractDetails,
-                                                                {address: dataResult.currencyContract});
+                    dataResult = await serviceContract.getRequestCurrencyContractInfo(dataResult, coreContract);
                 }
 
                 // get ipfs data if needed
@@ -137,7 +148,7 @@ export default class RequestCoreService {
             }
         });
     }
- 
+
     /**
      * get a request and method called by the hash of a transaction
      * @param   _hash    hash of the ethereum transaction
@@ -175,7 +186,7 @@ export default class RequestCoreService {
 
                 // if already mined
                 if (txReceipt) {
-                    if (parseInt(txReceipt.status, 16) !== 1 && txReceipt.status !== 1) {
+                    if (parseInt(txReceipt.status, 16) !== 1 && txReceipt.status !== 1 && txReceipt.status !== true) {
                         errors.push('transaction has failed');
                     } else if (transaction.method
                         && transaction.method.parameters
@@ -242,6 +253,7 @@ export default class RequestCoreService {
             const coreContract = this.getCoreContractFromRequestId(_requestId);
             coreContract.instance.methods.getRequest(_requestId).call(async (err: Error, request: any) => {
                 if (err) return reject(err);
+                request.requestId = _requestId;
 
                 try {
                     const currencyContract = request.currencyContract;
@@ -286,25 +298,19 @@ export default class RequestCoreService {
                                         });
                                     }));
 
-                    // let eventsExtensions = [];
-                    // const serviceExtension = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, extension);
-                    // if (serviceExtension) {
-                    //     eventsExtensions = await serviceExtension.getRequestEventsExtensionInfo(request, _fromBlock, _toBlock);
-                    // }
-
                     let eventsCurrencyContract = [];
                     const serviceContract = ServicesContracts.getServiceFromAddress(this.web3Single.networkName, currencyContract);
                     if (serviceContract) {
                         eventsCurrencyContract = await serviceContract
-                                                .getRequestEventsCurrencyContractInfo(request, _fromBlock, _toBlock);
+                                                .getRequestEventsCurrencyContractInfo(request, coreContract, _fromBlock, _toBlock);
                     }
 
                     return resolve(eventsCore
-                                    // .concat(eventsExtensions)
                                     .concat(eventsCurrencyContract)
                                     .sort( (a: any, b: any) => {
-                                      const diffBlockNum = a._meta.blockNumber - b._meta.blockNumber;
-                                      return diffBlockNum !== 0 ? diffBlockNum : a._meta.logIndex - b._meta.logIndex;
+
+                                      const diffTimestamp = a._meta.timestamp - b._meta.timestamp;
+                                      return diffTimestamp !== 0 ? diffTimestamp : a._meta.logIndex - b._meta.logIndex;
                                     }));
                 } catch (e) {
                     return reject(e);
@@ -483,7 +489,7 @@ export default class RequestCoreService {
                     fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
                     toBlock: _toBlock ? _toBlock : 'latest'});
 
-                // get events Created with payer === address
+                // get events NewSubPayee with subPayee === address
                 let eventsCoreSubPayee = await _requestCoreContract.instance.getPastEvents('NewSubPayee', {
                     filter: { payee: _address },
                     fromBlock: _fromBlock ? _fromBlock : _requestCoreContract.blockNumber,
@@ -520,7 +526,6 @@ export default class RequestCoreService {
                                                 requestId: e.returnValues.requestId});
                                     });
                                 }));
-
 
                 return resolve({asPayee: eventsCorePayee,
                                 asPayer: eventsCorePayer,

@@ -1,5 +1,5 @@
 // Core + ETH currency contract
-const artifacts = ['RequestCore', 'RequestEthereum'];
+const artifacts = ['RequestCore', 'RequestEthereum', 'RequestERC20', 'RequestBitcoinNodesValidation'];
 
 const PACKAGE = require('./package.json');
 const fs = require('fs');
