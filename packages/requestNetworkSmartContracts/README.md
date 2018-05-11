@@ -35,6 +35,9 @@ Contract addresses
 Contract addresses
 * RequestCore: 0xdb600fda54568a35b78565b5257125bebc51eb27
 * RequestEthereum: 0x3038045cd883abff0c6eea4b1954843c0fa5a735
+* RequestERC20 token REQ: 0xc77ceefa6960174accca0c6fdecb5dbd95042cda
+* RequestERC20 token KNC: 0xa9566758d054f6efcf9b00095538fda3d9d75844
+* RequestERC20 token OMG: 0xe44d5393cc60d67c7858aa75cf307c00e837f0e5
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee
