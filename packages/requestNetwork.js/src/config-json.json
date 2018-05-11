@@ -9,13 +9,13 @@
             "rinkeby": "https://rinkeby.infura.io/BQBjfSi5EKSCQQpXebO",
             "main": "https://mainnet.infura.io/BQBjfSi5EKSCQQpXebO"
         },
-        "gasPriceDefault": "1",
+        "gasPriceDefault": "10",
         "gasPriceDefaultUnit": "gwei",
         "gasPriceMinimumCriticalInWei": 100000000 
     },
     "bitcoin": 
     {  
-        "default": 3
+        "default": 1
     },
     "ipfs": 
     {    

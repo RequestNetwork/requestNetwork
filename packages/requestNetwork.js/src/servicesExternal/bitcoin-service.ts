@@ -46,7 +46,11 @@ export default class BitcoinService {
     private constructor(_bitcoinNetworkId ?: number) {
         this.bitcoinNetworkId = _bitcoinNetworkId || config.bitcoin.default;
 
-        this.bitcoinBlockExplorer = bitcoinBlockExplorerImport.usingNetwork(this.bitcoinNetworkId);
+        if (this.bitcoinNetworkId === 1) {
+            this.bitcoinBlockExplorer = bitcoinBlockExplorerImport;
+        } else {
+            this.bitcoinBlockExplorer = bitcoinBlockExplorerImport.usingNetwork(this.bitcoinNetworkId);
+        }
     }
 
     public async getMultiAddress(_addresses: string[]): Promise<any> {
