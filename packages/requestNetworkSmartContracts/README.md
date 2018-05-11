@@ -38,6 +38,8 @@ Contract addresses
 * RequestERC20 token REQ: 0xc77ceefa6960174accca0c6fdecb5dbd95042cda
 * RequestERC20 token KNC: 0xa9566758d054f6efcf9b00095538fda3d9d75844
 * RequestERC20 token OMG: 0xe44d5393cc60d67c7858aa75cf307c00e837f0e5
+* Request Bitcoin with node validation: 0x60fc18f243656532fce2265a5278d95cb3afa034
+
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee
