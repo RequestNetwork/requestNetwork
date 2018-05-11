@@ -1,5 +1,5 @@
 {
-  "contractName": "RequestBitcoinNodesValidation",
+  "contractName": "RequestERC20",
   "abi": [
     {
       "constant": true,
@@ -21,45 +21,6 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestData",
-          "type": "bytes"
-        },
-        {
-          "name": "_payeesPaymentAddress",
-          "type": "bytes"
-        },
-        {
-          "name": "_payerRefundAddress",
-          "type": "bytes"
-        },
-        {
-          "name": "_additionals",
-          "type": "uint256[]"
-        },
-        {
-          "name": "_expirationDate",
-          "type": "uint256"
-        },
-        {
-          "name": "_signature",
-          "type": "bytes"
-        }
-      ],
-      "name": "broadcastSignedRequestAsPayerAction",
-      "outputs": [
-        {
-          "name": "requestId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
       "constant": true,
       "inputs": [],
       "name": "rateFeesNumerator",
@@ -71,6 +32,28 @@
       ],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_requestId",
+          "type": "bytes32"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionalAmounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "paymentAction",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -101,34 +84,65 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "_payeesIdAddress",
-          "type": "address[]"
+          "name": "_requestData",
+          "type": "bytes"
         },
         {
           "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expirationDate",
+          "type": "uint256"
+        },
+        {
+          "name": "_signature",
           "type": "bytes"
-        },
-        {
-          "name": "_expectedAmounts",
-          "type": "int256[]"
-        },
-        {
-          "name": "_payer",
-          "type": "address"
-        },
-        {
-          "name": "_payerRefundAddress",
-          "type": "bytes"
-        },
-        {
-          "name": "_data",
-          "type": "string"
         }
       ],
-      "name": "createRequestAsPayeeAction",
+      "name": "checkRequestSignature",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_requestData",
+          "type": "bytes"
+        },
+        {
+          "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionals",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_expirationDate",
+          "type": "uint256"
+        },
+        {
+          "name": "_signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "broadcastSignedRequestAsPayerAction",
       "outputs": [
         {
           "name": "requestId",
@@ -165,6 +179,45 @@
       ],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payeesIdAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payer",
+          "type": "address"
+        },
+        {
+          "name": "_payerRefundAddress",
+          "type": "address"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "createRequestAsPayeeAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -274,7 +327,40 @@
     {
       "constant": true,
       "inputs": [],
+      "name": "erc20Token",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "payerRefundAddress",
       "outputs": [
         {
           "name": "",
@@ -338,30 +424,7 @@
       "outputs": [
         {
           "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        },
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "payerRefundAddress",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
+          "type": "address"
         }
       ],
       "payable": false,
@@ -384,6 +447,45 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payeesIdAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payerRefundAddress",
+          "type": "address"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionals",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "createRequestAsPayerAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -429,34 +531,21 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "_requestData",
-          "type": "bytes"
+          "name": "_requestId",
+          "type": "bytes32"
         },
         {
-          "name": "_payeesPaymentAddress",
-          "type": "bytes"
-        },
-        {
-          "name": "_expirationDate",
+          "name": "_amountToRefund",
           "type": "uint256"
-        },
-        {
-          "name": "_signature",
-          "type": "bytes"
         }
       ],
-      "name": "checkRequestSignature",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
+      "name": "refundAction",
+      "outputs": [],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -481,6 +570,10 @@
         },
         {
           "name": "_requestBurnerAddress",
+          "type": "address"
+        },
+        {
+          "name": "_erc20Token",
           "type": "address"
         }
       ],
@@ -547,15 +640,11 @@
       "type": "event"
     }
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "networks": {
-    "rinkeby": {
-      "address": "0xc7450a94237761d2222f6be4b04a1dae7a1e6347",
-      "blockNumber": 2176777
-    },
     "main": {
-        "address": "0x60fc18f243656532fce2265a5278d95cb3afa034",
-        "blockNumber": 5588234
+      "address": "0xc77ceefa6960174accca0c6fdecb5dbd95042cda",
+      "blockNumber": 5582445
     }
   }
 }
