@@ -38,6 +38,8 @@ Contract addresses
 * RequestERC20 token REQ: 0xc77ceefa6960174accca0c6fdecb5dbd95042cda
 * RequestERC20 token KNC: 0xa9566758d054f6efcf9b00095538fda3d9d75844
 * RequestERC20 token OMG: 0xe44d5393cc60d67c7858aa75cf307c00e837f0e5
+* RequestERC20 token DAI: 0x3baa64a4401bbe18865547e916a9be8e6dd89a5a
+* RequestERC20 token DGX: 0x891a1f07cbf6325192d830f4399932d4d1d66e89
 * Request Bitcoin with node validation: 0x60fc18f243656532fce2265a5278d95cb3afa034
 
 
