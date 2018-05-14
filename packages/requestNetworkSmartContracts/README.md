@@ -28,7 +28,7 @@ truffle deploy --network development
 Contract addresses
 * RequestCore: 0x8fc2e7f2498f1d06461ee2d547002611b801202b
 * RequestEthereum: 0xd88ab9b1691340e04a5bbf78529c11d592d35f57
-* RequestERC20 token CTBK: 0xc3ba385addea98bb0af084b1e8bdc909f0215bbf  (test token CTBK 0x995d6a8c21f24be1dd04e105dd0d83758343e258)
+* RequestERC20 token CTBK: 0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5  (test token CTBK 0x995d6a8c21f24be1dd04e105dd0d83758343e258)
 * RequestBitcoinNodesValidation: 0xC7450a94237761D2222F6BE4B04a1Dae7A1e6347
 
 ### Develop on the Main net 
