@@ -1102,16 +1102,6 @@ export default class RequestEthereumService {
     }
 
     /**
-     * generate web3 method of the contract from name and parameters in array (generic method)
-     * @param   _data    requestId of the request
-     * @return  return a web3 method object
-     */
-    public generateWeb3Method(_address: string, _name: string, _parameters: any[]): any {
-        const contract = this.web3Single.getContractInstance(_address);
-        return this.web3Single.generateWeb3Method(contract.instance, _name, _parameters);
-    }
-
-    /**
      * check if a signed request is valid
      * @param   _signedRequest    Signed request
      * @param   _payer             Payer of the request
