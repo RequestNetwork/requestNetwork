@@ -215,7 +215,7 @@ export default class RequestCoreService {
                     }
                 } else {
                     // if not mined, let's try to call it
-                    const methodGenerated = ccyContractservice.generateWeb3Method(ccyContract, transaction.method.name,
+                    const methodGenerated = this.generateWeb3Method(ccyContract, transaction.method.name,
                                                         this.web3Single.resultToArray(transaction.method.parameters));
                     const options = {
                         from: transaction.from,
@@ -465,6 +465,16 @@ export default class RequestCoreService {
            subPayees,
            data};
    }
+
+    /**
+     * generate web3 method of the contract from name and parameters in array
+     * @param   _data    requestId of the request
+     * @return  return a web3 method object
+     */
+    public generateWeb3Method(_address: string, _name: string, _parameters: any[]): any {
+        const contract = this.web3Single.getContractInstance(_address);
+        return this.web3Single.generateWeb3Method(contract.instance, _name, _parameters);
+    }
 
     /**
      * get the list of requests connected to an address for one contract
