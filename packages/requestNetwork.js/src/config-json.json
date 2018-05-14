@@ -30,6 +30,7 @@
                 "port": "5001", 
                 "protocol": "https"
             }
-        }
+        },
+        "timeout": 10000
     }
 }
