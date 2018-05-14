@@ -71,7 +71,7 @@ export default class RequestNetwork {
         let bitoinNetworkId;
         // Parameter handling
         let provider = options;
-        if (typeof options === 'object') {
+        if (options && (options.provider || options.ethNetworkId || options.useIpfsPublic || options.bitoinNetworkId)) {
             provider = options.provider;
             ethNetworkId = options.ethNetworkId;
             useIpfsPublic = options.useIpfsPublic;

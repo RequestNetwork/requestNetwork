@@ -264,20 +264,6 @@
     },
     {
       "constant": true,
-      "inputs": [],
-      "name": "addressToken",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
       "inputs": [
         {
           "name": "signer",
@@ -336,6 +322,20 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "erc20Token",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -573,7 +573,7 @@
           "type": "address"
         },
         {
-          "name": "_addressToken",
+          "name": "_erc20Token",
           "type": "address"
         }
       ],
@@ -640,11 +640,11 @@
       "type": "event"
     }
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "networks": {
-    "rinkeby": {
-      "address": "0x4c6ebfb9920a1b9320c5e9a8c19ea7664dcd5475",
-      "blockNumber": 2125982
+    "main": {
+      "address": "0x891a1f07cbf6325192d830f4399932d4d1d66e89",
+      "blockNumber": 5582752
     }
   }
 }

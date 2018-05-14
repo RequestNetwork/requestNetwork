@@ -48,9 +48,8 @@ contract RequestCollectInterface is Pausable {
 
 	/*
 	 * @dev compute the fees
-	 * @param _tokenAddress ERC20 token address of the request
 	 * @param _expectedAmount amount expected for the request
-	 * @return 
+     * @return the expected amount of fees in wei
 	 */  
 	function collectEstimation(int256 _expectedAmount)
 		public
@@ -70,35 +69,34 @@ contract RequestCollectInterface is Pausable {
 
 	/*
 	 * @dev set the fees rate
+     * NB: if the _rateFeesDenominator is 0, it will be treated as 1. (in other words, the computation of the fees will not use it)
 	 * @param _rateFeesNumerator 		numerator rate
 	 * @param _rateFeesDenominator 		denominator rate
-	 * @return 
 	 */  
 	function setRateFees(uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
 		external
 		onlyOwner
 	{
 		rateFeesNumerator = _rateFeesNumerator;
-		UpdateRateFees(_rateFeesNumerator, _rateFeesDenominator);
+        rateFeesDenominator = _rateFeesDenominator;
+		UpdateRateFees(rateFeesNumerator, rateFeesDenominator);
 	}
 
 	/*
 	 * @dev set the maximum fees in wei
 	 * @param _newMax new max
-	 * @return 
 	 */  
 	function setMaxCollectable(uint256 _newMaxFees) 
 		external
 		onlyOwner
 	{
 		maxFees = _newMaxFees;
-		UpdateMaxFees(_newMaxFees);
+		UpdateMaxFees(maxFees);
 	}
 
 	/*
 	 * @dev set the request burner address
 	 * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
-	 * @return 
 	 */  
 	function setRequestBurnerContract(address _requestBurnerContract) 
 		external

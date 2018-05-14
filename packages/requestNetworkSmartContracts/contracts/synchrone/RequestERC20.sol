@@ -23,18 +23,19 @@ contract RequestERC20 is RequestCurrencyContractInterface {
 	mapping(bytes32 => address) public payerRefundAddress;
 
 	// token address
-	address public addressToken;
+	ERC20 public erc20Token;
 
 	/*
 	 * @dev Constructor
 	 * @param _requestCoreAddress Request Core address
 	 * @param _requestBurnerAddress Request Burner contract address
+     * @param _erc20Token ERC20 token contract handled by this currency contract
 	 */
-	function RequestERC20(address _requestCoreAddress, address _requestBurnerAddress, address _addressToken) 
+	function RequestERC20(address _requestCoreAddress, address _requestBurnerAddress, ERC20 _erc20Token) 
 		RequestCurrencyContractInterface(_requestCoreAddress, _requestBurnerAddress)
 		public
 	{
-		addressToken = _addressToken;
+		erc20Token = _erc20Token;
 	}
 
 	/*
@@ -132,8 +133,8 @@ contract RequestERC20 is RequestCurrencyContractInterface {
 	/*
 	 * @dev Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals )
 	 *
-	 * @dev msg.sender vill be the _payer
-	 * @dev only the _payer can additionals
+	 * @dev msg.sender will be the _payer
+	 * @dev only the _payer can make additionals
 	 * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
 	 *
 	 * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
@@ -353,9 +354,13 @@ contract RequestERC20 is RequestCurrencyContractInterface {
 
 		// Check if the _address is a payeesId
 		int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _address);
+
+        // get the number of payees
+        uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
+
 		if(payeeIndex < 0) {
 			// if not ID addresses maybe in the payee payments addresses
-			for (uint8 i = 0; i < requestCore.getSubPayeesCount(_requestId)+1 && payeeIndex == -1; i = i.add(1))
+			for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1))
 			{
 				if(payeesPaymentAddress[_requestId][i] == _address) {
 					// get the payeeIndex
@@ -381,11 +386,8 @@ contract RequestERC20 is RequestCurrencyContractInterface {
 
 	/*
 	 * @dev Function internal to manage fund mouvement
-	 * @dev We had to chose between a withdraw pattern, a send pattern or a send + withdraw pattern and chose the last. 
-	 * @dev The withdraw pattern would have been a too big inconvenient for the UX. The send pattern would have allow someone to lock a request. 
-	 * @dev The send + withdraw pattern will have to be clearly explained to users. If the payee is a contract which can let a transfer fail, it will need to be able to call a withdraw function from Request. 
-	 *
-	 * @param _recipient address where the token will get from
+     *
+	 * @param _from address where the token will get from
 	 * @param _recipient address where the token has to be sent to
 	 * @param _amount amount in ERC20 token to send
 	 */
@@ -394,8 +396,7 @@ contract RequestERC20 is RequestCurrencyContractInterface {
 		address _recipient,
 		uint256 _amount)
 		internal
-	{
-		ERC20 erc20Token = ERC20(addressToken);		
+	{	
 		require(erc20Token.transferFrom(_from, _recipient, _amount));
 	}
 	// -----------------------------------------------------------------------------

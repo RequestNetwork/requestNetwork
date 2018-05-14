@@ -28,12 +28,20 @@ truffle deploy --network development
 Contract addresses
 * RequestCore: 0x8fc2e7f2498f1d06461ee2d547002611b801202b
 * RequestEthereum: 0xd88ab9b1691340e04a5bbf78529c11d592d35f57
-* RequestERC20 token CTBK : 0xc3ba385addea98bb0af084b1e8bdc909f0215bbf  (test token CTBK 0x995d6a8c21f24be1dd04e105dd0d83758343e258)
+* RequestERC20 token CTBK: 0xc3ba385addea98bb0af084b1e8bdc909f0215bbf  (test token CTBK 0x995d6a8c21f24be1dd04e105dd0d83758343e258)
+* RequestBitcoinNodesValidation: 0xC7450a94237761D2222F6BE4B04a1Dae7A1e6347
 
 ### Develop on the Main net 
 Contract addresses
 * RequestCore: 0xdb600fda54568a35b78565b5257125bebc51eb27
 * RequestEthereum: 0x3038045cd883abff0c6eea4b1954843c0fa5a735
+* RequestERC20 token REQ: 0xc77ceefa6960174accca0c6fdecb5dbd95042cda
+* RequestERC20 token KNC: 0xa9566758d054f6efcf9b00095538fda3d9d75844
+* RequestERC20 token OMG: 0xe44d5393cc60d67c7858aa75cf307c00e837f0e5
+* RequestERC20 token DAI: 0x3baa64a4401bbe18865547e916a9be8e6dd89a5a
+* RequestERC20 token DGX: 0x891a1f07cbf6325192d830f4399932d4d1d66e89
+* Request Bitcoin with node validation: 0x60fc18f243656532fce2265a5278d95cb3afa034
+
 
 ## Functions from RequestEthereum
 ### Create a new request as the payee
@@ -267,7 +275,7 @@ the request must be accepted or created
 
 
 
-## Functions from Request Bitcoin offline
+## Functions from Request Bitcoin nodes validation
 ### Create a new request as the payee
 `createRequestAsPayeeAction(address[] _payeesIdAddress, bytes _payeesPaymentAddress, int256[] _expectedAmounts, address _payer, bytes _payerRefundAddress, string _data)` 
 

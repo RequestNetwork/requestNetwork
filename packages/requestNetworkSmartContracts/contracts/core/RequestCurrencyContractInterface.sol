@@ -35,6 +35,18 @@ contract RequestCurrencyContractInterface is RequestCollectInterface {
 		requestCore=RequestCore(_requestCoreAddress);
 	}
 
+    /*
+     * @dev Base function for request creation
+     *
+     * @dev msg.sender will be the creator
+     *
+     * @param _payer Entity expected to pay
+     * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
+     * @param _expectedAmounts array of Expected amount to be received by each payees
+     * @param _data Hash linking to additional data on the Request stored on IPFS
+     *
+     * @return Returns the id of the request and the sum of the expected amounts
+     */
 	function createCoreRequestInternal(
 		address 	_payer,
 		address[] 	_payeesIdAddress,
@@ -47,7 +59,7 @@ contract RequestCurrencyContractInterface is RequestCollectInterface {
 		totalExpectedAmounts = 0;
 		for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
 		{
-			// all expected amount must be positive
+			// all expected amounts must be positive
 			require(_expectedAmounts[i]>=0);
 			// compute the total expected amount of the request
 			totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
@@ -57,6 +69,13 @@ contract RequestCurrencyContractInterface is RequestCollectInterface {
 		requestId= requestCore.createRequest(msg.sender, _payeesIdAddress, _expectedAmounts, _payer, _data);
 	}
 
+    /*
+     * @dev Function to accept a request
+     *
+     * @dev msg.sender must be _payer
+     *
+     * @param _requestId id of the request
+     */
 	function acceptAction(bytes32 _requestId)
 		public
 		whenNotPaused
@@ -69,6 +88,15 @@ contract RequestCurrencyContractInterface is RequestCollectInterface {
 		requestCore.accept(_requestId);
 	}
 
+
+    /*
+     * @dev Function to cancel a request
+     *
+     * @dev msg.sender must be the _payer or the _payee.
+     * @dev only request with balance equals to zero can be cancel
+     *
+     * @param _requestId id of the request
+     */
 	function cancelAction(bytes32 _requestId)
 		public
 		whenNotPaused
@@ -85,6 +113,16 @@ contract RequestCurrencyContractInterface is RequestCollectInterface {
 		requestCore.cancel(_requestId);
 	}
 
+
+    /*
+     * @dev Function to declare additionals
+     *
+     * @dev msg.sender must be _payer
+     * @dev the request must be accepted or created
+     *
+     * @param _requestId id of the request
+     * @param _additionalAmounts amounts of additional to declare (index 0 is for main payee)
+     */
 	function additionalAction(bytes32 _requestId, uint256[] _additionalAmounts)
 		public
 		whenNotPaused
@@ -106,6 +144,15 @@ contract RequestCurrencyContractInterface is RequestCollectInterface {
 		}
 	}
 
+    /*
+     * @dev Function to declare subtracts
+     *
+     * @dev msg.sender must be _payee
+     * @dev the request must be accepted or created
+     *
+     * @param _requestId id of the request
+     * @param _subtractAmounts amounts of subtract to declare (index 0 is for main payee)
+     */
 	function subtractAction(bytes32 _requestId, uint256[] _subtractAmounts)
 		public
 		whenNotPaused

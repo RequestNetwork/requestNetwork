@@ -264,20 +264,6 @@
     },
     {
       "constant": true,
-      "inputs": [],
-      "name": "addressToken",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
       "inputs": [
         {
           "name": "signer",
@@ -336,6 +322,20 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "erc20Token",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -400,7 +400,7 @@
       "name": "extractBytes32",
       "outputs": [
         {
-          "name": "",
+          "name": "bs",
           "type": "bytes32"
         }
       ],
@@ -447,6 +447,45 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payeesIdAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payerRefundAddress",
+          "type": "address"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionals",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "createRequestAsPayerAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -534,7 +573,7 @@
           "type": "address"
         },
         {
-          "name": "_addressToken",
+          "name": "_erc20Token",
           "type": "address"
         }
       ],
@@ -601,11 +640,11 @@
       "type": "event"
     }
   ],
-  "version": "0.1.1",
+  "version": "0.2.2",
   "networks": {
     "rinkeby": {
-      "address": "0xc3ba385addea98bb0af084b1e8bdc909f0215bbf",
-      "blockNumber":  2059105
+      "address": "0xac853e9e4107b9f250643d1f693f085e11b223fe",
+      "blockNumber": 2251987
     }
   }
 }
