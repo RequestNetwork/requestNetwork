@@ -1,6 +1,6 @@
 {
   "name": "requestnetworkartifacts",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Artifacts for Request Network Ethereum contracts",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkArtifacts",
   "keywords": [
