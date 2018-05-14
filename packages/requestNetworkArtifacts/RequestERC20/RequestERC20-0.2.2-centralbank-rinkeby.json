@@ -643,7 +643,7 @@
   "version": "0.2.2",
   "networks": {
     "rinkeby": {
-      "address": "0xac853e9e4107b9f250643d1f693f085e11b223fe",
+      "address": "0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5",
       "blockNumber": 2251987
     }
   }
