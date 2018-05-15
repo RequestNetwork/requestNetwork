@@ -39,12 +39,8 @@ function getCurrencyConfig(currency: Types.Currency): {erc20TokenContractAddress
             service: requestEthereumService,
         },
         [Types.Currency.REQ as number]: {
-            erc20TokenContractAddress: '0x345cA3e014Aaf5dcA488057592ee47305D9B3e10',
+            erc20TokenContractAddress: '0x8f8221afbb33998d8584a2b05749ba73c37a938a',
             service: requestERC20Service,
-        },
-        [Types.Currency.DGX as number]: {
-            erc20TokenContractAddress: null,
-            service: null,
         },
     }[currency];
 }
@@ -64,7 +60,6 @@ export default {
             'RequestBitcoinNodesValidation': Types.Currency.BTC,
             'RequestEthereum': Types.Currency.ETH,
             'RequestERC20': Types.Currency.REQ, // TODO: Update when refactoring artifacts.json
-            'TODO DGX': Types.Currency.DGX,
         };
 
         const currencyContractName = requestArtifacts.getContractNameForAddress(address.toLowerCase());

@@ -363,7 +363,7 @@ describe('Request Network API', () => {
         expect(events[0].data.payee).to.equal(examplePayees[0].idAddress);
     });
 
-    it('creates a ERC20 request from payee and pay it', async () => {
+    it.skip('creates a ERC20 request from payee and pay it', async () => {
         const role = Types.Role.Payee;
         const { request } = await requestNetwork.createRequest(
             role,
@@ -396,7 +396,7 @@ describe('Request Network API', () => {
         expect(data.payee.balance.toNumber()).to.equal(1);
     });
 
-    it('broadcasts a signed request', async () => {
+    it.skip('broadcasts a signed request', async () => {
         const signedRequest = await requestNetwork.createSignedRequest(
             Types.Role.Payee,
             Types.Currency.REQ,

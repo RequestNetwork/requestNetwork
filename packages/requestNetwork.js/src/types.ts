@@ -17,7 +17,6 @@ export enum Currency {
     ETH,
     BTC,
     REQ,
-    DGX,
 }
 
 // State of the Request
