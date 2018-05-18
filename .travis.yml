@@ -7,6 +7,7 @@ install:
 - lerna bootstrap
 - npm install -g ganache-cli
 - npm install -g truffle@4.0.5
+- npm install -g @compodoc/compodoc
 - brew install ipfs
 - ipfs init
 before_script:
@@ -17,6 +18,7 @@ before_script:
 script:
 - lerna run --scope @requestnetwork/request-network.js test --stream
 - lerna run --scope request-network-smart-contracts test --stream
+- lerna run --scope @requestnetwork/request-network.js docs --stream
 after_failure:
 - cat ipfs-travis.log
 - cat ganache-travis.log
@@ -27,3 +29,15 @@ notifications:
 cache:
   directories:
   - "$HOME/Library/Caches/Homebrew"
+deploy:
+- provider: s3
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  local_dir: packages/requestNetwork.js/docs
+  skip_cleanup: true
+  on:
+    branch: master
+    repo: RequestNetwork/requestNetwork-private
+  bucket: docs-js-lib.request.network
+  region: eu-west-1
+  acl: public_read

@@ -7,6 +7,7 @@ const ERC20 = require('../lib/ERC20.json');
 
 /**
  * The Erc20Service class manage the ERC20 token
+ * @ignore
  */
 export default class Erc20Service {
     /**

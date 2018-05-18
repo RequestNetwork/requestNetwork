@@ -10,6 +10,7 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
 
 /**
  * The Web3Single class is the singleton class containing the web3.js interface
+ * @ignore
  */
 export default class Web3Single {
     /**

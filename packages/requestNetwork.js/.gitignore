@@ -3,6 +3,9 @@
 # compiled output
 /dist
 
+# documentations
+/docs
+
 # dependencies
 /node_modules
 
@@ -30,9 +33,3 @@
 npm-debug.log
 testem.log
 /typings
-
-# perso
-test/test.ts
-*.maybe
-*Kovan*
-*Rinkeby*

@@ -7,6 +7,7 @@ const WEB3 = require('web3');
 
 /**
  * The BitcoinService class is the singleton class containing the web3.js interface
+ * @ignore
  */
 export default class BitcoinService {
     /**

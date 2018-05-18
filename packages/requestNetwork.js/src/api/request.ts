@@ -33,6 +33,8 @@ function promiEventLibraryWrap(
  * Instances of this class can be accepted, paid, refunded, etc.
  * Use the member function `getData` to access the properties of the Request.
  *
+ * Requests should be created with `RequestNetwork.createRequest()`.
+ *
  * @class Request
  */
 export default class Request {
