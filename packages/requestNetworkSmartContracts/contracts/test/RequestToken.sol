@@ -1,4 +1,4 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.18;
 
 /// From https://etherscan.io/address/0x8f8221afbb33998d8584a2b05749ba73c37a938a#code
 /// Updated solidity version

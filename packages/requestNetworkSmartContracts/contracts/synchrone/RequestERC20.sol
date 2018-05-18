@@ -1,4 +1,4 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.18;
 
 import '../core/RequestCore.sol';
 import '../base/math/SafeMathUint8.sol';
