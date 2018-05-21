@@ -384,7 +384,7 @@ describe('Request Network API', () => {
         expect(requestData.subPayees.length).to.equal(0);
 
         // Send test tokens to the payer
-        const testToken = new Erc20Service(currencyUtils.erc20TokenAddress(Types.Currency.REQ));
+        const testToken = new Erc20Service(currencyUtils.erc20TokenAddress(Types.Currency.REQ, 'private'));
         await testToken.transfer(examplePayer.idAddress, 1, { from: accounts[0] });        
 
         // Approve Request for the ERC20
@@ -396,7 +396,7 @@ describe('Request Network API', () => {
         expect(data.payee.balance.toNumber()).to.equal(1);
     });
 
-    it('broadcasts a signed request', async () => {
+    it('broadcasts a ERC20 signed request', async () => {
         const signedRequest = await requestNetwork.createSignedRequest(
             Types.Role.Payee,
             Types.Currency.REQ,
@@ -465,5 +465,26 @@ describe('Request Network API', () => {
 
         const data = await request.getData();
         expect(data.payee.balance.toNumber()).to.equal(0);
+    });
+
+    it('propagates rejected promises', async () => {
+        const catchSpy = chai.spy();
+
+        const { request } = await requestNetwork.createRequest(
+            Types.Role.Payee,
+            Types.Currency.ETH,
+            examplePayees,
+            examplePayer
+        );
+
+        try {
+            await request.pay([-1]);
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
     });
 });

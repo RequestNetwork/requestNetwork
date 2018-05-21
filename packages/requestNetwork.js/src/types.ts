@@ -17,7 +17,10 @@ export enum Currency {
     ETH,
     BTC,
     REQ,
+    KNC,
     DGX,
+    DAI,
+    OMG,
 }
 
 // State of the Request

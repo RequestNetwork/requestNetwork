@@ -19,7 +19,7 @@
     "testdeploy": "ts-node ./test/deploy",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "prepare": "npm run build",
-    "docs": "rimraf -r ./docs && compodoc -p src/tsconfig.json --output docs --disablePrivate"
+    "docs": "rimraf -r ./docs && compodoc -p src/tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",

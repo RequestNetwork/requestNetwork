@@ -125,7 +125,7 @@ export default class RequestNetwork {
 
         // Create an ERC20 Request
         if (currencyUtils.isErc20(currency)) {
-            const addressTestToken = currencyUtils.erc20TokenAddress(currency);
+            const addressTestToken = currencyUtils.erc20TokenAddress(currency, Web3Single.getInstance().networkName);
             const requestERC20: RequestERC20Service = currencyUtils.serviceForCurrency(currency);
 
             if (as === Types.Role.Payee) {
@@ -235,6 +235,8 @@ export default class RequestNetwork {
             });
         });
 
+        promise.catch((error: any) => promiEvent.reject(error));
+
         promise.on('broadcasted', (param: any) => promiEvent.eventEmitter.emit('broadcasted', param));
 
         return promiEvent.eventEmitter;
@@ -278,7 +280,7 @@ export default class RequestNetwork {
         let signedRequestData = null;
 
         if (currencyUtils.isErc20(currency)) {
-            const addressTestToken = currencyUtils.erc20TokenAddress(currency);
+            const addressTestToken = currencyUtils.erc20TokenAddress(currency, Web3Single.getInstance().networkName);
             const requestERC20: RequestERC20Service = currencyUtils.serviceForCurrency(currency);
             // Create an ERC20 Signed Request as Payee
             signedRequestData = await requestERC20.signRequestAsPayee(
@@ -402,6 +404,8 @@ export default class RequestNetwork {
                 transaction,
             });
         });
+
+        promise.catch((error: any) => promiEvent.reject(error));
 
         promise.on('broadcasted', (param: any) => promiEvent.eventEmitter.emit('broadcasted', param));
 

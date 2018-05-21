@@ -19,11 +19,24 @@ exports.default.getAllArtifactsForNetwork = function(networkName) {
 }
 
 // Temporary hack that should be properly fixed. Needs some refactor to remove the default export
-// Returns the contract name of an address
+// Returns the contract name of an address, like 'RequestEthereum','RequestBitcoinNodesValidation','RequestERC20-req','RequestERC20-knc'
 exports.default.getContractNameForAddress = function(contractAddress) {
 	const artifactPath = Object.keys(artifacts).reduce(
 		(result, network) =>  result || artifacts[network][contractAddress],
 		''
-	);
-	return artifactPath && artifactPath.split('/')[0];
+    );
+    if (!artifactPath) {
+        return null;
+    }
+
+    let contractName = artifactPath.split('/')[0];
+    
+    // Handle ERC20
+    if (contractName === 'RequestERC20') {
+        const dashSections = artifactPath.split('.json')[0].split('-');
+        const erc20currencyName = dashSections[dashSections.length-1];
+        contractName = `${contractName}-${erc20currencyName}`;
+    }
+
+    return contractName;
 }

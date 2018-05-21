@@ -712,7 +712,6 @@ export default class RequestBitcoinNodesValidationService {
         return promiEvent.eventEmitter;
     }
 
-
     /**
      * pay a request (Not implemented for bitcoin)
      * @param   _requestId         requestId of the payer

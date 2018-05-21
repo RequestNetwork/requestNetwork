@@ -21,6 +21,8 @@ function promiEventLibraryWrap(
         outPromiseEvent.resolve({ request, transaction }),
     );
 
+    inPromiseEvent.catch((error: any) => outPromiseEvent.reject(error));
+
     events.forEach(eventName =>
         inPromiseEvent.on(eventName, (param: any) => outPromiseEvent.eventEmitter.emit(eventName, param)),
     );

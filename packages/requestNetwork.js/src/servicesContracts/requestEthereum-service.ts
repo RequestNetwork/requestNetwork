@@ -63,7 +63,6 @@ export default class RequestEthereumService {
      */
     protected instanceRequestEthereumLast: any;
 
-
     /**
      * constructor to Instantiates a new RequestEthereumService
      */
