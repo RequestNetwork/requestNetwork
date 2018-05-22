@@ -4,27 +4,16 @@ const schemaAddress = require('./format/address.json');
 // another json validator from https://github.com/epoberezkin/ajv
 const Ajv = require('ajv');
 
-/**
- * The RequestNetworkDataValidator class is to validate request data
- */
-export default class RequestNetworkDataValidator {
-    // another json validator
-    private ajv: any;
-
-    /**
-     * constructor to Instantiates a new RequestNetworkDataValidator
-     */
-    constructor() {
-        this.ajv = new Ajv().addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
-                            .addSchema(schemaAddress);
-    }
-
+export default {
     /**
      * validation of data
      * @param   data    object you want to validate
      * @return  object.valid == true if the json is valid, object.valid == false and object.errors otherwise.
      */
-    public validate(data: any): any {
+    validate(data: any): any {
+        const ajv = new Ajv().addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
+                    .addSchema(schemaAddress);
+
         // Check the meta information
         if(!data.meta) return {valid:false, errors:[{message:'meta not found'}]};
         if(!data.meta.format) return {valid:false, errors:[{message:'meta.format not found'}]};
@@ -42,7 +31,7 @@ export default class RequestNetworkDataValidator {
         }
 
         // Compile and Validate
-        var validate = this.ajv.compile(schema);
+        var validate = ajv.compile(schema);
         var valid = validate(data);
         
         // If not valid return the error
@@ -52,5 +41,4 @@ export default class RequestNetworkDataValidator {
 
         return {valid:true};
     }
-
 }

@@ -26,9 +26,7 @@ This is still an alpha version which will evolve significantly before the main n
 ```js
 import RequestNetworkDataFormat from 'requestnetwork-data-format';
 
-let requestNetworkDataFormat = new RequestNetworkDataFormat();
-
-let result = requestNetworkDataFormat.validate(A_JSON_OBJECT);
+let result = RequestNetworkDataFormat.validate(A_JSON_OBJECT);
 
 if (!result.valid) {
     // use the errors from result.errors
