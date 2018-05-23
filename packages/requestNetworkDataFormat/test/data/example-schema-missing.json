@@ -27,7 +27,6 @@
   },
 
   "invoiceItems": [{
-      "name": "Candlestick",
       "reference": "cs666",
       "quantity": 2,
       "unitPrice": 0.01,

@@ -34,6 +34,6 @@ describe('Request Network Data Validator', () => {
       const dataJson = require('./data/example-schema-missing.json');
       const result = RequestNetworkDataFormat.validate(dataJson);
       expect(result.valid, 'result.valid should be false').to.be.false;
-      expect(result.errors[0].message, 'result.errors is wrong').to.equal(`should have required property \'sellerInfo\'`);
+      expect(result.errors[0].message, 'result.errors is wrong').to.equal(`should have required property \'name\'`);
     });
 });

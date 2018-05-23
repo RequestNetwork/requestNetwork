@@ -3,7 +3,12 @@
     "description": "Request Network Format of an invoice",
     "type": "object",
     "additionalProperties": false,
-    "required": ["meta","sellerInfo"],
+    "required": [
+        "meta",
+        "invoiceNumber",
+        "creationDate",
+        "invoiceItems"
+    ],
     "properties": {
         "meta": {
             "description": "Meta information about the format",
@@ -107,6 +112,12 @@
             "items": {
                 "type": "object",
                 "additionalProperties": false,
+                "required": [
+                    "name",
+                    "quantity",
+                    "unitPrice",
+                    "taxPercent"
+                ],
                 "properties": {
                     "name": {
                         "type": "string"

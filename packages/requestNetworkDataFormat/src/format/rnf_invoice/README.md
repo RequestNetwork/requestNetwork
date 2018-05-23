@@ -3,15 +3,14 @@
 | Name | Type | Need | Comment |
 | ------------ | ------------ | ------------ | ------------ |
 | meta |  object | Mandatory | see below "meta" |
-| requestId | string | Mandatory | Request Identification |
 | creationDate | date-time | Mandatory | Creation date of the request |
-| invoiceNumber | string | Optional | numbering of the seller invoices - specific to the seller |
+| invoiceNumber | string | Mandatory | numbering of the seller invoices - specific to the seller |
 | purchaseOrderId | string | Optional | allows to match the request with an orderId -  specific to the seller |
 | note | string | Optional | add a note to the buyer |
 | terms | string | Optional | add sale terms to the buyer |
-| sellerInfo | object | Mandatory | see below "sellerInfo" |
-| buyerInfo | object | Mandatory | see below "buyerInfo" |
-| invoiceItems | array | Optional | see below "invoiceItems" |
+| sellerInfo | object | Optional | see below "sellerInfo" |
+| buyerInfo | object | Optional | see below "buyerInfo" |
+| invoiceItems | array | Mandatory | see below "invoiceItems" |
 | paymentTerms | object | Optional | see below "paymentTerms" |
 | miscellaneous | object | Optional | Miscellaneous information |
 
@@ -66,12 +65,12 @@
 
 | Name | Type | Need | Comment |
 | ------------ | ------------ | ------------ | ------------ |
-| name | string | Optional | name of the item |
+| name | string | Mandatory | name of the item |
 | reference | string | Optional | reference of the item |
-| quantity | number | Optional | quantity (minimum 0) |
-| unitPrice | number | Optional | unit price (minimum 0) |
+| quantity | number | Mandatory | quantity (minimum 0) |
+| unitPrice | number | Mandatory | unit price (minimum 0) |
 | discount | number | Optional | price of the discount |
-| taxPercent | number | Optional | taxation percentage of the item |
+| taxPercent | number | Mandatory | taxation percentage of the item |
 | deliveryDate | date-time | Optional | expected delivery date |
 | deliveryPeriod | string | Optional | period of delivery if the item is a service |
 
