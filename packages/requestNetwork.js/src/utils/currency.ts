@@ -22,7 +22,7 @@ let requestBitcoinNodesValidationService: RequestBitcoinNodesValidationService;
  * @returns {erc20TokenAddresses: string|null, service: any} The configuration
  */
 function getCurrencyConfig(currency: Types.Currency)
-    : {erc20TokenAddresses: {private?: string, rinkeby?: string, main: string }|null, service: any} {
+    : {erc20TokenAddresses: {private?: string, rinkeby?: string, main: string }|null, service: any, decimals: number} {
     // Hack until services are singletons
     if (!requestEthereumService) {
         requestEthereumService = RequestEthereumService.getInstance();
@@ -34,10 +34,12 @@ function getCurrencyConfig(currency: Types.Currency)
         [Types.Currency.ETH as number]: {
             erc20TokenAddresses: null,
             service: requestEthereumService,
+            decimals: 18,
         },
         [Types.Currency.BTC as number]: {
             erc20TokenAddresses: null,
             service: requestBitcoinNodesValidationService,
+            decimals: 8,
         },
         [Types.Currency.REQ as number]: {
             erc20TokenAddresses: {
@@ -46,30 +48,35 @@ function getCurrencyConfig(currency: Types.Currency)
                 main: '0x8f8221afbb33998d8584a2b05749ba73c37a938a',
             },
             service: requestERC20Service,
+            decimals: 18,
         },
         [Types.Currency.KNC as number]: {
             erc20TokenAddresses: {
                 main: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
             },
             service: requestERC20Service,
+            decimals: 18,
         },
         [Types.Currency.DGX as number]: {
             erc20TokenAddresses: {
                 main: '0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf',
             },
             service: requestERC20Service,
+            decimals: 9,
         },
         [Types.Currency.DAI as number]: {
             erc20TokenAddresses: {
                 main: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
             },
             service: requestERC20Service,
+            decimals: 18,
         },
         [Types.Currency.OMG as number]: {
             erc20TokenAddresses: {
                 main: '0xd26114cd6ee289accf82350c8d8487fedb8a0c07',
             },
             service: requestERC20Service,
+            decimals: 18,
         },
     }[currency];
 }
@@ -146,5 +153,15 @@ export default {
      */
     isErc20(currency: Types.Currency): boolean {
         return !!getCurrencyConfig(currency).erc20TokenAddresses;
+    },
+
+    /**
+     * Return the number of decimals for a currency.
+     *
+     * @param {Types.Currency} currency The currency
+     * @returns {number}
+     */
+    decimalsForCurrency(currency: Types.Currency): number {
+        return getCurrencyConfig(currency).decimals;
     },
 };

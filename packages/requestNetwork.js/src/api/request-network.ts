@@ -256,6 +256,41 @@ export default class RequestNetwork {
     }
 
     /**
+     * Create a Request instance from a transaction hash.
+     * In the case of an unmined transaction for request creation, the request object will be null.
+     *
+     * @param {string} txHash Transaction hash
+     * @returns {Promise<{request, transaction, warnings, errors}>}
+     * @memberof RequestNetwork
+     */
+    public async fromTransactionHash(
+        txHash: string,
+    ): Promise<{
+        request: Request|null,
+        transaction: any,
+        warnings: any,
+        errors: any,
+    }> {
+        const { request: requestData, transaction, errors, warnings } = await this.requestCoreService.getRequestByTransactionHash(txHash);
+
+        let request = null;
+        if (requestData && requestData.requestId) {
+            request = new Request(
+                requestData.requestId,
+                currencyUtils.currencyFromContractAddress(requestData.currencyContract.address),
+                this.requestCoreService,
+            );
+        }
+
+        return {
+            request,
+            transaction,
+            warnings,
+            errors,
+        };
+    }
+
+    /**
      * Create a signed Request. Refer to the SignedRequest class for the details.
      *
      * @param {Types.Role} as Who is creating the Request (only Payee is implemented for now)
@@ -347,10 +382,8 @@ export default class RequestNetwork {
         broadcastCurrencyOptions: Types.IBroadcastCurrencyOptions = {},
         requestOptions: Types.IRequestCreationOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
-        const currency: Types.Currency = currencyUtils.currencyFromContractAddress(
-            signedRequest.signedRequestData.currencyContract,
-        );
         let promise;
+        const currency: Types.Currency = signedRequest.currency;
 
         // new promiEvent to wrap the promiEvent returned by the service. It is necessary, in order to add the Request object in the resolution of the promise
         const promiEvent = Web3PromiEvent();

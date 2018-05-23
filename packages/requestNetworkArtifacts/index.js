@@ -34,7 +34,7 @@ exports.default.getContractNameForAddress = function(contractAddress) {
     // Handle ERC20
     if (contractName === 'RequestERC20') {
         const dashSections = artifactPath.split('.json')[0].split('-');
-        const erc20currencyName = dashSections[dashSections.length-1];
+        const erc20currencyName = dashSections[dashSections.length-2];
         contractName = `${contractName}-${erc20currencyName}`;
     }
 

@@ -6,6 +6,7 @@ export { default } from './api/request-network';
 // Other classes useful for the outside world
 export { default as Request } from './api/request';
 export { default as SignedRequest } from './api/signed-request';
+export { default as utils } from './api/utils';
 
 // Export types used by the library
 import * as Types from '../src/types';

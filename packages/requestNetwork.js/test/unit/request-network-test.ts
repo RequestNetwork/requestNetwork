@@ -1,4 +1,4 @@
-import RequestNetwork, {Request, SignedRequest, Types } from '../../src/index';
+import RequestNetwork, {Request, SignedRequest, Types, utils } from '../../src/index';
 import Erc20Service from '../../src/servicesExternal/erc20-service';
 import currencyUtils from '../../src/utils/currency';
 const Web3 = require('web3');
@@ -272,6 +272,19 @@ describe('Request Network API', () => {
         expect(data.creator).to.be.equal(examplePayees[0].idAddress);
         expect(data.requestId).to.be.equal(request.requestId);
     });
+    
+    it('gets request from its txHash', async () => {
+        const { transaction } = await requestNetwork.createRequest(
+            Types.Role.Payee,
+            Types.Currency.ETH,
+            examplePayees,
+            examplePayer
+        );
+
+        const { request } = await requestNetwork.fromTransactionHash(transaction.hash);
+
+        expect(request).to.exist;
+    });
 
     it('creates a signed request', async () => {
         const signedRequest = await requestNetwork.createSignedRequest(
@@ -486,5 +499,9 @@ describe('Request Network API', () => {
         }
 
         expect(catchSpy).to.have.been.called();
+    });
+
+    it('offers the number of decimals for a currency', () => {
+        expect(utils.decimalsForCurrency(Types.Currency.DGX)).to.equal(9);
     });
 });
