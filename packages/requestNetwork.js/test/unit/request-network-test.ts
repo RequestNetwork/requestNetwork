@@ -281,10 +281,9 @@ describe('Request Network API', () => {
             examplePayer
         );
 
-        const { request, unminedRequestData } = await requestNetwork.fromTransactionHash(transaction.hash);
+        const { request } = await requestNetwork.fromTransactionHash(transaction.hash);
 
         expect(request).to.exist;
-        expect(unminedRequestData).to.be.null;
     });
 
     it('creates a signed request', async () => {

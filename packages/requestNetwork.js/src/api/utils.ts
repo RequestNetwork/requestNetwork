@@ -12,4 +12,13 @@ export default {
      * @returns {number}
      */
     decimalsForCurrency: currencyUtils.decimalsForCurrency,
+
+    /**
+     * Get the currency from the address of a currency contract.
+     * Useful to know which currency was used to create a Request.
+     *
+     * @param {string} address Address of the currency contract
+     * @returns {Types.Currency} Currency
+     */
+    currencyFromContractAddress: currencyUtils.currencyFromContractAddress,
 };

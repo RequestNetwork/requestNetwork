@@ -267,7 +267,6 @@ export default class RequestNetwork {
         txHash: string,
     ): Promise<{
         request: Request|null,
-        unminedRequestData: { requestData: any, currency: Types.Currency } | null,
         transaction: any,
         warnings: any,
         errors: any,
@@ -275,18 +274,8 @@ export default class RequestNetwork {
         const { request: requestData, transaction, errors, warnings } = await this.requestCoreService.getRequestByTransactionHash(txHash);
         const currency: Types.Currency = currencyUtils.currencyFromContractAddress(requestData.currencyContract.address);
 
-        let request = null;
-        let unminedRequestData = null;
-
-        if (requestData.requestId) {
-            request = new Request(requestData.requestId, currency, this.requestCoreService);
-        } else {
-            unminedRequestData = {requestData, currency};
-        }
-
         return {
-            request,
-            unminedRequestData,
+            request: (requestData && requestData.requestId) ? new Request(requestData.requestId, currency, this.requestCoreService) : null,
             transaction,
             warnings,
             errors,
