@@ -22,6 +22,14 @@ export default class SignedRequest {
     public readonly signedRequestData: Types.ISignedRequestData;
 
     /**
+     * Currency of the Request
+     *
+     * @readonly
+     * @type {Types.Currency}
+     */
+    public readonly currency: Types.Currency;
+
+    /**
      * Creates an instance of SignedRequest from a Signed Request data or serialized Signed Request
      *
      * @param {(Types.ISignedRequestData|string)} signedRequest Data of the Signed Request, or serialized (string format) Signed Request
@@ -30,6 +38,10 @@ export default class SignedRequest {
         this.signedRequestData = typeof signedRequest === 'string' ?
             this.deserializeForUri(signedRequest) :
             signedRequest;
+
+        this.currency = currencyUtils.currencyFromContractAddress(
+            this.signedRequestData.currencyContract,
+        );
     }
 
     /**
