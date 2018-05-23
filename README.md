@@ -10,7 +10,7 @@ Join the Request Hub [here][requesthub-slack-url]
 
 [website-url]: https://request.network
 [whitepaper-url]: https://request.network/assets/pdf/request_whitepaper.pdf
-[requesthub-slack-url]: https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA
+[requesthub-slack-url]: https://request-slack.herokuapp.com/
 
 ### Published Packages
 
