@@ -257,10 +257,10 @@ export default class RequestNetwork {
 
     /**
      * Create a Request instance from a transaction hash.
-     * In the case of an unmined transaction for request creation, an object with { requestData, currency } is available.
+     * In the case of an unmined transaction for request creation, the request object will be null.
      *
      * @param {string} txHash Transaction hash
-     * @returns {Request} The Request
+     * @returns {Promise<{request, transaction, warnings, errors}>}
      * @memberof RequestNetwork
      */
     public async fromTransactionHash(
@@ -272,10 +272,18 @@ export default class RequestNetwork {
         errors: any,
     }> {
         const { request: requestData, transaction, errors, warnings } = await this.requestCoreService.getRequestByTransactionHash(txHash);
-        const currency: Types.Currency = currencyUtils.currencyFromContractAddress(requestData.currencyContract.address);
+
+        let request = null;
+        if (requestData && requestData.requestId) {
+            request = new Request(
+                requestData.requestId,
+                currencyUtils.currencyFromContractAddress(requestData.currencyContract.address),
+                this.requestCoreService,
+            );
+        }
 
         return {
-            request: (requestData && requestData.requestId) ? new Request(requestData.requestId, currency, this.requestCoreService) : null,
+            request,
             transaction,
             warnings,
             errors,
