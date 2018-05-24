@@ -1,6 +1,6 @@
 {
   "name": "requestnetwork-data-format",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Data format for the Request Network protocol",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat",
   "keywords": [
@@ -16,17 +16,17 @@
     "test": "npm run build && mocha --timeout 60000 dist/test/*.js"
   },
   "devDependencies": {
-    "@types/node": "^8.0.53",
-    "ts-node": "^6.0.3",
     "@types/chai": "^4.0.5",
     "@types/mocha": "^2.2.44",
-    "mocha": "^4.1.0",
+    "@types/node": "^8.0.53",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
+    "dirty-chai": "^2.0.1",
+    "mocha": "^4.1.0",
     "rimraf": "^2.6.2",
     "shx": "^0.2.2",
-    "dirty-chai": "^2.0.1"
+    "ts-node": "^6.0.3"
   },
   "dependencies": {
     "ajv": "6.5.0",
