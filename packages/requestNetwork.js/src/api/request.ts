@@ -21,6 +21,8 @@ function promiEventLibraryWrap(
         outPromiseEvent.resolve({ request, transaction }),
     );
 
+    inPromiseEvent.catch((error: any) => outPromiseEvent.reject(error));
+
     events.forEach(eventName =>
         inPromiseEvent.on(eventName, (param: any) => outPromiseEvent.eventEmitter.emit(eventName, param)),
     );
@@ -32,6 +34,8 @@ function promiEventLibraryWrap(
  * Class representing a Request.
  * Instances of this class can be accepted, paid, refunded, etc.
  * Use the member function `getData` to access the properties of the Request.
+ *
+ * Requests should be created with `RequestNetwork.createRequest()`.
  *
  * @class Request
  */

@@ -1,0 +1,40 @@
+{
+  "name": "requestnetwork-data-format",
+  "version": "0.1.0",
+  "description": "Data format for the Request Network protocol",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat",
+  "keywords": [
+    "request",
+    "requestnetwork",
+    "requestnetworkdataformat"
+  ],
+  "license": "MIT",
+  "repository": "github:RequestNetwork/requestNetwork",
+  "scripts": {
+    "clean": "rimraf -rf ./dist",
+    "build": "npm run clean && tsc && shx cp -r ./src/format ./dist/src/ && shx cp -r ./test/data ./dist/test/",
+    "test": "npm run build && mocha --timeout 60000 dist/test/*.js"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.0.5",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.53",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-spies": "^1.0.0",
+    "dirty-chai": "^2.0.1",
+    "mocha": "^4.1.0",
+    "rimraf": "^2.6.2",
+    "shx": "^0.2.2",
+    "ts-node": "^6.0.3"
+  },
+  "dependencies": {
+    "ajv": "6.5.0",
+    "tslib": "1.9.0",
+    "typescript": "2.8.1"
+  },
+  "main": "dist/src/index.js",
+  "files": [
+    "dist/src"
+  ]
+}

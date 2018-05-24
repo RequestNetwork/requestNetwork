@@ -1,4 +1,4 @@
-import RequestNetwork, {Request, SignedRequest, Types } from '../../src/index';
+import RequestNetwork, {Request, SignedRequest, Types, utils } from '../../src/index';
 import Erc20Service from '../../src/servicesExternal/erc20-service';
 import currencyUtils from '../../src/utils/currency';
 const Web3 = require('web3');
@@ -272,6 +272,19 @@ describe('Request Network API', () => {
         expect(data.creator).to.be.equal(examplePayees[0].idAddress);
         expect(data.requestId).to.be.equal(request.requestId);
     });
+    
+    it('gets request from its txHash', async () => {
+        const { transaction } = await requestNetwork.createRequest(
+            Types.Role.Payee,
+            Types.Currency.ETH,
+            examplePayees,
+            examplePayer
+        );
+
+        const { request } = await requestNetwork.fromTransactionHash(transaction.hash);
+
+        expect(request).to.exist;
+    });
 
     it('creates a signed request', async () => {
         const signedRequest = await requestNetwork.createSignedRequest(
@@ -384,7 +397,7 @@ describe('Request Network API', () => {
         expect(requestData.subPayees.length).to.equal(0);
 
         // Send test tokens to the payer
-        const testToken = new Erc20Service(currencyUtils.erc20TokenAddress(Types.Currency.REQ));
+        const testToken = new Erc20Service(currencyUtils.erc20TokenAddress(Types.Currency.REQ, 'private'));
         await testToken.transfer(examplePayer.idAddress, 1, { from: accounts[0] });        
 
         // Approve Request for the ERC20
@@ -396,7 +409,7 @@ describe('Request Network API', () => {
         expect(data.payee.balance.toNumber()).to.equal(1);
     });
 
-    it.skip('broadcasts a signed request', async () => {
+    it('broadcasts a ERC20 signed request', async () => {
         const signedRequest = await requestNetwork.createSignedRequest(
             Types.Role.Payee,
             Types.Currency.REQ,
@@ -465,5 +478,30 @@ describe('Request Network API', () => {
 
         const data = await request.getData();
         expect(data.payee.balance.toNumber()).to.equal(0);
+    });
+
+    it('propagates rejected promises', async () => {
+        const catchSpy = chai.spy();
+
+        const { request } = await requestNetwork.createRequest(
+            Types.Role.Payee,
+            Types.Currency.ETH,
+            examplePayees,
+            examplePayer
+        );
+
+        try {
+            await request.pay([-1]);
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('offers the number of decimals for a currency', () => {
+        expect(utils.decimalsForCurrency(Types.Currency.DGX)).to.equal(9);
     });
 });

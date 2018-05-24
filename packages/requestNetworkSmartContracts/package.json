@@ -1,6 +1,6 @@
 {
   "name": "request-network-smart-contracts",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Smart contracts that implement the Request Network protocol.",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkSmartContracts",
   "keywords": [
@@ -15,9 +15,12 @@
     "clean": "rimraf -rf ./build ./export",
     "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "test": "truffle test",
-    "build": "npm run clean && truffle compile && node exportArtifacts"
+    "build": "npm run clean && truffle compile && node exportArtifacts",
+    "docs:init": "doxity init",
+    "docs:build": "doxity build"
   },
   "devDependencies": {
+    "@digix/doxity": "git+https://git@github.com/romaric-juniet/doxity.git#b829fd5b14d7e9e830b72096ca9c336b1bc1ed44",
     "bignumber.js": "^5.0.0",
     "bluebird": "^3.5.1",
     "ethereumjs-util": "^5.1.5",

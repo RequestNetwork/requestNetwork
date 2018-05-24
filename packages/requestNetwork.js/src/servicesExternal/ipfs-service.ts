@@ -6,6 +6,7 @@ const ipfsAPI = require('ipfs-api');
 
 /**
  * The Ipfs class is the singleton class containing the ipfs node interface
+ * @ignore
  */
 export default class Ipfs {
     /**

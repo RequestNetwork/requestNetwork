@@ -10,7 +10,7 @@ Join the Request Hub [here][requesthub-slack-url]
 
 [website-url]: https://request.network
 [whitepaper-url]: https://request.network/assets/pdf/request_whitepaper.pdf
-[requesthub-slack-url]: https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA
+[requesthub-slack-url]: https://request-slack.herokuapp.com/
 
 ### Published Packages
 
@@ -18,6 +18,7 @@ Join the Request Hub [here][requesthub-slack-url]
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | [`requestNetwork.js`](/packages/requestNetwork.js)                                     | [![npm](https://img.shields.io/npm/v/@requestnetwork/request-network.js.svg)](https://www.npmjs.com/package/@requestnetwork/request-network.js)   | A Javascript library for interacting with the Request Network protocol          |
 | [`requestNetworkArtifacts`](/packages/requestNetworkArtifacts)                         | [![npm](https://img.shields.io/npm/v/requestnetworkartifacts.svg)](https://www.npmjs.com/package/requestnetworkartifacts)                         | Artifacts for Request Network Ethereum contracts          |
+| [`requestNetworkDataFormat`](/packages/requestNetworkDataFormat)                         | [![npm](https://img.shields.io/npm/v/requestnetwork-data-format.svg)](https://www.npmjs.com/package/requestnetwork-data-format)                         | Data format for Request Network          |
 
 ### Private Packages
 

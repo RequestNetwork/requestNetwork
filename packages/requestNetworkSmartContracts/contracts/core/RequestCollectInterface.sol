@@ -1,4 +1,4 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.18;
 
 import '../base/math/SafeMath.sol';
 import '../base/lifecycle/Pausable.sol';

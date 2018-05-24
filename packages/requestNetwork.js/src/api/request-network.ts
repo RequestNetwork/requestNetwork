@@ -125,7 +125,7 @@ export default class RequestNetwork {
 
         // Create an ERC20 Request
         if (currencyUtils.isErc20(currency)) {
-            const addressTestToken = currencyUtils.erc20TokenAddress(currency);
+            const addressTestToken = currencyUtils.erc20TokenAddress(currency, Web3Single.getInstance().networkName);
             const requestERC20: RequestERC20Service = currencyUtils.serviceForCurrency(currency);
 
             if (as === Types.Role.Payee) {
@@ -235,6 +235,8 @@ export default class RequestNetwork {
             });
         });
 
+        promise.catch((error: any) => promiEvent.reject(error));
+
         promise.on('broadcasted', (param: any) => promiEvent.eventEmitter.emit('broadcasted', param));
 
         return promiEvent.eventEmitter;
@@ -251,6 +253,41 @@ export default class RequestNetwork {
         const requestData = await this.requestCoreService.getRequest(requestId);
         const currency: Types.Currency = currencyUtils.currencyFromContractAddress(requestData.currencyContract.address);
         return new Request(requestId, currency, this.requestCoreService);
+    }
+
+    /**
+     * Create a Request instance from a transaction hash.
+     * In the case of an unmined transaction for request creation, the request object will be null.
+     *
+     * @param {string} txHash Transaction hash
+     * @returns {Promise<{request, transaction, warnings, errors}>}
+     * @memberof RequestNetwork
+     */
+    public async fromTransactionHash(
+        txHash: string,
+    ): Promise<{
+        request: Request|null,
+        transaction: any,
+        warnings: any,
+        errors: any,
+    }> {
+        const { request: requestData, transaction, errors, warnings } = await this.requestCoreService.getRequestByTransactionHash(txHash);
+
+        let request = null;
+        if (requestData && requestData.requestId) {
+            request = new Request(
+                requestData.requestId,
+                currencyUtils.currencyFromContractAddress(requestData.currencyContract.address),
+                this.requestCoreService,
+            );
+        }
+
+        return {
+            request,
+            transaction,
+            warnings,
+            errors,
+        };
     }
 
     /**
@@ -278,7 +315,7 @@ export default class RequestNetwork {
         let signedRequestData = null;
 
         if (currencyUtils.isErc20(currency)) {
-            const addressTestToken = currencyUtils.erc20TokenAddress(currency);
+            const addressTestToken = currencyUtils.erc20TokenAddress(currency, Web3Single.getInstance().networkName);
             const requestERC20: RequestERC20Service = currencyUtils.serviceForCurrency(currency);
             // Create an ERC20 Signed Request as Payee
             signedRequestData = await requestERC20.signRequestAsPayee(
@@ -345,10 +382,8 @@ export default class RequestNetwork {
         broadcastCurrencyOptions: Types.IBroadcastCurrencyOptions = {},
         requestOptions: Types.IRequestCreationOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
-        const currency: Types.Currency = currencyUtils.currencyFromContractAddress(
-            signedRequest.signedRequestData.currencyContract,
-        );
         let promise;
+        const currency: Types.Currency = signedRequest.currency;
 
         // new promiEvent to wrap the promiEvent returned by the service. It is necessary, in order to add the Request object in the resolution of the promise
         const promiEvent = Web3PromiEvent();
@@ -402,6 +437,8 @@ export default class RequestNetwork {
                 transaction,
             });
         });
+
+        promise.catch((error: any) => promiEvent.reject(error));
 
         promise.on('broadcasted', (param: any) => promiEvent.eventEmitter.emit('broadcasted', param));
 

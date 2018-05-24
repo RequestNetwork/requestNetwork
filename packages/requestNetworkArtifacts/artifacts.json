@@ -2,12 +2,12 @@
     "private": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-test.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-test.json",
-        "last-requesterc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10": "RequestERC20/RequestERC20-0.2.2-test.json",
         "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-test.json",
+        "last-requesterc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10": "RequestERC20/RequestERC20-0.2.2-test-test.json",
 
         "0x8cdaf0cd259887258bc13a92c0a6da92698644c0": "RequestCore/RequestCore-0.0.5-test.json",
         "0xf12b5dd4ead5f743c6baa640b0216200e89b60da": "RequestEthereum/RequestEthereum-0.0.5-test.json",
-        "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf": "RequestERC20/RequestERC20-0.2.2-test.json",
+        "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf": "RequestERC20/RequestERC20-0.2.2-test-test.json",
         "0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-test.json"
     },
     "rinkeby": {
@@ -24,12 +24,12 @@
     "main": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
+        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
         "last-requesterc20-0x8f8221afbb33998d8584a2b05749ba73c37a938a": "RequestERC20/RequestERC20-0.2.2-req-main.json",
         "last-requesterc20-0xdd974d5c2e2928dea5f71b9825b8b646686bd200": "RequestERC20/RequestERC20-0.2.2-knc-main.json",
         "last-requesterc20-0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf": "RequestERC20/RequestERC20-0.2.2-dgx-main.json",
         "last-requesterc20-0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359": "RequestERC20/RequestERC20-0.2.2-dai-main.json",
         "last-requesterc20-0xd26114cd6ee289accf82350c8d8487fedb8a0c07": "RequestERC20/RequestERC20-0.2.2-omg-main.json",
-        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
 
         "0xdb600fda54568a35b78565b5257125bebc51eb27": "RequestCore/RequestCore-0.0.5-prod.json",
         "0x3038045cd883abff0c6eea4b1954843c0fa5a735": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
