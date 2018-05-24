@@ -1,7 +1,7 @@
 {
-  "name": "doxity-gatsby-starter-project",
+  "name": "docs-smart-contracts",
   "description": "Doxity Example Site",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Chris Hitchcott <hitchcott@gmail.com>",
   "dependencies": {
     "@hitchcott/semantic-ui-react": "^0.61.1",
@@ -27,5 +27,6 @@
   "scripts": {
     "develop": "./node_modules/.bin/gatsby develop",
     "build": "./node_modules/.bin/gatsby build --prefix-links"
-  }
+  },
+  "private": true
 }
