@@ -376,7 +376,7 @@ describe('Request Network API', () => {
         expect(events[0].data.payee).to.equal(examplePayees[0].idAddress);
     });
 
-    it('creates a ERC20 request from payee and pay it', async () => {
+    it.skip('creates a ERC20 request from payee and pay it', async () => {
         const role = Types.Role.Payee;
         const { request } = await requestNetwork.createRequest(
             role,
