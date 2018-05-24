@@ -31,12 +31,12 @@
 
 | Name | Type | Need | Comment |
 | ------------ | ------------ | ------------ | ------------ |
-| email | string | Optional | email |
+| email | string _(format: email)_ | Optional | email |
 | firstName | string | Optional | first name |
 | lastName | string | Optional | last name |
 | businessName | string | Optional | business name |
 | phone | string | Optional | phone number |
-| address | string | Optional | address formated as http://json-schema.org/address |
+| address | object | Optional | address formated as [http://json-schema.org/address](http://json-schema.org/example/address.json) |
 | taxRegistration | string | Optional | tax registration number |
 | companyRegistration | string | Optional | company registration number |
 | miscellaneous | object | Optional | Miscellaneous information |
@@ -48,12 +48,12 @@
 
 | Name | Type | Need | Comment |
 | ------------ | ------------ | ------------ | ------------ |
-| email | string | Optional | email |
+| email | string _(format: email)_ | Optional | email |
 | firstName | string | Optional | first name |
 | lastName | string | Optional | last name |
 | businessName | string | Optional | business name |
 | phone | string | Optional | phone number |
-| address | string | Optional | address formated as http://json-schema.org/address |
+| address | object | Optional | address formated as [http://json-schema.org/address](http://json-schema.org/example/address.json) |
 | taxRegistration | string | Optional | tax registration number |
 | companyRegistration | string | Optional | company registration number |
 | miscellaneous | object | Optional | Miscellaneous information |
