@@ -1153,6 +1153,7 @@ export default class RequestERC20Service {
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) {
@@ -1186,6 +1187,7 @@ export default class RequestERC20Service {
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -1227,6 +1229,7 @@ export default class RequestERC20Service {
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -1257,8 +1260,10 @@ export default class RequestERC20Service {
      */
     public getTokenAllowance(
         _currencyContractAddress: string,
-        _options: any): Promise<any> {
+        _options ?: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
+            _options = this.web3Single.setUpOptions(_options);
+
             this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
                 if (!_options.from && err) {
                     return reject(err);

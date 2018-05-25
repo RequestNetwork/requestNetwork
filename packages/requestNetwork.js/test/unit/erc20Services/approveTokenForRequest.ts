@@ -72,6 +72,18 @@ describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
         requestId = req.request.requestId;
     });
 
+    it('approve Token For Request without option', async () => {
+        await instanceCentralBank.methods.mint(arbitraryAmount).send({from: defaultAccount});       
+      
+        const res = await rn.requestERC20Service.approveTokenForRequest(
+                    requestId,
+                    arbitraryAmount).on('broadcasted', (data: any) => {
+                    expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+                });
+
+        utils.expectEqualsBN(res, arbitraryAmount, 'new allowance is wrong');
+    });
+
     it('approve Token For Request', async () => {
         await instanceCentralBank.methods.mint(arbitraryAmount).send({from: payer});       
       
@@ -83,6 +95,20 @@ describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
                 });
 
         utils.expectEqualsBN(res, arbitraryAmount, 'new allowance is wrong');
+    });
+
+    it('approve Token For Signed Request without option', async () => {
+        const partialPignedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf' };
+
+        await instanceCentralBank.methods.mint(arbitraryAmount2).send({from: defaultAccount});     
+
+        const res = await rn.requestERC20Service.approveTokenForSignedRequest(
+                    partialPignedRequest,
+                    arbitraryAmount2).on('broadcasted', (data: any) => {
+                    expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+                });
+
+        utils.expectEqualsBN(res, arbitraryAmount2, 'new allowance is wrong');
     });
 
     it('approve Token For Signed Request', async () => {
@@ -98,6 +124,19 @@ describe('erc20 approveTokenForRequest & approveTokenForSignedRequest', () => {
                 });
 
         utils.expectEqualsBN(res, arbitraryAmount2, 'new allowance is wrong');
+    });
+
+    it('get allowance for a Request without option', async () => {
+        const partialPignedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf' };
+
+        const res2 = await rn.requestERC20Service.approveTokenForSignedRequest(
+                    partialPignedRequest,
+                    arbitraryAmount3);
+
+        const res = await rn.requestERC20Service.getTokenAllowance(
+                                partialPignedRequest.currencyContract);
+
+        utils.expectEqualsBN(res, arbitraryAmount3, 'new allowance is wrong');
     });
 
     it('get allowance for a Request', async () => {
