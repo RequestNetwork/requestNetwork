@@ -365,4 +365,44 @@ describe('erc20 paymentAction', () => {
         }
         await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payerWithoutToken})
     });
+
+    it('pay request without options', async () => {
+
+        const req2 = await rn.requestERC20Service.createRequestAsPayee(
+            ADDRESS_TOKEN_TEST,
+            [payee, payee2, payee3],
+            [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
+            defaultAccount,
+            [payeePaymentAddress],
+            payerRefundAddress,
+            undefined,
+            undefined,
+            undefined,
+            {from: payee});
+        ++currentNumRequest;
+        requestId = req2.request.requestId;
+
+        // approve   
+        await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: defaultAccount})
+
+        const result = await rn.requestERC20Service.paymentAction(
+                            requestId,
+                            [arbitraryAmount])
+            .on('broadcasted', (data: any) => {
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+            });
+
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.balance, arbitraryAmount, 'balance is wrong');
+        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+        expect(result.request.extension, 'extension is wrong').to.be.undefined;
+        expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
+        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(defaultAccount);
+        expect(result.request.requestId, 'requestId is wrong').to.equal(
+                                    utils.getRequestId(addressRequestCore, ++currentNumRequest));
+        expect(result.request.state, 'state is wrong').to.equal(1);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
+
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
+    });
 });

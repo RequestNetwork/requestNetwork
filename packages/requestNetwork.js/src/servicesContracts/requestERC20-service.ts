@@ -927,6 +927,7 @@ export default class RequestERC20Service {
         _additionals ?: any[],
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
 
         let amountsToPayParsed: any[] = [];
         if (_amountsToPay) {
@@ -1003,7 +1004,7 @@ export default class RequestERC20Service {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
-                                        request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
+                                        request.state === Types.State.Created && account === request.payer ? receipt.events[1] : receipt.events[0]);
                             try {
                                 const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
