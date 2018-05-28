@@ -1165,11 +1165,15 @@ export default class RequestERC20Service {
             const request = await this.getRequest(_requestId);
             const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
 
-            const result = await tokenErc20.approve(request.currencyContract.address, _amount, _options)
+            try {
+                const result = await tokenErc20.approve(request.currencyContract.address, _amount, _options)
                     .on('broadcasted', (data: any) => {
                         return promiEvent.eventEmitter.emit('broadcasted', data);
                     });
-            return promiEvent.resolve(result);
+                return promiEvent.resolve(result);
+            } catch (e) {
+                return promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -1207,11 +1211,15 @@ export default class RequestERC20Service {
 
             const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
-            const result = await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options)
-                    .on('broadcasted', (data: any) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', data);
-                    });
-            return promiEvent.resolve(result);
+            try {
+                const result = await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options)
+                        .on('broadcasted', (data: any) => {
+                            return promiEvent.eventEmitter.emit('broadcasted', data);
+                        });
+                return promiEvent.resolve(result);
+            } catch (e) {
+                return promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -1243,11 +1251,15 @@ export default class RequestERC20Service {
 
             const tokenErc20 = new Erc20Service(_tokenAddress);
 
-            const result = await tokenErc20.approve(instanceRequestERC20Last.address, _amount, _options)
-                    .on('broadcasted', (data: any) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', data);
-                    });
-            return promiEvent.resolve(result);
+            try {
+                const result = await tokenErc20.approve(instanceRequestERC20Last.address, _amount, _options)
+                        .on('broadcasted', (data: any) => {
+                            return promiEvent.eventEmitter.emit('broadcasted', data);
+                        });
+                return promiEvent.resolve(result);
+            } catch (e) {
+                return promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -1270,12 +1282,15 @@ export default class RequestERC20Service {
                     return reject(err);
                 }
                 _options.from = _options.from ? _options.from : defaultAccount;
+                try {
+                    const contract = this.web3Single.getContractInstance(_currencyContractAddress);
+                    const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
+                    const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
-                const contract = this.web3Single.getContractInstance(_currencyContractAddress);
-                const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
-                const tokenErc20 = new Erc20Service(tokenAddressERC20);
-
-                return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
+                    return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));   
+                } catch (e) {
+                    return reject(e);
+                }
             });
         });
     }
