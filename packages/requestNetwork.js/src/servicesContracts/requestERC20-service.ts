@@ -927,6 +927,7 @@ export default class RequestERC20Service {
         _additionals ?: any[],
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
 
         let amountsToPayParsed: any[] = [];
         if (_amountsToPay) {
@@ -1003,7 +1004,7 @@ export default class RequestERC20Service {
                         if (confirmationNumber === _options.numberOfConfirmation) {
                             const coreContract = this.requestCoreServices.getCoreContractFromRequestId(request.requestId);
                             const event = this.web3Single.decodeEvent(coreContract.abi, 'UpdateBalance',
-                                        request.state === Types.State.Created && _options.from === request.payer ? receipt.events[1] : receipt.events[0]);
+                                        request.state === Types.State.Created && account === request.payer ? receipt.events[1] : receipt.events[0]);
                             try {
                                 const requestAfter = await this.getRequest(event.requestId);
                                 promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
@@ -1153,6 +1154,7 @@ export default class RequestERC20Service {
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) {
@@ -1163,11 +1165,15 @@ export default class RequestERC20Service {
             const request = await this.getRequest(_requestId);
             const tokenErc20 = new Erc20Service(request.currencyContract.tokenAddress);
 
-            const result = await tokenErc20.approve(request.currencyContract.address, _amount, _options)
+            try {
+                const result = await tokenErc20.approve(request.currencyContract.address, _amount, _options)
                     .on('broadcasted', (data: any) => {
                         return promiEvent.eventEmitter.emit('broadcasted', data);
                     });
-            return promiEvent.resolve(result);
+                return promiEvent.resolve(result);
+            } catch (e) {
+                return promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -1186,6 +1192,7 @@ export default class RequestERC20Service {
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -1204,11 +1211,15 @@ export default class RequestERC20Service {
 
             const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
-            const result = await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options)
-                    .on('broadcasted', (data: any) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', data);
-                    });
-            return promiEvent.resolve(result);
+            try {
+                const result = await tokenErc20.approve(_signedRequest.currencyContract, _amount, _options)
+                        .on('broadcasted', (data: any) => {
+                            return promiEvent.eventEmitter.emit('broadcasted', data);
+                        });
+                return promiEvent.resolve(result);
+            } catch (e) {
+                return promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -1227,6 +1238,7 @@ export default class RequestERC20Service {
         _options ?: any): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
         _amount = new BN(_amount);
+        _options = this.web3Single.setUpOptions(_options);
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
@@ -1239,11 +1251,15 @@ export default class RequestERC20Service {
 
             const tokenErc20 = new Erc20Service(_tokenAddress);
 
-            const result = await tokenErc20.approve(instanceRequestERC20Last.address, _amount, _options)
-                    .on('broadcasted', (data: any) => {
-                        return promiEvent.eventEmitter.emit('broadcasted', data);
-                    });
-            return promiEvent.resolve(result);
+            try {
+                const result = await tokenErc20.approve(instanceRequestERC20Last.address, _amount, _options)
+                        .on('broadcasted', (data: any) => {
+                            return promiEvent.eventEmitter.emit('broadcasted', data);
+                        });
+                return promiEvent.resolve(result);
+            } catch (e) {
+                return promiEvent.reject(e);
+            }
         });
 
         return promiEvent.eventEmitter;
@@ -1257,19 +1273,24 @@ export default class RequestERC20Service {
      */
     public getTokenAllowance(
         _currencyContractAddress: string,
-        _options: any): Promise<any> {
+        _options ?: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
+            _options = this.web3Single.setUpOptions(_options);
+
             this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
                 if (!_options.from && err) {
                     return reject(err);
                 }
                 _options.from = _options.from ? _options.from : defaultAccount;
+                try {
+                    const contract = this.web3Single.getContractInstance(_currencyContractAddress);
+                    const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
+                    const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
-                const contract = this.web3Single.getContractInstance(_currencyContractAddress);
-                const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
-                const tokenErc20 = new Erc20Service(tokenAddressERC20);
-
-                return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
+                    return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));   
+                } catch (e) {
+                    return reject(e);
+                }
             });
         });
     }

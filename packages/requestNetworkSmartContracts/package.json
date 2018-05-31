@@ -1,6 +1,6 @@
 {
   "name": "request-network-smart-contracts",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Smart contracts that implement the Request Network protocol.",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkSmartContracts",
   "keywords": [
