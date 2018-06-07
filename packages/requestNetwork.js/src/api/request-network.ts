@@ -56,26 +56,26 @@ export default class RequestNetwork {
 
     /**
      * Creates an instance of RequestNetwork.
-     * Recommended usage: new RequestNetwork({ provider, ethNetworkId, useIpfsPublic, bitoinNetworkId})
+     * Recommended usage: new RequestNetwork({ provider, ethNetworkId, useIpfsPublic, bitcoinNetworkId})
      * Supported usage (for backward-compatibility): new RequestNetwork(provider, ethNetworkId, useIpfsPublic)
-     * note: bitoinNetworkId parameter is only available in options because the "supported usage" is only to ensure a backward compatibilty
+     * note: bitcoinNetworkId parameter is only available in options because the "supported usage" is only to ensure a backward compatibilty
      *
      * @param {object=} options
      * @param {object=} options.provider - The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network. (can be a provider instance or an url as string)
      * @param {number=} options.ethNetworkId - the Ethereum network ID.
      * @param {boolean=} options.useIpfsPublic - use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise (default : true)
-     * @param {number=} options.bitoinNetworkId - the bitcoin network ID
+     * @param {number=} options.bitcoinNetworkId - the bitcoin network ID
      * @memberof RequestNetwork
      */
-    constructor(options?: { provider?: any, ethNetworkId?: number, useIpfsPublic?: boolean, bitoinNetworkId?: number} | any, ethNetworkId?: number, useIpfsPublic?: boolean) {
-        let bitoinNetworkId;
+    constructor(options?: { provider?: any, ethNetworkId?: number, useIpfsPublic?: boolean, bitcoinNetworkId?: number} | any, ethNetworkId?: number, useIpfsPublic?: boolean) {
+        let bitcoinNetworkId;
         // Parameter handling
         let provider = options;
-        if (options && (options.provider || options.ethNetworkId || options.useIpfsPublic || options.bitoinNetworkId)) {
+        if (options && (options.provider || options.ethNetworkId || options.useIpfsPublic || options.bitcoinNetworkId)) {
             provider = options.provider;
             ethNetworkId = options.ethNetworkId;
             useIpfsPublic = options.useIpfsPublic;
-            bitoinNetworkId = options.bitoinNetworkId;
+            bitcoinNetworkId = options.bitcoinNetworkId;
         }
         if (typeof useIpfsPublic === 'undefined') {
             useIpfsPublic = true;
@@ -88,17 +88,23 @@ export default class RequestNetwork {
         Web3Single.init(provider, ethNetworkId);
 
         // init bitcoin service wrapper singleton
-        BitcoinService.init(bitoinNetworkId);
+        BitcoinService.init(bitcoinNetworkId);
 
         // init ipfs wrapper singleton
         Ipfs.init(useIpfsPublic);
 
         // Initialize the services
-        // Let currencyUtils instanciate the currency services
+        RequestCoreService.destroy();
         this.requestCoreService = RequestCoreService.getInstance();
-        this.requestBitcoinNodesValidationService = currencyUtils.serviceForCurrency(Types.Currency.BTC);
-        this.requestERC20Service = currencyUtils.serviceForCurrency(Types.Currency.REQ);
-        this.requestEthereumService = currencyUtils.serviceForCurrency(Types.Currency.ETH);
+
+        RequestBitcoinNodesValidationService.destroy();
+        this.requestBitcoinNodesValidationService = RequestBitcoinNodesValidationService.getInstance();
+
+        RequestERC20Service.destroy();
+        this.requestERC20Service = RequestERC20Service.getInstance();
+
+        RequestEthereumService.destroy();
+        this.requestEthereumService = RequestEthereumService.getInstance();
     }
 
     /**
@@ -229,8 +235,7 @@ export default class RequestNetwork {
         // Add the Request in the resolution of the promise
         promise.then(({ request, transaction }: { request: Types.IRequestData, transaction: { hash: string } }) => {
             return promiEvent.resolve({
-                // pass requestCoreService as a hack until the services are singletons
-                request: new Request(request.requestId, currency, this.requestCoreService),
+                request: new Request(request.requestId, currency),
                 transaction,
             });
         });
@@ -252,7 +257,7 @@ export default class RequestNetwork {
     public async fromRequestId(requestId: string): Promise<Request> {
         const requestData = await this.requestCoreService.getRequest(requestId);
         const currency: Types.Currency = currencyUtils.currencyFromContractAddress(requestData.currencyContract.address);
-        return new Request(requestId, currency, this.requestCoreService);
+        return new Request(requestId, currency);
     }
 
     /**
@@ -278,7 +283,6 @@ export default class RequestNetwork {
             request = new Request(
                 requestData.requestId,
                 currencyUtils.currencyFromContractAddress(requestData.currencyContract.address),
-                this.requestCoreService,
             );
         }
 
@@ -433,7 +437,7 @@ export default class RequestNetwork {
 
         promise.then(({ request, transaction }: { request: Types.IRequestData, transaction: { hash: string } }) => {
             return promiEvent.resolve({
-                request: new Request(request.requestId, currency, this.requestCoreService),
+                request: new Request(request.requestId, currency),
                 transaction,
             });
         });

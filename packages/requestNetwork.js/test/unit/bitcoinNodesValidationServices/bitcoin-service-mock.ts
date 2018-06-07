@@ -2,9 +2,9 @@ import * as walletAddressValidator from 'wallet-address-validator';
 const WEB3 = require('web3');
 
 /**
- * The BitcoinService class is the singleton class containing the web3.js interface
+ * The BitcoinServiceMock class is a mock class for BitcoinService. It uses files for mock data.
  */
-export default class BitcoinService {
+export default class BitcoinServiceMock {
     /**
      * Initialized the class BitcoinService
      * @param   _bitcoinNetworkId       the bitcoin network ID (1: main, 3: testnet)
@@ -27,7 +27,7 @@ export default class BitcoinService {
         return WEB3.utils.BN;
     }
 
-    private static _instance: BitcoinService;
+    private static _instance: BitcoinServiceMock;
 
     private bitcoinNetworkId: number;
 

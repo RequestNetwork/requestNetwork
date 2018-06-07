@@ -28,7 +28,11 @@ export default class RequestCoreService {
         return RequestCoreService._instance;
     }
 
-    private static _instance: RequestCoreService;
+    public static destroy() {
+        RequestCoreService._instance = null;
+    }
+
+    private static _instance: RequestCoreService|null;
 
     public web3Single: Web3Single;
     public ipfs: any;

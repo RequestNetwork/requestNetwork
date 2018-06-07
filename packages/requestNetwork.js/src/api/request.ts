@@ -65,7 +65,6 @@ export default class Request {
      */
     private readonly requestService: any;
 
-    // Hack until services are singletons
     private requestCoreService: RequestCoreService;
 
     /**
@@ -73,12 +72,11 @@ export default class Request {
      *
      * @param {string} requestId ID of the Request
      * @param {Types.Currency} currency Currency of the Request
-     * @param {RequestCoreService} requestCoreService RequestCoreService, hack until services are singletons
      */
-    constructor(requestId: string, currency: Types.Currency, requestCoreService: RequestCoreService) {
+    constructor(requestId: string, currency: Types.Currency) {
         this.requestId = requestId;
         this.currency = currency;
-        this.requestCoreService = requestCoreService;
+        this.requestCoreService = RequestCoreService.getInstance();
 
         this.requestService = currencyUtils.serviceForCurrency(currency);
     }

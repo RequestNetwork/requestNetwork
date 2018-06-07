@@ -39,7 +39,11 @@ export default class RequestERC20Service {
         return RequestERC20Service._instance;
     }
 
-    private static _instance: RequestERC20Service;
+    public static destroy() {
+        RequestERC20Service._instance = null;
+    }
+
+    private static _instance: RequestERC20Service|null;
 
     public web3Single: Web3Single;
 
@@ -1287,7 +1291,7 @@ export default class RequestERC20Service {
                     const tokenAddressERC20 = await contract.instance.methods.erc20Token().call();
                     const tokenErc20 = new Erc20Service(tokenAddressERC20);
 
-                    return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));   
+                    return resolve(await tokenErc20.allowance(_options.from, _currencyContractAddress));
                 } catch (e) {
                     return reject(e);
                 }

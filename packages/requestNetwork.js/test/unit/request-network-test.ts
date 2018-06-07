@@ -3,6 +3,7 @@ import Erc20Service from '../../src/servicesExternal/erc20-service';
 import currencyUtils from '../../src/utils/currency';
 const Web3 = require('web3');
 const BigNumber = require('bn.js');
+import BitcoinServiceTest from './bitcoinNodesValidationServices/bitcoin-service-mock';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -12,9 +13,9 @@ const expect = chai.expect;
 
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-describe('Request Network API', () => {
+describe.only('Request Network API', () => {
     let accounts: Array<string>;
-    let requestNetwork: RequestNetwork;
+    let requestNetwork: RequestNetwork|any;
     let examplePayees: Array<any>;
     let examplePayer: any;
 
@@ -36,6 +37,9 @@ describe('Request Network API', () => {
             provider: 'http://localhost:8545',
             ethNetworkId: 10000000000
         });
+        
+        BitcoinServiceTest.init();
+        requestNetwork.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
     });
 
     it('can be created with default parameters', async () => {

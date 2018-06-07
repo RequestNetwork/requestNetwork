@@ -38,7 +38,11 @@ export default class RequestBitcoinNodesValidationService {
         return RequestBitcoinNodesValidationService._instance;
     }
 
-    private static _instance: RequestBitcoinNodesValidationService;
+    public static destroy() {
+        RequestBitcoinNodesValidationService._instance = null;
+    }
+
+    private static _instance: RequestBitcoinNodesValidationService|null;
 
     public bitcoinService: BitcoinService;
     public web3Single: Web3Single;

@@ -33,7 +33,11 @@ export default class RequestEthereumService {
         return RequestEthereumService._instance;
     }
 
-    private static _instance: RequestEthereumService;
+    public static destroy() {
+        RequestEthereumService._instance = null;
+    }
+
+    private static _instance: RequestEthereumService|null;
 
     public web3Single: Web3Single;
 

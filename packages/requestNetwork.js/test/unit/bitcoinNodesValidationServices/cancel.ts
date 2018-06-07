@@ -4,7 +4,7 @@ import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/index';
 import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
-import BitcoinServiceTest from './bitcoin-service-test';
+import BitcoinServiceTest from './bitcoin-service-mock';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
@@ -36,16 +36,17 @@ var payeeRefund = 'mg5AMpbvbKU6D6k3eUe4R7Q4jbcFimPTF9';
 var payee2Refund = 'mqbRwd1488VLFdJfMQQyKis4RgHH6epcAW';
 var payee3Refund = 'mopMp1tpQzCXbXKLH9UVQxDoaDEjM76muv';
 
-describe('bitcoin NodesValidation cancel', () => {
-    const arbitraryAmount = 100000000;
-    const arbitraryAmount2 = 2000000;
-    const arbitraryAmount3 = 300000;
-    rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
-    BitcoinServiceTest.init();
-    rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
+const arbitraryAmount = 100000000;
+const arbitraryAmount2 = 2000000;
+const arbitraryAmount3 = 300000;
 
+describe('bitcoin NodesValidation cancel', () => {
     beforeEach(async () => {
+        rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
+        web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
+        BitcoinServiceTest.init();
+        rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
+    
         const accounts = await web3.eth.getAccounts();
         payee = accounts[0].toLowerCase();
         randomAddress = accounts[1].toLowerCase();

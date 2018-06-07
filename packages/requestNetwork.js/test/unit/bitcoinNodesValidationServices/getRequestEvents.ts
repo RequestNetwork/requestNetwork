@@ -4,7 +4,7 @@ import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/index';
 import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
-import BitcoinServiceTest from './bitcoin-service-test';
+import BitcoinServiceTest from './bitcoin-service-mock';
 
 const WEB3 = require('web3');
 const BN = WEB3.utils.BN;
@@ -25,28 +25,28 @@ let randomAddress: string;
 let currentNumRequest: any;
 let requestId: string;
 
-var payeePaymentNoTxs = 'mopMp1tpQzCXbXKLH9UVQxDoaDEjM76muv';
-var payeeRefundNoTxs = 'mx7AkR2D45VqsjREqEXot8wMjcRMCyQvwS';
+const payeePaymentNoTxs = 'mopMp1tpQzCXbXKLH9UVQxDoaDEjM76muv';
+const payeeRefundNoTxs = 'mx7AkR2D45VqsjREqEXot8wMjcRMCyQvwS';
 
-var payeePayment = 'mxp1Nmde8EyuB93YanAvQg8uSxzCs1iycs';
-var payee2Payment = 'mgUVRGCtdXd6PFKMmy2NsP6ENv2kajXaGV';
-var payee3Payment = 'n4jWwb24iQGPcBzPbXvhoE7N3CBCxWUE5y';
+const payeePayment = 'mxp1Nmde8EyuB93YanAvQg8uSxzCs1iycs';
+const payee2Payment = 'mgUVRGCtdXd6PFKMmy2NsP6ENv2kajXaGV';
+const payee3Payment = 'n4jWwb24iQGPcBzPbXvhoE7N3CBCxWUE5y';
 
-var payeeRefund = 'mg5AMpbvbKU6D6k3eUe4R7Q4jbcFimPTF9';
-var payee2Refund = 'mqbRwd1488VLFdJfMQQyKis4RgHH6epcAW';
-var payee3Refund = 'mopMp1tpQzCXbXKLH9UVQxDoaDEjM76muv';
+const payeeRefund = 'mg5AMpbvbKU6D6k3eUe4R7Q4jbcFimPTF9';
+const payee2Refund = 'mqbRwd1488VLFdJfMQQyKis4RgHH6epcAW';
+const payee3Refund = 'mopMp1tpQzCXbXKLH9UVQxDoaDEjM76muv';
 
+const arbitraryAmount = 100000000;
+const arbitraryAmount2 = 2000000;
+const arbitraryAmount3 = 300000;
 
 describe('bitcoin NodesValidation getRequestEvents', () => {
-    const arbitraryAmount = 100000000;
-    const arbitraryAmount2 = 2000000;
-    const arbitraryAmount3 = 300000;
-    rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
-    BitcoinServiceTest.init();
-    rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
-
     beforeEach(async () => {
+        rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
+        web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
+        BitcoinServiceTest.init();
+        rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
+    
         const accounts = await web3.eth.getAccounts();
         payee = accounts[0].toLowerCase();
         randomAddress = accounts[1].toLowerCase();
