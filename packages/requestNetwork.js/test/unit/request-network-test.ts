@@ -13,7 +13,7 @@ const expect = chai.expect;
 
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-describe.only('Request Network API', () => {
+describe('Request Network API', () => {
     let accounts: Array<string>;
     let requestNetwork: RequestNetwork|any;
     let examplePayees: Array<any>;
