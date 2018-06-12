@@ -297,13 +297,15 @@ export default class RequestCoreService {
                     let eventsCore = [];
                     eventsCore = await Promise.all(eventsCoreRaw.map(async (e) => {
                                         return new Promise(async (resolveEvent, rejectEvent) => {
+                                            const transaction = await this.web3Single.getTransaction(e.transactionHash);
                                             resolveEvent({
                                                 _meta: {
                                                     blockNumber: e.blockNumber,
                                                     logIndex: e.logIndex,
                                                     timestamp: await this.web3Single.getBlockTimestamp(e.blockNumber)},
                                                 data: e.returnValues,
-                                                name: e.event});
+                                                name: e.event,
+                                                from: transaction.from});
                                         });
                                     }));
 
