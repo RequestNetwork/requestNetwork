@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/index';
-import BitcoinServiceTest from './bitcoin-service-test';
+import BitcoinServiceTest from './bitcoin-service-mock';
 import * as utils from '../../utils';
 
 const WEB3 = require('web3');
@@ -33,16 +33,17 @@ var payeeRefund = 'mg5AMpbvbKU6D6k3eUe4R7Q4jbcFimPTF9';
 var payee2Refund = 'mqbRwd1488VLFdJfMQQyKis4RgHH6epcAW';
 var payee3Refund = 'mopMp1tpQzCXbXKLH9UVQxDoaDEjM76muv';
 
-describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
-    const arbitraryAmount = 100000000;
-    const arbitraryAmount2 = 20000000;
-    const arbitraryAmount3 =  3000000;
-    rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
-    web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
-    BitcoinServiceTest.init();
-    rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
+const arbitraryAmount = 100000000;
+const arbitraryAmount2 = 20000000;
+const arbitraryAmount3 =  3000000;
 
+describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
     beforeEach(async () => {
+        rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
+        web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
+        BitcoinServiceTest.init();
+        rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
+    
         const accounts = await web3.eth.getAccounts();
         defaultAccount = accounts[0].toLowerCase();
         randomAddress = accounts[1].toLowerCase();

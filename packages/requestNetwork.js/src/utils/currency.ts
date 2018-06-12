@@ -5,40 +5,23 @@ import RequestEthereumService from '../servicesContracts/requestEthereum-service
 import Erc20Service from '../servicesExternal/erc20-service';
 import * as Types from '../types';
 
-// Service containing methods for interacting with the Ethereum currency contract
-let requestEthereumService: RequestEthereumService;
-
-// Service containing methods for interacting with the ERC20 currency contract
-let requestERC20Service: RequestERC20Service;
-
-// Service containing methods for interacting with the bitcoin currency contract
-let requestBitcoinNodesValidationService: RequestBitcoinNodesValidationService;
-
 /**
  * Configuration for each currency. The objective is to regroup every information specific to each currency here.
- * It is currently a function to allow instanciation of the services and make a temporary singleton services hack.
  *
  * @param {Types.Currency} currency The currency to get the config for
  * @returns {erc20TokenAddresses: string|null, service: any} The configuration
  */
 function getCurrencyConfig(currency: Types.Currency)
     : {erc20TokenAddresses: {private?: string, rinkeby?: string, main: string }|null, service: any, decimals: number} {
-    // Hack until services are singletons
-    if (!requestEthereumService) {
-        requestEthereumService = RequestEthereumService.getInstance();
-        requestERC20Service = RequestERC20Service.getInstance();
-        requestBitcoinNodesValidationService = RequestBitcoinNodesValidationService.getInstance();
-    }
-
     return {
         [Types.Currency.ETH as number]: {
             erc20TokenAddresses: null,
-            service: requestEthereumService,
+            service: RequestEthereumService.getInstance(),
             decimals: 18,
         },
         [Types.Currency.BTC as number]: {
             erc20TokenAddresses: null,
-            service: requestBitcoinNodesValidationService,
+            service: RequestBitcoinNodesValidationService.getInstance(),
             decimals: 8,
         },
         [Types.Currency.REQ as number]: {
@@ -47,35 +30,35 @@ function getCurrencyConfig(currency: Types.Currency)
                 rinkeby: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
                 main: '0x8f8221afbb33998d8584a2b05749ba73c37a938a',
             },
-            service: requestERC20Service,
+            service: RequestERC20Service.getInstance(),
             decimals: 18,
         },
         [Types.Currency.KNC as number]: {
             erc20TokenAddresses: {
                 main: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
             },
-            service: requestERC20Service,
+            service: RequestERC20Service.getInstance(),
             decimals: 18,
         },
         [Types.Currency.DGX as number]: {
             erc20TokenAddresses: {
                 main: '0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf',
             },
-            service: requestERC20Service,
+            service: RequestERC20Service.getInstance(),
             decimals: 9,
         },
         [Types.Currency.DAI as number]: {
             erc20TokenAddresses: {
                 main: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
             },
-            service: requestERC20Service,
+            service: RequestERC20Service.getInstance(),
             decimals: 18,
         },
         [Types.Currency.OMG as number]: {
             erc20TokenAddresses: {
                 main: '0xd26114cd6ee289accf82350c8d8487fedb8a0c07',
             },
-            service: requestERC20Service,
+            service: RequestERC20Service.getInstance(),
             decimals: 18,
         },
     }[currency];
