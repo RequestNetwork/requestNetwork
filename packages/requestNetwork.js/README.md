@@ -59,7 +59,7 @@ CommonJS (recommended):
 
 ### Constructor
 
-Default configuration (Infura and Rinkeby)
+Default configuration (Infura and Mainnet)
 
 ```js
 let requestNetwork = new RequestNetwork();
