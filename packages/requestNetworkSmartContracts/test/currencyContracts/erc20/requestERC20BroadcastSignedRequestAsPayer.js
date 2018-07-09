@@ -334,7 +334,9 @@ contract('RequestERC20 broadcastSignedRequestAsPayerAction',  function(accounts)
 	});
 
 	it("cannot broadcast request when currencyContract not trusted", async function () {
-		var requestERC202 = await RequestERC20.new(requestCore.address,{from:admin});
+		const randomBurnerAddress = '0x7A1D0100000000000000000000000000000000000';
+		const erc20tokenAddress = '0x7A1D0100000000000000000000000000000000000';
+        var requestERC202 = await RequestERC20.new(requestCore.address, randomBurnerAddress, erc20tokenAddress, {from:admin});
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];

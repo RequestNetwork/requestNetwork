@@ -336,7 +336,8 @@ contract('RequestBitcoinNodesValidation broadcastSignedRequestAsPayerAction',  f
     });
 
     it("cannot broadcast request when currencyContract not trusted", async function () {
-        var requestBitcoinNodesValidation2 = await RequestBitcoinNodesValidation.new(requestCore.address,{from:admin});
+        const randomBurnerAddress = '0x7A1D0100000000000000000000000000000000000';
+        var requestBitcoinNodesValidation2 = await RequestBitcoinNodesValidation.new(requestCore.address, randomBurnerAddress, {from:admin});
         var payees = [payee, payee2];
         var payeesPayment = [payeePayment, payee2Payment];
         var expectedAmounts = [arbitraryAmount, arbitraryAmount2];

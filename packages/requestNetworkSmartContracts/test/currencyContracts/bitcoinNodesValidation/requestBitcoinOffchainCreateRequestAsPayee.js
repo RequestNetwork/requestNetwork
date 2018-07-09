@@ -11,7 +11,7 @@ var RequestBitcoinNodesValidation = artifacts.require("./synchrone/RequestBitcoi
 var BigNumber = require('bignumber.js');
 
 
-contract('RequestBitcoinNodesValidation createRequestAsPayee',  function(accounts) {
+contract('RequestBitcoinNodesValidation createRequestAsPayeeAction',  function(accounts) {
     var admin = accounts[0];
     var burnerContract = accounts[1];
 
@@ -193,7 +193,8 @@ contract('RequestBitcoinNodesValidation createRequestAsPayee',  function(account
     });
 
     it("new request when currencyContract not trusted Impossible", async function () {
-        var requestBitcoinNodesValidation2 = await RequestBitcoinNodesValidation.new(requestCore.address,{from:admin});
+        const randomBurnerAddress = '0x7A1D0100000000000000000000000000000000000';
+        var requestBitcoinNodesValidation2 = await RequestBitcoinNodesValidation.new(requestCore.address, randomBurnerAddress, {from:admin});
         await utils.expectThrow(requestBitcoinNodesValidation2.createRequestAsPayeeAction(
                                                 [payee,payee2,payee3],
                                                 utils.createBytesForPaymentBitcoinAddress([payeePayment,payee2Payment,payee3Payment]), 

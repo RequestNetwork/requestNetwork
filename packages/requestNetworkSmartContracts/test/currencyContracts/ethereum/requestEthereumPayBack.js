@@ -36,8 +36,8 @@ contract('RequestEthereum PayBack',  function(accounts) {
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [payeePayment,payee2Payment,payee3Payment], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		var newRequest = await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [payeePayment,payee2Payment,payee3Payment], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer})
   });
 
@@ -70,8 +70,8 @@ contract('RequestEthereum PayBack',  function(accounts) {
 
 
 	it("payback if Core Paused OK with refund address", async function () {
-		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, payerPayment, "", {from:payee});
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 2), {from:payer});
+		var newRequest = await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, payerPayment, "", {from:payee});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 2), {from:payer});
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 2), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer});
 
 		var balancePayerBefore = await web3.eth.getBalance(payer);
@@ -111,7 +111,7 @@ contract('RequestEthereum PayBack',  function(accounts) {
 
 
 	it("payback request just created ok", async function () {
-		await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
 		var r =await requestEthereum.refundAction(utils.getRequestId(requestCore.address, 2), {value:arbitraryAmount10percent, from:payee});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
@@ -132,8 +132,8 @@ contract('RequestEthereum PayBack',  function(accounts) {
 	});
 
 	it("payback request canceled impossible", async function () {
-		await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
-		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 2), {from:payee});
+		await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 2), {from:payee});
 		await utils.expectThrow(requestEthereum.refundAction(utils.getRequestId(requestCore.address, 2), {value:arbitraryAmount, from:payee}));
 	});
 

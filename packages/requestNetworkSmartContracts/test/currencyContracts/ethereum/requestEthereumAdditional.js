@@ -33,7 +33,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		var newRequest = await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
 		
     });
 
@@ -107,7 +107,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 	});
 
 	it("additionalAction by payer request canceled impossible", async function () {
-		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
+		await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		await utils.expectThrow(requestEthereum.additionalAction(utils.getRequestId(requestCore.address, 1), [arbitraryAmount10percent], {from:payer}));
 	});
 
@@ -120,7 +120,7 @@ contract('RequestEthereum AdditionalAction',  function(accounts) {
 	});
 
 	it("additionalAction request accepted OK", async function () {
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		var r = await requestEthereum.additionalAction(utils.getRequestId(requestCore.address, 1),[arbitraryAmount10percent], {from:payer});
 
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");

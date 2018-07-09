@@ -34,7 +34,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		var newRequest = await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
     });
 
 	// ##################################################################################################
@@ -42,7 +42,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	// ##################################################################################################
 	it("cancel if Core Paused OK", async function () {
 		await requestCore.pause({from:admin});
-		var r = await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
+		var r = await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
@@ -63,7 +63,7 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	it("cancel if untrusted currencyContract", async function () {
 		await requestCore.adminRemoveTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var r = await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
+		var r = await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");
@@ -83,25 +83,25 @@ contract('RequestEthereum Cancel',  function(accounts) {
 
 	it("cancel request Ethereum pause impossible", async function () {
 		await requestEthereum.pause({from:admin});
-		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
 	});
 
 	it("cancel request not exist impossible", async function () {
-		await utils.expectThrow(requestEthereum.cancel(666, {from:payer}));
+		await utils.expectThrow(requestEthereum.cancelAction(666, {from:payer}));
 	});
 
 	it("cancel request from a random guy impossible", async function () {
-		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:otherguy}));
+		await utils.expectThrow(requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:otherguy}));
 	});
 
 	it("cancel by payee request canceled impossible", async function () {
-		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
-		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
+		await utils.expectThrow(requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
 	});
 
 	it("cancel by payee request already accepted OK if amount == 0", async function () {
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
-		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
 		assert.equal(newReq[3],payee,"new request wrong data : payee");
@@ -115,9 +115,9 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	});
 
 	it("cancel request payee balance != 0 Impossible", async function () {
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [10], [0], {from:payer,value:10});
-		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
 
 		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1), {from:fakeContract});
 		// assert.equal(newReq[0],payee,"new request wrong data : creator");
@@ -132,20 +132,20 @@ contract('RequestEthereum Cancel',  function(accounts) {
 	});
 
 	it("cancel request subPayee balance != 0 Impossible", async function () {
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payer,value:10});
-		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
 	});
 
 	it("cancel request subPayee balance != 0 (but total balance == 0) Impossible", async function () {
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
 		await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 1), [0,0,10], [], {from:payer,value:10});
 		await requestEthereum.refundAction(utils.getRequestId(requestCore.address, 1), {from:payee,value:10});
-		await utils.expectThrow(requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee}));
+		await utils.expectThrow(requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee}));
 	});
 
 	it("cancel request created OK", async function () {
-		var r = await requestEthereum.cancel(utils.getRequestId(requestCore.address, 1), {from:payee});
+		var r = await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 1), {from:payee});
 		assert.equal(r.receipt.logs.length,1,"Wrong number of events");
 		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
 		assert.equal(l.name,"Canceled","Event Canceled is missing after cancel()");

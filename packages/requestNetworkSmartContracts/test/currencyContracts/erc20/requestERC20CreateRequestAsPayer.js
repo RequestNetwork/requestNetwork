@@ -174,7 +174,9 @@ contract('RequestERC20 createRequestAsPayerAction',  function(accounts) {
 	});
 
 	it("new request when currencyContract not trusted Impossible", async function () {
-		var requestERC202 = await RequestERC20.new(requestCore.address,{from:admin});
+		const randomBurnerAddress = '0x7A1D0100000000000000000000000000000000000';
+		const erc20tokenAddress = '0x7A1D0100000000000000000000000000000000000';
+        var requestERC202 = await RequestERC20.new(requestCore.address, randomBurnerAddress, erc20tokenAddress, {from:admin});
 		await testToken.approve(requestERC20.address, arbitraryAmount, {from:payer});
 		await utils.expectThrow(requestERC202.createRequestAsPayerAction([payee], [arbitraryAmount], 0, [arbitraryAmount], [], "", {from:payer}));
 	});

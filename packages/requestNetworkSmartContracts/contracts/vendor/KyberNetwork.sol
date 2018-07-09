@@ -1,3 +1,4 @@
+/* solium-disable */
 pragma solidity ^0.4.18;
 
 // From https://etherscan.io/address/kybernetwork.eth#code

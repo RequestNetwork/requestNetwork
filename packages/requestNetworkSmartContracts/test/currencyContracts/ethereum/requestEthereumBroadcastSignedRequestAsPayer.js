@@ -353,7 +353,8 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 	});
 
 	it("new request when currencyContract not trusted Impossible", async function () {
-		var requestEthereum2 = await RequestEthereum.new(requestCore.address,{from:admin});
+		const randomBurnerAddress = '0x7A1D0100000000000000000000000000000000000';
+		var requestEthereum2 = await RequestEthereum.new(requestCore.address, randomBurnerAddress, {from:admin});
 		var payees = [payee, payee2];
 		var payeesPayment = [];
 		var expectedAmounts = [arbitraryAmount,arbitraryAmount2];
@@ -522,7 +523,7 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 	it("new quick request more than expectedAmount OK", async function () {
 		var balanceBurnerContractBefore = await web3.eth.getBalance(burnerContract);
-		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		await requestEthereum.setRateFees(10, 10000, {from:admin}); // 0.01% fees
 		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
 
 		var payees = [payee, payee2];
@@ -590,7 +591,7 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 
 
 	it("impossible to createRequest if msg.value < fees", async function () {
-		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		await requestEthereum.setRateFees(10, 10000, {from:admin}); // 0.01% fees
 		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
 
 		var payees = [payee, payee2];
@@ -613,7 +614,7 @@ contract('RequestEthereum broadcastSignedRequestAsPayer',  function(accounts) {
 						{from:payer, value:fees.add(arbitraryAmount).minus(1)}));
 	});
 	it("impossible to createRequest if msg.value > fees", async function () {
-		await requestEthereum.setFeesPerTenThousand(10, {from:admin}); // 0.01% fees
+		await requestEthereum.setRateFees(10, 10000, {from:admin}); // 0.01% fees
 		var fees = await requestEthereum.collectEstimation(arbitraryAmount);
 
 		var payees = [payee, payee2];

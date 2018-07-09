@@ -43,8 +43,8 @@ contract('RequestEthereum Pay', function(accounts) {
 
 		await requestCore.adminAddTrustedCurrencyContract(requestEthereum.address, {from:admin});
 
-		var newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
-		await requestEthereum.accept(utils.getRequestId(requestCore.address, 1), {from:payer});
+		var newRequest = await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});
     });
 
 	// ##################################################################################################
@@ -77,7 +77,7 @@ contract('RequestEthereum Pay', function(accounts) {
 	});
 
 	it("pay if Core Paused OK with payement addresses", async function () {
-		newRequest = await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [payeePayment, payee2Payment, payee3Payment], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		newRequest = await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [payeePayment, payee2Payment, payee3Payment], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
 
 		var balancePayeeBefore = await web3.eth.getBalance(payee);
 		var balancePayeePaymentBefore = await web3.eth.getBalance(payeePayment);
@@ -139,7 +139,7 @@ contract('RequestEthereum Pay', function(accounts) {
 	});
 
 	it("pay request by payer just created => accept auto", async function () {
-		await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
 
 		var r = await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 2), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer});
 
@@ -166,7 +166,7 @@ contract('RequestEthereum Pay', function(accounts) {
 	});
 
 	it("pay request by otherguy just created => ok", async function () {
-		await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
 
 		var r = await requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 2), [arbitraryAmount], [], {value:arbitraryAmount, from:otherguy});
 
@@ -190,8 +190,8 @@ contract('RequestEthereum Pay', function(accounts) {
 
 
 	it("pay request canceled impossible", async function () {
-		await requestEthereum.createRequestAsPayee([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
-		await requestEthereum.cancel(utils.getRequestId(requestCore.address, 2), {from:payee});
+		await requestEthereum.createRequestAsPayeeAction([payee,payee2,payee3], [], [arbitraryAmount,arbitraryAmount2,arbitraryAmount3], payer, 0, "", {from:payee});
+		await requestEthereum.cancelAction(utils.getRequestId(requestCore.address, 2), {from:payee});
 		await utils.expectThrow(requestEthereum.paymentAction(utils.getRequestId(requestCore.address, 2), [arbitraryAmount], [0], {value:arbitraryAmount, from:payer}));
 	});
 
