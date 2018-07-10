@@ -1,12 +1,10 @@
 pragma solidity ^0.4.18;
 
-import "../vendor/KyberNetwork.sol";
+import "../base/lifecycle/Destructible.sol";
 
 
-/// @title Contract for a burnable ERC
 /// @dev From https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/ERC20Interface.sol
-/// @dev Added burn function
-interface BurnableErc20 {
+interface ERC20 {
     function totalSupply() public view returns (uint supply);
     function balanceOf(address _owner) public view returns (uint balance);
     function transfer(address _to, uint _value) public returns (bool success);
@@ -15,8 +13,26 @@ interface BurnableErc20 {
     function allowance(address _owner, address _spender) public view returns (uint remaining);
     function decimals() public view returns(uint digits);
     event Approval(address indexed _owner, address indexed _spender, uint _value);
+}
 
-    function burn(uint _value) public;
+/// @title Contract for a burnable ERC
+contract BurnableErc20 is ERC20 {
+    function burn(uint value) external;
+}
+
+contract KyberNetwork {
+    function trade(
+        ERC20 src,
+        uint srcAmount,
+        ERC20 dest,
+        address destAddress,
+        uint maxDestAmount,
+        uint minConversionRate,
+        address walletId
+    )
+        public
+        payable
+        returns(uint);
 }
 
 
@@ -24,7 +40,7 @@ interface BurnableErc20 {
 /// @notice Sends the ETH on the contract to kyber for conversion to ERC20
 ///  The converted ERC20 is then burned
 /// @author Request Network
-contract Burner {
+contract Burner is Destructible {
     /// Kyber contract that will be used for the conversion
     KyberNetwork public kyberContract;
 
@@ -57,7 +73,7 @@ contract Burner {
     {
         // ETH to convert on Kyber, by default the amount of ETH on the contract
         // If _maxSrcAmount is defined, ethToConvert = min(balance on contract, _maxSrcAmount)
-        uint ethToConvert = this.balance;
+        uint ethToConvert = address(this).balance;
         if (_maxSrcAmount != 0 && _maxSrcAmount < ethToConvert) {
             ethToConvert = _maxSrcAmount;
         }
@@ -98,5 +114,15 @@ contract Burner {
         destErc20.burn(erc20ToBurn);
 
         return erc20ToBurn;
+    }
+
+    /**
+    * @notice Sets the KyberNetwork contract address.
+    */  
+    function setKyberNetworkContract(address _kyberNetworkAddress) 
+        external
+        onlyOwner
+    {
+        kyberContract = KyberNetwork(_kyberNetworkAddress);
     }
 }
