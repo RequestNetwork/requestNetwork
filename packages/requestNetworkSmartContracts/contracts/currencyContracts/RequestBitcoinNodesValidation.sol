@@ -8,9 +8,7 @@ import "../utils/Signature.sol";
 
 /**
  * @title RequestBitcoinNodesValidation
- *
- * @dev RequestBitcoinNodesValidation is the currency contract managing the requests in Bitcoin
- *
+ * @notice Currency contract managing the requests in Bitcoin
  * @dev Requests can be created by the Payee with createRequestAsPayeeAction() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
 contract RequestBitcoinNodesValidation is CurrencyContract {
@@ -25,8 +23,7 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
     // every time a transaction is sent to one of these addresses, it will be interpreted offchain as a refund (index 0 is the main payee, next indexes are for sub-payee)
     mapping(bytes32 => string[256]) public payerRefundAddress;
 
-    /*
-     * @dev Constructor
+    /**
      * @param _requestCoreAddress Request Core address
      * @param _requestBurnerAddress Request Burner contract address
      */
@@ -37,10 +34,10 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         // nothing to do here
     }
 
-    /*
-     * @dev Function to create a request as payee
+    /**
+     * @notice Function to create a request as payee.
      *
-     * @dev msg.sender must be the main payee
+     * @dev msg.sender must be the main payee.
      *
      * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
      * @param _payeesPaymentAddress array of payees bitcoin address for payment as bytes (bitcoin address don't have a fixed size)
@@ -90,11 +87,11 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals )
+    /**
+     * @notice Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals).
      *
-     * @dev msg.sender will be the _payer
-     * @dev only the _payer can additionals
+     * @dev msg.sender will be the _payer.
+     * @dev only the _payer can additionals.
      *
      * @param _requestData nested bytes containing : creator, payer, payees|expectedAmounts, data
      * @param _payeesPaymentAddress array of payees bitcoin address for payment as bytes
@@ -141,8 +138,8 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         return createAcceptAndAdditionalsFromBytes(_requestData, _payeesPaymentAddress, _payerRefundAddress, _additionals);
     }
 
-    /*
-     * @dev Internal function to extract and store bitcoin addresses from bytes
+    /**
+     * @dev Internal function to extract and store bitcoin addresses from bytes.
      *
      * @param _requestId                id of the request
      * @param _payeesCount              number of payees
@@ -199,8 +196,8 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         }
     }
 
-    /*
-     * @dev Internal function to create, accept and add additionals to a request as Payer
+    /**
+     * @dev Internal function to create, accept and add additionals to a request as Payer.
      *
      * @dev msg.sender must be _payer
      *
@@ -256,7 +253,7 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         return requestId;
     }
 
-    /*
+    /**
      * @dev Internal function to accept and add additionals to a request as Payer
      *
      * @param _requestId id of the request

@@ -6,7 +6,7 @@ import "../base/ownership/Ownable.sol";
 /**
  * @title FeeCollector
  *
- * @dev FeeCollector is a contract managing the fees for currency contracts
+ * @notice FeeCollector is a contract managing the fees for currency contracts
  */
 contract FeeCollector is Ownable {
     using SafeMath for uint256;
@@ -18,16 +18,12 @@ contract FeeCollector is Ownable {
     // address of the contract that will burn req token
     address public requestBurnerContract;
 
-    /*
-     *  Events 
-     */
     event UpdateRateFees(uint256 rateFeesNumerator, uint256 rateFeesDenominator);
     event UpdateMaxFees(uint256 maxFees);
 
-    /*
-     * @dev Constructor
-     * @param _requestBurnerContract Address of the contract where to send the ethers. 
-     * This burner contract will have a function that can be called by anyone and will exchange ethers to req via Kyber and burn the REQ
+    /**
+     * @param _requestBurnerContract Address of the contract where to send the ether.
+     * This burner contract will have a function that can be called by anyone and will exchange ether to req via Kyber and burn the REQ
      */  
     constructor(address _requestBurnerContract) 
         public
@@ -35,8 +31,8 @@ contract FeeCollector is Ownable {
         requestBurnerContract = _requestBurnerContract;
     }
 
-    /*
-     * @dev send fees to the request burning address
+    /**
+     * @notice Sends fees to the request burning address.
      * @param _amount amount to send to the burning address
      */  
     function collectForREQBurning(uint256 _amount)
@@ -46,8 +42,8 @@ contract FeeCollector is Ownable {
         return requestBurnerContract.send(_amount);
     }
 
-    /*
-     * @dev compute the fees
+    /**
+     * @notice Computes the fees.
      * @param _expectedAmount amount expected for the request
      * @return the expected amount of fees in wei
      */  
@@ -67,9 +63,9 @@ contract FeeCollector is Ownable {
         return computedCollect < maxFees ? computedCollect : maxFees;
     }
 
-    /*
-     * @dev set the fees rate
-     * NB: if the _rateFeesDenominator is 0, it will be treated as 1. (in other words, the computation of the fees will not use it)
+    /**
+     * @notice Sets the fees rate.
+     * @dev if the _rateFeesDenominator is 0, it will be treated as 1. (in other words, the computation of the fees will not use it)
      * @param _rateFeesNumerator 		numerator rate
      * @param _rateFeesDenominator 		denominator rate
      */  
@@ -82,9 +78,9 @@ contract FeeCollector is Ownable {
         emit UpdateRateFees(rateFeesNumerator, rateFeesDenominator);
     }
 
-    /*
-     * @dev set the maximum fees in wei
-     * @param _newMax new max
+    /**
+     * @notice Sets the maximum fees in wei.
+     * @param _newMaxFees new max
      */  
     function setMaxCollectable(uint256 _newMaxFees) 
         external
@@ -94,8 +90,8 @@ contract FeeCollector is Ownable {
         emit UpdateMaxFees(maxFees);
     }
 
-    /*
-     * @dev set the request burner address
+    /**
+     * @notice Set the request burner address.
      * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
      */  
     function setRequestBurnerContract(address _requestBurnerContract) 

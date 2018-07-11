@@ -4,6 +4,7 @@ import "../base/lifecycle/Destructible.sol";
 
 
 /// @dev From https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/ERC20Interface.sol
+/// @dev with additional burn function
 interface ERC20 {
     function totalSupply() public view returns (uint supply);
     function balanceOf(address _owner) public view returns (uint balance);
@@ -36,9 +37,9 @@ contract KyberNetwork {
 }
 
 
-/// @title A contract to burn ERC20 tokens from ETH
-/// @notice Sends the ETH on the contract to kyber for conversion to ERC20
-///  The converted ERC20 is then burned
+/// @title Burner
+/// @notice A contract to burn ERC20 tokens from ETH. Sends the ETH on the contract to kyber for conversion to ERC20.
+///  The converted ERC20 is then burned.
 /// @author Request Network
 contract Burner is Destructible {
     /// Kyber contract that will be used for the conversion
@@ -58,10 +59,10 @@ contract Burner is Destructible {
         kyberContract = KyberNetwork(_kyberContract);
     }
     
-    /// Fallback function to receive the ETH to burn later
+    /// @dev Fallback function to receive the ETH to burn later
     function() public payable { }
 
-    /// @dev Main function. Trade the ETH for ERC20 and burn them
+    /// @notice Main function. Trade the ETH for ERC20 and burn them.
     /// @param _maxSrcAmount Maximum amount of ETH to convert. If set to 0, all ETH on the
     ///  contract will be burned
     /// @param _maxDestAmount A limit on the amount of converted ERC20 tokens. Default value is MAX_UINT

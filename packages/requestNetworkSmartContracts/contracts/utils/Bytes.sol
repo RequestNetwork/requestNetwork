@@ -1,49 +1,53 @@
 pragma solidity ^0.4.23;
 
+/**
+ * @title Bytes util library.
+ * @notice Collection of utility functions to manipulate bytes for Request.
+ */
 library Bytes {
-    /*
-     * @dev extract an address in a bytes
+    /**
+     * @notice Extracts an address in a bytes.
      * @param data bytes from where the address will be extract
      * @param offset position of the first byte of the address
      * @return address
      */
-    function extractAddress(bytes _data, uint offset)
+    function extractAddress(bytes data, uint offset)
         internal
         pure
         returns (address m) 
     {
-        require(offset >= 0 && offset + 20 <= _data.length);
+        require(offset >= 0 && offset + 20 <= data.length);
 
         // solium-disable-next-line security/no-inline-assembly
         assembly {
             m := and(
-                mload(add(_data, add(20, offset))), 
+                mload(add(data, add(20, offset))), 
                 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
             )
         }
     }
 
-    /*
-     * @dev extract a bytes32 from a bytes
+    /**
+     * @notice Extract a bytes32 from a bytes.
      * @param data bytes from where the bytes32 will be extract
      * @param offset position of the first byte of the bytes32
      * @return address
      */
-    function extractBytes32(bytes _data, uint offset)
+    function extractBytes32(bytes data, uint offset)
         internal
         pure
         returns (bytes32 bs)
     {
-        require(offset >= 0 && offset + 32 <= _data.length);
+        require(offset >= 0 && offset + 32 <= data.length);
 
         // solium-disable-next-line security/no-inline-assembly
         assembly {
-            bs := mload(add(_data, add(32, offset)))
+            bs := mload(add(data, add(32, offset)))
         }
     }
 
-    /*
-     * @dev modify 20 bytes in a bytes
+    /**
+     * @notice Modifies 20 bytes in a bytes.
      * @param data bytes to modify
      * @param offset position of the first byte to modify
      * @param b bytes20 to insert
@@ -64,8 +68,8 @@ library Bytes {
         }
     }
 
-    /*
-     * @dev extract a string from a bytes. Extracts a sub-part from the bytes and convert it to string
+    /**
+     * @notice Extracts a string from a bytes. Extracts a sub-part from the bytes and convert it to string.
      * @param data bytes from where the string will be extracted
      * @param size string size to extract
      * @param _offset position of the first byte of the string in bytes
