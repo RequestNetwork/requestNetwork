@@ -9,11 +9,9 @@ import "../utils/Signature.sol";
 
 /**
  * @title RequestEthereum
- *
- * @dev RequestEthereum is the currency contract managing the requests in Ethereum
- * @dev The contract can be paused. In this case, people can withdraw funds
- *
- * @dev Requests can be created by the Payee with createRequestAsPayeeAction(), by the payer with createRequestAsPayerAction() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer()
+ * @notice Currency contract managing the requests in Ethereum.
+ * @dev The contract can be paused. In this case, people can withdraw funds.
+ * @dev Requests can be created by the Payee with createRequestAsPayeeAction(), by the payer with createRequestAsPayerAction() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer().
  */
 contract RequestEthereum is CurrencyContract {
     using SafeMath for uint256;
@@ -24,7 +22,7 @@ contract RequestEthereum is CurrencyContract {
     mapping(bytes32 => address[256]) public payeesPaymentAddress;
     mapping(bytes32 => address) public payerRefundAddress;
 
-    /*
+    /**
      * @dev Constructor
      * @param _requestCoreAddress Request Core address
      * @param _requestBurnerAddress Request Burner contract address
@@ -36,11 +34,11 @@ contract RequestEthereum is CurrencyContract {
         requestCore = RequestCore(_requestCoreAddress);
     }
 
-    /*
-     * @dev Function to create a request as payee
+    /**
+     * @notice Function to create a request as payee.
      *
-     * @dev msg.sender will be the payee
-     * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
+     * @dev msg.sender will be the payee.
+     * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used.
      * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
      * @dev Is public instead of external to avoid "Stack too deep" exception.
      *
@@ -87,12 +85,12 @@ contract RequestEthereum is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function to create a request as payer. The request is payed if _payeeAmounts > 0.
+    /**
+     * @notice Function to create a request as payer. The request is payed if _payeeAmounts > 0.
      *
-     * @dev msg.sender will be the payer
+     * @dev msg.sender will be the payer.
      * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
-     * @dev payeesPaymentAddress is not offered as argument here to avoid scam
+     * @dev payeesPaymentAddress is not offered as argument here to avoid scam.
      * @dev Is public instead of external to avoid "Stack too deep" exception.
      *
      * @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
@@ -133,11 +131,11 @@ contract RequestEthereum is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function to broadcast and accept an offchain signed request (can be paid and additionals also)
+    /**
+     * @notice Function to broadcast and accept an offchain signed request (can be paid and additionals also).
      *
-     * @dev _payer will be set msg.sender
-     * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
+     * @dev _payer will be set msg.sender.
+     * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used.
      * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
      *
      * @param _requestData nested bytes containing : creator, payer, payees, expectedAmounts, data
@@ -172,14 +170,14 @@ contract RequestEthereum is CurrencyContract {
         return createAcceptAndPayFromBytes(_requestData,  _payeesPaymentAddress, _payeeAmounts, _additionals);
     }
 
-    /*
-     * @dev Function PAYABLE to pay a request in ether.
+    /**
+     * @notice Function PAYABLE to pay a request in ether.
      *
      * @dev the request will be automatically accepted if msg.sender==payer.
      *
      * @param _requestId id of the request
-     * @param _payeesAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
-     * @param _additionalsAmount amount of additionals per payee in wei to declare
+     * @param _payeeAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
+     * @param _additionalAmounts amount of additionals per payee in wei to declare
      */
     function paymentAction(
         bytes32 _requestId,
@@ -203,11 +201,11 @@ contract RequestEthereum is CurrencyContract {
         paymentInternal(_requestId, _payeeAmounts, msg.value);
     }
 
-    /*
-     * @dev Function PAYABLE to pay back in ether a request to the payer
+    /**
+     * @notice Function PAYABLE to pay back in ether a request to the payer.
      *
-     * @dev msg.sender must be one of the payees
-     * @dev the request must be created or accepted
+     * @dev msg.sender must be one of the payees.
+     * @dev the request must be created or accepted.
      *
      * @param _requestId id of the request
      */
@@ -219,11 +217,11 @@ contract RequestEthereum is CurrencyContract {
         refundInternal(_requestId, msg.sender, msg.value);
     }
 
-    /*
-     * @dev Function to declare an additional
+    /**
+     * @notice Function to declare an additional.
      *
-     * @dev msg.sender must be _payer
-     * @dev the request must be accepted or created
+     * @dev msg.sender must be _payer.
+     * @dev the request must be accepted or created.
      *
      * @param _requestId id of the request
      * @param _additionalAmounts amounts of additional in wei to declare (index 0 is for main payee)
@@ -238,7 +236,7 @@ contract RequestEthereum is CurrencyContract {
     }
 
     /**
-     * @dev transfer to owner any tokens send by mistake on this contracts
+     * @notice Transfers to owner any tokens send by mistake on this contracts.
      * @param token The address of the token to transfer.
      * @param amount The amount to be transfered.
      */
@@ -249,11 +247,11 @@ contract RequestEthereum is CurrencyContract {
         token.transfer(owner, amount);
     }
 
-    /*
-     * @dev Internal function to accept, add additionals and pay a request as Payer
+    /**
+     * @dev Internal function to accept, add additionals and pay a request as Payer.
      *
      * @param _requestId id of the request
-     * @param _payeesAmounts Amount to pay to payees (sum must be equals to _amountPaid)
+     * @param _payeeAmounts Amount to pay to payees (sum must be equals to _amountPaid)
      * @param _additionals Will increase the ExpectedAmounts of payees
      * @param _amountPaid amount in msg.value minus the fees
      *
@@ -274,10 +272,10 @@ contract RequestEthereum is CurrencyContract {
         }
     }    
 
-    /*
-     * @dev Internal function to create, accept, add additionals and pay a request as Payer
+    /**
+     * @dev Internal function to create, accept, add additionals and pay a request as Payer.
      *
-     * @dev msg.sender must be _payer
+     * @dev msg.sender must be _payer.
      *
      * @param _requestData nested bytes containing : creator, payer, payees|expectedAmounts, data. To reduce the number of local variable and work around "stack too deep".
      * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -336,8 +334,8 @@ contract RequestEthereum is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function internal to manage additional declaration
+    /**
+     * @dev Internal function to manage additional declaration.
      *
      * @param _requestId id of the request
      * @param _additionalAmounts amount of additional to declare
@@ -356,11 +354,11 @@ contract RequestEthereum is CurrencyContract {
         }
     }
 
-    /*
-     * @dev Function internal to manage payment declaration
+    /**
+     * @dev Internal function to manage payment declaration.
      *
      * @param _requestId id of the request
-     * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+     * @param _payeeAmounts Amount to pay to payees (sum must be equals to msg.value)
      * @param _value amount paid
      */
     function paymentInternal(
@@ -399,8 +397,8 @@ contract RequestEthereum is CurrencyContract {
         require(_value==totalPayeeAmounts);
     }
 
-    /*
-     * @dev Function internal to manage refund declaration
+    /**
+     * @dev Internal function to manage refund declaration.
      *
      * @param _requestId id of the request
 
@@ -445,8 +443,8 @@ contract RequestEthereum is CurrencyContract {
         fundOrderInternal(addressToPay, _amount);
     }
 
-    /*
-     * @dev Function internal to manage fund mouvement
+    /**
+     * @dev Internal function to manage fund mouvement.
      * @dev We had to chose between a withdrawal pattern, a transfer pattern or a transfer+withdrawal pattern and chose the transfer pattern.
      * @dev The withdrawal pattern would make UX difficult. The transfer+withdrawal pattern would make contracts interacting with the request protocol complex.
      * @dev N.B.: The transfer pattern will have to be clearly explained to users. It enables a payee to create unpayable requests.

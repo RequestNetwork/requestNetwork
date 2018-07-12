@@ -10,7 +10,7 @@ import '../base/token/ERC20.sol';
 /**
  * @title RequestCore
  *
- * @dev The Core is the main contract which stores all the requests.
+ * @notice The Core is the main contract which stores all the requests.
  *
  * @dev The Core philosophy is to be as much flexible as possible to adapt in the future to any new system
  * @dev All the important conditions and an important part of the business logic takes place in the currency contracts.
@@ -80,10 +80,10 @@ contract RequestCore is Administrable {
     event UpdateExpectedAmount(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount);
     event UpdateBalance(bytes32 indexed requestId, uint8 payeeIndex, int256 deltaAmount);
 
-    /*
-     * @dev Function used by currency contracts to create a request in the Core
+    /**
+     * @notice Function used by currency contracts to create a request in the Core.
      *
-     * @dev _payees and _expectedAmounts must have the same size
+     * @dev _payees and _expectedAmounts must have the same size.
      *
      * @param _creator Request creator. The creator is the one who initiated the request (create or sign) and not necessarily the one who broadcasted it
      * @param _payees array of payees address (the index 0 will be the payee the others are subPayees). Size must be smaller than 256.
@@ -130,10 +130,10 @@ contract RequestCore is Administrable {
         return requestId;
     }
 
-    /*
-     * @dev Function used by currency contracts to create a request in the Core from bytes
+    /**
+     * @notice Function used by currency contracts to create a request in the Core from bytes.
      * @dev Used to avoid receiving a stack too deep error when called from a currency contract with too many parameters.
-     * @audit Note that to optimize the stack size and the gas cost we do not extract the params and store them in the stack. As a result there is some code redundancy
+     * @dev Note that to optimize the stack size and the gas cost we do not extract the params and store them in the stack. As a result there is some code redundancy
      * @param _data bytes containing all the data packed :
             address(creator)
             address(payer)
@@ -207,8 +207,8 @@ contract RequestCore is Administrable {
         return requestId;
     }
 
-    /*
-     * @dev Function used by currency contracts to accept a request in the Core.
+    /**
+     * @notice Function used by currency contracts to accept a request in the Core.
      * @dev callable only by the currency contract of the request
      * @param _requestId Request id
      */ 
@@ -221,9 +221,9 @@ contract RequestCore is Administrable {
         Accepted(_requestId);
     }
 
-    /*
-     * @dev Function used by currency contracts to cancel a request in the Core. Several reasons can lead to cancel a request, see request life cycle for more info.
-     * @dev callable only by the currency contract of the request
+    /**
+     * @notice Function used by currency contracts to cancel a request in the Core. Several reasons can lead to cancel a request, see request life cycle for more info.
+     * @dev callable only by the currency contract of the request.
      * @param _requestId Request id
      */ 
     function cancel(bytes32 _requestId)
@@ -235,9 +235,9 @@ contract RequestCore is Administrable {
         Canceled(_requestId);
     }   
 
-    /*
-     * @dev Function used to update the balance
-     * @dev callable only by the currency contract of the request
+    /**
+     * @notice Function used to update the balance.
+     * @dev callable only by the currency contract of the request.
      * @param _requestId Request id
      * @param _payeeIndex index of the payee (0 = main payee)
      * @param _deltaAmount modifier amount
@@ -259,9 +259,9 @@ contract RequestCore is Administrable {
         UpdateBalance(_requestId, _payeeIndex, _deltaAmount);
     }
 
-    /*
-     * @dev Function update the expectedAmount adding additional or subtract
-     * @dev callable only by the currency contract of the request
+    /**
+     * @notice Function update the expectedAmount adding additional or subtract.
+     * @dev callable only by the currency contract of the request.
      * @param _requestId Request id
      * @param _payeeIndex index of the payee (0 = main payee)
      * @param _deltaAmount modifier amount
@@ -283,8 +283,8 @@ contract RequestCore is Administrable {
         UpdateExpectedAmount(_requestId, _payeeIndex, _deltaAmount);
     }
 
-    /*
-     * @dev Internal: Init payees for a request (needed to avoid 'stack too deep' in createRequest())
+    /**
+     * @dev Internal: Init payees for a request (needed to avoid 'stack too deep' in createRequest()).
      * @param _requestId Request id
      * @param _payees array of payees address
      * @param _expectedAmounts array of payees initial expected amounts
@@ -305,8 +305,8 @@ contract RequestCore is Administrable {
 
 
     /* GETTER */
-    /*
-     * @dev Get address of a payee
+    /**
+     * @notice Gets address of a payee.
      * @param _requestId Request id
      * @param _payeeIndex payee index (0 = main payee)
      * @return payee address
@@ -323,8 +323,8 @@ contract RequestCore is Administrable {
         }
     }
 
-    /*
-     * @dev Get payer of a request
+    /**
+     * @notice Gets payer of a request.
      * @param _requestId Request id
      * @return payer address
      */ 
@@ -336,8 +336,8 @@ contract RequestCore is Administrable {
         return requests[_requestId].payer;
     }
 
-    /*
-     * @dev Get amount expected of a payee
+    /**
+     * @notice Gets amount expected of a payee.
      * @param _requestId Request id
      * @param _payeeIndex payee index (0 = main payee)
      * @return amount expected
@@ -354,8 +354,8 @@ contract RequestCore is Administrable {
         }
     }
 
-    /*
-     * @dev Get number of subPayees for a request
+    /**
+     * @notice Gets number of subPayees for a request.
      * @param _requestId Request id
      * @return number of subPayees
      */     
@@ -370,8 +370,8 @@ contract RequestCore is Administrable {
         return i;
     }
 
-    /*
-     * @dev Get currencyContract of a request
+    /**
+     * @notice Gets currencyContract of a request.
      * @param _requestId Request id
      * @return currencyContract address
      */
@@ -383,8 +383,8 @@ contract RequestCore is Administrable {
         return requests[_requestId].currencyContract;
     }
 
-    /*
-     * @dev Get balance of a payee
+    /**
+     * @notice Gets balance of a payee.
      * @param _requestId Request id
      * @param _payeeIndex payee index (0 = main payee)
      * @return balance
@@ -401,8 +401,8 @@ contract RequestCore is Administrable {
         }
     }
 
-    /*
-     * @dev Get balance total of a request
+    /**
+     * @notice Gets balance total of a request.
      * @param _requestId Request id
      * @return balance
      */     
@@ -422,8 +422,8 @@ contract RequestCore is Administrable {
     }
 
 
-    /*
-     * @dev check if all the payees balances are null
+    /**
+     * @notice Checks if all the payees balances are null.
      * @param _requestId Request id
      * @return true if all the payees balances are equals to 0
      */     
@@ -442,8 +442,8 @@ contract RequestCore is Administrable {
         return isNull;
     }
 
-    /*
-     * @dev Get total expectedAmount of a request
+    /**
+     * @notice Gets total expectedAmount of a request.
      * @param _requestId Request id
      * @return balance
      */     
@@ -462,8 +462,8 @@ contract RequestCore is Administrable {
         return expectedAmount;
     }
 
-    /*
-     * @dev Get state of a request
+    /**
+     * @notice Gets state of a request.
      * @param _requestId Request id
      * @return state
      */ 
@@ -475,8 +475,8 @@ contract RequestCore is Administrable {
         return requests[_requestId].state;
     }
 
-    /*
-     * @dev Get address of a payee
+    /**
+     * @notice Gets address of a payee.
      * @param _requestId Request id
      * @return payee index (0 = main payee) or -1 if not address not found
      */
@@ -498,8 +498,8 @@ contract RequestCore is Administrable {
         return -1;
     }
 
-    /*
-     * @dev getter of a request
+    /**
+     * @notice Gets a request.
      * @param _requestId Request id
      * @return request as a tuple : (address payer, address currencyContract, State state, address payeeAddr, int256 payeeExpectedAmount, int256 payeeBalance)
      */ 
@@ -517,8 +517,8 @@ contract RequestCore is Administrable {
                  r.payee.balance );
     }
 
-    /*
-     * @dev extract a string from a bytes. Extracts a sub-part from tha bytes and convert it to string
+    /**
+     * @notice Extracts a string from a bytes. Extracts a sub-part from tha bytes and convert it to string.
      * @param data bytes from where the string will be extracted
      * @param size string size to extract
      * @param _offset position of the first byte of the string in bytes
@@ -536,8 +536,8 @@ contract RequestCore is Administrable {
         return string(bytesString);
     }
 
-    /*
-     * @dev generate a new unique requestId
+    /**
+     * @notice Generates a new unique requestId.
      * @return a bytes32 requestId 
      */ 
     function generateRequestId()
@@ -550,10 +550,10 @@ contract RequestCore is Administrable {
         return bytes32((uint256(this) << 96).add(numRequests));
     }
 
-    /*
-     * @dev extract an address from a bytes at a given position
+    /**
+     * @notice Extracts an address from a bytes at a given position.
      * @param _data bytes from where the address will be extract
-     * @param _offset position of the first byte of the address
+     * @param offset position of the first byte of the address
      * @return address
      */
     function extractAddress(bytes _data, uint offset)
@@ -568,9 +568,9 @@ contract RequestCore is Administrable {
         }
     }
 
-    /*
-     * @dev extract a bytes32 from a bytes
-     * @param data bytes from where the bytes32 will be extract
+    /**
+     * @notice Extracts a bytes32 from a bytes.
+     * @param _data bytes from where the bytes32 will be extract
      * @param offset position of the first byte of the bytes32
      * @return address
      */
@@ -586,7 +586,7 @@ contract RequestCore is Administrable {
     }
 
     /**
-     * @dev transfer to owner any tokens send by mistake on this contracts
+     * @notice Transfers to owner any tokens send by mistake on this contracts.
      * @param token The address of the token to transfer.
      * @param amount The amount to be transfered.
      */

@@ -9,9 +9,7 @@ import "../utils/Signature.sol";
 
 /**
  * @title RequestERC20
- *
- * @dev RequestERC20 is the currency contract managing the requests in ERC20 tokens.
- *
+ * @notice Currency contract managing the requests in ERC20 tokens.
  * @dev Requests can be created by the Payee with createRequestAsPayeeAction(), by the payer with createRequestAsPayerAction() or by the payer from a request signed offchain by the payee with broadcastSignedRequestAsPayer
  */
 contract RequestERC20 is CurrencyContract {
@@ -26,8 +24,7 @@ contract RequestERC20 is CurrencyContract {
     // token address
     ERC20 public erc20Token;
 
-    /*
-     * @dev Constructor
+    /**
      * @param _requestCoreAddress Request Core address
      * @param _requestBurnerAddress Request Burner contract address
      * @param _erc20Token ERC20 token contract handled by this currency contract
@@ -39,11 +36,11 @@ contract RequestERC20 is CurrencyContract {
         erc20Token = _erc20Token;
     }
 
-    /*
-     * @dev Function to create a request as payee
+    /**
+     * @notice Function to create a request as payee.
      *
-     * @dev msg.sender must be the main payee
-     * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used
+     * @dev msg.sender must be the main payee.
+     * @dev if _payeesPaymentAddress.length > _payeesIdAddress.length, the extra addresses will be stored but never used.
      *
      * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
      * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -86,10 +83,10 @@ contract RequestERC20 is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function to create a request as payer. The request is payed if _payeeAmounts > 0.
+    /**
+     * @notice Function to create a request as payer. The request is payed if _payeeAmounts > 0.
      *
-     * @dev msg.sender will be the payer
+     * @dev msg.sender will be the payer.
      * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
      * @dev Is public instead of external to avoid "Stack too deep" exception.
      *
@@ -140,12 +137,12 @@ contract RequestERC20 is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals )
+    /**
+     * @notice Function to broadcast and accept an offchain signed request (the broadcaster can also pays and makes additionals).
      *
-     * @dev msg.sender will be the _payer
-     * @dev only the _payer can make additionals
-     * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used
+     * @dev msg.sender will be the _payer.
+     * @dev only the _payer can make additionals.
+     * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used.
      *
      * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
      * @param _payeesPaymentAddress array of payees address for payment (optional) 
@@ -178,11 +175,11 @@ contract RequestERC20 is CurrencyContract {
         return createAcceptAndPayFromBytes(_requestData, _payeesPaymentAddress, _payeeAmounts, _additionals);
     }
 
-    /*
-     * @dev Function to pay a request in ERC20 token
+    /**
+     * @notice Function to pay a request in ERC20 token.
      *
-     * @dev msg.sender must have a balance of the token higher or equal to the sum of _payeeAmounts
-     * @dev msg.sender must have approved an amount of the token higher or equal to the sum of _payeeAmounts to the current contract
+     * @dev msg.sender must have a balance of the token higher or equal to the sum of _payeeAmounts.
+     * @dev msg.sender must have approved an amount of the token higher or equal to the sum of _payeeAmounts to the current contract.
      * @dev the request will be automatically accepted if msg.sender==payer. 
      *
      * @param _requestId id of the request
@@ -208,13 +205,13 @@ contract RequestERC20 is CurrencyContract {
         paymentInternal(_requestId, _payeeAmounts);
     }
 
-    /*
-     * @dev Function to pay back in ERC20 token a request to the payees
+    /**
+     * @notice Function to pay back in ERC20 token a request to the payees.
      *
-     * @dev msg.sender must have a balance of the token higher or equal to _amountToRefund
-     * @dev msg.sender must have approved an amount of the token higher or equal to _amountToRefund to the current contract
-     * @dev msg.sender must be one of the payees or one of the payees payment address
-     * @dev the request must be created or accepted
+     * @dev msg.sender must have a balance of the token higher or equal to _amountToRefund.
+     * @dev msg.sender must have approved an amount of the token higher or equal to _amountToRefund to the current contract.
+     * @dev msg.sender must be one of the payees or one of the payees payment address.
+     * @dev the request must be created or accepted.
      *
      * @param _requestId id of the request
      */
@@ -225,10 +222,10 @@ contract RequestERC20 is CurrencyContract {
         refundInternal(_requestId, msg.sender, _amountToRefund);
     }
 
-    /*
-     * @dev Internal function to create, accept, add additionals and pay a request as Payer
+    /**
+     * @dev Internal function to create, accept, add additionals and pay a request as Payer.
      *
-     * @dev msg.sender must be _payer
+     * @dev msg.sender must be _payer.
      *
      * @param _requestData nasty bytes containing : creator, payer, payees|expectedAmounts, data
      * @param _payeesPaymentAddress array of payees address for payment (optional)
@@ -284,11 +281,11 @@ contract RequestERC20 is CurrencyContract {
         return requestId;
     }
 
-    /*
-     * @dev Function internal to manage payment declaration
+    /**
+     * @dev Internal function to manage payment declaration.
      *
      * @param _requestId id of the request
-     * @param _payeesAmounts Amount to pay to payees (sum must be equals to msg.value)
+     * @param _payeeAmounts Amount to pay to payees (sum must be equals to msg.value)
      */
     function paymentInternal(
         bytes32 	_requestId,
@@ -319,11 +316,11 @@ contract RequestERC20 is CurrencyContract {
         }
     }
 
-    /*
+    /**
      * @dev Internal function to accept, add additionals and pay a request as Payer
      *
      * @param _requestId id of the request
-     * @param _payeesAmounts Amount to pay to payees (sum must be equals to _amountPaid)
+     * @param _payeeAmounts Amount to pay to payees (sum must be equals to _amountPaid)
      * @param _additionals Will increase the ExpectedAmounts of payees
      * @param _payeeAmountsSum total of amount token send for this transaction
      *
@@ -344,8 +341,8 @@ contract RequestERC20 is CurrencyContract {
         }
     }
 
-    /*
-     * @dev Function internal to manage refund declaration
+    /**
+     * @dev Internal function to manage refund declaration
      *
      * @param _requestId id of the request
      * @param _address address from where the refund has been done
@@ -391,8 +388,8 @@ contract RequestERC20 is CurrencyContract {
         fundOrderInternal(_address, addressToPay, _amount);
     }
 
-    /*
-     * @dev Function internal to manage fund mouvement
+    /**
+     * @dev Internal function to manage fund mouvement.
      *
      * @param _from address where the token will get from
      * @param _recipient address where the token has to be sent to

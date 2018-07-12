@@ -5,14 +5,18 @@ import "../base/math/SafeMath.sol";
 import "../base/math/SafeMathInt.sol";
 import "../base/math/SafeMathUint8.sol";
 
+/**
+ * @title Request Signature util library.
+ * @notice Collection of utility functions to handle Request signatures.
+ */
 library Signature {
     using SafeMath for uint256;
     using SafeMathInt for int256;
     using SafeMathUint8 for uint8;
 
-    /*
-     * @dev Check the validity of a signed request & the expiration date
-     * @param _data bytes containing all the data packed :
+    /**
+     * @notice Checks the validity of a signed request & the expiration date.
+     * @param requestData bytes containing all the data packed :
             address(creator)
             address(payer)
             uint8(number_of_payees)
@@ -25,36 +29,36 @@ library Signature {
             ]
             uint8(data_string_size)
             size(data)
-     * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
-     * @param _expirationDate timestamp after that the signed request cannot be broadcasted
-     * @param _signature ECDSA signature containing v, r and s as bytes
+     * @param payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
+     * @param expirationDate timestamp after that the signed request cannot be broadcasted
+     * @param signature ECDSA signature containing v, r and s as bytes
      *
      * @return Validity of order signature.
      */	
     function checkRequestSignature(
-        bytes 		_requestData,
-        address[] 	_payeesPaymentAddress,
-        uint256 	_expirationDate,
-        bytes 		_signature)
+        bytes 		requestData,
+        address[] 	payeesPaymentAddress,
+        uint256 	expirationDate,
+        bytes 		signature)
         internal
         view
         returns (bool)
     {
-        bytes32 hash = getRequestHash(_requestData, _payeesPaymentAddress, _expirationDate);
+        bytes32 hash = getRequestHash(requestData, payeesPaymentAddress, expirationDate);
 
         // extract "v, r, s" from the signature
-        uint8 v = uint8(_signature[64]);
+        uint8 v = uint8(signature[64]);
         v = v < 27 ? v.add(27) : v;
-        bytes32 r = Bytes.extractBytes32(_signature, 0);
-        bytes32 s = Bytes.extractBytes32(_signature, 32);
+        bytes32 r = Bytes.extractBytes32(signature, 0);
+        bytes32 s = Bytes.extractBytes32(signature, 32);
 
         // check signature of the hash with the creator address
-        return isValidSignature(Bytes.extractAddress(_requestData, 0), hash, v, r, s);
+        return isValidSignature(Bytes.extractAddress(requestData, 0), hash, v, r, s);
     }
 
-    /*
-     * @dev Check the validity of a Bitcoin signed request & the expiration date
-     * @param _data bytes containing all the data packed :
+    /**
+     * @notice Checks the validity of a Bitcoin signed request & the expiration date.
+     * @param requestData bytes containing all the data packed :
             address(creator)
             address(payer)
             uint8(number_of_payees)
@@ -67,75 +71,75 @@ library Signature {
             ]
             uint8(data_string_size)
             size(data)
-     * @param _payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
-     * @param _expirationDate timestamp after that the signed request cannot be broadcasted
-     * @param _signature ECDSA signature containing v, r and s as bytes
+     * @param payeesPaymentAddress array of payees payment addresses (the index 0 will be the payee the others are subPayees)
+     * @param expirationDate timestamp after that the signed request cannot be broadcasted
+     * @param signature ECDSA signature containing v, r and s as bytes
      *
      * @return Validity of order signature.
      */	
     function checkBtcRequestSignature(
-        bytes 		_requestData,
-        bytes 	    _payeesPaymentAddress,
-        uint256 	_expirationDate,
-        bytes 		_signature)
+        bytes 		requestData,
+        bytes 	    payeesPaymentAddress,
+        uint256 	expirationDate,
+        bytes 		signature)
         internal
         view
         returns (bool)
     {
-        bytes32 hash = getBtcRequestHash(_requestData, _payeesPaymentAddress, _expirationDate);
+        bytes32 hash = getBtcRequestHash(requestData, payeesPaymentAddress, expirationDate);
 
         // extract "v, r, s" from the signature
-        uint8 v = uint8(_signature[64]);
+        uint8 v = uint8(signature[64]);
         v = v < 27 ? v.add(27) : v;
-        bytes32 r = Bytes.extractBytes32(_signature, 0);
-        bytes32 s = Bytes.extractBytes32(_signature, 32);
+        bytes32 r = Bytes.extractBytes32(signature, 0);
+        bytes32 s = Bytes.extractBytes32(signature, 32);
 
         // check signature of the hash with the creator address
-        return isValidSignature(Bytes.extractAddress(_requestData, 0), hash, v, r, s);
+        return isValidSignature(Bytes.extractAddress(requestData, 0), hash, v, r, s);
     }
     
-    /*
-     * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
+    /**
+     * @notice Calculates the Keccak-256 hash of a BTC request with specified parameters.
      *
-     * @param _data bytes containing all the data packed
-     * @param _payeesPaymentAddress array of payees payment addresses
-     * @param _expirationDate timestamp after what the signed request cannot be broadcasted
+     * @param requestData bytes containing all the data packed
+     * @param payeesPaymentAddress array of payees payment addresses
+     * @param expirationDate timestamp after what the signed request cannot be broadcasted
      *
-     * @return Keccak-256 hash of (this, _requestData, _payeesPaymentAddress, _expirationDate)
+     * @return Keccak-256 hash of (this, requestData, payeesPaymentAddress, expirationDate)
      */
     function getBtcRequestHash(
-        bytes 		_requestData,
-        bytes 	_payeesPaymentAddress,
-        uint256 	_expirationDate)
+        bytes 		requestData,
+        bytes 	payeesPaymentAddress,
+        uint256 	expirationDate)
         private
         view
         returns(bytes32)
     {
-        return keccak256(this, _requestData, _payeesPaymentAddress, _expirationDate);
+        return keccak256(this, requestData, payeesPaymentAddress, expirationDate);
     }
 
-    /*
-     * @dev Function internal to calculate Keccak-256 hash of a request with specified parameters
+    /**
+     * @dev Calculates the Keccak-256 hash of a (not BTC) request with specified parameters.
      *
-     * @param _data bytes containing all the data packed
-     * @param _payeesPaymentAddress array of payees payment addresses
-     * @param _expirationDate timestamp after what the signed request cannot be broadcasted
+     * @param requestData bytes containing all the data packed
+     * @param payeesPaymentAddress array of payees payment addresses
+     * @param expirationDate timestamp after what the signed request cannot be broadcasted
      *
-     * @return Keccak-256 hash of (this, _requestData, _payeesPaymentAddress, _expirationDate)
+     * @return Keccak-256 hash of (this, requestData, payeesPaymentAddress, expirationDate)
      */
     function getRequestHash(
-        bytes 		_requestData,
-        address[] 	_payeesPaymentAddress,
-        uint256 	_expirationDate)
+        bytes 		requestData,
+        address[] 	payeesPaymentAddress,
+        uint256 	expirationDate)
         private
         view
         returns(bytes32)
     {
-        return keccak256(this, _requestData, _payeesPaymentAddress, _expirationDate);
+        return keccak256(this, requestData, payeesPaymentAddress, expirationDate);
     }
     
-    /*
-     * @dev Verifies that a hash signature is valid. 0x style
+    /**
+     * @notice Verifies that a hash signature is valid. 0x style.
      * @param signer address of signer.
      * @param hash Signed Keccak-256 hash.
      * @param v ECDSA signature parameter v.

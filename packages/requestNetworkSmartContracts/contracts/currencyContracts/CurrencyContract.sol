@@ -11,7 +11,7 @@ import "../base/math/SafeMathUint8.sol";
 /**
  * @title CurrencyContract
  *
- * @dev CurrencyContract is the base for currency contracts. To add a currency to the Request Protocol, create a new currencyContract that inherits from it.
+ * @notice CurrencyContract is the base for currency contracts. To add a currency to the Request Protocol, create a new currencyContract that inherits from it.
  * @dev If currency contract is whitelisted by core & unpaused: All actions possible
  * @dev If currency contract is not Whitelisted by core & unpaused: Creation impossible, other actions possible
  * @dev If currency contract is paused: Nothing possible
@@ -35,8 +35,7 @@ contract CurrencyContract is Pausable, FeeCollector {
 
     RequestCore public requestCore;
 
-    /*
-     * @dev Constructor
+    /**
      * @param _requestCoreAddress Request Core address
      */
     constructor(address _requestCoreAddress, address _addressBurner) 
@@ -46,10 +45,10 @@ contract CurrencyContract is Pausable, FeeCollector {
         requestCore = RequestCore(_requestCoreAddress);
     }
 
-    /*
-     * @dev Function to accept a request
+    /**
+     * @notice Function to accept a request.
      *
-     * @dev msg.sender must be _payer, The request must be in the state CREATED (not CANCELED, not ACCEPTED).
+     * @notice msg.sender must be _payer, The request must be in the state CREATED (not CANCELED, not ACCEPTED).
      *
      * @param _requestId id of the request
      */
@@ -65,11 +64,11 @@ contract CurrencyContract is Pausable, FeeCollector {
         requestCore.accept(_requestId);
     }
 
-    /*
-     * @dev Function to cancel a request
+    /**
+     * @notice Function to cancel a request.
      *
      * @dev msg.sender must be the _payer or the _payee.
-     * @dev only request with balance equals to zero can be cancel
+     * @dev only request with balance equals to zero can be cancel.
      *
      * @param _requestId id of the request
      */
@@ -91,11 +90,11 @@ contract CurrencyContract is Pausable, FeeCollector {
         requestCore.cancel(_requestId);
     }
 
-    /*
-     * @dev Function to declare additionals
+    /**
+     * @notice Function to declare additionals.
      *
-     * @dev msg.sender must be _payer
-     * @dev the request must be accepted or created
+     * @dev msg.sender must be _payer.
+     * @dev the request must be accepted or created.
      *
      * @param _requestId id of the request
      * @param _additionalAmounts amounts of additional to declare (index 0 is for main payee)
@@ -121,11 +120,11 @@ contract CurrencyContract is Pausable, FeeCollector {
         }
     }
 
-    /*
-     * @dev Function to declare subtracts
+    /**
+     * @notice Function to declare subtracts.
      *
-     * @dev msg.sender must be _payee
-     * @dev the request must be accepted or created
+     * @dev msg.sender must be _payee.
+     * @dev the request must be accepted or created.
      *
      * @param _requestId id of the request
      * @param _subtractAmounts amounts of subtract to declare (index 0 is for main payee)
@@ -152,10 +151,10 @@ contract CurrencyContract is Pausable, FeeCollector {
         }
     }
 
-    /*
-     * @dev Base function for request creation
+    /**
+     * @notice Base function for request creation.
      *
-     * @dev msg.sender will be the creator
+     * @dev msg.sender will be the creator.
      *
      * @param _payer Entity expected to pay
      * @param _payeesIdAddress array of payees address (the index 0 will be the payee - must be msg.sender - the others are subPayees)
@@ -190,9 +189,9 @@ contract CurrencyContract is Pausable, FeeCollector {
         require(collectForREQBurning(collectedFees));
     }
 
-    /*
-     * @dev Modifier to check if msg.sender is the main payee
-     * @dev Revert if msg.sender is not the main payee
+    /**
+     * @notice Modifier to check if msg.sender is the main payee.
+     * @dev Revert if msg.sender is not the main payee.
      * @param _requestId id of the request
      */	
     modifier onlyRequestPayee(bytes32 _requestId)
@@ -201,9 +200,9 @@ contract CurrencyContract is Pausable, FeeCollector {
         _;
     }
 
-    /*
-     * @dev Modifier to check if msg.sender is payer
-     * @dev Revert if msg.sender is not payer
+    /**
+     * @notice Modifier to check if msg.sender is payer.
+     * @dev Revert if msg.sender is not payer.
      * @param _requestId id of the request
      */	
     modifier onlyRequestPayer(bytes32 _requestId)

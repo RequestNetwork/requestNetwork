@@ -5,7 +5,7 @@ import '../base/lifecycle/Pausable.sol';
 
 /**
  * @title Administrable
- * @dev Base contract for the administration of Core. Handles whitelisting of currency contracts
+ * @notice Base contract for the administration of Core. Handles whitelisting of currency contracts
  */
 contract Administrable is Pausable {
 
@@ -17,7 +17,7 @@ contract Administrable is Pausable {
 	event RemoveTrustedContract(address oldContract);
 
 	/**
-	 * @dev add a trusted currencyContract 
+	 * @notice Adds a trusted currencyContract.
 	 *
 	 * @param _newContractAddress The address of the currencyContract
 	 */
@@ -30,7 +30,7 @@ contract Administrable is Pausable {
 	}
 
 	/**
-	 * @dev remove a trusted currencyContract 
+	 * @notice Removes a trusted currencyContract.
 	 *
 	 * @param _oldTrustedContractAddress The address of the currencyContract
 	 */
@@ -44,7 +44,7 @@ contract Administrable is Pausable {
 	}
 
 	/**
-	 * @dev get the status of a trusted currencyContract 
+	 * @notice Gets the status of a trusted currencyContract .
 	 * @dev Not used today, useful if we have several states in the future.
 	 *
 	 * @param _contractAddress The address of the currencyContract
@@ -59,7 +59,7 @@ contract Administrable is Pausable {
 	}
 
 	/**
-	 * @dev check if a currencyContract is trusted
+	 * @notice Checks if a currencyContract is trusted.
 	 *
 	 * @param _contractAddress The address of the currencyContract
 	 * @return bool true if contract is trusted
