@@ -37,7 +37,6 @@
     "typings": "^2.1.1"
   },
   "dependencies": {
-    "blockchain.info": "2.11.0",
     "bn.js": "4.11.8",
     "ethereumjs-util": "5.1.2",
     "ipfs-api": "git://github.com/RequestNetwork/js-ipfs-api.git#26b2dd6598fe38c8d94a8c3f22eefa645ef81fdd",
