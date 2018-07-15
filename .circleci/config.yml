@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:10.6.0-stretch
+      - image: circleci/node:8.11.3-stretch
       - image: ipfs/go-ipfs:v0.4.16
       - image: trufflesuite/ganache-cli:v6.1.6
         command: [
@@ -15,7 +15,7 @@ jobs:
       - restore_cache:
           key: v1-node-modules-cache-{{ checksum "package.json" }}-{{ checksum "packages/requestNetwork.js/package.json" }}
       - run:
-          name: Clone RequestNetwork repo and install depedencies
+          name: Install depedencies
           command: |
             npm install .
             cd packages/requestNetwork.js/ && npm install . && cd -
