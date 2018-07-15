@@ -186,7 +186,7 @@ describe('createRequestAsPayee', () => {
                     payer);
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'), 'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positive integers'), 'exception not right');
         }
     });
 

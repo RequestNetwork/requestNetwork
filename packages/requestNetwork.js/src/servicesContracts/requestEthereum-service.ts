@@ -146,7 +146,7 @@ export default class RequestEthereumService {
             }
 
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
 
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
@@ -270,13 +270,13 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
             if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                return promiEvent.reject(Error('_amountsToPay must be positive integers'));
             }
             if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_additionals must be positives integer'));
+                return promiEvent.reject(Error('_additionals must be positive integers'));
             }
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
@@ -385,7 +385,7 @@ export default class RequestEthereumService {
             }
 
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
@@ -474,10 +474,10 @@ export default class RequestEthereumService {
                 return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
             }
             if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                return promiEvent.reject(Error('_amountsToPay must be positive integers'));
             }
             if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_additionals must be positives integer'));
+                return promiEvent.reject(Error('_additionals must be positive integers'));
             }
             if (this.web3Single.areSameAddressesNoChecksum(account, _signedRequest.payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('_from must be different than the main payee'));
@@ -715,10 +715,10 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
                 if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                    return promiEvent.reject(Error('_amountsToPay must be positive integers'));
                 }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                    return promiEvent.reject(Error('_additionals must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request cannot be canceled'));
@@ -883,7 +883,7 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('_subtracts cannot be bigger than _payeesIdAddress'));
                 }
                 if (subtractsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('subtracts must be positives integer'));
+                    return promiEvent.reject(Error('subtracts must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -982,7 +982,7 @@ export default class RequestEthereumService {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('additionals must be positives integer'));
+                    return promiEvent.reject(Error('additionals must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -1137,7 +1137,7 @@ export default class RequestEthereumService {
         }
 
         if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
-            return '_expectedAmounts must be positives integer';
+            return '_expectedAmounts must be positive integers';
         }
         if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestEthereumLast, _signedRequest.currencyContract)) {
             return 'currencyContract must be the last currencyContract of requestEthereum';
