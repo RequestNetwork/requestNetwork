@@ -69,7 +69,7 @@ export default class SignedRequest {
             this.signedRequestData.currencyContract,
         );
 
-        return currencyUtils.serviceForCurrency(currency).isSignedRequestHasError(this.signedRequestData, payer.idAddress);
+        return currencyUtils.serviceForCurrency(currency).validateSignedRequest(this.signedRequestData, payer.idAddress);
     }
 
     /**

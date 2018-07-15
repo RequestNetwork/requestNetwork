@@ -464,7 +464,7 @@ export default class RequestEthereumService {
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
-            const error = this.isSignedRequestHasError(_signedRequest, account);
+            const error = this.validateSignedRequest(_signedRequest, account);
             if (error !== '') return promiEvent.reject(Error(error));
 
             if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
@@ -1110,7 +1110,7 @@ export default class RequestEthereumService {
      * @param   _payer             Payer of the request
      * @return  return a string with the error, or ''
      */
-    public isSignedRequestHasError(_signedRequest: any, _payer: string): string {
+    public validateSignedRequest(_signedRequest: any, _payer: string): string {
         _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
 
         if (_signedRequest.payeesPaymentAddress) {
