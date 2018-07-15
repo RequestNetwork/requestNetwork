@@ -55,12 +55,12 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
 
         signedRequest = { 
             currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
-            data: 'QmbFpULNpMJEj9LfvhH4hSTfTse5YrS2JvhbHW6bDCNpwS',
+            data: 'QmZLVR5UwkiGLi9nxwTShYJjHbEEYNfBfCkLAy9bLuVrwh',
             expectedAmounts: [ '1000', '200', '30' ],
             expirationDate: 7952342400000,
             extension: undefined,
             extensionParams: undefined,
-            hash: '0xe03268113d12c1a728ba6bc5631649d041d905e2a4dd19b8e5789a22b7800c5e',
+            hash: '0xb9b5fa782449db13db6d625431b7645f3bd7cf6e0e25eefd66f6b09e48581761',
             payeesIdAddress:
                 [ '0x821aea9a577a9b44299b9c15c88cf3087f3b5544',
                  '0x0d1d4e623d10f9fba5db95830f7d3839406c6af2',
@@ -69,7 +69,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
                 [ '0x6330a553fc93768f612722bb8c2ec78ac90b3bbc',
                  undefined,
                  '0x5aeda56215b167893e80b4fe645ba6d5bab767de' ],
-            signature: '0x3d3e6110c4d6f851e444aee6740446dec0bad1fd22cda8d892565188a3fe6d3e6739efb7a6b3c6fef201e60b36300cb3200d162259422a0eda1da1e2fe96c98001' };
+            signature: '0x36353d89ff5cd87f0b0704aed0632b60111d6cc4e76a02255ae1b34f4c6b9e4079933c176d35e6a0d35201cf64f0a187a0b1320589116dfb1162cb5aad84057e1b' };
     });
 
     it.skip('broadcast request as payer no payment no additionals', async function () {
