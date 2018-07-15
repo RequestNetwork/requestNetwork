@@ -97,7 +97,7 @@ describe('erc20 createRequestAsPayeeAction', () => {
                     payer,
                     [payeePaymentAddress, 0, payee3PaymentAddress],
                     payerRefundAddress,
-                    '{"reason":"weed purchased"}',
+                    '{"reason":"purchased two large pizzas"}',
                     '',
                     undefined,
                     {from: payee})
@@ -117,7 +117,7 @@ describe('erc20 createRequestAsPayeeAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(0);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestERC20);
 
-        utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"}, 'data.data is wrong')
+        utils.expectEqualsObject(result.request.data.data,{"reason": "purchased two large pizzas"}, 'data.data is wrong')
         expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 

@@ -105,7 +105,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
                     payer,
                     [payeePayment,payee2Payment,payee3Payment],
                     [payeeRefund,payee2Refund,payee3Refund],
-                    '{"reason":"weed purchased"}',
+                    '{"reason":"purchased two large pizzas"}',
                     undefined,
                     undefined,
                     {from: payee})
@@ -127,7 +127,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(0);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestBitcoinNodesValidation.toLowerCase());
 
-        utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"}, 'data.data is wrong')
+        utils.expectEqualsObject(result.request.data.data,{"reason": "purchased two large pizzas"}, 'data.data is wrong')
         expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
