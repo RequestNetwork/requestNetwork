@@ -7,6 +7,7 @@ import "../base/token/ERC20.sol";
 import "../utils/Bytes.sol";
 import "../utils/Signature.sol";
 
+
 /**
  * @title RequestEthereum
  * @notice Currency contract managing the requests in Ethereum.
@@ -32,6 +33,105 @@ contract RequestEthereum is CurrencyContract {
         public
     {
         requestCore = RequestCore(_requestCoreAddress);
+    }
+
+    /**
+     * @notice Function to broadcast and accept an offchain signed request (can be paid and additionals also).
+     *
+     * @dev _payer will be set msg.sender.
+     * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used.
+     * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+     *
+     * @param _requestData nested bytes containing : creator, payer, payees, expectedAmounts, data
+     * @param _payeesPaymentAddress array of payees address for payment (optional) 
+     * @param _payeeAmounts array of amount repartition for the payment
+     * @param _additionals array to increase the ExpectedAmount for payees
+     * @param _expirationDate timestamp after that the signed request cannot be broadcasted
+     * @param _signature ECDSA signature in bytes
+     *
+     * @return Returns the id of the request
+     */
+    function broadcastSignedRequestAsPayer(
+        bytes 		_requestData, // gather data to avoid "stack too deep"
+        address[] 	_payeesPaymentAddress,
+        uint256[] 	_payeeAmounts,
+        uint256[] 	_additionals,
+        uint256 	_expirationDate,
+        bytes 		_signature)
+        external
+        payable
+        whenNotPaused
+        returns(bytes32)
+    {
+        // check expiration date
+        // solium-disable-next-line security/no-block-members
+        require(_expirationDate >= block.timestamp, "expiration should be after current time");
+
+        // check the signature
+        require(
+            Signature.checkRequestSignature(
+                _requestData,
+                _payeesPaymentAddress,
+                _expirationDate,
+                _signature
+            ),
+            "signature should be correct"
+        );
+
+        // create accept and pay the request
+        return createAcceptAndPayFromBytes(
+            _requestData,
+            _payeesPaymentAddress,
+            _payeeAmounts,
+            _additionals
+        );
+    }
+
+    /**
+     * @notice Function PAYABLE to pay a request in ether.
+     *
+     * @dev the request will be automatically accepted if msg.sender==payer.
+     *
+     * @param _requestId id of the request
+     * @param _payeeAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
+     * @param _additionalAmounts amount of additionals per payee in wei to declare
+     */
+    function paymentAction(
+        bytes32 _requestId,
+        uint256[] _payeeAmounts,
+        uint256[] _additionalAmounts)
+        external
+        whenNotPaused
+        payable
+    {
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be Canceled");
+        require(_additionalAmounts.length == 0 || msg.sender == requestCore.getPayer(_requestId), "additionals should be set by the payer");
+
+
+        // automatically accept request if request is created and msg.sender is payer
+        if (requestCore.getState(_requestId)==RequestCore.State.Created && msg.sender == requestCore.getPayer(_requestId)) {
+            requestCore.accept(_requestId);
+        }
+
+        additionalInternal(_requestId, _additionalAmounts);
+
+        paymentInternal(_requestId, _payeeAmounts, msg.value);
+    }
+
+    /**
+     * @notice Function PAYABLE to pay back in ether a request to the payer.
+     *
+     * @dev msg.sender must be one of the payees.
+     * @dev the request must be created or accepted.
+     *
+     * @param _requestId id of the request
+     */
+    function refundAction(bytes32 _requestId)
+        external
+        whenNotPaused
+        payable
+    {
+        refundInternal(_requestId, msg.sender, msg.value);
     }
 
     /**
@@ -64,10 +164,18 @@ contract RequestEthereum is CurrencyContract {
         whenNotPaused
         returns(bytes32 requestId)
     {
-        require(msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0);
+        require(
+            msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0,
+            "caller should be the payee"
+        );
 
         uint256 collectedFees;
-        (requestId, collectedFees) = createCoreRequestInternal(_payer, _payeesIdAddress, _expectedAmounts, _data);
+        (requestId, collectedFees) = createCoreRequestInternal(
+            _payer,
+            _payeesIdAddress,
+            _expectedAmounts,
+            _data
+        );
 
         // set payment addresses for payees
         for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
@@ -75,12 +183,12 @@ contract RequestEthereum is CurrencyContract {
         }
 
         // set payment address for payer
-        if(_payerRefundAddress != 0) {
+        if (_payerRefundAddress != 0) {
             payerRefundAddress[requestId] = _payerRefundAddress;
         }
 
         // check if the value send match exactly the fees (no under or over payment allowed)
-        require(collectedFees == msg.value);
+        require(collectedFees == msg.value, "fees should be the correct amout");
 
         return requestId;
     }
@@ -115,106 +223,30 @@ contract RequestEthereum is CurrencyContract {
         whenNotPaused
         returns(bytes32 requestId)
     {
-        require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0);
+        require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0, "caller should not be the main payee");
 
         uint256 collectedFees;
-        (requestId, collectedFees) = createCoreRequestInternal(msg.sender, _payeesIdAddress, _expectedAmounts, _data);
+        (requestId, collectedFees) = createCoreRequestInternal(
+            msg.sender,
+            _payeesIdAddress,
+            _expectedAmounts,
+            _data
+        );
 
         // set payment address for payer
-        if(_payerRefundAddress != 0) {
+        if (_payerRefundAddress != 0) {
             payerRefundAddress[requestId] = _payerRefundAddress;
         }
 
         // accept and pay the request with the value remaining after the fee collect
-        acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value.sub(collectedFees));
+        acceptAndPay(
+            requestId,
+            _payeeAmounts,
+            _additionals,
+            msg.value.sub(collectedFees)
+        );
 
         return requestId;
-    }
-
-    /**
-     * @notice Function to broadcast and accept an offchain signed request (can be paid and additionals also).
-     *
-     * @dev _payer will be set msg.sender.
-     * @dev if _payeesPaymentAddress.length > _requestData.payeesIdAddress.length, the extra addresses will be stored but never used.
-     * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
-     *
-     * @param _requestData nested bytes containing : creator, payer, payees, expectedAmounts, data
-     * @param _payeesPaymentAddress array of payees address for payment (optional) 
-     * @param _payeeAmounts array of amount repartition for the payment
-     * @param _additionals array to increase the ExpectedAmount for payees
-     * @param _expirationDate timestamp after that the signed request cannot be broadcasted
-     * @param _signature ECDSA signature in bytes
-     *
-     * @return Returns the id of the request
-     */
-    function broadcastSignedRequestAsPayer(
-        bytes 		_requestData, // gather data to avoid "stack too deep"
-        address[] 	_payeesPaymentAddress,
-        uint256[] 	_payeeAmounts,
-        uint256[] 	_additionals,
-        uint256 	_expirationDate,
-        bytes 		_signature)
-        external
-        payable
-        whenNotPaused
-        returns(bytes32)
-    {
-        // check expiration date
-        // solium-disable-next-line security/no-block-members
-        require(_expirationDate >= block.timestamp);
-
-        // check the signature
-        require(Signature.checkRequestSignature(_requestData, _payeesPaymentAddress, _expirationDate, _signature));
-
-        // create accept and pay the request
-        return createAcceptAndPayFromBytes(_requestData,  _payeesPaymentAddress, _payeeAmounts, _additionals);
-    }
-
-    /**
-     * @notice Function PAYABLE to pay a request in ether.
-     *
-     * @dev the request will be automatically accepted if msg.sender==payer.
-     *
-     * @param _requestId id of the request
-     * @param _payeeAmounts Amount to pay to payees (sum must be equal to msg.value) in wei
-     * @param _additionalAmounts amount of additionals per payee in wei to declare
-     */
-    function paymentAction(
-        bytes32 _requestId,
-        uint256[] _payeeAmounts,
-        uint256[] _additionalAmounts)
-        external
-        whenNotPaused
-        payable
-    {
-        require(requestCore.getState(_requestId) != RequestCore.State.Canceled);
-        require(_additionalAmounts.length == 0 || msg.sender == requestCore.getPayer(_requestId));
-
-
-        // automatically accept request if request is created and msg.sender is payer
-        if(requestCore.getState(_requestId)==RequestCore.State.Created && msg.sender == requestCore.getPayer(_requestId)) {
-            requestCore.accept(_requestId);
-        }
-
-        additionalInternal(_requestId, _additionalAmounts);
-
-        paymentInternal(_requestId, _payeeAmounts, msg.value);
-    }
-
-    /**
-     * @notice Function PAYABLE to pay back in ether a request to the payer.
-     *
-     * @dev msg.sender must be one of the payees.
-     * @dev the request must be created or accepted.
-     *
-     * @param _requestId id of the request
-     */
-    function refundAction(bytes32 _requestId)
-        external
-        whenNotPaused
-        payable
-    {
-        refundInternal(_requestId, msg.sender, msg.value);
     }
 
     /**
@@ -231,7 +263,7 @@ contract RequestEthereum is CurrencyContract {
         whenNotPaused
         onlyRequestPayer(_requestId)
     {
-        require(requestCore.getState(_requestId)!=RequestCore.State.Canceled);
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be canceled");
         additionalInternal(_requestId, _additionalAmounts);
     }
 
@@ -267,7 +299,7 @@ contract RequestEthereum is CurrencyContract {
         
         additionalInternal(_requestId, _additionals);
 
-        if(_amountPaid > 0) {
+        if (_amountPaid > 0) {
             paymentInternal(_requestId, _payeeAmounts, _amountPaid);
         }
     }    
@@ -294,29 +326,29 @@ contract RequestEthereum is CurrencyContract {
     {
         // extract main payee
         address mainPayee = Bytes.extractAddress(_requestData, 41);
-        require(msg.sender != mainPayee && mainPayee != 0);
+        require(msg.sender != mainPayee && mainPayee != 0, "caller should not be the main payee");
+        
         // creator must be the main payee
-        require(Bytes.extractAddress(_requestData, 0) == mainPayee);
+        require(Bytes.extractAddress(_requestData, 0) == mainPayee, "creator should be the main payee");
 
         // extract the number of payees
         uint8 payeesCount = uint8(_requestData[40]);
         int256 totalExpectedAmounts = 0;
-        for(uint8 i = 0; i < payeesCount; i++) {
+        for (uint8 i = 0; i < payeesCount; i++) {
             // extract the expectedAmount for the payee[i]
             // NB: no need of SafeMath here because 0 < i < 256 (uint8)
             int256 expectedAmountTemp = int256(Bytes.extractBytes32(_requestData, 61 + 52 * uint256(i)));
+            
             // compute the total expected amount of the request
             totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
-            // all expected amount must be positibe
-            require(expectedAmountTemp>0);
+            
+            // all expected amount must be positive
+            require(expectedAmountTemp > 0, "expected amount should be > 0");
         }
 
         // collect the fees
         uint256 fees = collectEstimation(totalExpectedAmounts);
-
-        // check fees has been well received
-        // do the action and assertion in one to save a variable
-        require(collectForREQBurning(fees));
+        collectForREQBurning(fees);
 
         // insert the msg.sender as the payer in the bytes
         Bytes.updateBytes20inBytes(_requestData, 20, bytes20(msg.sender));
@@ -329,7 +361,12 @@ contract RequestEthereum is CurrencyContract {
         }
 
         // accept and pay the request with the value remaining after the fee collect
-        acceptAndPay(requestId, _payeeAmounts, _additionals, msg.value.sub(fees));
+        acceptAndPay(
+            requestId,
+            _payeeAmounts,
+            _additionals,
+            msg.value.sub(fees)
+        );
 
         return requestId;
     }
@@ -344,10 +381,13 @@ contract RequestEthereum is CurrencyContract {
         internal
     {
         // we cannot have more additional amounts declared than actual payees but we can have fewer
-        require(_additionalAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+        require(
+            _additionalAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1),
+            "number of amounts should be <= number of payees"
+        );
 
-        for(uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
-            if(_additionalAmounts[i] != 0) {
+        for (uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
+            if (_additionalAmounts[i] != 0) {
                 // Store and declare the additional in the core
                 requestCore.updateExpectedAmount(_requestId, i, _additionalAmounts[i].toInt256Safe());
             }
@@ -368,12 +408,12 @@ contract RequestEthereum is CurrencyContract {
         internal
     {
         // we cannot have more amounts declared than actual payees
-        require(_payeeAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+        require(_payeeAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1), "number of amounts should be <= number of payees");
 
         uint256 totalPayeeAmounts = 0;
 
-        for(uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
-            if(_payeeAmounts[i] != 0) {
+        for (uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
+            if (_payeeAmounts[i] != 0) {
                 // compute the total amount declared
                 totalPayeeAmounts = totalPayeeAmounts.add(_payeeAmounts[i]);
 
@@ -382,7 +422,7 @@ contract RequestEthereum is CurrencyContract {
 
                 // pay the payment address if given, the id address otherwise
                 address addressToPay;
-                if(payeesPaymentAddress[_requestId][i] == 0) {
+                if (payeesPaymentAddress[_requestId][i] == 0) {
                     addressToPay = requestCore.getPayeeAddress(_requestId, i);
                 } else {
                     addressToPay = payeesPaymentAddress[_requestId][i];
@@ -394,7 +434,7 @@ contract RequestEthereum is CurrencyContract {
         }
 
         // check if payment repartition match the value paid
-        require(_value==totalPayeeAmounts);
+        require(_value == totalPayeeAmounts, "payment value should equal the total");
     }
 
     /**
@@ -411,31 +451,31 @@ contract RequestEthereum is CurrencyContract {
         uint256 _amount)
         internal
     {
-        require(requestCore.getState(_requestId)!=RequestCore.State.Canceled);
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be canceled");
 
         // Check if the _fromAddress is a payeesId
         // int16 to allow -1 value
         int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _fromAddress);
-        if(payeeIndex < 0) {
+        if (payeeIndex < 0) {
             uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
 
             // if not ID addresses maybe in the payee payments addresses
             for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1)) {
-                if(payeesPaymentAddress[_requestId][i] == _fromAddress) {
+                if (payeesPaymentAddress[_requestId][i] == _fromAddress) {
                     // get the payeeIndex
                     payeeIndex = int16(i);
                 }
             }
         }
         // the address must be found somewhere
-        require(payeeIndex >= 0); 
+        require(payeeIndex >= 0, "fromAddress should be a payee"); 
 
         // Casting to uin8 doesn"t lose bits because payeeIndex < 256. payeeIndex was declared int16 to allow -1
         requestCore.updateBalance(_requestId, uint8(payeeIndex), -_amount.toInt256Safe());
 
         // refund to the payment address if given, the id address otherwise
         address addressToPay = payerRefundAddress[_requestId];
-        if(addressToPay == 0) {
+        if (addressToPay == 0) {
             addressToPay = requestCore.getPayer(_requestId);
         }
 

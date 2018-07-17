@@ -3,6 +3,7 @@ pragma solidity ^0.4.23;
 import "../base/math/SafeMath.sol";
 import "../base/ownership/Ownable.sol";
 
+
 /**
  * @title FeeCollector
  *
@@ -29,38 +30,6 @@ contract FeeCollector is Ownable {
         public
     {
         requestBurnerContract = _requestBurnerContract;
-    }
-
-    /**
-     * @notice Sends fees to the request burning address.
-     * @param _amount amount to send to the burning address
-     */  
-    function collectForREQBurning(uint256 _amount)
-        internal
-        returns(bool)
-    {
-        return requestBurnerContract.send(_amount);
-    }
-
-    /**
-     * @notice Computes the fees.
-     * @param _expectedAmount amount expected for the request
-     * @return the expected amount of fees in wei
-     */  
-    function collectEstimation(int256 _expectedAmount)
-        public
-        view
-        returns(uint256)
-    {
-        if(_expectedAmount<0) return 0;
-
-        uint256 computedCollect = uint256(_expectedAmount).mul(rateFeesNumerator);
-
-        if(rateFeesDenominator != 0) {
-            computedCollect = computedCollect.div(rateFeesDenominator);
-        }
-
-        return computedCollect < maxFees ? computedCollect : maxFees;
     }
 
     /**
@@ -101,4 +70,37 @@ contract FeeCollector is Ownable {
         requestBurnerContract = _requestBurnerContract;
     }
 
+    /**
+     * @notice Computes the fees.
+     * @param _expectedAmount amount expected for the request
+     * @return the expected amount of fees in wei
+     */  
+    function collectEstimation(int256 _expectedAmount)
+        public
+        view
+        returns(uint256)
+    {
+        if (_expectedAmount<0) {
+            return 0;
+        }
+
+        uint256 computedCollect = uint256(_expectedAmount).mul(rateFeesNumerator);
+
+        if (rateFeesDenominator != 0) {
+            computedCollect = computedCollect.div(rateFeesDenominator);
+        }
+
+        return computedCollect < maxFees ? computedCollect : maxFees;
+    }
+
+    /**
+     * @notice Sends fees to the request burning address.
+     * @param _amount amount to send to the burning address
+     */  
+    function collectForREQBurning(uint256 _amount)
+        internal
+    {
+        // .transfer throws on failure
+        requestBurnerContract.transfer(_amount);
+    }
 }

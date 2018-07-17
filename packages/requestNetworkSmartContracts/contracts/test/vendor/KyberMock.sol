@@ -1,4 +1,3 @@
-/* solium-disable */
 pragma solidity ^0.4.18;
 
 
@@ -46,7 +45,13 @@ contract KyberMock {
         // Sends erc20 to the caller
         dest.transfer(msg.sender, actualDestAmount);
 
-        ExecuteTrade(msg.sender, src, dest, actualSrcAmount, actualDestAmount);
+        emit ExecuteTrade(
+            msg.sender,
+            src,
+            dest,
+            actualSrcAmount,
+            actualDestAmount
+        );
         return actualDestAmount;
     }
 }

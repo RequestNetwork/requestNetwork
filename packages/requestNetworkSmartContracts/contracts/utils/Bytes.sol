@@ -1,5 +1,6 @@
 pragma solidity ^0.4.23;
 
+
 /**
  * @title Bytes util library.
  * @notice Collection of utility functions to manipulate bytes for Request.
@@ -16,7 +17,7 @@ library Bytes {
         pure
         returns (address m) 
     {
-        require(offset >= 0 && offset + 20 <= data.length);
+        require(offset >= 0 && offset + 20 <= data.length, "offset value should be in the correct range");
 
         // solium-disable-next-line security/no-inline-assembly
         assembly {
@@ -38,7 +39,7 @@ library Bytes {
         pure
         returns (bytes32 bs)
     {
-        require(offset >= 0 && offset + 32 <= data.length);
+        require(offset >= 0 && offset + 32 <= data.length, "offset value should be in the correct range");
 
         // solium-disable-next-line security/no-inline-assembly
         assembly {
@@ -57,7 +58,7 @@ library Bytes {
         internal
         pure
     {
-        require(offset >= 0 && offset + 20 <= data.length);
+        require(offset >= 0 && offset + 20 <= data.length, "offset value should be in the correct range");
 
         // solium-disable-next-line security/no-inline-assembly
         assembly {

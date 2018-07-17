@@ -16,11 +16,14 @@ interface ERC20 {
     event Approval(address indexed _owner, address indexed _spender, uint _value);
 }
 
+
 /// @title Contract for a burnable ERC
 contract BurnableErc20 is ERC20 {
     function burn(uint value) external;
 }
 
+
+/// @title Interface for Kyber contract
 contract KyberNetwork {
     function trade(
         ERC20 src,
@@ -52,8 +55,8 @@ contract Burner is Destructible {
     /// @param _kyberContract Kyber contract to use
     function Burner(address _destErc20, address _kyberContract) public {
         // Check inputs
-        require(_destErc20 != address(0));
-        require(_kyberContract != address(0));
+        require(_destErc20 != address(0), "destination ERC20 should not be 0");
+        require(_kyberContract != address(0), "kyber contract should not be 0");
 
         destErc20 = BurnableErc20(_destErc20);
         kyberContract = KyberNetwork(_kyberContract);

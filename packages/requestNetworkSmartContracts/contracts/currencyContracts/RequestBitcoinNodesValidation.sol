@@ -6,6 +6,7 @@ import "../base/math/SafeMathUint8.sol";
 import "../utils/Bytes.sol";
 import "../utils/Signature.sol";
 
+
 /**
  * @title RequestBitcoinNodesValidation
  * @notice Currency contract managing the requests in Bitcoin
@@ -74,15 +75,28 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         whenNotPaused
         returns(bytes32 requestId)
     {
-        require(msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0);
+        require(
+            msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0,
+            "caller should be the payee"
+        );
 
         uint256 collectedFees;
-        (requestId, collectedFees) = createCoreRequestInternal(_payer, _payeesIdAddress, _expectedAmounts, _data);
+        (requestId, collectedFees) = createCoreRequestInternal(
+            _payer,
+            _payeesIdAddress,
+            _expectedAmounts,
+            _data
+        );
         
         // Additional check on the fees: they should be equal to the about of ETH sent
-        require(collectedFees == msg.value);
+        require(collectedFees == msg.value, "fees should be the correct amout");
     
-        extractAndStoreBitcoinAddresses(requestId, _payeesIdAddress.length, _payeesPaymentAddress, _payerRefundAddress);
+        extractAndStoreBitcoinAddresses(
+            requestId,
+            _payeesIdAddress.length,
+            _payeesPaymentAddress,
+            _payerRefundAddress
+        );
         
         return requestId;
     }
@@ -130,12 +144,25 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
     {
         // check expiration date
         // solium-disable-next-line security/no-block-members
-        require(_expirationDate >= block.timestamp);
+        require(_expirationDate >= block.timestamp, "expiration should be after current time");
 
         // check the signature
-        require(Signature.checkBtcRequestSignature(_requestData, _payeesPaymentAddress, _expirationDate, _signature));
+        require(
+            Signature.checkBtcRequestSignature(
+                _requestData,
+                _payeesPaymentAddress,
+                _expirationDate,
+                _signature
+            ),
+            "signature should be correct"
+        );
 
-        return createAcceptAndAdditionalsFromBytes(_requestData, _payeesPaymentAddress, _payerRefundAddress, _additionals);
+        return createAcceptAndAdditionalsFromBytes(
+            _requestData,
+            _payeesPaymentAddress,
+            _payerRefundAddress,
+            _additionals
+        );
     }
 
     /**
@@ -218,26 +245,28 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
     {
         // extract main payee
         address mainPayee = Bytes.extractAddress(_requestData, 41);
-        require(msg.sender != mainPayee && mainPayee != 0);
+        require(msg.sender != mainPayee && mainPayee != 0, "caller should not be the main payee");
         // creator must be the main payee
-        require(Bytes.extractAddress(_requestData, 0) == mainPayee);
+        require(Bytes.extractAddress(_requestData, 0) == mainPayee, "creator should be the main payee");
 
         // extract the number of payees
         uint8 payeesCount = uint8(_requestData[40]);
         int256 totalExpectedAmounts = 0;
-        for(uint8 i = 0; i < payeesCount; i++) {
+        for (uint8 i = 0; i < payeesCount; i++) {
             // extract the expectedAmount for the payee[i]
             int256 expectedAmountTemp = int256(Bytes.extractBytes32(_requestData, uint256(i).mul(52).add(61)));
+            
             // compute the total expected amount of the request
             totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
+            
             // all expected amount must be positive
-            require(expectedAmountTemp>0);
+            require(expectedAmountTemp > 0, "expected amount should be > 0");
         }
 
         // compute and send fees
         uint256 fees = collectEstimation(totalExpectedAmounts);
-        // check fees has been well received
-        require(fees == msg.value && collectForREQBurning(fees));
+        require(fees == msg.value, "fees should be the correct amout");
+        collectForREQBurning(fees);
 
         // insert the msg.sender as the payer in the bytes
         Bytes.updateBytes20inBytes(_requestData, 20, bytes20(msg.sender));
@@ -245,7 +274,12 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         requestId = requestCore.createRequestFromBytes(_requestData);
         
         // set bitcoin addresses
-        extractAndStoreBitcoinAddresses(requestId, payeesCount, _payeesPaymentAddress, _payerRefundAddress);
+        extractAndStoreBitcoinAddresses(
+            requestId,
+            payeesCount,
+            _payeesPaymentAddress,
+            _payerRefundAddress
+        );
 
         // accept and pay the request with the value remaining after the fee collect
         acceptAndAdditionals(requestId, _additionals);
