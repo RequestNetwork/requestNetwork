@@ -144,7 +144,7 @@ export default class RequestBitcoinNodesValidationService {
             }
 
             if (_expectedAmounts.some((amount: any) => amount.isNeg())) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
 
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
@@ -251,7 +251,7 @@ export default class RequestBitcoinNodesValidationService {
             }
 
             if (_expectedAmounts.some((amount: any) => amount.isNeg())) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
@@ -319,7 +319,7 @@ export default class RequestBitcoinNodesValidationService {
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
-            const error = this.isSignedRequestHasError(_signedRequest, account);
+            const error = this.validateSignedRequest(_signedRequest, account);
             if (error !== '') return promiEvent.reject(Error(error));
 
             if (_additionals && _signedRequest.payeesIdAddress.length < _additionals.length) {
@@ -332,7 +332,7 @@ export default class RequestBitcoinNodesValidationService {
                 return promiEvent.reject(Error('payeesRefundAddress must be valid bitcoin addresses'));
             }
             if (additionalsParsed.some((amount: any) => amount.isNeg())) {
-                return promiEvent.reject(Error('_additionals must be positives integer'));
+                return promiEvent.reject(Error('_additionals must be positive integers'));
             }
             if (this.web3Single.areSameAddressesNoChecksum(account, _signedRequest.payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('_from must be different than the main payee'));
@@ -558,7 +558,7 @@ export default class RequestBitcoinNodesValidationService {
                     return promiEvent.reject(Error('_subtracts cannot be bigger than _payeesIdAddress'));
                 }
                 if (subtractsParsed.some((amount: any) => amount.isNeg())) {
-                    return promiEvent.reject(Error('subtracts must be positives integer'));
+                    return promiEvent.reject(Error('subtracts must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -657,7 +657,7 @@ export default class RequestBitcoinNodesValidationService {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
                 if (additionalsParsed.some((amount: any) => amount.isNeg())) {
-                    return promiEvent.reject(Error('additionals must be positives integer'));
+                    return promiEvent.reject(Error('additionals must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -870,7 +870,7 @@ export default class RequestBitcoinNodesValidationService {
      * @param   _payer             Payer of the request
      * @return  return a string with the error, or ''
      */
-    public isSignedRequestHasError(_signedRequest: any, _payer: string): string {
+    public validateSignedRequest(_signedRequest: any, _payer: string): string {
         _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
 
         const hashComputed = this.hashRequest(
@@ -891,7 +891,7 @@ export default class RequestBitcoinNodesValidationService {
             return '_payeesIdAddress, payeesPaymentAddress and _expectedAmounts must have the same size';
         }
         if (_signedRequest.expectedAmounts.some((amount: any) => amount.isNeg())) {
-            return '_expectedAmounts must be positives integer';
+            return '_expectedAmounts must be positive integers';
         }
         if (!this.web3Single.areSameAddressesNoChecksum(this.addressRequestBitcoinNodesValidationLast, _signedRequest.currencyContract)) {
             return 'currencyContract must be the last currencyContract of requestBitcoinNodesValidation';

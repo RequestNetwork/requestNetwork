@@ -187,7 +187,7 @@ describe('erc20 paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_additionals must be positive integers'),'exception not right');
         }
     });
 
@@ -204,7 +204,7 @@ describe('erc20 paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_amountsToPay must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_amountsToPay must be positive integers'),'exception not right');
         }
         await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payer})
         await testToken.transfer(defaultAccount, arbitraryAmount, {from: payer});

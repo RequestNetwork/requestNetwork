@@ -189,7 +189,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_additionals must be positive integers'),'exception not right');
         }
     });
 
