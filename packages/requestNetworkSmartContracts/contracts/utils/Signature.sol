@@ -129,10 +129,12 @@ library Signature {
         returns(bytes32)
     {
         return keccak256(
-            this,
-            requestData,
-            payeesPaymentAddress,
-            expirationDate
+            abi.encodePacked(
+                this,
+                requestData,
+                payeesPaymentAddress,
+                expirationDate
+            )
         );
     }
 
@@ -154,10 +156,12 @@ library Signature {
         returns(bytes32)
     {
         return keccak256(
-            this,
-            requestData,
-            payeesPaymentAddress,
-            expirationDate
+            abi.encodePacked(
+                this,
+                requestData,
+                payeesPaymentAddress,
+                expirationDate
+            )
         );
     }
     
@@ -181,7 +185,7 @@ library Signature {
         returns (bool)
     {
         return signer == ecrecover(
-            keccak256("\x19Ethereum Signed Message:\n32", hash),
+            keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)),
             v,
             r,
             s
