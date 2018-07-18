@@ -1,0 +1,31 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.11.3-stretch
+      - image: ipfs/go-ipfs:v0.4.16
+      - image: trufflesuite/ganache-cli:v6.1.6
+        command: [
+          "-l", "90000000",
+          "-m", "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"]
+    environment:
+      NODE_ENV: test
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-node-modules-cache-{{ checksum "package.json" }}-{{ checksum "packages/requestNetwork.js/package.json" }}
+      - run:
+          name: Install depedencies
+          command: |
+            npm install .
+            cd packages/requestNetwork.js/ && npm install . && cd -
+      - save_cache:
+          key: v1-node-modules-cache-{{ checksum "package.json" }}-{{ checksum "packages/requestNetwork.js/package.json" }}
+          paths:
+            - "node_modules"
+            - "packages/requestNetwork.js/node_modules"
+      - run:
+          name: Deploy test contracts and run Request unit tests
+          command: |
+            ./node_modules/lerna/bin/lerna.js run --scope @requestnetwork/request-network.js testdeploy
+            ./node_modules/lerna/bin/lerna.js run --scope @requestnetwork/request-network.js test --stream
