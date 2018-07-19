@@ -3,8 +3,6 @@ import Ipfs from '../servicesExternal/ipfs-service';
 
 import Web3Single from '../servicesExternal/web3-single';
 
-import * as ServiceContracts from '../servicesContracts';
-
 import * as Types from '../types';
 
 import * as ETH_UTIL from 'ethereumjs-util';

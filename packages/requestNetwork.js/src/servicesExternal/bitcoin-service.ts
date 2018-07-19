@@ -73,12 +73,14 @@ export default class BitcoinService {
 
         let networkType: string = 'both'; // both = prod && testnet
         switch (this.bitcoinNetworkId) {
-            case 1:
+            case 0:
                 networkType = 'prod';
                 break;
             case 3:
                 networkType = 'testnet';
                 break;
+            default:
+                throw new Error('Invalid network: ' + this.bitcoinNetworkId);
         }
         return walletAddressValidator.validate(_address, 'bitcoin', networkType);
     }
