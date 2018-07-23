@@ -56,6 +56,11 @@ export default class BitcoinService {
         }
     }
 
+    /**
+     * Check BTC txs info from addresses
+     * @param    _address   BTC addresses to check
+     * @return   object containing past txs infos
+     */
     public async getMultiAddress(_addresses: string[]): Promise<any> {
         const addresses = (_addresses instanceof Array ? _addresses : [_addresses]).join('|');
 
