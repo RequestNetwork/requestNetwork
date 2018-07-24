@@ -16,7 +16,7 @@
     },
     "bitcoin": 
     {  
-        "default": 1
+        "default": 0
     },
     "ipfs": 
     {    

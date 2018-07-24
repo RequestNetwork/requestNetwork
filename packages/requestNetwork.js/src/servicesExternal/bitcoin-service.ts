@@ -1,8 +1,7 @@
+import fetch from 'cross-fetch';
 import * as walletAddressValidator from 'wallet-address-validator';
 import config from '../config';
-import * as Types from '../types';
 
-const bitcoinBlockExplorerImport = require('blockchain.info/blockexplorer');
 const WEB3 = require('web3');
 
 /**
@@ -12,7 +11,7 @@ const WEB3 = require('web3');
 export default class BitcoinService {
     /**
      * Initialized the class BitcoinService
-     * @param   _bitcoinNetworkId       the bitcoin network ID (1: main, 3: testnet)
+     * @param   _bitcoinNetworkId       the bitcoin network ID (0: main, 3: testnet)
      */
     public static init(_bitcoinNetworkId ?: number) {
         this._instance = new this(_bitcoinNetworkId);
@@ -34,28 +33,47 @@ export default class BitcoinService {
 
     private static _instance: BitcoinService;
 
-    public bitcoinBlockExplorer: any;
+    private blockchainInfoUrl: string;
 
     private bitcoinNetworkId: number;
 
     /**
      * Private constructor to Instantiates a new BitcoinService
-     * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js
-     *                          library to use for interacting with the Ethereum network.
-     * @param   networkId       the Ethereum network ID.
+     * @param   networkId       the Bitcoin network ID.
      */
     private constructor(_bitcoinNetworkId ?: number) {
-        this.bitcoinNetworkId = _bitcoinNetworkId || config.bitcoin.default;
+        this.bitcoinNetworkId = _bitcoinNetworkId !== undefined ? _bitcoinNetworkId : config.bitcoin.default;
 
-        if (this.bitcoinNetworkId === 1) {
-            this.bitcoinBlockExplorer = bitcoinBlockExplorerImport;
-        } else {
-            this.bitcoinBlockExplorer = bitcoinBlockExplorerImport.usingNetwork(this.bitcoinNetworkId);
+        switch (this.bitcoinNetworkId) {
+            case 0:
+                this.blockchainInfoUrl = 'https://blockchain.info';
+                break;
+            case 3:
+                this.blockchainInfoUrl = 'https://testnet.blockchain.info';
+                break;
+            default:
+                throw new Error('Invalid network: ' + this.bitcoinNetworkId);
         }
     }
 
+    /**
+     * Check BTC txs info from addresses using blockchain.info public API
+     * @param    _address   BTC addresses to check
+     * @return   object containing past txs infos
+     */
     public async getMultiAddress(_addresses: string[]): Promise<any> {
-        return this.bitcoinBlockExplorer.getMultiAddress(_addresses);
+        const addresses = (_addresses instanceof Array ? _addresses : [_addresses]).join('|');
+
+        try {
+            const res = await fetch(`${this.blockchainInfoUrl}/multiaddr?cors=true&active=${addresses}`);
+            if (res.status >= 400) {
+                throw new Error(`Error ${res.status}. Bad response from server ${this.blockchainInfoUrl}`);
+            }
+            const response = await res.json();
+            return response;
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
@@ -68,12 +86,14 @@ export default class BitcoinService {
 
         let networkType: string = 'both'; // both = prod && testnet
         switch (this.bitcoinNetworkId) {
-            case 1:
+            case 0:
                 networkType = 'prod';
                 break;
             case 3:
                 networkType = 'testnet';
                 break;
+            default:
+                throw new Error('Invalid network: ' + this.bitcoinNetworkId);
         }
         return walletAddressValidator.validate(_address, 'bitcoin', networkType);
     }
