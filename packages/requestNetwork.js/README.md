@@ -242,7 +242,7 @@ Example:
 ### Check a signed request
 
 ```js
-public isSignedRequestHasError(_signedRequest: any, _payer: string): string;
+public validateSignedRequest(_signedRequest: any, _payer: string): string;
 ```
 
 Check if a signed request is valid
@@ -510,7 +510,7 @@ Example:
 ### Check a signed request
 
 ```js
-public isSignedRequestHasError(_signedRequest: any, _payer: string): string;
+public validateSignedRequest(_signedRequest: any, _payer: string): string;
 ```
 
 Check if a signed request is valid
@@ -777,7 +777,7 @@ Example:
 ### Check a signed request
 
 ```js
-public isSignedRequestHasError(_signedRequest: any, _payer: string): string;
+public validateSignedRequest(_signedRequest: any, _payer: string): string;
 ```
 
 Check if a signed request is valid

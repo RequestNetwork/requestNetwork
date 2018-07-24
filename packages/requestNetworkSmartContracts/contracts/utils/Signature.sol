@@ -5,6 +5,7 @@ import "../base/math/SafeMath.sol";
 import "../base/math/SafeMathInt.sol";
 import "../base/math/SafeMathUint8.sol";
 
+
 /**
  * @title Request Signature util library.
  * @notice Collection of utility functions to handle Request signatures.
@@ -53,7 +54,13 @@ library Signature {
         bytes32 s = Bytes.extractBytes32(signature, 32);
 
         // check signature of the hash with the creator address
-        return isValidSignature(Bytes.extractAddress(requestData, 0), hash, v, r, s);
+        return isValidSignature(
+            Bytes.extractAddress(requestData, 0),
+            hash,
+            v,
+            r,
+            s
+        );
     }
 
     /**
@@ -95,7 +102,13 @@ library Signature {
         bytes32 s = Bytes.extractBytes32(signature, 32);
 
         // check signature of the hash with the creator address
-        return isValidSignature(Bytes.extractAddress(requestData, 0), hash, v, r, s);
+        return isValidSignature(
+            Bytes.extractAddress(requestData, 0),
+            hash,
+            v,
+            r,
+            s
+        );
     }
     
     /**
@@ -115,7 +128,14 @@ library Signature {
         view
         returns(bytes32)
     {
-        return keccak256(this, requestData, payeesPaymentAddress, expirationDate);
+        return keccak256(
+            abi.encodePacked(
+                this,
+                requestData,
+                payeesPaymentAddress,
+                expirationDate
+            )
+        );
     }
 
     /**
@@ -135,7 +155,14 @@ library Signature {
         view
         returns(bytes32)
     {
-        return keccak256(this, requestData, payeesPaymentAddress, expirationDate);
+        return keccak256(
+            abi.encodePacked(
+                this,
+                requestData,
+                payeesPaymentAddress,
+                expirationDate
+            )
+        );
     }
     
     /**
@@ -158,7 +185,7 @@ library Signature {
         returns (bool)
     {
         return signer == ecrecover(
-            keccak256("\x19Ethereum Signed Message:\n32", hash),
+            keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)),
             v,
             r,
             s

@@ -374,7 +374,7 @@ export default class Web3Single {
      */
     public setUpOptions(_options ?: any): any {
         if (!_options) _options = {};
-        if (!_options.numberOfConfirmation) _options.numberOfConfirmation = 0;
+        if (!_options.numberOfConfirmation) _options.numberOfConfirmation = config.ethereum.defaultNumberOfConfirmation;
         if (_options.gasPrice) _options.gasPrice = new WEB3.utils.BN(_options.gasPrice);
         if (_options.gas) _options.gas = new WEB3.utils.BN(_options.gas);
         return _options;

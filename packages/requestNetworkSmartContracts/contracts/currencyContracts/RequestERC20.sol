@@ -7,6 +7,7 @@ import "../base/token/ERC20.sol";
 import "../utils/Bytes.sol";
 import "../utils/Signature.sol";
 
+
 /**
  * @title RequestERC20
  * @notice Currency contract managing the requests in ERC20 tokens.
@@ -63,76 +64,30 @@ contract RequestERC20 is CurrencyContract {
         whenNotPaused
         returns(bytes32 requestId)
     {
-        require(msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0);
+        require(
+            msg.sender == _payeesIdAddress[0] && msg.sender != _payer && _payer != 0,
+            "caller should be the payee"
+        );
 
         uint256 collectedFees;
-        (requestId, collectedFees) = createCoreRequestInternal(_payer, _payeesIdAddress, _expectedAmounts, _data);
+        (requestId, collectedFees) = createCoreRequestInternal(
+            _payer,
+            _payeesIdAddress,
+            _expectedAmounts,
+            _data
+        );
         
         // Additional check on the fees: they should be equal to the about of ETH sent
-        require(collectedFees == msg.value);
+        require(collectedFees == msg.value, "fees should be the correct amout");
 
         // set payment addresses for payees
         for (uint8 j = 0; j < _payeesPaymentAddress.length; j = j.add(1)) {
             payeesPaymentAddress[requestId][j] = _payeesPaymentAddress[j];
         }
         // set payment address for payer
-        if(_payerRefundAddress != 0) {
+        if (_payerRefundAddress != 0) {
             payerRefundAddress[requestId] = _payerRefundAddress;
         }
-
-        return requestId;
-    }
-
-    /**
-     * @notice Function to create a request as payer. The request is payed if _payeeAmounts > 0.
-     *
-     * @dev msg.sender will be the payer.
-     * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
-     * @dev Is public instead of external to avoid "Stack too deep" exception.
-     *
-     * @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
-     * @param _expectedAmounts array of Expected amount to be received by each payees
-     * @param _payerRefundAddress Address of refund for the payer (optional)
-     * @param _payeeAmounts array of amount repartition for the payment
-     * @param _additionals array to increase the ExpectedAmount for payees
-     * @param _data Hash linking to additional data on the Request stored on IPFS
-     *
-     * @return Returns the id of the request
-     */
-    function createRequestAsPayerAction(
-        address[] 	_payeesIdAddress,
-        int256[] 	_expectedAmounts,
-        address 	_payerRefundAddress,
-        uint256[] 	_payeeAmounts,
-        uint256[] 	_additionals,
-        string 		_data)
-        public
-        payable
-        whenNotPaused
-        returns(bytes32 requestId)
-    {
-        require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0);
-
-        uint256 collectedFees;
-        (requestId, collectedFees) = createCoreRequestInternal(msg.sender, _payeesIdAddress, _expectedAmounts, _data);
-
-        // Additional check on the fees: they should be equal to the about of ETH sent
-        require(collectedFees == msg.value);
-
-        // set payment address for payer
-        if(_payerRefundAddress != 0) {
-            payerRefundAddress[requestId] = _payerRefundAddress;
-        }
-        
-        // compute the total expected amount of the request
-        // this computation is also made in createCoreRequestInternal but we do it again here to have better decoupling
-        int256 totalExpectedAmounts = 0;
-        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1)) {
-            totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
-        }
-
-        // accept and pay the request with the value remaining after the fee collect
-        acceptAndPay(requestId, _payeeAmounts, _additionals, totalExpectedAmounts);
 
         return requestId;
     }
@@ -167,12 +122,25 @@ contract RequestERC20 is CurrencyContract {
     {
         // check expiration date
         // solium-disable-next-line security/no-block-members
-        require(_expirationDate >= block.timestamp);
+        require(_expirationDate >= block.timestamp, "expiration should be after current time");
 
         // check the signature
-        require(Signature.checkRequestSignature(_requestData, _payeesPaymentAddress, _expirationDate, _signature));
+        require(
+            Signature.checkRequestSignature(
+                _requestData,
+                _payeesPaymentAddress,
+                _expirationDate,
+                _signature
+            ),
+            "signature should be correct"
+        );
 
-        return createAcceptAndPayFromBytes(_requestData, _payeesPaymentAddress, _payeeAmounts, _additionals);
+        return createAcceptAndPayFromBytes(
+            _requestData,
+            _payeesPaymentAddress,
+            _payeeAmounts,
+            _additionals
+        );
     }
 
     /**
@@ -223,6 +191,70 @@ contract RequestERC20 is CurrencyContract {
     }
 
     /**
+     * @notice Function to create a request as payer. The request is payed if _payeeAmounts > 0.
+     *
+     * @dev msg.sender will be the payer.
+     * @dev If a contract is given as a payee make sure it is payable. Otherwise, the request will not be payable.
+     * @dev Is public instead of external to avoid "Stack too deep" exception.
+     *
+     * @param _payeesIdAddress array of payees address (the index 0 will be the payee the others are subPayees)
+     * @param _expectedAmounts array of Expected amount to be received by each payees
+     * @param _payerRefundAddress Address of refund for the payer (optional)
+     * @param _payeeAmounts array of amount repartition for the payment
+     * @param _additionals array to increase the ExpectedAmount for payees
+     * @param _data Hash linking to additional data on the Request stored on IPFS
+     *
+     * @return Returns the id of the request
+     */
+    function createRequestAsPayerAction(
+        address[] 	_payeesIdAddress,
+        int256[] 	_expectedAmounts,
+        address 	_payerRefundAddress,
+        uint256[] 	_payeeAmounts,
+        uint256[] 	_additionals,
+        string 		_data)
+        public
+        payable
+        whenNotPaused
+        returns(bytes32 requestId)
+    {
+        require(msg.sender != _payeesIdAddress[0] && _payeesIdAddress[0] != 0, "caller should not be the main payee");
+
+        uint256 collectedFees;
+        (requestId, collectedFees) = createCoreRequestInternal(
+            msg.sender,
+            _payeesIdAddress,
+            _expectedAmounts,
+            _data
+        );
+
+        // Additional check on the fees: they should be equal to the about of ETH sent
+        require(collectedFees == msg.value, "fees should be the correct amout");
+
+        // set payment address for payer
+        if (_payerRefundAddress != 0) {
+            payerRefundAddress[requestId] = _payerRefundAddress;
+        }
+        
+        // compute the total expected amount of the request
+        // this computation is also made in createCoreRequestInternal but we do it again here to have better decoupling
+        int256 totalExpectedAmounts = 0;
+        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1)) {
+            totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
+        }
+
+        // accept and pay the request with the value remaining after the fee collect
+        acceptAndPay(
+            requestId,
+            _payeeAmounts,
+            _additionals,
+            totalExpectedAmounts
+        );
+
+        return requestId;
+    }
+
+    /**
      * @dev Internal function to create, accept, add additionals and pay a request as Payer.
      *
      * @dev msg.sender must be _payer.
@@ -244,26 +276,29 @@ contract RequestERC20 is CurrencyContract {
     {
         // extract main payee
         address mainPayee = Bytes.extractAddress(_requestData, 41);
-        require(msg.sender != mainPayee && mainPayee != 0);
+        require(msg.sender != mainPayee && mainPayee != 0, "caller should not be the main payee");
+
         // creator must be the main payee
-        require(Bytes.extractAddress(_requestData, 0) == mainPayee);
+        require(Bytes.extractAddress(_requestData, 0) == mainPayee, "creator should be the main payee");
 
         // extract the number of payees
         uint8 payeesCount = uint8(_requestData[40]);
         int256 totalExpectedAmounts = 0;
-        for(uint8 i = 0; i < payeesCount; i++) {
+        for (uint8 i = 0; i < payeesCount; i++) {
             // extract the expectedAmount for the payee[i]
             int256 expectedAmountTemp = int256(Bytes.extractBytes32(_requestData, uint256(i).mul(52).add(61)));
+            
             // compute the total expected amount of the request
             totalExpectedAmounts = totalExpectedAmounts.add(expectedAmountTemp);
+            
             // all expected amount must be positive
-            require(expectedAmountTemp>0);
+            require(expectedAmountTemp > 0, "expected amount should be > 0");
         }
 
         // compute and send fees
         uint256 fees = collectEstimation(totalExpectedAmounts);
-        // check fees has been well received
-        require(fees == msg.value && collectForREQBurning(fees));
+        require(fees == msg.value, "fees should be the correct amout");
+        collectForREQBurning(fees);
 
         // insert the msg.sender as the payer in the bytes
         Bytes.updateBytes20inBytes(_requestData, 20, bytes20(msg.sender));
@@ -276,7 +311,12 @@ contract RequestERC20 is CurrencyContract {
         }
 
         // accept and pay the request with the value remaining after the fee collect
-        acceptAndPay(requestId, _payeeAmounts, _additionals, totalExpectedAmounts);
+        acceptAndPay(
+            requestId,
+            _payeeAmounts,
+            _additionals,
+            totalExpectedAmounts
+        );
 
         return requestId;
     }
@@ -292,19 +332,22 @@ contract RequestERC20 is CurrencyContract {
         uint256[] 	_payeeAmounts)
         internal
     {
-        require(requestCore.getState(_requestId)!=RequestCore.State.Canceled);
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be canceled");
 
         // we cannot have more amounts declared than actual payees
-        require(_payeeAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+        require(
+            _payeeAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1),
+            "number of amounts should be <= number of payees"
+        );
 
-        for(uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
-            if(_payeeAmounts[i] != 0) {
+        for (uint8 i = 0; i < _payeeAmounts.length; i = i.add(1)) {
+            if (_payeeAmounts[i] != 0) {
                 // Store and declare the payment to the core
                 requestCore.updateBalance(_requestId, i, _payeeAmounts[i].toInt256Safe());
 
                 // pay the payment address if given, the id address otherwise
                 address addressToPay;
-                if(payeesPaymentAddress[_requestId][i] == 0) {
+                if (payeesPaymentAddress[_requestId][i] == 0) {
                     addressToPay = requestCore.getPayeeAddress(_requestId, i);
                 } else {
                     addressToPay = payeesPaymentAddress[_requestId][i];
@@ -336,7 +379,7 @@ contract RequestERC20 is CurrencyContract {
         
         additionalAction(_requestId, _additionals);
 
-        if(_payeeAmountsSum > 0) {
+        if (_payeeAmountsSum > 0) {
             paymentInternal(_requestId, _payeeAmounts);
         }
     }
@@ -354,7 +397,7 @@ contract RequestERC20 is CurrencyContract {
         uint256 _amount)
         internal
     {
-        require(requestCore.getState(_requestId)!=RequestCore.State.Canceled);
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be canceled");
 
         // Check if the _address is a payeesId
         int16 payeeIndex = requestCore.getPayeeIndex(_requestId, _address);
@@ -362,25 +405,24 @@ contract RequestERC20 is CurrencyContract {
         // get the number of payees
         uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
 
-        if(payeeIndex < 0) {
+        if (payeeIndex < 0) {
             // if not ID addresses maybe in the payee payments addresses
-            for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1))
-            {
-                if(payeesPaymentAddress[_requestId][i] == _address) {
+            for (uint8 i = 0; i < payeesCount && payeeIndex == -1; i = i.add(1)) {
+                if (payeesPaymentAddress[_requestId][i] == _address) {
                     // get the payeeIndex
                     payeeIndex = int16(i);
                 }
             }
         }
         // the address must be found somewhere
-        require(payeeIndex >= 0); 
+        require(payeeIndex >= 0, "fromAddress should be a payee"); 
 
         // useless (subPayee size <256): require(payeeIndex < 265);
         requestCore.updateBalance(_requestId, uint8(payeeIndex), -_amount.toInt256Safe());
 
         // refund to the payment address if given, the id address otherwise
         address addressToPay = payerRefundAddress[_requestId];
-        if(addressToPay == 0) {
+        if (addressToPay == 0) {
             addressToPay = requestCore.getPayer(_requestId);
         }
 
@@ -401,6 +443,6 @@ contract RequestERC20 is CurrencyContract {
         uint256 _amount)
         internal
     {	
-        require(erc20Token.transferFrom(_from, _recipient, _amount));
+        require(erc20Token.transferFrom(_from, _recipient, _amount), "erc20 transfer should succeed");
     }
 }

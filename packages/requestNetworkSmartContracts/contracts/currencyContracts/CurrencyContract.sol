@@ -58,7 +58,7 @@ contract CurrencyContract is Pausable, FeeCollector {
         onlyRequestPayer(_requestId)
     {
         // only a created request can be accepted
-        require(requestCore.getState(_requestId)==RequestCore.State.Created);
+        require(requestCore.getState(_requestId) == RequestCore.State.Created, "request should be created");
 
         // declare the acceptation in the core
         requestCore.accept(_requestId);
@@ -79,12 +79,14 @@ contract CurrencyContract is Pausable, FeeCollector {
         // payer can cancel if request is just created
         // payee can cancel when request is not canceled yet
         require(
+            // solium-disable-next-line indentation
             (requestCore.getPayer(_requestId) == msg.sender && requestCore.getState(_requestId) == RequestCore.State.Created) ||
-            (requestCore.getPayeeAddress(_requestId,0) == msg.sender && requestCore.getState(_requestId)!=RequestCore.State.Canceled)
+            (requestCore.getPayeeAddress(_requestId,0) == msg.sender && requestCore.getState(_requestId) != RequestCore.State.Canceled),
+            "payer should cancel a newly created request, or payee should cancel a not cancel request"
         );
 
         // impossible to cancel a Request with any payees balance != 0
-        require(requestCore.areAllBalanceNull(_requestId));
+        require(requestCore.areAllBalanceNull(_requestId), "all balanaces should be = 0 to cancel");
 
         // declare the cancellation in the core
         requestCore.cancel(_requestId);
@@ -106,14 +108,17 @@ contract CurrencyContract is Pausable, FeeCollector {
     {
 
         // impossible to make additional if request is canceled
-        require(requestCore.getState(_requestId)!=RequestCore.State.Canceled);
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be canceled");
 
         // impossible to declare more additionals than the number of payees
-        require(_additionalAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+        require(
+            _additionalAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1),
+            "number of amounts should be <= number of payees"
+        );
 
-        for(uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
+        for (uint8 i = 0; i < _additionalAmounts.length; i = i.add(1)) {
             // no need to declare a zero as additional 
-            if(_additionalAmounts[i] != 0) {
+            if (_additionalAmounts[i] != 0) {
                 // Store and declare the additional in the core
                 requestCore.updateExpectedAmount(_requestId, i, _additionalAmounts[i].toInt256Safe());
             }
@@ -135,16 +140,23 @@ contract CurrencyContract is Pausable, FeeCollector {
         onlyRequestPayee(_requestId)
     {
         // impossible to make subtracts if request is canceled
-        require(requestCore.getState(_requestId)!=RequestCore.State.Canceled);
+        require(requestCore.getState(_requestId) != RequestCore.State.Canceled, "request should not be canceled");
 
         // impossible to declare more subtracts than the number of payees
-        require(_subtractAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1));
+        require(
+            _subtractAmounts.length <= requestCore.getSubPayeesCount(_requestId).add(1),
+            "number of amounts should be <= number of payees"
+        );
 
-        for(uint8 i = 0; i < _subtractAmounts.length; i = i.add(1)) {
+        for (uint8 i = 0; i < _subtractAmounts.length; i = i.add(1)) {
             // no need to declare a zero as subtracts 
-            if(_subtractAmounts[i] != 0) {
+            if (_subtractAmounts[i] != 0) {
                 // subtract must be equal or lower than amount expected
-                require(requestCore.getPayeeExpectedAmount(_requestId,i) >= _subtractAmounts[i].toInt256Safe());
+                require(
+                    requestCore.getPayeeExpectedAmount(_requestId,i) >= _subtractAmounts[i].toInt256Safe(),
+                    "subtract should equal or be lower than amount expected"
+                );
+
                 // Store and declare the subtract in the core
                 requestCore.updateExpectedAmount(_requestId, i, -_subtractAmounts[i].toInt256Safe());
             }
@@ -173,20 +185,26 @@ contract CurrencyContract is Pausable, FeeCollector {
         returns(bytes32 requestId, uint256 collectedFees)
     {
         int256 totalExpectedAmounts = 0;
-        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1))
-        {
+        for (uint8 i = 0; i < _expectedAmounts.length; i = i.add(1)) {
             // all expected amounts must be positive
-            require(_expectedAmounts[i]>=0);
+            require(_expectedAmounts[i] >= 0, "expected amounts should be positive");
+
             // compute the total expected amount of the request
             totalExpectedAmounts = totalExpectedAmounts.add(_expectedAmounts[i]);
         }
 
         // store request in the core
-        requestId = requestCore.createRequest(msg.sender, _payeesIdAddress, _expectedAmounts, _payer, _data);
+        requestId = requestCore.createRequest(
+            msg.sender,
+            _payeesIdAddress,
+            _expectedAmounts,
+            _payer,
+            _data
+        );
 
         // compute and send fees
         collectedFees = collectEstimation(totalExpectedAmounts);
-        require(collectForREQBurning(collectedFees));
+        collectForREQBurning(collectedFees);
     }
 
     /**
@@ -196,7 +214,7 @@ contract CurrencyContract is Pausable, FeeCollector {
      */	
     modifier onlyRequestPayee(bytes32 _requestId)
     {
-        require(requestCore.getPayeeAddress(_requestId, 0)==msg.sender);
+        require(requestCore.getPayeeAddress(_requestId, 0) == msg.sender, "only the payee should do this action");
         _;
     }
 
@@ -207,7 +225,7 @@ contract CurrencyContract is Pausable, FeeCollector {
      */	
     modifier onlyRequestPayer(bytes32 _requestId)
     {
-        require(requestCore.getPayer(_requestId)==msg.sender);
+        require(requestCore.getPayer(_requestId) == msg.sender, "only the payer should do this action");
         _;
     }
 }

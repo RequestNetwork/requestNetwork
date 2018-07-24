@@ -133,7 +133,7 @@ export default class RequestERC20Service {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
             }
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
@@ -263,13 +263,13 @@ export default class RequestERC20Service {
                 return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
             }
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
             if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                return promiEvent.reject(Error('_amountsToPay must be positive integers'));
             }
             if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_additionals must be positives integer'));
+                return promiEvent.reject(Error('_additionals must be positive integers'));
             }
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
@@ -403,7 +403,7 @@ export default class RequestERC20Service {
                 return promiEvent.reject(Error('_expirationDate must be greater than now'));
             }
             if (_expectedAmounts.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_expectedAmounts must be positives integer'));
+                return promiEvent.reject(Error('_expectedAmounts must be positive integers'));
             }
             if ( !this.web3Single.areSameAddressesNoChecksum(account, _payeesIdAddress[0]) ) {
                 return promiEvent.reject(Error('account broadcaster must be the main payee'));
@@ -500,7 +500,7 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('token not supported'));
                 }
 
-                await this.isSignedRequestHasError(_signedRequest, account);
+                await this.validateSignedRequest(_signedRequest, account);
 
                 if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
                     return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
@@ -509,10 +509,10 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
                 if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                    return promiEvent.reject(Error('_amountsToPay must be positive integers'));
                 }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                    return promiEvent.reject(Error('_additionals must be positive integers'));
                 }
                 if (this.web3Single.areSameAddressesNoChecksum(account, _signedRequest.payeesIdAddress[0]) ) {
                     return promiEvent.reject(Error('_from must be different than the main payee'));
@@ -758,7 +758,7 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('additionals must be positives integer'));
+                    return promiEvent.reject(Error('additionals must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -848,7 +848,7 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('_subtracts cannot be bigger than _payeesIdAddress'));
                 }
                 if (subtractsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('subtracts must be positives integer'));
+                    return promiEvent.reject(Error('subtracts must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -958,10 +958,10 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
                 }
                 if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_amountsToPay must be positives integer'));
+                    return promiEvent.reject(Error('_amountsToPay must be positive integers'));
                 }
                 if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_additionals must be positives integer'));
+                    return promiEvent.reject(Error('_additionals must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request cannot be canceled'));
@@ -1360,7 +1360,7 @@ export default class RequestERC20Service {
      * @param   _payer             Payer of the request
      * @return  return a string with the error, or ''
      */
-    public isSignedRequestHasError(_signedRequest: any, _payer: string): Promise<string> {
+    public validateSignedRequest(_signedRequest: any, _payer: string): Promise<string> {
         return new Promise(async (resolve, reject) => {
             _signedRequest.expectedAmounts = _signedRequest.expectedAmounts.map((amount: any) => new BN(amount));
 
@@ -1388,7 +1388,7 @@ export default class RequestERC20Service {
             }
 
             if (_signedRequest.expectedAmounts.filter((amount: any) => amount.isNeg()).length !== 0) {
-                return reject(Error('_expectedAmounts must be positives integer'));
+                return reject(Error('_expectedAmounts must be positive integers'));
             }
 
             const contract = this.web3Single.getContractInstance(_signedRequest.currencyContract);

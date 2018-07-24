@@ -54,7 +54,7 @@ describe('createRequestAsPayer', () => {
                     payerRefundAddress,
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     [additional, 0, additional3],
-                    '{"reason":"weed purchased"}',
+                    '{"reason":"purchased two large pizzas"}',
                     undefined,
                     undefined,
                     {from: payer})
@@ -75,7 +75,7 @@ describe('createRequestAsPayer', () => {
         expect(result.request.state, 'state is wrong').to.equal(1);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestEthereum);
 
-        utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"}, 'data.data is wrong')
+        utils.expectEqualsObject(result.request.data.data,{"reason": "purchased two large pizzas"}, 'data.data is wrong')
         expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -164,7 +164,7 @@ describe('createRequestAsPayer', () => {
                     [new WEB3.utils.BN(-1)]);
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positive integers'),'exception not right');
         }
     });
 
