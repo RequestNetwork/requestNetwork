@@ -33,7 +33,7 @@ export default class BitcoinService {
 
     private static _instance: BitcoinService;
 
-    public blockchainInfoUrl: string;
+    private blockchainInfoUrl: string;
 
     private bitcoinNetworkId: number;
 
@@ -42,7 +42,7 @@ export default class BitcoinService {
      * @param   networkId       the Bitcoin network ID.
      */
     private constructor(_bitcoinNetworkId ?: number) {
-        this.bitcoinNetworkId = _bitcoinNetworkId || config.bitcoin.default;
+        this.bitcoinNetworkId = _bitcoinNetworkId !== undefined ? _bitcoinNetworkId : config.bitcoin.default;
 
         switch (this.bitcoinNetworkId) {
             case 0:
@@ -52,27 +52,28 @@ export default class BitcoinService {
                 this.blockchainInfoUrl = 'https://testnet.blockchain.info';
                 break;
             default:
-                throw new Error('Invalid network: ' + _bitcoinNetworkId);
+                throw new Error('Invalid network: ' + this.bitcoinNetworkId);
         }
     }
 
     /**
-     * Check BTC txs info from addresses
+     * Check BTC txs info from addresses using blockchain.info public API
      * @param    _address   BTC addresses to check
      * @return   object containing past txs infos
      */
     public async getMultiAddress(_addresses: string[]): Promise<any> {
         const addresses = (_addresses instanceof Array ? _addresses : [_addresses]).join('|');
 
-        return fetch(`${this.blockchainInfoUrl}/multiaddr?cors=true&active=${addresses}`)
-            .then(res => {
-                if (res.status >= 400) {
-                throw new Error('Bad response from server');
-                }
-                return res.json();
-            }).catch(err => {
-                throw err;
-            });
+        try {
+            const res = await fetch(`${this.blockchainInfoUrl}/multiaddr?cors=true&active=${addresses}`);
+            if (res.status >= 400) {
+                throw new Error(`Error ${res.status}. Bad response from server ${this.blockchainInfoUrl}`);
+            }
+            const response = await res.json();
+            return response;
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
