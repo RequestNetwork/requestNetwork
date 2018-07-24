@@ -1,6 +1,6 @@
+import fetch from 'cross-fetch';
 import * as walletAddressValidator from 'wallet-address-validator';
 import config from '../config';
-import * as Types from '../types';
 
 const WEB3 = require('web3');
 
@@ -65,7 +65,14 @@ export default class BitcoinService {
         const addresses = (_addresses instanceof Array ? _addresses : [_addresses]).join('|');
 
         return fetch(`${this.blockchainInfoUrl}/multiaddr?cors=true&active=${addresses}`)
-            .then(res => res.json());
+            .then(res => {
+                if (res.status >= 400) {
+                throw new Error('Bad response from server');
+                }
+                return res.json();
+            }).catch(err => {
+                throw err;
+            });
     }
 
     /**
