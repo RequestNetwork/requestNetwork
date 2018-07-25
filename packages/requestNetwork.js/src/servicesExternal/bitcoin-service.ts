@@ -1,4 +1,5 @@
-import fetch from 'cross-fetch';
+import 'cross-fetch/polyfill';
+
 import * as walletAddressValidator from 'wallet-address-validator';
 import config from '../config';
 
