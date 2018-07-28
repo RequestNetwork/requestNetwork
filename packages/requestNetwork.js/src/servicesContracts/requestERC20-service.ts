@@ -732,7 +732,7 @@ export default class RequestERC20Service {
      * payments to the Request for tips or bonuses.
      *
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _requestId         requestId of the payer
+     * @param   _requestId     ID of Request
      * @param   _amounts       Extra payment amounts in wei for each payee
      * @param   _options       Transaction options (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})

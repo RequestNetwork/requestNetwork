@@ -853,23 +853,25 @@ export default class RequestEthereumService {
     }
 
     /**
-     * add subtracts to a request as payee
+     * Reduce the amount due to each payee. This can be called by the payee e.g. to apply discounts or
+     * special offers.
+     *
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
-     * @param   _requestId         requestId of the payer
-     * @param   _subtracts         amounts of subtracts in wei for each payee
-     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @param   _requestId      ID of the Request
+     * @param   _amounts        Array of reduction amounts in wei for each payee
+     * @param   _options        options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
-    public subtractAction(
+    public reduceExpectedAmounts(
         _requestId: string,
-        _subtracts: any[],
+        _amounts: any[],
         _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        let subtractsParsed: any[] = [];
-        if (_subtracts) {
-            subtractsParsed = _subtracts.map((amount) => new BN(amount || 0));
+        let amountsParsed: any[] = [];
+        if (_amounts) {
+            amountsParsed = _amounts.map((amount) => new BN(amount || 0));
         }
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
@@ -879,11 +881,11 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
-                if (_subtracts && request.subPayees.length + 1 < _subtracts.length) {
-                    return promiEvent.reject(Error('_subtracts cannot be bigger than _payeesIdAddress'));
+                if (_amounts && request.subPayees.length + 1 < _amounts.length) {
+                    return promiEvent.reject(Error('amounts can not be bigger than _payeesIdAddress'));
                 }
-                if (subtractsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('subtracts must be positive integers'));
+                if (amountsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('amounts must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -891,31 +893,31 @@ export default class RequestEthereumService {
                 if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payee.address) ) {
                     return promiEvent.reject(Error('account must be payee'));
                 }
-                if (request.payee.expectedAmount.lt(subtractsParsed[0])) {
-                    return promiEvent.reject(Error('subtracts must be lower than amountExpected\'s'));
+                if (request.payee.expectedAmount.lt(amountsParsed[0])) {
+                    return promiEvent.reject(Error('amounts must be lower than expected amounts'));
                 }
                 let subtractTooHigh = false;
-                let subtractsTooLong = false;
-                for (const k in subtractsParsed) {
+                let amountsTooLong = false;
+                for (const k in amountsParsed) {
                     if (k === '0') continue;
                     if (!request.subPayees.hasOwnProperty(parseInt(k, 10) - 1)) {
-                        subtractsTooLong = true;
+                        amountsTooLong = true;
                         break;
                     }
-                    if (request.subPayees[parseInt(k, 10) - 1].expectedAmount.lt(subtractsParsed[k])) {
+                    if (request.subPayees[parseInt(k, 10) - 1].expectedAmount.lt(amountsParsed[k])) {
                         subtractTooHigh = true;
                         break;
                     }
                 }
-                if (subtractsTooLong) {
-                    return promiEvent.reject(Error('subtracts size must be lower than number of payees'));
+                if (amountsTooLong) {
+                    return promiEvent.reject(Error('amounts size must be lower than number of payees'));
                 }
                 if (subtractTooHigh) {
-                    return promiEvent.reject(Error('subtracts must be lower than amountExpected\'s'));
+                    return promiEvent.reject(Error('amounts must be lower than expected amounts'));
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.subtractAction(_requestId, subtractsParsed);
+                const method = contract.instance.methods.subtractAction(_requestId, amountsParsed);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -952,23 +954,43 @@ export default class RequestEthereumService {
     }
 
     /**
-     * add additionals to a request as payer
+     * add subtracts to a request as payee
+     * @deprecated('Renamed to reduceExpectedAmounts')
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _additionals       amounts of additionals in wei for each payee
+     * @param   _subtracts         amounts of subtracts in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
-    public additionalAction(
+    public subtractAction(
         _requestId: string,
-        _additionals: any[],
+        _subtracts: any[],
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
+
+        console.warn('Deprecated. See reduceExpectedAmounts');
+        return this.reduceExpectedAmounts(_requestId, _subtracts, _options)
+    }
+
+    /**
+     * Increase the amount due to each payee. This can be called by the payer e.g. to add extra
+     * payments to the Request for tips or bonuses.
+     *
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _requestId     ID of Request
+     * @param   _amounts       Extra payment amounts in wei for each payee
+     * @param   _options       Transaction options (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public increaseExpectedAmounts(
+        _requestId: string,
+        _amounts: any[],
         _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
         const promiEvent = Web3PromiEvent();
         _options = this.web3Single.setUpOptions(_options);
 
-        let additionalsParsed: any[] = [];
-        if (_additionals) {
-            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        let amountsParsed: any[] = [];
+        if (_amounts) {
+            amountsParsed = _amounts.map((amount) => new BN(amount || 0));
         }
 
         this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
@@ -978,11 +1000,11 @@ export default class RequestEthereumService {
             try {
                 const request = await this.getRequest(_requestId);
 
-                if (_additionals && request.subPayees.length + 1 < _additionals.length) {
-                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                if (_amounts && request.subPayees.length + 1 < _amounts.length) {
+                    return promiEvent.reject(Error('amounts can not be bigger than _payeesIdAddress'));
                 }
-                if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('additionals must be positive integers'));
+                if (amountsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('amounts must be positive integers'));
                 }
                 if ( request.state === Types.State.Canceled ) {
                     return promiEvent.reject(Error('request must be accepted or created'));
@@ -992,7 +1014,7 @@ export default class RequestEthereumService {
                 }
 
                 let subtractsTooLong = false;
-                for (const k in additionalsParsed) {
+                for (const k in amountsParsed) {
                     if (k === '0') continue;
                     if (!request.subPayees.hasOwnProperty(parseInt(k, 10) - 1)) {
                         subtractsTooLong = true;
@@ -1000,11 +1022,11 @@ export default class RequestEthereumService {
                     }
                 }
                 if (subtractsTooLong) {
-                    return promiEvent.reject(Error('additionals size must be lower than number of payees'));
+                    return promiEvent.reject(Error('amounts size must be lower than number of payees'));
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
-                const method = contract.instance.methods.additionalAction(_requestId, additionalsParsed);
+                const method = contract.instance.methods.additionalAction(_requestId, amountsParsed);
 
                 this.web3Single.broadcastMethod(
                     method,
@@ -1039,6 +1061,24 @@ export default class RequestEthereumService {
         });
 
         return promiEvent.eventEmitter;
+    }
+
+    /**
+     * add additionals to a request as payer
+     * @deprecated('Renamed to increaseExpectedAmounts')
+     * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
+     * @param   _requestId         requestId of the payer
+     * @param   _additionals       amounts of additionals in wei for each payee
+     * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public additionalAction(
+        _requestId: string,
+        _additionals: any[],
+        _options ?: any): PromiseEventEmitter<{request: Request, transaction: any}> {
+
+        console.warn('Deprecated. See increaseExpectedAmounts');
+        return this.increaseExpectedAmounts(_requestId, _additionals, _options)
     }
 
     /**
