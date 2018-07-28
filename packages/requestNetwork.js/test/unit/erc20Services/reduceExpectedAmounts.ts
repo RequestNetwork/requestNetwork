@@ -143,7 +143,7 @@ describe('erc20 subtracts Action', () => {
         }
     });
 
-    it('increaseExpectedAmounts with invalid additional (negative)', async () => {
+    it('increaseExpectedAmounts with invalid amount (negative)', async () => {
 
         try {
             const result = await rn.requestERC20Service.reduceExpectedAmounts(
@@ -156,7 +156,7 @@ describe('erc20 subtracts Action', () => {
         }
     });
 
-    it('increaseExpectedAmounts with invalid additional (too high)', async () => {
+    it('increaseExpectedAmounts with invalid amount (too high)', async () => {
 
         try {
             const result = await rn.requestERC20Service.reduceExpectedAmounts(

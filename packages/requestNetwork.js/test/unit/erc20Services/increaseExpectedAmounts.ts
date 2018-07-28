@@ -140,7 +140,7 @@ describe('erc20 additionals Action', () => {
         }
     });
 
-    it('increaseExpectedAmounts with invalid additional (negative)', async () => {
+    it('increaseExpectedAmounts with invalid amount (negative)', async () => {
 
         try {
             const result = await rn.requestERC20Service.increaseExpectedAmounts(

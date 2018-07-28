@@ -145,7 +145,7 @@ describe('bitcoin NodesValidation reduceExpectedAmountss', () => {
         }
     });
 
-    it('reduceExpectedAmounts with not valid additional (negative)', async () => {
+    it('reduceExpectedAmounts with invalid amount (negative)', async () => {
 
         try {
             const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
@@ -158,7 +158,7 @@ describe('bitcoin NodesValidation reduceExpectedAmountss', () => {
         }
     });
 
-    it('reduceExpectedAmounts with not valid additional (too high)', async () => {
+    it('reduceExpectedAmounts with invalid amount (too high)', async () => {
 
         try {
             const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
