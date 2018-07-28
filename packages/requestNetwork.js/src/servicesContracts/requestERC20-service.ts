@@ -211,7 +211,7 @@ export default class RequestERC20Service {
      * @param   _expectedAmounts           amount initial expected per payees for the request
      * @param   _payerRefundAddress        refund address of the payer (optional)
      * @param   _amountsToPay              amounts to pay for each payee (optional)
-     * @param   _additionals               amounts of additional for each payee (optional)
+     * @param   _additions               amounts of additional for each payee (optional)
      * @param   _data                      Json of the request's details (optional)
      * @param   _extension                 address of the extension contract of the request (optional) NOT USED YET
      * @param   _extensionParams           array of parameters for the extension (optional) NOT USED YET
@@ -224,7 +224,7 @@ export default class RequestERC20Service {
         _expectedAmounts: any[],
         _payerRefundAddress ?: string,
         _amountsToPay ?: any[],
-        _additionals ?: any[],
+        _additions ?: any[],
         _data ?: string,
         _extension ?: string,
         _extensionParams ?: any[],
@@ -236,9 +236,9 @@ export default class RequestERC20Service {
         if (_amountsToPay) {
             amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
         }
-        let additionalsParsed: any[] = [];
-        if (_additionals) {
-            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        let additionsParsed: any[] = [];
+        if (_additions) {
+            additionsParsed = _additions.map((amount) => new BN(amount || 0));
         }
         const expectedAmountsTotal = _expectedAmounts.reduce((a, b) => a.add(b), new BN(0));
         const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
@@ -256,8 +256,8 @@ export default class RequestERC20Service {
             if (_amountsToPay && _payeesIdAddress.length < _amountsToPay.length) {
                 return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
             }
-            if (_additionals && _payeesIdAddress.length < _additionals.length) {
-                return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+            if (_additions && _payeesIdAddress.length < _additions.length) {
+                return promiEvent.reject(Error('_additions cannot be bigger than _payeesIdAddress'));
             }
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
                 return promiEvent.reject(Error('_payeesIdAddress must be valid eth addresses'));
@@ -268,8 +268,8 @@ export default class RequestERC20Service {
             if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
                 return promiEvent.reject(Error('_amountsToPay must be positive integers'));
             }
-            if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                return promiEvent.reject(Error('_additionals must be positive integers'));
+            if (additionsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                return promiEvent.reject(Error('_additions must be positive integers'));
             }
             if (_extension) {
                 return promiEvent.reject(Error('extensions are disabled for now'));
@@ -312,7 +312,7 @@ export default class RequestERC20Service {
                                 _expectedAmounts,
                                 _payerRefundAddress,
                                 amountsToPayParsed,
-                                additionalsParsed,
+                                additionsParsed,
                                 hashIpfs);
 
                 _options = this.web3Single.setUpOptions(_options);
@@ -454,14 +454,14 @@ export default class RequestERC20Service {
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _signedRequest     object signed request
      * @param   _amountsToPay      amounts to pay for each payee (optional)
-     * @param   _additionals       amounts of additional for each payee (optional)
+     * @param   _additions       amounts of additional for each payee (optional)
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation, skipERC20checkAllowance)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public broadcastSignedRequestAsPayer(
         _signedRequest: any,
         _amountsToPay ?: any[],
-        _additionals ?: any[],
+        _additions ?: any[],
         _options ?: any,
         ): PromiseEventEmitter<any> {
         const promiEvent = Web3PromiEvent();
@@ -470,9 +470,9 @@ export default class RequestERC20Service {
         if (_amountsToPay) {
             amountsToPayParsed = _amountsToPay.map((amount) => new BN(amount || 0));
         }
-        let additionalsParsed: any[] = [];
-        if (_additionals) {
-            additionalsParsed = _additionals.map((amount) => new BN(amount || 0));
+        let additionsParsed: any[] = [];
+        if (_additions) {
+            additionsParsed = _additions.map((amount) => new BN(amount || 0));
         }
         const amountsToPayTotal = amountsToPayParsed.reduce((a, b) => a.add(b), new BN(0));
 
@@ -505,14 +505,14 @@ export default class RequestERC20Service {
                 if (_amountsToPay && _signedRequest.payeesIdAddress.length < _amountsToPay.length) {
                     return promiEvent.reject(Error('_amountsToPay cannot be bigger than _payeesIdAddress'));
                 }
-                if (_additionals && _signedRequest.payeesIdAddress.length < _additionals.length) {
-                    return promiEvent.reject(Error('_additionals cannot be bigger than _payeesIdAddress'));
+                if (_additions && _signedRequest.payeesIdAddress.length < _additions.length) {
+                    return promiEvent.reject(Error('_additions cannot be bigger than _payeesIdAddress'));
                 }
                 if (amountsToPayParsed.filter((amount) => amount.isNeg()).length !== 0) {
                     return promiEvent.reject(Error('_amountsToPay must be positive integers'));
                 }
-                if (additionalsParsed.filter((amount) => amount.isNeg()).length !== 0) {
-                    return promiEvent.reject(Error('_additionals must be positive integers'));
+                if (additionsParsed.filter((amount) => amount.isNeg()).length !== 0) {
+                    return promiEvent.reject(Error('_additions must be positive integers'));
                 }
                 if (this.web3Single.areSameAddressesNoChecksum(account, _signedRequest.payeesIdAddress[0]) ) {
                     return promiEvent.reject(Error('_from must be different than the main payee'));
@@ -542,7 +542,7 @@ export default class RequestERC20Service {
                                                     this.requestCoreServices.createBytesRequest(_signedRequest.payeesIdAddress, _signedRequest.expectedAmounts, 0, _signedRequest.data),
                                                     _signedRequest.payeesPaymentAddress,
                                                     amountsToPayParsed,
-                                                    additionalsParsed,
+                                                    additionsParsed,
                                                     _signedRequest.expirationDate,
                                                     _signedRequest.signature);
 
@@ -824,17 +824,17 @@ export default class RequestERC20Service {
      * @deprecated('Renamed to increaseExpectedAmounts')
      * @dev emit the event 'broadcasted' with {transaction: {hash}} when the transaction is submitted
      * @param   _requestId         requestId of the payer
-     * @param   _additionals       amounts of additionals in wei for each payee
+     * @param   _additions       amounts of additionals in wei for each payee
      * @param   _options           options for the method (gasPrice, gas, value, from, numberOfConfirmation)
      * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
      */
     public additionalAction(
         _requestId: string,
-        _additionals: any[],
+        _additions: any[],
         _options ?: any): PromiseEventEmitter<any> {
 
         console.warn('Deprecated. See increaseExpectedAmounts');
-        return this.increaseExpectedAmounts(_requestId, _additionals, _options)
+        return this.increaseExpectedAmounts(_requestId, _additions, _options)
     }
 
     /**
@@ -1007,7 +1007,7 @@ export default class RequestERC20Service {
                     return promiEvent.reject(Error('request cannot be canceled'));
                 }
                 if ( !additionalsTotal.isZero() && !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
-                    return promiEvent.reject(Error('only payer can add additionals'));
+                    return promiEvent.reject(Error('only payer can add additions'));
                 }
 
                 const contract = this.web3Single.getContractInstance(request.currencyContract.address);
