@@ -147,7 +147,7 @@ describe('subtracts Action', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('subtracts must be positive integers'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts must be positive integers'), 'exception not right');
         }
     });
 
@@ -160,7 +160,7 @@ describe('subtracts Action', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('subtracts must be lower than amountExpected\'s'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts must be lower than expected amounts'), 'exception not right');
         }
     });
 
@@ -201,7 +201,7 @@ describe('subtracts Action', () => {
                                 {from: payee});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_subtracts cannot be bigger than _payeesIdAddress'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts can not be bigger than _payeesIdAddress'), 'exception not right');
         }
     });
 });

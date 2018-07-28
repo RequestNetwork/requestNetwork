@@ -70,7 +70,7 @@ describe('bitcoin NodesValidation getRequestEvents', () => {
                     [payeeRefund,payee2Refund,payee3Refund]);
         currentNumRequest++;
 
-        const resultSubtract = await rn.requestBitcoinNodesValidationService.subtractAction(
+        const resultReduce = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                             resultCreateRequestAsPayee.request.requestId,
                             [10, 20, 30],
                             {from: defaultAccount});

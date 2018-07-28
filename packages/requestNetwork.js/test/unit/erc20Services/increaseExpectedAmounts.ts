@@ -27,7 +27,7 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('erc20 additionals Action', () => {
+describe('erc20 increaseExpectedAmounts Action', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;

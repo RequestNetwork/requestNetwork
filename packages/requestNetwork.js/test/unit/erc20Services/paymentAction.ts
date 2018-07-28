@@ -187,7 +187,7 @@ describe('erc20 paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positive integers'),'exception not right');
+            utils.expectEqualsException(e, Error('_additions must be positive integers'),'exception not right');
         }
     });
 
@@ -233,7 +233,7 @@ describe('erc20 paymentAction', () => {
         await testToken.transfer(defaultAccount, arbitraryAmount, {from: payer});
     });
 
-    it('pay request created by other guy no additionals', async () => {
+    it('pay request created by other guy no additions', async () => {
         // approve
         await testToken.transfer(otherGuy, arbitraryAmount, {from: defaultAccount});        
         await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: otherGuy})
@@ -261,7 +261,7 @@ describe('erc20 paymentAction', () => {
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
-    it('pay request created by other guy WITH additionals', async () => {
+    it('pay request created by other guy WITH additions', async () => {
         // approve
         await testToken.transfer(payer, arbitraryAmount, {from: defaultAccount});        
         await rn.requestERC20Service.approveTokenForRequest(requestId, arbitraryAmount, {from: payer})
@@ -274,7 +274,7 @@ describe('erc20 paymentAction', () => {
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('only payer can add additionals'),'exception not right');
+            utils.expectEqualsException(e, Error('only payer can add additions'),'exception not right');
         }
         await rn.requestERC20Service.approveTokenForRequest(requestId, 0, {from: payer})
         await testToken.transfer(defaultAccount, arbitraryAmount, {from: payer});
