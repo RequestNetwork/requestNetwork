@@ -2,7 +2,6 @@ import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/index';
-import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 import BitcoinServiceTest from './bitcoin-service-mock';
 
@@ -40,7 +39,7 @@ const arbitraryAmount = 100000000;
 const arbitraryAmount2 = 2000000;
 const arbitraryAmount3 = 300000;
 
-describe('bitcoin NodesValidation subtract', () => {
+describe('bitcoin NodesValidation reduceExpectedAmountss', () => {
     beforeEach(async () => {
         rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
         web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
@@ -69,8 +68,8 @@ describe('bitcoin NodesValidation subtract', () => {
         requestId = req.request.requestId;
     });
 
-    it('subtracts request', async () => {
-        const result = await rn.requestERC20Service.subtractAction(
+    it('reduceExpectedAmounts with request', async () => {
+        const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                             requestId,
                             [1, 2, 3],
                             {from: payee})
@@ -91,20 +90,20 @@ describe('bitcoin NodesValidation subtract', () => {
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, '-99999', 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2-2, 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2-2, 'payee2 ExpectedAmounts is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, '44444', 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3-3, 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3-3, 'payee3 ExpectedAmounts is wrong');
     });
 
 
-    it('subtracts accepted request', async () => {
-        await rn.requestERC20Service.accept(
+    it('reduceExpectedAmounts with accepted request', async () => {
+        await rn.requestBitcoinNodesValidationService.accept(
                                 requestId,
                                 {from: payer});
 
-        const result = await rn.requestERC20Service.subtractAction(
+        const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                             requestId,
                             [1, 2, 3],
                             {from: payee})
@@ -126,17 +125,17 @@ describe('bitcoin NodesValidation subtract', () => {
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, '-99999', 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 - 2, 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 - 2, 'payee2 ExpectedAmounts is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, '44444', 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 - 3, 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 - 3, 'payee3 ExpectedAmounts is wrong');
     });
 
-    it('pay request with not valid requestId', async () => {
+    it('reduceExpectedAmounts with invalid requestId', async () => {
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                                 '0x00000000000000',
                                 [arbitraryAmount],
                                 {from: payee});
@@ -146,10 +145,10 @@ describe('bitcoin NodesValidation subtract', () => {
         }
     });
 
-    it('pay request with not valid additional (negative)', async () => {
+    it('reduceExpectedAmounts with invalid amount (negative)', async () => {
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                                 requestId,
                                 [-1],
                                 {from: payee});
@@ -159,10 +158,10 @@ describe('bitcoin NodesValidation subtract', () => {
         }
     });
 
-    it('pay request with not valid additional (too high)', async () => {
+    it('reduceExpectedAmounts with invalid amount (too high)', async () => {
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                                 requestId,
                                 [arbitraryAmount + 1],
                                 {from: payee});
@@ -172,7 +171,7 @@ describe('bitcoin NodesValidation subtract', () => {
         }
     });
 
-    it('subtracts request canceled', async () => {
+    it('reduceExpectedAmounts with cancelled request', async () => {
         const req = await rn.requestBitcoinNodesValidationService.createRequestAsPayee(
                     [payee],
                     [arbitraryAmount],
@@ -180,12 +179,12 @@ describe('bitcoin NodesValidation subtract', () => {
                     [payeePaymentNoTxs],
                     [payeeRefundNoTxs]);
 
-        await rn.requestERC20Service.cancel(
+        await rn.requestBitcoinNodesValidationService.cancel(
                                 req.request.requestId,
                                 {from: payer});
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                                 req.request.requestId,
                                 [arbitraryAmount],
                                 {from: payee});
@@ -195,9 +194,9 @@ describe('bitcoin NodesValidation subtract', () => {
         }
     });
 
-    it('subtracts request from otherGuy', async () => {
+    it('reduceExpectedAmounts with request from otherGuy', async () => {
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: randomAddress});
@@ -208,9 +207,9 @@ describe('bitcoin NodesValidation subtract', () => {
     });
 
 
-    it('subtracts too long', async () => {
+    it('reduceExpectedAmounts with invalid amounts (too many amounts)', async () => {
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                                 requestId,
                                 [3, 2, 1, 1],
                                 {from: payee});

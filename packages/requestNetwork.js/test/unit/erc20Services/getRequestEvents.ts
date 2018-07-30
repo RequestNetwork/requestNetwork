@@ -58,7 +58,7 @@ describe('erc20 getRequestEvents', () => {
                     payer);
         currentNumRequest++;
 
-        const resultSubtract = await rn.requestERC20Service.subtractAction(
+        const resultReduce = await rn.requestERC20Service.reduceExpectedAmounts(
                             resultCreateRequestAsPayee.request.requestId,
                             [10, 20, 30],
                             {from: defaultAccount});

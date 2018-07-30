@@ -147,7 +147,7 @@ describe('additionals Action', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('additionals must be positive integers'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts must be positive integers'), 'exception not right');
         }
     });
 
@@ -188,7 +188,7 @@ describe('additionals Action', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals cannot be bigger than _payeesIdAddress'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts can not be bigger than _payeesIdAddress'), 'exception not right');
         }
     });
 });

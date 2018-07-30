@@ -70,7 +70,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
             signature: '0x529c11c91795abdc19bf115bfbeea3e0156afc64d09f059024a898d7c6cd8ed5352f8c57310c8531e1f7cbe0f06f64a017274c27453fc9155c2ae3739d6bcafb00' };
     });
 
-    it('broadcast request as payer no payment no additionals', async function () {
+    it('broadcast request as payer no payment no additions', async function () {
         const result = await rn.requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(signedRequest,
                                                                                             [payeeRefund,payee2Refund,payee3Refund],
                                                                                             undefined,
@@ -111,7 +111,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
         expect(result.request.currencyContract.subPayeesRefundAddress[1], 'subPayeesRefundAddress1 is wrong').to.equal(payee3Refund);
     });
 
-    it('broadcast request as payer with additionals', async function () {
+    it('broadcast request as payer with additions', async function () {
         const result = await rn.requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(signedRequest,
                                                                                             [payeeRefund,payee2Refund,payee3Refund],
                                                                                             [1,2,3],
@@ -172,7 +172,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
         }
     });
 
-    it('broadcast request as payer additionals < 0', async () => {
+    it('broadcast request as payer additions < 0', async () => {
         signedRequest = { currencyContract: '0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F',
                           expectedAmounts: [ '100000000' ],
                           expirationDate: 7952342400000,
@@ -189,7 +189,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positive integers'),'exception not right');
+            utils.expectEqualsException(e, Error('_additions must be positive integers'),'exception not right');
         }
     });
 

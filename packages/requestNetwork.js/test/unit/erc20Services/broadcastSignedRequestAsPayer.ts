@@ -72,7 +72,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
             signature: '0x36353d89ff5cd87f0b0704aed0632b60111d6cc4e76a02255ae1b34f4c6b9e4079933c176d35e6a0d35201cf64f0a187a0b1320589116dfb1162cb5aad84057e1b' };
     });
 
-    it.skip('broadcast request as payer no payment no additionals', async function () {
+    it.skip('broadcast request as payer no payment no additions', async function () {
         const result = await rn.requestERC20Service.broadcastSignedRequestAsPayer(signedRequest)
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -108,7 +108,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         expect(result.request.currencyContract.subPayeesPaymentAddress[1].toLowerCase(), 'payer is wrong').to.equal(payee3PaymentAddress);
     });
 
-    it.skip('broadcast request as payer with payments & additionals', async function () {
+    it.skip('broadcast request as payer with payments & additions', async function () {
         // approve
         await rn.requestERC20Service.approveTokenForSignedRequest(signedRequest, arbitraryAmount+arbitraryAmount2+arbitraryAmount3+6, {from: defaultAccount});
 
@@ -216,7 +216,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
         }
     });
 
-    it('broadcast request as payer additionals < 0', async () => {
+    it('broadcast request as payer additions < 0', async () => {
         signedRequest = { currencyContract: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
                           expectedAmounts: [ '1000' ],
                           expirationDate: 7952342400000,
@@ -232,7 +232,7 @@ describe('erc20 broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positive integers'),'exception not right');
+            utils.expectEqualsException(e, Error('_additions must be positive integers'),'exception not right');
         }
     });
 
