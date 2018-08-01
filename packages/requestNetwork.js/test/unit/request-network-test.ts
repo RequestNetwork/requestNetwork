@@ -208,7 +208,7 @@ describe('Request Network API', () => {
         expect(data.payee.balance.toNumber()).to.equal(9);
     });
 
-    it('can add additional', async () => {
+    it('can increaseExpectedAmounts', async () => {
         const role = Types.Role.Payer;
         const { request } = await requestNetwork.createRequest(
             role,
@@ -222,12 +222,12 @@ describe('Request Network API', () => {
         let requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount);
         
-        await request.addAdditionals([15], { from: examplePayer.idAddress });
+        await request.increaseExpectedAmounts([15], { from: examplePayer.idAddress });
         requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount + 15);
     });
 
-    it('can add substract', async () => {
+    it('can reduceExpectedAmounts', async () => {
         const role = Types.Role.Payee;
         const { request } = await requestNetwork.createRequest(
             role,
@@ -241,7 +241,7 @@ describe('Request Network API', () => {
         let requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount);
         
-        await request.addSubtractions([15]);
+        await request.reduceExpectedAmounts([15]);
         requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount - 15);
     });

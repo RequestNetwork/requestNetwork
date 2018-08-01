@@ -2,7 +2,6 @@ import {expect} from 'chai';
 import 'mocha';
 import requestArtifacts from 'requestnetworkartifacts';
 import RequestNetwork from '../../../src/index';
-import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import * as utils from '../../utils';
 import BitcoinServiceTest from './bitcoin-service-mock';
 
@@ -40,13 +39,13 @@ const arbitraryAmount = 100000000;
 const arbitraryAmount2 = 2000000;
 const arbitraryAmount3 = 300000;
 
-describe('bitcoin NodesValidation subtract', () => {
+describe('bitcoin NodesValidation additional', () => {
     beforeEach(async () => {
         rn = new RequestNetwork('http://localhost:8545', 10000000000, false);
         web3 = rn.requestBitcoinNodesValidationService.web3Single.web3;
         BitcoinServiceTest.init();
         rn.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
-    
+
         const accounts = await web3.eth.getAccounts();
         payee = accounts[0].toLowerCase();
         randomAddress = accounts[1].toLowerCase();
@@ -68,17 +67,16 @@ describe('bitcoin NodesValidation subtract', () => {
 
         requestId = req.request.requestId;
     });
-
-    it('subtracts request', async () => {
-        const result = await rn.requestERC20Service.subtractAction(
+    it('increaseExpectedAmounts request', async () => {
+        const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                             requestId,
                             [1, 2, 3],
-                            {from: payee})
+                            {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount - 1, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount + 1, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, '111111', 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -89,30 +87,30 @@ describe('bitcoin NodesValidation subtract', () => {
         expect(result.request.state, 'state is wrong').to.equal(0);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestBitcoinNodesValidation.toLowerCase());
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
+
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, '-99999', 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2-2, 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 + 2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, '44444', 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3-3, 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 + 3, 'payee3 expectedAmount is wrong');
     });
 
-
-    it('subtracts accepted request', async () => {
-        await rn.requestERC20Service.accept(
+    it('increaseExpectedAmounts accepted request', async () => {
+        await rn.requestBitcoinNodesValidationService.accept(
                                 requestId,
                                 {from: payer});
 
-        const result = await rn.requestERC20Service.subtractAction(
+        const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                             requestId,
                             [1, 2, 3],
-                            {from: payee})
+                            {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount - 1, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount + 1, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, '111111', 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -126,53 +124,40 @@ describe('bitcoin NodesValidation subtract', () => {
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, '-99999', 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 - 2, 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 + 2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, '44444', 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 - 3, 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 + 3, 'payee3 expectedAmount is wrong');
     });
 
-    it('pay request with not valid requestId', async () => {
+    it('pay request with invalid requestId', async () => {
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                                 '0x00000000000000',
                                 [arbitraryAmount],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
             utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'), 'exception not right');
         }
     });
 
-    it('pay request with not valid additional (negative)', async () => {
+    it('pay request with invalid additional (negative)', async () => {
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                                 requestId,
                                 [-1],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('amounts must be positive integers'), 'exception not right');
         }
     });
 
-    it('pay request with not valid additional (too high)', async () => {
-
-        try {
-            const result = await rn.requestERC20Service.subtractAction(
-                                requestId,
-                                [arbitraryAmount + 1],
-                                {from: payee});
-            expect(false, 'exception not thrown').to.be.true;
-        } catch (e) {
-            utils.expectEqualsException(e, Error('amounts must be lower than expected amounts'), 'exception not right');
-        }
-    });
-
-    it('subtracts request canceled', async () => {
+    it('increaseExpectedAmounts request canceled', async () => {
         const req = await rn.requestBitcoinNodesValidationService.createRequestAsPayee(
                     [payee],
                     [arbitraryAmount],
@@ -180,40 +165,39 @@ describe('bitcoin NodesValidation subtract', () => {
                     [payeePaymentNoTxs],
                     [payeeRefundNoTxs]);
 
-        await rn.requestERC20Service.cancel(
+        await rn.requestBitcoinNodesValidationService.cancel(
                                 req.request.requestId,
                                 {from: payer});
 
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                                 req.request.requestId,
                                 [arbitraryAmount],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('request must be accepted or created'), 'exception not right');
         }
     });
 
-    it('subtracts request from otherGuy', async () => {
+    it('increaseExpectedAmounts request from otherGuy', async () => {
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: randomAddress});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('account must be payee'), 'exception not right');
+            utils.expectEqualsException(e, Error('account must be payer'), 'exception not right');
         }
     });
 
-
-    it('subtracts too long', async () => {
+    it('increaseExpectedAmounts too long', async () => {
         try {
-            const result = await rn.requestERC20Service.subtractAction(
+            const result = await rn.requestBitcoinNodesValidationService.increaseExpectedAmounts(
                                 requestId,
                                 [3, 2, 1, 1],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('amounts can not be bigger than _payeesIdAddress'), 'exception not right');

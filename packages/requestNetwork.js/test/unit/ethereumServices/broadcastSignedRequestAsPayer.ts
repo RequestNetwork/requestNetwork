@@ -64,7 +64,7 @@ describe('broadcastSignedRequestAsPayer', () => {
                 signature: '0xb622372207416d5d377888d3756d5a866a03825f44a692eef2a064b2659a062d3c0ff3aafce4cba4ef37df92cee5f9e8e4bfdbd3fcad74aa2994ebe8c2bd24171c' }
     });
 
-    it('broadcast request as payer no payment no additionals', async () => {
+    it('broadcast request as payer no payment no additions', async () => {
         const result = await rn.requestEthereumService.broadcastSignedRequestAsPayer(signedRequest)
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
@@ -101,7 +101,7 @@ describe('broadcastSignedRequestAsPayer', () => {
     });
 
 
-    it('broadcast request as payer with payments & additionals', async () => {
+    it('broadcast request as payer with payments & additions', async () => {
         const result = await rn.requestEthereumService.broadcastSignedRequestAsPayer(
                 signedRequest,
                 [arbitraryAmount+3,arbitraryAmount2+2,arbitraryAmount3+1],
@@ -212,7 +212,7 @@ describe('broadcastSignedRequestAsPayer', () => {
         }
     });
 
-    it('broadcast request as payer additionals < 0', async () => {
+    it('broadcast request as payer additions < 0', async () => {
         signedRequest = { 
             currencyContract: '0xf12b5dd4ead5f743c6baa640b0216200e89b60da',
             expectedAmounts: [ arbitraryAmount ],
@@ -229,7 +229,7 @@ describe('broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positive integers'),'exception not right');
+            utils.expectEqualsException(e, Error('_additions must be positive integers'),'exception not right');
         }
     });
 

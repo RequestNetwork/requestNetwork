@@ -25,7 +25,7 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('subtracts Action', () => {
+describe('increaseExpectedAmounts Action', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
@@ -60,16 +60,16 @@ describe('subtracts Action', () => {
         requestId = req.request.requestId;
     });
 
-    it('subtracts request', async () => {
-        const result = await rn.requestEthereumService.subtractAction(
+    it('increaseExpectedAmounts request', async () => {
+        const result = await rn.requestEthereumService.increaseExpectedAmounts(
                             requestId,
                             [1, 2, 3],
-                            {from: payee})
+                            {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount - 1, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount + 1, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -83,28 +83,28 @@ describe('subtracts Action', () => {
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, 0, 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2-2, 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 + 2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, 0, 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3-3, 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 + 3, 'payee3 expectedAmount is wrong');
     });
 
 
-    it('subtracts accepted request', async () => {
+    it('increaseExpectedAmounts accepted request', async () => {
         await rn.requestEthereumService.accept(
                                 requestId,
                                 {from: payer});
 
-        const result = await rn.requestEthereumService.subtractAction(
+        const result = await rn.requestEthereumService.increaseExpectedAmounts(
                             requestId,
                             [1, 2, 3],
-                            {from: payee})
+                            {from: payer})
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
 
-        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount - 1, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount + 1, 'expectedAmount is wrong');
         utils.expectEqualsBN(result.request.payee.balance, 0, 'balance is wrong');
         expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
         expect(result.request.extension, 'extension is wrong').to.be.undefined;
@@ -118,87 +118,74 @@ describe('subtracts Action', () => {
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
         utils.expectEqualsBN(result.request.subPayees[0].balance, 0, 'payee2 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 - 2, 'payee2 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2 + 2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
         utils.expectEqualsBN(result.request.subPayees[1].balance, 0, 'payee3 balance is wrong');
-        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 - 3, 'payee3 expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3 + 3, 'payee3 expectedAmount is wrong');
     });
 
-    it('pay request with not valid requestId', async () => {
+    it('increaseExpectedAmounts with invalid requestId', async () => {
 
         try {
-            const result = await rn.requestEthereumService.subtractAction(
+            const result = await rn.requestEthereumService.increaseExpectedAmounts(
                                 '0x00000000000000',
                                 [arbitraryAmount],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
             utils.expectEqualsException(e, Error('_requestId must be a 32 bytes hex string'), 'exception not right');
         }
     });
 
-    it('pay request with not valid additional (negative)', async () => {
+    it('increaseExpectedAmounts with invalid amounts (negative)', async () => {
 
         try {
-            const result = await rn.requestEthereumService.subtractAction(
+            const result = await rn.requestEthereumService.increaseExpectedAmounts(
                                 requestId,
                                 [-1],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('amounts must be positive integers'), 'exception not right');
         }
     });
 
-    it('pay request with not valid additional (too high)', async () => {
-
-        try {
-            const result = await rn.requestEthereumService.subtractAction(
-                                requestId,
-                                [arbitraryAmount + 1],
-                                {from: payee});
-            expect(false, 'exception not thrown').to.be.true;
-        } catch (e) {
-            utils.expectEqualsException(e, Error('amounts must be lower than expected amounts'), 'exception not right');
-        }
-    });
-
-    it('subtracts request canceled', async () => {
+    it('increaseExpectedAmounts request canceled', async () => {
         await rn.requestEthereumService.cancel(
                                 requestId,
                                 {from: payer});
 
         try {
-            const result = await rn.requestEthereumService.subtractAction(
+            const result = await rn.requestEthereumService.increaseExpectedAmounts(
                                 requestId,
                                 [arbitraryAmount],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('request must be accepted or created'), 'exception not right');
         }
     });
 
-    it('subtracts request from otherGuy', async () => {
+    it('increaseExpectedAmounts request from otherGuy', async () => {
         try {
-            const result = await rn.requestEthereumService.subtractAction(
+            const result = await rn.requestEthereumService.increaseExpectedAmounts(
                                 requestId,
                                 [arbitraryAmount],
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('account must be payee'), 'exception not right');
+            utils.expectEqualsException(e, Error('account must be payer'), 'exception not right');
         }
     });
 
 
-    it('subtracts too long', async () => {
+    it('increaseExpectedAmounts too long', async () => {
         try {
-            const result = await rn.requestEthereumService.subtractAction(
+            const result = await rn.requestEthereumService.increaseExpectedAmounts(
                                 requestId,
                                 [3, 2, 1, 1],
-                                {from: payee});
+                                {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
             utils.expectEqualsException(e, Error('amounts can not be bigger than _payeesIdAddress'), 'exception not right');

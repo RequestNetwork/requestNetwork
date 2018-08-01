@@ -27,7 +27,7 @@ let currentNumRequest: any;
 
 let requestId: any;
 
-describe('erc20 additionals Action', () => {
+describe('erc20 increaseExpectedAmounts', () => {
     const arbitraryAmount = 100000000;
     const arbitraryAmount2 = 2000000;
     const arbitraryAmount3 = 300000;
@@ -149,7 +149,7 @@ describe('erc20 additionals Action', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('additionals must be positive integers'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts must be positive integers'), 'exception not right');
         }
     });
 
@@ -189,7 +189,7 @@ describe('erc20 additionals Action', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals cannot be bigger than _payeesIdAddress'), 'exception not right');
+            utils.expectEqualsException(e, Error('amounts can not be bigger than _payeesIdAddress'), 'exception not right');
         }
     });
 });
