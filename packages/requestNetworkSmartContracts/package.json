@@ -14,6 +14,7 @@
   "scripts": {
     "clean": "rimraf -rf ./build ./export",
     "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "lint": "solium --dir contracts",
     "test": "truffle test",
     "build": "npm run clean && truffle compile && node exportArtifacts",
     "docs:init": "doxity init",
@@ -21,13 +22,13 @@
   },
   "devDependencies": {
     "@digix/doxity": "git+https://git@github.com/romaric-juniet/doxity.git#b829fd5b14d7e9e830b72096ca9c336b1bc1ed44",
-    "bignumber.js": "^5.0.0",
-    "bluebird": "^3.5.1",
-    "ethereumjs-util": "^5.1.5",
-    "rimraf": "^2.6.2",
-    "truffle": "^4.0.5",
-    "truffle-hdwallet-provider": "0.0.3",
-    "web3-eth-abi": "1.0.0-beta.30"
+    "bignumber.js": "5.0.0",
+    "bluebird": "3.5.1",
+    "ethereumjs-util": "5.2.0",
+    "rimraf": "2.6.2",
+    "truffle": "4.1.11",
+    "truffle-hdwallet-provider": "0.0.5",
+    "web3-eth-abi": "1.0.0-beta.34"
   },
   "private": true
 }

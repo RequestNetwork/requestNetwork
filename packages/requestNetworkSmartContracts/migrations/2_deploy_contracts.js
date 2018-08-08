@@ -12,13 +12,17 @@ const maxFees = web3.toWei(0.002, 'ether');
 
 // Deploys, set up the contracts
 module.exports = async function(deployer) {
-  await deployer.deploy(RequestCore);
-  await deployer.deploy(RequestEthereum, RequestCore.address, addressContractBurner);
-  const instances = await createInstances();
-  await setupContracts(instances);
-  await checks(instances);
-  
-  console.log('Contract deployed, checks complete');
+    try {
+        await deployer.deploy(RequestCore);
+        await deployer.deploy(RequestEthereum, RequestCore.address, addressContractBurner);
+        const instances = await createInstances();
+        await setupContracts(instances);
+        await checks(instances);
+        console.log('Contract deployed, checks complete');
+    }
+    catch(e) {
+        console.error(e);
+    }  
 };
 
 function createInstances() {
@@ -31,7 +35,7 @@ function createInstances() {
 function setupContracts({ ethereum: ethereumInstance, core: coreInstance }) {
   return Promise.all([
     coreInstance.adminAddTrustedCurrencyContract(ethereumInstance.address),
-    ethereumInstance.setFeesPerTenThousand(feesPerTenThousand),
+    ethereumInstance.setRateFees(feesPerTenThousand, 10000),
     ethereumInstance.setMaxCollectable(maxFees),
   ]);
 }
@@ -43,8 +47,8 @@ function checks({ ethereum: ethereumInstance, core: coreInstance }) {
       assert(status.toNumber() === 1, 'Ethereum contract should be trusted in Core')
     }),
 
-    ethereumInstance.feesPer10000.call().then(feesPer10000fromContract => {
-      assert(feesPer10000fromContract.toNumber() === feesPerTenThousand, `Ethereum contract fees should be ${feesPerTenThousand}`)
+    ethereumInstance.rateFeesNumerator.call().then(rateFeesNumeratorfromContract => {
+      assert(rateFeesNumeratorfromContract.toNumber() === feesPerTenThousand, `Ethereum contract fees should be ${feesPerTenThousand}`)
     }),
 
     ethereumInstance.maxFees.call().then(maxFeesFromContract => {

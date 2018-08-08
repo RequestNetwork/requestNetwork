@@ -85,20 +85,20 @@ export default class Request {
      * Pay a Request
      *
      * @param {Types.Amount[]} [amountsToPay=[]] Amounts to pay. Ordered array, with an item for each payee
-     * @param {Types.Amount[]} [additionals=[]] Additionals to add. Ordered array, with an item for each payee
+     * @param {Types.Amount[]} [additions=[]] Additiona payment amounts. Ordered array, with an item for each payee
      * @param {Types.ITransactionOptions} [transactionOptions={}] Ethereum transaction options
      * @returns {PromiseEventEmitter<{request: Request, transaction: any}>} A promiEvent resolving to {request,transaction} and emitting the event 'broadcasted'
      */
     public pay(
         amountsToPay: Types.Amount[] = [],
-        additionals: Types.Amount[] = [],
+        additions: Types.Amount[] = [],
         transactionOptions: Types.ITransactionOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
         return promiEventLibraryWrap(this, () =>
             this.requestService.paymentAction(
                 this.requestId,
                 amountsToPay,
-                additionals,
+                additions,
                 transactionOptions,
             ),
         );
@@ -161,6 +161,7 @@ export default class Request {
     /**
      * Add a subtraction (for example, a discount)
      *
+     * @deprecated
      * @param {Types.Amount[]} [amounts=[]] Amounts to subtract. Ordered array, with an item for each payee
      * @param {Types.ITransactionOptions} [transactionOptions={}] Ethereum transaction options
      * @returns {PromiseEventEmitter<{request: Request, transaction: any}>} A promiEvent resolving to {request,transaction} and emitting the event 'broadcasted'
@@ -169,8 +170,24 @@ export default class Request {
         amounts: Types.Amount[],
         transactionOptions: Types.ITransactionOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
+        console.warn('Deprecated. See reduceExpectedAmounts');
+        return this.reduceExpectedAmounts(amounts, transactionOptions)
+    }
+
+    /**
+     * Reduce the amount due to each payee. This can be called by the payee e.g. to apply discounts or
+     * special offers.
+     *
+     * @param {Types.Amount[]} [amounts=[]] Reduction amounts for each payee. Ordered array, with an item for each payee
+     * @param {Types.ITransactionOptions} [transactionOptions={}] Ethereum transaction options
+     * @returns {PromiseEventEmitter<{request: Request, transaction: any}>} A promiEvent resolving to {request,transaction} and emitting the event 'broadcasted'
+     */
+    public reduceExpectedAmounts(
+        amounts: Types.Amount[],
+        transactionOptions: Types.ITransactionOptions = {},
+    ): PromiseEventEmitter<{request: Request, transaction: any}> {
         return promiEventLibraryWrap(this, () =>
-            this.requestService.subtractAction(
+            this.requestService.reduceExpectedAmounts(
                 this.requestId,
                 amounts,
                 transactionOptions,
@@ -181,11 +198,28 @@ export default class Request {
     /**
      * Add an additional (for example, a tip)
      *
+     * @deprecated('Renamed to increaseExpectedAmounts')
      * @param {Types.Amount[]} [amounts=[]] Amounts to add. Ordered array, with an item for each payee
      * @param {Types.ITransactionOptions} [transactionOptions={}] Ethereum transaction options
      * @returns {PromiseEventEmitter<{request: Request, transaction: any}>} A promiEvent resolving to {request,transaction} and emitting the event 'broadcasted'
      */
     public addAdditionals(
+        amounts: Types.Amount[],
+        transactionOptions: Types.ITransactionOptions = {},
+    ): PromiseEventEmitter<{request: Request, transaction: any}> {
+        console.warn('Deprecated. See increaseExpectedAmounts');
+        return this.increaseExpectedAmounts(amounts, transactionOptions)
+    }
+
+    /**
+     * Increase the amount due to each payee. This can be called by the payer e.g. to add extra
+     * payments to the Request for tips or bonuses.
+     *
+     * @param {Types.Amount[]} [amounts=[]] Amounts to add. Ordered array, with an item for each payee
+     * @param {Types.ITransactionOptions} [transactionOptions={}] Ethereum transaction options
+     * @returns {PromiseEventEmitter<{request: Request, transaction: any}>} A promiEvent resolving to {request,transaction} and emitting the event 'broadcasted'
+     */
+    public increaseExpectedAmounts(
         amounts: Types.Amount[],
         transactionOptions: Types.ITransactionOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
