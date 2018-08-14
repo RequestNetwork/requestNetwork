@@ -116,7 +116,8 @@
                     "name",
                     "quantity",
                     "unitPrice",
-                    "taxPercent"
+                    "taxPercent",
+                    "currency"
                 ],
                 "properties": {
                     "name": {
@@ -139,8 +140,13 @@
                     "taxPercent": {
                         "type": "number"
                     },
+                    "currency": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3
+                    },
                     "deliveryDate": {
-                        "type": "string", 
+                        "type": "string",
                         "format": "date-time"
                     },
                     "deliveryPeriod": {

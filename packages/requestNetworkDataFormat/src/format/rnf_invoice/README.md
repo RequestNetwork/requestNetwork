@@ -71,6 +71,7 @@
 | unitPrice | number | Mandatory | unit price (minimum 0) |
 | discount | number | Optional | price of the discount |
 | taxPercent | number | Mandatory | taxation percentage of the item |
+| currency | string | Mandatory | ISO 4217 currency code |
 | deliveryDate | date-time | Optional | expected delivery date |
 | deliveryPeriod | string | Optional | period of delivery if the item is a service |
 
