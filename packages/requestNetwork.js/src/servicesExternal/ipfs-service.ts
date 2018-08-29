@@ -10,11 +10,13 @@ const ipfsAPI = require('ipfs-api');
  */
 export default class Ipfs {
     /**
-     * Initialized the class Web3Single
-     * @param   _publicIpfs    _publicIpfs   if true, use the public node otherwise a private one
+     * Initialized the class ipfs
+     * @param   _ipfsNode   if boolean and true, use the default public node if false the default private one
+     *                        if an object must contains: {host, port, protocol}
+     *                        NOTE: This weird object (object | boolean) is a hotfix waiting for a better configuration management
      */
-    public static init(_publicIpfs: boolean = true) {
-        this._instance = new this(_publicIpfs);
+    public static init(_ipfsNode: any) {
+        this._instance = new this(_ipfsNode);
     }
 
     /**
@@ -30,10 +32,20 @@ export default class Ipfs {
     public ipfs: any;
     /**
      * Private constructor to Instantiates a new Ipfs
-     * @param   _publicIpfs   if true, use the public node otherwise a private one
+     * @param   _ipfsNode   if boolean and true, use the default public node if false the default private one
+     *                        if an object must contains: {host, port, protocol}
+     *                        NOTE: This weird object (object | boolean) is a hotfix waiting for a better configuration management
      */
-    private constructor(_publicIpfs: boolean) {
-        const ipfsConfig = config.ipfs.nodeUrlDefault[_publicIpfs ? 'public' : 'private'];
+    private constructor(_ipfsNode: any) {
+        let ipfsConfig;
+        if (typeof _ipfsNode === 'boolean' || typeof _ipfsNode === 'undefined') {
+            ipfsConfig = config.ipfs.nodeUrlDefault[_ipfsNode ? 'public' : 'private'];
+        } else if (_ipfsNode.host && _ipfsNode.port && _ipfsNode.protocol) {
+            ipfsConfig = _ipfsNode;
+        } else {
+            throw new Error('_ipfsNode must be a boolean or an oject {host, port, protocol}');
+        }
+
         this.ipfs = ipfsAPI(ipfsConfig.host,
                             ipfsConfig.port,
                             {protocol: ipfsConfig.protocol});

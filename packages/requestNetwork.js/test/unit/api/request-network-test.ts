@@ -1,9 +1,9 @@
-import RequestNetwork, {Request, SignedRequest, Types, utils } from '../../src/index';
-import Erc20Service from '../../src/servicesExternal/erc20-service';
-import currencyUtils from '../../src/utils/currency';
+import RequestNetwork, {Request, SignedRequest, Types, utils } from '../../../src/index';
+import Erc20Service from '../../../src/servicesExternal/erc20-service';
+import currencyUtils from '../../../src/utils/currency';
 const Web3 = require('web3');
 const BigNumber = require('bn.js');
-import BitcoinServiceTest from './bitcoinNodesValidationServices/bitcoin-service-mock';
+import BitcoinServiceTest from '../bitcoinNodesValidationServices/bitcoin-service-mock';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -40,6 +40,35 @@ describe('Request Network API', () => {
         
         BitcoinServiceTest.init();
         requestNetwork.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
+    });
+    
+    it('can accept custom ipfs node', async () => {
+       const requestNetwork = new RequestNetwork({
+           ipfsCustomNode: {
+                host: "localhost", 
+                port: "5001", 
+                protocol: "http",
+            },
+            provider: 'http://localhost:8545',
+            ethNetworkId: 10000000000
+       });
+    });
+
+
+    it('cannot accept custom ipfs node with parameter missing', async () => {
+        try {
+            const requestNetwork = new RequestNetwork({
+               ipfsCustomNode: {
+                    host: "localhost", 
+                    port: "5001",
+                },
+                provider: 'http://localhost:8545',
+                ethNetworkId: 10000000000
+            });
+            expect.fail();
+        } catch (error) {
+            expect(error).to.exist;
+        }
     });
 
     it('can be created with default parameters', async () => {
@@ -398,7 +427,7 @@ describe('Request Network API', () => {
         expect(events[0].data.payee).to.equal(examplePayees[0].idAddress);
     });
 
-    it.skip('creates a ERC20 request from payee and pay it', async () => {
+    it('creates a ERC20 request from payee and pay it', async () => {
         const role = Types.Role.Payee;
         const { request } = await requestNetwork.createRequest(
             role,
