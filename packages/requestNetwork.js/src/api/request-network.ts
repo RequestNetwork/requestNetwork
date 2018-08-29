@@ -65,10 +65,13 @@ export default class RequestNetwork {
      * @param {number=} options.ethNetworkId - the Ethereum network ID.
      * @param {boolean=} options.useIpfsPublic - use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise (default : true)
      * @param {number=} options.bitcoinNetworkId - the bitcoin network ID
+     * @param {object=} options.ipfsCustomNode - define a custom ipfs node like {host, port, protocol}, if given with useIpfsPublic will throw an error
      * @memberof RequestNetwork
      */
-    constructor(options?: { provider?: any, ethNetworkId?: number, useIpfsPublic?: boolean, bitcoinNetworkId?: number} | any, ethNetworkId?: number, useIpfsPublic?: boolean) {
+    constructor(options?: { provider?: any, ethNetworkId?: number, useIpfsPublic?: boolean, bitcoinNetworkId?: number, ipfsCustomNode?: object} | any, ethNetworkId?: number, useIpfsPublic?: boolean) {
         let bitcoinNetworkId;
+        let ipfsNode;
+
         // Parameter handling
         let provider = options;
         if (options && (options.provider || options.ethNetworkId || options.useIpfsPublic || options.bitcoinNetworkId)) {
@@ -77,9 +80,17 @@ export default class RequestNetwork {
             useIpfsPublic = options.useIpfsPublic;
             bitcoinNetworkId = options.bitcoinNetworkId;
         }
-        if (typeof useIpfsPublic === 'undefined') {
-            useIpfsPublic = true;
+
+        if (options && options.ipfsCustomNode) {
+            if(typeof useIpfsPublic !== 'undefined') {
+                throw new Error('options.ipfsCustomNode is given with useIpfsPublic');
+            }
+            ipfsNode = options.ipfsCustomNode;
+        } else if (typeof useIpfsPublic === 'undefined') {
+            // default configuration is default public node
+            ipfsNode = true;
         }
+
         if (provider && ! ethNetworkId) {
             throw new Error('if you give provider you have to give the networkId too');
         }
@@ -91,7 +102,7 @@ export default class RequestNetwork {
         BitcoinService.init(bitcoinNetworkId);
 
         // init ipfs wrapper singleton
-        Ipfs.init(useIpfsPublic);
+        Ipfs.init(ipfsNode);
 
         // Initialize the services
         RequestCoreService.destroy();
