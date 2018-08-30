@@ -70,7 +70,6 @@ export default class RequestNetwork {
      */
     constructor(options?: { provider?: any, ethNetworkId?: number, useIpfsPublic?: boolean, bitcoinNetworkId?: number, ipfsCustomNode?: object} | any, ethNetworkId?: number, useIpfsPublic?: boolean) {
         let bitcoinNetworkId;
-        let ipfsNode;
 
         // Parameter handling
         let provider = options;
@@ -81,12 +80,15 @@ export default class RequestNetwork {
             bitcoinNetworkId = options.bitcoinNetworkId;
         }
 
+        // old school way to get ipfs config
+        let ipfsNode = useIpfsPublic;
+
         if (options && options.ipfsCustomNode) {
-            if(typeof useIpfsPublic !== 'undefined') {
+            if(typeof ipfsNode !== 'undefined') {
                 throw new Error('options.ipfsCustomNode is given with useIpfsPublic');
             }
             ipfsNode = options.ipfsCustomNode;
-        } else if (typeof useIpfsPublic === 'undefined') {
+        } else if (typeof ipfsNode === 'undefined') {
             // default configuration is default public node
             ipfsNode = true;
         }

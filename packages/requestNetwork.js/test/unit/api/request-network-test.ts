@@ -42,18 +42,46 @@ describe('Request Network API', () => {
         requestNetwork.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
     });
     
+
     it('can accept custom ipfs node', async () => {
        const requestNetwork = new RequestNetwork({
            ipfsCustomNode: {
-                host: "localhost", 
+                host: "myipfsgateway.com", 
                 port: "5001", 
-                protocol: "http",
+                protocol: "https",
             },
             provider: 'http://localhost:8545',
             ethNetworkId: 10000000000
        });
+       const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
+       expect(ipfsConfig.host).to.be.equal("myipfsgateway.com");
+       expect(ipfsConfig.protocol).to.be.equal("https");
+       expect(ipfsConfig.port).to.be.equal("5001");
     });
 
+    it('can work with useIpfsPublic = false', async () => {
+       const requestNetwork = new RequestNetwork({
+            useIpfsPublic: false,
+            provider: 'http://localhost:8545',
+            ethNetworkId: 10000000000
+       });
+       const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
+       expect(ipfsConfig.host).to.be.equal("localhost");
+       expect(ipfsConfig.protocol).to.be.equal("http");
+       expect(ipfsConfig.port).to.be.equal("5001");
+    });
+
+    it('can work with useIpfsPublic = true', async () => {
+       const requestNetwork = new RequestNetwork({
+            useIpfsPublic: true,
+            provider: 'http://localhost:8545',
+            ethNetworkId: 10000000000
+       });
+       const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
+       expect(ipfsConfig.host).to.be.equal("ipfs.infura.io");
+       expect(ipfsConfig.protocol).to.be.equal("https");
+       expect(ipfsConfig.port).to.be.equal("5001");
+    });
 
     it('cannot accept custom ipfs node with parameter missing', async () => {
         try {
