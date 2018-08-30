@@ -15,7 +15,7 @@ export default class Ipfs {
      *                        if an object must contains: {host, port, protocol}
      *                        NOTE: This weird object (object | boolean) is a hotfix waiting for a better configuration management
      */
-    public static init(_ipfsNode: any) {
+    public static init(_ipfsNode: any = true) {
         this._instance = new this(_ipfsNode);
     }
 
@@ -30,25 +30,25 @@ export default class Ipfs {
     private static _instance: Ipfs;
 
     public ipfs: any;
+    public ipfsConfig: any;
     /**
      * Private constructor to Instantiates a new Ipfs
      * @param   _ipfsNode   if boolean and true, use the default public node if false the default private one
      *                        if an object must contains: {host, port, protocol}
      *                        NOTE: This weird object (object | boolean) is a hotfix waiting for a better configuration management
      */
-    private constructor(_ipfsNode: any) {
-        let ipfsConfig;
-        if (typeof _ipfsNode === 'boolean' || typeof _ipfsNode === 'undefined') {
-            ipfsConfig = config.ipfs.nodeUrlDefault[_ipfsNode ? 'public' : 'private'];
-        } else if (_ipfsNode.host && _ipfsNode.port && _ipfsNode.protocol) {
-            ipfsConfig = _ipfsNode;
+    private constructor(_ipfsNode: any = true) {
+        if (typeof _ipfsNode === 'boolean') {
+            this.ipfsConfig = config.ipfs.nodeUrlDefault[_ipfsNode ? 'public' : 'private'];
+        } else if (_ipfsNode && _ipfsNode.host && _ipfsNode.port && _ipfsNode.protocol) {
+            this.ipfsConfig = _ipfsNode;
         } else {
             throw new Error('_ipfsNode must be a boolean or an oject {host, port, protocol}');
         }
 
-        this.ipfs = ipfsAPI(ipfsConfig.host,
-                            ipfsConfig.port,
-                            {protocol: ipfsConfig.protocol});
+        this.ipfs = ipfsAPI(this.ipfsConfig.host,
+                            this.ipfsConfig.port,
+                            {protocol: this.ipfsConfig.protocol});
     }
 
     /**
