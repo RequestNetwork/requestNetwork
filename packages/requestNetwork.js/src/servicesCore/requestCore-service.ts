@@ -115,6 +115,12 @@ export default class RequestCoreService {
                     filter: {requestId: _requestId},
                     fromBlock: coreContract.blockNumber,
                     toBlock: 'latest'});
+
+                // this is not supposed to happen
+                if ( !eventCoreRaw || eventCoreRaw.length === 0 ) {
+                    return reject(Error('Impossible to get the past events of the request!'));
+                }
+
                 const creator = eventCoreRaw[0].returnValues.creator;
                 const data = eventCoreRaw[0].returnValues.data;
 
