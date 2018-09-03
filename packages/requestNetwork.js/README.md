@@ -691,7 +691,7 @@ emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction
 * @param   `_expectedAmounts`           amount initial expected per payees for the request
 * @param   `_payer`                     address of the payer
 * @param   `_payeesPaymentAddress`      Bitcoin payment addresses of the payees (the position 0 will be the main payee)
-* @param   `_payerRefundAddress`        Bitcoin refund addresses of the payer (the position 0 will be the main payee)
+* @param   `_payerRefundAddress`        Bitcoin refund addresses of the payer - optional (the position 0 will be the main payee)
 * @param   `_data`                      Json of the request's details (optional)
 * @param   `_extension`                 address of the extension contract of the request (optional) NOT USED YET
 * @param   `_extensionParams`           array of parameters for the extension (optional) NOT USED YET
@@ -726,7 +726,7 @@ broadcastSignedRequestAsPayer(_signedRequest: any, _additions ?: any[], _options
 Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
 
 * @param   `_signedRequest`         object signed request
-* @param   `_payeesRefundAddress`   Bitcoin refund addresses of the payer (the position 0 will be the main payee)
+* @param   `_payeesRefundAddress`   Bitcoin refund addresses of the payer - optional (the position 0 will be the main payee)
 * @param   `_additions`             additional payment amounts in wei for each payee (optional)
 * @param   `_options`               options for the method (gasPrice, gas, value, from, numberOfConfirmation)
 * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
@@ -818,6 +818,20 @@ The payments are made direclty on the bitcoin blockchain
 ### Refund a request    
 
 The refunds are made direclty on the bitcoin blockchain
+
+
+### add the refund adresses (only for the payer)
+
+```js
+ public addPayerRefundAddressAction( _requestId: string, _payerRefundAddress: string[], _options ?: any)
+```
+
+Emit the event `'broadcasted'` with `{transaction: {hash}}` when the transaction is submitted.
+
+* @param   `_requestId`             ID of the Request
+* @param   `_payeesRefundAddress`   Bitcoin refund addresses of the payer (the position 0 will be the main payee)
+* @param   `_options`               options for the method (`gasPrice`, `gas`, `value`, `from`, `numberOfConfirmation`)
+* @return  promise of the object containing the request and the transaction hash (`{request, transaction}`)
 
 
 ### Reduce the Request amounts (only for the payee)

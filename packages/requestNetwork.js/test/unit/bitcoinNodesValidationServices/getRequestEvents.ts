@@ -66,14 +66,20 @@ describe('bitcoin NodesValidation getRequestEvents', () => {
                     [payee, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer,
-                    [payeePayment,payee2Payment,payee3Payment],
-                    [payeeRefund,payee2Refund,payee3Refund]);
+                    [payeePayment,payee2Payment,payee3Payment]);
+
         currentNumRequest++;
 
         const resultReduce = await rn.requestBitcoinNodesValidationService.reduceExpectedAmounts(
                             resultCreateRequestAsPayee.request.requestId,
                             [10, 20, 30],
                             {from: defaultAccount});
+
+
+        const result = await rn.requestBitcoinNodesValidationService.addPayerRefundAddressAction(
+                                resultCreateRequestAsPayee.request.requestId,
+                                [payeeRefund,payee2Refund,payee3Refund],
+                                {from: payer})
 
         const events: any = await rn.requestCoreService.getRequestEvents(resultCreateRequestAsPayee.request.requestId);
 
@@ -122,6 +128,8 @@ describe('bitcoin NodesValidation getRequestEvents', () => {
         expect(events[8].data.deltaAmount, 'payee is wrong').to.equal('-30');
         expect(events[8].data.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, currentNumRequest));
 
+        expect(events[9].name, 'name events is wrong').to.equal('RefundAddressAdded');
+        expect(events[9].data.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, currentNumRequest));
     });
 });
 

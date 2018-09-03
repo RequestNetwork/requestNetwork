@@ -173,6 +173,73 @@ contract('RequestBitcoinNodesValidation broadcastSignedRequestAsPayerAction',  f
         assert.equal(r,payee2Refund,"wrong payee2Refund");
     });
 
+
+    it("can broadcast request without refund address", async function () {
+        var payees = [payee, payee2];
+        var payeesPayment = [payeePayment, payee2Payment];
+        var expectedAmounts = [arbitraryAmount, arbitraryAmount2];
+        var payeesRefund = [];
+        var additionals = [arbitraryAmount10percent];
+        var data = "";
+
+        var hash = hashRequest(requestBitcoinNodesValidation.address, payees, expectedAmounts, payeesPayment, 0, data, timeExpiration);
+        var signature = await signHashRequest(hash,payee);
+
+        
+        var r = await requestBitcoinNodesValidation.broadcastSignedRequestAsPayerAction(
+                        createBytesRequest(payees, expectedAmounts, 0, data),
+                        utils.createBytesForPaymentBitcoinAddress(payeesPayment),
+                        utils.createBytesForPaymentBitcoinAddress(payeesRefund),
+                        additionals,
+                        timeExpiration,
+                        signature,
+                        {from:payer});
+
+        assert.equal(r.receipt.logs.length, 4, "Wrong number of events");
+        var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+        assert.equal(l.name,"Created","Event Created is missing after broadcastSignedRequestAsPayerAction()");
+        assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+        assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[2]).toLowerCase(),payee,"Event Created wrong args payee");
+        assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[0].topics[3]).toLowerCase(),payer,"Event Created wrong args payer");
+        assert.equal(l.data[0].toLowerCase(),payee,"Event Created wrong args creator");
+        assert.equal(l.data[1],'',"Event Created wrong args data");
+
+        var l = utils.getEventFromReceipt(r.receipt.logs[1], requestCore.abi);
+        assert.equal(l.name,"NewSubPayee","Event NewSubPayee is missing after broadcastSignedRequestAsPayerAction()");
+        assert.equal(r.receipt.logs[1].topics[1],utils.getRequestId(requestCore.address, 1),"Event NewSubPayee wrong args requestId");
+        assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]).toLowerCase(),payee2,"Event NewSubPayee wrong args payee");
+
+        var l = utils.getEventFromReceipt(r.receipt.logs[2], requestCore.abi);
+        assert.equal(l.name,"Accepted","Event Accepted is missing after broadcastSignedRequestAsPayerAction()");
+        assert.equal(r.receipt.logs[2].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+
+        var l = utils.getEventFromReceipt(r.receipt.logs[3], requestCore.abi);
+        assert.equal(l.name,"UpdateExpectedAmount","Event UpdateExpectedAmount is missing after broadcastSignedRequestAsPayerAction()");
+        assert.equal(r.receipt.logs[3].topics[1],utils.getRequestId(requestCore.address, 1),"Event Created wrong args requestId");
+        assert.equal(l.data[0],0,"Event UpdateExpectedAmount wrong args payeeIndex");
+        assert.equal(l.data[1],arbitraryAmount10percent,"Event UpdateExpectedAmount wrong args amount");
+
+        var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 1));
+        assert.equal(newReq[0],payer,"can broadcast request wrong data : payer");       
+        assert.equal(newReq[1],requestBitcoinNodesValidation.address,"can broadcast request wrong data : currencyContract");
+        assert.equal(newReq[2],1,"can broadcast request wrong data : state");
+        assert.equal(newReq[3],payee,"can broadcast request wrong data : payee");
+        assert.equal(newReq[4],arbitraryAmount+arbitraryAmount10percent,"can broadcast request wrong data : expectedAmount");
+        assert.equal(newReq[5],0,"can broadcast request wrong data : amountPaid");
+
+        var r = await requestBitcoinNodesValidation.payeesPaymentAddress.call(utils.getRequestId(requestCore.address, 1),0);   
+        assert.equal(r,payeePayment,"wrong payeesPaymentAddress 2");
+
+        var r = await requestBitcoinNodesValidation.payeesPaymentAddress.call(utils.getRequestId(requestCore.address, 1),1);   
+        assert.equal(r,payee2Payment,"wrong payeesPaymentAddress 2");
+
+        var r = await requestBitcoinNodesValidation.payerRefundAddress.call(utils.getRequestId(requestCore.address, 1),0);
+        assert.equal(r,0,"wrong payeeRefund");
+
+        var r = await requestBitcoinNodesValidation.payerRefundAddress.call(utils.getRequestId(requestCore.address, 1),1);
+        assert.equal(r,0,"wrong payee2Refund");
+    });
+
     it("can broadcast request without tips", async function () {
         var payees = [payee, payee2];
         var payeesPayment = [payeePayment, payee2Payment];

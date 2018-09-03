@@ -24,6 +24,9 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
     // every time a transaction is sent to one of these addresses, it will be interpreted offchain as a refund (index 0 is the main payee, next indexes are for sub-payee)
     mapping(bytes32 => string[256]) public payerRefundAddress;
 
+    // event triggered when the refund addresses are added after the creation via 'addPayerRefundAddressAction'
+    event RefundAddressAdded(bytes32 indexed requestId);
+
     /**
      * @param _requestCoreAddress Request Core address
      * @param _requestBurnerAddress Request Burner contract address
@@ -166,6 +169,55 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
     }
 
     /**
+     * @dev function to add refund address for payer
+     *
+     * @notice msg.sender must be _payer
+     * @notice the refund addresses must not have been already provided 
+     *
+     * @param _requestId                id of the request
+     * @param _payerRefundAddress       payer bitcoin addresses for refund as bytes
+     *                                           [
+     *                                            uint8(payee1_refund_bitcoin_address_size)
+     *                                            string(payee1_refund_bitcoin_address)
+     *                                            uint8(payee2_refund_bitcoin_address_size)
+     *                                            string(payee2_refund_bitcoin_address)
+     *                                            ...
+     *                                           ]
+     */
+    function addPayerRefundAddressAction(
+        bytes32     _requestId,
+        bytes       _payerRefundAddress)
+        external
+        whenNotPaused
+        onlyRequestPayer(_requestId)
+    {
+        // get the number of payees
+        uint8 payeesCount = requestCore.getSubPayeesCount(_requestId).add(1);
+
+        // set payment addresses for payees
+        // index of the byte read in _payerRefundAddress
+        uint256 cursor = 0;
+        uint8 sizeCurrentBitcoinAddress;
+        uint8 j;
+
+        // set payment address for payer
+        for (j = 0; j < payeesCount; j = j.add(1)) {
+            // payer refund address cannot be overridden
+            require(bytes(payerRefundAddress[_requestId][cursor]).length == 0, "payer refund address must not be already given");
+
+            // get the size of the current bitcoin address
+            sizeCurrentBitcoinAddress = uint8(_payerRefundAddress[cursor]);
+
+            // extract and store the current bitcoin address
+            payerRefundAddress[_requestId][j] = Bytes.extractString(_payerRefundAddress, sizeCurrentBitcoinAddress, ++cursor);
+
+            // move the cursor to the next bicoin address
+            cursor += sizeCurrentBitcoinAddress;
+        }
+        emit RefundAddressAdded(_requestId);
+    }
+
+    /**
      * @dev Internal function to extract and store bitcoin addresses from bytes.
      *
      * @param _requestId                id of the request
@@ -210,16 +262,18 @@ contract RequestBitcoinNodesValidation is CurrencyContract {
         }
 
         // set payment address for payer
-        cursor = 0;
-        for (j = 0; j < _payeesCount; j = j.add(1)) {
-            // get the size of the current bitcoin address
-            sizeCurrentBitcoinAddress = uint8(_payerRefundAddress[cursor]);
+        if (_payerRefundAddress.length != 0) {
+            cursor = 0;
+            for (j = 0; j < _payeesCount; j = j.add(1)) {
+                // get the size of the current bitcoin address
+                sizeCurrentBitcoinAddress = uint8(_payerRefundAddress[cursor]);
 
-            // extract and store the current bitcoin address
-            payerRefundAddress[_requestId][j] = Bytes.extractString(_payerRefundAddress, sizeCurrentBitcoinAddress, ++cursor);
+                // extract and store the current bitcoin address
+                payerRefundAddress[_requestId][j] = Bytes.extractString(_payerRefundAddress, sizeCurrentBitcoinAddress, ++cursor);
 
-            // move the cursor to the next bicoin address
-            cursor += sizeCurrentBitcoinAddress;
+                // move the cursor to the next bicoin address
+                cursor += sizeCurrentBitcoinAddress;
+            }
         }
     }
 

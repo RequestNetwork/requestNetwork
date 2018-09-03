@@ -42,7 +42,7 @@ var config = {
     // "asynchrone": {
     //      "requestBitcoinNodesValidation.js": {
                 "requestBitcoinNodesValidationCreateRequestAsPayee.js":false,
-                "requestBitcoinNodesValidationCreateRequestAsPayee.js":false,
+                "requestBitcoinNodesValidationBroadcastSignedRequestAsPayer.js":false,
                 "requestBitcoinNodesValidationAccept.js":false, 
                 "requestBitcoinNodesValidationCancelByPayer.js":false, 
                 "requestBitcoinNodesValidationCancel.js":false,

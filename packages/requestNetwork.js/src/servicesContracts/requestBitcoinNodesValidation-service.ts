@@ -106,7 +106,7 @@ export default class RequestBitcoinNodesValidationService {
         _expectedAmounts: any[],
         _payer: string,
         _payeesPaymentAddress: string[],
-        _payerRefundAddress: string[],
+        _payerRefundAddress?: string[],
         _data ?: string,
         _extension ?: string,
         _extensionParams ?: any[] ,
@@ -123,7 +123,7 @@ export default class RequestBitcoinNodesValidationService {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            if (_payeesIdAddress.length !== _expectedAmounts.length || _payeesIdAddress.length !== _payeesPaymentAddress.length || _payeesIdAddress.length !== _payerRefundAddress.length) {
+            if (_payeesIdAddress.length !== _expectedAmounts.length || _payeesIdAddress.length !== _payeesPaymentAddress.length || (_payerRefundAddress && _payeesIdAddress.length !== _payerRefundAddress.length)) {
                 return promiEvent.reject(Error('_payeesIdAddress, _expectedAmounts, _payerRefundAddress and _payeesPaymentAddress must have the same size'));
             }
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
@@ -144,7 +144,14 @@ export default class RequestBitcoinNodesValidationService {
             if (!this.web3Single.isAddressNoChecksum(_payer)) {
                 return promiEvent.reject(Error('_payer must be a valid eth address'));
             }
-            if (!this.bitcoinService.isArrayOfBitcoinAddresses(_payerRefundAddress)) {
+            
+            // by default empty refund address
+            let _payerRefundAddressParsed:string[] = [];
+            if (_payerRefundAddress) {
+                _payerRefundAddressParsed = _payerRefundAddress
+            }
+
+            if (!this.bitcoinService.isArrayOfBitcoinAddresses(_payerRefundAddressParsed)) {
                 return promiEvent.reject(Error('_payerRefundAddress must be valid bitcoin addresses'));
             }
 
@@ -170,7 +177,7 @@ export default class RequestBitcoinNodesValidationService {
                     this.createBytesForPaymentBitcoinAddress(_payeesPaymentAddress),
                     _expectedAmounts,
                     _payer,
-                    this.createBytesForPaymentBitcoinAddress(_payerRefundAddress),
+                    this.createBytesForPaymentBitcoinAddress(_payerRefundAddressParsed),
                     hashIpfs);
 
                 // submit transaction
@@ -293,7 +300,7 @@ export default class RequestBitcoinNodesValidationService {
      */
     public broadcastSignedRequestAsPayer(
         _signedRequest: any,
-        _payeesRefundAddress: string[],
+        _payerRefundAddress?: string[],
         _additions ?: any[],
         _options ?: any,
         ): PromiseEventEmitter<any> {
@@ -319,10 +326,17 @@ export default class RequestBitcoinNodesValidationService {
             if (_additions && _signedRequest.payeesIdAddress.length < _additions.length) {
                 return promiEvent.reject(Error('_additions can not be bigger than _payeesIdAddress'));
             }
-            if (_signedRequest.payeesIdAddress.length !== _payeesRefundAddress.length) {
+            if (_payerRefundAddress && _signedRequest.payeesIdAddress.length !== _payerRefundAddress.length) {
                 return promiEvent.reject(Error('_payeesRefundAddress and _payeesIdAddress must have the same size'));
             }
-            if (!this.bitcoinService.isArrayOfBitcoinAddresses(_payeesRefundAddress)) {
+
+            // by default empty refund address
+            let _payerRefundAddressParsed:string[] = [];
+            if (_payerRefundAddress) {
+                _payerRefundAddressParsed = _payerRefundAddress
+            }
+
+            if (!this.bitcoinService.isArrayOfBitcoinAddresses(_payerRefundAddressParsed)) {
                 return promiEvent.reject(Error('payeesRefundAddress must be valid bitcoin addresses'));
             }
             if (additionsParsed.some((amount: any) => amount.isNeg())) {
@@ -344,7 +358,7 @@ export default class RequestBitcoinNodesValidationService {
                 const method = this.instanceRequestBitcoinNodesValidationLast.methods.broadcastSignedRequestAsPayerAction(
                                                     this.requestCoreServices.createBytesRequest(_signedRequest.payeesIdAddress, _signedRequest.expectedAmounts, 0, _signedRequest.data),
                                                     this.createBytesForPaymentBitcoinAddress(_signedRequest.payeesPaymentAddress),
-                                                    this.createBytesForPaymentBitcoinAddress(_payeesRefundAddress),
+                                                    this.createBytesForPaymentBitcoinAddress(_payerRefundAddressParsed),
                                                     additionsParsed,
                                                     _signedRequest.expirationDate,
                                                     _signedRequest.signature);
@@ -786,6 +800,77 @@ export default class RequestBitcoinNodesValidationService {
     }
 
     /**
+     * add the refund addresses for the payer
+     * @param   _requestId             requestId of the payer
+     * @param   _payeesRefundAddress   Bitcoin refund addresses of the payer (the position 0 will be the main payee)
+     * @param   _options               options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+     * @return  promise of the object containing the request and the transaction hash ({request, transactionHash})
+     */
+    public addPayerRefundAddressAction(
+        _requestId: string,
+        _payerRefundAddress: string[],
+        _options ?: any): PromiseEventEmitter<any> {
+        const promiEvent = Web3PromiEvent();
+        _options = this.web3Single.setUpOptions(_options);
+
+        this.web3Single.getDefaultAccountCallback(async (err, defaultAccount) => {
+            if (!_options.from && err) return promiEvent.reject(err);
+            const account = _options.from || defaultAccount;
+
+            try {
+                const request = await this.getRequest(_requestId);
+
+                if ( request.subPayees.length + 1 !== _payerRefundAddress.length) {
+                    return promiEvent.reject(Error('_payerRefundAddress must have the same size as the number of payees'));
+                }
+
+                if (!this.bitcoinService.isArrayOfBitcoinAddresses(_payerRefundAddress)) {
+                    return promiEvent.reject(Error('_payerRefundAddress must be valid bitcoin addresses'));
+                }
+
+                if ( !this.web3Single.areSameAddressesNoChecksum(account, request.payer) ) {
+                    return promiEvent.reject(Error('account must be the payer'));
+                }
+
+                if ( request.currencyContract.payeeRefundAddress !== '') {
+                    return promiEvent.reject(Error('_payerRefundAddress has been already given'));
+                }
+
+                const contract = this.web3Single.getContractInstance(request.currencyContract.address);
+                const method = contract.instance.methods.addPayerRefundAddressAction(_requestId, this.createBytesForPaymentBitcoinAddress(_payerRefundAddress));
+                this.web3Single.broadcastMethod(
+                    method,
+                    (hash: string) => {
+                        return promiEvent.eventEmitter.emit('broadcasted', {transaction: {hash}});
+                    },
+                    (receipt: any) => {
+                        // we do nothing here!
+                    },
+                    async (confirmationNumber: number, receipt: any) => {
+                        if (confirmationNumber === _options.numberOfConfirmation) {
+                            try {
+                                const requestAfter = await this.getRequest(receipt.events.RefundAddressAdded.returnValues.requestId);
+                                promiEvent.resolve({request: requestAfter, transaction: {hash: receipt.transactionHash}});
+                            } catch (e) {
+                                return promiEvent.reject(e);
+                            }
+                        }
+                    },
+                    (error: Error) => {
+                        return promiEvent.reject(error);
+                    },
+                    _options);
+            } catch (e) {
+                promiEvent.reject(e);
+            }
+        });
+
+        return promiEvent.eventEmitter;
+
+    }
+
+
+    /**
      * Get info from currency contract (generic method)
      * @param   _requestId    requestId of the request
      * @return  promise of the information from the currency contract of the request (always {} here)
@@ -967,6 +1052,8 @@ export default class RequestBitcoinNodesValidationService {
         try {
             const currencyContract = this.web3Single.getContractInstance(_request.currencyContract);
 
+            // ----------------------------------
+            // First, we retrieved the payments and refunds linked to the request:
             // payee payment address
             const payeePaymentAddress: string = await currencyContract.instance.methods.payeesPaymentAddress(_request.requestId, 0).call();
             // get subPayees payment addresses
@@ -994,6 +1081,7 @@ export default class RequestBitcoinNodesValidationService {
             // get all refund on the payees addresses
             const dataRefunds = await this.bitcoinService.getMultiAddress(allPayeesRefund);
 
+            // build the payment events from the refund transactions
             const eventPayments: any[] = [];
             for (const tx of dataPayments.txs) {
                 for (const o of tx.out) {
@@ -1012,6 +1100,7 @@ export default class RequestBitcoinNodesValidationService {
                 }
             }
 
+            // build the refund events from the refund transactions
             const eventRefunds: any[] = [];
             for (const tx of dataPayments.txs) {
                 for (const o of tx.out) {
@@ -1030,7 +1119,36 @@ export default class RequestBitcoinNodesValidationService {
                 }
             }
 
-            return Promise.resolve(eventRefunds.concat(eventPayments));
+            // ----------------------------------
+            // Second, we get the event RefundAddressAdded if it has been triggered
+            const optionFilters = {
+                filter: { requestId: _request._requestId },
+                fromBlock: _fromBlock ? _fromBlock : currencyContract.blockNumber,
+                toBlock: _toBlock ? _toBlock : 'latest'};
+
+            let eventsRaw: any[] = [];
+
+            eventsRaw = eventsRaw.concat(
+                await currencyContract.instance.getPastEvents('RefundAddressAdded', optionFilters)
+            );
+
+            let eventsContract = [];
+            eventsContract = await Promise.all(eventsRaw.map(async (e) => {
+                return new Promise(async (resolveEvent, rejectEvent) => {
+                    const transaction = await this.web3Single.getTransaction(e.transactionHash);
+                    resolveEvent({
+                        _meta: {
+                            blockNumber: e.blockNumber,
+                            logIndex: e.logIndex,
+                            timestamp: await this.web3Single.getBlockTimestamp(e.blockNumber)},
+                        data: e.returnValues,
+                        name: e.event,
+                        from: transaction.from});
+                });
+            }));
+
+
+            return Promise.resolve(eventRefunds.concat(eventPayments).concat(eventsContract));
         } catch (e) {
             return Promise.reject(e);
         }
