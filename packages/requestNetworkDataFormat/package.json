@@ -13,7 +13,8 @@
   "scripts": {
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc && shx cp -r ./src/format ./dist/src/ && shx cp -r ./test/data ./dist/test/",
-    "test": "npm run build && mocha --timeout 60000 dist/test/*.js"
+    "test": "npm run build && mocha --timeout 60000 dist/test/*.js",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
