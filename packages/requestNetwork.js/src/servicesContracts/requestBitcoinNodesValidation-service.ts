@@ -1122,7 +1122,7 @@ export default class RequestBitcoinNodesValidationService {
             // ----------------------------------
             // Second, we get the event RefundAddressAdded if it has been triggered
             const optionFilters = {
-                filter: { requestId: _request._requestId },
+                filter: { requestId: _request.requestId },
                 fromBlock: _fromBlock ? _fromBlock : currencyContract.blockNumber,
                 toBlock: _toBlock ? _toBlock : 'latest'};
 
