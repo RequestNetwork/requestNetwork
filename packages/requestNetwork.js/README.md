@@ -15,6 +15,10 @@ This is still an early version which is likely to significantly evolve.
 
 Detailled API reference for the smart contracts is available on [docs-js-lib.request.network](https://docs-js-lib.request.network/).
 
+### Request Hub Slack
+
+If you need help, [join the Request Hub Slack](https://request-slack.herokuapp.com/).
+
 ### When developing you should know
 
 Everything that is specified in the [documentation of the protocol](https://docs.request.network/development/protocol).

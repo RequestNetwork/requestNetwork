@@ -11,6 +11,10 @@ If your application is off-chain, you can interact with the JS library: [view JS
 
 This is still an early version which is likely to significantly evolve. 
 
+### Request Hub Slack
+
+If you need help, [join the Request Hub Slack](https://request-slack.herokuapp.com/).
+
 ### Detailled documentation
 
 Detailled API reference for the smart contracts is available on [docs-smart-contracts.request.network](https://docs-smart-contracts.request.network/) 

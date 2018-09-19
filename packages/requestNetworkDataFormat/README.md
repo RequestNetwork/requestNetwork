@@ -8,6 +8,10 @@ It also provide a Javascript entry point to validate a given JSON.
 ## Warning
 This is still an alpha version which will evolve significantly before the main net release. 
 
+## Request Hub Slack
+
+If you need help, [join the Request Hub Slack](https://request-slack.herokuapp.com/).
+
 ## Available JSON Schema
 | Name | Last version | Last version | Description |
 | ------------ | ------------ | ------------ | ------------ | 
