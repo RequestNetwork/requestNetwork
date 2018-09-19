@@ -22,7 +22,7 @@
 | Name | Type | Need | Comment |
 | ------------ | ------------ | ------------ | ------------ |
 | format |  constant | Mandatory | value: "rnf_invoice" |
-| version |  constant | Mandatory | value: "0.0.1"|
+| version |  constant | Mandatory | value: "0.0.2"|
 
 
 ## sellerInfo
@@ -68,10 +68,10 @@
 | name | string | Mandatory | name of the item |
 | reference | string | Optional | reference of the item |
 | quantity | number | Mandatory | quantity (minimum 0) |
-| unitPrice | number | Mandatory | unit price (minimum 0) |
-| discount | number | Optional | price of the discount |
+| unitPrice | string | Mandatory | unit price (integer in currency base unit) |
+| discount | string | Optional | price of the discount (integer in currency base unit) |
 | taxPercent | number | Mandatory | taxation percentage of the item |
-| currency | string | Mandatory | ISO 4217 currency code |
+| currency | string | Mandatory | currency code |
 | deliveryDate | date-time | Optional | expected delivery date |
 | deliveryPeriod | string | Optional | period of delivery if the item is a service |
 
@@ -84,6 +84,6 @@
 | ------------ | ------------ | ------------ | ------------ |
 | dueDate | date-time | Optional | payment deadline |
 | lateFeesPercent | number | Optional | percentage of fees applied if late payment |
-| lateFeesFix | number | Optional | fixed fees applied if late payment |
+| lateFeesFix | string | Optional | fixed fees applied if late payment (integer in currency base unit) |
 | miscellaneous | object | Optional | Miscellaneous information |
 
