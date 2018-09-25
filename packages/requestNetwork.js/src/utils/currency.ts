@@ -61,6 +61,41 @@ function getCurrencyConfig(currency: Types.Currency)
             service: RequestERC20Service.getInstance(),
             decimals: 18,
         },
+        [Types.Currency.KIN as number]: {
+            erc20TokenAddresses: {
+                main: '0x818fc6c2ec5986bc6e2cbf00939d90556ab12ce5',
+            },
+            service: RequestERC20Service.getInstance(),
+            decimals: 18,
+        },
+        [Types.Currency.ZRX as number]: {
+            erc20TokenAddresses: {
+                main: '0xe41d2489571d322189246dafa5ebde1f4699f498',
+            },
+            service: RequestERC20Service.getInstance(),
+            decimals: 18,
+        },
+        [Types.Currency.BAT as number]: {
+            erc20TokenAddresses: {
+                main: '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
+            },
+            service: RequestERC20Service.getInstance(),
+            decimals: 18,
+        },
+        [Types.Currency.BNB as number]: {
+            erc20TokenAddresses: {
+                main: '0xb8c77482e45f1f44de1745f52c74426c631bdd52',
+            },
+            service: RequestERC20Service.getInstance(),
+            decimals: 18,
+        },
+        [Types.Currency.LINK as number]: {
+            erc20TokenAddresses: {
+                main: '0x514910771af9ca656af840dff83e8264ecf986ca',
+            },
+            service: RequestERC20Service.getInstance(),
+            decimals: 18,
+        },
     }[currency];
 }
 
@@ -90,6 +125,11 @@ export default {
             'RequestERC20-dgx': Types.Currency.DGX,
             'RequestERC20-dai': Types.Currency.DAI,
             'RequestERC20-omg': Types.Currency.OMG,
+            'RequestERC20-kin': Types.Currency.KIN,
+            'RequestERC20-zrx': Types.Currency.ZRX,
+            'RequestERC20-bat': Types.Currency.BAT,
+            'RequestERC20-bnb': Types.Currency.BNB,
+            'RequestERC20-link': Types.Currency.LINK,
         };
 
         const currencyContractName = requestArtifacts.getContractNameForAddress(address.toLowerCase());
