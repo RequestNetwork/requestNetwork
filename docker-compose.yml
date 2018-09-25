@@ -1,0 +1,25 @@
+version: "3.0"
+
+services:
+  request_network:
+    build: .
+    command: "sh"
+    tty: true
+    network_mode: "host"
+    extra_hosts:
+      - "localhost:127.0.0.1"
+
+  ganache:
+    image: trufflesuite/ganache-cli
+    command:
+      - "-l"
+      - "90000000"
+      - "-m"
+      - "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+    ports:
+      - "8545:8545"
+    network_mode: "host"
+
+  ipfs:
+    image: ipfs/go-ipfs
+    network_mode: "host"
