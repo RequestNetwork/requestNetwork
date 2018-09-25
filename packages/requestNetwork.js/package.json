@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-network.js",
-  "version": "0.7.7",
+  "version": "0.8.0",
   "description": "A JavaScript library for interacting with the Request Network protocol",
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetwork.js",
   "keywords": [
@@ -41,7 +41,7 @@
     "bn.js": "4.11.8",
     "ethereumjs-util": "5.1.2",
     "ipfs-api": "git://github.com/RequestNetwork/js-ipfs-api.git#9a99b08313e623c14a17357bb9655814dbe1d018",
-    "requestnetworkartifacts": "1.4.0",
+    "requestnetworkartifacts": "^1.5.0",
     "tslib": "1.9.0",
     "typescript": "2.8.1",
     "wallet-address-validator": "0.1.6",
