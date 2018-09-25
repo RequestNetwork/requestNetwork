@@ -10,7 +10,10 @@ exports.default = function(networkName, address) {
 		return null;
 	}
 
-	return require(`./${artifact}`);
+  // Webpack will try to parse the whole folder if we don't explicitly add .json on the require call, so we have to strip the file extension
+  const artifactName = artifact.replace(/\.[^/.]+$/, '');
+
+	return require(`./${artifactName}.json`);
 }
 
 // Temporary hack that should be properly fixed. Needs some refactor to remove the default export
