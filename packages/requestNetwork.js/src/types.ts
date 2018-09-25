@@ -21,6 +21,11 @@ export enum Currency {
     DGX,
     DAI,
     OMG,
+    KIN,
+    ZRX,
+    BAT,
+    BNB,
+    LINK,
 }
 
 // State of the Request

@@ -77,9 +77,12 @@ let requestNetwork = new RequestNetwork(provider, networkId, useIpfsPublic);
 
 Instantiates a new RequestNetwork instance that provides the public interface to the requestNetwork.js library.
 
-* @param   `provider`  The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network.
-* @param   `networkId`  the Ethereum network ID.
-* @param   `useIpfsPublic`  use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise
+* @param `options`
+* @param `options.provider` - The Web3.js Provider instance you would like the requestNetwork.js library to use for interacting with the Ethereum network. (can be a provider instance or an url as string)
+* @param `options.ethNetworkId` - the Ethereum network ID.
+* @param `options.useIpfsPublic` - use public ipfs node if true, private one specified in “src/config.json ipfs.nodeUrlDefault.private” otherwise (default : true)
+* @param `options.bitcoinNetworkId` - the bitcoin network ID
+* @param `options.ipfsCustomNode` - define a custom ipfs node like {host, port, protocol}, if given with useIpfsPublic will throw an error
 
 * @return  An instance of the requestNetwork.js RequestNetwork class.
 
