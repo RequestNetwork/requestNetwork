@@ -60,15 +60,15 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
+          name: 'Install lerna and solium'
+          command: 'sudo npm install -g lerna solium@1.1.8'
       - run:
-          name: 'Deploy test contract'
-          command: 'lerna run --scope @requestnetwork/request-network.js testdeploy'
+          name: 'Check contract linting'
+          command: 'lerna run --scope request-network-smart-contracts lint'
       - run:
           name: 'Test requestNetwork contract'
-          command: 'lerna run --scope request-network-smart-contracts test --stream'
-  docs-library:
+          command: 'lerna run --scope request-network-smart-contracts test'
+  build-docs-library:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -76,12 +76,16 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
+          name: 'Install lerna and compodoc'
           command: 'sudo npm install -g lerna @compodoc/compodoc'
       - run:
           name: 'Create library documentation'
-          command: 'lerna run --scope @requestnetwork/request-network.js docs --stream'
-  docs-contract:
+          command: 'lerna run --scope @requestnetwork/request-network.js docs'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/requestNetwork.js/docs
+  build-docs-contract:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -93,24 +97,53 @@ jobs:
           command: 'sudo npm install -g lerna'
       - run:
           name: 'Create contract documentation'
-          command: 'lerna run --scope request-network-smart-contracts docs:build --stream'
+          command: 'lerna run --scope request-network-smart-contracts docs:build'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/requestNetworkSmartContracts/docs
+  deploy-docs:
+    docker:
+      - image: circleci/python:2.7-jessie
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install awscli'
+          command: 'sudo pip install awscli'
+      - run:
+          name: Deploy library documentation to S3
+          command: 'aws s3 sync packages/requestNetwork.js/docs s3://docs-js-lib.request.network --delete'
+      - run:
+          name: Deploy contracts documentation to S3
+          command: 'aws s3 sync packages/requestNetworkSmartContracts/docs s3://docs-smart-contracts.request.network --delete'
+
 
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build
+      # Test
       - test-library:
           requires:
             - build
       - test-contract:
           requires:
             - build
-      - docs-library:
+      # Build documentation
+      - build-docs-library:
           requires:
-            - build
             - test-library
-      - docs-contract:
+      - build-docs-contract:
           requires:
-            - build
             - test-contract
+      # Deploy documentation
+      - deploy-docs:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build-docs-library
+            - build-docs-contract
