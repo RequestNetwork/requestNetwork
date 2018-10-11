@@ -1,5 +1,5 @@
 {
-  "contractName": "RequestERC20",
+  "contractName": "RequestOMG",
   "abi": [
     {
       "constant": true,
@@ -42,28 +42,6 @@
           "type": "bytes32"
         },
         {
-          "name": "_payeeAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "name": "_additionalAmounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "paymentAction",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestId",
-          "type": "bytes32"
-        },
-        {
           "name": "_subtractAmounts",
           "type": "uint256[]"
         }
@@ -81,76 +59,6 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_requestData",
-          "type": "bytes"
-        },
-        {
-          "name": "_payeesPaymentAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_expirationDate",
-          "type": "uint256"
-        },
-        {
-          "name": "_signature",
-          "type": "bytes"
-        }
-      ],
-      "name": "checkRequestSignature",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestData",
-          "type": "bytes"
-        },
-        {
-          "name": "_payeesPaymentAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_payeeAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "name": "_additionals",
-          "type": "uint256[]"
-        },
-        {
-          "name": "_expirationDate",
-          "type": "uint256"
-        },
-        {
-          "name": "_signature",
-          "type": "bytes"
-        }
-      ],
-      "name": "broadcastSignedRequestAsPayerAction",
-      "outputs": [
-        {
-          "name": "requestId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -179,45 +87,6 @@
       ],
       "payable": false,
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_payeesIdAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_payeesPaymentAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_expectedAmounts",
-          "type": "int256[]"
-        },
-        {
-          "name": "_payer",
-          "type": "address"
-        },
-        {
-          "name": "_payerRefundAddress",
-          "type": "address"
-        },
-        {
-          "name": "_data",
-          "type": "string"
-        }
-      ],
-      "name": "createRequestAsPayeeAction",
-      "outputs": [
-        {
-          "name": "requestId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -260,41 +129,6 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "signer",
-          "type": "address"
-        },
-        {
-          "name": "hash",
-          "type": "bytes32"
-        },
-        {
-          "name": "v",
-          "type": "uint8"
-        },
-        {
-          "name": "r",
-          "type": "bytes32"
-        },
-        {
-          "name": "s",
-          "type": "bytes32"
-        }
-      ],
-      "name": "isValidSignature",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -389,29 +223,6 @@
       "constant": true,
       "inputs": [
         {
-          "name": "_data",
-          "type": "bytes"
-        },
-        {
-          "name": "offset",
-          "type": "uint256"
-        }
-      ],
-      "name": "extractBytes32",
-      "outputs": [
-        {
-          "name": "bs",
-          "type": "bytes32"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
           "name": "",
           "type": "bytes32"
         },
@@ -447,45 +258,6 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_payeesIdAddress",
-          "type": "address[]"
-        },
-        {
-          "name": "_expectedAmounts",
-          "type": "int256[]"
-        },
-        {
-          "name": "_payerRefundAddress",
-          "type": "address"
-        },
-        {
-          "name": "_payeeAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "name": "_additionals",
-          "type": "uint256[]"
-        },
-        {
-          "name": "_data",
-          "type": "string"
-        }
-      ],
-      "name": "createRequestAsPayerAction",
-      "outputs": [
-        {
-          "name": "requestId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -528,24 +300,6 @@
       ],
       "payable": false,
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_requestId",
-          "type": "bytes32"
-        },
-        {
-          "name": "_amountToRefund",
-          "type": "uint256"
-        }
-      ],
-      "name": "refundAction",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -638,13 +392,170 @@
       ],
       "name": "OwnershipTransferred",
       "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payeesIdAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payer",
+          "type": "address"
+        },
+        {
+          "name": "_payerRefundAddress",
+          "type": "address"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "createRequestAsPayeeAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_requestData",
+          "type": "bytes"
+        },
+        {
+          "name": "_payeesPaymentAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionals",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_expirationDate",
+          "type": "uint256"
+        },
+        {
+          "name": "_signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "broadcastSignedRequestAsPayerAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_requestId",
+          "type": "bytes32"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionalAmounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "paymentAction",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_requestId",
+          "type": "bytes32"
+        },
+        {
+          "name": "_amountToRefund",
+          "type": "uint256"
+        }
+      ],
+      "name": "refundAction",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payeesIdAddress",
+          "type": "address[]"
+        },
+        {
+          "name": "_expectedAmounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "_payerRefundAddress",
+          "type": "address"
+        },
+        {
+          "name": "_payeeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_additionals",
+          "type": "uint256[]"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "createRequestAsPayerAction",
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
     }
   ],
-  "version": "0.2.2",
+  "version": "0.2.6",
   "networks": {
     "main": {
-      "address": "0xe44d5393cc60d67c7858aa75cf307c00e837f0e5",
-      "blockNumber": 5582809
+      "address": "0x729e895e186b7fbd34485d496415bb2f42629b71",
+      "blockNumber": 6492473
     }
   }
 }

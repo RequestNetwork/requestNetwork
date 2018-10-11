@@ -58,6 +58,54 @@ contract('RequestERC20 PaymentAction', function(accounts) {
 	// ##################################################################################################
 	// ### Pay test unit #############################################################################
 	// ##################################################################################################
+	it("can pay request with token OMG Like", async function () {
+		var TestTokenOMGLike = artifacts.require("./test/synchrone/TestTokenOMGLike.sol");
+		var RequestOMG = artifacts.require("./synchrone/RequestOMG.sol");
+
+		testTokenOMGLike = await TestTokenOMGLike.new(payerRefund, minterAmount);
+		await testTokenOMGLike.transfer(payee, arbitraryAmount, {from:payerRefund});
+
+		var requestERC20OMGLike = await RequestOMG.new(requestCore.address, burnerContract, testTokenOMGLike.address, {from:admin});
+		await requestCore.adminAddTrustedCurrencyContract(requestERC20OMGLike.address, {from:admin});
+		await requestERC20OMGLike.createRequestAsPayeeAction(
+							[payee,payee2,payee3],
+							[payeePayment,payee2Payment,payee3Payment],
+							[arbitraryAmount,arbitraryAmount2,arbitraryAmount3],
+							payer,
+							payerRefund,
+							"",
+							{from:payee});
+
+		var balancePayeeBefore = await testTokenOMGLike.balanceOf(payeePayment);
+		await requestERC20OMGLike.acceptAction(utils.getRequestId(requestCore.address, 2), {from:payer});
+
+		await testTokenOMGLike.approve(requestERC20OMGLike.address, arbitraryAmount, {from:payerRefund});
+		var r = await requestERC20OMGLike.paymentAction(utils.getRequestId(requestCore.address, 2), [arbitraryAmount], [], {from:payerRefund});
+
+		assert.equal(r.receipt.logs.length,2,"Wrong number of events");
+		var l = utils.getEventFromReceipt(r.receipt.logs[0], requestCore.abi);
+		assert.equal(l.name,"UpdateBalance","Event UpdateBalance is missing after paymentAction()");
+		assert.equal(r.receipt.logs[0].topics[1],utils.getRequestId(requestCore.address, 2),"Event UpdateBalance wrong args requestId");
+		assert.equal(l.data[0],0,"Event UpdateBalance wrong args payeeIndex");
+		assert.equal(l.data[1],arbitraryAmount,"Event UpdateBalance wrong args amountPaid");
+
+		var l = utils.getEventFromReceipt(r.receipt.logs[1], testTokenOMGLike.abi);
+		assert.equal(l.name,"Transfer","Event Transfer is missing after paymentAction()");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[1]),payerRefund,"Event Transfer wrong args from");
+		assert.equal(utils.bytes32StrToAddressStr(r.receipt.logs[1].topics[2]),payeePayment,"Event Transfer wrong args to");
+		assert.equal(l.data[0],arbitraryAmount,"Event Transfer wrong args value");
+
+		var newReq = await requestCore.getRequest.call(utils.getRequestId(requestCore.address, 2));
+		assert.equal(newReq[3],payee,"new request wrong data : payee");
+		assert.equal(newReq[0],payer,"new request wrong data : payer");
+		assert.equal(newReq[4],arbitraryAmount,"new request wrong data : expectedAmount");
+		assert.equal(newReq[1],requestERC20OMGLike.address,"new request wrong data : currencyContract");
+		assert.equal(newReq[5],arbitraryAmount,"new request wrong data : balance");
+		assert.equal(newReq[2],1,"new request wrong data : state");
+
+		assert.equal((await testTokenOMGLike.balanceOf(payeePayment)).sub(balancePayeeBefore),arbitraryAmount,"new request wrong data : amount to payee");
+	});
+
 	it("can pay request", async function () {
 		var balancePayeeBefore = await testToken.balanceOf(payeePayment);
 		await requestERC20.acceptAction(utils.getRequestId(requestCore.address, 1), {from:payer});

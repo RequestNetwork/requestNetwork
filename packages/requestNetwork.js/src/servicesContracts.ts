@@ -16,14 +16,10 @@ export const getServiceFromAddress = (_networkName: string, _address: string): a
     const artifact = requestArtifacts(_networkName, _address);
     if (!artifact) return;
 
-    switch (artifact.contractName) {
-        case 'RequestERC20':
-            return RequestERC20Service.getInstance();
-        case 'RequestEthereum':
-            return RequestEthereumService.getInstance();
-        case 'RequestBitcoinNodesValidation':
-            return RequestBitcoinNodesValidationService.getInstance();
-        default:
-            return;
-    }
+    return {
+      ["RequestERC20" as string]: RequestERC20Service.getInstance(),
+      ["RequestOMG" as string]: RequestERC20Service.getInstance(),
+      ["RequestEthereum" as string]: RequestEthereumService.getInstance(),
+      ["RequestBitcoinNodesValidation" as string]: RequestBitcoinNodesValidationService.getInstance(),
+    } [artifact.contractName];
 };

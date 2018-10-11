@@ -5,12 +5,14 @@ const tokenMintAtStart = '100000000000000000000000000000000000000000000000000000
 
 import requestArtifacts from 'requestnetworkartifacts';
 import TestToken from '../test/centralBank';
+import TestTokenOMGLike from '../test/TestTokenOMGLike';
 
 import Web3Single from '../src/servicesExternal/web3-single';
 
 const requestCoreJson = requestArtifacts('private', 'last-RequestCore');
 const requestEthereumJson = requestArtifacts('private', 'last-RequestEthereum');
 const requestERC20Json = requestArtifacts('private', 'last-RequestErc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10');
+const requestOMGJson = requestArtifacts('private', 'last-RequestErc20-0x9fbda871d559710256a2502a2517b794b482db40');
 const requestBitcoinNodesValidationJson = requestArtifacts('private', 'last-RequestBitcoinNodesValidation');
 
 
@@ -20,15 +22,19 @@ const web3Single = Web3Single.getInstance();
 const instanceRequestCore = new web3Single.web3.eth.Contract(requestCoreJson.abi);
 const instanceRequestEthereum = new web3Single.web3.eth.Contract(requestEthereumJson.abi);
 const instanceRequestERC20 = new web3Single.web3.eth.Contract(requestERC20Json.abi);
-const instanceERC20TestToken = new web3Single.web3.eth.Contract(TestToken.abi);
+const instanceRequestOMG = new web3Single.web3.eth.Contract(requestOMGJson.abi);
 const instanceRequestBitcoinNodesValidation = new web3Single.web3.eth.Contract(requestBitcoinNodesValidationJson.abi);
+const instanceERC20TestToken = new web3Single.web3.eth.Contract(TestToken.abi);
+const instanceOMGTestToken = new web3Single.web3.eth.Contract(TestTokenOMGLike.abi);
 
 let addressRequestCore: string;
 let addressRequestEthereum: string;
 let addressRequestERC20: string;
 let addressRequestBitcoinNodesValidation: string;
+let addressRequestOMG: string;
 
 let addressCentralBank: string;
+let addressOMGTestToken: string;
 
 
 let newContractInstanceRequestCore: any;
@@ -260,6 +266,74 @@ web3Single.getDefaultAccount().then((creator) => {
                                     console.error('adminAddTrustedCurrencyContract - error ##########################')
                                 });
 
+                            instanceOMGTestToken.deploy({
+                                    data: TestTokenOMGLike.bytecode,
+                                    arguments: [creator, tokenMintAtStart]
+                                })
+                                .send({
+                                    from: creator,
+                                    gas: 1500000
+                                }, (error: Error, transactionHash: string) => {
+                                    if (error) {
+                                        console.error('OMGTestToken - error transactionHash ##########################')
+                                        console.error(error)
+                                        console.error(transactionHash)
+                                        console.error('OMGTestToken - error transactionHash ##########################')
+                                    }
+                                })
+                                .on('error', (error: Error) => {
+                                    console.error('OMGTestToken - error ##########################')
+                                    console.error(error)
+                                    console.error('OMGTestToken - error ##########################')
+                                })
+                                .then( (newContractInstance: any) => {
+                                    console.log('OMGTestToken - address : ' + newContractInstance.options.address);
+                                    addressOMGTestToken = newContractInstance.options.address;
+
+                                    instanceRequestOMG.deploy({
+                                        data: requestOMGJson.bytecode,
+                                        arguments: [addressRequestCore, addressContractBurner, addressOMGTestToken]
+                                    })
+                                    .send({
+                                        from: creator,
+                                        gas: 15000000
+                                    }, (error: Error, transactionHash: string) => {
+                                        if (error) {
+                                            console.error('RequestOMG - error transactionHash ##########################')
+                                            console.error(error)
+                                            console.error(transactionHash)
+                                            console.error('RequestOMG - error transactionHash ##########################')
+                                        }
+                                    })
+                                    .on('error', (error: Error) => {
+                                        console.error('RequestOMG - error ##########################')
+                                        console.error(error)
+                                        console.error('RequestOMG - error ##########################')
+                                    })
+                                    .then((newContractInstance: any) => {
+                                        console.log('RequestOMG - address : ' + newContractInstance.options.address) // instance with the new contract address
+                                        addressRequestOMG = newContractInstance.options.address;
+
+                                        web3Single.broadcastMethod(
+                                            newContractInstanceRequestCore.methods.adminAddTrustedCurrencyContract(addressRequestOMG),
+                                            (transactionHash: string) => {
+                                                // we do nothing here!
+                                            },
+                                            (receipt: any) => {
+                                                if (receipt.status == 1) {
+                                                    console.log('adminAddTrustedCurrencyContract: ' + addressRequestOMG);
+                                                }
+                                            },
+                                            (confirmationNumber: number, receipt: any) => {
+                                                // we do nothing here!
+                                            },
+                                            (error: Error) => {
+                                                console.error('adminAddTrustedCurrencyContract - error ##########################')
+                                                console.error(error)
+                                                console.error('adminAddTrustedCurrencyContract - error ##########################')
+                                            });
+                                    });
+                                });
                     });
                 });
             });

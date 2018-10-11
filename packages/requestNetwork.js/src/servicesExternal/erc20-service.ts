@@ -4,16 +4,13 @@ import Web3Single from './web3-single';
 import * as Web3PromiEvent from 'web3-core-promievent';
 
 const ERC20 = require('../lib/ERC20.json');
+const OMGToken = require('../lib/OMGToken.json');
 
 /**
  * The Erc20Service class manage the ERC20 token
  * @ignore
  */
 export default class Erc20Service {
-    /**
-     * ERC20 contract's abi
-     */
-    public static abiERC20: any = ERC20.abi;
 
     private static web3Single: Web3Single;
 
@@ -28,13 +25,22 @@ export default class Erc20Service {
     private instanceERC20: any;
 
     /**
+     * ERC20 contract's abi
+     */
+    private abiERC20: any = ERC20.abi;
+
+    /**
      * Constructor to Instantiates a new Erc20Service
      * @param   _address       address of the ERC20 token
      */
     public constructor(_address: string) {
         Erc20Service.web3Single = Web3Single.getInstance();
         this.addressERC20 = _address;
-        this.instanceERC20 = new Erc20Service.web3Single.web3.eth.Contract(Erc20Service.abiERC20, _address);
+        // OMG fix
+        if (_address.toLowerCase() === "0xd26114cd6ee289accf82350c8d8487fedb8a0c07") {
+            this.abiERC20 = OMGToken.abi;
+        }
+        this.instanceERC20 = new Erc20Service.web3Single.web3.eth.Contract(this.abiERC20, _address);
     }
 
     public balanceOf(_address: string): Promise<any> {
