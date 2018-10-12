@@ -15,12 +15,13 @@
     "rinkeby": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
-        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
+        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-prod.json",
         "last-requesterc20-0x995d6a8c21f24be1dd04e105dd0d83758343e258": "RequestERC20/RequestERC20-0.2.2-centralbank-rinkeby.json",
 
         "0x8fc2e7f2498f1d06461ee2d547002611b801202b": "RequestCore/RequestCore-0.0.5-prod.json",
         "0xd88ab9b1691340e04a5bbf78529c11d592d35f57": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
         "0xc7450a94237761d2222f6be4b04a1dae7a1e6347": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
+        "0x580bce13f6d97c15d364048c6c00fb3fb03a1416": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-prod.json",
         "0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5": "RequestERC20/RequestERC20-0.2.2-centralbank-rinkeby.json"
     },
     "main": {
