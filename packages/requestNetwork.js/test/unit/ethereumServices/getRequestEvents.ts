@@ -52,7 +52,7 @@ describe('getRequestEvents', () => {
                     payer);
         currentNumRequest++;
 
-        const resultSubtract = await rn.requestEthereumService.subtractAction(
+        const resultReduce = await rn.requestEthereumService.reduceExpectedAmounts(
                             resultCreateRequestAsPayee.request.requestId,
                             [10, 20, 30],
                             {from: defaultAccount});

@@ -1,0 +1,7 @@
+# Keep line ending in LF for this file until this is merged https://github.com/duaraghav8/Solium/pull/233
+
+node_modules
+contracts/Migrations.sol
+
+# Base is a folder with external libraries
+contracts/base

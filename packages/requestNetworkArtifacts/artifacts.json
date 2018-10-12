@@ -2,34 +2,37 @@
     "private": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-test.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-test.json",
-        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-test.json",
+        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-test.json",
         "last-requesterc20-0x345ca3e014aaf5dca488057592ee47305d9b3e10": "RequestERC20/RequestERC20-0.2.2-test-test.json",
+        "last-requesterc20-0x9fbda871d559710256a2502a2517b794b482db40": "RequestERC20/RequestOMG-0.2.6-test.json",
 
         "0x8cdaf0cd259887258bc13a92c0a6da92698644c0": "RequestCore/RequestCore-0.0.5-test.json",
         "0xf12b5dd4ead5f743c6baa640b0216200e89b60da": "RequestEthereum/RequestEthereum-0.0.5-test.json",
         "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf": "RequestERC20/RequestERC20-0.2.2-test-test.json",
-        "0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-test.json"
+        "0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-test.json",
+        "0x75c35c980c0d37ef46df04d31a140b65503c0eed": "RequestERC20/RequestOMG-0.2.6-test.json"
     },
     "rinkeby": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
-        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
+        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-prod.json",
         "last-requesterc20-0x995d6a8c21f24be1dd04e105dd0d83758343e258": "RequestERC20/RequestERC20-0.2.2-centralbank-rinkeby.json",
 
         "0x8fc2e7f2498f1d06461ee2d547002611b801202b": "RequestCore/RequestCore-0.0.5-prod.json",
         "0xd88ab9b1691340e04a5bbf78529c11d592d35f57": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
         "0xc7450a94237761d2222f6be4b04a1dae7a1e6347": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
+        "0x580bce13f6d97c15d364048c6c00fb3fb03a1416": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-prod.json",
         "0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5": "RequestERC20/RequestERC20-0.2.2-centralbank-rinkeby.json"
     },
     "main": {
         "last-requestcore": "RequestCore/RequestCore-0.0.5-prod.json",
         "last-requestethereum": "RequestEthereum/RequestEthereum-0.0.5-prod.json",
-        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
+        "last-requestbitcoinnodesvalidation": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-prod.json",
         "last-requesterc20-0x8f8221afbb33998d8584a2b05749ba73c37a938a": "RequestERC20/RequestERC20-0.2.2-req-main.json",
         "last-requesterc20-0xdd974d5c2e2928dea5f71b9825b8b646686bd200": "RequestERC20/RequestERC20-0.2.2-knc-main.json",
         "last-requesterc20-0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf": "RequestERC20/RequestERC20-0.2.2-dgx-main.json",
         "last-requesterc20-0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359": "RequestERC20/RequestERC20-0.2.2-dai-main.json",
-        "last-requesterc20-0xd26114cd6ee289accf82350c8d8487fedb8a0c07": "RequestERC20/RequestERC20-0.2.2-omg-main.json",
+        "last-requesterc20-0xd26114cd6ee289accf82350c8d8487fedb8a0c07": "RequestERC20/RequestOMG-0.2.6-omg-main.json",
         "last-requesterc20-0x818fc6c2ec5986bc6e2cbf00939d90556ab12ce5": "RequestERC20/RequestERC20-0.2.2-kin-main.json",
         "last-requesterc20-0xe41d2489571d322189246dafa5ebde1f4699f498": "RequestERC20/RequestERC20-0.2.2-zrx-main.json",
         "last-requesterc20-0x0d8775f648430679a709e98d2b0cb6250d2887ef": "RequestERC20/RequestERC20-0.2.2-bat-main.json",
@@ -42,8 +45,9 @@
         "0xa9566758d054f6efcf9b00095538fda3d9d75844": "RequestERC20/RequestERC20-0.2.2-knc-main.json",
         "0x891a1f07cbf6325192d830f4399932d4d1d66e89": "RequestERC20/RequestERC20-0.2.2-dgx-main.json",
         "0x3baa64a4401bbe18865547e916a9be8e6dd89a5a": "RequestERC20/RequestERC20-0.2.2-dai-main.json",
-        "0xe44d5393cc60d67c7858aa75cf307c00e837f0e5": "RequestERC20/RequestERC20-0.2.2-omg-main.json",
+        "0x729e895e186b7fbd34485d496415bb2f42629b71": "RequestERC20/RequestOMG-0.2.6-omg-main.json",
         "0x60fc18f243656532fce2265a5278d95cb3afa034": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.1-prod.json",
+        "0x6f33a7842ad134b2f4bcbedb34bce299dad56c97": "RequestBitcoinNodesValidation/RequestBitcoinNodesValidation-0.2.5-prod.json",
         "0x63afd0d2b9653552ac775b714d9a488658a637c5": "RequestERC20/RequestERC20-0.2.2-kin-main.json",
         "0xbbe47efe1a2cef913562fe454f6eb75a9f75e6d6": "RequestERC20/RequestERC20-0.2.2-zrx-main.json",
         "0x3f90549baf95c3c0b7e5bbb66b39edaefc7bd25e": "RequestERC20/RequestERC20-0.2.2-bat-main.json",

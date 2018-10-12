@@ -10,12 +10,6 @@ contract('central bank contract ', accounts => {
   let centralBankInstance = null;
   const [account1, account2, account3] = accounts;
 
-  it("is created with 0 total supply", async () => {
-    const centralBankInstance = await CentralBankContract.new();
-
-    assert.equal(await centralBankInstance.totalSupply(), 0);
-  });
-
   it("can be created with an initial supply", async () => {
     const initialSupply = 1000;
     const centralBankInstance = await CentralBankContract.new(initialSupply);
@@ -24,7 +18,7 @@ contract('central bank contract ', accounts => {
   });
 
   it("can be minted", async () => {
-    const centralBankInstance = await CentralBankContract.new();
+    const centralBankInstance = await CentralBankContract.new(0);
     assert.equal(await centralBankInstance.totalSupply(), 0);
     
     await centralBankInstance.mint(100);
@@ -32,7 +26,7 @@ contract('central bank contract ', accounts => {
   });
 
   it("can be minted several times", async () => {
-    const centralBankInstance = await CentralBankContract.new();
+    const centralBankInstance = await CentralBankContract.new(0);
     assert.equal(await centralBankInstance.totalSupply(), 0);
     
     await centralBankInstance.mint(100);
@@ -43,7 +37,7 @@ contract('central bank contract ', accounts => {
   });
 
   it("mints maximum 10e21 tokens at once", async () => {
-    const centralBankInstance = await CentralBankContract.new();
+    const centralBankInstance = await CentralBankContract.new(0);
     assert.equal(await centralBankInstance.totalSupply(), 0);
 
     await centralBankInstance.mint(new BigNumber(10).pow(21).add(1));

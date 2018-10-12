@@ -3,13 +3,13 @@ pragma solidity ^0.4.18;
 
 /// @dev From https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/ERC20Interface.sol
 interface ERC20 {
-    function totalSupply() public view returns (uint supply);
-    function balanceOf(address _owner) public view returns (uint balance);
-    function transfer(address _to, uint _value) public returns (bool success);
-    function transferFrom(address _from, address _to, uint _value) public returns (bool success);
-    function approve(address _spender, uint _value) public returns (bool success);
-    function allowance(address _owner, address _spender) public view returns (uint remaining);
-    function decimals() public view returns(uint digits);
+    function totalSupply() external view returns (uint supply);
+    function balanceOf(address _owner) external view returns (uint balance);
+    function transfer(address _to, uint _value) external returns (bool success);
+    function transferFrom(address _from, address _to, uint _value) external returns (bool success);
+    function approve(address _spender, uint _value) external returns (bool success);
+    function allowance(address _owner, address _spender) external view returns (uint remaining);
+    function decimals() external view returns(uint digits);
     event Approval(address indexed _owner, address indexed _spender, uint _value);
 }
 
@@ -28,7 +28,6 @@ contract KyberMock {
         ERC20 src,
         uint srcAmount,
         ERC20 dest,
-        
         address destAddress,
         uint maxDestAmount,
         uint minConversionRate,
@@ -45,7 +44,13 @@ contract KyberMock {
         // Sends erc20 to the caller
         dest.transfer(msg.sender, actualDestAmount);
 
-        ExecuteTrade(msg.sender, src, dest, actualSrcAmount, actualDestAmount);
+        emit ExecuteTrade(
+            msg.sender,
+            src,
+            dest,
+            actualSrcAmount,
+            actualDestAmount
+        );
         return actualDestAmount;
     }
 }

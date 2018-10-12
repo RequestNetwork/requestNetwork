@@ -374,7 +374,7 @@ export default class Web3Single {
      */
     public setUpOptions(_options ?: any): any {
         if (!_options) _options = {};
-        if (!_options.numberOfConfirmation) _options.numberOfConfirmation = 0;
+        if (!_options.numberOfConfirmation) _options.numberOfConfirmation = config.ethereum.defaultNumberOfConfirmation;
         if (_options.gasPrice) _options.gasPrice = new WEB3.utils.BN(_options.gasPrice);
         if (_options.gas) _options.gas = new WEB3.utils.BN(_options.gas);
         return _options;
@@ -440,20 +440,25 @@ export default class Web3Single {
         return { abi, address, instance, blockNumber, version };
     }
 
-    public sign(message: any, address: string): Promise<any> {
-        return new Promise( async (resolve, reject) => {
-            let signature = await this.web3.eth.sign(message, address);
-            // check if the signature is valid for solidity
-            if (!this.isValidSignatureForSolidity(signature, message, address)) {
-                // Work around for old web3 we had the solidity padding : '\u0019Ethereum Signed Message:\n'
-                const PADDING_SOLIDITY = '0x19457468657265756d205369676e6564204d6573736167653a0a';
-                const length = (message.length / 2) - 1;
-                const lengthHex = this.web3.utils.utf8ToHex(length.toString());
-                const messagePadded = PADDING_SOLIDITY + lengthHex.slice(2) + message.slice(2);
-                signature = await this.web3.eth.sign(messagePadded, address);
-            }
-            return resolve(signature);
-        });
+    /**
+     * sign a message with web3 provider
+     * @param message message to sign
+     * @param address address of the signer
+     * @return signature
+     */
+    public async sign(message: string, address: string): Promise<any> {
+        let signature = await this.trySign(message, address);
+
+        // check if the signature is valid for solidity
+        if (!this.isValidSignatureForSolidity(signature, message, address)) {
+            // Work around for old web3 we had the solidity padding : '\u0019Ethereum Signed Message:\n'
+            const PADDING_SOLIDITY = '0x19457468657265756d205369676e6564204d6573736167653a0a';
+            const length = (message.length / 2) - 1;
+            const lengthHex = this.web3.utils.utf8ToHex(length.toString());
+            const messagePadded = PADDING_SOLIDITY + lengthHex.slice(2) + message.slice(2);
+            signature = await this.trySign(messagePadded, address);
+        }
+        return signature;
     }
 
     public isValidSignatureForSolidity(signature: string, hash: string, payee: string): boolean {
@@ -463,4 +468,31 @@ export default class Web3Single {
         const addressSigning = ETH_UTIL.bufferToHex(addrBuf);
         return this.areSameAddressesNoChecksum(addressSigning, payee);
     }
+
+    /**
+     * try to sign message with web3.eth.personal (for client use) or this.web3.eth.sign (for backend use)
+     * @param message to sign
+     * @param address address of the signer
+     * @return signature
+     */
+    private async trySign(message: string, address: string): Promise<any> {
+        const web3ErrorMessage = 'Method personal_sign not supported.';
+        let signature;
+        try {
+            signature = await this.web3.eth.personal.sign(message, address);
+        } catch (err) {
+            if (!err.message.includes(web3ErrorMessage)) {
+                throw Error(err);
+            }
+        }
+
+        try {
+            signature = await this.web3.eth.sign(message, address);
+        } catch (error) {
+            throw Error(error);
+        }
+
+        return signature;
+    }
+
 }

@@ -3,10 +3,23 @@ import 'mocha';
 import RequestNetworkDataFormat from '../src/index';
 
 describe('Request Network Data Validator', () => {
-    it('should validate a correct json', () => {
-      const dataJson = require('./data/example-valid.json');
+    it('should validate a correct invoice 0.0.1 format', () => {
+      const dataJson = require('./data/example-valid-0.0.1.json');
       const result = RequestNetworkDataFormat.validate(dataJson);
       expect(result.valid, 'result.valid should be true').to.be.true;
+    });
+
+    it('should validate a correct invoice 0.0.2 format', () => {
+      const dataJson = require('./data/example-valid-0.0.2.json');
+      const result = RequestNetworkDataFormat.validate(dataJson);
+      expect(result.valid, 'result.valid should be true').to.be.true;
+    });
+
+    it('should not validate an invalid invoice 0.0.2 format', () => {
+      const dataJson = require('./data/example-invalid-0.0.2.json');
+      const result = RequestNetworkDataFormat.validate(dataJson);
+      expect(result.valid, 'result.valid should be false').to.be.false;
+      expect(result.errors[0].message, 'result.errors is wrong').to.equal('should be string');
     });
 
     it('should not validate a json without meta', () => {

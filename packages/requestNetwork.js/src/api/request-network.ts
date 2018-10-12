@@ -387,7 +387,7 @@ export default class RequestNetwork {
      * @param {SignedRequest} signedRequest The previously created Signed Request
      * @param {Types.IPayer} payer The Payer broadcasting the Signed Request
      * @param {Types.Amount[]} [amountsToPayAtCreation=[]] Amounts to pays when creating the broadcasting the Request
-     * @param {Types.Amount[]} [additionals=[]] Optionnal additionals to add
+     * @param {Types.Amount[]} [additions=[]] Optional array of additional payment amounts for each payee
      * @param {Types.IRequestCreationOptions} [requestOptions={}] Request creation options. Includes request data, extension and ethereum transaction options
      * @returns {PromiseEventEmitter<{request: Request, transaction: any}>} A promiEvent resolving to {request,transaction} and emitting the event 'broadcasted'
      * @memberof RequestNetwork
@@ -395,7 +395,7 @@ export default class RequestNetwork {
     public broadcastSignedRequest(
         signedRequest: SignedRequest,
         payer: Types.IPayer,
-        additionals: Types.Amount[] = [],
+        additions: Types.Amount[] = [],
         broadcastCurrencyOptions: Types.IBroadcastCurrencyOptions = {},
         requestOptions: Types.IRequestCreationOptions = {},
     ): PromiseEventEmitter<{request: Request, transaction: any}> {
@@ -414,7 +414,7 @@ export default class RequestNetwork {
             promise = service.broadcastSignedRequestAsPayer(
                 signedRequest.signedRequestData,
                 broadcastCurrencyOptions.amountsToPayAtCreation,
-                additionals,
+                additions,
                 Object.assign({ from: payer.idAddress }, requestOptions.transactionOptions),
             );
         }
@@ -439,7 +439,7 @@ export default class RequestNetwork {
             promise = requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(
                 signedRequest.signedRequestData,
                 payer.bitcoinRefundAddresses,
-                additionals,
+                additions,
                 Object.assign({ from: payer.idAddress }, requestOptions.transactionOptions),
             );
         }

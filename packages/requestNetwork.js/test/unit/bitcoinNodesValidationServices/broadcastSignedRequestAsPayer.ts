@@ -70,7 +70,46 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
             signature: '0x529c11c91795abdc19bf115bfbeea3e0156afc64d09f059024a898d7c6cd8ed5352f8c57310c8531e1f7cbe0f06f64a017274c27453fc9155c2ae3739d6bcafb00' };
     });
 
-    it('broadcast request as payer no payment no additionals', async function () {
+    it('can broadcast request as payer with no refund address', async function () {
+        const result = await rn.requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(signedRequest,
+                                                                                            undefined,
+                                                                                            undefined,
+                                                                                            {from:payer}
+            ).on('broadcasted', (data: any) => {
+                expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
+            });
+
+        expect(result.request.creator.toLowerCase(), 'creator is wrong').to.equal(payee);
+        expect(result.request.extension, 'extension is wrong').to.be.undefined;
+
+        expect(result.request.payee.address.toLowerCase(), 'payee is wrong').to.equal(payee);
+        utils.expectEqualsBN(result.request.payee.expectedAmount, arbitraryAmount, 'expectedAmount is wrong');
+        utils.expectEqualsBN(result.request.payee.balance, '111111', 'payee balance is wrong');
+
+        expect(result.request.payer.toLowerCase(), 'payer is wrong').to.equal(payer);
+        expect(result.request.requestId, 'requestId is wrong').to.equal(utils.getRequestId(addressRequestCore, ++currentNumRequest));
+        expect(result.request.state, 'state is wrong').to.equal(1);
+        expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestBitcoinNodesValidation.toLowerCase());
+
+        expect(result.data, 'data is wrong').to.be.undefined;
+        expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
+
+        expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
+        utils.expectEqualsBN(result.request.subPayees[0].balance, 0, 'payee2 balance is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2, 'payee2 expectedAmount is wrong');
+
+        expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
+        utils.expectEqualsBN(result.request.subPayees[1].balance, '44444', 'payee3 balance is wrong');
+        utils.expectEqualsBN(result.request.subPayees[1].expectedAmount, arbitraryAmount3, 'payee3 expectedAmount is wrong');
+
+        expect(result.request.currencyContract.payeePaymentAddress, 'payeePaymentAddress is wrong').to.equal(payeePayment);
+        expect(result.request.currencyContract.subPayeesPaymentAddress[0], 'subPayeesPaymentAddress0 is wrong').to.equal(payee2Payment);
+        expect(result.request.currencyContract.subPayeesPaymentAddress[1], 'subPayeesPaymentAddress1 is wrong').to.equal(payee3Payment);
+
+        expect(result.request.currencyContract.payeeRefundAddress, 'payerRefundAddress is wrong').to.equal('');
+    });
+
+    it('broadcast request as payer no payment no additions', async function () {
         const result = await rn.requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(signedRequest,
                                                                                             [payeeRefund,payee2Refund,payee3Refund],
                                                                                             undefined,
@@ -111,7 +150,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
         expect(result.request.currencyContract.subPayeesRefundAddress[1], 'subPayeesRefundAddress1 is wrong').to.equal(payee3Refund);
     });
 
-    it('broadcast request as payer with additionals', async function () {
+    it('broadcast request as payer with additions', async function () {
         const result = await rn.requestBitcoinNodesValidationService.broadcastSignedRequestAsPayer(signedRequest,
                                                                                             [payeeRefund,payee2Refund,payee3Refund],
                                                                                             [1,2,3],
@@ -172,7 +211,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
         }
     });
 
-    it('broadcast request as payer additionals < 0', async () => {
+    it('broadcast request as payer additions < 0', async () => {
         signedRequest = { currencyContract: '0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F',
                           expectedAmounts: [ '100000000' ],
                           expirationDate: 7952342400000,
@@ -189,7 +228,7 @@ describe('bitcoin NodesValidation broadcastSignedRequestAsPayer', () => {
                     {from: payer})
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_additions must be positive integers'),'exception not right');
         }
     });
 

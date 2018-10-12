@@ -158,7 +158,7 @@ describe('paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_additionals must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_additions must be positive integers'),'exception not right');
         }
     });
 
@@ -171,7 +171,7 @@ describe('paymentAction', () => {
                                 {from: payer});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('_amountsToPay must be positives integer'),'exception not right');
+            utils.expectEqualsException(e, Error('_amountsToPay must be positive integers'),'exception not right');
         }
     });
 
@@ -192,7 +192,7 @@ describe('paymentAction', () => {
         }
     });
 
-    it('pay request created by other guy no additionals', async () => {
+    it('pay request created by other guy no additions', async () => {
         const result = await rn.requestEthereumService.paymentAction(
                             requestId,
                             [arbitraryAmount],
@@ -216,7 +216,7 @@ describe('paymentAction', () => {
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
     });
 
-    it('pay request created by other guy WITH additionals', async () => {
+    it('pay request created by other guy WITH additions', async () => {
         try {
             const result = await rn.requestEthereumService.paymentAction(
                                 requestId,
@@ -225,7 +225,7 @@ describe('paymentAction', () => {
                                 {from: otherGuy});
             expect(false, 'exception not thrown').to.be.true; 
         } catch (e) {
-            utils.expectEqualsException(e, Error('only payer can add additionals'),'exception not right');
+            utils.expectEqualsException(e, Error('only payer can add additions'),'exception not right');
         }
     });
 

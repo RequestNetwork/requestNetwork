@@ -60,8 +60,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
                     [defaultAccount, payee2, payee3],
                     [arbitraryAmount, arbitraryAmount2, arbitraryAmount3],
                     payer,
-                    [payeePayment,payee2Payment,payee3Payment],
-                    [payeeRefund,payee2Refund,payee3Refund])
+                    [payeePayment,payee2Payment,payee3Payment])
             .on('broadcasted', (data: any) => {
                 expect(data.transaction, 'data.transaction.hash is wrong').to.have.property('hash');
             });
@@ -82,7 +81,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
         expect(result.request.data, 'request.data is wrong').to.be.undefined;
 
         expect(result.request.subPayees[0].address.toLowerCase(), 'payee2 is wrong').to.equal(payee2);
-        utils.expectEqualsBN(result.request.subPayees[0].balance, '-99999', 'payee2 balance is wrong');
+        utils.expectEqualsBN(result.request.subPayees[0].balance, 0, 'payee2 balance is wrong');
         utils.expectEqualsBN(result.request.subPayees[0].expectedAmount, arbitraryAmount2, 'payee2 expectedAmount is wrong');
 
         expect(result.request.subPayees[1].address.toLowerCase(), 'payee3 is wrong').to.equal(payee3);
@@ -93,9 +92,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
         expect(result.request.currencyContract.subPayeesPaymentAddress[0], 'subPayeesPaymentAddress0 is wrong').to.equal(payee2Payment);
         expect(result.request.currencyContract.subPayeesPaymentAddress[1], 'subPayeesPaymentAddress1 is wrong').to.equal(payee3Payment);
 
-        expect(result.request.currencyContract.payeeRefundAddress, 'payerRefundAddress is wrong').to.equal(payeeRefund);
-        expect(result.request.currencyContract.subPayeesRefundAddress[0], 'subPayeesRefundAddress0 is wrong').to.equal(payee2Refund);
-        expect(result.request.currencyContract.subPayeesRefundAddress[1], 'subPayeesRefundAddress1 is wrong').to.equal(payee3Refund);
+        expect(result.request.currencyContract.payeeRefundAddress, 'payerRefundAddress is wrong').to.equal('');
     });
 
     it('create request', async () => {
@@ -105,7 +102,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
                     payer,
                     [payeePayment,payee2Payment,payee3Payment],
                     [payeeRefund,payee2Refund,payee3Refund],
-                    '{"reason":"weed purchased"}',
+                    '{"reason":"purchased two large pizzas"}',
                     undefined,
                     undefined,
                     {from: payee})
@@ -127,7 +124,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
         expect(result.request.state, 'state is wrong').to.equal(0);
         expect(result.request.currencyContract.address.toLowerCase(), 'currencyContract is wrong').to.equal(addressRequestBitcoinNodesValidation.toLowerCase());
 
-        utils.expectEqualsObject(result.request.data.data,{"reason": "weed purchased"}, 'data.data is wrong')
+        utils.expectEqualsObject(result.request.data.data,{"reason": "purchased two large pizzas"}, 'data.data is wrong')
         expect(result.request.data, 'data.hash is wrong').to.have.property('hash');
         expect(result.transaction, 'result.transaction.hash is wrong').to.have.property('hash');
 
@@ -228,7 +225,7 @@ describe('bitcoinNodesValidation createRequestAsPayeeAction', () => {
                     [payeeRefund])
             expect(false, 'exception not thrown').to.be.true;
         } catch (e) {
-            utils.expectEqualsException(e, Error('_expectedAmounts must be positives integer'), 'exception not right');
+            utils.expectEqualsException(e, Error('_expectedAmounts must be positive integers'), 'exception not right');
         }
     });
 

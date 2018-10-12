@@ -15,11 +15,11 @@ contract CentralBank is StandardToken {
     string public constant symbol = "CTBK";
     uint8 public constant decimals = 18;
 
-    function CentralBank(uint256 initialSupply) public {
+    constructor(uint256 initialSupply) public {
         totalSupply = initialSupply;
 
         balances[msg.sender] = initialSupply;
-        Transfer(address(0x0), msg.sender, totalSupply);
+        emit Transfer(address(0x0), msg.sender, totalSupply);
     }
 
     function mint(uint256 _quantity) external {
@@ -27,6 +27,6 @@ contract CentralBank is StandardToken {
         totalSupply += quantity;
 
         balances[msg.sender] += quantity;
-        Transfer(address(0x0), msg.sender, totalSupply);
+        emit Transfer(address(0x0), msg.sender, totalSupply);
     }
 }
