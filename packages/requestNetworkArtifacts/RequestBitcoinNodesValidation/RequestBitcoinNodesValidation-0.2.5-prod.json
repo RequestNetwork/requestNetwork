@@ -493,6 +493,10 @@
     "rinkeby": {
       "address": "0x580bce13f6d97c15d364048c6c00fb3fb03a1416",
       "blockNumber": 3146894
+    },
+    "main": {
+        "address": "0x6f33a7842ad134b2f4bcbedb34bce299dad56c97",
+        "blockNumber": 6500422
     }
   }
 }

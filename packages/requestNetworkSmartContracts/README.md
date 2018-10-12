@@ -43,7 +43,7 @@ Contract addresses
 * RequestCore: 0x8fc2e7f2498f1d06461ee2d547002611b801202b
 * RequestEthereum: 0xd88ab9b1691340e04a5bbf78529c11d592d35f57
 * RequestERC20 token CTBK: 0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5  (test token CTBK 0x995d6a8c21f24be1dd04e105dd0d83758343e258)
-* RequestBitcoinNodesValidation: 0xC7450a94237761D2222F6BE4B04a1Dae7A1e6347
+* RequestBitcoinNodesValidation: 0x580bce13f6d97c15d364048c6c00fb3fb03a1416
 
 ### Develop on the Main net 
 
@@ -60,7 +60,7 @@ Contract addresses
 * RequestERC20 token BAT: 0x3f90549bAF95c3c0b7E5bBB66B39EDaEfc7BD25e 
 * RequestERC20 token BNB: 0x1fC6CCEafaAc97261E248FF5b8C6387696F14225 
 * RequestERC20 token LINK: 0x8f9224e619921923fcb0f2e1a31502bF22b87CFF
-* Request Bitcoin with node validation: 0x60fc18f243656532fce2265a5278d95cb3afa034
+* Request Bitcoin with node validation: 0x6f33a7842ad134B2F4BCbEDB34BCE299DAD56C97
 
 
 ## Request Ethereum smart contracts

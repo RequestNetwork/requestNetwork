@@ -17,7 +17,6 @@
     "lint": "tslint --project tsconfig.json -c tslint.json",
     "test": "npm run build && mocha --timeout 60000 dist/test/unit/**/*.js",
     "testdeploy": "ts-node ./test/deploy",
-    "perso": "ts-node ./test/persoRinkeby",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "prepare": "npm run build",
     "docs": "rimraf -r ./docs && compodoc -p src/tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8"
