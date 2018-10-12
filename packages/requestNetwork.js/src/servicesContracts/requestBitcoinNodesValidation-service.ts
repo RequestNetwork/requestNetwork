@@ -123,7 +123,7 @@ export default class RequestBitcoinNodesValidationService {
             if (!_options.from && err) return promiEvent.reject(err);
             const account = _options.from || defaultAccount;
 
-            if (_payeesIdAddress.length !== _expectedAmounts.length || _payeesIdAddress.length !== _payeesPaymentAddress.length || (_payerRefundAddress && _payeesIdAddress.length !== _payerRefundAddress.length)) {
+            if (_payeesIdAddress.length !== _expectedAmounts.length || _payeesIdAddress.length !== _payeesPaymentAddress.length || (_payerRefundAddress && _payerRefundAddress.length != 0 && _payeesIdAddress.length !== _payerRefundAddress.length)) {
                 return promiEvent.reject(Error('_payeesIdAddress, _expectedAmounts, _payerRefundAddress and _payeesPaymentAddress must have the same size'));
             }
             if (!this.web3Single.isArrayOfAddressesNoChecksum(_payeesIdAddress)) {
