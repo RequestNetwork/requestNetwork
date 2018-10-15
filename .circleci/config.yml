@@ -1,31 +1,149 @@
 version: 2
+
+references:
+  working_directory: &working_directory
+    ~/repo
+  attach_workspace: &attach_workspace
+  node_image: &node_image
+    image: circleci/node:8
+  ipfs_image: &ipfs_image
+    image: ipfs/go-ipfs
+  ganache_image: &ganache_image
+    image: trufflesuite/ganache-cli
+    command:
+      - "-l"
+      - "90000000"
+      - "-m"
+      - "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+
 jobs:
   build:
     docker:
-      - image: circleci/node:8.11.3-stretch
-      - image: ipfs/go-ipfs:v0.4.16
-      - image: trufflesuite/ganache-cli:v6.1.6
-        command: [
-          "-l", "90000000",
-          "-m", "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"]
-    environment:
-      NODE_ENV: test
+      - *node_image
+    working_directory: *working_directory
     steps:
       - checkout
-      - restore_cache:
-          key: v1-node-modules-cache-{{ checksum "package.json" }}-{{ checksum "packages/requestNetwork.js/package.json" }}
       - run:
-          name: Install depedencies
-          command: |
-            npm install .
-            cd packages/requestNetwork.js/ && npm install . && cd -
-      - save_cache:
-          key: v1-node-modules-cache-{{ checksum "package.json" }}-{{ checksum "packages/requestNetwork.js/package.json" }}
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Bootstrap'
+          command: 'lerna bootstrap --concurrency=1'
+      - persist_to_workspace:
+          root: *working_directory
+          paths: .
+  test-library:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Deploy test contract'
+          command: 'lerna run --scope @requestnetwork/request-network.js testdeploy'
+      - run:
+          name: 'Test requestNetwork.js library'
+          command: 'lerna run --scope @requestnetwork/request-network.js test --stream'
+  test-contract:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna and solium'
+          command: 'sudo npm install -g lerna solium@1.1.8'
+      - run:
+          name: 'Check contract linting'
+          command: 'lerna run --scope request-network-smart-contracts lint'
+      - run:
+          name: 'Test requestNetwork contract'
+          command: 'lerna run --scope request-network-smart-contracts test'
+  build-docs-library:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna and compodoc'
+          command: 'sudo npm install -g lerna @compodoc/compodoc'
+      - run:
+          name: 'Create library documentation'
+          command: 'lerna run --scope @requestnetwork/request-network.js docs'
+      - persist_to_workspace:
+          root: *working_directory
           paths:
-            - "node_modules"
-            - "packages/requestNetwork.js/node_modules"
+            - packages/requestNetwork.js/docs
+  build-docs-contract:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
       - run:
-          name: Deploy test contracts and run Request unit tests
-          command: |
-            ./node_modules/lerna/bin/lerna.js run --scope @requestnetwork/request-network.js testdeploy
-            ./node_modules/lerna/bin/lerna.js run --scope @requestnetwork/request-network.js test --stream
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Create contract documentation'
+          command: 'lerna run --scope request-network-smart-contracts docs:build'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/requestNetworkSmartContracts/docs
+  deploy-docs:
+    docker:
+      - image: circleci/python:2.7-jessie
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install awscli'
+          command: 'sudo pip install awscli'
+      - run:
+          name: Deploy library documentation to S3
+          command: 'aws s3 sync packages/requestNetwork.js/docs s3://docs-js-lib.request.network --delete'
+      - run:
+          name: Deploy contracts documentation to S3
+          command: 'aws s3 sync packages/requestNetworkSmartContracts/docs s3://docs-smart-contracts.request.network --delete'
+
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
+      # Test
+      - test-library:
+          requires:
+            - build
+      - test-contract:
+          requires:
+            - build
+      # Build documentation
+      - build-docs-library:
+          requires:
+            - test-library
+      - build-docs-contract:
+          requires:
+            - test-contract
+      # Deploy documentation
+      - deploy-docs:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build-docs-library
+            - build-docs-contract
