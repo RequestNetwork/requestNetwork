@@ -1,0 +1,29 @@
+{
+  "name": "@requestnetwork/ethereum-storage",
+  "version": "0.1.0",
+  "description": "Request Network storage layer based on ethereum",
+  "keywords": [
+    "requestnetwork",
+    "ethereum-storage"
+  ],
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/ethereum-storage#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork-private.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork-private/issues"
+  }
+}

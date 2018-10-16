@@ -1,0 +1,29 @@
+{
+  "name": "@requestnetwork/data-access",
+  "version": "0.1.0",
+  "description": "Main package for the Request Network data access layer",
+  "keywords": [
+    "requestnetwork",
+    "data-access"
+  ],
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-access#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork-private.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork-private/issues"
+  }
+}
