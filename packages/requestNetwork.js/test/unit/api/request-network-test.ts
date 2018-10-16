@@ -1,4 +1,4 @@
-import RequestNetwork, {Request, SignedRequest, Types, utils } from '../../../src/index';
+import RequestNetwork, { Request, SignedRequest, Types, utils } from '../../../src/index';
 import Erc20Service from '../../../src/servicesExternal/erc20-service';
 import currencyUtils from '../../../src/utils/currency';
 const Web3 = require('web3');
@@ -15,9 +15,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 describe('Request Network API', () => {
     let accounts: Array<string>;
-    let requestNetwork: RequestNetwork|any;
+    let requestNetwork: RequestNetwork | any;
     let examplePayees: Array<any>;
     let examplePayer: any;
+    let examplePayeesBadAmount: Array<any>;
+    let examplePayeesBadAddress: Array<any>;
+    let examplePayerBadAddress: any;
 
     beforeEach(async () => {
         accounts = await web3.eth.getAccounts();
@@ -33,61 +36,77 @@ describe('Request Network API', () => {
             refundAddress: accounts[1],
         };
 
+        examplePayeesBadAmount = [{
+            idAddress: accounts[0],
+            paymentAddress: accounts[0],
+            expectedAmount: -100,
+        }];
+        examplePayeesBadAddress = [{
+            idAddress: 28423,
+            paymentAddress: accounts[0],
+            expectedAmount: 100,
+        }];
+        examplePayerBadAddress = [{
+            idAddress: 28423,
+            paymentAddress: accounts[0],
+            expectedAmount: 100,
+        }];
+
         requestNetwork = new RequestNetwork({
             provider: 'http://localhost:8545',
             ethNetworkId: 10000000000
         });
-        
+
         BitcoinServiceTest.init();
         requestNetwork.requestBitcoinNodesValidationService.bitcoinService = BitcoinServiceTest.getInstance();
     });
-    
+
 
     it('can accept custom ipfs node', async () => {
-       const requestNetwork = new RequestNetwork({
-           ipfsCustomNode: {
-                host: "myipfsgateway.com", 
-                port: "5001", 
+        const requestNetwork = new RequestNetwork({
+            ipfsCustomNode: {
+                host: "myipfsgateway.com",
+                port: "5001",
                 protocol: "https",
             },
             provider: 'http://localhost:8545',
             ethNetworkId: 10000000000
-       });
-       const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
-       expect(ipfsConfig.host).to.be.equal("myipfsgateway.com");
-       expect(ipfsConfig.protocol).to.be.equal("https");
-       expect(ipfsConfig.port).to.be.equal("5001");
+        });
+        const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
+        expect(ipfsConfig.host).to.be.equal("myipfsgateway.com");
+        expect(ipfsConfig.protocol).to.be.equal("https");
+        expect(ipfsConfig.port).to.be.equal("5001");
     });
 
     it('can work with useIpfsPublic = false', async () => {
-       const requestNetwork = new RequestNetwork({
+        const requestNetwork = new RequestNetwork({
             useIpfsPublic: false,
             provider: 'http://localhost:8545',
             ethNetworkId: 10000000000
-       });
-       const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
-       expect(ipfsConfig.host).to.be.equal("localhost");
-       expect(ipfsConfig.protocol).to.be.equal("http");
-       expect(ipfsConfig.port).to.be.equal("5001");
+        });
+        const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
+        expect(ipfsConfig.host).to.be.equal("localhost");
+        expect(ipfsConfig.protocol).to.be.equal("http");
+        expect(ipfsConfig.port).to.be.equal("5001");
     });
 
     it('can work with useIpfsPublic = true', async () => {
-       const requestNetwork = new RequestNetwork({
+        const requestNetwork = new RequestNetwork({
             useIpfsPublic: true,
             provider: 'http://localhost:8545',
             ethNetworkId: 10000000000
-       });
-       const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
-       expect(ipfsConfig.host).to.be.equal("ipfs.infura.io");
-       expect(ipfsConfig.protocol).to.be.equal("https");
-       expect(ipfsConfig.port).to.be.equal("5001");
+        });
+        const ipfsConfig = requestNetwork.requestCoreService.ipfs.ipfsConfig;
+        expect(ipfsConfig.host).to.be.equal("ipfs.infura.io");
+        expect(ipfsConfig.protocol).to.be.equal("https");
+        expect(ipfsConfig.port).to.be.equal("5001");
     });
 
     it('cannot accept custom ipfs node with parameter missing', async () => {
         try {
             const requestNetwork = new RequestNetwork({
-               ipfsCustomNode: {
-                    host: "localhost", 
+                ipfsCustomNode: {
+                    host: "localhost",
                     port: "5001",
                 },
                 provider: 'http://localhost:8545',
@@ -100,21 +119,21 @@ describe('Request Network API', () => {
     });
 
     it('can be created with default parameters', async () => {
-       const requestNetwork = new RequestNetwork();
-       expect(requestNetwork).to.exist;
+        const requestNetwork = new RequestNetwork();
+        expect(requestNetwork).to.exist;
     });
 
     it('can be created with the legacy way of passing parameters', async () => {
-       const requestNetwork = new RequestNetwork('http://localhost:8545', 10000000000);
-       expect(requestNetwork).to.exist;
+        const requestNetwork = new RequestNetwork('http://localhost:8545', 10000000000);
+        expect(requestNetwork).to.exist;
     });
 
     it('allows direct access to the services', async () => {
-       const requestNetwork = new RequestNetwork();
-       expect(requestNetwork.requestCoreService).to.exist;
-       expect(requestNetwork.requestERC20Service).to.exist;
-       expect(requestNetwork.requestEthereumService).to.exist;
-       expect(requestNetwork.requestBitcoinNodesValidationService).to.exist;
+        const requestNetwork = new RequestNetwork();
+        expect(requestNetwork.requestCoreService).to.exist;
+        expect(requestNetwork.requestERC20Service).to.exist;
+        expect(requestNetwork.requestEthereumService).to.exist;
+        expect(requestNetwork.requestBitcoinNodesValidationService).to.exist;
     });
 
     it('creates a ETH request from payee', async () => {
@@ -125,10 +144,10 @@ describe('Request Network API', () => {
             examplePayees,
             examplePayer
         );
-        
+
         expect(request.requestId).to.exist;
         expect(request.currency).to.equal(Types.Currency.ETH);
-        
+
         const requestData = await request.getData();
         expect(requestData.creator).to.equal(examplePayees[0].idAddress);
         expect(requestData.payee.address).to.equal(examplePayees[0].idAddress);
@@ -146,10 +165,10 @@ describe('Request Network API', () => {
             examplePayees,
             examplePayer
         );
-        
+
         expect(request.requestId).to.exist;
         expect(request.currency).to.equal(Types.Currency.ETH);
-        
+
         const requestData = await request.getData();
         expect(requestData.creator).to.equal(examplePayer.idAddress);
         expect(requestData.payee.address).to.equal(examplePayees[0].idAddress);
@@ -169,7 +188,7 @@ describe('Request Network API', () => {
             examplePayer,
             { data: initialData }
         )
-        
+
         const requestData = await request.getData();
         expect(requestData.data.data).to.deep.equal(initialData);
     });
@@ -275,10 +294,10 @@ describe('Request Network API', () => {
         );
 
         const initialAmount = examplePayees[0].expectedAmount + examplePayees[0].additional;
-        
+
         let requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount);
-        
+
         await request.increaseExpectedAmounts([15], { from: examplePayer.idAddress });
         requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount + 15);
@@ -294,15 +313,15 @@ describe('Request Network API', () => {
         );
 
         const initialAmount = examplePayees[0].expectedAmount;
-        
+
         let requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount);
-        
+
         await request.reduceExpectedAmounts([15]);
         requestData = await request.getData();
         expect(requestData.payee.expectedAmount.toNumber()).to.equal(initialAmount - 15);
     });
-    
+
     it('sends broadcasted event', async () => {
         const broadcastedSpy = chai.spy();
         const notCalledSpy = chai.spy();
@@ -320,7 +339,7 @@ describe('Request Network API', () => {
         expect(broadcastedSpy).to.have.been.called();
         expect(notCalledSpy).to.have.been.called.below(1);
     });
-    
+
     it('gets request from its ID', async () => {
         const { request: request1 } = await requestNetwork.createRequest(
             Types.Role.Payee,
@@ -337,7 +356,7 @@ describe('Request Network API', () => {
         // Different obejct referrences
         expect(request1).to.not.equal(request2);
     });
-    
+
     it('gets data of a request', async () => {
         const { request } = await requestNetwork.createRequest(
             Types.Role.Payee,
@@ -351,7 +370,7 @@ describe('Request Network API', () => {
         expect(data.creator).to.be.equal(examplePayees[0].idAddress);
         expect(data.requestId).to.be.equal(request.requestId);
     });
-    
+
     it('gets request from its txHash', async () => {
         const { transaction } = await requestNetwork.createRequest(
             Types.Role.Payee,
@@ -370,7 +389,7 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.ETH,
             examplePayees,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         expect(signedRequest).to.be.instanceof(SignedRequest);
@@ -382,11 +401,11 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.ETH,
             examplePayees,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         expect(signedRequest.isValid(examplePayer)).to.be.true;
-        
+
         // Change the hash to make the signed request invalid
         signedRequest.signedRequestData.hash = 'someinvalidhash';
         expect(signedRequest.isValid(examplePayer)).to.be.false;
@@ -398,7 +417,7 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.ETH,
             examplePayees,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         const { request } = await requestNetwork.broadcastSignedRequest(signedRequest, examplePayer);
@@ -415,7 +434,7 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.ETH,
             examplePayees,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         const { request } = await requestNetwork.broadcastSignedRequest(signedRequest, examplePayer)
@@ -432,7 +451,7 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.ETH,
             examplePayees,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         const serialized = signedRequest.serializeForUri();
@@ -466,7 +485,7 @@ describe('Request Network API', () => {
 
         expect(request.requestId).to.exist;
         expect(request.currency).to.equal(Types.Currency.REQ);
-        
+
         const requestData = await request.getData();
         expect(requestData.creator).to.equal(examplePayees[0].idAddress);
         expect(requestData.payee.address).to.equal(examplePayees[0].idAddress);
@@ -477,7 +496,7 @@ describe('Request Network API', () => {
 
         // Send test tokens to the payer
         const testToken = new Erc20Service(currencyUtils.erc20TokenAddress(Types.Currency.REQ, 'private'));
-        await testToken.transfer(examplePayer.idAddress, 1, { from: accounts[0] });        
+        await testToken.transfer(examplePayer.idAddress, 1, { from: accounts[0] });
 
         // Approve Request for the ERC20
         await requestNetwork.requestERC20Service.approveTokenForRequest(request.requestId, 100, { from: examplePayer.idAddress });
@@ -493,7 +512,7 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.REQ,
             examplePayees,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         const { request } = await requestNetwork.broadcastSignedRequest(signedRequest, examplePayer);
@@ -524,7 +543,7 @@ describe('Request Network API', () => {
 
         expect(request.requestId).to.exist;
         expect(request.currency).to.equal(Types.Currency.BTC);
-        
+
         const requestData = await request.getData();
         expect(requestData.creator).to.equal(examplePayees[0].idAddress);
         expect(requestData.payee.address).to.equal(examplePayees[0].idAddress);
@@ -550,7 +569,7 @@ describe('Request Network API', () => {
             Types.Role.Payee,
             Types.Currency.BTC,
             examplePayeesBTC,
-            Date.now() + 3600*1000
+            Date.now() + 3600 * 1000
         );
 
         const { request } = await requestNetwork.broadcastSignedRequest(signedRequest, examplePayerBTC);
@@ -582,5 +601,139 @@ describe('Request Network API', () => {
 
     it('offers the number of decimals for a currency', () => {
         expect(utils.decimalsForCurrency(Types.Currency.DGX)).to.equal(9);
+    });
+
+    it('prevents creation of requests with invalid currency', async () => {
+        const catchSpy = chai.spy();
+
+        try {
+            await requestNetwork.createRequest(
+                Types.Role.Payee,
+                34098,
+                examplePayees,
+                examplePayer
+            );
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('prevents broadcasting signed requests with a string', async () => {
+        const catchSpy = chai.spy();
+
+        try {
+            await requestNetwork.broadcastSignedRequest('Not a signed request', examplePayer);
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('prevents creation of requests with invalid amount', async () => {
+        const catchSpy = chai.spy();
+
+        try {
+            await requestNetwork.createRequest(
+                Types.Role.Payee,
+                Types.Currency.REQ,
+                examplePayeesBadAmount,
+                examplePayer
+            );
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('prevents creation of requests with bad payee address', async () => {
+        const catchSpy = chai.spy();
+
+        try {
+            await requestNetwork.createRequest(
+                Types.Role.Payee,
+                Types.Currency.REQ,
+                examplePayeesBadAmount,
+                examplePayer
+            );
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('prevents creation of requests with bad payee address', async () => {
+        const catchSpy = chai.spy();
+
+        try {
+            await requestNetwork.createRequest(
+                Types.Role.Payee,
+                Types.Currency.REQ,
+                examplePayees,
+                examplePayerBadAddress
+            );
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('prevents paying with invalid value', async () => {
+        const catchSpy = chai.spy();
+
+        const { request } = await requestNetwork.createRequest(
+            Types.Role.Payee,
+            Types.Currency.ETH,
+            examplePayees,
+            examplePayer
+        );
+
+        try {
+            await request.pay([-110]);
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
+    });
+
+    it('prevents refunding invalid value', async () => {
+        const catchSpy = chai.spy();
+
+        const { request } = await requestNetwork.createRequest(
+            Types.Role.Payee,
+            Types.Currency.ETH,
+            examplePayees,
+            examplePayer
+        );
+
+        await request.pay([100]);
+
+        try {
+            await request.refund(-100);
+        }
+        catch (error) {
+            expect(error).to.exist;
+            catchSpy();
+        }
+
+        expect(catchSpy).to.have.been.called();
     });
 });

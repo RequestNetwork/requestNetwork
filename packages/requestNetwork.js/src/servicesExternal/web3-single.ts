@@ -14,6 +14,13 @@ const ETH_ABI = require('../lib/ethereumjs-abi-perso.js');
  */
 export default class Web3Single {
     /**
+     * Check if the value is a BigNumber
+     * @param   _number value to check
+     * @return  true if _number is a BigNumber
+     */
+    public static isBigNumber = WEB3.utils.isBN;
+
+    /**
      * Initialized the class Web3Single
      * @param   provider        The Web3.js Provider instance you would like the requestNetwork.js library
      *                          to use for interacting with the Ethereum network.
@@ -36,6 +43,7 @@ export default class Web3Single {
     public static BN() {
         return WEB3.utils.BN;
     }
+
     /**
      * get Network name from network Id
      * @param    _networkId    network id

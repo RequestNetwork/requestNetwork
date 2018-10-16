@@ -12,8 +12,8 @@ import * as Types from '../types';
  * @returns {erc20TokenAddresses: string|null, service: any} The configuration
  */
 function getCurrencyConfig(currency: Types.Currency)
-    : {erc20TokenAddresses: {private?: string, rinkeby?: string, main: string }|null, service: any, decimals: number} {
-    return {
+    : { erc20TokenAddresses: { private?: string, rinkeby?: string, main: string } | null, service: any, decimals: number } {
+    const currencyConfig = {
         [Types.Currency.ETH as number]: {
             erc20TokenAddresses: null,
             service: RequestEthereumService.getInstance(),
@@ -97,6 +97,22 @@ function getCurrencyConfig(currency: Types.Currency)
             decimals: 18,
         },
     }[currency];
+
+    if (!currencyConfig) {
+        // Create an error message that shows available currencies
+        let errorMessage = 'Currency ' + currency.toString() + ' not supported. Supported currencies: ';
+
+        const currencyOptions = Object.keys(Types.Currency)
+            .filter((key: any) => !isNaN(Number(Types.Currency[key])))
+            .reduce((accumulator: string, currentValue: any) => accumulator += `${Types.Currency[currentValue]}:${currentValue} `, '')
+            .concat('\n');
+
+        errorMessage += currencyOptions;
+
+        throw new Error(errorMessage);
+    }
+
+    return currencyConfig;
 }
 
 // Set of tools to handle currencies. Designed to be the only place regrouping the currency tools and util functions.
