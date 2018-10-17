@@ -8,7 +8,8 @@
   ],
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/types#readme",
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "lib": "src",
     "test": "test"
@@ -21,9 +22,16 @@
     "url": "git+https://github.com/RequestNetwork/requestNetwork-private.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "tsc -b",
+    "clean": "shx rm -rf lib",
+    "lint": "tslint --project ."
   },
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork-private/issues"
+  },
+  "devDependencies": {
+    "shx": "0.3.2",
+    "tslint": "5.11.0",
+    "typescript": "3.1.3"
   }
 }
