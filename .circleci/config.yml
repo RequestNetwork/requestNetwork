@@ -32,7 +32,80 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths: .
-  test-library:
+  test-data-access:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Build data-access'
+          command: 'lerna run --scope @requestnetwork/data-access build --stream'
+      - run:
+          name: 'Lint data-access'
+          command: 'lerna run --scope @requestnetwork/data-access lint --stream'
+      - run:
+          name: 'Test data-access'
+          command: 'lerna run --scope @requestnetwork/data-access test --stream'
+  test-ethereum-storage:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Build ethereum-storage'
+          command: 'lerna run --scope @requestnetwork/ethereum-storage build --stream'
+      - run:
+          name: 'Lint ethereum-storage'
+          command: 'lerna run --scope @requestnetwork/ethereum-storage lint --stream'
+      - run:
+          name: 'Test ethereum-storage'
+          command: 'lerna run --scope @requestnetwork/ethereum-storage test --stream'
+  test-request-logic:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Build request-logic'
+          command: 'lerna run --scope @requestnetwork/request-logic build --stream'
+      - run:
+          name: 'Lint request-logic'
+          command: 'lerna run --scope @requestnetwork/request-logic lint --stream'
+      - run:
+          name: 'Test request-logic'
+          command: 'lerna run --scope @requestnetwork/request-logic test --stream'
+  test-types:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Install lerna'
+          command: 'sudo npm install -g lerna'
+      - run:
+          name: 'Build types'
+          command: 'lerna run --scope @requestnetwork/types build --stream'
+      - run:
+          name: 'Lint types'
+          command: 'lerna run --scope @requestnetwork/types lint --stream'
+  test-requestNetwork.js:
     docker:
       - *node_image
       - *ipfs_image
@@ -50,7 +123,7 @@ jobs:
       - run:
           name: 'Test requestNetwork.js library'
           command: 'lerna run --scope @requestnetwork/request-network.js test --stream'
-  test-contract:
+  test-requestNetworkSmartContracts:
     docker:
       - *node_image
       - *ipfs_image
@@ -68,7 +141,7 @@ jobs:
       - run:
           name: 'Test requestNetwork contract'
           command: 'lerna run --scope request-network-smart-contracts test'
-  build-docs-library:
+  build-docs-requestNetwork.js:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -85,7 +158,7 @@ jobs:
           root: *working_directory
           paths:
             - packages/requestNetwork.js/docs
-  build-docs-contract:
+  build-docs-requestNetworkSmartContracts:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -119,31 +192,42 @@ jobs:
           name: Deploy contracts documentation to S3
           command: 'aws s3 sync packages/requestNetworkSmartContracts/docs s3://docs-smart-contracts.request.network --delete'
 
-
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build
       # Test
-      - test-library:
+      - test-data-access:
           requires:
             - build
-      - test-contract:
+      - test-ethereum-storage:
+          requires:
+            - build
+      - test-request-logic:
+          requires:
+            - build
+      - test-types:
+          requires:
+            - build
+      - test-requestNetwork.js:
+          requires:
+            - build
+      - test-requestNetworkSmartContracts:
           requires:
             - build
       # Build documentation
-      - build-docs-library:
+      - build-docs-requestNetwork.js:
           requires:
-            - test-library
-      - build-docs-contract:
+            - test-requestNetwork.js
+      - build-docs-requestNetworkSmartContracts:
           requires:
-            - test-contract
+            - test-requestNetworkSmartContracts
       # Deploy documentation
       - deploy-docs:
           filters:
             branches:
               only: master
           requires:
-            - build-docs-library
-            - build-docs-contract
+            - build-docs-requestNetwork.js
+            - build-docs-requestNetworkSmartContracts

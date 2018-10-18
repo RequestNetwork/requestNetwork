@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/data-access",
   "version": "0.1.0",
+  "private": true,
   "description": "Main package for the Request Network data access layer",
   "keywords": [
     "requestnetwork",
@@ -19,22 +20,26 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RequestNetwork/requestNetwork-private.git"
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
   "scripts": {
     "build": "tsc -b",
     "clean": "shx rm -rf lib",
     "lint": "tslint --project .",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test": "mocha --require ts-node/register test/**/*.ts"
   },
   "bugs": {
-    "url": "https://github.com/RequestNetwork/requestNetwork-private/issues"
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
   "devDependencies": {
+    "chai": "4.2.0",
     "husky": "1.1.2",
     "lint-staged": "7.3.0",
+    "mocha": "5.2.0",
     "prettier": "1.14.3",
     "shx": "0.3.2",
+    "ts-node": "7.0.1",
     "tslint": "5.11.0",
     "typescript": "3.1.3"
   },

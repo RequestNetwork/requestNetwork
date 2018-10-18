@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/types",
   "version": "0.1.0",
+  "private": true,
   "description": "Types for Request Network packages",
   "keywords": [
     "requestnetwork",
@@ -19,16 +20,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RequestNetwork/requestNetwork-private.git"
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
   "scripts": {
     "build": "tsc -b",
     "clean": "shx rm -rf lib",
     "lint": "tslint --project .",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "prepare": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/RequestNetwork/requestNetwork-private/issues"
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
   "devDependencies": {
     "husky": "1.1.2",
