@@ -16,7 +16,7 @@
     "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "lint": "solium --dir contracts",
     "test": "truffle test",
-    "build": "npm run clean && truffle compile && node exportArtifacts",
+    "build": "yarn run clean && truffle compile && node exportArtifacts",
     "docs:init": "doxity init",
     "docs:build": "doxity build"
   },

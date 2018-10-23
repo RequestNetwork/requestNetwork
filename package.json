@@ -1,6 +1,21 @@
 {
+    "name": "@requestnetwork/request-network-monorepo",
+    "version": "0.1.0",
+    "private": true,
 	"homepage": "https://github.com/RequestNetwork/requestNetwork",
-	"devDependencies": {
-		"lerna": "3.2.1"
-	}
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "lerna": "lerna",
+        "test": "lerna run test",
+        "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types"
+    },
+    "devDependencies": {
+      "lerna": "3.4.3",
+      "typescript": "3.1.3"
+    }
 }

@@ -12,9 +12,9 @@
   "repository": "github:RequestNetwork/requestNetwork",
   "scripts": {
     "clean": "rimraf -rf ./dist",
-    "build": "npm run clean && tsc && shx cp -r ./src/format ./dist/src/ && shx cp -r ./test/data ./dist/test/",
-    "test": "npm run build && mocha --timeout 60000 dist/test/*.js",
-    "prepare": "npm run build"
+    "build": "yarn run clean && tsc && shx cp -r ./src/format ./dist/src/ && shx cp -r ./test/data ./dist/test/",
+    "test": "yarn run build && mocha --timeout 60000 dist/test/*.js",
+    "prepare": "yarn run build"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -32,7 +32,7 @@
   "dependencies": {
     "ajv": "6.5.0",
     "tslib": "1.9.0",
-    "typescript": "2.8.1"
+    "typescript": "3.1.3"
   },
   "main": "dist/src/index.js",
   "files": [

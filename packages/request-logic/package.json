@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "clean": "shx rm -rf lib",
+    "clean": "shx rm -rf dist",
     "lint": "tslint --project .",
     "lint-staged": "lint-staged",
     "test": "mocha --require ts-node/register test/**/*.ts"

@@ -24,10 +24,10 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "clean": "shx rm -rf lib",
+    "clean": "shx rm -rf dist",
     "lint": "tslint --project .",
     "lint-staged": "lint-staged",
-    "prepare": "npm run build"
+    "prepare": "yarn run build"
   },
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"

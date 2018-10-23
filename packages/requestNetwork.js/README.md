@@ -926,19 +926,13 @@ Here is the list of events produced by the Request Network smarts contracts. Not
 
 ### Set up
 
-Install ganache globally if it isn't already installed
-`npm install -g ganache-cli`
-
-Install lerna and bootstrap it, to install the dependencies and link the packages together
-`npm install --global lerna`
-
-`lerna bootstrap`
+Install the dependencies with `yarn install` or `lerna bootstrap`.
 
 ### Running the tests
 
 Launch a ganache-cli instance on a terminal:
 
-`npm run ganache`
+`yarn run ganache`
 
 In a second terminal, Launch an ipfs node:
 
@@ -946,8 +940,8 @@ In a second terminal, Launch an ipfs node:
 
 In a third terminal, deploy the contracts:
 
-`npm run testdeploy`
+`yarn run testdeploy`
 
 You can now launch the unit tests:
 
-`npm run test`
+`yarn run test`

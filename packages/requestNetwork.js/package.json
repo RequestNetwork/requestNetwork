@@ -13,12 +13,12 @@
   "repository": "github:RequestNetwork/requestNetwork",
   "scripts": {
     "clean": "rimraf -rf ./dist",
-    "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
+    "build": "yarn run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
     "lint": "tslint --project . --exclude ./test/**/*",
-    "test": "npm run build && mocha --timeout 60000 dist/test/unit/**/*.js",
+    "test": "yarn run build && mocha --timeout 60000 dist/test/unit/**/*.js",
     "testdeploy": "ts-node ./test/deploy",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
-    "prepare": "npm run build",
+    "prepare": "yarn run build",
     "docs": "rimraf -r ./docs && compodoc -p src/tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "ipfs-api": "git://github.com/RequestNetwork/js-ipfs-api.git#9a99b08313e623c14a17357bb9655814dbe1d018",
     "requestnetworkartifacts": "^1.6.0",
     "tslib": "1.9.3",
-    "typescript": "2.9.2",
+    "typescript": "3.1.3",
     "wallet-address-validator": "0.1.7",
     "web3": "1.0.0-beta.35",
     "web3-core-promievent": "1.0.0-beta.36"

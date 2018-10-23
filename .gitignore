@@ -31,11 +31,6 @@ npm-debug.log
 testem.log
 /typings
 
-# perso
-test/test.ts
-*.maybe
-*Kovan*
-*Rinkeby*
-
 # logs
 lerna-debug.log
+yarn-error.log

@@ -24,11 +24,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
-          name: 'Bootstrap'
-          command: 'lerna bootstrap --concurrency=1'
+          name: 'Yarn install'
+          command: 'yarn install'
       - persist_to_workspace:
           root: *working_directory
           paths: .
@@ -40,17 +37,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
           name: 'Build data-access'
-          command: 'lerna run --scope @requestnetwork/data-access build --stream'
+          command: 'yarn workspace @requestnetwork/data-access run build'
       - run:
           name: 'Lint data-access'
-          command: 'lerna run --scope @requestnetwork/data-access lint --stream'
+          command: 'yarn workspace @requestnetwork/data-access run lint '
       - run:
           name: 'Test data-access'
-          command: 'lerna run --scope @requestnetwork/data-access test --stream'
+          command: 'yarn workspace @requestnetwork/data-access run test'
   test-ethereum-storage:
     docker:
       - *node_image
@@ -59,17 +53,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
           name: 'Build ethereum-storage'
-          command: 'lerna run --scope @requestnetwork/ethereum-storage build --stream'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
       - run:
           name: 'Lint ethereum-storage'
-          command: 'lerna run --scope @requestnetwork/ethereum-storage lint --stream'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run lint'
       - run:
           name: 'Test ethereum-storage'
-          command: 'lerna run --scope @requestnetwork/ethereum-storage test --stream'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run test'
   test-request-logic:
     docker:
       - *node_image
@@ -78,17 +69,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
           name: 'Build request-logic'
-          command: 'lerna run --scope @requestnetwork/request-logic build --stream'
+          command: 'yarn workspace @requestnetwork/request-logic run build'
       - run:
           name: 'Lint request-logic'
-          command: 'lerna run --scope @requestnetwork/request-logic lint --stream'
+          command: 'yarn workspace @requestnetwork/request-logic run lint'
       - run:
           name: 'Test request-logic'
-          command: 'lerna run --scope @requestnetwork/request-logic test --stream'
+          command: 'yarn workspace @requestnetwork/request-logic run test'
   test-types:
     docker:
       - *node_image
@@ -97,14 +85,11 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
           name: 'Build types'
-          command: 'lerna run --scope @requestnetwork/types build --stream'
+          command: 'yarn workspace @requestnetwork/types run build'
       - run:
           name: 'Lint types'
-          command: 'lerna run --scope @requestnetwork/types lint --stream'
+          command: 'yarn workspace @requestnetwork/types run lint'
   test-requestNetwork.js:
     docker:
       - *node_image
@@ -115,14 +100,11 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
           name: 'Deploy test contract'
-          command: 'lerna run --scope @requestnetwork/request-network.js testdeploy'
+          command: 'yarn workspace @requestnetwork/request-network.js run testdeploy'
       - run:
           name: 'Test requestNetwork.js library'
-          command: 'lerna run --scope @requestnetwork/request-network.js test --stream'
+          command: 'yarn workspace @requestnetwork/request-network.js run test'
   test-requestNetworkSmartContracts:
     docker:
       - *node_image
@@ -133,14 +115,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna and solium'
-          command: 'sudo npm install -g lerna solium@1.1.8'
+          name: 'Install solium'
+          command: 'yarn global add solium@1.1.8'
       - run:
           name: 'Check contract linting'
-          command: 'lerna run --scope request-network-smart-contracts lint'
+          command: 'yarn workspace request-network-smart-contracts run lint'
       - run:
           name: 'Test requestNetwork contract'
-          command: 'lerna run --scope request-network-smart-contracts test'
+          command: 'yarn workspace request-network-smart-contracts run test'
   build-docs-requestNetwork.js:
     docker:
       - *node_image
@@ -149,11 +131,11 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna and compodoc'
-          command: 'sudo npm install -g lerna @compodoc/compodoc'
+          name: 'Install compodoc'
+          command: 'yarn global add @compodoc/compodoc'
       - run:
           name: 'Create library documentation'
-          command: 'lerna run --scope @requestnetwork/request-network.js docs'
+          command: 'yarn workspace @requestnetwork/request-network.js run docs'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -166,11 +148,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Install lerna'
-          command: 'sudo npm install -g lerna'
-      - run:
           name: 'Create contract documentation'
-          command: 'lerna run --scope request-network-smart-contracts docs:build'
+          command: 'yarn workspace request-network-smart-contracts run docs:build'
       - persist_to_workspace:
           root: *working_directory
           paths:

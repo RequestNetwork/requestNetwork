@@ -83,31 +83,25 @@ See this article https://blog.request.network/request-network-bug-bounty-live-ee
 
 ### Set up
 
-Install ganache globally if it isn't already installed
-`npm install -g ganache-cli`
-
-Install lerna and bootstrap it, to install the dependencies and link the packages together
-`npm install --global lerna`
-
-`lerna bootstrap`
+Install the dependencies with `yarn install` or `lerna bootstrap`.
 
 ### Running the tests
 
 Launch a ganache-cli instance on a terminal:
 
-`npm run ganache`
+`yarn run ganache`
 
 You can now launch the unit tests:
 
-`npm run test`
+`yarn run test`
 
 
 ### Building the artifacts
 
 To build the artifacts, run
-`npm run build`
+`yarn run build`
 This will compile the contracts through truffle and run exportArtifacts.js on the export of truffle. 
 The output will be accessible in export/
 
 To clean build/ (temporary folder, output of truffle) and export/, run
-`npm run clean`
+`yarn run clean`
