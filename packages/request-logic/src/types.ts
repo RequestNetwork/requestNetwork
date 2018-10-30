@@ -1,0 +1,68 @@
+const bigNumber: any = require('bn.js');
+import * as RequestEnum from './enum';
+
+// Interface of the parameters needed to sign
+export interface IRequestLogicSignatureParameters {
+  // method of the signature
+  method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD;
+  // value used to sign
+  privateKey: string;
+}
+
+// Interface of a signature
+export interface IRequestLogicSignature {
+  // method used to sign
+  method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD;
+  // the signature itself
+  value: string;
+}
+
+// Interface of an identity object
+export interface IRequestLogicIdentity {
+  // type of the identification
+  type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE;
+  // the identification itself
+  value: string;
+}
+
+// Interface of a request logic transaction
+export interface IRequestLogicTransaction {
+  action: RequestEnum.REQUEST_LOGIC_ACTION;
+  parameters?: any;
+}
+
+// Interface of a request logic signed transaction
+export interface IRequestLogicSignedTransaction {
+  transaction: IRequestLogicTransaction;
+  signature: IRequestLogicSignature;
+}
+
+// Properties of a request in request logic
+export interface IRequestLogicRequest {
+  // request identifier
+  requestId: RequestLogicRequestId;
+  // indentity of the request creator (the one who initiates it)
+  creator: IRequestLogicIdentity;
+  currency: RequestEnum.REQUEST_LOGIC_CURRENCY;
+  state: RequestEnum.REQUEST_LOGIC_STATE;
+  expectedAmount: RequestLogicAmount;
+  payee?: IRequestLogicIdentity;
+  payer?: IRequestLogicIdentity;
+  // Array of extensions data linked to the request
+  extensions?: any[];
+}
+
+// Type of amount used in request logic
+export type RequestLogicAmount = number | string | typeof bigNumber;
+
+// TYpe of the requestId propertie
+export type RequestLogicRequestId = string;
+
+// Parameters to create a request
+export interface IRequestLogicRequestCreateParameters {
+  currency: RequestEnum.REQUEST_LOGIC_CURRENCY;
+  expectedAmount: RequestLogicAmount;
+  payee?: IRequestLogicIdentity;
+  payer?: IRequestLogicIdentity;
+  extensions?: any[];
+}
