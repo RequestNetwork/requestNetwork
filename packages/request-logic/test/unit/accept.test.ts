@@ -55,7 +55,7 @@ describe('actions/accept', () => {
       RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
     );
     expect(txAccept.signature.value, 'txAccept.signature.value').to.equal(
-      '0xfd6b20ae03ef861e2938d8f358c55479f8426e0587eccebb245c511da93abb8c76e093377c3c506d3176f4adfa5d1912f6e2f2557b4ab1690077b146a43e3fbf1c',
+      '0x713bbc8f43107e960615600222a5f636ec49e5b2ae4da7752e1ebd77bbcdbcf074b45852a6934c4011845ae470581a0f681333096162a80bb8fa7278057403251b',
     );
   });
 
@@ -88,7 +88,7 @@ describe('actions/accept', () => {
       RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
     );
     expect(txAccept.signature.value, 'txAccept.signature.value').to.equal(
-      '0x87bd7090fff7fd0fc0e141374570ec1b42bc37555ffbefc6eea7a82631c14c0045deb4e9a1c367c7b87a471abcaa8354cdff433644a990e633d33ed7563c63591c',
+      '0x3cfeaf2204f952b30205aa60bfe6cc1dd7c7c8008a5b30136bcb5e6e69bb56332f6990e7d2e2eb48b7a16e6e73dceefc6581e434696bb40ac053303406dfaa601b',
     );
   });
 });

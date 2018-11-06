@@ -5,6 +5,9 @@ const bigNumber: any = require('bn.js');
 import * as RequestEnum from '../../src/enum';
 import RequestLogic from '../../src/requestLogic';
 
+import Version from '../../src/version';
+const CURRENT_VERSION = Version.currentVersion;
+
 // payee id
 const payeeRaw = {
   address: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -53,6 +56,9 @@ describe('requestLogic.formatCreate()', () => {
     expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
       'parameters',
     );
+    expect(txCreation.transaction.version, 'txCreation.transaction.version is wrong').to.equal(
+      CURRENT_VERSION,
+    );
 
     expect(txCreation.transaction.parameters.currency, 'currency is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
@@ -81,7 +87,7 @@ describe('requestLogic.formatCreate()', () => {
       RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
     );
     expect(txCreation.signature.value, 'txCreation.signature.value').to.equal(
-      '0x32146780652ad2b5337891032c8de0079d3e4a8a7a9616d3a88de92dbc29f2d65bde479254bc3d18c6860cb04469f9f00eccea4b0a0d8a00d7f0a930f234e0781c',
+      '0x143f0965cb8628c93e6f59f39a7c86163a7de01df42c923e65e109bab336710d7b534615025ed0c285e8dcbba2f4e136afa497af792a63519c486b16f3ccabb41c',
     );
   });
 
@@ -105,7 +111,9 @@ describe('requestLogic.formatCreate()', () => {
     expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
       'parameters',
     );
-
+    expect(txCreation.transaction.version, 'txCreation.transaction.version is wrong').to.equal(
+      CURRENT_VERSION,
+    );
     expect(txCreation.transaction.parameters.currency, 'currency is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
     );
@@ -133,7 +141,7 @@ describe('requestLogic.formatCreate()', () => {
       RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
     );
     expect(txCreation.signature.value, 'txCreation.signature.value').to.equal(
-      '0xd7c0d45fee9545d33862a4b6eb028769af0886f5ecd2d3e7c3362ffe7bd805e672fb99d10adc96d1b56bcd34a6a0a29d0c85b02d98da53d26eb43a6fa093b4e61b',
+      '0x391371cad6e72ba24f56590fe5d1f7e40b899869ce1088b1761b1a7362e26f23111f52abfe74783a54f3fb12e74f4dc6c63e60b608d8dded8d697b500e23b0a01c',
     );
   });
 
@@ -160,6 +168,9 @@ describe('requestLogic.formatCreate()', () => {
     );
     expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
       'parameters',
+    );
+    expect(txCreation.transaction.version, 'txCreation.transaction.version is wrong').to.equal(
+      CURRENT_VERSION,
     );
 
     expect(txCreation.transaction.parameters.currency, 'currency is wrong').to.equal(
@@ -201,7 +212,7 @@ describe('requestLogic.formatCreate()', () => {
       RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
     );
     expect(txCreation.signature.value, 'txCreation.signature.value').to.equal(
-      '0xac45cdf90d1753aafffb48864cf9920bee58a68be30afdaee7d5abf71b7fb705519056d5466fa6155f2f39db05298d3315a8887891748e15f94ec7aabb635c491b',
+      '0xeb37d0492bd0b7c9eb8b0f33dd71f7f25d72a498b6eeacccb6c2510ac08a363642b42f636c63e0adf3a46cb9de9541dc1af8b9ea3bb914dcb5c77127edf850711b',
     );
   });
   it('cannot create without payee and payer', () => {
@@ -339,7 +350,7 @@ describe('requestLogic.formatCreate()', () => {
       RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
     );
     expect(txCreation.signature.value, 'txCreation.signature.value').to.equal(
-      '0xf297aedbeff9d9168c2403db6dbf74b0e6db1eb9f9fae0f42e6c9a3acbedbda5604e73f68ed48d9668988768217b56ea211ceb66f2ce05f5df32eb3fc88066011b',
+      '0xf4359003e0fec92ff186edb1c596de83c35d62c97befd4f1a2bc65a216fbcf6b7c8c61de2a4437a8873635a6581d6619dd060641aeaa14b48feb1bc5cb3873fa1c',
     );
   });
 

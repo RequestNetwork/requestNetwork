@@ -3,15 +3,20 @@ import * as RequestEnum from './enum';
 import Role from './role';
 import Signature from './signature';
 import * as Types from './types';
+import Version from './version';
 
 /**
- * Function to manage Elliptic-curve cryptography
+ * Function to manage Request logic transactions
  */
 export default {
   createSignedTransaction,
   getRequestId,
   getRoleInTransaction,
   getSignerIdentityFromSignedTransaction,
+  getVersionFromSignedTransaction,
+  getVersionFromTransaction,
+  isSignedTransactionVersionSupported,
+  isTransactionVersionSupported,
 };
 
 /**
@@ -72,4 +77,52 @@ function getRoleInTransaction(
  */
 function getRequestId(transaction: Types.IRequestLogicTransaction): Types.RequestLogicRequestId {
   return Utils.crypto.normalizeKeccak256Hash(transaction);
+}
+
+/**
+ * Function to check if a signed transaction is supported
+ *
+ * @param IRequestLogicSignedTransaction signedTransaction signed transaction to check
+ *
+ * @returns boolean true, if signed transaction is supported false otherwise
+ */
+function isSignedTransactionVersionSupported(
+  signedTransaction: Types.IRequestLogicSignedTransaction,
+): boolean {
+  return Version.isSupported(signedTransaction.transaction.version);
+}
+
+/**
+ * Function to check if a transaction is supported
+ *
+ * @param IRequestLogicSignedTransaction transaction transaction to check
+ *
+ * @returns boolean true, if transaction is supported false otherwise
+ */
+function isTransactionVersionSupported(transaction: Types.IRequestLogicTransaction): boolean {
+  return Version.isSupported(transaction.version);
+}
+
+/**
+ * Function to get the version of a transaction
+ *
+ * @param IRequestLogicSignedTransaction transaction transaction to check
+ *
+ * @returns string version
+ */
+function getVersionFromTransaction(transaction: Types.IRequestLogicTransaction): string {
+  return transaction.version;
+}
+
+/**
+ * Function to get the version of a signed transaction
+ *
+ * @param IRequestLogicSignedTransaction signedTransaction signed transaction to check
+ *
+ * @returns string version
+ */
+function getVersionFromSignedTransaction(
+  signedTransaction: Types.IRequestLogicSignedTransaction,
+): string {
+  return signedTransaction.transaction.version;
 }

@@ -4,6 +4,9 @@ import 'mocha';
 import * as RequestEnum from '../../src/enum';
 import RequestLogic from '../../src/requestLogic';
 
+import Version from '../../src/version';
+const CURRENT_VERSION = Version.currentVersion;
+
 // payee id
 const payeeRaw = {
   address: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -49,6 +52,7 @@ const regularRequestContextNoExtension = {
   },
   requestId: requestIdMoch,
   state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+  version: CURRENT_VERSION,
 };
 
 const extensions = [{ id: 'extension1', value: 'whatever' }];
@@ -70,6 +74,7 @@ const regularRequestContextWithExtensions = {
   },
   requestId: requestIdMoch,
   state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+  version: CURRENT_VERSION,
 };
 
 /* tslint:disable:no-unused-expression */
@@ -166,6 +171,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         transaction: {
           action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
           parameters: {},
+          version: CURRENT_VERSION,
         },
       };
       const request = RequestLogic.applyTransactionToRequest(
@@ -192,6 +198,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
           parameters: {
             requestId: requestIdMoch,
           },
+          version: CURRENT_VERSION,
         },
       };
       const request = RequestLogic.applyTransactionToRequest(signedTx);
@@ -215,6 +222,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       },
       requestId: requestIdMoch,
       state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+      version: CURRENT_VERSION,
     };
     try {
       const signedTx = {
@@ -228,6 +236,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
           parameters: {
             requestId: requestIdMoch,
           },
+          version: CURRENT_VERSION,
         },
       };
       const request = RequestLogic.applyTransactionToRequest(signedTx, requestContextNoPayer);
@@ -255,6 +264,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       },
       requestId: requestIdMoch,
       state: RequestEnum.REQUEST_LOGIC_STATE.CANCELLED,
+      version: CURRENT_VERSION,
     };
     try {
       const signedTx = {
@@ -268,6 +278,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
           parameters: {
             requestId: requestIdMoch,
           },
+          version: CURRENT_VERSION,
         },
       };
       const request = RequestLogic.applyTransactionToRequest(signedTx, requestContextAccepted);
@@ -295,6 +306,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       },
       requestId: requestIdMoch,
       state: RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED,
+      version: CURRENT_VERSION,
     };
     try {
       const signedTx = {
@@ -308,6 +320,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
           parameters: {
             requestId: requestIdMoch,
           },
+          version: CURRENT_VERSION,
         },
       };
       const request = RequestLogic.applyTransactionToRequest(signedTx, requestContextAccepted);
@@ -457,6 +470,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       expectedAmount: '-1000',
       requestId: requestIdMoch,
       state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+      version: CURRENT_VERSION,
     };
     try {
       const txAccept = RequestLogic.formatAccept(

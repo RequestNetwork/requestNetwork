@@ -35,6 +35,7 @@ const randomTx = {
     payee,
     payer,
   },
+  version: '0.0.1',
 };
 
 /* tslint:disable:no-unused-expression */
@@ -42,7 +43,7 @@ describe('Transaction', () => {
   it('can getRequestId()', () => {
     const reqId = Transaction.getRequestId(randomTx);
     expect(reqId, 'getRequestId() error').to.be.equal(
-      '0x449b29d31c10529f16831aa11b62e2297e8cadbfe45b334ffc9b098d65c5ffb7',
+      '0xc0d5823c435e40be4ebceba4b2142dcf13d90489d5502e04e4b6bbbde206baca',
     );
   });
 
@@ -70,7 +71,7 @@ describe('Transaction', () => {
     expect(signedTx.signature, 'createSignedTransaction() signature error').to.be.deep.equal({
       method: 'ecdsa',
       value:
-        '0x7aec6042e43003dc6e080e31d6a7631f7733f7fb00c2be61e04678aa729c59932865a5c2122a0051de8c4891e87f834c6642d813a44acaeb33264228b05c1cf61c',
+        '0x714d09b150416d53df938afdd5a8f30e20129da800574f51582ae7a773363d103b12e5cd8adade056a14da67c5cc74f74f38ef1ab7f7b7d2534b589574a41fe21b',
     });
 
     expect(signedTx.transaction, 'createSignedTransaction() transaction error').to.be.deep.equal(
@@ -83,7 +84,7 @@ describe('Transaction', () => {
       signature: {
         method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
         value:
-          '0x7aec6042e43003dc6e080e31d6a7631f7733f7fb00c2be61e04678aa729c59932865a5c2122a0051de8c4891e87f834c6642d813a44acaeb33264228b05c1cf61c',
+          '0x714d09b150416d53df938afdd5a8f30e20129da800574f51582ae7a773363d103b12e5cd8adade056a14da67c5cc74f74f38ef1ab7f7b7d2534b589574a41fe21b',
       },
       transaction: randomTx,
     });

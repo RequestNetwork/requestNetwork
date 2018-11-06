@@ -4,6 +4,7 @@ import Request from '../request';
 import Signature from '../signature';
 import Transaction from '../transaction';
 import * as Types from '../types';
+import Version from '../version';
 
 /**
  * Implementation of the action accept from request logic specification
@@ -28,6 +29,7 @@ function format(
   const transaction: Types.IRequestLogicTransaction = {
     action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
     parameters: acceptParameters,
+    version: Version.currentVersion,
   };
 
   return Transaction.createSignedTransaction(transaction, signatureParams);

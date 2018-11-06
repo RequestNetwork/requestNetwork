@@ -3,10 +3,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
+    "resolveJsonModule": true
   },
   "include": ["./src/**/*"],
-  "references": [
-    { "path": "../types" },
-    { "path": "../utils" },
-  ]
+  "references": [{ "path": "../types" }, { "path": "../utils" }]
 }

@@ -1,6 +1,7 @@
 import Utils from '@requestnetwork/utils';
 import * as RequestEnum from './enum';
 import Request from './request';
+import Transaction from './transaction';
 import * as Types from './types';
 
 import AcceptAction from './actions/accept';
@@ -27,8 +28,14 @@ function applyTransactionToRequest(
   signedTransaction: Types.IRequestLogicSignedTransaction,
   request?: Types.IRequestLogicRequest,
 ): Types.IRequestLogicRequest {
-  // we don't want to modify the original request
-  const requestCopied: Types.IRequestLogicRequest | null = request ? Utils.deepCopy(request) : null;
+  if (!Transaction.isSignedTransactionVersionSupported(signedTransaction)) {
+    throw new Error('signed transaction version not supported');
+  }
+
+  // we don't want to modify the original request state
+  const requestCopied: Types.IRequestLogicRequest | null = request
+    ? Utils.deepCopy(request)
+    : null;
 
   // Creation request
   if (signedTransaction.transaction.action === RequestEnum.REQUEST_LOGIC_ACTION.CREATE) {

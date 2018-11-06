@@ -28,6 +28,7 @@ export interface IRequestLogicIdentity {
 // Interface of a request logic transaction
 export interface IRequestLogicTransaction {
   action: RequestEnum.REQUEST_LOGIC_ACTION;
+  version: string;
   parameters?: any;
 }
 
@@ -39,6 +40,7 @@ export interface IRequestLogicSignedTransaction {
 
 // Properties of a request in request logic
 export interface IRequestLogicRequest {
+  version: string;
   // request identifier
   requestId: RequestLogicRequestId;
   // indentity of the request creator (the one who initiates it)
@@ -65,6 +67,15 @@ export interface IRequestLogicRequestCreateParameters {
   payee?: IRequestLogicIdentity;
   payer?: IRequestLogicIdentity;
   extensions?: any[];
+}
+
+// Type of the configuration for the versionning
+export interface IRequestLogicVersionSupportConfig {
+  // current version of the specification supported by this implementation
+  // will be use to check if the implemenation can handle transaction with different specs version
+  current: string;
+  // list of versions not supported in any case
+  exceptions: string[];
 }
 
 // Parameters to accept a request

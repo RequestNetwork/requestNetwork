@@ -46,7 +46,6 @@ describe('Amount utils', () => {
     expect(Amount.isValid(-1000000000000000000000000000000), 'Big integer should not be valid').to
       .be.false;
   });
-
   it('cannot valid an empty string', () => {
     expect(Amount.isValid(''), 'Empty string should not be valid').to.be.false;
   });

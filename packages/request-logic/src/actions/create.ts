@@ -4,6 +4,7 @@ import * as RequestEnum from '../enum';
 import Signature from '../signature';
 import Transaction from '../transaction';
 import * as Types from '../types';
+import Version from '../version';
 
 /**
  * Implementation of the request logic specification
@@ -53,10 +54,12 @@ function format(
 
   // convert expectedAmount to string to have a consistent numbering
   requestParameters.expectedAmount = requestParameters.expectedAmount.toString();
+  const version = Version.currentVersion;
 
   const transaction: Types.IRequestLogicTransaction = {
     action: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
     parameters: requestParameters,
+    version,
   };
   const signerIdentity: Types.IRequestLogicIdentity = Signature.getIdentityFromSignatureParams(
     signatureParams,
@@ -108,6 +111,7 @@ function createRequest(
   // Copy to not modify the transaction itself
   const request: Types.IRequestLogicRequest = Utils.deepCopy(transaction.parameters);
   request.requestId = Transaction.getRequestId(transaction);
+  request.version = Transaction.getVersionFromTransaction(transaction);
 
   const signerRole = Transaction.getRoleInTransaction(signer, transaction);
   if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYEE) {

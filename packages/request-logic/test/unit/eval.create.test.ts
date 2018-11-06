@@ -6,6 +6,9 @@ import * as RequestEnum from '../../src/enum';
 import RequestLogic from '../../src/requestLogic';
 import * as Types from '../../src/types';
 
+import Version from '../../src/version';
+const CURRENT_VERSION = Version.currentVersion;
+
 // payee id
 const payeeRaw = {
   address: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -174,6 +177,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
             expectedAmount: arbitraryExpectedAmount,
             extensions: [{ id: 'extension1', value: 'whatever' }],
           },
+          version: CURRENT_VERSION,
         },
       };
 
@@ -206,6 +210,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
+          version: CURRENT_VERSION,
         },
       };
 
@@ -238,6 +243,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
+          version: CURRENT_VERSION,
         },
       };
 
@@ -270,6 +276,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
+          version: CURRENT_VERSION,
         },
       };
 
@@ -351,6 +358,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
+          version: CURRENT_VERSION,
         },
       };
 
@@ -381,6 +389,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
+          version: CURRENT_VERSION,
         },
       };
 
@@ -392,7 +401,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
     }
   });
 
-  it('does not support other identity type than "ethereumAddress" for Payer', () => {
+  it('does not support all versions', () => {
     try {
       const signedTx = {
         signature: {
@@ -407,10 +416,11 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
             expectedAmount: arbitraryExpectedAmount,
             extensions: [{ id: 'extension1', value: 'whatever' }],
             payer: {
-              type: 'not_ethereumAddress',
+              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
+          version: '2.0.0',
         },
       };
 
@@ -418,7 +428,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
-      expect(e.message, 'exception not right').to.be.equal('Signer must be the payee or the payer');
+      expect(e.message, 'exception not right').to.be.equal('signed transaction version not supported');
     }
   });
 
@@ -455,6 +465,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
         },
         requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
         state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        version: CURRENT_VERSION,
       };
       const request = RequestLogic.applyTransactionToRequest(txCreation, requestState);
 
