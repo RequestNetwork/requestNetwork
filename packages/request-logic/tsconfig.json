@@ -2,8 +2,7 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "resolveJsonModule": true
+    "rootDir": "src"
   },
   "include": ["./src/**/*"],
   "references": [{ "path": "../types" }, { "path": "../utils" }]

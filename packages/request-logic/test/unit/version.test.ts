@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { specificationVersion as specificationVersionDefault } from '../../src/config.json';
+import Config from '../../src/config';
 import Version from '../../src/version';
 
 /* tslint:disable:no-unused-expression */
@@ -40,9 +40,9 @@ describe('version', () => {
     expect(Version.isSupported(Version.currentVersion), 'current version must be supported').to.be
       .true;
     // test if possible that a default expection is not supported
-    if (specificationVersionDefault.exceptions[0]) {
+    if (Config.specificationVersion.exceptions[0]) {
       expect(
-        Version.isSupported(specificationVersionDefault.exceptions[0]),
+        Version.isSupported(Config.specificationVersion.exceptions[0]),
         'exception version must be not supported',
       ).to.be.false;
     }

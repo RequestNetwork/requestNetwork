@@ -1,5 +1,5 @@
 import * as Semver from 'semver';
-import { specificationVersion as specificationVersionDefault } from './config.json';
+import Config from './config';
 import * as RequestEnum from './enum';
 import Identity from './identity';
 import * as Types from './types';
@@ -8,7 +8,7 @@ import * as Types from './types';
  * Function to manage Request versions specification supported by this implementation
  */
 export default {
-  currentVersion: specificationVersionDefault.current,
+  currentVersion: Config.specificationVersion.current,
   isSupported,
 };
 
@@ -28,7 +28,7 @@ function isSupported(
   version: string,
   versionConfiguration?: Types.IRequestLogicVersionSupportConfig,
 ): boolean {
-  versionConfiguration = versionConfiguration || specificationVersionDefault;
+  versionConfiguration = versionConfiguration || Config.specificationVersion;
 
   return (
     !!Semver.valid(version) &&
