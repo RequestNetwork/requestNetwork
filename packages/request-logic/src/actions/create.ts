@@ -9,7 +9,7 @@ import * as Types from '../types';
  * Implementation of the request logic specification
  */
 export default {
-  createRequestState,
+  createRequest,
   format,
 };
 
@@ -77,13 +77,13 @@ function format(
 }
 
 /**
- * Function to create a request (create a request state)
+ * Function to create a request (create a request)
  *
  * @param Types.IRequestLogicSignedTransaction signedTransaction the signed transaction to evaluate
  *
- * @returns Types.IRequestLogicRequest the new request state
+ * @returns Types.IRequestLogicRequest the new request
  */
-function createRequestState(
+function createRequest(
   signedTransaction: Types.IRequestLogicSignedTransaction,
 ): Types.IRequestLogicRequest {
   const transaction = signedTransaction.transaction;
@@ -106,19 +106,19 @@ function createRequestState(
   );
 
   // Copy to not modify the transaction itself
-  const requestState: Types.IRequestLogicRequest = Utils.deepCopy(transaction.parameters);
-  requestState.requestId = Transaction.getRequestId(transaction);
+  const request: Types.IRequestLogicRequest = Utils.deepCopy(transaction.parameters);
+  request.requestId = Transaction.getRequestId(transaction);
 
   const signerRole = Transaction.getRoleInTransaction(signer, transaction);
   if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYEE) {
-    requestState.state = RequestEnum.REQUEST_LOGIC_STATE.CREATED;
-    requestState.creator = transaction.parameters.payee;
-    return requestState;
+    request.state = RequestEnum.REQUEST_LOGIC_STATE.CREATED;
+    request.creator = transaction.parameters.payee;
+    return request;
   }
   if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
-    requestState.state = RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED;
-    requestState.creator = transaction.parameters.payer;
-    return requestState;
+    request.state = RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED;
+    request.creator = transaction.parameters.payer;
+    return request;
   }
 
   throw new Error('Signer must be the payee or the payer');

@@ -18,8 +18,8 @@ export default {
  * @returns RequestEnum.REQUEST_LOGIC_ROLE the role of indentity in parameters
  */
 function getRole(
-  parameters: any,
   identity: Types.IRequestLogicIdentity,
+  parameters: any,
 ): RequestEnum.REQUEST_LOGIC_ROLE {
   if (parameters.payee && Identity.areEqual(parameters.payee, identity)) {
     return RequestEnum.REQUEST_LOGIC_ROLE.PAYEE;

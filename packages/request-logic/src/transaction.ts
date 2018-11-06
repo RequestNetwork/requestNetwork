@@ -60,7 +60,7 @@ function getRoleInTransaction(
   identity: Types.IRequestLogicIdentity,
   transaction: Types.IRequestLogicTransaction,
 ): RequestEnum.REQUEST_LOGIC_ROLE {
-  return Role.getRole(transaction.parameters, identity);
+  return Role.getRole(identity, transaction.parameters);
 }
 
 /**

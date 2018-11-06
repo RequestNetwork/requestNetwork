@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
 
 import * as RequestEnum from '../../src/enum';
 import Role from '../../src/role';
@@ -24,13 +23,13 @@ describe('Role', () => {
       payee,
       payer,
     };
-    expect(Role.getRole(obj, payee), 'getRole("") error').to.be.equal(
+    expect(Role.getRole(payee, obj), 'getRole("") error').to.be.equal(
       RequestEnum.REQUEST_LOGIC_ROLE.PAYEE,
     );
-    expect(Role.getRole(obj, payer), 'getRole("") error').to.be.equal(
+    expect(Role.getRole(payer, obj), 'getRole("") error').to.be.equal(
       RequestEnum.REQUEST_LOGIC_ROLE.PAYER,
     );
-    expect(Role.getRole(obj, otherId), 'getRole("") error').to.be.equal(
+    expect(Role.getRole(otherId, obj), 'getRole("") error').to.be.equal(
       RequestEnum.REQUEST_LOGIC_ROLE.THIRD_PARTY,
     );
   });

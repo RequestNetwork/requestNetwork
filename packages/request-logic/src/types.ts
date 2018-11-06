@@ -66,3 +66,9 @@ export interface IRequestLogicRequestCreateParameters {
   payer?: IRequestLogicIdentity;
   extensions?: any[];
 }
+
+// Parameters to accept a request
+export interface IRequestLogicRequestAcceptParameters {
+  requestId: RequestLogicRequestId;
+  extensions?: any[];
+}

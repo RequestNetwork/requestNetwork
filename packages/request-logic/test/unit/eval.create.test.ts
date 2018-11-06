@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
+
 import Utils from '@requestnetwork/utils';
 import * as RequestEnum from '../../src/enum';
 import RequestLogic from '../../src/requestLogic';
@@ -33,7 +33,7 @@ const otherIdRaw = {
 const arbitraryExpectedAmount = '123400000000000000';
 
 /* tslint:disable:no-unused-expression */
-describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
+describe('requestLogic.applyTransactionToRequest(Creation)', () => {
   it('can create with only the payee', () => {
     const txCreation = RequestLogic.formatCreate(
       {
@@ -47,7 +47,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payeeRaw.privateKey },
     );
 
-    const request = RequestLogic.applyTransactionToRequestState(txCreation);
+    const request = RequestLogic.applyTransactionToRequest(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
       Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
@@ -85,7 +85,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
     );
 
-    const request = RequestLogic.applyTransactionToRequestState(txCreation);
+    const request = RequestLogic.applyTransactionToRequest(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
       Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
@@ -127,7 +127,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payeeRaw.privateKey },
     );
 
-    const request = RequestLogic.applyTransactionToRequestState(txCreation);
+    const request = RequestLogic.applyTransactionToRequest(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
       Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
@@ -177,7 +177,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -209,7 +209,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -241,7 +241,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -273,7 +273,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -302,7 +302,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payeeRaw.privateKey },
     );
 
-    const request = RequestLogic.applyTransactionToRequestState(txCreation);
+    const request = RequestLogic.applyTransactionToRequest(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
       Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
@@ -354,7 +354,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -384,7 +384,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -414,7 +414,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         },
       };
 
-      const request = RequestLogic.applyTransactionToRequestState(signedTx);
+      const request = RequestLogic.applyTransactionToRequest(signedTx);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
@@ -456,12 +456,12 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
         requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
         state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
       };
-      const request = RequestLogic.applyTransactionToRequestState(txCreation, requestState);
+      const request = RequestLogic.applyTransactionToRequest(txCreation, requestState);
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
       expect(e.message, 'exception not right').to.be.equal(
-        'no request state is expected at the creation',
+        'no request is expected at the creation',
       );
     }
   });

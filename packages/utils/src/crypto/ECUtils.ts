@@ -4,9 +4,9 @@ import EthCrypto from 'eth-crypto';
  * Function to manage Elliptic-curve cryptography
  */
 export default {
-    getAddressFromPrivateKey,
-    recover,
-    sign,
+  getAddressFromPrivateKey,
+  recover,
+  sign,
 };
 
 /**
@@ -17,9 +17,9 @@ export default {
  * @returns string the address
  */
 function getAddressFromPrivateKey(privateKey: string): string {
-    const pubkey = EthCrypto.publicKeyByPrivateKey(privateKey);
-    const address = EthCrypto.publicKey.toAddress(pubkey);
-    return address;
+  const pubkey = EthCrypto.publicKeyByPrivateKey(privateKey);
+  const address = EthCrypto.publicKey.toAddress(pubkey);
+  return address;
 }
 
 /**
@@ -30,7 +30,7 @@ function getAddressFromPrivateKey(privateKey: string): string {
  * @returns string the signature
  */
 function sign(privateKey: string, data: string): string {
-    return EthCrypto.sign(privateKey, data);
+  return EthCrypto.sign(privateKey, data);
 }
 
 /**
@@ -42,5 +42,5 @@ function sign(privateKey: string, data: string): string {
  * @returns string
  */
 function recover(signature: string, data: string): string {
-    return EthCrypto.recover(signature, data);
+  return EthCrypto.recover(signature, data);
 }
