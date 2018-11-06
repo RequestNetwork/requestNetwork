@@ -12,7 +12,7 @@
     "scripts": {
         "lerna": "lerna",
         "test": "lerna run test",
-        "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types"
+        "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types packages/utils"
     },
     "devDependencies": {
       "lerna": "3.4.3",

@@ -1,6 +1,6 @@
+import Utils from '@requestnetwork/utils';
 import * as RequestEnum from './enum';
 import * as Types from './types';
-import Utils from './utils/utils';
 
 import Create from './actions/create';
 

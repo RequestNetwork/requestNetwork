@@ -1,8 +1,6 @@
+import Utils from '@requestnetwork/utils';
 import * as RequestEnum from './enum';
 import * as Types from './types';
-import CryptoUtils from './utils/crypto';
-
-import ECUtils from './utils/crypto/ECUtils';
 
 /**
  * Function to manage Request Logic Signature
@@ -26,7 +24,7 @@ function getIdentityFromSignatureParams(
   if (signatureParams.method === RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
     return {
       type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-      value: ECUtils.getAddressFromPrivateKey(signatureParams.privateKey),
+      value: Utils.crypto.ecutils.getAddressFromPrivateKey(signatureParams.privateKey),
     };
   }
 
@@ -47,7 +45,7 @@ function sign(
 ): Types.IRequestLogicSignature {
   let value: string;
   if (signatureParams.method === RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
-    value = ECUtils.sign(signatureParams.privateKey, data);
+    value = Utils.crypto.ecutils.sign(signatureParams.privateKey, data);
     return { method: signatureParams.method, value };
   }
 
@@ -68,7 +66,7 @@ function recover(
 ): Types.IRequestLogicIdentity {
   let value: string;
   if (signature.method === RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
-    value = ECUtils.recover(signature.value, data);
+    value = Utils.crypto.ecutils.recover(signature.value, data);
     return { type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS, value };
   }
 

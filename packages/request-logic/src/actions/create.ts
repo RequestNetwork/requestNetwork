@@ -1,10 +1,9 @@
+import Utils from '@requestnetwork/utils';
+import Amount from '../amount';
 import * as RequestEnum from '../enum';
 import Signature from '../signature';
 import Transaction from '../transaction';
 import * as Types from '../types';
-import Amount from '../utils/amount';
-import Crypto from '../utils/crypto';
-import Utils from '../utils/utils';
 
 /**
  * Implementation of the request logic specification
@@ -15,7 +14,7 @@ export default {
 };
 
 /**
- * Function to format a transaction to create a Request
+ * Function to format  transaction to create a Request
  *
  * @param enum currency Currency of the Request (e.g: 'ETH', 'BTC', 'REQ', etc..)
  * @param Amount expectedAmount Amount initial expected for the request

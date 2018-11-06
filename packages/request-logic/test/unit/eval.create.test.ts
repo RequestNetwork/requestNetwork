@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
+import Utils from '@requestnetwork/utils';
 import * as RequestEnum from '../../src/enum';
 import RequestLogic from '../../src/requestLogic';
 import * as Types from '../../src/types';
-import CryptoUtils from '../../src/utils/crypto';
 
 // payee id
 const payeeRaw = {
@@ -49,7 +49,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
 
     const request = RequestLogic.applyTransactionToRequestState(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
-      CryptoUtils.normalizeKeccak256Hash(txCreation.transaction),
+      Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
@@ -87,7 +87,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
 
     const request = RequestLogic.applyTransactionToRequestState(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
-      CryptoUtils.normalizeKeccak256Hash(txCreation.transaction),
+      Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
@@ -129,7 +129,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
 
     const request = RequestLogic.applyTransactionToRequestState(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
-      CryptoUtils.normalizeKeccak256Hash(txCreation.transaction),
+      Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
@@ -304,7 +304,7 @@ describe('requestLogic.applyTransactionToRequestState(Creation)', () => {
 
     const request = RequestLogic.applyTransactionToRequestState(txCreation);
     expect(request.requestId, 'requestId is wrong').to.equal(
-      CryptoUtils.normalizeKeccak256Hash(txCreation.transaction),
+      Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
     );
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);

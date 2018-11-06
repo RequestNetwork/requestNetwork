@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
-import Utils from '../../src/utils/utils';
+import Utils from '../src/utils';
 
 /* tslint:disable:no-unused-expression */
 describe('Utils', () => {

@@ -1,10 +1,12 @@
 import EthCrypto from 'eth-crypto';
+import ecutils from './crypto/ECUtils';
 import Utils from './utils';
 
 /**
  * Function to manage Elliptic-curve cryptography
  */
 export default {
+  ecutils,
   normalizeKeccak256Hash,
 };
 

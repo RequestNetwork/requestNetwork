@@ -7,6 +7,7 @@
         "declarationMap": true,
         "sourceMap": true,
         "strict": true,        
-        "baseUrl": "./packages"
+        "baseUrl": "./packages",
+        "skipLibCheck": true,
     }
 }

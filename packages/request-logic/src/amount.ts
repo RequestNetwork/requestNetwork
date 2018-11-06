@@ -1,6 +1,6 @@
 const bigNumber: any = require('bn.js');
-import * as Types from '../types';
-import Utils from './utils';
+import Utils from '@requestnetwork/utils';
+import * as Types from './types';
 
 /**
  * Function to manage amounts

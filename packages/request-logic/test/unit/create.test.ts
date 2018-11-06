@@ -4,7 +4,6 @@ const bigNumber: any = require('bn.js');
 
 import * as RequestEnum from '../../src/enum';
 import RequestLogic from '../../src/requestLogic';
-import CryptoUtils from '../../src/utils/crypto';
 
 // payee id
 const payeeRaw = {

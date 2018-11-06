@@ -1,8 +1,8 @@
+import Utils from '@requestnetwork/utils';
 import * as RequestEnum from './enum';
 import Role from './role';
 import Signature from './signature';
 import * as Types from './types';
-import Crypto from './utils/crypto';
 
 /**
  * Function to manage Elliptic-curve cryptography
@@ -28,7 +28,7 @@ function createSignedTransaction(
   transaction: Types.IRequestLogicTransaction,
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicSignedTransaction {
-  const signature = Signature.sign(Crypto.normalizeKeccak256Hash(transaction), signatureParams);
+  const signature = Signature.sign(Utils.crypto.normalizeKeccak256Hash(transaction), signatureParams);
   return { transaction, signature };
 }
 
@@ -43,7 +43,7 @@ function getSignerIdentityFromSignedTransaction(
   signedTransaction: Types.IRequestLogicSignedTransaction,
 ): Types.IRequestLogicIdentity {
   return Signature.recover(
-    Crypto.normalizeKeccak256Hash(signedTransaction.transaction),
+    Utils.crypto.normalizeKeccak256Hash(signedTransaction.transaction),
     signedTransaction.signature,
   );
 }
@@ -71,5 +71,5 @@ function getRoleInTransaction(
  * @returns RequestIdTYpe the requestId generated
  */
 function getRequestId(transaction: Types.IRequestLogicTransaction): Types.RequestLogicRequestId {
-  return Crypto.normalizeKeccak256Hash(transaction);
+  return Utils.crypto.normalizeKeccak256Hash(transaction);
 }

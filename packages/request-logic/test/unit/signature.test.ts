@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
+import Utils from '@requestnetwork/utils';
 import * as RequestEnum from '../../src/enum';
 import Signature from '../../src/signature';
-import Crypto from '../../src/utils/crypto';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -38,7 +38,7 @@ describe('Signature', () => {
   });
 
   it('can sign()', () => {
-    const signature = Signature.sign(Crypto.normalizeKeccak256Hash(data), {
+    const signature = Signature.sign(Utils.crypto.normalizeKeccak256Hash(data), {
       method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
       privateKey: rawId.privateKey,
     });
@@ -50,7 +50,7 @@ describe('Signature', () => {
   });
 
   it('can sign() with different case', () => {
-    const signature = Signature.sign(Crypto.normalizeKeccak256Hash(dataDiffCase), {
+    const signature = Signature.sign(Utils.crypto.normalizeKeccak256Hash(dataDiffCase), {
       method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
       privateKey: rawId.privateKey,
     });
@@ -62,7 +62,7 @@ describe('Signature', () => {
   });
 
   it('can recover()', () => {
-    const id = Signature.recover(Crypto.normalizeKeccak256Hash(data), {
+    const id = Signature.recover(Utils.crypto.normalizeKeccak256Hash(data), {
       method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
       value:
         '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
@@ -71,7 +71,7 @@ describe('Signature', () => {
   });
 
   it('can recover() with different case', () => {
-    const id = Signature.recover(Crypto.normalizeKeccak256Hash(dataDiffCase), {
+    const id = Signature.recover(Utils.crypto.normalizeKeccak256Hash(dataDiffCase), {
       method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
       value:
         '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
