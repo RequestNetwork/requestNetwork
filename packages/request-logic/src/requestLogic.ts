@@ -7,6 +7,7 @@ import * as Types from './types';
 import AcceptAction from './actions/accept';
 import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
+import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
 
 /**
  * Implementation of the request logic specification
@@ -16,6 +17,7 @@ export default {
   formatAccept: AcceptAction.format,
   formatCancel: CancelAction.format,
   formatCreate: CreateAction.format,
+  formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
 };
 
 /**
@@ -59,6 +61,13 @@ function applyTransactionToRequest(
 
   if (signedTransaction.transaction.action === RequestEnum.REQUEST_LOGIC_ACTION.CANCEL) {
     return CancelAction.applyTransactionToRequest(signedTransaction, requestCopied);
+  }
+
+  if (
+    signedTransaction.transaction.action ===
+    RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT
+  ) {
+    return IncreaseExpectedAmountAction.applyTransactionToRequest(signedTransaction, requestCopied);
   }
 
   throw new Error('Unknown action ${signedTransaction.transaction.action}');

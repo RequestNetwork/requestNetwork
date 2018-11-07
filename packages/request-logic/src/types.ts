@@ -89,3 +89,10 @@ export interface IRequestLogicRequestCancelParameters {
   requestId: RequestLogicRequestId;
   extensions?: any[];
 }
+
+// Parameters to increase amount of a request
+export interface IRequestLogicIncreaseExpectedAmountParameters {
+  deltaAmount: RequestLogicAmount;
+  requestId: RequestLogicRequestId;
+  extensions?: any[];
+}

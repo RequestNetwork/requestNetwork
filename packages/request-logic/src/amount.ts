@@ -6,6 +6,7 @@ import * as Types from './types';
  * Function to manage amounts
  */
 export default {
+  add,
   isValid,
 };
 
@@ -24,4 +25,18 @@ function isValid(amount: Types.RequestLogicAmount): boolean {
     (Utils.isString(amount) && regexInteger.test(amount)) ||
     (typeof amount === 'number' && (Number.isSafeInteger(Number(amount)) && Number(amount) >= 0))
   );
+}
+
+/**
+ * Function to add amount by another
+ *
+ * @param RequestLogicAmount amount the base amount
+ * @param RequestLogicAmount delta the amount to add
+ *
+ * @returns string the new amount in a string format
+ */
+function add(amount: Types.RequestLogicAmount, delta: Types.RequestLogicAmount): string {
+  amount = new bigNumber(amount);
+  delta = new bigNumber(delta);
+  return amount.add(delta).toString();
 }
