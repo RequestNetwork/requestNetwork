@@ -27,7 +27,7 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project .",
     "lint-staged": "lint-staged",
-    "test": "mocha --require ts-node/register test/**/*.ts"
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register  test/**/*.ts"
   },
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
@@ -41,8 +41,10 @@
     "husky": "1.1.2",
     "lint-staged": "7.3.0",
     "mocha": "5.2.0",
+    "nyc": "13.1.0",
     "prettier": "1.14.3",
     "shx": "0.3.2",
+    "source-map-support": "0.5.9",
     "ts-node": "7.0.1",
     "tslint": "5.11.0",
     "typescript": "3.1.3"
