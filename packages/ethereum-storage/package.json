@@ -27,7 +27,7 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project .",
     "lint-staged": "lint-staged",
-    "test": "mocha --require ts-node/register test/**/*.ts"
+    "test": "mocha --require ts-node/register 'test/**/*.ts'"
   },
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"

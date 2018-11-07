@@ -5,6 +5,7 @@ import Transaction from './transaction';
 import * as Types from './types';
 
 import AcceptAction from './actions/accept';
+import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
 
 /**
@@ -13,6 +14,7 @@ import CreateAction from './actions/create';
 export default {
   applyTransactionToRequest,
   formatAccept: AcceptAction.format,
+  formatCancel: CancelAction.format,
   formatCreate: CreateAction.format,
 };
 
@@ -33,9 +35,7 @@ function applyTransactionToRequest(
   }
 
   // we don't want to modify the original request state
-  const requestCopied: Types.IRequestLogicRequest | null = request
-    ? Utils.deepCopy(request)
-    : null;
+  const requestCopied: Types.IRequestLogicRequest | null = request ? Utils.deepCopy(request) : null;
 
   // Creation request
   if (signedTransaction.transaction.action === RequestEnum.REQUEST_LOGIC_ACTION.CREATE) {
@@ -55,6 +55,10 @@ function applyTransactionToRequest(
 
   if (signedTransaction.transaction.action === RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT) {
     return AcceptAction.applyTransactionToRequest(signedTransaction, requestCopied);
+  }
+
+  if (signedTransaction.transaction.action === RequestEnum.REQUEST_LOGIC_ACTION.CANCEL) {
+    return CancelAction.applyTransactionToRequest(signedTransaction, requestCopied);
   }
 
   throw new Error('Unknown action ${signedTransaction.transaction.action}');

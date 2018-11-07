@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
-import * as RequestEnum from '../../src/enum';
-import RequestLogic from '../../src/requestLogic';
+import * as RequestEnum from '../../../src/enum';
+import RequestLogic from '../../../src/requestLogic';
 
-import Version from '../../src/version';
+import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
 // payee id
@@ -53,9 +53,10 @@ describe('requestLogic.formatCreate()', () => {
     expect(txCreation.transaction.action, 'action is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
     );
-    expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
-      'parameters',
-    );
+    expect(
+      txCreation.transaction,
+      'txCreation.transaction must have the property parameters',
+    ).to.have.property('parameters');
     expect(txCreation.transaction.version, 'txCreation.transaction.version is wrong').to.equal(
       CURRENT_VERSION,
     );
@@ -108,9 +109,10 @@ describe('requestLogic.formatCreate()', () => {
     expect(txCreation.transaction.action, 'action is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
     );
-    expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
-      'parameters',
-    );
+    expect(
+      txCreation.transaction,
+      'txCreation.transaction must have the property parameters',
+    ).to.have.property('parameters');
     expect(txCreation.transaction.version, 'txCreation.transaction.version is wrong').to.equal(
       CURRENT_VERSION,
     );
@@ -166,9 +168,10 @@ describe('requestLogic.formatCreate()', () => {
     expect(txCreation.transaction.action, 'action is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
     );
-    expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
-      'parameters',
-    );
+    expect(
+      txCreation.transaction,
+      'txCreation.transaction must have the property parameters',
+    ).to.have.property('parameters');
     expect(txCreation.transaction.version, 'txCreation.transaction.version is wrong').to.equal(
       CURRENT_VERSION,
     );
@@ -304,9 +307,10 @@ describe('requestLogic.formatCreate()', () => {
     expect(txCreation.transaction.action, 'action is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
     );
-    expect(txCreation.transaction, 'txCreation.transaction.parameters is wrong').to.have.property(
-      'parameters',
-    );
+    expect(
+      txCreation.transaction,
+      'txCreation.transaction must have the property parameters',
+    ).to.have.property('parameters');
 
     expect(txCreation.transaction.parameters.currency, 'currency is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,

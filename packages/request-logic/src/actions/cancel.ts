@@ -7,7 +7,7 @@ import * as Types from '../types';
 import Version from '../version';
 
 /**
- * Implementation of the action accept from request logic specification
+ * Implementation of the action cancel from request logic specification
  */
 export default {
   applyTransactionToRequest,
@@ -15,20 +15,20 @@ export default {
 };
 
 /**
- * Function to format a transaction to accept a Request
+ * Function to format a transaction to cancel a Request
  *
- * @param IRequestLogicRequestAcceptParameters acceptParameters parameters to accept a request
+ * @param IRequestLogicRequestCancelParameters cancelParameters parameters to cancel a request
  * @param ISignatureParameters signatureParams Signature parameters
  *
  * @returns ISignedTransaction  the transaction with the signature
  */
 function format(
-  acceptParameters: Types.IRequestLogicRequestAcceptParameters,
+  cancelParameters: Types.IRequestLogicRequestCancelParameters,
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicSignedTransaction {
   const transaction: Types.IRequestLogicTransaction = {
-    action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
-    parameters: acceptParameters,
+    action: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+    parameters: cancelParameters,
     version: Version.currentVersion,
   };
 
@@ -36,7 +36,7 @@ function format(
 }
 
 /**
- * Function to apply an Accept transaction on a request
+ * Function to apply an Cancel transaction an a request
  *
  * @param Types.IRequestLogicSignedTransaction signedTransaction the signed transaction to apply
  *
@@ -52,26 +52,28 @@ function applyTransactionToRequest(
     throw new Error('requestId must be given');
   }
 
-  if (!request.payer) {
-    throw new Error('the request must have a payer');
-  }
-
-  if (request.state !== RequestEnum.REQUEST_LOGIC_STATE.CREATED) {
-    throw new Error('the request state must be created');
-  }
-
   const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromSignedTransaction(
     signedTransaction,
   );
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
-    request.state = RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED;
-  } else {
-    throw new Error('Signer must be the payer');
-  }
-
   request = Request.pushExtensions(request, transaction.parameters.extensions);
 
-  return request;
+  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
+    if (request.state !== RequestEnum.REQUEST_LOGIC_STATE.CREATED) {
+      throw new Error('A payer cancel need to be done on a request with the state created');
+    }
+    request.state = RequestEnum.REQUEST_LOGIC_STATE.CANCELLED;
+    return request;
+  }
+
+  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYEE) {
+    if (request.state === RequestEnum.REQUEST_LOGIC_STATE.CANCELLED) {
+      throw new Error('Cannot cancel an already cancelled request');
+    }
+    request.state = RequestEnum.REQUEST_LOGIC_STATE.CANCELLED;
+    return request;
+  }
+
+  throw new Error('Signer must be the payer or the payee');
 }

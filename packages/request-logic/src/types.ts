@@ -60,15 +60,6 @@ export type RequestLogicAmount = number | string | typeof bigNumber;
 // TYpe of the requestId propertie
 export type RequestLogicRequestId = string;
 
-// Parameters to create a request
-export interface IRequestLogicRequestCreateParameters {
-  currency: RequestEnum.REQUEST_LOGIC_CURRENCY;
-  expectedAmount: RequestLogicAmount;
-  payee?: IRequestLogicIdentity;
-  payer?: IRequestLogicIdentity;
-  extensions?: any[];
-}
-
 // Type of the configuration for the versionning
 export interface IRequestLogicVersionSupportConfig {
   // current version of the specification supported by this implementation
@@ -78,8 +69,23 @@ export interface IRequestLogicVersionSupportConfig {
   exceptions: string[];
 }
 
+// Parameters to create a request
+export interface IRequestLogicRequestCreateParameters {
+  currency: RequestEnum.REQUEST_LOGIC_CURRENCY;
+  expectedAmount: RequestLogicAmount;
+  payee?: IRequestLogicIdentity;
+  payer?: IRequestLogicIdentity;
+  extensions?: any[];
+}
+
 // Parameters to accept a request
 export interface IRequestLogicRequestAcceptParameters {
+  requestId: RequestLogicRequestId;
+  extensions?: any[];
+}
+
+// Parameters to cancel a request
+export interface IRequestLogicRequestCancelParameters {
   requestId: RequestLogicRequestId;
   extensions?: any[];
 }

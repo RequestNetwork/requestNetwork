@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import * as RequestEnum from '../../src/enum';
-import RequestLogic from '../../src/requestLogic';
+import * as RequestEnum from '../../../src/enum';
+import RequestLogic from '../../../src/requestLogic';
 
-import Version from '../../src/version';
+import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
 // payee id
@@ -31,7 +31,7 @@ const otherIdRaw = {
     'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
 };
 
-const requestIdMoch = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
+const requestIdMock = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
 
 const arbitraryExpectedAmount = '123400000000000000';
 
@@ -50,7 +50,7 @@ const regularRequestContextNoExtension = {
     type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payerRaw.address,
   },
-  requestId: requestIdMoch,
+  requestId: requestIdMock,
   state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
   version: CURRENT_VERSION,
 };
@@ -72,7 +72,7 @@ const regularRequestContextWithExtensions = {
     type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payerRaw.address,
   },
-  requestId: requestIdMoch,
+  requestId: requestIdMock,
   state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
   version: CURRENT_VERSION,
 };
@@ -81,7 +81,7 @@ const regularRequestContextWithExtensions = {
 describe('requestLogic.applyTransactionToRequest(Accept)', () => {
   it('can apply accept by payer', () => {
     const txAccept = RequestLogic.formatAccept(
-      { requestId: requestIdMoch },
+      { requestId: requestIdMock },
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
     );
 
@@ -90,26 +90,26 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       regularRequestContextNoExtension,
     );
 
-    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMoch);
+    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'extensions is wrong').to.be.undefined;
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.payee.value, 'request.payee.value is wrong').to.equal(payeeRaw.address);
     }
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -121,7 +121,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
   it('cannot apply accept by payee', () => {
     try {
       const txAccept = RequestLogic.formatAccept(
-        { requestId: requestIdMoch },
+        { requestId: requestIdMock },
         {
           method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: payeeRaw.privateKey,
@@ -142,7 +142,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
   it('cannot apply accept by thirdparty', () => {
     try {
       const txAccept = RequestLogic.formatAccept(
-        { requestId: requestIdMoch },
+        { requestId: requestIdMock },
         {
           method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: otherIdRaw.privateKey,
@@ -196,7 +196,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         transaction: {
           action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
           parameters: {
-            requestId: requestIdMoch,
+            requestId: requestIdMock,
           },
           version: CURRENT_VERSION,
         },
@@ -220,7 +220,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      requestId: requestIdMoch,
+      requestId: requestIdMock,
       state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
       version: CURRENT_VERSION,
     };
@@ -234,7 +234,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         transaction: {
           action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
           parameters: {
-            requestId: requestIdMoch,
+            requestId: requestIdMock,
           },
           version: CURRENT_VERSION,
         },
@@ -262,7 +262,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payerRaw.address,
       },
-      requestId: requestIdMoch,
+      requestId: requestIdMock,
       state: RequestEnum.REQUEST_LOGIC_STATE.CANCELLED,
       version: CURRENT_VERSION,
     };
@@ -276,7 +276,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         transaction: {
           action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
           parameters: {
-            requestId: requestIdMoch,
+            requestId: requestIdMock,
           },
           version: CURRENT_VERSION,
         },
@@ -304,7 +304,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payerRaw.address,
       },
-      requestId: requestIdMoch,
+      requestId: requestIdMock,
       state: RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED,
       version: CURRENT_VERSION,
     };
@@ -318,7 +318,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
         transaction: {
           action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
           parameters: {
-            requestId: requestIdMoch,
+            requestId: requestIdMock,
           },
           version: CURRENT_VERSION,
         },
@@ -336,7 +336,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
     const txAccept = RequestLogic.formatAccept(
       {
         extensions: newExtensionsData,
-        requestId: requestIdMoch,
+        requestId: requestIdMock,
       },
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
     );
@@ -346,26 +346,26 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       regularRequestContextNoExtension,
     );
 
-    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMoch);
+    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'request.extensions is wrong').to.deep.equal(newExtensionsData);
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.payee.value, 'request.payee.value is wrong').to.equal(payeeRaw.address);
     }
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -379,7 +379,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
     const txAccept = RequestLogic.formatAccept(
       {
         extensions: newExtensionsData,
-        requestId: requestIdMoch,
+        requestId: requestIdMock,
       },
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
     );
@@ -389,7 +389,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       regularRequestContextWithExtensions,
     );
 
-    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMoch);
+    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
@@ -397,20 +397,20 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       extensions.concat(newExtensionsData),
     );
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.payee.value, 'request.payee.value is wrong').to.equal(payeeRaw.address);
     }
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -422,7 +422,7 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
     const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
     const txAccept = RequestLogic.formatAccept(
       {
-        requestId: requestIdMoch,
+        requestId: requestIdMock,
       },
       { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
     );
@@ -432,26 +432,26 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       regularRequestContextWithExtensions,
     );
 
-    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMoch);
+    expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
     expect(request.currency, 'currency is wrong').to.equal(RequestEnum.REQUEST_LOGIC_CURRENCY.ETH);
     expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'request.extensions is wrong').to.deep.equal(extensions);
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.payee.value, 'request.payee.value is wrong').to.equal(payeeRaw.address);
     }
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -468,14 +468,14 @@ describe('requestLogic.applyTransactionToRequest(Accept)', () => {
       },
       currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
       expectedAmount: '-1000',
-      requestId: requestIdMoch,
+      requestId: requestIdMock,
       state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
       version: CURRENT_VERSION,
     };
     try {
       const txAccept = RequestLogic.formatAccept(
         {
-          requestId: requestIdMoch,
+          requestId: requestIdMock,
         },
         {
           method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,

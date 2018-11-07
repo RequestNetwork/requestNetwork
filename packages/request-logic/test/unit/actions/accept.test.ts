@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import * as RequestEnum from '../../src/enum';
-import RequestLogic from '../../src/requestLogic';
+import * as RequestEnum from '../../../src/enum';
+import RequestLogic from '../../../src/requestLogic';
 
 // payee id
 const payeeRaw = {
@@ -43,9 +43,10 @@ describe('actions/accept', () => {
     expect(txAccept.transaction.action, 'action is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
     );
-    expect(txAccept.transaction, 'txAccept.transaction.parameters is wrong').to.have.property(
-      'parameters',
-    );
+    expect(
+      txAccept.transaction,
+      'txAccept.transaction must have the property parameters',
+    ).to.have.property('parameters');
 
     expect(txAccept.transaction.parameters.requestId, 'requestId is wrong').to.equal(requestIdMock);
     expect(txAccept.transaction.parameters.extensions, 'extensions is wrong').to.be.undefined;
@@ -74,9 +75,10 @@ describe('actions/accept', () => {
     expect(txAccept.transaction.action, 'action is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
     );
-    expect(txAccept.transaction, 'txAccept.transaction.parameters is wrong').to.have.property(
-      'parameters',
-    );
+    expect(
+      txAccept.transaction,
+      'txAccept.transaction must have the property parameters',
+    ).to.have.property('parameters');
 
     expect(txAccept.transaction.parameters.requestId, 'requestId is wrong').to.equal(requestIdMock);
     expect(txAccept.transaction.parameters.extensions, 'extensions is wrong').to.deep.equal(

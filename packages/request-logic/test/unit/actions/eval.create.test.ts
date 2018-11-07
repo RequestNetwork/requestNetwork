@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Utils from '@requestnetwork/utils';
-import * as RequestEnum from '../../src/enum';
-import RequestLogic from '../../src/requestLogic';
-import * as Types from '../../src/types';
+import * as RequestEnum from '../../../src/enum';
+import RequestLogic from '../../../src/requestLogic';
+import * as Types from '../../../src/types';
 
-import Version from '../../src/version';
+import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
 // payee id
@@ -59,13 +59,13 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'extensions is wrong').to.be.undefined;
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -97,13 +97,13 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'extensions is wrong').to.be.undefined;
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payerRaw.address);
 
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -139,13 +139,13 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'extensions is wrong').to.be.undefined;
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -153,7 +153,7 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
       expect(request.payee.value, 'request.payee.value is wrong').to.equal(payeeRaw.address);
     }
 
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -318,20 +318,20 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
     expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(arbitraryExpectedAmount);
     expect(request.extensions, 'request.extensions is wrong').to.deep.equal(extensions);
 
-    expect(request, 'request.creator is wrong').to.have.property('creator');
+    expect(request, 'request should have property creator').to.have.property('creator');
     expect(request.creator.type, 'request.creator.type is wrong').to.equal(
       RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     );
     expect(request.creator.value, 'request.creator.value is wrong').to.equal(payeeRaw.address);
 
-    expect(request, 'request.payee is wrong').to.have.property('payee');
+    expect(request, 'request should have property payee').to.have.property('payee');
     if (request.payee) {
       expect(request.payee.type, 'request.payee.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.payee.value, 'request.payee.value is wrong').to.equal(payeeRaw.address);
     }
-    expect(request, 'request.payer is wrong').to.have.property('payer');
+    expect(request, 'request should have property payer').to.have.property('payer');
     if (request.payer) {
       expect(request.payer.type, 'request.payer.type is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -428,7 +428,9 @@ describe('requestLogic.applyTransactionToRequest(Creation)', () => {
 
       expect(false, 'exception not thrown').to.be.true;
     } catch (e) {
-      expect(e.message, 'exception not right').to.be.equal('signed transaction version not supported');
+      expect(e.message, 'exception not right').to.be.equal(
+        'signed transaction version not supported',
+      );
     }
   });
 
