@@ -96,3 +96,10 @@ export interface IRequestLogicIncreaseExpectedAmountParameters {
   requestId: RequestLogicRequestId;
   extensions?: any[];
 }
+
+// Parameters to reduce amount of a request
+export interface IRequestLogicReduceExpectedAmountParameters {
+  deltaAmount: RequestLogicAmount;
+  requestId: RequestLogicRequestId;
+  extensions?: any[];
+}

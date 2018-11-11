@@ -8,6 +8,7 @@ import AcceptAction from './actions/accept';
 import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
 import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
+import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
 
 /**
  * Implementation of the request logic specification
@@ -18,6 +19,7 @@ export default {
   formatCancel: CancelAction.format,
   formatCreate: CreateAction.format,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
+  formatReduceExpectedAmount: ReduceExpectedAmountAction.format,
 };
 
 /**
@@ -68,6 +70,12 @@ function applyTransactionToRequest(
     RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT
   ) {
     return IncreaseExpectedAmountAction.applyTransactionToRequest(signedTransaction, requestCopied);
+  }
+
+  if (
+    signedTransaction.transaction.action === RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT
+  ) {
+    return ReduceExpectedAmountAction.applyTransactionToRequest(signedTransaction, requestCopied);
   }
 
   throw new Error('Unknown action ${signedTransaction.transaction.action}');

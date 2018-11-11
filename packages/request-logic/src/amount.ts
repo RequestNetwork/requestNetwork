@@ -8,12 +8,13 @@ import * as Types from './types';
 export default {
   add,
   isValid,
+  reduce,
 };
 
 const regexInteger = RegExp(/^[\d]+$/);
 
 /**
- * Function to check if the amount is valid
+ * Function to check if the amount is valid (representation of a positive integer)
  *
  * @param RequestLogicAmount amount the amount to check
  *
@@ -28,15 +29,51 @@ function isValid(amount: Types.RequestLogicAmount): boolean {
 }
 
 /**
- * Function to add amount by another
+ * Function to add an amount by another
  *
- * @param RequestLogicAmount amount the base amount
- * @param RequestLogicAmount delta the amount to add
+ * @param RequestLogicAmount amount the base amount (positve integer)
+ * @param RequestLogicAmount delta the amount to add (positve integer)
  *
  * @returns string the new amount in a string format
  */
 function add(amount: Types.RequestLogicAmount, delta: Types.RequestLogicAmount): string {
+  if (!isValid(amount)) {
+    throw Error('amount must represent a positive integer');
+  }
+  if (!isValid(delta)) {
+    throw Error('delta must represent a positive integer');
+  }
+
   amount = new bigNumber(amount);
   delta = new bigNumber(delta);
   return amount.add(delta).toString();
+}
+
+/**
+ * Function to reduce an amount by another
+ *
+ * Throw if the new amount is not valid (i.e: negative..)
+ *
+ * @param RequestLogicAmount amount the base amount (positve integer)
+ * @param RequestLogicAmount delta the amount to reduce (positve integer)
+ *
+ * @returns string the new amount in a string format
+ */
+function reduce(amount: Types.RequestLogicAmount, delta: Types.RequestLogicAmount): string {
+  if (!isValid(amount)) {
+    throw Error('amount must represent a positive integer');
+  }
+  if (!isValid(delta)) {
+    throw Error('delta must represent a positive integer');
+  }
+
+  amount = new bigNumber(amount);
+  delta = new bigNumber(delta);
+  const newAmount = amount.sub(delta).toString();
+
+  // Check if the new amount is valid (basically it is not negative)
+  if (!isValid(newAmount)) {
+    throw Error('result of reduce is not valid');
+  }
+  return newAmount;
 }
