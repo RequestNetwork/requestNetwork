@@ -36,9 +36,26 @@ function getRoleInRequest(
  * @returns boolean true if the request is valid, throw otherwise
  */
 function checkRequest(request: Types.IRequestLogicRequest): boolean {
-  const errors: string[] = [];
+  if (!request.version) {
+    throw Error('request.version is missing');
+  }
+  if (!request.currency) {
+    throw Error('request.currency is missing');
+  }
+  if (!request.requestId) {
+    throw Error('request.requestId is missing');
+  }
+  if (!request.state) {
+    throw Error('request.state is missing');
+  }
+  // todo extensions
+
+  if (!request.creator) {
+    throw Error('request.creator is missing');
+  }
+
   if (!request.payee && !request.payer) {
-    throw Error('request.payee or/and request.payer are missing');
+    throw Error('request.payee and request.payer are missing');
   }
   if (request.creator.type !== RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS) {
     throw Error('request.creator.type not supported');

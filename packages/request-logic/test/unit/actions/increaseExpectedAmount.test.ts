@@ -2,184 +2,762 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
+import Utils from '@requestnetwork/utils';
+import IncreaseExpectedAmountAction from '../../../src/actions/increaseExpectedAmount';
 import * as RequestEnum from '../../../src/enum';
-import RequestLogic from '../../../src/requestLogic';
 
 import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
-// payee id
-const payeeRaw = {
-  address: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-  privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
-  publicKey:
-    '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
-};
+import * as TestData from '../utils/test-data-generator';
 
-// payer id
-const payerRaw = {
-  address: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-  privateKey: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
-  publicKey:
-    '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
-};
+const requestIdMock = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
 
-// another id
-const otherIdRaw = {
-  address: '0x818B6337657A23F58581715Fc610577292e521D0',
-  privateKey: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
-  publicKey:
-    'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
-};
-
+const arbitraryExpectedAmount = '123400000000000000';
+const biggerThanArbitraryExpectedAmount = '223400000000000000';
 const arbitraryDeltaAmount = '100000000000000000';
-const requestIdMock = '0x123456789123456789123456798132456789';
+const arbitraryDeltaAmountNegative = '-100000000000000000';
+const arbitraryExpectedAmountAfterDelta = '223400000000000000';
 
 /* tslint:disable:no-unused-expression */
-describe('actions/increaseExpectedAmount.format()', () => {
-  it('can increase expected amount without extensions', () => {
-    const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
-      {
-        deltaAmount: arbitraryDeltaAmount,
+describe('actions/increaseExpectedAmount', () => {
+  describe('format', () => {
+    it('can increase expected amount without extensions', () => {
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          privateKey: TestData.payerRaw.privateKey,
+        },
+      );
+
+      expect(txIncreaseAmount, 'txIncreaseAmount.transaction must be a property').to.have.property(
+        'transaction',
+      );
+      expect(txIncreaseAmount.transaction.action, 'action is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+      );
+      expect(
+        txIncreaseAmount.transaction,
+        'txIncreaseAmount.transaction.parameters is wrong',
+      ).to.have.property('parameters');
+
+      expect(txIncreaseAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+        requestIdMock,
+      );
+      expect(txIncreaseAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+        arbitraryDeltaAmount,
+      );
+      expect(txIncreaseAmount.transaction.parameters.extensions, 'extensions is wrong').to.be
+        .undefined;
+
+      expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
+        'signature',
+      );
+      expect(
+        txIncreaseAmount.signature.method,
+        'txIncreaseAmount.signature.method is wrong',
+      ).to.equal(RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA);
+      expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
+        '0x966b7fc0dc2771be61f9713ed07653ceb951292b20c6cc78835932a6e01f428f5d0754d92528e037ccf0f83271737c997da8183264fc18fe839c801fc6c17d611b',
+      );
+    });
+
+    it('can increase expected amount with extensions', () => {
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          extensions: TestData.oneExtension,
+          requestId: requestIdMock,
+        },
+        {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          privateKey: TestData.payerRaw.privateKey,
+        },
+      );
+
+      expect(txIncreaseAmount, 'txIncreaseAmount.transaction must be a property').to.have.property(
+        'transaction',
+      );
+      expect(txIncreaseAmount.transaction.action, 'action is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+      );
+      expect(
+        txIncreaseAmount.transaction,
+        'txIncreaseAmount.transaction.parameters is wrong',
+      ).to.have.property('parameters');
+
+      expect(txIncreaseAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+        requestIdMock,
+      );
+      expect(txIncreaseAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+        arbitraryDeltaAmount,
+      );
+      expect(
+        txIncreaseAmount.transaction.parameters.extensions,
+        'extensions is wrong',
+      ).to.deep.equal(TestData.oneExtension);
+
+      expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
+        'signature',
+      );
+      expect(
+        txIncreaseAmount.signature.method,
+        'txIncreaseAmount.signature.method is wrong',
+      ).to.equal(RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA);
+      expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
+        '0x2e4a00a9c038d078a5557260dbae2592f2476636bfb0bbcbe0a3c4a13c15d7f87eb42061b02331533dfa1677492c255383babeade5bc42fc5854c8ecef6f55271b',
+      );
+    });
+
+    it('cannot increase expected amount with not a number', () => {
+      try {
+        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+          {
+            deltaAmount: 'this is not a number',
+            requestId: requestIdMock,
+          },
+          {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            privateKey: TestData.payerRaw.privateKey,
+          },
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'deltaAmount must be a string representing a positive integer',
+        );
+      }
+    });
+
+    it('cannot increase expected amount with decimal', () => {
+      try {
+        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+          {
+            deltaAmount: '0.12345',
+            requestId: requestIdMock,
+          },
+          {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            privateKey: TestData.payerRaw.privateKey,
+          },
+        );
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'deltaAmount must be a string representing a positive integer',
+        );
+      }
+    });
+
+    it('cannot increase expected amount with a negative number', () => {
+      try {
+        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+          {
+            deltaAmount: '-1234',
+            requestId: requestIdMock,
+          },
+          {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            privateKey: TestData.payerRaw.privateKey,
+          },
+        );
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'deltaAmount must be a string representing a positive integer',
+        );
+      }
+    });
+  });
+
+  describe('applyTransactionToRequest', () => {
+    it('can increase expected amount by payer', () => {
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          privateKey: TestData.payerRaw.privateKey,
+        },
+      );
+
+      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        txIncreaseAmount,
+        Utils.deepCopy(TestData.requestCreatedNoExtension),
+      );
+
+      expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
+      expect(request.currency, 'currency is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+      );
+      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+        arbitraryExpectedAmountAfterDelta,
+      );
+      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+
+      expect(request, 'request.creator is wrong').to.have.property('creator');
+      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      );
+      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
+        TestData.payeeRaw.address,
+      );
+
+      expect(request, 'request.payee is wrong').to.have.property('payee');
+      if (request.payee) {
+        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+          TestData.payeeRaw.address,
+        );
+      }
+      expect(request, 'request.payer is wrong').to.have.property('payer');
+      if (request.payer) {
+        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+          TestData.payerRaw.address,
+        );
+      }
+    });
+
+    it('cannot increase expected amount by payee', () => {
+      try {
+        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+          {
+            deltaAmount: arbitraryDeltaAmount,
+            requestId: requestIdMock,
+          },
+          {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            privateKey: TestData.payeeRaw.privateKey,
+          },
+        );
+
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          txIncreaseAmount,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('signer must be the payer');
+      }
+    });
+
+    it('cannot increase expected amount by thirdparty', () => {
+      try {
+        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+          {
+            deltaAmount: arbitraryDeltaAmount,
+            requestId: requestIdMock,
+          },
+          {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            privateKey: TestData.otherIdRaw.privateKey,
+          },
+        );
+
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          txIncreaseAmount,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('signer must be the payer');
+      }
+    });
+
+    it('cannot increase expected amount if no requestId', () => {
+      try {
+        const signedTx = {
+          signature: {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
+          transaction: {
+            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: arbitraryDeltaAmount,
+            },
+            version: CURRENT_VERSION,
+          },
+        };
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('requestId must be given');
+      }
+    });
+
+    it('cannot increase expected amount if no deltaAmount', () => {
+      try {
+        const signedTx = {
+          signature: {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
+          transaction: {
+            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            parameters: {
+              requestId: requestIdMock,
+            },
+            version: CURRENT_VERSION,
+          },
+        };
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('deltaAmount must be given');
+      }
+    });
+
+    it('cannot increase expected amount if no payer in state', () => {
+      const requestContextNoPayer = {
+        creator: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
+        },
+        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        expectedAmount: arbitraryExpectedAmount,
+        payee: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
+        },
         requestId: requestIdMock,
-      },
-      { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
-    );
+        state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        version: CURRENT_VERSION,
+      };
+      try {
+        const signedTx = {
+          signature: {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
+          transaction: {
+            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: arbitraryDeltaAmount,
+              requestId: requestIdMock,
+            },
+            version: CURRENT_VERSION,
+          },
+        };
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          signedTx,
+          requestContextNoPayer,
+        );
 
-    expect(txIncreaseAmount, 'txIncreaseAmount.transaction must be a property').to.have.property(
-      'transaction',
-    );
-    expect(txIncreaseAmount.transaction.action, 'action is wrong').to.equal(
-      RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-    );
-    expect(
-      txIncreaseAmount.transaction,
-      'txIncreaseAmount.transaction.parameters is wrong',
-    ).to.have.property('parameters');
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('the request must have a payer');
+      }
+    });
 
-    expect(txIncreaseAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
-      requestIdMock,
-    );
-    expect(txIncreaseAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
-      arbitraryDeltaAmount,
-    );
-    expect(txIncreaseAmount.transaction.parameters.extensions, 'extensions is wrong').to.be
-      .undefined;
-
-    expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
-      'signature',
-    );
-    expect(
-      txIncreaseAmount.signature.method,
-      'txIncreaseAmount.signature.method is wrong',
-    ).to.equal(RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA);
-    expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
-      '0xa88a3d3a3671139f65d19ea92ecdbfaf910de54f2b27e25ba50e067cde6e4823085e5500f639b4f5172d55f95f2e7bb809478c8dddf3354eb4ac8d364d957c241b',
-    );
-  });
-
-  it('can increase expected amount with extensions', () => {
-    const extensions = [{ id: 'extension1', value: 'whatever' }];
-    const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
-      {
-        deltaAmount: arbitraryDeltaAmount,
-        extensions,
+    it('cannot increase expected amount if state === CANCELLED in state', () => {
+      const requestContextCancelled = {
+        creator: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
+        },
+        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        expectedAmount: arbitraryExpectedAmount,
+        payee: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
+        },
+        payer: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payerRaw.address,
+        },
         requestId: requestIdMock,
-      },
-      { method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA, privateKey: payerRaw.privateKey },
-    );
+        state: RequestEnum.REQUEST_LOGIC_STATE.CANCELLED,
+        version: CURRENT_VERSION,
+      };
+      try {
+        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+          {
+            deltaAmount: arbitraryDeltaAmount,
+            requestId: requestIdMock,
+          },
+          {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            privateKey: TestData.payerRaw.privateKey,
+          },
+        );
 
-    expect(txIncreaseAmount, 'txIncreaseAmount.transaction must be a property').to.have.property(
-      'transaction',
-    );
-    expect(txIncreaseAmount.transaction.action, 'action is wrong').to.equal(
-      RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-    );
-    expect(
-      txIncreaseAmount.transaction,
-      'txIncreaseAmount.transaction.parameters is wrong',
-    ).to.have.property('parameters');
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          txIncreaseAmount,
+          requestContextCancelled,
+        );
 
-    expect(txIncreaseAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
-      requestIdMock,
-    );
-    expect(txIncreaseAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
-      arbitraryDeltaAmount,
-    );
-    expect(txIncreaseAmount.transaction.parameters.extensions, 'extensions is wrong').to.deep.equal(
-      extensions,
-    );
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('the request must not be cancelled');
+      }
+    });
 
-    expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
-      'signature',
-    );
-    expect(
-      txIncreaseAmount.signature.method,
-      'txIncreaseAmount.signature.method is wrong',
-    ).to.equal(RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA);
-    expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
-      '0x6759b4ac8e0d4f1860b35b90ea2df0ba6476e1440da2fbaf5e5be7a0468cbe577f268a51f412f19058af4ec0df058502a9337324f316ee7218642615d1fe7efa1c',
-    );
-  });
-
-  it('cannot increase expected amount with not a number', () => {
-    try {
-      const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+    it('can increase expected amount if state === ACCEPTED in state', () => {
+      const requestContextAccepted = {
+        creator: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
+        },
+        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        expectedAmount: arbitraryExpectedAmount,
+        payee: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
+        },
+        payer: {
+          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payerRaw.address,
+        },
+        requestId: requestIdMock,
+        state: RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED,
+        version: CURRENT_VERSION,
+      };
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
-          deltaAmount: 'this is not a number',
+          deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
         {
           method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-          privateKey: payerRaw.privateKey,
+          privateKey: TestData.payerRaw.privateKey,
         },
       );
 
-      expect(false, 'exception not thrown').to.be.true;
-    } catch (e) {
-      expect(e.message, 'exception not right').to.be.equal(
-        'deltaAmount must be a string representing a positive integer',
+      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        txIncreaseAmount,
+        requestContextAccepted,
       );
-    }
-  });
 
-  it('cannot increase expected amount with decimal', () => {
-    try {
-      const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+      expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
+      expect(request.currency, 'currency is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+      );
+      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
+      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+        arbitraryExpectedAmountAfterDelta,
+      );
+      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+
+      expect(request, 'request.creator is wrong').to.have.property('creator');
+      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      );
+      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
+        TestData.payeeRaw.address,
+      );
+
+      expect(request, 'request.payee is wrong').to.have.property('payee');
+      if (request.payee) {
+        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+          TestData.payeeRaw.address,
+        );
+      }
+      expect(request, 'request.payer is wrong').to.have.property('payer');
+      if (request.payer) {
+        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+          TestData.payerRaw.address,
+        );
+      }
+    });
+
+    it('can increase expected amount with extensions and no extensions before', () => {
+      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
-          deltaAmount: '0.12345',
+          deltaAmount: arbitraryDeltaAmount,
+          extensions: newExtensionsData,
           requestId: requestIdMock,
         },
         {
           method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-          privateKey: payerRaw.privateKey,
+          privateKey: TestData.payerRaw.privateKey,
         },
       );
-      expect(false, 'exception not thrown').to.be.true;
-    } catch (e) {
-      expect(e.message, 'exception not right').to.be.equal(
-        'deltaAmount must be a string representing a positive integer',
-      );
-    }
-  });
 
-  it('cannot increase expected amount with a negative number', () => {
-    try {
-      const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        txIncreaseAmount,
+        Utils.deepCopy(TestData.requestCreatedNoExtension),
+      );
+
+      expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
+      expect(request.currency, 'currency is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+      );
+      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+        arbitraryExpectedAmountAfterDelta,
+      );
+      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(newExtensionsData);
+
+      expect(request, 'request.creator is wrong').to.have.property('creator');
+      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      );
+      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
+        TestData.payeeRaw.address,
+      );
+
+      expect(request, 'request.payee is wrong').to.have.property('payee');
+      if (request.payee) {
+        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+          TestData.payeeRaw.address,
+        );
+      }
+      expect(request, 'request.payer is wrong').to.have.property('payer');
+      if (request.payer) {
+        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+          TestData.payerRaw.address,
+        );
+      }
+    });
+
+    it('can increase expected amount with extensions and extensions before', () => {
+      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
-          deltaAmount: '-1234',
+          deltaAmount: arbitraryDeltaAmount,
+          extensions: newExtensionsData,
           requestId: requestIdMock,
         },
         {
           method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-          privateKey: payerRaw.privateKey,
+          privateKey: TestData.payerRaw.privateKey,
         },
       );
-      expect(false, 'exception not thrown').to.be.true;
-    } catch (e) {
-      expect(e.message, 'exception not right').to.be.equal(
-        'deltaAmount must be a string representing a positive integer',
+
+      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        txIncreaseAmount,
+        Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
-    }
+
+      expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
+      expect(request.currency, 'currency is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+      );
+      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+        arbitraryExpectedAmountAfterDelta,
+      );
+      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+        TestData.oneExtension.concat(newExtensionsData),
+      );
+
+      expect(request, 'request.creator is wrong').to.have.property('creator');
+      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      );
+      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
+        TestData.payeeRaw.address,
+      );
+
+      expect(request, 'request.payee is wrong').to.have.property('payee');
+      if (request.payee) {
+        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+          TestData.payeeRaw.address,
+        );
+      }
+      expect(request, 'request.payer is wrong').to.have.property('payer');
+      if (request.payer) {
+        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+          TestData.payerRaw.address,
+        );
+      }
+    });
+    it('can increase expected amount without extensions and extensions before', () => {
+      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          privateKey: TestData.payerRaw.privateKey,
+        },
+      );
+
+      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        txIncreaseAmount,
+        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+      );
+
+      expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
+      expect(request.currency, 'currency is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+      );
+      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+        arbitraryExpectedAmountAfterDelta,
+      );
+      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+        TestData.oneExtension,
+      );
+
+      expect(request, 'request.creator is wrong').to.have.property('creator');
+      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
+        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      );
+      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
+        TestData.payeeRaw.address,
+      );
+
+      expect(request, 'request.payee is wrong').to.have.property('payee');
+      if (request.payee) {
+        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+          TestData.payeeRaw.address,
+        );
+      }
+      expect(request, 'request.payer is wrong').to.have.property('payer');
+      if (request.payer) {
+        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        );
+        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+          TestData.payerRaw.address,
+        );
+      }
+    });
+
+    it('cannot increase expected amount with a negative amount', () => {
+      try {
+        const signedTx = {
+          signature: {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
+          transaction: {
+            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: arbitraryDeltaAmountNegative,
+              requestId: requestIdMock,
+            },
+            version: CURRENT_VERSION,
+          },
+        };
+
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'deltaAmount must be a string representing a positive integer',
+        );
+      }
+    });
+
+    it('cannot increase expected amount with not a number', () => {
+      try {
+        const signedTx = {
+          signature: {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
+          transaction: {
+            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: 'Not a number',
+              requestId: requestIdMock,
+              version: CURRENT_VERSION,
+            },
+            version: CURRENT_VERSION,
+          },
+        };
+
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'deltaAmount must be a string representing a positive integer',
+        );
+      }
+    });
+
+    it('cannot increase expected amount with decimal', () => {
+      try {
+        const signedTx = {
+          signature: {
+            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
+          transaction: {
+            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: '0.0234',
+              requestId: requestIdMock,
+            },
+            version: CURRENT_VERSION,
+          },
+        };
+
+        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'deltaAmount must be a string representing a positive integer',
+        );
+      }
+    });
   });
 });
