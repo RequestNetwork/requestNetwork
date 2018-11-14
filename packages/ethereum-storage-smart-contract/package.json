@@ -1,0 +1,29 @@
+{
+  "name": "ethereum-storage-hash-smart-contract",
+  "version": "0.1.0",
+  "description": "Request smart contract to store ipfs hashes",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "truffle compile",
+    "test": "truffle test",
+    "deploy": "truffle deploy",
+    "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "lint:sol": "solium --dir contracts",
+    "lint:js": "eslint ./test",
+    "lint-staged": "lint-staged"
+  },
+  "devDependencies": {
+    "chai-bignumber": "2.0.2",
+    "eslint": "5.8.0",
+    "husky": "1.1.3",
+    "lint-staged": "8.0.4",
+    "openzeppelin-solidity": "2.0.0",
+    "prettier": "1.15.2",
+    "solium": "1.1.8",
+    "truffle": "4.1.14",
+    "truffle-hdwallet-provider": "0.0.6"
+  },
+  "dependencies": {}
+}

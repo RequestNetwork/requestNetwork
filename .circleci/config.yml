@@ -61,6 +61,12 @@ jobs:
       - run:
           name: 'Test ethereum-storage'
           command: 'yarn workspace @requestnetwork/ethereum-storage run test'
+      - run:
+          name: 'Lint ethereum-storage-smart-contract'
+          command: 'yarn workspace @requestnetwork/ethereum-storage/smartContract run lint'
+      - run:
+          name: 'Test ethereum-storage-smart-contract'
+          command: 'yarn workspace @requestnetwork/ethereum-storage/smartContract run test'
   test-request-logic:
     docker:
       - *node_image
