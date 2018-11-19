@@ -44,6 +44,9 @@ export const requestIdMock = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877
 export const arbitraryExpectedAmount = '123400000000000000';
 export const arbitraryDeltaAmount = '100000000000000000';
 
+export const arbitraryExpectedAmountMinusDelta = '23400000000000000';
+export const arbitraryExpectedAmountPlusDelta = '223400000000000000';
+
 export const oneExtension = [{ id: 'extension1', value: 'whatever1' }];
 export const twoExtensions = [
   { id: 'extension2', value: 'whatever2' },
@@ -56,6 +59,20 @@ export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
     value: payeeRaw.address,
   },
   currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+  events: [
+    {
+      name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsLength: 0,
+        isSignedRequest: false,
+      },
+      transactionSigner: {
+        type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payeeRaw.address,
+      },
+    },
+  ],
   expectedAmount: arbitraryExpectedAmount,
   payee: {
     type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -76,6 +93,20 @@ export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
     value: payeeRaw.address,
   },
   currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+  events: [
+    {
+      name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsLength: 1,
+        isSignedRequest: false,
+      },
+      transactionSigner: {
+        type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payeeRaw.address,
+      },
+    },
+  ],
   expectedAmount: arbitraryExpectedAmount,
   extensions: oneExtension,
   payee: {
@@ -97,6 +128,27 @@ export const requestCancelledNoExtension: Types.IRequestLogicRequest = {
     value: payeeRaw.address,
   },
   currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+  events: [
+    {
+      name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsLength: 0,
+        isSignedRequest: false,
+      },
+      transactionSigner: {
+        type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payeeRaw.address,
+      },
+    },
+    {
+      name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+      transactionSigner: {
+        type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payeeRaw.address,
+      },
+    },
+  ],
   expectedAmount: arbitraryExpectedAmount,
   payee: {
     type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -117,6 +169,27 @@ export const requestAcceptedNoExtension: Types.IRequestLogicRequest = {
     value: payeeRaw.address,
   },
   currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+  events: [
+    {
+      name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsLength: 0,
+        isSignedRequest: false,
+      },
+      transactionSigner: {
+        type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payeeRaw.address,
+      },
+    },
+    {
+      name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+      transactionSigner: {
+        type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payerRaw.address,
+      },
+    },
+  ],
   expectedAmount: arbitraryExpectedAmount,
   payee: {
     type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,

@@ -72,6 +72,31 @@ function applyTransactionToRequest(
   }
 
   request = Request.pushExtensions(request, transaction.parameters.extensions);
+  request.events.push(generateEvent(transaction, signer));
 
   return request;
+}
+
+/**
+ * Private function to generate the event 'Accept' from a transaction
+ *
+ * @param Types.IRequestLogicTransaction transaction the transaction that create the event
+ * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
+ *
+ * @returns Types.IRequestLogicEvent the event generated
+ */
+function generateEvent(
+  transaction: Types.IRequestLogicTransaction,
+  transactionSigner: Types.IRequestLogicIdentity,
+): Types.IRequestLogicEvent {
+  const params = transaction.parameters;
+
+  const event: Types.IRequestLogicEvent = {
+    name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+    parameters: {
+      extensionsLength: params.extensions ? params.extensions.length : 0,
+    },
+    transactionSigner,
+  };
+  return event;
 }

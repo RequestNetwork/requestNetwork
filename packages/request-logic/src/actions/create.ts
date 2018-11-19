@@ -112,6 +112,7 @@ function createRequest(
   const request: Types.IRequestLogicRequest = Utils.deepCopy(transaction.parameters);
   request.requestId = Transaction.getRequestId(transaction);
   request.version = Transaction.getVersionFromTransaction(transaction);
+  request.events = [generateEvent(transaction, signer)];
 
   const signerRole = Transaction.getRoleInTransaction(signer, transaction);
   if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYEE) {
@@ -126,4 +127,30 @@ function createRequest(
   }
 
   throw new Error('Signer must be the payee or the payer');
+}
+
+/**
+ * Private function to generate the event 'Create' from a transaction
+ *
+ * @param Types.IRequestLogicTransaction transaction the transaction that create the event
+ * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
+ *
+ * @returns Types.IRequestLogicEvent the event generated
+ */
+function generateEvent(
+  transaction: Types.IRequestLogicTransaction,
+  transactionSigner: Types.IRequestLogicIdentity,
+): Types.IRequestLogicEvent {
+  const params = transaction.parameters;
+
+  const event: Types.IRequestLogicEvent = {
+    name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+    parameters: {
+      expectedAmount: params.expectedAmount,
+      extensionsLength: params.extensions ? params.extensions.length : 0,
+      isSignedRequest: false,
+    },
+    transactionSigner,
+  };
+  return event;
 }

@@ -229,6 +229,11 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('cannot increase expected amount by payee', () => {
@@ -340,6 +345,20 @@ describe('actions/increaseExpectedAmount', () => {
           value: TestData.payeeRaw.address,
         },
         currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [
+          {
+            name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+            parameters: {
+              expectedAmount: '123400000000000000',
+              extensionsLength: 0,
+              isSignedRequest: false,
+            },
+            transactionSigner: {
+              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+          },
+        ],
         expectedAmount: arbitraryExpectedAmount,
         payee: {
           type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -377,25 +396,6 @@ describe('actions/increaseExpectedAmount', () => {
     });
 
     it('cannot increase expected amount if state === CANCELLED in state', () => {
-      const requestContextCancelled = {
-        creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-        expectedAmount: arbitraryExpectedAmount,
-        payee: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        payer: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payerRaw.address,
-        },
-        requestId: requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CANCELLED,
-        version: CURRENT_VERSION,
-      };
       try {
         const txIncreaseAmount = IncreaseExpectedAmountAction.format(
           {
@@ -410,7 +410,7 @@ describe('actions/increaseExpectedAmount', () => {
 
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
           txIncreaseAmount,
-          requestContextCancelled,
+          Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -420,25 +420,6 @@ describe('actions/increaseExpectedAmount', () => {
     });
 
     it('can increase expected amount if state === ACCEPTED in state', () => {
-      const requestContextAccepted = {
-        creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-        expectedAmount: arbitraryExpectedAmount,
-        payee: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        payer: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payerRaw.address,
-        },
-        requestId: requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED,
-        version: CURRENT_VERSION,
-      };
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -452,7 +433,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
         txIncreaseAmount,
-        requestContextAccepted,
+        Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
@@ -491,6 +472,11 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[2], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('can increase expected amount with extensions and no extensions before', () => {
@@ -548,6 +534,11 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('can increase expected amount with extensions and extensions before', () => {
@@ -607,6 +598,11 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
     it('can increase expected amount without extensions and extensions before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
@@ -664,6 +660,11 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('cannot increase expected amount with a negative amount', () => {

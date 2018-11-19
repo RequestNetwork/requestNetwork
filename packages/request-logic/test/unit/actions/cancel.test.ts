@@ -136,6 +136,12 @@ describe('actions/cancel', () => {
           TestData.payerRaw.address,
         );
       }
+
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+        parameters: { extensionsLength: 0 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
     it('cannot cancel by payer with state === accepted', () => {
       try {
@@ -237,6 +243,11 @@ describe('actions/cancel', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+        parameters: { extensionsLength: 0 },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
     it('can cancel by payee with state === accepted', () => {
       const txCancel = CancelAction.format(
@@ -290,6 +301,11 @@ describe('actions/cancel', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[2], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+        parameters: { extensionsLength: 0 },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
     it('cannot cancel by payee with state === cancelled', () => {
       try {
@@ -371,6 +387,20 @@ describe('actions/cancel', () => {
           value: TestData.payeeRaw.address,
         },
         currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [
+          {
+            name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+            parameters: {
+              expectedAmount: '123400000000000000',
+              extensionsLength: 0,
+              isSignedRequest: false,
+            },
+            transactionSigner: {
+              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+          },
+        ],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: {
           type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -411,6 +441,20 @@ describe('actions/cancel', () => {
           value: TestData.payeeRaw.address,
         },
         currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [
+          {
+            name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+            parameters: {
+              expectedAmount: '123400000000000000',
+              extensionsLength: 0,
+              isSignedRequest: false,
+            },
+            transactionSigner: {
+              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+          },
+        ],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payer: {
           type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -498,6 +542,11 @@ describe('actions/cancel', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+        parameters: { extensionsLength: 1 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('can cancel with extensions and extensions before', () => {
@@ -556,6 +605,11 @@ describe('actions/cancel', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+        parameters: { extensionsLength: 1 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
     it('can cancel without extensions and extensions before', () => {
       const txCancel = CancelAction.format(
@@ -611,6 +665,11 @@ describe('actions/cancel', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+        parameters: { extensionsLength: 0 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
   });
 });

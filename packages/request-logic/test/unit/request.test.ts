@@ -81,6 +81,7 @@ describe('Request', () => {
       const requestError = {
         creator: TestData.payeeRaw.identity,
         currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
@@ -94,6 +95,7 @@ describe('Request', () => {
         const requestNoPayeeNoPayer = {
           creator: TestData.payeeRaw.identity,
           currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           requestId: TestData.requestIdMock,
           state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
@@ -109,17 +111,15 @@ describe('Request', () => {
     });
     it('cannot valid request with no creator', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -129,17 +129,15 @@ describe('Request', () => {
 
     it('cannot valid request with expected amount missing', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            payee: TestData.payeeRaw.identity,
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          payee: TestData.payeeRaw.identity,
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -150,10 +148,10 @@ describe('Request', () => {
     });
     it('cannot valid request with expected amount not valid', () => {
       try {
-        // parse/stringify to avoid typescript check on type
         const requestError = {
           creator: TestData.payeeRaw.identity,
           currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
           expectedAmount: '-10000',
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
@@ -170,21 +168,19 @@ describe('Request', () => {
     });
     it('cannot valid request with creator identity type not supported', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: {
-              type: 'not_supported_type',
-              value: '0xaaaa',
-            },
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: {
+            type: 'not_supported_type',
+            value: '0xaaaa',
+          },
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -193,22 +189,20 @@ describe('Request', () => {
     });
     it('cannot valid request with payer identity type not supported', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            payer: {
-              type: 'not_supported_type',
-              value: '0xaaaa',
-            },
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          payer: {
+            type: 'not_supported_type',
+            value: '0xaaaa',
+          },
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -217,21 +211,19 @@ describe('Request', () => {
     });
     it('cannot valid request with payee identity type not supported', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: {
-              type: 'not_supported_type',
-              value: '0xaaaa',
-            },
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: {
+            type: 'not_supported_type',
+            value: '0xaaaa',
+          },
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -241,17 +233,15 @@ describe('Request', () => {
 
     it('cannot valid request with state missing', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            requestId: TestData.requestIdMock,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          requestId: TestData.requestIdMock,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -260,17 +250,15 @@ describe('Request', () => {
     });
     it('cannot valid request with version missing', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -279,17 +267,15 @@ describe('Request', () => {
     });
     it('cannot valid request with currency missing', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            requestId: TestData.requestIdMock,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          requestId: TestData.requestIdMock,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -298,17 +284,15 @@ describe('Request', () => {
     });
     it('cannot valid request with requestId missing', () => {
       try {
-        // parse/stringify to avoid typescript check on type
-        const requestError = JSON.parse(
-          JSON.stringify({
-            creator: TestData.payeeRaw.identity,
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: TestData.payeeRaw.identity,
-            state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
-            version: CURRENT_VERSION,
-          }),
-        );
+        const requestError: any = {
+          creator: TestData.payeeRaw.identity,
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          events: [],
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          version: CURRENT_VERSION,
+        };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

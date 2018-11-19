@@ -52,6 +52,7 @@ export interface IRequestLogicRequest {
   payer?: IRequestLogicIdentity;
   // Array of extensions data linked to the request
   extensions?: any[];
+  events: IRequestLogicEvent[];
 }
 
 // Type of amount used in request logic
@@ -102,4 +103,13 @@ export interface IRequestLogicReduceExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
   extensions?: any[];
+}
+
+// Interface of an event
+export interface IRequestLogicEvent {
+  // Name of this event is actually an action
+  name: RequestEnum.REQUEST_LOGIC_ACTION;
+  // the information given in the event
+  parameters?: any;
+  transactionSigner: IRequestLogicIdentity;
 }

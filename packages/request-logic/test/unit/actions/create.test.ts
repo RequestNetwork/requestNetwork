@@ -28,7 +28,6 @@ describe('CreateAction', () => {
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
-
       expect(txCreation, 'txCreation.transaction is wrong').to.have.property('transaction');
       expect(txCreation.transaction.action, 'action is wrong').to.equal(
         RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
@@ -501,6 +500,46 @@ describe('CreateAction', () => {
         );
       }
     });
+    it('does not support other identity type than "ethereumAddress" for Payee', () => {
+      try {
+        const params: any = {
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          expectedAmount: '1000',
+          payee: {
+            type: 'not_ethereumAddress',
+            value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+          },
+        };
+        CreateAction.format(params, {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          privateKey: TestData.payeeRaw.privateKey,
+        });
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('payee.type not supported');
+      }
+    });
+    it('does not support other identity type than "ethereumAddress" for Payer', () => {
+      try {
+        const params: any = {
+          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          expectedAmount: '1000',
+          payer: {
+            type: 'not_ethereumAddress',
+            value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+          },
+        };
+        CreateAction.format(params, {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          privateKey: TestData.payerRaw.privateKey,
+        });
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('payer.type not supported');
+      }
+    });
   });
   describe('createRequest', () => {
     it('can create with only the payee', () => {
@@ -520,6 +559,7 @@ describe('CreateAction', () => {
       );
 
       const request = CreateAction.createRequest(txCreation);
+
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
       );
@@ -550,6 +590,16 @@ describe('CreateAction', () => {
         );
       }
       expect(request.payer, 'payer is wrong').to.be.undefined;
+
+      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+        parameters: {
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsLength: 0,
+          isSignedRequest: false,
+        },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('can create with only the payer', () => {
@@ -599,6 +649,15 @@ describe('CreateAction', () => {
         );
       }
       expect(request.payee, 'payee is wrong').to.be.undefined;
+      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+        parameters: {
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsLength: 0,
+          isSignedRequest: false,
+        },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('can create with the payee and the payer', () => {
@@ -661,6 +720,15 @@ describe('CreateAction', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+        parameters: {
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsLength: 0,
+          isSignedRequest: false,
+        },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('cannot create without payee and payer', () => {
@@ -852,6 +920,15 @@ describe('CreateAction', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+        parameters: {
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsLength: 1,
+          isSignedRequest: false,
+        },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('cannot sign with ECDSA by another', () => {

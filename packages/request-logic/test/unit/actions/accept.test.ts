@@ -138,6 +138,11 @@ describe('actions/accept', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+        parameters: { extensionsLength: 0 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('cannot apply accept by payee', () => {
@@ -214,6 +219,20 @@ describe('actions/accept', () => {
           value: TestData.payeeRaw.address,
         },
         currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [
+          {
+            name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+            parameters: {
+              expectedAmount: '123400000000000000',
+              extensionsLength: 0,
+              isSignedRequest: false,
+            },
+            transactionSigner: {
+              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+          },
+        ],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: {
           type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -246,25 +265,6 @@ describe('actions/accept', () => {
       }
     });
     it('cannot apply accept if state === CANCELLED in state', () => {
-      const requestContextAccepted = {
-        creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-        expectedAmount: TestData.arbitraryExpectedAmount,
-        payee: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        payer: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payerRaw.address,
-        },
-        requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CANCELLED,
-        version: CURRENT_VERSION,
-      };
       try {
         const signedTx = {
           signature: {
@@ -280,7 +280,10 @@ describe('actions/accept', () => {
             version: CURRENT_VERSION,
           },
         };
-        const request = AcceptAction.applyTransactionToRequest(signedTx, requestContextAccepted);
+        const request = AcceptAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCancelledNoExtension),
+        );
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -288,25 +291,6 @@ describe('actions/accept', () => {
       }
     });
     it('cannot apply accept if state === ACCEPTED in state', () => {
-      const requestContextAccepted = {
-        creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-        expectedAmount: TestData.arbitraryExpectedAmount,
-        payee: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        payer: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payerRaw.address,
-        },
-        requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED,
-        version: CURRENT_VERSION,
-      };
       try {
         const signedTx = {
           signature: {
@@ -322,7 +306,10 @@ describe('actions/accept', () => {
             version: CURRENT_VERSION,
           },
         };
-        const request = AcceptAction.applyTransactionToRequest(signedTx, requestContextAccepted);
+        const request = AcceptAction.applyTransactionToRequest(
+          signedTx,
+          Utils.deepCopy(TestData.requestCancelledNoExtension),
+        );
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -384,6 +371,12 @@ describe('actions/accept', () => {
           TestData.payerRaw.address,
         );
       }
+
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+        parameters: { extensionsLength: 1 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
 
     it('can apply accept with extensions and extensions before', () => {
@@ -424,6 +417,11 @@ describe('actions/accept', () => {
         TestData.payeeRaw.address,
       );
 
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+        parameters: { extensionsLength: 1 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
@@ -442,6 +440,11 @@ describe('actions/accept', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+        parameters: { extensionsLength: 1 },
+        transactionSigner: TestData.payerRaw.identity,
+      });
     });
     it('can apply accept without extensions and extensions before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];

@@ -225,6 +225,11 @@ describe('actions/reduceExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('cannot reduce expected amount by payer', () => {
@@ -336,6 +341,20 @@ describe('actions/reduceExpectedAmount', () => {
           value: TestData.payeeRaw.address,
         },
         currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [
+          {
+            name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+            parameters: {
+              expectedAmount: '123400000000000000',
+              extensionsLength: 0,
+              isSignedRequest: false,
+            },
+            transactionSigner: {
+              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+          },
+        ],
         expectedAmount: arbitraryExpectedAmount,
         payer: {
           type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -373,25 +392,6 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('cannot reduce expected amount if state === CANCELLED in state', () => {
-      const requestContextCancelled = {
-        creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-        expectedAmount: arbitraryExpectedAmount,
-        payee: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        payer: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payerRaw.address,
-        },
-        requestId: requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CANCELLED,
-        version: CURRENT_VERSION,
-      };
       try {
         const txReduceAmount = ReduceExpectedAmountAction.format(
           {
@@ -406,7 +406,7 @@ describe('actions/reduceExpectedAmount', () => {
 
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
           txReduceAmount,
-          requestContextCancelled,
+          Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -416,26 +416,6 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('can reduce expected amount if state === ACCEPTED in state', () => {
-      const requestContextAccepted = {
-        creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-        expectedAmount: arbitraryExpectedAmount,
-        payee: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payeeRaw.address,
-        },
-        payer: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-          value: TestData.payerRaw.address,
-        },
-        requestId: requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED,
-        version: CURRENT_VERSION,
-      };
-
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -449,7 +429,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyTransactionToRequest(
         txReduceAmount,
-        requestContextAccepted,
+        Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
@@ -488,6 +468,11 @@ describe('actions/reduceExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[2], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('can reduce expected amount with extensions and no extensions before', () => {
@@ -545,6 +530,11 @@ describe('actions/reduceExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('can reduce expected amount with extensions and extensions before', () => {
@@ -604,6 +594,11 @@ describe('actions/reduceExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
     it('can reduce expected amount without extensions and extensions before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
@@ -661,6 +656,11 @@ describe('actions/reduceExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('cannot reduce expected amount with a negative amount', () => {
@@ -807,6 +807,11 @@ describe('actions/reduceExpectedAmount', () => {
           TestData.payerRaw.address,
         );
       }
+      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        name: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsLength: 0, deltaAmount: TestData.arbitraryExpectedAmount },
+        transactionSigner: TestData.payeeRaw.identity,
+      });
     });
 
     it('cannot reduce expected amount below zero', () => {

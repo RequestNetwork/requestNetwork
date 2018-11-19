@@ -2,8 +2,12 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
+import Utils from '@requestnetwork/utils';
 import * as RequestEnum from '../../src/enum';
 import Transaction from '../../src/transaction';
+
+import Version from '../../src/version';
+const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from './utils/test-data-generator';
 
@@ -15,7 +19,7 @@ const randomTx = {
     payee: TestData.payeeRaw.identity,
     payer: TestData.payerRaw.identity,
   },
-  version: '0.0.1',
+  version: CURRENT_VERSION,
 };
 
 /* tslint:disable:no-unused-expression */
@@ -23,7 +27,7 @@ describe('Transaction', () => {
   it('can getRequestId()', () => {
     const reqId = Transaction.getRequestId(randomTx);
     expect(reqId, 'getRequestId() error').to.be.equal(
-      '0xea0d8cf694b3870bc1ca70e023b7bc63b4d9159f553677c00d7c6a5e4523da00',
+      '0xdd6b9d4efafed7c294c5c37356cdea6ca5e943995262c4d68c4a942449a08756',
     );
   });
 
@@ -51,7 +55,7 @@ describe('Transaction', () => {
     expect(signedTx.signature, 'createSignedTransaction() signature error').to.be.deep.equal({
       method: 'ecdsa',
       value:
-        '0x69c9c40a81ed75ebd27b4515a6cde74c2e5b30ca159cacaca6557a82f6d5bae62976c1ca079b5810bb36046620e067ee1bc06c74ab7af5c99a0d87f3f53ac4c81c',
+        '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
     });
 
     expect(signedTx.transaction, 'createSignedTransaction() transaction error').to.be.deep.equal(
@@ -64,10 +68,38 @@ describe('Transaction', () => {
       signature: {
         method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
         value:
-          '0x69c9c40a81ed75ebd27b4515a6cde74c2e5b30ca159cacaca6557a82f6d5bae62976c1ca079b5810bb36046620e067ee1bc06c74ab7af5c99a0d87f3f53ac4c81c',
+          '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
       },
       transaction: randomTx,
     });
     expect(id, 'recover() error').to.be.deep.equal(TestData.payeeRaw.identity);
+  });
+
+  it('can isTransactionVersionSupported()', () => {
+    expect(
+      Transaction.isTransactionVersionSupported(randomTx),
+      'isTransactionVersionSupported() error',
+    ).to.be.true;
+
+    const wrongVersionTx = Utils.deepCopy(randomTx);
+    wrongVersionTx.version = '10.0.0';
+    expect(
+      Transaction.isTransactionVersionSupported(wrongVersionTx),
+      'isTransactionVersionSupported() error',
+    ).to.be.false;
+  });
+
+  it('can getVersionFromSignedTransaction()', () => {
+    expect(
+      Transaction.getVersionFromSignedTransaction({
+        signature: {
+          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
+        },
+        transaction: randomTx,
+      }),
+      'getVersionFromSignedTransaction() error',
+    ).to.be.equal(CURRENT_VERSION);
   });
 });

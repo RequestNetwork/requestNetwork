@@ -78,5 +78,5 @@ function applyTransactionToRequest(
     return ReduceExpectedAmountAction.applyTransactionToRequest(signedTransaction, requestCopied);
   }
 
-  throw new Error('Unknown action ${signedTransaction.transaction.action}');
+  throw new Error(`Unknown action ${signedTransaction.transaction.action}`);
 }

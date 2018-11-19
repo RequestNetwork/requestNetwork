@@ -58,6 +58,7 @@ function applyTransactionToRequest(
   const signerRole = Request.getRoleInRequest(signer, request);
 
   request = Request.pushExtensions(request, transaction.parameters.extensions);
+  request.events.push(generateEvent(transaction, signer));
 
   if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
     if (request.state !== RequestEnum.REQUEST_LOGIC_STATE.CREATED) {
@@ -76,4 +77,28 @@ function applyTransactionToRequest(
   }
 
   throw new Error('Signer must be the payer or the payee');
+}
+
+/**
+ * Private function to generate the event 'Cancel' from a transaction
+ *
+ * @param Types.IRequestLogicTransaction transaction the transaction that create the event
+ * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
+ *
+ * @returns Types.IRequestLogicEvent the event generated
+ */
+function generateEvent(
+  transaction: Types.IRequestLogicTransaction,
+  transactionSigner: Types.IRequestLogicIdentity,
+): Types.IRequestLogicEvent {
+  const params = transaction.parameters;
+
+  const event: Types.IRequestLogicEvent = {
+    name: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+    parameters: {
+      extensionsLength: params.extensions ? params.extensions.length : 0,
+    },
+    transactionSigner,
+  };
+  return event;
 }
