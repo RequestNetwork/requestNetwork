@@ -1,10 +1,9 @@
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Amount from '../amount';
-import * as RequestEnum from '../enum';
 import Request from '../request';
 import Signature from '../signature';
 import Transaction from '../transaction';
-import * as Types from '../types';
 import Version from '../version';
 
 /**
@@ -32,7 +31,7 @@ function format(
   }
 
   const transaction: Types.IRequestLogicTransaction = {
-    action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+    action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
     parameters: increaseAmountParameters,
     version: Version.currentVersion,
   };
@@ -74,8 +73,8 @@ function applyTransactionToRequest(
   request = Request.pushExtensions(request, transaction.parameters.extensions);
   request.events.push(generateEvent(transaction, signer));
 
-  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
-    if (request.state === RequestEnum.REQUEST_LOGIC_STATE.CANCELLED) {
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
+    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
       throw new Error('the request must not be cancelled');
     }
     // increase the expected amount and store it as string
@@ -102,7 +101,7 @@ function generateEvent(
   const params = transaction.parameters;
 
   const event: Types.IRequestLogicEvent = {
-    name: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+    name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
     parameters: {
       deltaAmount: transaction.parameters.deltaAmount,
       extensionsLength: params.extensions ? params.extensions.length : 0,

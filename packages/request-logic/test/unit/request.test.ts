@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
 
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as RequestEnum from '../../src/enum';
 import Request from '../../src/request';
 import * as TestData from './utils/test-data-generator';
 
@@ -64,15 +63,15 @@ describe('Request', () => {
       expect(
         Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension),
         'getRoleInTransaction() error',
-      ).to.be.deep.equal(RequestEnum.REQUEST_LOGIC_ROLE.PAYEE);
+      ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYEE);
       expect(
         Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension),
         'getRoleInTransaction() error',
-      ).to.be.deep.equal(RequestEnum.REQUEST_LOGIC_ROLE.PAYER);
+      ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYER);
       expect(
         Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension),
         'getRoleInTransaction() error',
-      ).to.be.deep.equal(RequestEnum.REQUEST_LOGIC_ROLE.THIRD_PARTY);
+      ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.THIRD_PARTY);
     });
   });
 
@@ -80,12 +79,12 @@ describe('Request', () => {
     it('can valid request', () => {
       const requestError = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(Request.checkRequest(requestError), 'checkRequest() must be true').to.be.true;
@@ -94,11 +93,11 @@ describe('Request', () => {
       try {
         const requestNoPayeeNoPayer = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestNoPayeeNoPayer);
@@ -112,12 +111,12 @@ describe('Request', () => {
     it('cannot valid request with no creator', () => {
       try {
         const requestError: any = {
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -131,11 +130,11 @@ describe('Request', () => {
       try {
         const requestError: any = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -150,12 +149,12 @@ describe('Request', () => {
       try {
         const requestError = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: '-10000',
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -173,12 +172,12 @@ describe('Request', () => {
             type: 'not_supported_type',
             value: '0xaaaa',
           },
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -191,7 +190,7 @@ describe('Request', () => {
       try {
         const requestError: any = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
@@ -200,7 +199,7 @@ describe('Request', () => {
             value: '0xaaaa',
           },
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -213,7 +212,7 @@ describe('Request', () => {
       try {
         const requestError: any = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: {
@@ -221,7 +220,7 @@ describe('Request', () => {
             value: '0xaaaa',
           },
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -235,7 +234,7 @@ describe('Request', () => {
       try {
         const requestError: any = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
@@ -252,12 +251,12 @@ describe('Request', () => {
       try {
         const requestError: any = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
         };
         Request.checkRequest(requestError);
         expect(false, 'exception not thrown').to.be.true;
@@ -273,7 +272,7 @@ describe('Request', () => {
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -286,11 +285,11 @@ describe('Request', () => {
       try {
         const requestError: any = {
           creator: TestData.payeeRaw.identity,
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: TestData.payeeRaw.identity,
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);

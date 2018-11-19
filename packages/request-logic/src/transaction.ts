@@ -1,8 +1,7 @@
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as RequestEnum from './enum';
 import Role from './role';
 import Signature from './signature';
-import * as Types from './types';
 import Version from './version';
 
 /**
@@ -33,7 +32,10 @@ function createSignedTransaction(
   transaction: Types.IRequestLogicTransaction,
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicSignedTransaction {
-  const signature = Signature.sign(Utils.crypto.normalizeKeccak256Hash(transaction), signatureParams);
+  const signature = Signature.sign(
+    Utils.crypto.normalizeKeccak256Hash(transaction),
+    signatureParams,
+  );
   return { transaction, signature };
 }
 
@@ -64,19 +66,22 @@ function getSignerIdentityFromSignedTransaction(
 function getRoleInTransaction(
   identity: Types.IRequestLogicIdentity,
   transaction: Types.IRequestLogicTransaction,
-): RequestEnum.REQUEST_LOGIC_ROLE {
+): Types.REQUEST_LOGIC_ROLE {
   return Role.getRole(identity, transaction.parameters);
 }
 
 /**
- * Function to create a requestId from the creation transaction
+ * Function to create a requestId from the creation transaction or get the requestId parameter otherwise
  *
  * @param IRequestLogicTransaction creation transaction of the request
  *
- * @returns RequestIdTYpe the requestId generated
+ * @returns RequestIdTYpe the requestId
  */
 function getRequestId(transaction: Types.IRequestLogicTransaction): Types.RequestLogicRequestId {
-  return Utils.crypto.normalizeKeccak256Hash(transaction);
+  if (transaction.action === Types.REQUEST_LOGIC_ACTION.CREATE) {
+    return Utils.crypto.normalizeKeccak256Hash(transaction);
+  }
+  return transaction.parameters.requestId;
 }
 
 /**

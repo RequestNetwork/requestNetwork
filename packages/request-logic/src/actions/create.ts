@@ -1,9 +1,8 @@
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Amount from '../amount';
-import * as RequestEnum from '../enum';
 import Signature from '../signature';
 import Transaction from '../transaction';
-import * as Types from '../types';
 import Version from '../version';
 
 /**
@@ -17,17 +16,14 @@ export default {
 /**
  * Function to format  transaction to create a Request
  *
- * @param enum currency Currency of the Request (e.g: 'ETH', 'BTC', 'REQ', etc..)
- * @param Amount expectedAmount Amount initial expected for the request
- * @param ISignatureParameters signatureParams Signature parameters
- * @param IIdentity payee Payee id of the request - optional if payer given
- * @param IIdentity payer Payer id of the request - optional if payee given
- * @param any[] extensions List of extensions used by the request
+ * @param requestParameters IRequestLogicCreateParameters parameters to create a request
+ * @param IRequestLogicSignatureParameters signatureParams Signature parameters
+ *
  *
  * @returns ISignedTransaction  the transaction with the signature
  */
 function format(
-  requestParameters: Types.IRequestLogicRequestCreateParameters,
+  requestParameters: Types.IRequestLogicCreateParameters,
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicSignedTransaction {
   if (!requestParameters.payee && !requestParameters.payer) {
@@ -40,14 +36,14 @@ function format(
 
   if (
     requestParameters.payee &&
-    requestParameters.payee.type !== RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS
+    requestParameters.payee.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS
   ) {
     throw new Error('payee.type not supported');
   }
 
   if (
     requestParameters.payer &&
-    requestParameters.payer.type !== RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS
+    requestParameters.payer.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS
   ) {
     throw new Error('payer.type not supported');
   }
@@ -57,21 +53,21 @@ function format(
   const version = Version.currentVersion;
 
   const transaction: Types.IRequestLogicTransaction = {
-    action: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+    action: Types.REQUEST_LOGIC_ACTION.CREATE,
     parameters: requestParameters,
     version,
   };
   const signerIdentity: Types.IRequestLogicIdentity = Signature.getIdentityFromSignatureParams(
     signatureParams,
   );
-  const signerRole: RequestEnum.REQUEST_LOGIC_ROLE = Transaction.getRoleInTransaction(
+  const signerRole: Types.REQUEST_LOGIC_ROLE = Transaction.getRoleInTransaction(
     signerIdentity,
     transaction,
   );
 
   if (
-    signerRole !== RequestEnum.REQUEST_LOGIC_ROLE.PAYEE &&
-    signerRole !== RequestEnum.REQUEST_LOGIC_ROLE.PAYER
+    signerRole !== Types.REQUEST_LOGIC_ROLE.PAYEE &&
+    signerRole !== Types.REQUEST_LOGIC_ROLE.PAYER
   ) {
     throw new Error('Signer must be the payee or the payer');
   }
@@ -115,13 +111,13 @@ function createRequest(
   request.events = [generateEvent(transaction, signer)];
 
   const signerRole = Transaction.getRoleInTransaction(signer, transaction);
-  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYEE) {
-    request.state = RequestEnum.REQUEST_LOGIC_STATE.CREATED;
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
+    request.state = Types.REQUEST_LOGIC_STATE.CREATED;
     request.creator = transaction.parameters.payee;
     return request;
   }
-  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
-    request.state = RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED;
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
+    request.state = Types.REQUEST_LOGIC_STATE.ACCEPTED;
     request.creator = transaction.parameters.payer;
     return request;
   }
@@ -144,7 +140,7 @@ function generateEvent(
   const params = transaction.parameters;
 
   const event: Types.IRequestLogicEvent = {
-    name: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+    name: Types.REQUEST_LOGIC_ACTION.CREATE,
     parameters: {
       expectedAmount: params.expectedAmount,
       extensionsLength: params.extensions ? params.extensions.length : 0,

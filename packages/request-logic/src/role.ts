@@ -1,6 +1,5 @@
-import * as RequestEnum from './enum';
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Identity from './identity';
-import * as Types from './types';
 
 /**
  * Function to manage Request Logic Role
@@ -15,18 +14,15 @@ export default {
  * @param any parameters the object to check
  * @param IRequestLogicIdentity identity the identity to check
  *
- * @returns RequestEnum.REQUEST_LOGIC_ROLE the role of indentity in parameters
+ * @returns Types.REQUEST_LOGIC_ROLE the role of indentity in parameters
  */
-function getRole(
-  identity: Types.IRequestLogicIdentity,
-  parameters: any,
-): RequestEnum.REQUEST_LOGIC_ROLE {
+function getRole(identity: Types.IRequestLogicIdentity, parameters: any): Types.REQUEST_LOGIC_ROLE {
   if (parameters.payee && Identity.areEqual(parameters.payee, identity)) {
-    return RequestEnum.REQUEST_LOGIC_ROLE.PAYEE;
+    return Types.REQUEST_LOGIC_ROLE.PAYEE;
   }
   if (parameters.payer && Identity.areEqual(parameters.payer, identity)) {
-    return RequestEnum.REQUEST_LOGIC_ROLE.PAYER;
+    return Types.REQUEST_LOGIC_ROLE.PAYER;
   }
 
-  return RequestEnum.REQUEST_LOGIC_ROLE.THIRD_PARTY;
+  return Types.REQUEST_LOGIC_ROLE.THIRD_PARTY;
 }

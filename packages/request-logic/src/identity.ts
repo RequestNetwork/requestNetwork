@@ -1,4 +1,4 @@
-import * as Types from './types';
+import { RequestLogic as Types } from '@requestnetwork/types';
 
 /**
  * Function to manage Request Logic Identity

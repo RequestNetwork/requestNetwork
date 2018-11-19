@@ -1,6 +1,5 @@
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as RequestEnum from './enum';
-import * as Types from './types';
 
 /**
  * Function to manage Request Logic Signature
@@ -16,14 +15,14 @@ export default {
  *
  * @param ISignatureParameters signatureParams Signature parameters
  *
- * @returns RequestEnum.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or thirdpart)
+ * @returns REQUEST_LOGIC_ROLE the role of the signer (payee, payer or thirdpart)
  */
 function getIdentityFromSignatureParams(
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicIdentity {
-  if (signatureParams.method === RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
+  if (signatureParams.method === Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
     return {
-      type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       value: Utils.crypto.ecutils.getAddressFromPrivateKey(signatureParams.privateKey),
     };
   }
@@ -44,7 +43,7 @@ function sign(
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicSignature {
   let value: string;
-  if (signatureParams.method === RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
+  if (signatureParams.method === Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
     value = Utils.crypto.ecutils.sign(signatureParams.privateKey, data);
     return { method: signatureParams.method, value };
   }
@@ -65,9 +64,9 @@ function recover(
   signature: Types.IRequestLogicSignature,
 ): Types.IRequestLogicIdentity {
   let value: string;
-  if (signature.method === RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
+  if (signature.method === Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA) {
     value = Utils.crypto.ecutils.recover(signature.value, data);
-    return { type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS, value };
+    return { type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS, value };
   }
 
   throw new Error('signatureParams.method not supported');

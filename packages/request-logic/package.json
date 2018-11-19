@@ -35,9 +35,11 @@
   "devDependencies": {
     "@types/bn.js": "4.11.2",
     "@types/chai": "4.1.6",
+    "@types/chai-spies": "1.0.0",
     "@types/mocha": "5.2.5",
     "@types/semver": "5.5.0",
     "chai": "4.2.0",
+    "chai-spies": "1.0.0",
     "husky": "1.1.2",
     "lint-staged": "7.3.0",
     "mocha": "5.2.0",

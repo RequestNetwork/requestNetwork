@@ -1,13 +1,11 @@
 // placeholder interfaces with meaningless content
+import * as RequestLogic from './request-logic-type';
 
-export interface IRequestLogic {
-  createRequest: (someparam: string) => string;
-  acceptRequest: (someparam: string) => string;
-}
+export { RequestLogic };
 
 export interface IDataAccess {
-  persist: (someparam: string) => string;
-  get: (someparam: string) => string;
+  persist: (transaction: string, indexes?: string[]) => string;
+  get: (someparam: string) => any[];
 }
 
 export interface IStorage {

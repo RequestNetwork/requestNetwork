@@ -1,10 +1,36 @@
 const bigNumber: any = require('bn.js');
-import * as RequestEnum from './enum';
+
+export interface IRequestLogic {
+  createRequest: (
+    requestParameters: IRequestLogicCreateParameters,
+    signatureParams: IRequestLogicSignatureParameters,
+    indexes: string[],
+  ) => string; // TODO modify it
+  acceptRequest: (
+    requestParameters: IRequestLogicAcceptParameters,
+    signatureParams: IRequestLogicSignatureParameters,
+  ) => string; // TODO modify it
+  cancelRequest: (
+    requestParameters: IRequestLogicCancelParameters,
+    signatureParams: IRequestLogicSignatureParameters,
+  ) => string; // TODO modify it
+  increaseExpectecAmountRequest: (
+    requestParameters: IRequestLogicIncreaseExpectedAmountParameters,
+    signatureParams: IRequestLogicSignatureParameters,
+  ) => string; // TODO modify it
+  reduceExpectecAmountRequest: (
+    requestParameters: IRequestLogicReduceExpectedAmountParameters,
+    signatureParams: IRequestLogicSignatureParameters,
+  ) => string; // TODO modify it
+  getRequestById: (
+    requestId: RequestLogicRequestId,
+  ) => IRequestLogicRequest | undefined;
+}
 
 // Interface of the parameters needed to sign
 export interface IRequestLogicSignatureParameters {
   // method of the signature
-  method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD;
+  method: REQUEST_LOGIC_SIGNATURE_METHOD;
   // value used to sign
   privateKey: string;
 }
@@ -12,7 +38,7 @@ export interface IRequestLogicSignatureParameters {
 // Interface of a signature
 export interface IRequestLogicSignature {
   // method used to sign
-  method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD;
+  method: REQUEST_LOGIC_SIGNATURE_METHOD;
   // the signature itself
   value: string;
 }
@@ -20,14 +46,14 @@ export interface IRequestLogicSignature {
 // Interface of an identity object
 export interface IRequestLogicIdentity {
   // type of the identification
-  type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE;
+  type: REQUEST_LOGIC_IDENTITY_TYPE;
   // the identification itself
   value: string;
 }
 
 // Interface of a request logic transaction
 export interface IRequestLogicTransaction {
-  action: RequestEnum.REQUEST_LOGIC_ACTION;
+  action: REQUEST_LOGIC_ACTION;
   version: string;
   parameters?: any;
 }
@@ -45,8 +71,8 @@ export interface IRequestLogicRequest {
   requestId: RequestLogicRequestId;
   // indentity of the request creator (the one who initiates it)
   creator: IRequestLogicIdentity;
-  currency: RequestEnum.REQUEST_LOGIC_CURRENCY;
-  state: RequestEnum.REQUEST_LOGIC_STATE;
+  currency: REQUEST_LOGIC_CURRENCY;
+  state: REQUEST_LOGIC_STATE;
   expectedAmount: RequestLogicAmount;
   payee?: IRequestLogicIdentity;
   payer?: IRequestLogicIdentity;
@@ -71,8 +97,8 @@ export interface IRequestLogicVersionSupportConfig {
 }
 
 // Parameters to create a request
-export interface IRequestLogicRequestCreateParameters {
-  currency: RequestEnum.REQUEST_LOGIC_CURRENCY;
+export interface IRequestLogicCreateParameters {
+  currency: REQUEST_LOGIC_CURRENCY;
   expectedAmount: RequestLogicAmount;
   payee?: IRequestLogicIdentity;
   payer?: IRequestLogicIdentity;
@@ -80,13 +106,13 @@ export interface IRequestLogicRequestCreateParameters {
 }
 
 // Parameters to accept a request
-export interface IRequestLogicRequestAcceptParameters {
+export interface IRequestLogicAcceptParameters {
   requestId: RequestLogicRequestId;
   extensions?: any[];
 }
 
 // Parameters to cancel a request
-export interface IRequestLogicRequestCancelParameters {
+export interface IRequestLogicCancelParameters {
   requestId: RequestLogicRequestId;
   extensions?: any[];
 }
@@ -108,8 +134,48 @@ export interface IRequestLogicReduceExpectedAmountParameters {
 // Interface of an event
 export interface IRequestLogicEvent {
   // Name of this event is actually an action
-  name: RequestEnum.REQUEST_LOGIC_ACTION;
+  name: REQUEST_LOGIC_ACTION;
   // the information given in the event
   parameters?: any;
   transactionSigner: IRequestLogicIdentity;
+}
+
+// Enum of action possible in a transaction
+export enum REQUEST_LOGIC_ACTION {
+  CREATE = 'create',
+  BROADCAST = 'broadcastSignedRequest',
+  ACCEPT = 'accept',
+  CANCEL = 'cancel',
+  REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
+  INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
+}
+
+// Enum of currencies supported by this library
+export enum REQUEST_LOGIC_CURRENCY {
+  ETH = 'ETH',
+  BTC = 'BTC',
+}
+
+// Enum of the state possible for a request
+export enum REQUEST_LOGIC_STATE {
+  CREATED = 'created',
+  ACCEPTED = 'accepted',
+  CANCELLED = 'cancelled',
+}
+
+// Enum of identity type supported by this library
+export enum REQUEST_LOGIC_IDENTITY_TYPE {
+  ETHEREUM_ADDRESS = 'ethereumAddress',
+}
+
+// Enum of signature method supported by this library
+export enum REQUEST_LOGIC_SIGNATURE_METHOD {
+  ECDSA = 'ecdsa',
+}
+
+// Enum of possible identity roles
+export enum REQUEST_LOGIC_ROLE {
+  PAYEE = 'payee',
+  PAYER = 'payer',
+  THIRD_PARTY = 'thirdparty',
 }

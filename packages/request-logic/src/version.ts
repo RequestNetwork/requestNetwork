@@ -1,8 +1,7 @@
+import { RequestLogic as Types } from '@requestnetwork/types';
 import * as Semver from 'semver';
 import Config from './config';
-import * as RequestEnum from './enum';
 import Identity from './identity';
-import * as Types from './types';
 
 /**
  * Function to manage Request versions specification supported by this implementation

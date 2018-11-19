@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as RequestEnum from '../../src/enum';
-import RequestLogic from '../../src/requestLogic';
+import RequestLogic from '../../src/requestLogicCore';
 
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
@@ -11,13 +11,13 @@ const CURRENT_VERSION = Version.currentVersion;
 import * as TestData from './utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
-describe('requestLogic', () => {
+describe('requestLogicCore', () => {
   describe('applyTransactionToRequest', () => {
     it('cannot support unknown action', () => {
       try {
         const signedTx: any = {
           signature: {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -28,7 +28,7 @@ describe('requestLogic', () => {
               expectedAmount: TestData.arbitraryExpectedAmount,
               extensions: [{ id: 'extension1', value: 'whatever' }],
               payer: {
-                type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+                type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
               },
             },
@@ -37,8 +37,8 @@ describe('requestLogic', () => {
         };
 
         const request = RequestLogic.applyTransactionToRequest(
-          signedTx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
+          signedTx,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -50,18 +50,18 @@ describe('requestLogic', () => {
       try {
         const signedTx = {
           signature: {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
           transaction: {
-            action: RequestEnum.REQUEST_LOGIC_ACTION.CREATE,
+            action: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
               extensions: [{ id: 'extension1', value: 'whatever' }],
               payer: {
-                type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+                type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
               },
             },
@@ -69,7 +69,7 @@ describe('requestLogic', () => {
           },
         };
 
-        const request = RequestLogic.applyTransactionToRequest(signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -83,19 +83,19 @@ describe('requestLogic', () => {
       try {
         const signedTx = {
           signature: {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
           transaction: {
-            action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -106,14 +106,14 @@ describe('requestLogic', () => {
     it('cannot apply accept with wrong state', () => {
       const regularRequestContextWithErrors = {
         creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         version: CURRENT_VERSION,
       };
       try {
@@ -122,13 +122,13 @@ describe('requestLogic', () => {
             requestId: TestData.requestIdMock,
           },
           {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
         const request = RequestLogic.applyTransactionToRequest(
-          txAccept,
           regularRequestContextWithErrors,
+          txAccept,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -143,19 +143,19 @@ describe('requestLogic', () => {
       try {
         const signedTx = {
           signature: {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
           transaction: {
-            action: RequestEnum.REQUEST_LOGIC_ACTION.CANCEL,
+            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -166,14 +166,14 @@ describe('requestLogic', () => {
     it('cannot cancel with wrong state', () => {
       const regularRequestContextWithErrors = {
         creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         version: CURRENT_VERSION,
       };
       try {
@@ -182,13 +182,13 @@ describe('requestLogic', () => {
             requestId: TestData.requestIdMock,
           },
           {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.otherIdRaw.privateKey,
           },
         );
         const request = RequestLogic.applyTransactionToRequest(
-          txCancel,
           regularRequestContextWithErrors,
+          txCancel,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -203,12 +203,12 @@ describe('requestLogic', () => {
       try {
         const signedTx = {
           signature: {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
           transaction: {
-            action: RequestEnum.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: TestData.arbitraryDeltaAmount,
               requestId: TestData.requestIdMock,
@@ -216,7 +216,7 @@ describe('requestLogic', () => {
             version: CURRENT_VERSION,
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -227,14 +227,14 @@ describe('requestLogic', () => {
     it('cannot increase expected amount with wrong state', () => {
       const regularRequestContextWithErrors = {
         creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         version: CURRENT_VERSION,
       };
       try {
@@ -244,13 +244,13 @@ describe('requestLogic', () => {
             requestId: TestData.requestIdMock,
           },
           {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
         const request = RequestLogic.applyTransactionToRequest(
-          txIncreaseAmount,
           regularRequestContextWithErrors,
+          txIncreaseAmount,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -264,12 +264,12 @@ describe('requestLogic', () => {
       try {
         const signedTx = {
           signature: {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
           transaction: {
-            action: RequestEnum.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: TestData.arbitraryDeltaAmount,
               requestId: TestData.requestIdMock,
@@ -277,7 +277,7 @@ describe('requestLogic', () => {
             version: CURRENT_VERSION,
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -287,14 +287,14 @@ describe('requestLogic', () => {
     it('cannot reduce expected amount with wrong state', () => {
       const regularRequestContextWithErrors = {
         creator: {
-          type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
-        state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         version: CURRENT_VERSION,
       };
       try {
@@ -304,13 +304,13 @@ describe('requestLogic', () => {
             requestId: TestData.requestIdMock,
           },
           {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
         const request = RequestLogic.applyTransactionToRequest(
-          txReduceAmount,
           regularRequestContextWithErrors,
+          txReduceAmount,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -324,39 +324,39 @@ describe('requestLogic', () => {
       try {
         const txCreation = RequestLogic.formatCreate(
           {
-            currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
             expectedAmount: TestData.arbitraryExpectedAmount,
             payee: {
-              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
             payer: {
-              type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: TestData.payerRaw.address,
             },
           },
           {
-            method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
         const requestState = {
           creator: {
-            type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+            type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
             value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
           },
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
           payer: {
-            type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+            type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
             value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
           },
           requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
-          state: RequestEnum.REQUEST_LOGIC_STATE.CREATED,
+          state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
-        const request = RequestLogic.applyTransactionToRequest(txCreation, requestState);
+        const request = RequestLogic.applyTransactionToRequest(requestState, txCreation);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -369,28 +369,26 @@ describe('requestLogic', () => {
     it('can apply creaion with only the payee', () => {
       const txCreation = RequestLogic.formatCreate(
         {
-          currency: RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: {
-            type: RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+            type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
             value: TestData.payeeRaw.address,
           },
         },
         {
-          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
 
-      const request = RequestLogic.applyTransactionToRequest(txCreation);
+      const request = RequestLogic.applyTransactionToRequest(null, txCreation);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
       );
-      expect(request.currency, 'currency is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-      );
-      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -398,7 +396,7 @@ describe('requestLogic', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -407,7 +405,7 @@ describe('requestLogic', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -420,21 +418,19 @@ describe('requestLogic', () => {
       const txAccept = RequestLogic.formatAccept(
         { requestId: TestData.requestIdMock },
         {
-          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payerRaw.privateKey,
         },
       );
 
       const request = RequestLogic.applyTransactionToRequest(
-        txAccept,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
+        txAccept,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-      );
-      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -442,7 +438,7 @@ describe('requestLogic', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -451,7 +447,7 @@ describe('requestLogic', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -460,7 +456,7 @@ describe('requestLogic', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -474,20 +470,18 @@ describe('requestLogic', () => {
           requestId: TestData.requestIdMock,
         },
         {
-          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payerRaw.privateKey,
         },
       );
       const request = RequestLogic.applyTransactionToRequest(
-        txCancel,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
+        txCancel,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-      );
-      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -495,7 +489,7 @@ describe('requestLogic', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -504,7 +498,7 @@ describe('requestLogic', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -513,7 +507,7 @@ describe('requestLogic', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -530,21 +524,19 @@ describe('requestLogic', () => {
           requestId: TestData.requestIdMock,
         },
         {
-          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payerRaw.privateKey,
         },
       );
 
       const request = RequestLogic.applyTransactionToRequest(
-        txIncreaseAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
+        txIncreaseAmount,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-      );
-      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -552,7 +544,7 @@ describe('requestLogic', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -561,7 +553,7 @@ describe('requestLogic', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -570,7 +562,7 @@ describe('requestLogic', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -587,21 +579,19 @@ describe('requestLogic', () => {
           requestId: TestData.requestIdMock,
         },
         {
-          method: RequestEnum.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
 
       const request = RequestLogic.applyTransactionToRequest(
-        txReduceAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
+        txReduceAmount,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_CURRENCY.ETH,
-      );
-      expect(request.state, 'state is wrong').to.equal(RequestEnum.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -609,7 +599,7 @@ describe('requestLogic', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -618,7 +608,7 @@ describe('requestLogic', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -627,7 +617,7 @@ describe('requestLogic', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          RequestEnum.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,

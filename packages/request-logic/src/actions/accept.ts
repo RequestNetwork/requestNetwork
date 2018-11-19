@@ -1,9 +1,8 @@
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as RequestEnum from '../enum';
 import Request from '../request';
 import Signature from '../signature';
 import Transaction from '../transaction';
-import * as Types from '../types';
 import Version from '../version';
 
 /**
@@ -17,17 +16,17 @@ export default {
 /**
  * Function to format a transaction to accept a Request
  *
- * @param IRequestLogicRequestAcceptParameters acceptParameters parameters to accept a request
+ * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
  * @param ISignatureParameters signatureParams Signature parameters
  *
  * @returns ISignedTransaction  the transaction with the signature
  */
 function format(
-  acceptParameters: Types.IRequestLogicRequestAcceptParameters,
+  acceptParameters: Types.IRequestLogicAcceptParameters,
   signatureParams: Types.IRequestLogicSignatureParameters,
 ): Types.IRequestLogicSignedTransaction {
   const transaction: Types.IRequestLogicTransaction = {
-    action: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+    action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
     parameters: acceptParameters,
     version: Version.currentVersion,
   };
@@ -56,7 +55,7 @@ function applyTransactionToRequest(
     throw new Error('the request must have a payer');
   }
 
-  if (request.state !== RequestEnum.REQUEST_LOGIC_STATE.CREATED) {
+  if (request.state !== Types.REQUEST_LOGIC_STATE.CREATED) {
     throw new Error('the request state must be created');
   }
 
@@ -65,8 +64,8 @@ function applyTransactionToRequest(
   );
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  if (signerRole === RequestEnum.REQUEST_LOGIC_ROLE.PAYER) {
-    request.state = RequestEnum.REQUEST_LOGIC_STATE.ACCEPTED;
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
+    request.state = Types.REQUEST_LOGIC_STATE.ACCEPTED;
   } else {
     throw new Error('Signer must be the payer');
   }
@@ -92,7 +91,7 @@ function generateEvent(
   const params = transaction.parameters;
 
   const event: Types.IRequestLogicEvent = {
-    name: RequestEnum.REQUEST_LOGIC_ACTION.ACCEPT,
+    name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
     parameters: {
       extensionsLength: params.extensions ? params.extensions.length : 0,
     },
