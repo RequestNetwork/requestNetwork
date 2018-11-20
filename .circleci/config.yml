@@ -1,218 +1,222 @@
 version: 2
 
 references:
-  working_directory: &working_directory
-    ~/repo
-  attach_workspace: &attach_workspace
-  node_image: &node_image
-    image: circleci/node:8
-  ipfs_image: &ipfs_image
-    image: ipfs/go-ipfs
-  ganache_image: &ganache_image
-    image: trufflesuite/ganache-cli
-    command:
-      - "-l"
-      - "90000000"
-      - "-m"
-      - "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+    working_directory: &working_directory ~/repo
+    attach_workspace: &attach_workspace
+    node_image: &node_image
+        image: circleci/node:8
+    ipfs_image: &ipfs_image
+        image: ipfs/go-ipfs
+    ganache_image: &ganache_image
+        image: trufflesuite/ganache-cli:v6.1.3
+        command:
+            - "-l"
+            - "90000000"
+            - "-m"
+            - "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 
 jobs:
-  build:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - checkout
-      - run:
-          name: 'Yarn install'
-          command: 'yarn install'
-      - persist_to_workspace:
-          root: *working_directory
-          paths: .
-  test-data-access:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build data-access'
-          command: 'yarn workspace @requestnetwork/data-access run build'
-      - run:
-          name: 'Lint data-access'
-          command: 'yarn workspace @requestnetwork/data-access run lint '
-      - run:
-          name: 'Test data-access'
-          command: 'yarn workspace @requestnetwork/data-access run test'
-  test-ethereum-storage:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
-      - run:
-          name: 'Lint ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run lint'
-      - run:
-          name: 'Test ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run test'
-      - run:
-          name: 'Lint ethereum-storage-smart-contract'
-          command: 'yarn workspace @requestnetwork/ethereum-storage/smartContract run lint'
-      - run:
-          name: 'Test ethereum-storage-smart-contract'
-          command: 'yarn workspace @requestnetwork/ethereum-storage/smartContract run test'
-  test-request-logic:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run build'
-      - run:
-          name: 'Lint request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run lint'
-      - run:
-          name: 'Test request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run test'
-  test-types:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build types'
-          command: 'yarn workspace @requestnetwork/types run build'
-      - run:
-          name: 'Lint types'
-          command: 'yarn workspace @requestnetwork/types run lint'
-  test-requestNetwork.js:
-    docker:
-      - *node_image
-      - *ipfs_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Deploy test contract'
-          command: 'yarn workspace @requestnetwork/request-network.js run testdeploy'
-      - run:
-          name: 'Test requestNetwork.js library'
-          command: 'yarn workspace @requestnetwork/request-network.js run test'
-  test-requestNetworkSmartContracts:
-    docker:
-      - *node_image
-      - *ipfs_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Install solium'
-          command: 'yarn global add solium@1.1.8'
-      - run:
-          name: 'Check contract linting'
-          command: 'yarn workspace request-network-smart-contracts run lint'
-      - run:
-          name: 'Test requestNetwork contract'
-          command: 'yarn workspace request-network-smart-contracts run test'
-  build-docs-requestNetwork.js:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Install compodoc'
-          command: 'yarn global add @compodoc/compodoc'
-      - run:
-          name: 'Create library documentation'
-          command: 'yarn workspace @requestnetwork/request-network.js run docs'
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/requestNetwork.js/docs
-  build-docs-requestNetworkSmartContracts:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Create contract documentation'
-          command: 'yarn workspace request-network-smart-contracts run docs:build'
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/requestNetworkSmartContracts/docs
-  deploy-docs:
-    docker:
-      - image: circleci/python:2.7-jessie
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Install awscli'
-          command: 'sudo pip install awscli'
-      - run:
-          name: Deploy library documentation to S3
-          command: 'aws s3 sync packages/requestNetwork.js/docs s3://docs-js-lib.request.network --delete'
-      - run:
-          name: Deploy contracts documentation to S3
-          command: 'aws s3 sync packages/requestNetworkSmartContracts/docs s3://docs-smart-contracts.request.network --delete'
+    build:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - checkout
+            - run:
+                  name: "Yarn install"
+                  command: "yarn install"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths: .
+    test-data-access:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build data-access"
+                  command: "yarn workspace @requestnetwork/data-access run build"
+            - run:
+                  name: "Lint data-access"
+                  command: "yarn workspace @requestnetwork/data-access run lint "
+            - run:
+                  name: "Test data-access"
+                  command: "yarn workspace @requestnetwork/data-access run test"
+    test-ethereum-storage:
+        docker:
+            - *node_image
+            - *ipfs_image
+            - *ganache_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run build"
+            - run:
+                  name: "Lint ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run lint"
+            - run:
+                  name: "Test ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run test"
+            - run:
+                  name: "Lint solidity ethereum-storage-smart-contract"
+                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run lint:sol"
+            - run:
+                  name: "Lint javascript ethereum-storage-smart-contract"
+                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run lint:js"
+            - run:
+                  name: "Test ethereum-storage-smart-contract"
+                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run test"
+    test-request-logic:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build request-logic"
+                  command: "yarn workspace @requestnetwork/request-logic run build"
+            - run:
+                  name: "Lint request-logic"
+                  command: "yarn workspace @requestnetwork/request-logic run lint"
+            - run:
+                  name: "Test request-logic"
+                  command: "yarn workspace @requestnetwork/request-logic run test"
+    test-types:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build types"
+                  command: "yarn workspace @requestnetwork/types run build"
+            - run:
+                  name: "Lint types"
+                  command: "yarn workspace @requestnetwork/types run lint"
+    test-requestNetwork.js:
+        docker:
+            - *node_image
+            - *ipfs_image
+            - *ganache_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Deploy test contract"
+                  command: "yarn workspace @requestnetwork/request-network.js run testdeploy"
+            - run:
+                  name: "Test requestNetwork.js library"
+                  command: "yarn workspace @requestnetwork/request-network.js run test"
+    test-requestNetworkSmartContracts:
+        docker:
+            - *node_image
+            - *ipfs_image
+            - *ganache_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Install solium"
+                  command: "yarn global add solium@1.1.8"
+            - run:
+                  name: "Check contract linting"
+                  command: "yarn workspace request-network-smart-contracts run lint"
+            - run:
+                  name: "Test requestNetwork contract"
+                  command: "yarn workspace request-network-smart-contracts run test"
+    build-docs-requestNetwork.js:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Install compodoc"
+                  command: "yarn global add @compodoc/compodoc"
+            - run:
+                  name: "Create library documentation"
+                  command: "yarn workspace @requestnetwork/request-network.js run docs"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/requestNetwork.js/docs
+    build-docs-requestNetworkSmartContracts:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Create contract documentation"
+                  command: "yarn workspace request-network-smart-contracts run docs:build"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/requestNetworkSmartContracts/docs
+    deploy-docs:
+        docker:
+            - image: circleci/python:2.7-jessie
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Install awscli"
+                  command: "sudo pip install awscli"
+            - run:
+                  name: Deploy library documentation to S3
+                  command: "aws s3 sync packages/requestNetwork.js/docs s3://docs-js-lib.request.network --delete"
+            - run:
+                  name: Deploy contracts documentation to S3
+                  command: "aws s3 sync packages/requestNetworkSmartContracts/docs s3://docs-smart-contracts.request.network --delete"
 
 workflows:
-  version: 2
-  build-and-test:
-    jobs:
-      - build
-      # Test
-      - test-data-access:
-          requires:
+    version: 2
+    build-and-test:
+        jobs:
             - build
-      - test-ethereum-storage:
-          requires:
-            - build
-      - test-request-logic:
-          requires:
-            - build
-      - test-types:
-          requires:
-            - build
-      - test-requestNetwork.js:
-          requires:
-            - build
-      - test-requestNetworkSmartContracts:
-          requires:
-            - build
-      # Build documentation
-      - build-docs-requestNetwork.js:
-          requires:
-            - test-requestNetwork.js
-      - build-docs-requestNetworkSmartContracts:
-          requires:
-            - test-requestNetworkSmartContracts
-      # Deploy documentation
-      - deploy-docs:
-          filters:
-            branches:
-              only: master
-          requires:
-            - build-docs-requestNetwork.js
-            - build-docs-requestNetworkSmartContracts
+            # Test
+            - test-data-access:
+                  requires:
+                      - build
+            - test-ethereum-storage:
+                  requires:
+                      - build
+            - test-request-logic:
+                  requires:
+                      - build
+            - test-types:
+                  requires:
+                      - build
+            - test-requestNetwork.js:
+                  requires:
+                      - build
+            - test-requestNetworkSmartContracts:
+                  requires:
+                      - build
+            # Build documentation
+            - build-docs-requestNetwork.js:
+                  requires:
+                      - test-requestNetwork.js
+            - build-docs-requestNetworkSmartContracts:
+                  requires:
+                      - test-requestNetworkSmartContracts
+            # Deploy documentation
+            - deploy-docs:
+                  filters:
+                      branches:
+                          only: master
+                  requires:
+                      - build-docs-requestNetwork.js
+                      - build-docs-requestNetworkSmartContracts
