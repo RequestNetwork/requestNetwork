@@ -15,13 +15,8 @@ describe('requestLogicCore', () => {
   describe('applyTransactionToRequest', () => {
     it('cannot support unknown action', () => {
       try {
-        const signedTx: any = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx: any = {
+          data: {
             action: 'actionUnknown',
             parameters: {
               currency: 'ETH',
@@ -34,11 +29,16 @@ describe('requestLogicCore', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = RequestLogic.applyTransactionToRequest(
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-          signedTx,
+          tx,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -48,13 +48,8 @@ describe('requestLogicCore', () => {
     });
     it('does not support all versions', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               currency: 'ETH',
@@ -67,35 +62,38 @@ describe('requestLogicCore', () => {
             },
             version: '2.0.0',
           },
-        };
-
-        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'signed transaction version not supported',
-        );
-      }
-    });
-
-    it('cannot apply accept with no state', () => {
-      try {
-        const signedTx = {
           signature: {
             method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
-          transaction: {
+        };
+
+        const request = RequestLogic.applyTransactionToRequest(null, tx);
+
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal('transaction version not supported');
+      }
+    });
+
+    it('cannot apply accept with no state', () => {
+      try {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -141,21 +139,21 @@ describe('requestLogicCore', () => {
 
     it('cannot cancel with no state', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -201,13 +199,8 @@ describe('requestLogicCore', () => {
 
     it('cannot increase expected amount with no state', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: TestData.arbitraryDeltaAmount,
@@ -215,8 +208,13 @@ describe('requestLogicCore', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -262,13 +260,8 @@ describe('requestLogicCore', () => {
     });
     it('cannot reduce expected amount with no state', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: TestData.arbitraryDeltaAmount,
@@ -276,8 +269,13 @@ describe('requestLogicCore', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, signedTx);
+        const request = RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -385,7 +383,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogic.applyTransactionToRequest(null, txCreation);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(txCreation.transaction),
+        Utils.crypto.normalizeKeccak256Hash(txCreation.data),
       );
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);

@@ -20,58 +20,58 @@ export default {
  * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
  * @param ISignatureParameters signatureParams Signature parameters
  *
- * @returns ISignedTransaction  the transaction with the signature
+ * @returns IRequestLogicTransaction  the transaction with the signature
  */
 function format(
   reduceAmountParameters: Types.IRequestLogicReduceExpectedAmountParameters,
   signatureParams: Types.IRequestLogicSignatureParameters,
-): Types.IRequestLogicSignedTransaction {
+): Types.IRequestLogicTransaction {
   if (!Amount.isValid(reduceAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
-  const transaction: Types.IRequestLogicTransaction = {
+  const transaction: Types.IRequestLogicTransactionData = {
     action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
     parameters: reduceAmountParameters,
     version: Version.currentVersion,
   };
 
-  return Transaction.createSignedTransaction(transaction, signatureParams);
+  return Transaction.createTransaction(transaction, signatureParams);
 }
 
 /**
  * Function to apply an reduceExpectedAmount transaction on a request
  *
- * @param Types.IRequestLogicSignedTransaction signedTransaction the signed transaction to apply
+ * @param Types.IRequestLogicTransaction transaction the transaction to apply
  *
  * @returns Types.IRequestLogicRequest the new request
  */
 function applyTransactionToRequest(
-  signedTransaction: Types.IRequestLogicSignedTransaction,
+  transaction: Types.IRequestLogicTransaction,
   request: Types.IRequestLogicRequest,
 ): Types.IRequestLogicRequest {
-  const transaction = signedTransaction.transaction;
+  const transactionData = transaction.data;
 
-  if (!transaction.parameters.requestId) {
+  if (!transactionData.parameters.requestId) {
     throw new Error('requestId must be given');
   }
   if (!request.payee) {
     throw new Error('the request must have a payee');
   }
-  if (!transaction.parameters.deltaAmount) {
+  if (!transactionData.parameters.deltaAmount) {
     throw new Error('deltaAmount must be given');
   }
-  if (!Amount.isValid(transaction.parameters.deltaAmount)) {
+  if (!Amount.isValid(transactionData.parameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
-  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromSignedTransaction(
-    signedTransaction,
+  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromTransaction(
+    transaction,
   );
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  request = Request.pushExtensions(request, transaction.parameters.extensions);
-  request.events.push(generateEvent(transaction, signer));
+  request = Request.pushExtensions(request, transactionData.parameters.extensions);
+  request.events.push(generateEvent(transactionData, signer));
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
     if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
@@ -80,7 +80,7 @@ function applyTransactionToRequest(
     // reduce the expected amount and store it as string or throw if the result is not valid
     request.expectedAmount = Amount.reduce(
       request.expectedAmount,
-      transaction.parameters.deltaAmount,
+      transactionData.parameters.deltaAmount,
     );
 
     return request;
@@ -92,21 +92,21 @@ function applyTransactionToRequest(
 /**
  * Private function to generate the event 'ReduceExpectedAmount' from a transaction
  *
- * @param Types.IRequestLogicTransaction transaction the transaction that create the event
+ * @param Types.IRequestLogicTransactionData transactionData the transaction data that create the event
  * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
-  transaction: Types.IRequestLogicTransaction,
+  transactionData: Types.IRequestLogicTransactionData,
   transactionSigner: Types.IRequestLogicIdentity,
 ): Types.IRequestLogicEvent {
-  const params = transaction.parameters;
+  const params = transactionData.parameters;
 
   const event: Types.IRequestLogicEvent = {
     name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
     parameters: {
-      deltaAmount: transaction.parameters.deltaAmount,
+      deltaAmount: transactionData.parameters.deltaAmount,
       extensionsLength: params.extensions ? params.extensions.length : 0,
     },
     transactionSigner,

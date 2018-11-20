@@ -51,16 +51,16 @@ export interface IRequestLogicIdentity {
   value: string;
 }
 
-// Interface of a request logic transaction
-export interface IRequestLogicTransaction {
+// Interface of a request logic transaction data
+export interface IRequestLogicTransactionData {
   action: REQUEST_LOGIC_ACTION;
   version: string;
   parameters?: any;
 }
 
-// Interface of a request logic signed transaction
-export interface IRequestLogicSignedTransaction {
-  transaction: IRequestLogicTransaction;
+// Interface of a request logic transaction
+export interface IRequestLogicTransaction {
+  data: IRequestLogicTransactionData;
   signature: IRequestLogicSignature;
 }
 

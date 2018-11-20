@@ -20,12 +20,12 @@ export default {
  * @param IRequestLogicSignatureParameters signatureParams Signature parameters
  *
  *
- * @returns ISignedTransaction  the transaction with the signature
+ * @returns IRequestLogicTransaction  the transaction with the signature
  */
 function format(
   requestParameters: Types.IRequestLogicCreateParameters,
   signatureParams: Types.IRequestLogicSignatureParameters,
-): Types.IRequestLogicSignedTransaction {
+): Types.IRequestLogicTransaction {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
   }
@@ -52,7 +52,7 @@ function format(
   requestParameters.expectedAmount = requestParameters.expectedAmount.toString();
   const version = Version.currentVersion;
 
-  const transaction: Types.IRequestLogicTransaction = {
+  const transaction: Types.IRequestLogicTransactionData = {
     action: Types.REQUEST_LOGIC_ACTION.CREATE,
     parameters: requestParameters,
     version,
@@ -72,53 +72,53 @@ function format(
     throw new Error('Signer must be the payee or the payer');
   }
 
-  return Transaction.createSignedTransaction(transaction, signatureParams);
+  return Transaction.createTransaction(transaction, signatureParams);
 }
 
 /**
  * Function to create a request (create a request)
  *
- * @param Types.IRequestLogicSignedTransaction signedTransaction the signed transaction to evaluate
+ * @param Types.IRequestLogicTransaction transaction the transaction to evaluate
  *
  * @returns Types.IRequestLogicRequest the new request
  */
-function createRequest(
-  signedTransaction: Types.IRequestLogicSignedTransaction,
-): Types.IRequestLogicRequest {
-  const transaction = signedTransaction.transaction;
+function createRequest(transaction: Types.IRequestLogicTransaction): Types.IRequestLogicRequest {
+  const transactionData = transaction.data;
 
-  if (!transaction.parameters.payee && !transaction.parameters.payer) {
-    throw new Error('transaction.parameters.payee or transaction.parameters.payer must be given');
-  }
-
-  if (
-    !Utils.isString(transaction.parameters.expectedAmount) ||
-    !Amount.isValid(transaction.parameters.expectedAmount)
-  ) {
+  if (!transactionData.parameters.payee && !transactionData.parameters.payer) {
     throw new Error(
-      'transaction.parameters.expectedAmount must be a string representing a positive integer',
+      'transaction.data.parameters.payee or transaction.data.parameters.payer must be given',
     );
   }
 
-  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromSignedTransaction(
-    signedTransaction,
+  if (
+    !Utils.isString(transactionData.parameters.expectedAmount) ||
+    !Amount.isValid(transactionData.parameters.expectedAmount)
+  ) {
+    throw new Error(
+      'transaction.data.parameters.expectedAmount must be a string representing a positive integer',
+    );
+  }
+
+  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromTransaction(
+    transaction,
   );
 
   // Copy to not modify the transaction itself
-  const request: Types.IRequestLogicRequest = Utils.deepCopy(transaction.parameters);
-  request.requestId = Transaction.getRequestId(transaction);
-  request.version = Transaction.getVersionFromTransaction(transaction);
-  request.events = [generateEvent(transaction, signer)];
+  const request: Types.IRequestLogicRequest = Utils.deepCopy(transactionData.parameters);
+  request.requestId = Transaction.getRequestId(transactionData);
+  request.version = Transaction.getVersionFromTransactionData(transactionData);
+  request.events = [generateEvent(transactionData, signer)];
 
-  const signerRole = Transaction.getRoleInTransaction(signer, transaction);
+  const signerRole = Transaction.getRoleInTransaction(signer, transactionData);
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
     request.state = Types.REQUEST_LOGIC_STATE.CREATED;
-    request.creator = transaction.parameters.payee;
+    request.creator = transactionData.parameters.payee;
     return request;
   }
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
     request.state = Types.REQUEST_LOGIC_STATE.ACCEPTED;
-    request.creator = transaction.parameters.payer;
+    request.creator = transactionData.parameters.payer;
     return request;
   }
 
@@ -128,16 +128,16 @@ function createRequest(
 /**
  * Private function to generate the event 'Create' from a transaction
  *
- * @param Types.IRequestLogicTransaction transaction the transaction that create the event
+ * @param Types.IRequestLogicTransactionData transactionData the transaction data that create the event
  * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
-  transaction: Types.IRequestLogicTransaction,
+  transactionData: Types.IRequestLogicTransactionData,
   transactionSigner: Types.IRequestLogicIdentity,
 ): Types.IRequestLogicEvent {
-  const params = transaction.parameters;
+  const params = transactionData.parameters;
 
   const event: Types.IRequestLogicEvent = {
     name: Types.REQUEST_LOGIC_ACTION.CREATE,

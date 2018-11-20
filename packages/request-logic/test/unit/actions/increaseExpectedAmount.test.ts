@@ -34,25 +34,21 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      expect(txIncreaseAmount, 'txIncreaseAmount.transaction must be a property').to.have.property(
-        'transaction',
-      );
-      expect(txIncreaseAmount.transaction.action, 'action is wrong').to.equal(
+      expect(txIncreaseAmount, 'txIncreaseAmount.data must be a property').to.have.property('data');
+      expect(txIncreaseAmount.data.action, 'action is wrong').to.equal(
         Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
       );
-      expect(
-        txIncreaseAmount.transaction,
-        'txIncreaseAmount.transaction.parameters is wrong',
-      ).to.have.property('parameters');
+      expect(txIncreaseAmount.data, 'txIncreaseAmount.data.parameters is wrong').to.have.property(
+        'parameters',
+      );
 
-      expect(txIncreaseAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txIncreaseAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(txIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txIncreaseAmount.transaction.parameters.extensions, 'extensions is wrong').to.be
-        .undefined;
+      expect(txIncreaseAmount.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
 
       expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
         'signature',
@@ -79,27 +75,23 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      expect(txIncreaseAmount, 'txIncreaseAmount.transaction must be a property').to.have.property(
-        'transaction',
-      );
-      expect(txIncreaseAmount.transaction.action, 'action is wrong').to.equal(
+      expect(txIncreaseAmount, 'txIncreaseAmount.data must be a property').to.have.property('data');
+      expect(txIncreaseAmount.data.action, 'action is wrong').to.equal(
         Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
       );
-      expect(
-        txIncreaseAmount.transaction,
-        'txIncreaseAmount.transaction.parameters is wrong',
-      ).to.have.property('parameters');
+      expect(txIncreaseAmount.data, 'txIncreaseAmount.data.parameters is wrong').to.have.property(
+        'parameters',
+      );
 
-      expect(txIncreaseAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txIncreaseAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(txIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(
-        txIncreaseAmount.transaction.parameters.extensions,
-        'extensions is wrong',
-      ).to.deep.equal(TestData.oneExtension);
+      expect(txIncreaseAmount.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
+        TestData.oneExtension,
+      );
 
       expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
         'signature',
@@ -284,22 +276,22 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount if no requestId', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -311,22 +303,22 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount if no deltaAmount', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               requestId: requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -367,13 +359,8 @@ describe('actions/increaseExpectedAmount', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
@@ -381,9 +368,14 @@ describe('actions/increaseExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           requestContextNoPayer,
         );
 
@@ -659,13 +651,8 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with a negative amount', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmountNegative,
@@ -673,10 +660,15 @@ describe('actions/increaseExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -690,13 +682,8 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with not a number', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: 'Not a number',
@@ -705,10 +692,15 @@ describe('actions/increaseExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -722,13 +714,8 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with decimal', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: '0.0234',
@@ -736,10 +723,15 @@ describe('actions/increaseExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 

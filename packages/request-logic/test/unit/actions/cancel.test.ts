@@ -24,19 +24,16 @@ describe('actions/cancel', () => {
         },
       );
 
-      expect(txCancel, 'txCancel.transaction is wrong').to.have.property('transaction');
-      expect(txCancel.transaction.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.CANCEL,
+      expect(txCancel, 'txCancel.data is wrong').to.have.property('data');
+      expect(txCancel.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.CANCEL);
+      expect(txCancel.data, 'txCancel.data must have the property parameters').to.have.property(
+        'parameters',
       );
-      expect(
-        txCancel.transaction,
-        'txCancel.transaction must have the property parameters',
-      ).to.have.property('parameters');
 
-      expect(txCancel.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txCancel.transaction.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txCancel.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
 
       expect(txCancel, 'txCancel.signature is wrong').to.have.property('signature');
       expect(txCancel.signature.method, 'txCancel.signature.method is wrong').to.equal(
@@ -59,19 +56,16 @@ describe('actions/cancel', () => {
         },
       );
 
-      expect(txCancel, 'txCancel.transaction is wrong').to.have.property('transaction');
-      expect(txCancel.transaction.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.CANCEL,
+      expect(txCancel, 'txCancel.data is wrong').to.have.property('data');
+      expect(txCancel.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.CANCEL);
+      expect(txCancel.data, 'txCancel.data must have the property parameters').to.have.property(
+        'parameters',
       );
-      expect(
-        txCancel.transaction,
-        'txCancel.transaction must have the property parameters',
-      ).to.have.property('parameters');
 
-      expect(txCancel.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txCancel.transaction.parameters.extensions, 'extensions is wrong').to.deep.equal(
+      expect(txCancel.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -353,20 +347,20 @@ describe('actions/cancel', () => {
 
     it('cannot cancel if no requestId', () => {
       try {
-        const signedTx = {
+        const tx = {
+          data: {
+            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
+            parameters: {},
+            version: CURRENT_VERSION,
+          },
           signature: {
             method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
-          transaction: {
-            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
-            parameters: {},
-            version: CURRENT_VERSION,
-          },
         };
         const request = CancelAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -406,21 +400,21 @@ describe('actions/cancel', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = CancelAction.applyTransactionToRequest(signedTx, requestContextNoPayer);
+        const request = CancelAction.applyTransactionToRequest(tx, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -460,21 +454,21 @@ describe('actions/cancel', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = CancelAction.applyTransactionToRequest(signedTx, requestContextNoPayee);
+        const request = CancelAction.applyTransactionToRequest(tx, requestContextNoPayee);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

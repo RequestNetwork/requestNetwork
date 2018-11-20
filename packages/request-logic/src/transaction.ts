@@ -8,18 +8,18 @@ import Version from './version';
  * Function to manage Request logic transactions
  */
 export default {
-  createSignedTransaction,
+  createTransaction,
   getRequestId,
   getRoleInTransaction,
-  getSignerIdentityFromSignedTransaction,
-  getVersionFromSignedTransaction,
+  getSignerIdentityFromTransaction,
   getVersionFromTransaction,
+  getVersionFromTransactionData,
   isSignedTransactionVersionSupported,
   isTransactionVersionSupported,
 };
 
 /**
- * Function to create signed transaction from a transaction and Signature parameters
+ * Function to create transaction from a transaction and Signature parameters
  *
  * @notice it will sign the hash (keccak256) of the transaction
  *
@@ -28,30 +28,27 @@ export default {
  *
  * @returns string the transaction with the signature
  */
-function createSignedTransaction(
-  transaction: Types.IRequestLogicTransaction,
+function createTransaction(
+  data: Types.IRequestLogicTransactionData,
   signatureParams: Types.IRequestLogicSignatureParameters,
-): Types.IRequestLogicSignedTransaction {
-  const signature = Signature.sign(
-    Utils.crypto.normalizeKeccak256Hash(transaction),
-    signatureParams,
-  );
-  return { transaction, signature };
+): Types.IRequestLogicTransaction {
+  const signature = Signature.sign(Utils.crypto.normalizeKeccak256Hash(data), signatureParams);
+  return { data, signature };
 }
 
 /**
- * Function to get the signer identity from a signed transaction
+ * Function to get the signer identity from a transaction
  *
- * @param ISignatureParameters   signedTransaction    Signed transaction to check
+ * @param ISignatureParameters   transaction    transaction to check
  *
  * @returns RequestEnum.REQUEST_LOGIC_ROLE    the role of the signer (payee, payer or thirdpart)
  */
-function getSignerIdentityFromSignedTransaction(
-  signedTransaction: Types.IRequestLogicSignedTransaction,
+function getSignerIdentityFromTransaction(
+  transaction: Types.IRequestLogicTransaction,
 ): Types.IRequestLogicIdentity {
   return Signature.recover(
-    Utils.crypto.normalizeKeccak256Hash(signedTransaction.transaction),
-    signedTransaction.signature,
+    Utils.crypto.normalizeKeccak256Hash(transaction.data),
+    transaction.signature,
   );
 }
 
@@ -65,7 +62,7 @@ function getSignerIdentityFromSignedTransaction(
  */
 function getRoleInTransaction(
   identity: Types.IRequestLogicIdentity,
-  transaction: Types.IRequestLogicTransaction,
+  transaction: Types.IRequestLogicTransactionData,
 ): Types.REQUEST_LOGIC_ROLE {
   return Role.getRole(identity, transaction.parameters);
 }
@@ -73,11 +70,13 @@ function getRoleInTransaction(
 /**
  * Function to create a requestId from the creation transaction or get the requestId parameter otherwise
  *
- * @param IRequestLogicTransaction creation transaction of the request
+ * @param IRequestLogicTransactionData creation transaction of the request
  *
  * @returns RequestIdTYpe the requestId
  */
-function getRequestId(transaction: Types.IRequestLogicTransaction): Types.RequestLogicRequestId {
+function getRequestId(
+  transaction: Types.IRequestLogicTransactionData,
+): Types.RequestLogicRequestId {
   if (transaction.action === Types.REQUEST_LOGIC_ACTION.CREATE) {
     return Utils.crypto.normalizeKeccak256Hash(transaction);
   }
@@ -85,49 +84,45 @@ function getRequestId(transaction: Types.IRequestLogicTransaction): Types.Reques
 }
 
 /**
- * Function to check if a signed transaction is supported
+ * Function to check if a transaction is supported
  *
- * @param IRequestLogicSignedTransaction signedTransaction signed transaction to check
+ * @param IRequestLogicTransaction transaction transaction to check
  *
- * @returns boolean true, if signed transaction is supported false otherwise
+ * @returns boolean true, if transaction is supported false otherwise
  */
-function isSignedTransactionVersionSupported(
-  signedTransaction: Types.IRequestLogicSignedTransaction,
-): boolean {
-  return Version.isSupported(signedTransaction.transaction.version);
+function isSignedTransactionVersionSupported(transaction: Types.IRequestLogicTransaction): boolean {
+  return Version.isSupported(transaction.data.version);
 }
 
 /**
  * Function to check if a transaction is supported
  *
- * @param IRequestLogicSignedTransaction transaction transaction to check
+ * @param IRequestLogicTransaction transaction transaction to check
  *
  * @returns boolean true, if transaction is supported false otherwise
  */
-function isTransactionVersionSupported(transaction: Types.IRequestLogicTransaction): boolean {
+function isTransactionVersionSupported(transaction: Types.IRequestLogicTransactionData): boolean {
   return Version.isSupported(transaction.version);
+}
+
+/**
+ * Function to get the version of a transaction data
+ *
+ * @param IRequestLogicTransactionData data data to check
+ *
+ * @returns string version
+ */
+function getVersionFromTransactionData(data: Types.IRequestLogicTransactionData): string {
+  return data.version;
 }
 
 /**
  * Function to get the version of a transaction
  *
- * @param IRequestLogicSignedTransaction transaction transaction to check
+ * @param IRequestLogicTransaction transaction transaction to check
  *
  * @returns string version
  */
 function getVersionFromTransaction(transaction: Types.IRequestLogicTransaction): string {
-  return transaction.version;
-}
-
-/**
- * Function to get the version of a signed transaction
- *
- * @param IRequestLogicSignedTransaction signedTransaction signed transaction to check
- *
- * @returns string version
- */
-function getVersionFromSignedTransaction(
-  signedTransaction: Types.IRequestLogicSignedTransaction,
-): string {
-  return signedTransaction.transaction.version;
+  return transaction.data.version;
 }

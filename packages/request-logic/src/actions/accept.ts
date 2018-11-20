@@ -19,35 +19,35 @@ export default {
  * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
  * @param ISignatureParameters signatureParams Signature parameters
  *
- * @returns ISignedTransaction  the transaction with the signature
+ * @returns IRequestLogicTransaction  the transaction with the signature
  */
 function format(
   acceptParameters: Types.IRequestLogicAcceptParameters,
   signatureParams: Types.IRequestLogicSignatureParameters,
-): Types.IRequestLogicSignedTransaction {
-  const transaction: Types.IRequestLogicTransaction = {
+): Types.IRequestLogicTransaction {
+  const transaction: Types.IRequestLogicTransactionData = {
     action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
     parameters: acceptParameters,
     version: Version.currentVersion,
   };
 
-  return Transaction.createSignedTransaction(transaction, signatureParams);
+  return Transaction.createTransaction(transaction, signatureParams);
 }
 
 /**
  * Function to apply an Accept transaction on a request
  *
- * @param Types.IRequestLogicSignedTransaction signedTransaction the signed transaction to apply
+ * @param Types.IRequestLogicTransaction transaction the transaction to apply
  *
  * @returns Types.IRequestLogicRequest the new request
  */
 function applyTransactionToRequest(
-  signedTransaction: Types.IRequestLogicSignedTransaction,
+  transaction: Types.IRequestLogicTransaction,
   request: Types.IRequestLogicRequest,
 ): Types.IRequestLogicRequest {
-  const transaction = signedTransaction.transaction;
+  const transactionData = transaction.data;
 
-  if (!transaction.parameters.requestId) {
+  if (!transactionData.parameters.requestId) {
     throw new Error('requestId must be given');
   }
 
@@ -59,8 +59,8 @@ function applyTransactionToRequest(
     throw new Error('the request state must be created');
   }
 
-  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromSignedTransaction(
-    signedTransaction,
+  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromTransaction(
+    transaction,
   );
   const signerRole = Request.getRoleInRequest(signer, request);
 
@@ -70,8 +70,8 @@ function applyTransactionToRequest(
     throw new Error('Signer must be the payer');
   }
 
-  request = Request.pushExtensions(request, transaction.parameters.extensions);
-  request.events.push(generateEvent(transaction, signer));
+  request = Request.pushExtensions(request, transactionData.parameters.extensions);
+  request.events.push(generateEvent(transactionData, signer));
 
   return request;
 }
@@ -79,13 +79,13 @@ function applyTransactionToRequest(
 /**
  * Private function to generate the event 'Accept' from a transaction
  *
- * @param Types.IRequestLogicTransaction transaction the transaction that create the event
+ * @param Types.IRequestLogicTransactionData transaction the transaction that create the event
  * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
-  transaction: Types.IRequestLogicTransaction,
+  transaction: Types.IRequestLogicTransactionData,
   transactionSigner: Types.IRequestLogicIdentity,
 ): Types.IRequestLogicEvent {
   const params = transaction.parameters;

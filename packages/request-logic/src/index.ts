@@ -20,12 +20,12 @@ export class RequestLogic implements RequestLogicTypes.IRequestLogic {
     signatureParams: RequestLogicTypes.IRequestLogicSignatureParameters,
     indexes: string[] = [],
   ): string {
-    const signedTransaction = RequestLogicCore.formatCreate(requestParameters, signatureParams);
-    const requestId = RequestLogicCore.getRequestIdFromSignedTransaction(signedTransaction);
+    const transaction = RequestLogicCore.formatCreate(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
 
     // concat index given and the default index (requestId)
     indexes.push(requestId);
-    return this.dataAccess.persist(JSON.stringify(signedTransaction), indexes);
+    return this.dataAccess.persist(JSON.stringify(transaction), indexes);
   }
 
   /**
@@ -34,16 +34,16 @@ export class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns ISignedTransaction  the transaction with the signature
+   * @returns IRequestLogicTransaction  the transaction with the signature
    */
   public acceptRequest(
     requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
     signatureParams: RequestLogicTypes.IRequestLogicSignatureParameters,
   ): string {
-    const signedTransaction = RequestLogicCore.formatAccept(requestParameters, signatureParams);
-    const requestId = RequestLogicCore.getRequestIdFromSignedTransaction(signedTransaction);
+    const transaction = RequestLogicCore.formatAccept(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
 
-    return this.dataAccess.persist(JSON.stringify(signedTransaction), [requestId]);
+    return this.dataAccess.persist(JSON.stringify(transaction), [requestId]);
   }
 
   /**
@@ -52,16 +52,16 @@ export class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns ISignedTransaction  the transaction with the signature
+   * @returns IRequestLogicTransaction  the transaction with the signature
    */
   public cancelRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
     signatureParams: RequestLogicTypes.IRequestLogicSignatureParameters,
   ): string {
-    const signedTransaction = RequestLogicCore.formatCancel(requestParameters, signatureParams);
-    const requestId = RequestLogicCore.getRequestIdFromSignedTransaction(signedTransaction);
+    const transaction = RequestLogicCore.formatCancel(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
 
-    return this.dataAccess.persist(JSON.stringify(signedTransaction), [requestId]);
+    return this.dataAccess.persist(JSON.stringify(transaction), [requestId]);
   }
 
   /**
@@ -70,19 +70,19 @@ export class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns ISignedTransaction  the transaction with the signature
+   * @returns IRequestLogicTransaction  the transaction with the signature
    */
   public increaseExpectecAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
     signatureParams: RequestLogicTypes.IRequestLogicSignatureParameters,
   ): string {
-    const signedTransaction = RequestLogicCore.formatIncreaseExpectedAmount(
+    const transaction = RequestLogicCore.formatIncreaseExpectedAmount(
       requestParameters,
       signatureParams,
     );
-    const requestId = RequestLogicCore.getRequestIdFromSignedTransaction(signedTransaction);
+    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
 
-    return this.dataAccess.persist(JSON.stringify(signedTransaction), [requestId]);
+    return this.dataAccess.persist(JSON.stringify(transaction), [requestId]);
   }
 
   /**
@@ -91,19 +91,19 @@ export class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns ISignedTransaction  the transaction with the signature
+   * @returns IRequestLogicTransaction  the transaction with the signature
    */
   public reduceExpectecAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
     signatureParams: RequestLogicTypes.IRequestLogicSignatureParameters,
   ): string {
-    const signedTransaction = RequestLogicCore.formatReduceExpectedAmount(
+    const transaction = RequestLogicCore.formatReduceExpectedAmount(
       requestParameters,
       signatureParams,
     );
-    const requestId = RequestLogicCore.getRequestIdFromSignedTransaction(signedTransaction);
+    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
 
-    return this.dataAccess.persist(JSON.stringify(signedTransaction), [requestId]);
+    return this.dataAccess.persist(JSON.stringify(transaction), [requestId]);
   }
 
   /**
@@ -111,7 +111,7 @@ export class RequestLogic implements RequestLogicTypes.IRequestLogic {
    *
    * @param RequestLogicRequestId requestId the requestId of the request to retrieve
    *
-   * @returns ISignedTransaction  the transaction with the signature
+   * @returns IRequestLogicTransaction  the transaction with the signature
    */
   public getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,

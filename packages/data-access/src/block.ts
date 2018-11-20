@@ -35,23 +35,23 @@ function createEmptyBlock(): Types.IRequestDataAccessBlock {
  * Function to add a transaction and indexes in the block
  *
  * @param IRequestDataAccessBlock block previous state will not be modified
- * @param IRequestDataAccessTransaction signedTransaction Signed transaction to push
+ * @param IRequestDataAccessTransaction transaction transaction to push
  * @param string[] indexes strings to index the transaction
  *
  * @returns IRequestDataAccessBlock the new state
  */
 function pushTransaction(
   block: Types.IRequestDataAccessBlock,
-  signedTransaction: Types.IRequestDataAccessTransaction,
+  transaction: Types.IRequestDataAccessTransaction,
   indexes: string[] = [],
 ): Types.IRequestDataAccessBlock {
   // we don't want to modify the original block state
   const copiedBlock: Types.IRequestDataAccessBlock = Utils.deepCopy(block);
 
   const newtransactionPosition = copiedBlock.transactions.length;
-  copiedBlock.transactions.push(signedTransaction);
+  copiedBlock.transactions.push(transaction);
 
-  const txHash = Utils.crypto.normalizeKeccak256Hash(signedTransaction.data);
+  const txHash = Utils.crypto.normalizeKeccak256Hash(transaction.data);
 
   // concat index given and the default index (hash)
   indexes.push(txHash);
@@ -72,7 +72,7 @@ function pushTransaction(
  * @param IRequestDataAccessBlock block current block state
  * @param number position position of the transaction
  *
- * @returns IRequestDataAccessSignedTransactio the transaction
+ * @returns IRequestDataAccessTransaction the transaction
  */
 function getTransactionFromPosition(
   block: Types.IRequestDataAccessBlock,

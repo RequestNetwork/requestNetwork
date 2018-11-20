@@ -7,20 +7,24 @@ import * as RequestEnum from '../src/enum';
 import * as Types from '../src/types';
 
 const CURRENT_VERSION = '0.1.0';
-const transactionMock1 = { attribut1: 'plop', attribut2: 'value' };
-const transactionHash1 = Utils.crypto.normalizeKeccak256Hash(transactionMock1);
-const transactionMock2 = { attribut1: 'foo', attribut2: 'bar' };
-const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionMock2);
+const transactionDataMock1 = { attribut1: 'plop', attribut2: 'value' };
+const transactionHash1 = Utils.crypto.normalizeKeccak256Hash(
+  transactionDataMock1,
+);
+const transactionDataMock2 = { attribut1: 'foo', attribut2: 'bar' };
+const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(
+  transactionDataMock2,
+);
 const signatureMock = {
   method: RequestEnum.REQUEST_DATA_ACCESS_SIGNATURE_METHOD.ECDSA,
   value: '0x12345',
 };
-const signedTransaxtionMock1: Types.IRequestDataAccessTransaction = {
-  data: transactionMock1,
+const transactionMock: Types.IRequestDataAccessTransaction = {
+  data: transactionDataMock1,
   signature: signatureMock,
 };
-const signedTransaxtionMock2: Types.IRequestDataAccessTransaction = {
-  data: transactionMock2,
+const transactionMock2: Types.IRequestDataAccessTransaction = {
+  data: transactionDataMock2,
   signature: signatureMock,
 };
 
@@ -30,12 +34,12 @@ const arbitraryIndex2 = 'Oxccccccccccc';
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
 const blockWith1tx = RequestDataAccessBlock.pushTransaction(
   emptyblock,
-  signedTransaxtionMock1,
+  transactionMock,
   [arbitraryIndex1, arbitraryIndex2],
 );
 const blockWith2tx = RequestDataAccessBlock.pushTransaction(
   blockWith1tx,
-  signedTransaxtionMock2,
+  transactionMock2,
   [arbitraryIndex2],
 );
 
@@ -59,7 +63,7 @@ describe('block', () => {
     it('can pushTransaction with index an empty block', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
-        signedTransaxtionMock1,
+        transactionMock,
         [arbitraryIndex1, arbitraryIndex2],
       );
       // empty block mush remain empty
@@ -86,18 +90,18 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
+        transactionMock,
       ]);
     });
     it('can pushTransaction with index a NOT empty block', () => {
       const previousBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
-        signedTransaxtionMock1,
+        transactionMock,
       );
 
       const newBlock = RequestDataAccessBlock.pushTransaction(
         previousBlock,
-        signedTransaxtionMock2,
+        transactionMock2,
         [arbitraryIndex1, arbitraryIndex2],
       );
       // empty block mush remain empty
@@ -115,7 +119,7 @@ describe('block', () => {
       expect(
         previousBlock.transactions,
         'transactions are wrong',
-      ).to.be.deep.equal([signedTransaxtionMock1]);
+      ).to.be.deep.equal([transactionMock]);
 
       // new block
       const indexExpected: any = {};
@@ -129,14 +133,14 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
     it('can pushTransaction without index on an empty block', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
-        signedTransaxtionMock1,
+        transactionMock,
       );
       // empty block mush remain empty
       expect(
@@ -160,17 +164,17 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
+        transactionMock,
       ]);
     });
     it('can pushTransaction without index on a NOT empty block', () => {
       const previousBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
-        signedTransaxtionMock1,
+        transactionMock,
       );
       const newBlock = RequestDataAccessBlock.pushTransaction(
         previousBlock,
-        signedTransaxtionMock2,
+        transactionMock2,
       );
       // empty block mush remain empty
 
@@ -187,7 +191,7 @@ describe('block', () => {
       expect(
         previousBlock.transactions,
         'transactions are wrong',
-      ).to.be.deep.equal([signedTransaxtionMock1]);
+      ).to.be.deep.equal([transactionMock]);
 
       // new block
       const indexExpected: any = {};
@@ -199,14 +203,14 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
     it('can pushTransaction with index with index already existing', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         blockWith1tx,
-        signedTransaxtionMock2,
+        transactionMock2,
         [arbitraryIndex2],
       );
       // empty block mush remain empty
@@ -226,7 +230,7 @@ describe('block', () => {
       expect(
         blockWith1tx.transactions,
         'transactions are wrong',
-      ).to.be.deep.equal([signedTransaxtionMock1]);
+      ).to.be.deep.equal([transactionMock]);
 
       // new block
       const indexExpected: any = {};
@@ -240,8 +244,8 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
   });
@@ -254,17 +258,17 @@ describe('block', () => {
     it('can getAllTransactions on NOT empty block', () => {
       let newBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
-        signedTransaxtionMock1,
+        transactionMock,
         [arbitraryIndex1, arbitraryIndex2],
       );
       newBlock = RequestDataAccessBlock.pushTransaction(
         newBlock,
-        signedTransaxtionMock2,
+        transactionMock2,
       );
       const allTxs = RequestDataAccessBlock.getAllTransactions(newBlock);
       expect(allTxs, 'transactions must be empty').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
   });
@@ -302,9 +306,7 @@ describe('block', () => {
         0,
       );
 
-      expect(tx, 'transactions is wrong').to.be.deep.equal(
-        signedTransaxtionMock1,
-      );
+      expect(tx, 'transactions is wrong').to.be.deep.equal(transactionMock);
     });
   });
 
@@ -345,7 +347,7 @@ describe('block', () => {
         blockWith1tx,
         [0, 1],
       );
-      expect(txs, 'txs is wrong').to.be.deep.equal([signedTransaxtionMock1]);
+      expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock]);
     });
     it('can getTransactionsByPositions on more than one transaction', () => {
       const txs = RequestDataAccessBlock.getTransactionsByPositions(
@@ -353,8 +355,8 @@ describe('block', () => {
         [0, 1],
       );
       expect(txs, 'txs is wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
     it('can getTransactionsByPositions on more than one transaction with array not sorted', () => {
@@ -363,8 +365,8 @@ describe('block', () => {
         [1, 0],
       );
       expect(txs, 'txs is wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
     it('can getTransactionsByPositions on more than one transaction with array duplication', () => {
@@ -373,8 +375,8 @@ describe('block', () => {
         [1, 1, 0, 1, 0, 0],
       );
       expect(txs, 'txs is wrong').to.be.deep.equal([
-        signedTransaxtionMock1,
-        signedTransaxtionMock2,
+        transactionMock,
+        transactionMock2,
       ]);
     });
   });
@@ -441,7 +443,7 @@ describe('block', () => {
     it('can use JSON.stringify and JSON.parse', () => {
       const block = RequestDataAccessBlock.pushTransaction(
         blockWith1tx,
-        signedTransaxtionMock2,
+        transactionMock2,
         [arbitraryIndex2],
       );
       const strExpected: string = `{"header":{"index":{"Oxaaaaaa":[0],"Oxccccccccccc":[0,1],"0xe53f3ea2f5a8e5f2ceb89609a9c2fa783181e70f1a7508dccf5b770b846a6a8d":[0],"0x320728cd4063b523cb1b4508c6e1627f497bde5cbd46b03430e438289c6e1d23":[1]},"version":"${CURRENT_VERSION}"},"transactions":[{"data":{"attribut1":"plop","attribut2":"value"},"signature":{"method":"ecdsa","value":"0x12345"}},{"data":{"attribut1":"foo","attribut2":"bar"},"signature":{"method":"ecdsa","value":"0x12345"}}]}`;

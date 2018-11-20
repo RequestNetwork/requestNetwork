@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import 'mocha';
 import { DataAccess } from '../src/index';
 
 describe('index', () => {
@@ -8,6 +9,6 @@ describe('index', () => {
       read: () => '2',
     };
     const dataAccess = new DataAccess(fakeStorage);
-    assert.equal(dataAccess.persist(), '1');
+    assert.equal(dataAccess.persist(''), '1');
   });
 });

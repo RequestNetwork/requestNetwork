@@ -46,31 +46,29 @@ describe('Transaction', () => {
     ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.THIRD_PARTY);
   });
 
-  it('can createSignedTransaction()', () => {
-    const signedTx = Transaction.createSignedTransaction(randomTx, {
+  it('can createTransaction()', () => {
+    const tx = Transaction.createTransaction(randomTx, {
       method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
       privateKey: TestData.payeeRaw.privateKey,
     });
 
-    expect(signedTx.signature, 'createSignedTransaction() signature error').to.be.deep.equal({
+    expect(tx.signature, 'createTransaction() signature error').to.be.deep.equal({
       method: 'ecdsa',
       value:
         '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
     });
 
-    expect(signedTx.transaction, 'createSignedTransaction() transaction error').to.be.deep.equal(
-      randomTx,
-    );
+    expect(tx.data, 'createTransaction() transaction error').to.be.deep.equal(randomTx);
   });
 
-  it('can getSignerIdentityFromSignedTransaction()', () => {
-    const id = Transaction.getSignerIdentityFromSignedTransaction({
+  it('can getSignerIdentityFromTransaction()', () => {
+    const id = Transaction.getSignerIdentityFromTransaction({
+      data: randomTx,
       signature: {
         method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
         value:
           '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
       },
-      transaction: randomTx,
     });
     expect(id, 'recover() error').to.be.deep.equal(TestData.payeeRaw.identity);
   });
@@ -89,17 +87,17 @@ describe('Transaction', () => {
     ).to.be.false;
   });
 
-  it('can getVersionFromSignedTransaction()', () => {
+  it('can getVersionFromTransaction()', () => {
     expect(
-      Transaction.getVersionFromSignedTransaction({
+      Transaction.getVersionFromTransaction({
+        data: randomTx,
         signature: {
           method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           value:
             '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
         },
-        transaction: randomTx,
       }),
-      'getVersionFromSignedTransaction() error',
+      'getVersionFromTransaction() error',
     ).to.be.equal(CURRENT_VERSION);
   });
 });

@@ -34,25 +34,21 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      expect(txReduceAmount, 'txReduceAmount.transaction should be a property').to.have.property(
-        'transaction',
-      );
-      expect(txReduceAmount.transaction.action, 'action is wrong').to.equal(
+      expect(txReduceAmount, 'txReduceAmount.data should be a property').to.have.property('data');
+      expect(txReduceAmount.data.action, 'action is wrong').to.equal(
         Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
       );
-      expect(
-        txReduceAmount.transaction,
-        'txReduceAmount.transaction.parameters is wrong',
-      ).to.have.property('parameters');
+      expect(txReduceAmount.data, 'txReduceAmount.data.parameters is wrong').to.have.property(
+        'parameters',
+      );
 
-      expect(txReduceAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txReduceAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(txReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txReduceAmount.transaction.parameters.extensions, 'extensions is wrong').to.be
-        .undefined;
+      expect(txReduceAmount.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
 
       expect(txReduceAmount, 'txReduceAmount.signature should be a property').to.have.property(
         'signature',
@@ -78,24 +74,21 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      expect(txReduceAmount, 'txReduceAmount.transaction should be a property').to.have.property(
-        'transaction',
-      );
-      expect(txReduceAmount.transaction.action, 'action is wrong').to.equal(
+      expect(txReduceAmount, 'txReduceAmount.data should be a property').to.have.property('data');
+      expect(txReduceAmount.data.action, 'action is wrong').to.equal(
         Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
       );
-      expect(
-        txReduceAmount.transaction,
-        'txReduceAmount.transaction.parameters is wrong',
-      ).to.have.property('parameters');
+      expect(txReduceAmount.data, 'txReduceAmount.data.parameters is wrong').to.have.property(
+        'parameters',
+      );
 
-      expect(txReduceAmount.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txReduceAmount.transaction.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(txReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txReduceAmount.transaction.parameters.extensions, 'extensions is wrong').to.deep.equal(
+      expect(txReduceAmount.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -280,22 +273,22 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount if no requestId', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -307,22 +300,22 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount if no deltaAmount', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               requestId: requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -363,13 +356,8 @@ describe('actions/reduceExpectedAmount', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
@@ -377,9 +365,14 @@ describe('actions/reduceExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           requestContextNoPayer,
         );
 
@@ -655,13 +648,8 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with a negative amount', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmountNegative,
@@ -669,10 +657,15 @@ describe('actions/reduceExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -686,13 +679,8 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with not a number', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: 'Not a number',
@@ -700,10 +688,15 @@ describe('actions/reduceExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -717,13 +710,8 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with decimal', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: '0.0234',
@@ -731,10 +719,15 @@ describe('actions/reduceExpectedAmount', () => {
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
 
         const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 

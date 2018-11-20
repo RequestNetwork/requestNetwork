@@ -24,21 +24,16 @@ describe('actions/accept', () => {
         },
       );
 
-      expect(txAccept, 'txAccept should have a property transaction').to.have.property(
-        'transaction',
+      expect(txAccept, 'txAccept should have a property data').to.have.property('data');
+      expect(txAccept.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.ACCEPT);
+      expect(txAccept.data, 'txAccept.data must have the property parameters').to.have.property(
+        'parameters',
       );
-      expect(txAccept.transaction.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.ACCEPT,
-      );
-      expect(
-        txAccept.transaction,
-        'txAccept.transaction must have the property parameters',
-      ).to.have.property('parameters');
 
-      expect(txAccept.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txAccept.transaction.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txAccept.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
 
       expect(txAccept, 'txAccept.signature is wrong').to.have.property('signature');
       expect(txAccept.signature.method, 'txAccept.signature.method is wrong').to.equal(
@@ -61,19 +56,16 @@ describe('actions/accept', () => {
         },
       );
 
-      expect(txAccept, 'txAccept.transaction is wrong').to.have.property('transaction');
-      expect(txAccept.transaction.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.ACCEPT,
+      expect(txAccept, 'txAccept.data is wrong').to.have.property('data');
+      expect(txAccept.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.ACCEPT);
+      expect(txAccept.data, 'txAccept.data must have the property parameters').to.have.property(
+        'parameters',
       );
-      expect(
-        txAccept.transaction,
-        'txAccept.transaction must have the property parameters',
-      ).to.have.property('parameters');
 
-      expect(txAccept.transaction.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(txAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txAccept.transaction.parameters.extensions, 'extensions is wrong').to.deep.equal(
+      expect(txAccept.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -187,20 +179,20 @@ describe('actions/accept', () => {
 
     it('cannot apply accept if no requestId', () => {
       try {
-        const signedTx = {
+        const tx = {
+          data: {
+            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            parameters: {},
+            version: CURRENT_VERSION,
+          },
           signature: {
             method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
-          transaction: {
-            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
-            parameters: {},
-            version: CURRENT_VERSION,
-          },
         };
         const request = AcceptAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -241,21 +233,21 @@ describe('actions/accept', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
-        const request = AcceptAction.applyTransactionToRequest(signedTx, requestContextNoPayer);
+        const request = AcceptAction.applyTransactionToRequest(tx, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -264,22 +256,22 @@ describe('actions/accept', () => {
     });
     it('cannot apply accept if state === CANCELLED in state', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = AcceptAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -291,22 +283,22 @@ describe('actions/accept', () => {
 
     it('cannot apply accept if state === ACCEPTED in state', () => {
       try {
-        const signedTx = {
-          signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-          transaction: {
+        const tx = {
+          data: {
             action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
             version: CURRENT_VERSION,
           },
+          signature: {
+            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            value:
+              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+          },
         };
         const request = AcceptAction.applyTransactionToRequest(
-          signedTx,
+          tx,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
