@@ -25,9 +25,17 @@ const randomTx = {
 /* tslint:disable:no-unused-expression */
 describe('Transaction', () => {
   it('can getRequestId()', () => {
-    const reqId = Transaction.getRequestId(randomTx);
+    const signedTx = {
+      data: randomTx,
+      signature: {
+        method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+        value:
+          '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
+      },
+    };
+    const reqId = Transaction.getRequestId(signedTx);
     expect(reqId, 'getRequestId() error').to.be.equal(
-      '0xdd6b9d4efafed7c294c5c37356cdea6ca5e943995262c4d68c4a942449a08756',
+      Utils.crypto.normalizeKeccak256Hash(signedTx),
     );
   });
 

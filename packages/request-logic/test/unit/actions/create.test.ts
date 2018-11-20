@@ -542,7 +542,7 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(txCreation);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(txCreation.data),
+        Utils.crypto.normalizeKeccak256Hash(txCreation),
       );
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
@@ -599,7 +599,7 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(txCreation);
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(txCreation.data),
+        Utils.crypto.normalizeKeccak256Hash(txCreation),
       );
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
@@ -659,7 +659,7 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(txCreation);
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(txCreation.data),
+        Utils.crypto.normalizeKeccak256Hash(txCreation),
       );
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
@@ -858,7 +858,7 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(txCreation);
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(txCreation.data),
+        Utils.crypto.normalizeKeccak256Hash(txCreation),
       );
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);

@@ -86,5 +86,5 @@ function applyTransactionToRequest(
 function getRequestIdFromTransaction(
   transaction: Types.IRequestLogicTransaction,
 ): Types.RequestLogicRequestId {
-  return Transaction.getRequestId(transaction.data);
+  return Transaction.getRequestId(transaction);
 }

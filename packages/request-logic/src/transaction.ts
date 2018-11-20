@@ -70,17 +70,15 @@ function getRoleInTransaction(
 /**
  * Function to create a requestId from the creation transaction or get the requestId parameter otherwise
  *
- * @param IRequestLogicTransactionData creation transaction of the request
+ * @param IRequestLogicTransaction creation transaction of the request
  *
  * @returns RequestIdTYpe the requestId
  */
-function getRequestId(
-  transaction: Types.IRequestLogicTransactionData,
-): Types.RequestLogicRequestId {
-  if (transaction.action === Types.REQUEST_LOGIC_ACTION.CREATE) {
+function getRequestId(transaction: Types.IRequestLogicTransaction): Types.RequestLogicRequestId {
+  if (transaction.data.action === Types.REQUEST_LOGIC_ACTION.CREATE) {
     return Utils.crypto.normalizeKeccak256Hash(transaction);
   }
-  return transaction.parameters.requestId;
+  return transaction.data.parameters.requestId;
 }
 
 /**

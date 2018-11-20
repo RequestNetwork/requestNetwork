@@ -106,7 +106,7 @@ function createRequest(transaction: Types.IRequestLogicTransaction): Types.IRequ
 
   // Copy to not modify the transaction itself
   const request: Types.IRequestLogicRequest = Utils.deepCopy(transactionData.parameters);
-  request.requestId = Transaction.getRequestId(transactionData);
+  request.requestId = Transaction.getRequestId(transaction);
   request.version = Transaction.getVersionFromTransactionData(transactionData);
   request.events = [generateEvent(transactionData, signer)];
 

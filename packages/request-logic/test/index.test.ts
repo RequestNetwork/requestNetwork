@@ -21,7 +21,7 @@ const createParams = {
   payee: TestData.payeeRaw.identity,
   payer: TestData.payerRaw.identity,
 };
-const requestId = '0x145ee74b7aebc87c60c0f20094a9b9c1b382796199abf59143daade72f1e1f9e';
+const requestId = '0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa';
 
 const fakeDataAccess = {
   get: chai.spy(),
@@ -57,7 +57,7 @@ describe('index', () => {
         privateKey: TestData.payerRaw.privateKey,
       });
       expect(fakeDataAccess.persist).to.have.been.called.with(
-        '{"data":{"action":"accept","parameters":{"requestId":"0x145ee74b7aebc87c60c0f20094a9b9c1b382796199abf59143daade72f1e1f9e"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x37373183e0431865a8488516c2a08eccdbc4103307c838cf2eb2a2658233fdc35e1938b7393b0d595ffe61c1a2b8f5230e400541f85e5aa036d744fbdeb1c90e1b"}}',
+        '{"data":{"action":"accept","parameters":{"requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x6778e3b660d4035282a115d418729c2b02d98a671f31147da1e4e926588781e85733be4a4e263118fbf5811bb6395c3875ea38906adf1b518cd4a2e932c87d121b"}}',
         [requestId],
       );
     });
@@ -75,7 +75,7 @@ describe('index', () => {
         privateKey: TestData.payeeRaw.privateKey,
       });
       expect(fakeDataAccess.persist).to.have.been.called.with(
-        '{"data":{"action":"cancel","parameters":{"requestId":"0x145ee74b7aebc87c60c0f20094a9b9c1b382796199abf59143daade72f1e1f9e"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xb94a853bcc0cd491d7b1a08fa21f32303f22c912d28df2f17fe303719776434266eb759b425288570826791970ba6148ccb69314676ff14f6ae9e05abb1aa2bd1c"}}',
+        '{"data":{"action":"cancel","parameters":{"requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x144e230f3750ea8c588f5f40a39a2a6475ad6622aaef7b7215e26393688fba705e16eb8495b41c73157fb4ee4705d61ab55e49211c9d8db3e78c9ee5859ac11f1b"}}',
         [requestId],
       );
     });
@@ -94,7 +94,7 @@ describe('index', () => {
         privateKey: TestData.payerRaw.privateKey,
       });
       expect(fakeDataAccess.persist).to.have.been.called.with(
-        '{"data":{"action":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x145ee74b7aebc87c60c0f20094a9b9c1b382796199abf59143daade72f1e1f9e"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x70717148f184924c5d4787cb4a05894efe7d23ac0ceb0203a443495112d0f71e3e73c67a44fc0835269363bde8e15ec86bc1562251c9a3c89e580051be1d55a11c"}}',
+        '{"data":{"action":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xc535f9d1e4fdeef27572e4a6149cbfc5fe83e6aaf8d0a787251bc387557b1a8e0988c678c6e74cc01f6bc4bd0e5f957ac2234eaaa21d733e20c9a05965088cc71c"}}',
         [requestId],
       );
     });
@@ -113,7 +113,7 @@ describe('index', () => {
         privateKey: TestData.payeeRaw.privateKey,
       });
       expect(fakeDataAccess.persist).to.have.been.called.with(
-        '{"data":{"action":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x145ee74b7aebc87c60c0f20094a9b9c1b382796199abf59143daade72f1e1f9e"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x2687ea8ea1c61241bba7c3520a31dd66b4ceae14230d1f39385bf83084a73d3f314a9db576f89f2624bd91a1e8c387b5891e2cf1e6b9c3026f87e194c1f746b11b"}}',
+        '{"data":{"action":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xaa121e72ebd5ddaf9eea3e29da1f8982a5bfba616e34c03419b513ef3b33a643639aebf709d10ebc0f1c74c4dcbbba497cdd16eec3b5f2af583b9e2ff8aadcc41c"}}',
         [requestId],
       );
     });
@@ -149,7 +149,7 @@ describe('index', () => {
         signature: {
           method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           value:
-            '0x37373183e0431865a8488516c2a08eccdbc4103307c838cf2eb2a2658233fdc35e1938b7393b0d595ffe61c1a2b8f5230e400541f85e5aa036d744fbdeb1c90e1b',
+            '0x6778e3b660d4035282a115d418729c2b02d98a671f31147da1e4e926588781e85733be4a4e263118fbf5811bb6395c3875ea38906adf1b518cd4a2e932c87d121b',
         },
       };
       const rxReduce = {
@@ -164,7 +164,7 @@ describe('index', () => {
         signature: {
           method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
           value:
-            '0x2687ea8ea1c61241bba7c3520a31dd66b4ceae14230d1f39385bf83084a73d3f314a9db576f89f2624bd91a1e8c387b5891e2cf1e6b9c3026f87e194c1f746b11b',
+            '0xaa121e72ebd5ddaf9eea3e29da1f8982a5bfba616e34c03419b513ef3b33a643639aebf709d10ebc0f1c74c4dcbbba497cdd16eec3b5f2af583b9e2ff8aadcc41c',
         },
       };
       const fakeDataAccessGet = {
