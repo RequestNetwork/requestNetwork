@@ -6,7 +6,7 @@
     "src/**/*.ts"
   ],
   "reporter": [
-    "html"
+    "text-summary"
   ],
   "all": true
 }

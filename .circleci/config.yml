@@ -87,6 +87,12 @@ jobs:
             - run:
                   name: "Test request-logic"
                   command: "yarn workspace @requestnetwork/request-logic run test"
+            - run:
+                  name: "Coverage request-logic"
+                  command: "yarn workspace @requestnetwork/request-logic run coverage"
+            - store_artifacts:
+                  path: coverage
+                  prefix: coverage
     test-types:
         docker:
             - *node_image
