@@ -1,7 +1,11 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import Amount from './amount';
 import Role from './role';
-import Signature from './signature';
 
 /**
  * Module to manage a request
@@ -21,7 +25,7 @@ export default {
  * @returns Types.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or thirdpart)
  */
 function getRoleInRequest(
-  identity: Types.IRequestLogicIdentity,
+  identity: IdentityTypes.IIdentity,
   request: Types.IRequestLogicRequest,
 ): Types.REQUEST_LOGIC_ROLE {
   return Role.getRole(identity, request);
@@ -56,13 +60,19 @@ function checkRequest(request: Types.IRequestLogicRequest): boolean {
   if (!request.payee && !request.payer) {
     throw Error('request.payee and request.payer are missing');
   }
-  if (request.creator.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS) {
+  if (request.creator.type !== IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS) {
     throw Error('request.creator.type not supported');
   }
-  if (request.payee && request.payee.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS) {
+  if (
+    request.payee &&
+    request.payee.type !== IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS
+  ) {
     throw Error('request.payee.type not supported');
   }
-  if (request.payer && request.payer.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS) {
+  if (
+    request.payer &&
+    request.payer.type !== IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS
+  ) {
     throw Error('request.payer.type not supported');
   }
   if (!Amount.isValid(request.expectedAmount)) {

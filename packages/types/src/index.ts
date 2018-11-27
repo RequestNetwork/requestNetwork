@@ -1,14 +1,13 @@
 // placeholder interfaces with meaningless content
-import * as RequestLogic from './request-logic-type';
+import * as DataAccess from './data-access-types';
+import * as Identity from './identity-types';
+import * as RequestLogic from './request-logic-types';
+import * as Signature from './signature-types';
 
-export { RequestLogic };
-
-export interface IDataAccess {
-  persist: (transaction: string, indexes?: string[]) => string;
-  get: (someparam: string) => any[];
-}
+export { RequestLogic, DataAccess, Signature, Identity };
 
 export interface IStorage {
-  add: (someparam: string) => string;
-  read: (someparam: string) => string;
+  append: (data: string) => Promise<string>;
+  read: (dataId: string) => Promise<string>;
+  getAllDataId: () => Promise<string[]>;
 }

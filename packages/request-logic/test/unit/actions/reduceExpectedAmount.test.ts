@@ -2,7 +2,11 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import ReduceExpectedAmountAction from '../../../src/actions/reduceExpectedAmount';
 
@@ -29,7 +33,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payerRaw.privateKey,
         },
       );
@@ -54,7 +58,7 @@ describe('actions/reduceExpectedAmount', () => {
         'signature',
       );
       expect(txReduceAmount.signature.method, 'txReduceAmount.signature.method is wrong').to.equal(
-        Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
       expect(txReduceAmount.signature.value, 'txReduceAmount.signature.value').to.equal(
         '0xe96bb22fe38dde63e04fbce8d06ac2d9fc319e9a6b361586b5337543cdc942a224087fe11a2f9d589ad2a73cd3f58d83e3a8aaf588b82e93a2ae99c551da86551c',
@@ -69,7 +73,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payerRaw.privateKey,
         },
       );
@@ -96,7 +100,7 @@ describe('actions/reduceExpectedAmount', () => {
         'signature',
       );
       expect(txReduceAmount.signature.method, 'txReduceAmount.signature.method is wrong').to.equal(
-        Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
       expect(txReduceAmount.signature.value, 'txReduceAmount.signature.value').to.equal(
         '0xa8ceca6ea19a077d7f8191fda58611d63e304a5d910904cb10966800d0f9f402524f93c2af855b7ac126b1b1dce274a1acce8f36c9bcd107825dd02d7241e30e1c',
@@ -111,7 +115,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
@@ -131,7 +135,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
@@ -151,7 +155,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
@@ -172,7 +176,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
@@ -192,7 +196,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -201,7 +205,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -210,7 +214,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -231,7 +235,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payerRaw.privateKey,
           },
         );
@@ -255,7 +259,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.otherIdRaw.privateKey,
           },
         );
@@ -282,7 +286,7 @@ describe('actions/reduceExpectedAmount', () => {
             version: CURRENT_VERSION,
           },
           signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -309,7 +313,7 @@ describe('actions/reduceExpectedAmount', () => {
             version: CURRENT_VERSION,
           },
           signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -328,7 +332,7 @@ describe('actions/reduceExpectedAmount', () => {
     it('cannot reduce expected amount if no payee in state', () => {
       const requestContextNoPayer = {
         creator: {
-          type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
@@ -341,14 +345,14 @@ describe('actions/reduceExpectedAmount', () => {
               isSignedRequest: false,
             },
             transactionSigner: {
-              type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
           },
         ],
         expectedAmount: arbitraryExpectedAmount,
         payer: {
-          type: Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
         requestId: requestIdMock,
@@ -366,7 +370,7 @@ describe('actions/reduceExpectedAmount', () => {
             version: CURRENT_VERSION,
           },
           signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -390,7 +394,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
@@ -413,7 +417,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
@@ -433,7 +437,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -442,7 +446,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -451,7 +455,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -473,7 +477,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
@@ -493,7 +497,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -502,7 +506,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -511,7 +515,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -533,7 +537,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
@@ -555,7 +559,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -564,7 +568,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -573,7 +577,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -593,7 +597,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
@@ -615,7 +619,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -624,7 +628,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -633,7 +637,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -658,7 +662,7 @@ describe('actions/reduceExpectedAmount', () => {
             version: CURRENT_VERSION,
           },
           signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -689,7 +693,7 @@ describe('actions/reduceExpectedAmount', () => {
             version: CURRENT_VERSION,
           },
           signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -720,7 +724,7 @@ describe('actions/reduceExpectedAmount', () => {
             version: CURRENT_VERSION,
           },
           signature: {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             value:
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
@@ -746,7 +750,7 @@ describe('actions/reduceExpectedAmount', () => {
           requestId: requestIdMock,
         },
         {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
@@ -764,7 +768,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -773,7 +777,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -782,7 +786,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -803,7 +807,7 @@ describe('actions/reduceExpectedAmount', () => {
             requestId: requestIdMock,
           },
           {
-            method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
             privateKey: TestData.payeeRaw.privateKey,
           },
         );

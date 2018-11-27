@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {Identity as IdentityTypes, RequestLogic as Types, Signature as SignatureTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Transaction from '../../src/transaction';
@@ -28,7 +28,7 @@ describe('Transaction', () => {
     const signedTx = {
       data: randomTx,
       signature: {
-        method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         value:
           '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
       },
@@ -56,7 +56,7 @@ describe('Transaction', () => {
 
   it('can createTransaction()', () => {
     const tx = Transaction.createTransaction(randomTx, {
-      method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+      method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       privateKey: TestData.payeeRaw.privateKey,
     });
 
@@ -73,7 +73,7 @@ describe('Transaction', () => {
     const id = Transaction.getSignerIdentityFromTransaction({
       data: randomTx,
       signature: {
-        method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         value:
           '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
       },
@@ -100,7 +100,7 @@ describe('Transaction', () => {
       Transaction.getVersionFromTransaction({
         data: randomTx,
         signature: {
-          method: Types.REQUEST_LOGIC_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
             '0x7467bc1cbe63ed703c5037820635deeceb1f929daee44d0e62e4e1c78fdb70ee5370ce01e57a06455a12c9cfed8b8c0df010cb78ffa0ddecafc1fbda503a23f11b',
         },

@@ -1,8 +1,11 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Amount from '../amount';
 import Request from '../request';
-import Signature from '../signature';
 import Transaction from '../transaction';
 import Version from '../version';
 
@@ -24,7 +27,7 @@ export default {
  */
 function format(
   increaseAmountParameters: Types.IRequestLogicIncreaseExpectedAmountParameters,
-  signatureParams: Types.IRequestLogicSignatureParameters,
+  signatureParams: SignatureTypes.ISignatureParameters,
 ): Types.IRequestLogicTransaction {
   if (!Amount.isValid(increaseAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
@@ -65,9 +68,7 @@ function applyTransactionToRequest(
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
-  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromTransaction(
-    transaction,
-  );
+  const signer: IdentityTypes.IIdentity = Transaction.getSignerIdentityFromTransaction(transaction);
   const signerRole = Request.getRoleInRequest(signer, request);
 
   request = Request.pushExtensions(request, transactionData.parameters.extensions);
@@ -93,13 +94,13 @@ function applyTransactionToRequest(
  * Private function to generate the event 'IncreaseExpectedAmount' from a transaction
  *
  * @param Types.IRequestLogicTransactionData transaction the transaction data that create the event
- * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
+ * @param IdentityTypes.IIdentity transactionSigner the signer of the transaction
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
   transactionData: Types.IRequestLogicTransactionData,
-  transactionSigner: Types.IRequestLogicIdentity,
+  transactionSigner: IdentityTypes.IIdentity,
 ): Types.IRequestLogicEvent {
   const params = transactionData.parameters;
 

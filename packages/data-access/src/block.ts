@@ -1,5 +1,5 @@
+import { DataAccess as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as Types from './types';
 
 /**
  * Module to manage a block in the data access-layer

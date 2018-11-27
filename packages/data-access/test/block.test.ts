@@ -1,30 +1,39 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import {
+  DataAccess as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import RequestDataAccessBlock from '../src/block';
-import * as RequestEnum from '../src/enum';
-import * as Types from '../src/types';
 
 const CURRENT_VERSION = '0.1.0';
-const transactionDataMock1 = { attribut1: 'plop', attribut2: 'value' };
+const transactionDataMock1String = JSON.stringify({
+  attribut1: 'plop',
+  attribut2: 'value',
+});
 const transactionHash1 = Utils.crypto.normalizeKeccak256Hash(
-  transactionDataMock1,
+  transactionDataMock1String,
 );
-const transactionDataMock2 = { attribut1: 'foo', attribut2: 'bar' };
+
+const transactionDataMock2String = JSON.stringify({
+  attribut1: 'foo',
+  attribut2: 'bar',
+});
 const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(
-  transactionDataMock2,
+  transactionDataMock2String,
 );
 const signatureMock = {
-  method: RequestEnum.REQUEST_DATA_ACCESS_SIGNATURE_METHOD.ECDSA,
+  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
   value: '0x12345',
 };
 const transactionMock: Types.IRequestDataAccessTransaction = {
-  data: transactionDataMock1,
+  data: transactionDataMock1String,
   signature: signatureMock,
 };
 const transactionMock2: Types.IRequestDataAccessTransaction = {
-  data: transactionDataMock2,
+  data: transactionDataMock2String,
   signature: signatureMock,
 };
 
@@ -446,7 +455,33 @@ describe('block', () => {
         transactionMock2,
         [arbitraryIndex2],
       );
-      const strExpected: string = `{"header":{"index":{"Oxaaaaaa":[0],"Oxccccccccccc":[0,1],"0xe53f3ea2f5a8e5f2ceb89609a9c2fa783181e70f1a7508dccf5b770b846a6a8d":[0],"0x320728cd4063b523cb1b4508c6e1627f497bde5cbd46b03430e438289c6e1d23":[1]},"version":"${CURRENT_VERSION}"},"transactions":[{"data":{"attribut1":"plop","attribut2":"value"},"signature":{"method":"ecdsa","value":"0x12345"}},{"data":{"attribut1":"foo","attribut2":"bar"},"signature":{"method":"ecdsa","value":"0x12345"}}]}`;
+      /* tslint:disable:object-literal-sort-keys  */
+      /* tslint:disable:object-literal-key-quotes  */
+      const strExpected = JSON.stringify({
+        header: {
+          index: {
+            Oxaaaaaa: [0],
+            Oxccccccccccc: [0, 1],
+            '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca': [
+              0,
+            ],
+            '0x60d9be697d09d3d93d5e812a42f72a60411b4d364726bf89fa811d5330d00bd1': [
+              1,
+            ],
+          },
+          version: '0.1.0',
+        },
+        transactions: [
+          {
+            data: '{"attribut1":"plop","attribut2":"value"}',
+            signature: { method: 'ecdsa', value: '0x12345' },
+          },
+          {
+            data: '{"attribut1":"foo","attribut2":"bar"}',
+            signature: { method: 'ecdsa', value: '0x12345' },
+          },
+        ],
+      });
       expect(JSON.stringify(block), 'Error stringify-ing a block').to.be.equal(
         strExpected,
       );

@@ -1,7 +1,10 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Role from './role';
-import Signature from './signature';
 import Version from './version';
 
 /**
@@ -30,9 +33,12 @@ export default {
  */
 function createTransaction(
   data: Types.IRequestLogicTransactionData,
-  signatureParams: Types.IRequestLogicSignatureParameters,
+  signatureParams: SignatureTypes.ISignatureParameters,
 ): Types.IRequestLogicTransaction {
-  const signature = Signature.sign(Utils.crypto.normalizeKeccak256Hash(data), signatureParams);
+  const signature = Utils.signature.sign(
+    Utils.crypto.normalizeKeccak256Hash(data),
+    signatureParams,
+  );
   return { data, signature };
 }
 
@@ -45,8 +51,8 @@ function createTransaction(
  */
 function getSignerIdentityFromTransaction(
   transaction: Types.IRequestLogicTransaction,
-): Types.IRequestLogicIdentity {
-  return Signature.recover(
+): IdentityTypes.IIdentity {
+  return Utils.signature.recover(
     Utils.crypto.normalizeKeccak256Hash(transaction.data),
     transaction.signature,
   );
@@ -61,7 +67,7 @@ function getSignerIdentityFromTransaction(
  * @returns RequestEnum.REQUEST_LOGIC_ROLE    the role of the signer (payee, payer or thirdpart)
  */
 function getRoleInTransaction(
-  identity: Types.IRequestLogicIdentity,
+  identity: IdentityTypes.IIdentity,
   transaction: Types.IRequestLogicTransactionData,
 ): Types.REQUEST_LOGIC_ROLE {
   return Role.getRole(identity, transaction.parameters);

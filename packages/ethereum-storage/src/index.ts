@@ -1,10 +1,13 @@
 import { IStorage } from '@requestnetwork/types';
 
 export class EthereumStorage implements IStorage {
-  public add() {
+  public async append() {
     return '1';
   }
-  public read() {
+  public async read() {
     return '2';
+  }
+  public async getAllDataId() {
+    return [];
   }
 }

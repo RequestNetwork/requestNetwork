@@ -1,7 +1,10 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Request from '../request';
-import Signature from '../signature';
 import Transaction from '../transaction';
 import Version from '../version';
 
@@ -23,7 +26,7 @@ export default {
  */
 function format(
   acceptParameters: Types.IRequestLogicAcceptParameters,
-  signatureParams: Types.IRequestLogicSignatureParameters,
+  signatureParams: SignatureTypes.ISignatureParameters,
 ): Types.IRequestLogicTransaction {
   const transaction: Types.IRequestLogicTransactionData = {
     action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
@@ -59,9 +62,7 @@ function applyTransactionToRequest(
     throw new Error('the request state must be created');
   }
 
-  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromTransaction(
-    transaction,
-  );
+  const signer: IdentityTypes.IIdentity = Transaction.getSignerIdentityFromTransaction(transaction);
   const signerRole = Request.getRoleInRequest(signer, request);
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
@@ -80,13 +81,13 @@ function applyTransactionToRequest(
  * Private function to generate the event 'Accept' from a transaction
  *
  * @param Types.IRequestLogicTransactionData transaction the transaction that create the event
- * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
+ * @param IdentityTypes.IIdentity transactionSigner the signer of the transaction
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
   transaction: Types.IRequestLogicTransactionData,
-  transactionSigner: Types.IRequestLogicIdentity,
+  transactionSigner: IdentityTypes.IIdentity,
 ): Types.IRequestLogicEvent {
   const params = transaction.parameters;
 

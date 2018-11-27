@@ -1,7 +1,10 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Amount from '../amount';
-import Signature from '../signature';
 import Transaction from '../transaction';
 import Version from '../version';
 
@@ -17,14 +20,14 @@ export default {
  * Function to format  transaction to create a Request
  *
  * @param requestParameters IRequestLogicCreateParameters parameters to create a request
- * @param IRequestLogicSignatureParameters signatureParams Signature parameters
+ * @param ISignatureParameters signatureParams Signature parameters
  *
  *
  * @returns IRequestLogicTransaction  the transaction with the signature
  */
 function format(
   requestParameters: Types.IRequestLogicCreateParameters,
-  signatureParams: Types.IRequestLogicSignatureParameters,
+  signatureParams: SignatureTypes.ISignatureParameters,
 ): Types.IRequestLogicTransaction {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
@@ -36,14 +39,14 @@ function format(
 
   if (
     requestParameters.payee &&
-    requestParameters.payee.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS
+    requestParameters.payee.type !== IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS
   ) {
     throw new Error('payee.type not supported');
   }
 
   if (
     requestParameters.payer &&
-    requestParameters.payer.type !== Types.REQUEST_LOGIC_IDENTITY_TYPE.ETHEREUM_ADDRESS
+    requestParameters.payer.type !== IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS
   ) {
     throw new Error('payer.type not supported');
   }
@@ -57,7 +60,7 @@ function format(
     parameters: requestParameters,
     version,
   };
-  const signerIdentity: Types.IRequestLogicIdentity = Signature.getIdentityFromSignatureParams(
+  const signerIdentity: IdentityTypes.IIdentity = Utils.signature.getIdentityFromSignatureParams(
     signatureParams,
   );
   const signerRole: Types.REQUEST_LOGIC_ROLE = Transaction.getRoleInTransaction(
@@ -100,9 +103,7 @@ function createRequest(transaction: Types.IRequestLogicTransaction): Types.IRequ
     );
   }
 
-  const signer: Types.IRequestLogicIdentity = Transaction.getSignerIdentityFromTransaction(
-    transaction,
-  );
+  const signer: IdentityTypes.IIdentity = Transaction.getSignerIdentityFromTransaction(transaction);
 
   // Copy to not modify the transaction itself
   const request: Types.IRequestLogicRequest = Utils.deepCopy(transactionData.parameters);
@@ -129,13 +130,13 @@ function createRequest(transaction: Types.IRequestLogicTransaction): Types.IRequ
  * Private function to generate the event 'Create' from a transaction
  *
  * @param Types.IRequestLogicTransactionData transactionData the transaction data that create the event
- * @param Types.IRequestLogicIdentity transactionSigner the signer of the transaction
+ * @param IdentityTypes.IIdentity transactionSigner the signer of the transaction
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
   transactionData: Types.IRequestLogicTransactionData,
-  transactionSigner: Types.IRequestLogicIdentity,
+  transactionSigner: IdentityTypes.IIdentity,
 ): Types.IRequestLogicEvent {
   const params = transactionData.parameters;
 

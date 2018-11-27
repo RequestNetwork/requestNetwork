@@ -1,54 +1,33 @@
+import * as Identity from './identity-types';
+import * as Signature from './signature-types';
+
 const bigNumber: any = require('bn.js');
 
 export interface IRequestLogic {
   createRequest: (
     requestParameters: IRequestLogicCreateParameters,
-    signatureParams: IRequestLogicSignatureParameters,
+    signatureParams: Signature.ISignatureParameters,
     indexes: string[],
-  ) => string; // TODO modify it
+  ) => Promise<string>;
   acceptRequest: (
     requestParameters: IRequestLogicAcceptParameters,
-    signatureParams: IRequestLogicSignatureParameters,
-  ) => string; // TODO modify it
+    signatureParams: Signature.ISignatureParameters,
+  ) => Promise<string>;
   cancelRequest: (
     requestParameters: IRequestLogicCancelParameters,
-    signatureParams: IRequestLogicSignatureParameters,
-  ) => string; // TODO modify it
+    signatureParams: Signature.ISignatureParameters,
+  ) => Promise<string>;
   increaseExpectecAmountRequest: (
     requestParameters: IRequestLogicIncreaseExpectedAmountParameters,
-    signatureParams: IRequestLogicSignatureParameters,
-  ) => string; // TODO modify it
+    signatureParams: Signature.ISignatureParameters,
+  ) => Promise<string>;
   reduceExpectecAmountRequest: (
     requestParameters: IRequestLogicReduceExpectedAmountParameters,
-    signatureParams: IRequestLogicSignatureParameters,
-  ) => string; // TODO modify it
+    signatureParams: Signature.ISignatureParameters,
+  ) => Promise<string>;
   getRequestById: (
     requestId: RequestLogicRequestId,
-  ) => IRequestLogicRequest | undefined;
-}
-
-// Interface of the parameters needed to sign
-export interface IRequestLogicSignatureParameters {
-  // method of the signature
-  method: REQUEST_LOGIC_SIGNATURE_METHOD;
-  // value used to sign
-  privateKey: string;
-}
-
-// Interface of a signature
-export interface IRequestLogicSignature {
-  // method used to sign
-  method: REQUEST_LOGIC_SIGNATURE_METHOD;
-  // the signature itself
-  value: string;
-}
-
-// Interface of an identity object
-export interface IRequestLogicIdentity {
-  // type of the identification
-  type: REQUEST_LOGIC_IDENTITY_TYPE;
-  // the identification itself
-  value: string;
+  ) => Promise<IRequestLogicRequest | undefined>;
 }
 
 // Interface of a request logic transaction data
@@ -61,7 +40,7 @@ export interface IRequestLogicTransactionData {
 // Interface of a request logic transaction
 export interface IRequestLogicTransaction {
   data: IRequestLogicTransactionData;
-  signature: IRequestLogicSignature;
+  signature: Signature.ISignature;
 }
 
 // Properties of a request in request logic
@@ -70,12 +49,12 @@ export interface IRequestLogicRequest {
   // request identifier
   requestId: RequestLogicRequestId;
   // indentity of the request creator (the one who initiates it)
-  creator: IRequestLogicIdentity;
+  creator: Identity.IIdentity;
   currency: REQUEST_LOGIC_CURRENCY;
   state: REQUEST_LOGIC_STATE;
   expectedAmount: RequestLogicAmount;
-  payee?: IRequestLogicIdentity;
-  payer?: IRequestLogicIdentity;
+  payee?: Identity.IIdentity;
+  payer?: Identity.IIdentity;
   // Array of extensions data linked to the request
   extensions?: any[];
   events: IRequestLogicEvent[];
@@ -100,8 +79,8 @@ export interface IRequestLogicVersionSupportConfig {
 export interface IRequestLogicCreateParameters {
   currency: REQUEST_LOGIC_CURRENCY;
   expectedAmount: RequestLogicAmount;
-  payee?: IRequestLogicIdentity;
-  payer?: IRequestLogicIdentity;
+  payee?: Identity.IIdentity;
+  payer?: Identity.IIdentity;
   extensions?: any[];
 }
 
@@ -137,7 +116,7 @@ export interface IRequestLogicEvent {
   name: REQUEST_LOGIC_ACTION;
   // the information given in the event
   parameters?: any;
-  transactionSigner: IRequestLogicIdentity;
+  transactionSigner: Identity.IIdentity;
 }
 
 // Enum of action possible in a transaction
@@ -161,16 +140,6 @@ export enum REQUEST_LOGIC_STATE {
   CREATED = 'created',
   ACCEPTED = 'accepted',
   CANCELLED = 'cancelled',
-}
-
-// Enum of identity type supported by this library
-export enum REQUEST_LOGIC_IDENTITY_TYPE {
-  ETHEREUM_ADDRESS = 'ethereumAddress',
-}
-
-// Enum of signature method supported by this library
-export enum REQUEST_LOGIC_SIGNATURE_METHOD {
-  ECDSA = 'ecdsa',
 }
 
 // Enum of possible identity roles

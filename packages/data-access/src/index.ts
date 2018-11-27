@@ -1,15 +1,3 @@
-import { IDataAccess, IStorage } from '@requestnetwork/types';
+import DataAccess from './data-access';
 
-export class DataAccess implements IDataAccess {
-  private storage: IStorage;
-  public constructor(storage: IStorage) {
-    this.storage = storage;
-  }
-  public persist(transaction: string, indexed?: string[]): string {
-    return this.storage.add('1');
-  }
-  public get(index: string): any[] {
-    // return this.storage.read('2');
-    return [];
-  }
-}
+export default DataAccess;
