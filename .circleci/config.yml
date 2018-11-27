@@ -44,6 +44,10 @@ jobs:
             - run:
                   name: "Test data-access"
                   command: "yarn workspace @requestnetwork/data-access run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/data-access/.nyc_output
     test-ethereum-storage:
         docker:
             - *node_image
@@ -62,6 +66,18 @@ jobs:
             - run:
                   name: "Test ethereum-storage"
                   command: "yarn workspace @requestnetwork/ethereum-storage run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/ethereum-storage/.nyc_output
+    test-ethereum-storage-smart-contract:
+        docker:
+            - *node_image
+            - *ganache_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
             - run:
                   name: "Lint solidity ethereum-storage-smart-contract"
                   command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run lint:sol"
@@ -87,12 +103,10 @@ jobs:
             - run:
                   name: "Test request-logic"
                   command: "yarn workspace @requestnetwork/request-logic run test"
-            - run:
-                  name: "Coverage request-logic"
-                  command: "yarn workspace @requestnetwork/request-logic run coverage"
-            - store_artifacts:
-                  path: coverage
-                  prefix: coverage
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/request-logic/.nyc_output
     test-types:
         docker:
             - *node_image
@@ -106,6 +120,26 @@ jobs:
             - run:
                   name: "Lint types"
                   command: "yarn workspace @requestnetwork/types run lint"
+    test-utils:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build utils"
+                  command: "yarn workspace @requestnetwork/utils run build"
+            - run:
+                  name: "Lint utils"
+                  command: "yarn workspace @requestnetwork/utils run lint"
+            - run:
+                  name: "Test utils"
+                  command: "yarn workspace @requestnetwork/utils run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/utils/.nyc_output
     test-requestNetwork.js:
         docker:
             - *node_image
@@ -119,7 +153,7 @@ jobs:
                   name: "Deploy test contract"
                   command: "yarn workspace @requestnetwork/request-network.js run testdeploy"
             - run:
-                  name: "Test requestNetwork.js library"
+                  name: "Test request-network.js library"
                   command: "yarn workspace @requestnetwork/request-network.js run test"
     test-requestNetworkSmartContracts:
         docker:
@@ -186,7 +220,28 @@ jobs:
             - run:
                   name: Deploy contracts documentation to S3
                   command: "aws s3 sync packages/requestNetworkSmartContracts/docs s3://docs-smart-contracts.request.network --delete"
-
+    publish-coverage:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Coverage data-access"
+                  command: "yarn workspace @requestnetwork/data-access run coverage"
+            - run:
+                  name: "Coverage ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run coverage"
+            - run:
+                  name: "Coverage request-logic"
+                  command: "yarn workspace @requestnetwork/request-logic run coverage"
+            - run:
+                  name: "Coverage utils"
+                  command: "yarn workspace @requestnetwork/utils run coverage"
+            - run:
+                  name: "Publish Coverage"
+                  command: "yarn publish-coverage"
 workflows:
     version: 2
     build-and-test:
@@ -205,12 +260,23 @@ workflows:
             - test-types:
                   requires:
                       - build
+            - test-utils:
+                  requires:
+                      - build
             - test-requestNetwork.js:
                   requires:
                       - build
             - test-requestNetworkSmartContracts:
                   requires:
                       - build
+            # Publish the code coverage
+            - publish-coverage:
+                  requires:
+                      - test-data-access
+                      - test-ethereum-storage
+                      - test-request-logic
+                      - test-requestNetwork.js
+                      - test-utils
             # Build documentation
             - build-docs-requestNetwork.js:
                   requires:

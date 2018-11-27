@@ -2,7 +2,7 @@
     "name": "@requestnetwork/request-network-monorepo",
     "version": "0.1.0",
     "private": true,
-	"homepage": "https://github.com/RequestNetwork/requestNetwork",
+    "homepage": "https://github.com/RequestNetwork/requestNetwork",
     "engines": {
         "node": ">=8.0.0"
     },
@@ -12,10 +12,14 @@
     "scripts": {
         "lerna": "lerna",
         "test": "lerna run test",
-        "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types packages/utils"
+        "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types packages/utils",
+        "publish-coverage": "codecov --disable=gcov"
     },
     "devDependencies": {
-      "lerna": "3.4.3",
-      "typescript": "3.1.3"
+        "lerna": "3.4.3",
+        "typescript": "3.1.3"
+    },
+    "dependencies": {
+        "codecov": "3.1.0"
     }
 }
