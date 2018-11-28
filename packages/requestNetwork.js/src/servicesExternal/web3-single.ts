@@ -484,24 +484,22 @@ export default class Web3Single {
      * @return signature
      */
     private async trySign(message: string, address: string): Promise<any> {
-        const web3ErrorMessages = ['personal', 'sign'];
+        const web3ErrorMessage = 'Method personal_sign not supported.';
         let signature;
         try {
             signature = await this.web3.eth.personal.sign(message, address);
         } catch (err) {
-            if (
-                !err.message.toLowerCase().includes(web3ErrorMessages[0]) &&
-                !err.message.toLowerCase().includes(web3ErrorMessages[1])
-            ) {
+            if (!err.message.includes(web3ErrorMessage)) {
                 throw Error(err);
             }
-
-            try {
-                signature = await this.web3.eth.sign(message, address);
-            } catch (error) {
-                throw Error(error);
-            }
         }
+
+        try {
+            signature = await this.web3.eth.sign(message, address);
+        } catch (error) {
+            throw Error(error);
+        }
+
         return signature;
     }
 
