@@ -149,7 +149,7 @@ describe('actions/accept', () => {
           },
         );
 
-        const request = AcceptAction.applyTransactionToRequest(
+        AcceptAction.applyTransactionToRequest(
           txAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -170,7 +170,7 @@ describe('actions/accept', () => {
           },
         );
 
-        const request = AcceptAction.applyTransactionToRequest(
+        AcceptAction.applyTransactionToRequest(
           txAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -195,7 +195,7 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = AcceptAction.applyTransactionToRequest(
+        AcceptAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -251,7 +251,7 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = AcceptAction.applyTransactionToRequest(tx, requestContextNoPayer);
+        AcceptAction.applyTransactionToRequest(tx, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -274,7 +274,7 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = AcceptAction.applyTransactionToRequest(
+        AcceptAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
@@ -301,7 +301,7 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = AcceptAction.applyTransactionToRequest(
+        AcceptAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
@@ -440,7 +440,6 @@ describe('actions/accept', () => {
       });
     });
     it('can apply accept without extensionsData and extensionsData before', () => {
-      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txAccept = AcceptAction.format(
         {
           requestId: TestData.requestIdMock,

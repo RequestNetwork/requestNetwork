@@ -3,6 +3,7 @@ import * as Signature from './signature-types';
 
 const bigNumber: any = require('bn.js');
 
+/** Request Logic layer */
 export interface IRequestLogic {
   createRequest: (
     requestParameters: IRequestLogicCreateParameters,
@@ -30,20 +31,20 @@ export interface IRequestLogic {
   ) => Promise<IRequestLogicRequest | undefined>;
 }
 
-// Interface of a request logic transaction data
+/** Request logic transaction data */
 export interface IRequestLogicTransactionData {
   action: REQUEST_LOGIC_ACTION;
   version: string;
   parameters?: any;
 }
 
-// Interface of a request logic transaction
+/** Request logic transaction */
 export interface IRequestLogicTransaction {
   data: IRequestLogicTransactionData;
   signature: Signature.ISignature;
 }
 
-// Properties of a request in request logic
+/** Request in request logic */
 export interface IRequestLogicRequest {
   version: string;
   // request identifier
@@ -60,13 +61,13 @@ export interface IRequestLogicRequest {
   events: IRequestLogicEvent[];
 }
 
-// Type of amount used in request logic
+/** Amounts in request logic */
 export type RequestLogicAmount = number | string | typeof bigNumber;
 
-// TYpe of the requestId propertie
+/** RequestId */
 export type RequestLogicRequestId = string;
 
-// Type of the configuration for the versionning
+/** Configuration for the versionning */
 export interface IRequestLogicVersionSupportConfig {
   // current version of the specification supported by this implementation
   // will be use to check if the implemenation can handle transaction with different specs version
@@ -75,7 +76,7 @@ export interface IRequestLogicVersionSupportConfig {
   exceptions: string[];
 }
 
-// Parameters to create a request
+/** Parameters to create a request */
 export interface IRequestLogicCreateParameters {
   currency: REQUEST_LOGIC_CURRENCY;
   expectedAmount: RequestLogicAmount;
@@ -84,33 +85,33 @@ export interface IRequestLogicCreateParameters {
   extensionsData?: any[];
 }
 
-// Parameters to accept a request
+/** Parameters to accept a request */
 export interface IRequestLogicAcceptParameters {
   requestId: RequestLogicRequestId;
   extensionsData?: any[];
 }
 
-// Parameters to cancel a request
+/** Parameters to cancel a request */
 export interface IRequestLogicCancelParameters {
   requestId: RequestLogicRequestId;
   extensionsData?: any[];
 }
 
-// Parameters to increase amount of a request
+/** Parameters to increase amount of a request */
 export interface IRequestLogicIncreaseExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
   extensionsData?: any[];
 }
 
-// Parameters to reduce amount of a request
+/** Parameters to reduce amount of a request */
 export interface IRequestLogicReduceExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
   extensionsData?: any[];
 }
 
-// Interface of an event
+/** Event */
 export interface IRequestLogicEvent {
   // Name of this event is actually an action
   name: REQUEST_LOGIC_ACTION;
@@ -119,7 +120,7 @@ export interface IRequestLogicEvent {
   transactionSigner: Identity.IIdentity;
 }
 
-// Enum of action possible in a transaction
+/** Possible actions in a transaction */
 export enum REQUEST_LOGIC_ACTION {
   CREATE = 'create',
   BROADCAST = 'broadcastSignedRequest',
@@ -129,20 +130,20 @@ export enum REQUEST_LOGIC_ACTION {
   INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
 }
 
-// Enum of currencies supported by this library
+/** Supported currencies */
 export enum REQUEST_LOGIC_CURRENCY {
   ETH = 'ETH',
   BTC = 'BTC',
 }
 
-// Enum of the state possible for a request
+/** States of a request */
 export enum REQUEST_LOGIC_STATE {
   CREATED = 'created',
   ACCEPTED = 'accepted',
   CANCELLED = 'cancelled',
 }
 
-// Enum of possible identity roles
+/** Identity roles */
 export enum REQUEST_LOGIC_ROLE {
   PAYEE = 'payee',
   PAYER = 'payer',

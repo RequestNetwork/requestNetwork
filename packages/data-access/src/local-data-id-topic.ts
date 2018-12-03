@@ -1,16 +1,18 @@
-import { DataAccess as DataAccessTypes, IStorage } from '@requestnetwork/types';
-
-import Block from './block';
+import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
 
 // Interface of the object to store the data-id indexed by transactions topics
 interface ITopicStorageid {
   [key: string]: string[];
 }
 
-// Class use to store the block's data-id indexed by the header topics of the blocks them-self
+/**
+ * Class used to store the block's data-id indexed by the header topics of the blocks themselves
+ */
 export default class LocalDataIdIndex {
-  // data id by topic
-  // maps topic => [dataId]
+  /**
+   * Data id by topic
+   * maps topic => [dataId]
+   */
   private topicStorageDataId: ITopicStorageid = {};
 
   /**

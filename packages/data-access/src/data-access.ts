@@ -8,6 +8,9 @@ import Block from './block';
 import localDataidTopic from './local-data-id-topic';
 import Transaction from './transaction';
 
+/**
+ * Implementation of Data-Access layer without encryption
+ */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
   // DataId (Id of data on storage layer) topiced by transaction topic
   // Will be used to get the data from storage with the transaction topic

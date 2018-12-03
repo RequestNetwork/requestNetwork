@@ -1,19 +1,18 @@
 import { Identity as IdentityTypes } from '@requestnetwork/types';
 
 /**
- * Function to manage Request Logic Identity
+ * Module to manage Request Logic Identity
  */
 export default {
   areEqual,
   normalizeIdentityValue,
 };
 
-/*
- * Function to check if two identities are equals
+/**
+ * Checks if two identities are equals
  *
- * @param IIdentity id1 one identity
- * @param IIdentity id1 another identity
- *
+ * @param IIdentity id1 first identity
+ * @param IIdentity id2 second identity
  * @returns boolean
  */
 function areEqual(
@@ -26,11 +25,10 @@ function areEqual(
   );
 }
 
-/*
- * Function to normalize identity value
+/**
+ * Normalizes identity values
  *
  * @param string value value to normalize
- *
  * @returns string value normalized
  */
 function normalizeIdentityValue(value: string): string {

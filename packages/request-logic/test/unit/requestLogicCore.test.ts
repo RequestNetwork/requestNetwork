@@ -40,7 +40,7 @@ describe('requestLogicCore', () => {
           },
         };
 
-        const request = RequestLogic.applyTransactionToRequest(
+        RequestLogic.applyTransactionToRequest(
           Utils.deepCopy(TestData.requestCreatedNoExtension),
           tx,
         );
@@ -73,7 +73,7 @@ describe('requestLogicCore', () => {
           },
         };
 
-        const request = RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -97,7 +97,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -128,10 +128,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payerRaw.privateKey,
           },
         );
-        const request = RequestLogic.applyTransactionToRequest(
-          regularRequestContextWithErrors,
-          txAccept,
-        );
+        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txAccept);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -157,7 +154,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -188,10 +185,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.otherIdRaw.privateKey,
           },
         );
-        const request = RequestLogic.applyTransactionToRequest(
-          regularRequestContextWithErrors,
-          txCancel,
-        );
+        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txCancel);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -218,7 +212,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -250,10 +244,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payerRaw.privateKey,
           },
         );
-        const request = RequestLogic.applyTransactionToRequest(
-          regularRequestContextWithErrors,
-          txIncreaseAmount,
-        );
+        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txIncreaseAmount);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -279,7 +270,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyTransactionToRequest(null, tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -310,10 +301,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
-        const request = RequestLogic.applyTransactionToRequest(
-          regularRequestContextWithErrors,
-          txReduceAmount,
-        );
+        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txReduceAmount);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -358,7 +346,7 @@ describe('requestLogicCore', () => {
           state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
-        const request = RequestLogic.applyTransactionToRequest(requestState, txCreation);
+        RequestLogic.applyTransactionToRequest(requestState, txCreation);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

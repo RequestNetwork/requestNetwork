@@ -1,4 +1,4 @@
-// Interface of the parameters needed to sign
+/** Parameters needed to sign */
 export interface ISignatureParameters {
   // method of the signature
   method: REQUEST_SIGNATURE_METHOD;
@@ -6,7 +6,7 @@ export interface ISignatureParameters {
   privateKey: string;
 }
 
-// Interface of a signature
+/** Signature */
 export interface ISignature {
   // method used to sign
   method: REQUEST_SIGNATURE_METHOD;
@@ -14,7 +14,7 @@ export interface ISignature {
   value: string;
 }
 
-// Enum of signature method supported by this library
+/** Supported signature methods */
 export enum REQUEST_SIGNATURE_METHOD {
   ECDSA = 'ecdsa',
 }

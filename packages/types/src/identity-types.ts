@@ -1,4 +1,4 @@
-// Interface of an identity object
+/** Identity */
 export interface IIdentity {
   // type of the identification
   type: REQUEST_IDENTITY_TYPE;
@@ -6,7 +6,7 @@ export interface IIdentity {
   value: string;
 }
 
-// Enum of identity type supported by this library
+/** Supported identity types */
 export enum REQUEST_IDENTITY_TYPE {
   ETHEREUM_ADDRESS = 'ethereumAddress',
 }

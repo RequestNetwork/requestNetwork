@@ -6,7 +6,6 @@ import {
   RequestLogic as Types,
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import RequestLogic from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
 
@@ -39,7 +38,7 @@ describe('index', () => {
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const result = requestLogic.createRequest(createParams, {
+      requestLogic.createRequest(createParams, {
         method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         privateKey: TestData.payeeRaw.privateKey,
       });
@@ -58,7 +57,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const result = requestLogic.acceptRequest(acceptParams, {
+      requestLogic.acceptRequest(acceptParams, {
         method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         privateKey: TestData.payerRaw.privateKey,
       });
@@ -76,7 +75,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const result = requestLogic.cancelRequest(cancelRequest, {
+      requestLogic.cancelRequest(cancelRequest, {
         method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         privateKey: TestData.payeeRaw.privateKey,
       });
@@ -95,7 +94,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const result = requestLogic.increaseExpectecAmountRequest(increaseRequest, {
+      requestLogic.increaseExpectecAmountRequest(increaseRequest, {
         method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         privateKey: TestData.payerRaw.privateKey,
       });
@@ -114,7 +113,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const result = requestLogic.reduceExpectecAmountRequest(reduceRequest, {
+      requestLogic.reduceExpectecAmountRequest(reduceRequest, {
         method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         privateKey: TestData.payeeRaw.privateKey,
       });
@@ -182,7 +181,7 @@ describe('index', () => {
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByTopic: (index: string) => listTxs,
+        getTransactionsByTopic: () => listTxs,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };
@@ -234,14 +233,14 @@ describe('index', () => {
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByTopic: (index: string) => listTxs,
+        getTransactionsByTopic: () => listTxs,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(fakeDataAccessGet);
 
       try {
-        const request = await requestLogic.getRequestById(requestId);
+        await requestLogic.getRequestById(requestId);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

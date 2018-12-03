@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
 
 import Utils from '../src/utils';
 
@@ -54,25 +53,29 @@ describe('Utils', () => {
       attribut3: 'valeurA',
     };
     const arbitraryObjectDeepCopy = Utils.deepCopy(arbitraryObject);
-    expect(arbitraryObjectDeepCopy, 'deepCopy(arbitraryObject) error').to.be.deep.equal(
-      arbitraryObject,
-    );
+    expect(
+      arbitraryObjectDeepCopy,
+      'deepCopy(arbitraryObject) error',
+    ).to.be.deep.equal(arbitraryObject);
     arbitraryObjectDeepCopy.attribut1 = 'new value';
-    expect(arbitraryObjectDeepCopy, 'deepCopy(arbitraryObject) error').to.not.be.deep.equal(
-      arbitraryObject,
-    );
+    expect(
+      arbitraryObjectDeepCopy,
+      'deepCopy(arbitraryObject) error',
+    ).to.not.be.deep.equal(arbitraryObject);
 
     // witness reference copy
     const arbitraryObjectRefCopy = arbitraryObject;
     arbitraryObjectRefCopy.attribut1 = 'new value 2';
-    expect(arbitraryObjectRefCopy, 'deepCopy(arbitraryObject) error').to.be.deep.equal(
-      arbitraryObject,
-    );
+    expect(
+      arbitraryObjectRefCopy,
+      'deepCopy(arbitraryObject) error',
+    ).to.be.deep.equal(arbitraryObject);
   });
 
   it('can return true if variable is String or string', () => {
     expect(Utils.isString('this is a string'), 'istring("") error').to.be.true;
-    expect(Utils.isString(String('this is a string')), 'istring("") error').to.be.true;
+    expect(Utils.isString(String('this is a string')), 'istring("") error').to
+      .be.true;
   });
 
   it('cannot return true if variable is not a string', () => {

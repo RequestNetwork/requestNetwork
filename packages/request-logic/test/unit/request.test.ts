@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  Signature as SignatureTypes,
-} from '@requestnetwork/types';
+import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Request from '../../src/request';
 import * as TestData from './utils/test-data-generator';

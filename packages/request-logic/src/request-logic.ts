@@ -5,6 +5,9 @@ import {
 } from '@requestnetwork/types';
 import RequestLogicCore from './requestLogicCore';
 
+/**
+ * Implementation of Request Logic
+ */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private dataAccess: DataAccessTypes.IDataAccess;
 

@@ -10,12 +10,10 @@ import {
   IStorage,
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
 
-const CURRENT_VERSION = '0.1.0';
 const transactionDataMock1String = JSON.stringify({
   attribut1: 'plop',
   attribut2: 'value',
@@ -46,9 +44,6 @@ const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
 };
 const transactionMock1String = JSON.stringify(transactionMock1);
 const transactionMock2String = JSON.stringify(transactionMock2);
-
-const transactionHash1 = Utils.crypto.normalizeKeccak256Hash(transactionMock1);
-const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionMock2);
 
 const arbitraryTopic1 = 'Oxaaaaaa';
 const arbitraryTopic2 = 'Oxccccccccccc';

@@ -10,7 +10,7 @@ export default {
   isSupported,
 };
 
-/*
+/**
  * Function to check if a version of request is supported by this library
  *
  * version is not supported if higher than the current one

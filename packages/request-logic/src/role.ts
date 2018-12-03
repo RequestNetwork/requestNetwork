@@ -1,8 +1,4 @@
-import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  Signature as SignatureTypes,
-} from '@requestnetwork/types';
+import { Identity as IdentityTypes, RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -12,7 +8,7 @@ export default {
   getRole,
 };
 
-/*
+/**
  * Function to get the role of an identity in an object
  *
  * @param any parameters the object to check

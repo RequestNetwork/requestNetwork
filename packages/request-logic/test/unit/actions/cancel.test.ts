@@ -152,7 +152,7 @@ describe('actions/cancel', () => {
           },
         );
 
-        const request = CancelAction.applyTransactionToRequest(
+        CancelAction.applyTransactionToRequest(
           txCancel,
           Utils.deepCopy(TestData.requestAcceptedNoExtension),
         );
@@ -176,7 +176,7 @@ describe('actions/cancel', () => {
           },
         );
 
-        const request = CancelAction.applyTransactionToRequest(
+        CancelAction.applyTransactionToRequest(
           txCancel,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
@@ -311,7 +311,7 @@ describe('actions/cancel', () => {
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
-        const request = CancelAction.applyTransactionToRequest(
+        CancelAction.applyTransactionToRequest(
           txCancel,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
@@ -336,7 +336,7 @@ describe('actions/cancel', () => {
           },
         );
 
-        const request = CancelAction.applyTransactionToRequest(
+        CancelAction.applyTransactionToRequest(
           txCancel,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -363,7 +363,7 @@ describe('actions/cancel', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = CancelAction.applyTransactionToRequest(
+        CancelAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -418,7 +418,7 @@ describe('actions/cancel', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = CancelAction.applyTransactionToRequest(tx, requestContextNoPayer);
+        CancelAction.applyTransactionToRequest(tx, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -472,7 +472,7 @@ describe('actions/cancel', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = CancelAction.applyTransactionToRequest(tx, requestContextNoPayee);
+        CancelAction.applyTransactionToRequest(tx, requestContextNoPayee);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

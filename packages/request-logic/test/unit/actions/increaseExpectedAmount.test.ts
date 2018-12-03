@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
 
 import {
   Identity as IdentityTypes,
@@ -18,7 +17,6 @@ import * as TestData from '../utils/test-data-generator';
 const requestIdMock = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
 
 const arbitraryExpectedAmount = '123400000000000000';
-const biggerThanArbitraryExpectedAmount = '223400000000000000';
 const arbitraryDeltaAmount = '100000000000000000';
 const arbitraryDeltaAmountNegative = '-100000000000000000';
 const arbitraryExpectedAmountAfterDelta = '223400000000000000';
@@ -113,7 +111,7 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with not a number', () => {
       try {
-        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        IncreaseExpectedAmountAction.format(
           {
             deltaAmount: 'this is not a number',
             requestId: requestIdMock,
@@ -134,7 +132,7 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with decimal', () => {
       try {
-        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        IncreaseExpectedAmountAction.format(
           {
             deltaAmount: '0.12345',
             requestId: requestIdMock,
@@ -154,7 +152,7 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with a negative number', () => {
       try {
-        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        IncreaseExpectedAmountAction.format(
           {
             deltaAmount: '-1234',
             requestId: requestIdMock,
@@ -245,7 +243,7 @@ describe('actions/increaseExpectedAmount', () => {
           },
         );
 
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           txIncreaseAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -269,7 +267,7 @@ describe('actions/increaseExpectedAmount', () => {
           },
         );
 
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           txIncreaseAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -296,7 +294,7 @@ describe('actions/increaseExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -323,7 +321,7 @@ describe('actions/increaseExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -380,10 +378,7 @@ describe('actions/increaseExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-          tx,
-          requestContextNoPayer,
-        );
+        IncreaseExpectedAmountAction.applyTransactionToRequest(tx, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -404,7 +399,7 @@ describe('actions/increaseExpectedAmount', () => {
           },
         );
 
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           txIncreaseAmount,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
@@ -597,7 +592,6 @@ describe('actions/increaseExpectedAmount', () => {
       });
     });
     it('can increase expected amount without extensionsData and extensionsData before', () => {
-      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -675,7 +669,7 @@ describe('actions/increaseExpectedAmount', () => {
           },
         };
 
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -707,7 +701,7 @@ describe('actions/increaseExpectedAmount', () => {
           },
         };
 
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -738,7 +732,7 @@ describe('actions/increaseExpectedAmount', () => {
           },
         };
 
-        const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
+        IncreaseExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );

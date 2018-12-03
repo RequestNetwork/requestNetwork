@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
 
 import {
   Identity as IdentityTypes,
@@ -111,7 +110,7 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with not a number', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        ReduceExpectedAmountAction.format(
           {
             deltaAmount: 'this not a number',
             requestId: requestIdMock,
@@ -131,7 +130,7 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with decimal', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        ReduceExpectedAmountAction.format(
           {
             deltaAmount: '0.1234',
             requestId: requestIdMock,
@@ -151,7 +150,7 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with negative', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        ReduceExpectedAmountAction.format(
           {
             deltaAmount: '-1234',
             requestId: requestIdMock,
@@ -242,7 +241,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           txReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -266,7 +265,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           txReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -293,7 +292,7 @@ describe('actions/reduceExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -320,7 +319,7 @@ describe('actions/reduceExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -377,10 +376,7 @@ describe('actions/reduceExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-          tx,
-          requestContextNoPayer,
-        );
+        ReduceExpectedAmountAction.applyTransactionToRequest(tx, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -401,7 +397,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           txReduceAmount,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
@@ -594,7 +590,6 @@ describe('actions/reduceExpectedAmount', () => {
       });
     });
     it('can reduce expected amount without extensionsData and extensionsData before', () => {
-      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -672,7 +667,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         };
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -703,7 +698,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         };
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -734,7 +729,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         };
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           tx,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
@@ -816,7 +811,7 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        const request = ReduceExpectedAmountAction.applyTransactionToRequest(
+        ReduceExpectedAmountAction.applyTransactionToRequest(
           txReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );

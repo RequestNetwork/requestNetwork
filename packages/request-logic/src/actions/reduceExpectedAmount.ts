@@ -3,7 +3,6 @@ import {
   RequestLogic as Types,
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import Amount from '../amount';
 import Request from '../request';
 import Transaction from '../transaction';

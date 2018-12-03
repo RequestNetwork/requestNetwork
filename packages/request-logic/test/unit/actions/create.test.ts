@@ -237,7 +237,7 @@ describe('CreateAction', () => {
 
     it('cannot create with amount not a number', () => {
       try {
-        const txCreation = CreateAction.format(
+        CreateAction.format(
           {
             currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
             expectedAmount: 'NaN',
@@ -729,7 +729,7 @@ describe('CreateAction', () => {
           },
         };
 
-        const request = CreateAction.createRequest(tx);
+        CreateAction.createRequest(tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -762,7 +762,7 @@ describe('CreateAction', () => {
           },
         };
 
-        const request = CreateAction.createRequest(tx);
+        CreateAction.createRequest(tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -795,7 +795,7 @@ describe('CreateAction', () => {
           },
         };
 
-        const request = CreateAction.createRequest(tx);
+        CreateAction.createRequest(tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -828,7 +828,7 @@ describe('CreateAction', () => {
           },
         };
 
-        const request = CreateAction.createRequest(tx);
+        CreateAction.createRequest(tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -932,7 +932,7 @@ describe('CreateAction', () => {
           },
         };
 
-        const request = CreateAction.createRequest(tx);
+        CreateAction.createRequest(tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -965,7 +965,7 @@ describe('CreateAction', () => {
           },
         };
 
-        const request = CreateAction.createRequest(tx);
+        CreateAction.createRequest(tx);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

@@ -1,5 +1,6 @@
 import * as Signature from './signature-types';
 
+/** Data Access Layer */
 export interface IDataAccess {
   initialize: () => Promise<void>;
   persistTransaction: (
@@ -10,25 +11,28 @@ export interface IDataAccess {
   getTransactionsByTopic: (topic: string) => Promise<string[]>;
 }
 
+/** Block: main data structure of data-access, contains transactions */
 export interface IRequestDataAccessBlock {
   header: IRequestDataAccessBlockHeader;
-  transactions: RequestDataAccessTransactionList;
+  transactions: IRequestDataAccessTransaction[];
 }
 
+/** Block Header */
 export interface IRequestDataAccessBlockHeader {
   topics: IRequestDataAccessTopics;
   version: string;
 }
 
+/** Topics, to index the transctions */
 export interface IRequestDataAccessTopics {
   [key: string]: number[];
 }
 
-export type RequestDataAccessTransactionList = IRequestDataAccessTransaction[];
-
-export type IRequestDataAccessTransactionData = string;
-
+/** Transaction */
 export interface IRequestDataAccessTransaction {
   data: IRequestDataAccessTransactionData;
   signature: Signature.ISignature;
 }
+
+/** Transaction data */
+export type IRequestDataAccessTransactionData = string;

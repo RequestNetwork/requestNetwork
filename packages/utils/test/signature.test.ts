@@ -3,7 +3,6 @@ import 'mocha';
 
 import {
   Identity as IdentityTypes,
-  RequestLogic as Types,
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';

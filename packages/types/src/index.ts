@@ -6,6 +6,7 @@ import * as Signature from './signature-types';
 
 export { RequestLogic, DataAccess, Signature, Identity };
 
+/** Implementation of data-access layer */
 export interface IStorage {
   append: (data: string) => Promise<string>;
   read: (dataId: string) => Promise<string>;
