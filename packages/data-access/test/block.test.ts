@@ -37,19 +37,19 @@ const transactionMock2: Types.IRequestDataAccessTransaction = {
   signature: signatureMock,
 };
 
-const arbitraryIndex1 = 'Oxaaaaaa';
-const arbitraryIndex2 = 'Oxccccccccccc';
+const arbitraryTopic1 = 'Oxaaaaaa';
+const arbitraryTopic2 = 'Oxccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
 const blockWith1tx = RequestDataAccessBlock.pushTransaction(
   emptyblock,
   transactionMock,
-  [arbitraryIndex1, arbitraryIndex2],
+  [arbitraryTopic1, arbitraryTopic2],
 );
 const blockWith2tx = RequestDataAccessBlock.pushTransaction(
   blockWith1tx,
   transactionMock2,
-  [arbitraryIndex2],
+  [arbitraryTopic2],
 );
 
 /* tslint:disable:no-unused-expression */
@@ -58,7 +58,7 @@ describe('block', () => {
     it('can create an empty block', () => {
       const emptyblock1 = RequestDataAccessBlock.createEmptyBlock();
       expect(emptyblock1.header, 'header is wrong').to.be.deep.equal({
-        index: {},
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(
@@ -69,18 +69,18 @@ describe('block', () => {
   });
 
   describe('pushTransaction', () => {
-    it('can pushTransaction with index an empty block', () => {
+    it('can pushTransaction with topics an empty block', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
         transactionMock,
-        [arbitraryIndex1, arbitraryIndex2],
+        [arbitraryTopic1, arbitraryTopic2],
       );
       // empty block mush remain empty
       expect(
         emptyblock.header,
         'previous header must not change',
       ).to.be.deep.equal({
-        index: {},
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(
@@ -89,20 +89,20 @@ describe('block', () => {
       ).to.be.deep.equal([]);
 
       // new block
-      const indexExpected: any = {};
-      indexExpected[transactionHash1] = [0];
-      indexExpected[arbitraryIndex1] = [0];
-      indexExpected[arbitraryIndex2] = [0];
+      const topicsExpected: any = {};
+      topicsExpected[transactionHash1] = [0];
+      topicsExpected[arbitraryTopic1] = [0];
+      topicsExpected[arbitraryTopic2] = [0];
 
       expect(newBlock.header, 'header is wrong').to.be.deep.equal({
-        index: indexExpected,
+        topics: topicsExpected,
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
         transactionMock,
       ]);
     });
-    it('can pushTransaction with index a NOT empty block', () => {
+    it('can pushTransaction with topics a NOT empty block', () => {
       const previousBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
         transactionMock,
@@ -111,18 +111,18 @@ describe('block', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         previousBlock,
         transactionMock2,
-        [arbitraryIndex1, arbitraryIndex2],
+        [arbitraryTopic1, arbitraryTopic2],
       );
       // empty block mush remain empty
 
-      const previousIndexExpected: any = {};
-      previousIndexExpected[transactionHash1] = [0];
+      const previousTopicExpected: any = {};
+      previousTopicExpected[transactionHash1] = [0];
 
       expect(
         previousBlock.header,
         'previous header must not change',
       ).to.be.deep.equal({
-        index: previousIndexExpected,
+        topics: previousTopicExpected,
         version: CURRENT_VERSION,
       });
       expect(
@@ -131,14 +131,14 @@ describe('block', () => {
       ).to.be.deep.equal([transactionMock]);
 
       // new block
-      const indexExpected: any = {};
-      indexExpected[transactionHash1] = [0];
-      indexExpected[transactionHash2] = [1];
-      indexExpected[arbitraryIndex1] = [1];
-      indexExpected[arbitraryIndex2] = [1];
+      const topicsExpected: any = {};
+      topicsExpected[transactionHash1] = [0];
+      topicsExpected[transactionHash2] = [1];
+      topicsExpected[arbitraryTopic1] = [1];
+      topicsExpected[arbitraryTopic2] = [1];
 
       expect(newBlock.header, 'header is wrong').to.be.deep.equal({
-        index: indexExpected,
+        topics: topicsExpected,
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
@@ -146,7 +146,7 @@ describe('block', () => {
         transactionMock2,
       ]);
     });
-    it('can pushTransaction without index on an empty block', () => {
+    it('can pushTransaction without topics on an empty block', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
         transactionMock,
@@ -156,7 +156,7 @@ describe('block', () => {
         emptyblock.header,
         'previous header must not change',
       ).to.be.deep.equal({
-        index: {},
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(
@@ -165,18 +165,18 @@ describe('block', () => {
       ).to.be.deep.equal([]);
 
       // new block
-      const indexExpected: any = {};
-      indexExpected[transactionHash1] = [0];
+      const topicsExpected: any = {};
+      topicsExpected[transactionHash1] = [0];
 
       expect(newBlock.header, 'header is wrong').to.be.deep.equal({
-        index: indexExpected,
+        topics: topicsExpected,
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
         transactionMock,
       ]);
     });
-    it('can pushTransaction without index on a NOT empty block', () => {
+    it('can pushTransaction without topics on a NOT empty block', () => {
       const previousBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
         transactionMock,
@@ -187,14 +187,14 @@ describe('block', () => {
       );
       // empty block mush remain empty
 
-      const previousIndexExpected: any = {};
-      previousIndexExpected[transactionHash1] = [0];
+      const previousTopicExpected: any = {};
+      previousTopicExpected[transactionHash1] = [0];
 
       expect(
         previousBlock.header,
         'previous header must not change',
       ).to.be.deep.equal({
-        index: previousIndexExpected,
+        topics: previousTopicExpected,
         version: CURRENT_VERSION,
       });
       expect(
@@ -203,12 +203,12 @@ describe('block', () => {
       ).to.be.deep.equal([transactionMock]);
 
       // new block
-      const indexExpected: any = {};
-      indexExpected[transactionHash1] = [0];
-      indexExpected[transactionHash2] = [1];
+      const topicsExpected: any = {};
+      topicsExpected[transactionHash1] = [0];
+      topicsExpected[transactionHash2] = [1];
 
       expect(newBlock.header, 'header is wrong').to.be.deep.equal({
-        index: indexExpected,
+        topics: topicsExpected,
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
@@ -216,24 +216,24 @@ describe('block', () => {
         transactionMock2,
       ]);
     });
-    it('can pushTransaction with index with index already existing', () => {
+    it('can pushTransaction with topics with topics already existing', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
         blockWith1tx,
         transactionMock2,
-        [arbitraryIndex2],
+        [arbitraryTopic2],
       );
       // empty block mush remain empty
 
-      const previousIndexExpected: any = {};
-      previousIndexExpected[transactionHash1] = [0];
-      previousIndexExpected[arbitraryIndex1] = [0];
-      previousIndexExpected[arbitraryIndex2] = [0];
+      const previousTopicExpected: any = {};
+      previousTopicExpected[transactionHash1] = [0];
+      previousTopicExpected[arbitraryTopic1] = [0];
+      previousTopicExpected[arbitraryTopic2] = [0];
 
       expect(
         blockWith1tx.header,
         'previous header must not change',
       ).to.be.deep.equal({
-        index: previousIndexExpected,
+        topics: previousTopicExpected,
         version: CURRENT_VERSION,
       });
       expect(
@@ -242,14 +242,14 @@ describe('block', () => {
       ).to.be.deep.equal([transactionMock]);
 
       // new block
-      const indexExpected: any = {};
-      indexExpected[transactionHash1] = [0];
-      indexExpected[transactionHash2] = [1];
-      indexExpected[arbitraryIndex1] = [0];
-      indexExpected[arbitraryIndex2] = [0, 1];
+      const topicsExpected: any = {};
+      topicsExpected[transactionHash1] = [0];
+      topicsExpected[transactionHash2] = [1];
+      topicsExpected[arbitraryTopic1] = [0];
+      topicsExpected[arbitraryTopic2] = [0, 1];
 
       expect(newBlock.header, 'header is wrong').to.be.deep.equal({
-        index: indexExpected,
+        topics: topicsExpected,
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
@@ -268,7 +268,7 @@ describe('block', () => {
       let newBlock = RequestDataAccessBlock.pushTransaction(
         emptyblock,
         transactionMock,
-        [arbitraryIndex1, arbitraryIndex2],
+        [arbitraryTopic1, arbitraryTopic2],
       );
       newBlock = RequestDataAccessBlock.pushTransaction(
         newBlock,
@@ -282,21 +282,21 @@ describe('block', () => {
     });
   });
 
-  describe('getAllIndex', () => {
-    it('can getAllIndex on empty block', () => {
-      const allIndexes = RequestDataAccessBlock.getAllIndex(emptyblock);
-      expect(allIndexes, 'transactions must be empty').to.be.deep.equal({});
+  describe('getAllTopic', () => {
+    it('can getAllTopic on empty block', () => {
+      const allTopices = RequestDataAccessBlock.getAllTopics(emptyblock);
+      expect(allTopices, 'transactions must be empty').to.be.deep.equal({});
     });
-    it('can getAllIndex on NOT empty block', () => {
-      const indexExpected: any = {};
-      indexExpected[transactionHash1] = [0];
-      indexExpected[transactionHash2] = [1];
-      indexExpected[arbitraryIndex1] = [0];
-      indexExpected[arbitraryIndex2] = [0, 1];
+    it('can getAllTopic on NOT empty block', () => {
+      const topicsExpected: any = {};
+      topicsExpected[transactionHash1] = [0];
+      topicsExpected[transactionHash2] = [1];
+      topicsExpected[arbitraryTopic1] = [0];
+      topicsExpected[arbitraryTopic2] = [0, 1];
 
-      const allIndexes = RequestDataAccessBlock.getAllIndex(blockWith2tx);
-      expect(allIndexes, 'transactions must be empty').to.be.deep.equal(
-        indexExpected,
+      const allTopices = RequestDataAccessBlock.getAllTopics(blockWith2tx);
+      expect(allTopices, 'transactions must be empty').to.be.deep.equal(
+        topicsExpected,
       );
     });
   });
@@ -319,27 +319,27 @@ describe('block', () => {
     });
   });
 
-  describe('getTransactionPositionByIndex', () => {
-    it('can getTransactionPositionByIndex on an empty block', () => {
-      const txIndex = RequestDataAccessBlock.getTransactionPositionByIndex(
+  describe('getTransactionPositionFromTopic', () => {
+    it('can getTransactionPositionFromTopic on an empty block', () => {
+      const txTopic = RequestDataAccessBlock.getTransactionPositionFromTopic(
         emptyblock,
-        arbitraryIndex1,
+        arbitraryTopic1,
       );
-      expect(txIndex, 'txIndex is wrong').to.be.deep.equal([]);
+      expect(txTopic, 'txTopic is wrong').to.be.deep.equal([]);
     });
-    it('can getTransactionPositionByIndex with index existing', () => {
-      const txIndex = RequestDataAccessBlock.getTransactionPositionByIndex(
+    it('can getTransactionPositionFromTopic with topics existing', () => {
+      const txTopic = RequestDataAccessBlock.getTransactionPositionFromTopic(
         blockWith1tx,
-        arbitraryIndex1,
+        arbitraryTopic1,
       );
-      expect(txIndex, 'txIndex is wrong').to.be.deep.equal([0]);
+      expect(txTopic, 'txTopic is wrong').to.be.deep.equal([0]);
     });
-    it('can getTransactionPositionByIndex with index used twice ', () => {
-      const txIndex = RequestDataAccessBlock.getTransactionPositionByIndex(
+    it('can getTransactionPositionFromTopic with topics used twice ', () => {
+      const txTopic = RequestDataAccessBlock.getTransactionPositionFromTopic(
         blockWith2tx,
-        arbitraryIndex2,
+        arbitraryTopic2,
       );
-      expect(txIndex, 'txIndex is wrong').to.be.deep.equal([0, 1]);
+      expect(txTopic, 'txTopic is wrong').to.be.deep.equal([0, 1]);
     });
   });
 
@@ -390,60 +390,62 @@ describe('block', () => {
     });
   });
 
-  describe('getIndexes', () => {
-    it('can getIndexes on an empty block', () => {
-      const txs = RequestDataAccessBlock.getIndexes(emptyblock, [
-        transactionHash1,
-        transactionHash2,
-      ]);
+  describe('getTransactionPositionsByTopics', () => {
+    it('can getTransactionPositionsByTopics on an empty block', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        emptyblock,
+        [transactionHash1, transactionHash2],
+      );
       expect(txs, 'txs must be empty').to.be.deep.equal([]);
     });
-    it('can getIndexes on missing transaction', () => {
-      const txs = RequestDataAccessBlock.getIndexes(blockWith1tx, [
-        transactionHash1,
-        transactionHash2,
-      ]);
+    it('can getTransactionPositionsByTopics on missing transaction', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        blockWith1tx,
+        [transactionHash1, transactionHash2],
+      );
       expect(txs, 'txs is wrong').to.be.deep.equal([0]);
     });
-    it('can getIndexes on more than one transaction', () => {
-      const txs = RequestDataAccessBlock.getIndexes(blockWith2tx, [
-        transactionHash1,
-        transactionHash2,
-      ]);
+    it('can getTransactionPositionsByTopics on more than one transaction', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        blockWith2tx,
+        [transactionHash1, transactionHash2],
+      );
       expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
     });
-    it('can getIndexes on more than one transaction with array not sorted', () => {
-      const txs = RequestDataAccessBlock.getIndexes(blockWith2tx, [
-        transactionHash2,
-        transactionHash1,
-      ]);
+    it('can getTransactionPositionsByTopics on more than one transaction with array not sorted', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        blockWith2tx,
+        [transactionHash2, transactionHash1],
+      );
       expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
     });
-    it('can getIndexes on more than one transaction with array duplication', () => {
-      const txs = RequestDataAccessBlock.getIndexes(blockWith2tx, [
-        transactionHash2,
-        transactionHash1,
-        transactionHash2,
-        transactionHash2,
-        transactionHash1,
-        transactionHash1,
-        transactionHash1,
-      ]);
+    it('can getTransactionPositionsByTopics on more than one transaction with array duplication', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        blockWith2tx,
+        [
+          transactionHash2,
+          transactionHash1,
+          transactionHash2,
+          transactionHash2,
+          transactionHash1,
+          transactionHash1,
+          transactionHash1,
+        ],
+      );
       expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
     });
-    it('can getIndexes with index use twice', () => {
-      const txs = RequestDataAccessBlock.getIndexes(blockWith2tx, [
-        arbitraryIndex2,
-      ]);
+    it('can getTransactionPositionsByTopics with topics use twice', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        blockWith2tx,
+        [arbitraryTopic2],
+      );
       expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
     });
-    it('can getIndexes with index use twice and duplication', () => {
-      const txs = RequestDataAccessBlock.getIndexes(blockWith2tx, [
-        arbitraryIndex2,
-        transactionHash2,
-        transactionHash1,
-        arbitraryIndex1,
-      ]);
+    it('can getTransactionPositionsByTopics with topics use twice and duplication', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByTopics(
+        blockWith2tx,
+        [arbitraryTopic2, transactionHash2, transactionHash1, arbitraryTopic1],
+      );
       expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
     });
   });
@@ -453,13 +455,13 @@ describe('block', () => {
       const block = RequestDataAccessBlock.pushTransaction(
         blockWith1tx,
         transactionMock2,
-        [arbitraryIndex2],
+        [arbitraryTopic2],
       );
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
       const strExpected = JSON.stringify({
         header: {
-          index: {
+          topics: {
             Oxaaaaaa: [0],
             Oxccccccccccc: [0, 1],
             '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca': [

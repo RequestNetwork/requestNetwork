@@ -133,7 +133,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,
   ): Promise<RequestLogicTypes.IRequestLogicRequest | undefined> {
-    const transactions = await this.dataAccess.getTransactionsByIndex(requestId);
+    const transactions = await this.dataAccess.getTransactionsByTopic(requestId);
     try {
       // second parameter is null, because the first transaction must be a creation (no state expected)
       return transactions

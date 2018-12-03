@@ -5,13 +5,13 @@ import {
 } from '@requestnetwork/types';
 
 import Block from './block';
-import LocalDataidIndex from './local-data-id-index';
+import localDataidTopic from './local-data-id-topic';
 import Transaction from './transaction';
 
 export default class DataAccess implements DataAccessTypes.IDataAccess {
-  // DataId (Id of data on storage layer) indexed by transaction index
-  // Will be used to get the data from storage with the transaction index
-  private localDataidIndex: LocalDataidIndex | null = null;
+  // DataId (Id of data on storage layer) topiced by transaction topic
+  // Will be used to get the data from storage with the transaction topic
+  private localDataidTopic: localDataidTopic | null = null;
 
   // Storage layer
   private storage: IStorage;
@@ -26,45 +26,45 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * Function to initialize the dataId index with the previous block
+   * Function to initialize the dataId topic with the previous block
    */
   public async initialize() {
     // cannot be initialized twice
-    if (this.localDataidIndex) {
+    if (this.localDataidTopic) {
       throw new Error('already initialized');
     }
-    this.localDataidIndex = new LocalDataidIndex();
+    this.localDataidTopic = new localDataidTopic();
 
-    // initialize the dataId index with the previous block
+    // initialize the dataId topic with the previous block
     const primalBlocksDataId: string[] = await this.storage.getAllDataId();
     for (const dataId of primalBlocksDataId) {
       const dataToAdd: string = await this.storage.read(dataId);
 
       const block = JSON.parse(dataToAdd);
 
-      // index the previous dataId with their block index
-      this.localDataidIndex.pushDataIdIndexedWithBlockIndex(
+      // topic the previous dataId with their block topic
+      this.localDataidTopic.pushDataIdIndexedWithBlockTopics(
         dataId,
-        block.header.index,
+        block.header.topics,
       );
     }
   }
 
   /**
-   * Function to persist transaction and index in storage
+   * Function to persist transaction and topic in storage
    * For now, we create a block for each transaction
    *
    * @param string transaction transaction to persist
-   * @param string[] indexes list of string to index the transaction
+   * @param string[] topics list of string to topic the transaction
    *
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
     transactionData: string,
     signatureParams: SignatureTypes.ISignatureParameters,
-    indexes?: string[],
+    topics?: string[],
   ): Promise<string> {
-    if (!this.localDataidIndex) {
+    if (!this.localDataidTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
@@ -77,48 +77,47 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const updatedBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
       transaction,
-      indexes,
+      topics,
     );
-
-    // get the index of the data in storage
+    // get the topic of the data in storage
     const dataId = await this.storage.append(JSON.stringify(updatedBlock));
 
-    // index the dataId with block index
-    this.localDataidIndex.pushDataIdIndexedWithBlockIndex(
+    // topic the dataId with block topic
+    this.localDataidTopic.pushDataIdIndexedWithBlockTopics(
       dataId,
-      updatedBlock.header.index,
+      updatedBlock.header.topics,
     );
 
     return dataId;
   }
 
   /**
-   * Function to get a list of transactions indexed with index
+   * Function to get a list of transactions topiced with topic
    *
-   * @param string index index to retrieve the transaction from
+   * @param string topic toppic to retrieve the transaction from
    *
-   * @returns IRequestDataAccessTransaction list of transactions indexed
+   * @returns IRequestDataAccessTransaction list of transactions topiced
    */
-  public async getTransactionsByIndex(index: string): Promise<string[]> {
-    if (!this.localDataidIndex) {
+  public async getTransactionsByTopic(topic: string): Promise<string[]> {
+    if (!this.localDataidTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
-    const indexStorageList = this.localDataidIndex.getDataIdByIndex(index);
+    const topicStorageList = this.localDataidTopic.getDataIdFromTopic(topic);
     const blockList: DataAccessTypes.IRequestDataAccessBlock[] = [];
 
-    // get blocks indexed
-    for (const indexStorage of indexStorageList) {
-      const dataToAdd: string = await this.storage.read(indexStorage);
+    // get blocks topiced
+    for (const topicStorage of topicStorageList) {
+      const dataToAdd: string = await this.storage.read(topicStorage);
       blockList.push(JSON.parse(dataToAdd));
     }
 
-    // get transactions indexed in the blocks
+    // get transactions topiced in the blocks
     // 1. get the transactions wanted in each block
     // 2. merge all the transactions array in the same array
     const transactionList: string[] = blockList
       .map(block =>
-        block.header.index[index].map(position =>
+        block.header.topics[topic].map(position =>
           JSON.stringify(block.transactions[position]),
         ),
       )

@@ -28,7 +28,7 @@ const createParams = {
 const requestId = '0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa';
 
 const fakeDataAccess: DataAccessTypes.IDataAccess = {
-  getTransactionsByIndex: chai.spy(),
+  getTransactionsByTopic: chai.spy(),
   initialize: chai.spy(),
   persistTransaction: chai.spy(),
 };
@@ -182,7 +182,7 @@ describe('index', () => {
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByIndex: (index: string) => listTxs,
+        getTransactionsByTopic: (index: string) => listTxs,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };
@@ -234,7 +234,7 @@ describe('index', () => {
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByIndex: (index: string) => listTxs,
+        getTransactionsByTopic: (index: string) => listTxs,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };

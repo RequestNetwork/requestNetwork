@@ -50,34 +50,34 @@ const transactionMock2String = JSON.stringify(transactionMock2);
 const transactionHash1 = Utils.crypto.normalizeKeccak256Hash(transactionMock1);
 const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionMock2);
 
-const arbitraryIndex1 = 'Oxaaaaaa';
-const arbitraryIndex2 = 'Oxccccccccccc';
+const arbitraryTopic1 = 'Oxaaaaaa';
+const arbitraryTopic2 = 'Oxccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
 const blockWith1tx = RequestDataAccessBlock.pushTransaction(
   emptyblock,
   transactionMock1,
-  [arbitraryIndex1, arbitraryIndex2],
+  [arbitraryTopic1, arbitraryTopic2],
 );
 const blockWith2tx = RequestDataAccessBlock.pushTransaction(
   blockWith1tx,
   transactionMock2,
-  [arbitraryIndex2],
+  [arbitraryTopic2],
 );
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
 /* tslint:disable:no-unused-expression */
-describe('index', () => {
-  describe('constructor and getTransactionsByIndex', () => {
-    it('can contstruct and getTransactionsByIndex', async () => {
-      const testIndexes: Promise<string[]> = new Promise(resolve => {
+describe('data-access', () => {
+  describe('constructor and getTransactionsByTopic', () => {
+    it('can construct and getTransactionsByTopic', async () => {
+      const testTopics: Promise<string[]> = new Promise(resolve => {
         return resolve([dataIdBlock2tx]);
       });
 
       const fakeStorage: IStorage = {
         append: chai.spy(),
-        getAllDataId: () => testIndexes,
+        getAllDataId: () => testTopics,
         read: (param: string) => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
@@ -90,24 +90,24 @@ describe('index', () => {
       await dataAccess.initialize();
 
       expect(
-        await dataAccess.getTransactionsByIndex(arbitraryIndex1),
-        'result with arbitraryIndex1 wrong',
+        await dataAccess.getTransactionsByTopic(arbitraryTopic1),
+        'result with arbitraryTopic1 wrong',
       ).to.deep.equal([transactionMock1String]);
 
       expect(
-        await dataAccess.getTransactionsByIndex(arbitraryIndex2),
-        'result with arbitraryIndex2 wrong',
+        await dataAccess.getTransactionsByTopic(arbitraryTopic2),
+        'result with arbitraryTopic2 wrong',
       ).to.deep.equal([transactionMock1String, transactionMock2String]);
     });
 
     it('cannot initialize twice', async () => {
-      const testIndexes: Promise<string[]> = new Promise(resolve => {
+      const testTopics: Promise<string[]> = new Promise(resolve => {
         return resolve([dataIdBlock2tx]);
       });
 
       const fakeStorage: IStorage = {
         append: chai.spy(),
-        getAllDataId: () => testIndexes,
+        getAllDataId: () => testTopics,
         read: (param: string) => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
@@ -129,14 +129,14 @@ describe('index', () => {
       }
     });
 
-    it('cannot getTransactionsByIndex if not initialized', async () => {
-      const testIndexes: Promise<string[]> = new Promise(resolve => {
+    it('cannot getTransactionsByTopic if not initialized', async () => {
+      const testTopics: Promise<string[]> = new Promise(resolve => {
         return resolve([dataIdBlock2tx]);
       });
 
       const fakeStorage: IStorage = {
         append: chai.spy(),
-        getAllDataId: () => testIndexes,
+        getAllDataId: () => testTopics,
         read: (param: string) => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
@@ -148,7 +148,7 @@ describe('index', () => {
       const dataAccess = new DataAccess(fakeStorage);
 
       try {
-        await dataAccess.getTransactionsByIndex(arbitraryIndex1);
+        await dataAccess.getTransactionsByTopic(arbitraryTopic1);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
         expect(e.message, 'exception not right').to.be.equal(
@@ -171,7 +171,7 @@ describe('index', () => {
       const result = await dataAccess.persistTransaction(
         transactionMock1String,
         signatureMockSignature,
-        [arbitraryIndex1],
+        [arbitraryTopic1],
       );
 
       /* tslint:disable:object-literal-sort-keys  */
@@ -179,7 +179,7 @@ describe('index', () => {
       expect(fakeStorageSpied.append).to.have.been.called.with(
         JSON.stringify({
           header: {
-            index: {
+            topics: {
               Oxaaaaaa: [0],
               '0x509b20f14449dab328580335abb39cc2f162a6b69d97860f40e12417312adfdd': [
                 0,
@@ -216,7 +216,7 @@ describe('index', () => {
         await dataAccess.persistTransaction(
           transactionMock1String,
           signatureMockSignature,
-          [arbitraryIndex1],
+          [arbitraryTopic1],
         );
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {

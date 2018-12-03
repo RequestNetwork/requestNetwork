@@ -5,9 +5,9 @@ export interface IDataAccess {
   persistTransaction: (
     transactionData: string,
     signatureParams: Signature.ISignatureParameters,
-    indexes?: string[],
+    topics?: string[],
   ) => Promise<string>;
-  getTransactionsByIndex: (index: string) => Promise<string[]>;
+  getTransactionsByTopic: (topic: string) => Promise<string[]>;
 }
 
 export interface IRequestDataAccessBlock {
@@ -16,11 +16,11 @@ export interface IRequestDataAccessBlock {
 }
 
 export interface IRequestDataAccessBlockHeader {
-  index: IRequestDataAccessIndex;
+  topics: IRequestDataAccessTopics;
   version: string;
 }
 
-export interface IRequestDataAccessIndex {
+export interface IRequestDataAccessTopics {
   [key: string]: number[];
 }
 
