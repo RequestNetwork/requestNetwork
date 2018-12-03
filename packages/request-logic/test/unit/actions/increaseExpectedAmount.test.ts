@@ -26,7 +26,7 @@ const arbitraryExpectedAmountAfterDelta = '223400000000000000';
 /* tslint:disable:no-unused-expression */
 describe('actions/increaseExpectedAmount', () => {
   describe('format', () => {
-    it('can increase expected amount without extensions', () => {
+    it('can increase expected amount without extensionsData', () => {
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -52,7 +52,8 @@ describe('actions/increaseExpectedAmount', () => {
       expect(txIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txIncreaseAmount.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txIncreaseAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
+        .undefined;
 
       expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
         'signature',
@@ -66,11 +67,11 @@ describe('actions/increaseExpectedAmount', () => {
       );
     });
 
-    it('can increase expected amount with extensions', () => {
+    it('can increase expected amount with extensionsData', () => {
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
-          extensions: TestData.oneExtension,
+          extensionsData: TestData.oneExtension,
           requestId: requestIdMock,
         },
         {
@@ -93,9 +94,10 @@ describe('actions/increaseExpectedAmount', () => {
       expect(txIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txIncreaseAmount.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
-        TestData.oneExtension,
-      );
+      expect(
+        txIncreaseAmount.data.parameters.extensionsData,
+        'extensionsData is wrong',
+      ).to.deep.equal(TestData.oneExtension);
 
       expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
         'signature',
@@ -105,7 +107,7 @@ describe('actions/increaseExpectedAmount', () => {
         'txIncreaseAmount.signature.method is wrong',
       ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
       expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
-        '0x2e4a00a9c038d078a5557260dbae2592f2476636bfb0bbcbe0a3c4a13c15d7f87eb42061b02331533dfa1677492c255383babeade5bc42fc5854c8ecef6f55271b',
+        '0xedff811fe02f0652bd996bfc44036de415936f908171d267ff2fc602b19e24576d7a354810c9301e8106c35c951ccea946e629c02d5e0ffdd49b80449ced34f91c',
       );
     });
 
@@ -195,7 +197,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -225,7 +227,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
@@ -344,7 +346,7 @@ describe('actions/increaseExpectedAmount', () => {
             name: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
               isSignedRequest: false,
             },
             transactionSigner: {
@@ -436,7 +438,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -466,17 +468,17 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
 
-    it('can increase expected amount with extensions and no extensions before', () => {
+    it('can increase expected amount with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
         {
@@ -496,7 +498,9 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(newExtensionsData);
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+        newExtensionsData,
+      );
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -526,17 +530,17 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
 
-    it('can increase expected amount with extensions and extensions before', () => {
+    it('can increase expected amount with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
         {
@@ -556,7 +560,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension.concat(newExtensionsData),
       );
 
@@ -588,11 +592,11 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
-    it('can increase expected amount without extensions and extensions before', () => {
+    it('can increase expected amount without extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
@@ -616,7 +620,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -648,7 +652,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payerRaw.identity,
       });
     });

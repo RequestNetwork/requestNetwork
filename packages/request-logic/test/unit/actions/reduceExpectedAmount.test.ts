@@ -26,7 +26,7 @@ const arbitraryExpectedAmountAfterDelta = '23400000000000000';
 /* tslint:disable:no-unused-expression */
 describe('actions/reduceExpectedAmount', () => {
   describe('format', () => {
-    it('can reduce expected amount without extensions', () => {
+    it('can reduce expected amount without extensionsData', () => {
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -52,7 +52,8 @@ describe('actions/reduceExpectedAmount', () => {
       expect(txReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txReduceAmount.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txReduceAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
+        .undefined;
 
       expect(txReduceAmount, 'txReduceAmount.signature should be a property').to.have.property(
         'signature',
@@ -65,11 +66,11 @@ describe('actions/reduceExpectedAmount', () => {
       );
     });
 
-    it('can reduce expected amount with extensions', () => {
+    it('can reduce expected amount with extensionsData', () => {
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
-          extensions: TestData.oneExtension,
+          extensionsData: TestData.oneExtension,
           requestId: requestIdMock,
         },
         {
@@ -92,9 +93,10 @@ describe('actions/reduceExpectedAmount', () => {
       expect(txReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txReduceAmount.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
-        TestData.oneExtension,
-      );
+      expect(
+        txReduceAmount.data.parameters.extensionsData,
+        'extensionsData is wrong',
+      ).to.deep.equal(TestData.oneExtension);
 
       expect(txReduceAmount, 'txReduceAmount.signature should be a property').to.have.property(
         'signature',
@@ -103,7 +105,7 @@ describe('actions/reduceExpectedAmount', () => {
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
       expect(txReduceAmount.signature.value, 'txReduceAmount.signature.value').to.equal(
-        '0xa8ceca6ea19a077d7f8191fda58611d63e304a5d910904cb10966800d0f9f402524f93c2af855b7ac126b1b1dce274a1acce8f36c9bcd107825dd02d7241e30e1c',
+        '0xaeeb801d127ad9915763eefc579942f736bb4de2347289e99935107aeba0ee8441ca500343342bcce2d22d710a19bf24988ae0359b94d527cf16a255f2a218c41c',
       );
     });
 
@@ -192,7 +194,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -222,7 +224,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
@@ -341,7 +343,7 @@ describe('actions/reduceExpectedAmount', () => {
             name: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
               isSignedRequest: false,
             },
             transactionSigner: {
@@ -433,7 +435,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -463,17 +465,17 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
-    it('can reduce expected amount with extensions and no extensions before', () => {
+    it('can reduce expected amount with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
         {
@@ -493,7 +495,9 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(newExtensionsData);
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+        newExtensionsData,
+      );
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -523,17 +527,17 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
-    it('can reduce expected amount with extensions and extensions before', () => {
+    it('can reduce expected amount with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
         {
@@ -553,7 +557,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension.concat(newExtensionsData),
       );
 
@@ -585,11 +589,11 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 1, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
-    it('can reduce expected amount without extensions and extensions before', () => {
+    it('can reduce expected amount without extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txReduceAmount = ReduceExpectedAmountAction.format(
         {
@@ -613,7 +617,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -645,7 +649,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: arbitraryDeltaAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
@@ -764,7 +768,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal('0');
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -794,7 +798,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-        parameters: { extensionsLength: 0, deltaAmount: TestData.arbitraryExpectedAmount },
+        parameters: { extensionsDataLength: 0, deltaAmount: TestData.arbitraryExpectedAmount },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });

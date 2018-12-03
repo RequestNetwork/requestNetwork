@@ -56,7 +56,7 @@ export interface IRequestLogicRequest {
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
   // Array of extensions data linked to the request
-  extensions?: any[];
+  extensionsData?: any[];
   events: IRequestLogicEvent[];
 }
 
@@ -81,33 +81,33 @@ export interface IRequestLogicCreateParameters {
   expectedAmount: RequestLogicAmount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
-  extensions?: any[];
+  extensionsData?: any[];
 }
 
 // Parameters to accept a request
 export interface IRequestLogicAcceptParameters {
   requestId: RequestLogicRequestId;
-  extensions?: any[];
+  extensionsData?: any[];
 }
 
 // Parameters to cancel a request
 export interface IRequestLogicCancelParameters {
   requestId: RequestLogicRequestId;
-  extensions?: any[];
+  extensionsData?: any[];
 }
 
 // Parameters to increase amount of a request
 export interface IRequestLogicIncreaseExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
-  extensions?: any[];
+  extensionsData?: any[];
 }
 
 // Parameters to reduce amount of a request
 export interface IRequestLogicReduceExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
-  extensions?: any[];
+  extensionsData?: any[];
 }
 
 // Interface of an event

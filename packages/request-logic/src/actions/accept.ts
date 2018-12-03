@@ -71,7 +71,7 @@ function applyTransactionToRequest(
     throw new Error('Signer must be the payer');
   }
 
-  request = Request.pushExtensions(request, transactionData.parameters.extensions);
+  request = Request.pushExtensionsData(request, transactionData.parameters.extensionsData);
   request.events.push(generateEvent(transactionData, signer));
 
   return request;
@@ -94,7 +94,7 @@ function generateEvent(
   const event: Types.IRequestLogicEvent = {
     name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
     parameters: {
-      extensionsLength: params.extensions ? params.extensions.length : 0,
+      extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },
     transactionSigner,
   };

@@ -13,7 +13,7 @@ import Role from './role';
 export default {
   checkRequest,
   getRoleInRequest,
-  pushExtensions,
+  pushExtensionsData,
 };
 
 /**
@@ -51,8 +51,6 @@ function checkRequest(request: Types.IRequestLogicRequest): boolean {
   if (!request.state) {
     throw Error('request.state is missing');
   }
-  // todo extensions
-
   if (!request.creator) {
     throw Error('request.creator is missing');
   }
@@ -85,16 +83,16 @@ function checkRequest(request: Types.IRequestLogicRequest): boolean {
  * Function to simply add the extensions data to the request
  *
  * @param Types.IRequestLogicRequest requestContext The current request context
- * @param Types.IRequestLogicRequest extensions The extensions data to add to the request
+ * @param Types.IRequestLogicRequest extensionsData The extensions data to add to the request
  *
  * @returns Types.IRequestLogicRequest The request context with the extensions data added
  */
-function pushExtensions(
+function pushExtensionsData(
   requestContext: Types.IRequestLogicRequest,
-  extensions?: any[],
+  extensionsData?: any[],
 ): Types.IRequestLogicRequest {
-  if (extensions) {
-    requestContext.extensions = (requestContext.extensions || []).concat(extensions);
+  if (extensionsData) {
+    requestContext.extensionsData = (requestContext.extensionsData || []).concat(extensionsData);
   }
   return requestContext;
 }

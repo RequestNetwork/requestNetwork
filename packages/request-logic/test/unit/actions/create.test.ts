@@ -46,7 +46,7 @@ describe('CreateAction', () => {
       expect(txCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(txCreation.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
       expect(txCreation.data.parameters.payer, 'payer is wrong').to.be.undefined;
 
       expect(
@@ -99,7 +99,7 @@ describe('CreateAction', () => {
       expect(txCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(txCreation.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
       expect(txCreation.data.parameters.payee, 'payee is wrong').to.be.undefined;
 
       expect(
@@ -157,7 +157,7 @@ describe('CreateAction', () => {
       expect(txCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(txCreation.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(
         txCreation.data.parameters,
@@ -259,13 +259,13 @@ describe('CreateAction', () => {
       }
     });
 
-    it('can create with extensions', () => {
-      const extensions = [{ id: 'extension1', value: 'whatever' }];
+    it('can create with extensionsData', () => {
+      const extensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txCreation = CreateAction.format(
         {
           currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensions,
+          extensionsData,
           payee: {
             type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
             value: TestData.payeeRaw.address,
@@ -294,9 +294,9 @@ describe('CreateAction', () => {
         TestData.arbitraryExpectedAmount,
       );
       expect(
-        txCreation.data.parameters.extensions,
-        'txCreation.data.parameters.extensions is wrong',
-      ).to.equal(extensions);
+        txCreation.data.parameters.extensionsData,
+        'txCreation.data.parameters.extensionsData is wrong',
+      ).to.equal(extensionsData);
 
       expect(
         txCreation.data.parameters,
@@ -329,7 +329,7 @@ describe('CreateAction', () => {
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
       expect(txCreation.signature.value, 'txCreation.signature.value').to.equal(
-        '0xf4359003e0fec92ff186edb1c596de83c35d62c97befd4f1a2bc65a216fbcf6b7c8c61de2a4437a8873635a6581d6619dd060641aeaa14b48feb1bc5cb3873fa1c',
+        '0xeab92703fa23862556055def433d9536b233e3f841eae08cf03afe544c6c3c0417c2ce4973768abc10b2714a5f49c2919d1da47a58864663a9dacb0917c4e7061b',
       );
     });
 
@@ -553,7 +553,7 @@ describe('CreateAction', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -578,7 +578,7 @@ describe('CreateAction', () => {
         name: Types.REQUEST_LOGIC_ACTION.CREATE,
         parameters: {
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsLength: 0,
+          extensionsDataLength: 0,
           isSignedRequest: false,
         },
         transactionSigner: TestData.payeeRaw.identity,
@@ -610,7 +610,7 @@ describe('CreateAction', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -634,7 +634,7 @@ describe('CreateAction', () => {
         name: Types.REQUEST_LOGIC_ACTION.CREATE,
         parameters: {
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsLength: 0,
+          extensionsDataLength: 0,
           isSignedRequest: false,
         },
         transactionSigner: TestData.payerRaw.identity,
@@ -670,7 +670,7 @@ describe('CreateAction', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -703,7 +703,7 @@ describe('CreateAction', () => {
         name: Types.REQUEST_LOGIC_ACTION.CREATE,
         parameters: {
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsLength: 0,
+          extensionsDataLength: 0,
           isSignedRequest: false,
         },
         transactionSigner: TestData.payeeRaw.identity,
@@ -718,7 +718,7 @@ describe('CreateAction', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
             },
             version: CURRENT_VERSION,
           },
@@ -747,7 +747,7 @@ describe('CreateAction', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: 'Not a Number',
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payee: {
                 type: 'ethereumAddress',
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -780,7 +780,7 @@ describe('CreateAction', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: '0.1234',
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payee: {
                 type: 'ethereumAddress',
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -813,7 +813,7 @@ describe('CreateAction', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: '-100000000000',
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payee: {
                 type: 'ethereumAddress',
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -838,13 +838,13 @@ describe('CreateAction', () => {
       }
     });
 
-    it('can create with extensions', () => {
-      const extensions = [{ id: 'extension1', value: 'whatever' }];
+    it('can create with extensionsData', () => {
+      const extensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txCreation = CreateAction.format(
         {
           currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensions,
+          extensionsData,
           payee: {
             type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
             value: TestData.payeeRaw.address,
@@ -869,7 +869,9 @@ describe('CreateAction', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(extensions);
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+        extensionsData,
+      );
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -901,7 +903,7 @@ describe('CreateAction', () => {
         name: Types.REQUEST_LOGIC_ACTION.CREATE,
         parameters: {
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsLength: 1,
+          extensionsDataLength: 1,
           isSignedRequest: false,
         },
         transactionSigner: TestData.payeeRaw.identity,
@@ -916,7 +918,7 @@ describe('CreateAction', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payee: {
                 type: 'ethereumAddress',
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -948,7 +950,7 @@ describe('CreateAction', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payee: {
                 type: 'not_ethereumAddress',
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',

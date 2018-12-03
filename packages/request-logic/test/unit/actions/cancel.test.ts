@@ -17,7 +17,7 @@ import * as TestData from '../utils/test-data-generator';
 /* tslint:disable:no-unused-expression */
 describe('actions/cancel', () => {
   describe('format', () => {
-    it('can cancel without extensions', () => {
+    it('can cancel without extensionsData', () => {
       const txCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
@@ -37,7 +37,7 @@ describe('actions/cancel', () => {
       expect(txCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txCancel.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(txCancel, 'txCancel.signature is wrong').to.have.property('signature');
       expect(txCancel.signature.method, 'txCancel.signature.method is wrong').to.equal(
@@ -48,10 +48,10 @@ describe('actions/cancel', () => {
       );
     });
 
-    it('can cancel with extensions', () => {
+    it('can cancel with extensionsData', () => {
       const txCancel = CancelAction.format(
         {
-          extensions: TestData.oneExtension,
+          extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
         },
         {
@@ -69,7 +69,7 @@ describe('actions/cancel', () => {
       expect(txCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txCancel.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
+      expect(txCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -78,7 +78,7 @@ describe('actions/cancel', () => {
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
       expect(txCancel.signature.value, 'txCancel.signature.value').to.equal(
-        '0x8fe423967d69b99574688334975dbd588b2df5e416f3ea661e921392ea9a906a173a16cb58c25a569b7febb86032d9f66e0d4626eabb4f3dc54670b55a3cfb5e1c',
+        '0x06582e76b9690ee99440812d7e3512d81de7bcc2b8bd63c886ae7f91fd983b4a433436e6856ba1a6848e3a81f72257c8e104953343ec06b9684018d062d7141f1c',
       );
     });
   });
@@ -105,7 +105,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -136,7 +136,7 @@ describe('actions/cancel', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.CANCEL,
-        parameters: { extensionsLength: 0 },
+        parameters: { extensionsDataLength: 0 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
@@ -210,7 +210,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -240,7 +240,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.CANCEL,
-        parameters: { extensionsLength: 0 },
+        parameters: { extensionsDataLength: 0 },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
@@ -266,7 +266,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -296,7 +296,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.CANCEL,
-        parameters: { extensionsLength: 0 },
+        parameters: { extensionsDataLength: 0 },
         transactionSigner: TestData.payeeRaw.identity,
       });
     });
@@ -385,7 +385,7 @@ describe('actions/cancel', () => {
             name: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
               isSignedRequest: false,
             },
             transactionSigner: {
@@ -439,7 +439,7 @@ describe('actions/cancel', () => {
             name: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
               isSignedRequest: false,
             },
             transactionSigner: {
@@ -481,11 +481,11 @@ describe('actions/cancel', () => {
         );
       }
     });
-    it('can cancel with extensions and no extensions before', () => {
+    it('can cancel with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txCancel = CancelAction.format(
         {
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
         {
@@ -505,7 +505,9 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(newExtensionsData);
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+        newExtensionsData,
+      );
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -535,16 +537,16 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.CANCEL,
-        parameters: { extensionsLength: 1 },
+        parameters: { extensionsDataLength: 1 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
 
-    it('can cancel with extensions and extensions before', () => {
+    it('can cancel with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txCancel = CancelAction.format(
         {
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
         {
@@ -564,7 +566,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension.concat(newExtensionsData),
       );
 
@@ -596,11 +598,11 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.CANCEL,
-        parameters: { extensionsLength: 1 },
+        parameters: { extensionsDataLength: 1 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
-    it('can cancel without extensions and extensions before', () => {
+    it('can cancel without extensionsData and extensionsData before', () => {
       const txCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
@@ -622,7 +624,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -654,7 +656,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.CANCEL,
-        parameters: { extensionsLength: 0 },
+        parameters: { extensionsDataLength: 0 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });

@@ -1,7 +1,11 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import {Identity as IdentityTypes, RequestLogic as Types, Signature as SignatureTypes } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Request from '../../src/request';
 import * as TestData from './utils/test-data-generator';
@@ -11,48 +15,53 @@ const CURRENT_VERSION = Version.currentVersion;
 
 /* tslint:disable:no-unused-expression */
 describe('Request', () => {
-  describe('pushExtensions', () => {
-    it('can pushExtensions with array extensions on virgin request', () => {
-      const newRequest = Request.pushExtensions(Utils.deepCopy(TestData), TestData.twoExtensions);
-      expect(newRequest.extensions, 'newRequest extensions error').to.be.deep.equal(
+  describe('pushExtensionsData', () => {
+    it('can pushExtensionsData with array extensionsData on virgin request', () => {
+      const newRequest = Request.pushExtensionsData(
+        Utils.deepCopy(TestData),
+        TestData.twoExtensions,
+      );
+      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
         TestData.twoExtensions,
       );
     });
-    it('can pushExtensions with array extensions on request with extensions', () => {
-      const newRequest = Request.pushExtensions(
+    it('can pushExtensionsData with array extensionsData on request with extensionsData', () => {
+      const newRequest = Request.pushExtensionsData(
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
         TestData.twoExtensions,
       );
-      expect(newRequest.extensions, 'newRequest extensions error').to.be.deep.equal(
+      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
         TestData.oneExtension.concat(TestData.twoExtensions),
       );
     });
 
-    it('can pushExtensions with undefined on virgin request', () => {
-      const newRequest = Request.pushExtensions(Utils.deepCopy(TestData.requestCreatedNoExtension));
-      expect(newRequest.extensions, 'newRequest extensions error').to.be.undefined;
+    it('can pushExtensionsData with undefined on virgin request', () => {
+      const newRequest = Request.pushExtensionsData(
+        Utils.deepCopy(TestData.requestCreatedNoExtension),
+      );
+      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.undefined;
     });
-    it('can pushExtensions with undefined on request with extension', () => {
-      const newRequest = Request.pushExtensions(
+    it('can pushExtensionsData with undefined on request with extension', () => {
+      const newRequest = Request.pushExtensionsData(
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
-      expect(newRequest.extensions, 'newRequest extensions error').to.be.deep.equal(
+      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
         TestData.oneExtension,
       );
     });
-    it('can pushExtensions with empty array on virgin request', () => {
-      const newRequest = Request.pushExtensions(
+    it('can pushExtensionsData with empty array on virgin request', () => {
+      const newRequest = Request.pushExtensionsData(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         [],
       );
-      expect(newRequest.extensions, 'newRequest extensions error').to.be.deep.equal([]);
+      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal([]);
     });
-    it('can pushExtensions with empty array on request with extension', () => {
-      const newRequest = Request.pushExtensions(
+    it('can pushExtensionsData with empty array on request with extension', () => {
+      const newRequest = Request.pushExtensionsData(
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
         [],
       );
-      expect(newRequest.extensions, 'newRequest extensions error').to.be.deep.equal(
+      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
         TestData.oneExtension,
       );
     });

@@ -1,4 +1,8 @@
-import {Identity as IdentityTypes, RequestLogic as Types, Signature as SignatureTypes } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 
 import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
@@ -75,7 +79,7 @@ export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
       name: Types.REQUEST_LOGIC_ACTION.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
-        extensionsLength: 0,
+        extensionsDataLength: 0,
         isSignedRequest: false,
       },
       transactionSigner: {
@@ -110,7 +114,7 @@ export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
       name: Types.REQUEST_LOGIC_ACTION.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
-        extensionsLength: 1,
+        extensionsDataLength: 1,
         isSignedRequest: false,
       },
       transactionSigner: {
@@ -120,7 +124,7 @@ export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
-  extensions: oneExtension,
+  extensionsData: oneExtension,
   payee: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
@@ -145,7 +149,7 @@ export const requestCancelledNoExtension: Types.IRequestLogicRequest = {
       name: Types.REQUEST_LOGIC_ACTION.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
-        extensionsLength: 0,
+        extensionsDataLength: 0,
         isSignedRequest: false,
       },
       transactionSigner: {
@@ -186,7 +190,7 @@ export const requestAcceptedNoExtension: Types.IRequestLogicRequest = {
       name: Types.REQUEST_LOGIC_ACTION.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
-        extensionsLength: 0,
+        extensionsDataLength: 0,
         isSignedRequest: false,
       },
       transactionSigner: {

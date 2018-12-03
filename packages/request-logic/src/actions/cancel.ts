@@ -57,7 +57,7 @@ function applyTransactionToRequest(
   const signer: IdentityTypes.IIdentity = Transaction.getSignerIdentityFromTransaction(transaction);
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  request = Request.pushExtensions(request, transactionData.parameters.extensions);
+  request = Request.pushExtensionsData(request, transactionData.parameters.extensionsData);
   request.events.push(generateEvent(transactionData, signer));
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
@@ -96,7 +96,7 @@ function generateEvent(
   const event: Types.IRequestLogicEvent = {
     name: Types.REQUEST_LOGIC_ACTION.CANCEL,
     parameters: {
-      extensionsLength: params.extensions ? params.extensions.length : 0,
+      extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },
     transactionSigner,
   };

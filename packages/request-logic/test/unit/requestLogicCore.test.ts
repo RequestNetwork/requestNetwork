@@ -1,7 +1,11 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import {Identity as IdentityTypes, RequestLogic as Types, Signature as SignatureTypes } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import RequestLogic from '../../src/requestLogicCore';
 
@@ -21,7 +25,7 @@ describe('requestLogicCore', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payer: {
                 type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -54,7 +58,7 @@ describe('requestLogicCore', () => {
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
-              extensions: [{ id: 'extension1', value: 'whatever' }],
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
               payer: {
                 type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
                 value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -390,7 +394,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -432,7 +436,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -483,7 +487,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -538,7 +542,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -593,7 +597,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(

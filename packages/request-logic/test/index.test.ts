@@ -198,7 +198,7 @@ describe('index', () => {
             name: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
               isSignedRequest: false,
             },
             transactionSigner: TestData.payeeRaw.identity,
@@ -206,7 +206,7 @@ describe('index', () => {
           {
             name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
             parameters: {
-              extensionsLength: 0,
+              extensionsDataLength: 0,
             },
             transactionSigner: TestData.payerRaw.identity,
           },
@@ -214,7 +214,7 @@ describe('index', () => {
             name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: '1000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
             },
             transactionSigner: TestData.payeeRaw.identity,
           },

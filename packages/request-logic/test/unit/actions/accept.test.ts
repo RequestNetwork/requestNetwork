@@ -17,7 +17,7 @@ import * as TestData from '../utils/test-data-generator';
 /* tslint:disable:no-unused-expression */
 describe('actions/accept', () => {
   describe('format', () => {
-    it('can formatAccept without extensions', () => {
+    it('can formatAccept without extensionsData', () => {
       const txAccept = AcceptAction.format(
         {
           requestId: TestData.requestIdMock,
@@ -37,7 +37,7 @@ describe('actions/accept', () => {
       expect(txAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txAccept.data.parameters.extensions, 'extensions is wrong').to.be.undefined;
+      expect(txAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(txAccept, 'txAccept.signature is wrong').to.have.property('signature');
       expect(txAccept.signature.method, 'txAccept.signature.method is wrong').to.equal(
@@ -48,10 +48,10 @@ describe('actions/accept', () => {
       );
     });
 
-    it('can formatAccept with extensions', () => {
+    it('can formatAccept with extensionsData', () => {
       const txAccept = AcceptAction.format(
         {
-          extensions: TestData.oneExtension,
+          extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
         },
         {
@@ -69,7 +69,7 @@ describe('actions/accept', () => {
       expect(txAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txAccept.data.parameters.extensions, 'extensions is wrong').to.deep.equal(
+      expect(txAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
@@ -78,7 +78,7 @@ describe('actions/accept', () => {
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
       expect(txAccept.signature.value, 'txAccept.signature.value').to.equal(
-        '0xb9f5c54874771f552b40ada926ad5ccc2d1c8cd960a71e694f2c115e03bda6eb7a728250c6659a5c42f2d51a07a467ff26dddb99f4dd2c2af56a41a5a2ad56811c',
+        '0x410662eb8822bc60c8f53b066cb2f318308619f5ad4b2e81c8d4bb35bda5e9d6777b7df7889f5bd0d8996f77e2cba5c50da010057a669249e974c18cf136edbe1c',
       );
     });
   });
@@ -104,7 +104,7 @@ describe('actions/accept', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'extensions is wrong').to.be.undefined;
+      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -134,7 +134,7 @@ describe('actions/accept', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
-        parameters: { extensionsLength: 0 },
+        parameters: { extensionsDataLength: 0 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
@@ -218,7 +218,7 @@ describe('actions/accept', () => {
             name: Types.REQUEST_LOGIC_ACTION.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
-              extensionsLength: 0,
+              extensionsDataLength: 0,
               isSignedRequest: false,
             },
             transactionSigner: {
@@ -312,11 +312,11 @@ describe('actions/accept', () => {
       }
     });
 
-    it('can apply accept with extensions and no extensions before', () => {
+    it('can apply accept with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txAccept = AcceptAction.format(
         {
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
         {
@@ -336,7 +336,9 @@ describe('actions/accept', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(newExtensionsData);
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+        newExtensionsData,
+      );
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -367,16 +369,16 @@ describe('actions/accept', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
-        parameters: { extensionsLength: 1 },
+        parameters: { extensionsDataLength: 1 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
 
-    it('can apply accept with extensions and extensions before', () => {
+    it('can apply accept with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txAccept = AcceptAction.format(
         {
-          extensions: newExtensionsData,
+          extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
         {
@@ -396,7 +398,7 @@ describe('actions/accept', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension.concat(newExtensionsData),
       );
 
@@ -410,7 +412,7 @@ describe('actions/accept', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
-        parameters: { extensionsLength: 1 },
+        parameters: { extensionsDataLength: 1 },
         transactionSigner: TestData.payerRaw.identity,
       });
       expect(request, 'request should have property payee').to.have.property('payee');
@@ -433,11 +435,11 @@ describe('actions/accept', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
-        parameters: { extensionsLength: 1 },
+        parameters: { extensionsDataLength: 1 },
         transactionSigner: TestData.payerRaw.identity,
       });
     });
-    it('can apply accept without extensions and extensions before', () => {
+    it('can apply accept without extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
       const txAccept = AcceptAction.format(
         {
@@ -460,7 +462,7 @@ describe('actions/accept', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensions, 'request.extensions is wrong').to.deep.equal(
+      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 

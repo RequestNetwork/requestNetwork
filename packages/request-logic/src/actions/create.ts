@@ -144,7 +144,7 @@ function generateEvent(
     name: Types.REQUEST_LOGIC_ACTION.CREATE,
     parameters: {
       expectedAmount: params.expectedAmount,
-      extensionsLength: params.extensions ? params.extensions.length : 0,
+      extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
       isSignedRequest: false,
     },
     transactionSigner,
