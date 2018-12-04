@@ -4,8 +4,8 @@ import {
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import Action from '../action';
 import Amount from '../amount';
-import Transaction from '../transaction';
 import Version from '../version';
 
 /**
@@ -17,18 +17,18 @@ export default {
 };
 
 /**
- * Function to format  transaction to create a Request
+ * Function to format  action to create a Request
  *
  * @param requestParameters IRequestLogicCreateParameters parameters to create a request
  * @param ISignatureParameters signatureParams Signature parameters
  *
  *
- * @returns IRequestLogicTransaction  the transaction with the signature
+ * @returns IRequestLogicAction  the action with the signature
  */
 function format(
   requestParameters: Types.IRequestLogicCreateParameters,
   signatureParams: SignatureTypes.ISignatureParameters,
-): Types.IRequestLogicTransaction {
+): Types.IRequestLogicAction {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
   }
@@ -55,17 +55,17 @@ function format(
   requestParameters.expectedAmount = requestParameters.expectedAmount.toString();
   const version = Version.currentVersion;
 
-  const transaction: Types.IRequestLogicTransactionData = {
-    action: Types.REQUEST_LOGIC_ACTION.CREATE,
+  const unsignedAction: Types.IRequestLogicUnsignedAction = {
+    name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
     parameters: requestParameters,
     version,
   };
   const signerIdentity: IdentityTypes.IIdentity = Utils.signature.getIdentityFromSignatureParams(
     signatureParams,
   );
-  const signerRole: Types.REQUEST_LOGIC_ROLE = Transaction.getRoleInTransaction(
+  const signerRole: Types.REQUEST_LOGIC_ROLE = Action.getRoleInUnsignedAction(
     signerIdentity,
-    transaction,
+    unsignedAction,
   );
 
   if (
@@ -75,51 +75,47 @@ function format(
     throw new Error('Signer must be the payee or the payer');
   }
 
-  return Transaction.createTransaction(transaction, signatureParams);
+  return Action.createAction(unsignedAction, signatureParams);
 }
 
 /**
  * Function to create a request (create a request)
  *
- * @param Types.IRequestLogicTransaction transaction the transaction to evaluate
+ * @param Types.IRequestLogicAction action the action to evaluate
  *
  * @returns Types.IRequestLogicRequest the new request
  */
-function createRequest(transaction: Types.IRequestLogicTransaction): Types.IRequestLogicRequest {
-  const transactionData = transaction.data;
-
-  if (!transactionData.parameters.payee && !transactionData.parameters.payer) {
-    throw new Error(
-      'transaction.data.parameters.payee or transaction.data.parameters.payer must be given',
-    );
+function createRequest(action: Types.IRequestLogicAction): Types.IRequestLogicRequest {
+  if (!action.data.parameters.payee && !action.data.parameters.payer) {
+    throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
 
   if (
-    !Utils.isString(transactionData.parameters.expectedAmount) ||
-    !Amount.isValid(transactionData.parameters.expectedAmount)
+    !Utils.isString(action.data.parameters.expectedAmount) ||
+    !Amount.isValid(action.data.parameters.expectedAmount)
   ) {
     throw new Error(
-      'transaction.data.parameters.expectedAmount must be a string representing a positive integer',
+      'action.parameters.expectedAmount must be a string representing a positive integer',
     );
   }
 
-  const signer: IdentityTypes.IIdentity = Transaction.getSignerIdentityFromTransaction(transaction);
+  const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
-  // Copy to not modify the transaction itself
-  const request: Types.IRequestLogicRequest = Utils.deepCopy(transactionData.parameters);
-  request.requestId = Transaction.getRequestId(transaction);
-  request.version = Transaction.getVersionFromTransactionData(transactionData);
-  request.events = [generateEvent(transactionData, signer)];
+  // Copy to not modify the action itself
+  const request: Types.IRequestLogicRequest = Utils.deepCopy(action.data.parameters);
+  request.requestId = Action.getRequestId(action);
+  request.version = Action.getVersionFromAction(action);
+  request.events = [generateEvent(action, signer)];
 
-  const signerRole = Transaction.getRoleInTransaction(signer, transactionData);
+  const signerRole = Action.getRoleInAction(signer, action);
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
     request.state = Types.REQUEST_LOGIC_STATE.CREATED;
-    request.creator = transactionData.parameters.payee;
+    request.creator = action.data.parameters.payee;
     return request;
   }
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
     request.state = Types.REQUEST_LOGIC_STATE.ACCEPTED;
-    request.creator = transactionData.parameters.payer;
+    request.creator = action.data.parameters.payer;
     return request;
   }
 
@@ -127,27 +123,27 @@ function createRequest(transaction: Types.IRequestLogicTransaction): Types.IRequ
 }
 
 /**
- * Private function to generate the event 'Create' from a transaction
+ * Private function to generate the event 'Create' from an action
  *
- * @param Types.IRequestLogicTransactionData transactionData the transaction data that create the event
- * @param IdentityTypes.IIdentity transactionSigner the signer of the transaction
+ * @param Types.IRequestLogicAction action the action data that create the event
+ * @param IdentityTypes.IIdentity actionSigner the signer of the action
  *
  * @returns Types.IRequestLogicEvent the event generated
  */
 function generateEvent(
-  transactionData: Types.IRequestLogicTransactionData,
-  transactionSigner: IdentityTypes.IIdentity,
+  action: Types.IRequestLogicAction,
+  actionSigner: IdentityTypes.IIdentity,
 ): Types.IRequestLogicEvent {
-  const params = transactionData.parameters;
+  const params = action.data.parameters;
 
   const event: Types.IRequestLogicEvent = {
-    name: Types.REQUEST_LOGIC_ACTION.CREATE,
+    actionSigner,
+    name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
     parameters: {
       expectedAmount: params.expectedAmount,
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
       isSignedRequest: false,
     },
-    transactionSigner,
   };
   return event;
 }

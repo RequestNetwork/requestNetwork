@@ -25,7 +25,7 @@ const arbitraryExpectedAmountAfterDelta = '223400000000000000';
 describe('actions/increaseExpectedAmount', () => {
   describe('format', () => {
     it('can increase expected amount without extensionsData', () => {
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -36,37 +36,34 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      expect(txIncreaseAmount, 'txIncreaseAmount.data must be a property').to.have.property('data');
-      expect(txIncreaseAmount.data.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-      );
-      expect(txIncreaseAmount.data, 'txIncreaseAmount.data.parameters is wrong').to.have.property(
-        'parameters',
+      expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
       );
 
-      expect(txIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(actionIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txIncreaseAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
+      expect(actionIncreaseAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
         .undefined;
 
-      expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
-        'signature',
-      );
       expect(
-        txIncreaseAmount.signature.method,
-        'txIncreaseAmount.signature.method is wrong',
+        actionIncreaseAmount,
+        'actionIncreaseAmount.signature must be a property',
+      ).to.have.property('signature');
+      expect(
+        actionIncreaseAmount.signature.method,
+        'actionIncreaseAmount.signature.method is wrong',
       ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
-      expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
-        '0x966b7fc0dc2771be61f9713ed07653ceb951292b20c6cc78835932a6e01f428f5d0754d92528e037ccf0f83271737c997da8183264fc18fe839c801fc6c17d611b',
+      expect(actionIncreaseAmount.signature.value, 'actionIncreaseAmount.signature.value').to.equal(
+        '0x7a07be92cbdcceb63ff9270ca3bd04e0834013618746e28e326fb87c8e30ef9e41dbfcc454e2536eabda5888c4e6712bf6630428b87467ef4b859e3e9849198b1b',
       );
     });
 
     it('can increase expected amount with extensionsData', () => {
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: TestData.oneExtension,
@@ -78,34 +75,31 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      expect(txIncreaseAmount, 'txIncreaseAmount.data must be a property').to.have.property('data');
-      expect(txIncreaseAmount.data.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
-      );
-      expect(txIncreaseAmount.data, 'txIncreaseAmount.data.parameters is wrong').to.have.property(
-        'parameters',
+      expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
       );
 
-      expect(txIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(actionIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
       expect(
-        txIncreaseAmount.data.parameters.extensionsData,
+        actionIncreaseAmount.data.parameters.extensionsData,
         'extensionsData is wrong',
       ).to.deep.equal(TestData.oneExtension);
 
-      expect(txIncreaseAmount, 'txIncreaseAmount.signature must be a property').to.have.property(
-        'signature',
-      );
       expect(
-        txIncreaseAmount.signature.method,
-        'txIncreaseAmount.signature.method is wrong',
+        actionIncreaseAmount,
+        'actionIncreaseAmount.signature must be a property',
+      ).to.have.property('signature');
+      expect(
+        actionIncreaseAmount.signature.method,
+        'actionIncreaseAmount.signature.method is wrong',
       ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
-      expect(txIncreaseAmount.signature.value, 'txIncreaseAmount.signature.value').to.equal(
-        '0xedff811fe02f0652bd996bfc44036de415936f908171d267ff2fc602b19e24576d7a354810c9301e8106c35c951ccea946e629c02d5e0ffdd49b80449ced34f91c',
+      expect(actionIncreaseAmount.signature.value, 'actionIncreaseAmount.signature.value').to.equal(
+        '0xf44877582b520d94b90b8a58f818b593bdefae0066553a24aa17489dcf1145a74edffd516a89676c654fc7288dcb97d2a26121529728b84593d80659bac377fc1b',
       );
     });
 
@@ -171,9 +165,9 @@ describe('actions/increaseExpectedAmount', () => {
     });
   });
 
-  describe('applyTransactionToRequest', () => {
+  describe('applyActionToRequest', () => {
     it('can increase expected amount by payer', () => {
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -184,8 +178,8 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-        txIncreaseAmount,
+      const request = IncreaseExpectedAmountAction.applyActionToRequest(
+        actionIncreaseAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -224,15 +218,15 @@ describe('actions/increaseExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('cannot increase expected amount by payee', () => {
       try {
-        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
           {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -243,8 +237,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         );
 
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          txIncreaseAmount,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          actionIncreaseAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -256,7 +250,7 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount by thirdparty', () => {
       try {
-        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
           {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -267,8 +261,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         );
 
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          txIncreaseAmount,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          actionIncreaseAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -280,9 +274,9 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount if no requestId', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
             },
@@ -294,8 +288,8 @@ describe('actions/increaseExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -307,9 +301,9 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount if no deltaAmount', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               requestId: requestIdMock,
             },
@@ -321,8 +315,8 @@ describe('actions/increaseExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -341,15 +335,15 @@ describe('actions/increaseExpectedAmount', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
-            name: Types.REQUEST_LOGIC_ACTION.CREATE,
+            actionSigner: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
               isSignedRequest: false,
-            },
-            transactionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
             },
           },
         ],
@@ -363,9 +357,9 @@ describe('actions/increaseExpectedAmount', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
               requestId: requestIdMock,
@@ -378,7 +372,7 @@ describe('actions/increaseExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        IncreaseExpectedAmountAction.applyTransactionToRequest(tx, requestContextNoPayer);
+        IncreaseExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -388,7 +382,7 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount if state === CANCELLED in state', () => {
       try {
-        const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+        const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
           {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -399,8 +393,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         );
 
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          txIncreaseAmount,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          actionIncreaseAmount,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -411,7 +405,7 @@ describe('actions/increaseExpectedAmount', () => {
     });
 
     it('can increase expected amount if state === ACCEPTED in state', () => {
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -422,8 +416,8 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-        txIncreaseAmount,
+      const request = IncreaseExpectedAmountAction.applyActionToRequest(
+        actionIncreaseAmount,
         Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
@@ -462,15 +456,15 @@ describe('actions/increaseExpectedAmount', () => {
         );
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('can increase expected amount with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -482,8 +476,8 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-        txIncreaseAmount,
+      const request = IncreaseExpectedAmountAction.applyActionToRequest(
+        actionIncreaseAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -524,15 +518,15 @@ describe('actions/increaseExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('can increase expected amount with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -544,8 +538,8 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-        txIncreaseAmount,
+      const request = IncreaseExpectedAmountAction.applyActionToRequest(
+        actionIncreaseAmount,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -586,13 +580,13 @@ describe('actions/increaseExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
     it('can increase expected amount without extensionsData and extensionsData before', () => {
-      const txIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -603,8 +597,8 @@ describe('actions/increaseExpectedAmount', () => {
         },
       );
 
-      const request = IncreaseExpectedAmountAction.applyTransactionToRequest(
-        txIncreaseAmount,
+      const request = IncreaseExpectedAmountAction.applyActionToRequest(
+        actionIncreaseAmount,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -645,17 +639,17 @@ describe('actions/increaseExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('cannot increase expected amount with a negative amount', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmountNegative,
               requestId: requestIdMock,
@@ -669,8 +663,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         };
 
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -684,9 +678,9 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with not a number', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: 'Not a number',
               requestId: requestIdMock,
@@ -701,8 +695,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         };
 
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -716,9 +710,9 @@ describe('actions/increaseExpectedAmount', () => {
 
     it('cannot increase expected amount with decimal', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: '0.0234',
               requestId: requestIdMock,
@@ -732,8 +726,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         };
 
-        IncreaseExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        IncreaseExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 

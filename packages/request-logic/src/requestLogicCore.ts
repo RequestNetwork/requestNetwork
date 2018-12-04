@@ -1,7 +1,7 @@
 import { RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import Action from './action';
 import Request from './request';
-import Transaction from './transaction';
 
 import AcceptAction from './actions/accept';
 import CancelAction from './actions/cancel';
@@ -13,40 +13,40 @@ import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
  * Implementation of the request logic specification
  */
 export default {
-  applyTransactionToRequest,
+  applyActionToRequest,
   formatAccept: AcceptAction.format,
   formatCancel: CancelAction.format,
   formatCreate: CreateAction.format,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
   formatReduceExpectedAmount: ReduceExpectedAmountAction.format,
-  getRequestIdFromTransaction,
+  getRequestIdFromAction,
 };
 
 /**
- * Function Entry point to apply any transaction to a request
+ * Function Entry point to apply any action to a request
  *
  * @param Types.IRequestLogicRequest request The request before update, null for creation - will not be modified
- * @param Types.IRequestLogicTransaction transaction The transaction to apply
+ * @param Types.IRequestLogicAction action The action to apply
  *
  * @returns Types.IRequestLogicRequest  The request updated
  */
-function applyTransactionToRequest(
+function applyActionToRequest(
   request: Types.IRequestLogicRequest | null,
-  transaction: Types.IRequestLogicTransaction,
+  action: Types.IRequestLogicAction,
 ): Types.IRequestLogicRequest {
-  if (!Transaction.isSignedTransactionVersionSupported(transaction)) {
-    throw new Error('transaction version not supported');
+  if (!Action.isActionVersionSupported(action)) {
+    throw new Error('action version not supported');
   }
 
   // we don't want to modify the original request state
   const requestCopied: Types.IRequestLogicRequest | null = request ? Utils.deepCopy(request) : null;
 
   // Creation request
-  if (transaction.data.action === Types.REQUEST_LOGIC_ACTION.CREATE) {
+  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CREATE) {
     if (requestCopied) {
       throw new Error('no request is expected at the creation');
     }
-    return CreateAction.createRequest(transaction);
+    return CreateAction.createRequest(action);
   }
 
   // Update request
@@ -57,34 +57,32 @@ function applyTransactionToRequest(
   // Will throw if the request is not valid
   Request.checkRequest(requestCopied);
 
-  if (transaction.data.action === Types.REQUEST_LOGIC_ACTION.ACCEPT) {
-    return AcceptAction.applyTransactionToRequest(transaction, requestCopied);
+  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT) {
+    return AcceptAction.applyActionToRequest(action, requestCopied);
   }
 
-  if (transaction.data.action === Types.REQUEST_LOGIC_ACTION.CANCEL) {
-    return CancelAction.applyTransactionToRequest(transaction, requestCopied);
+  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CANCEL) {
+    return CancelAction.applyActionToRequest(action, requestCopied);
   }
 
-  if (transaction.data.action === Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT) {
-    return IncreaseExpectedAmountAction.applyTransactionToRequest(transaction, requestCopied);
+  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
+    return IncreaseExpectedAmountAction.applyActionToRequest(action, requestCopied);
   }
 
-  if (transaction.data.action === Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT) {
-    return ReduceExpectedAmountAction.applyTransactionToRequest(transaction, requestCopied);
+  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
+    return ReduceExpectedAmountAction.applyActionToRequest(action, requestCopied);
   }
 
-  throw new Error(`Unknown action ${transaction.data.action}`);
+  throw new Error(`Unknown action ${action.data.name}`);
 }
 
 /**
- * Function to create a requestId from the creation transaction or get the requestId parameter otherwise
+ * Function to create a requestId from the creation action or get the requestId parameter otherwise
  *
- * @param IRequestLogicTransaction transaction transaction
+ * @param IRequestLogicAction action action
  *
  * @returns RequestIdTYpe the requestId
  */
-function getRequestIdFromTransaction(
-  transaction: Types.IRequestLogicTransaction,
-): Types.RequestLogicRequestId {
-  return Transaction.getRequestId(transaction);
+function getRequestIdFromAction(action: Types.IRequestLogicAction): Types.RequestLogicRequestId {
+  return Action.getRequestId(action);
 }

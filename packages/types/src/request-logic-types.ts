@@ -28,20 +28,20 @@ export interface IRequestLogic {
   ) => Promise<string>;
   getRequestById: (
     requestId: RequestLogicRequestId,
-  ) => Promise<IRequestLogicRequest | undefined>;
+  ) => Promise<IRequestLogicRequest | null>;
 }
 
-/** Request logic transaction data */
-export interface IRequestLogicTransactionData {
-  action: REQUEST_LOGIC_ACTION;
-  version: string;
-  parameters?: any;
-}
-
-/** Request logic transaction */
-export interface IRequestLogicTransaction {
-  data: IRequestLogicTransactionData;
+/** Interface of a request logic action */
+export interface IRequestLogicAction {
+  data: IRequestLogicUnsignedAction;
   signature: Signature.ISignature;
+}
+
+/** Interface of a request logic unsigned action */
+export interface IRequestLogicUnsignedAction {
+  name: REQUEST_LOGIC_ACTION_NAME;
+  version: string;
+  parameters: any;
 }
 
 /** Request in request logic */
@@ -70,7 +70,7 @@ export type RequestLogicRequestId = string;
 /** Configuration for the versionning */
 export interface IRequestLogicVersionSupportConfig {
   // current version of the specification supported by this implementation
-  // will be use to check if the implemenation can handle transaction with different specs version
+  // will be use to check if the implemenation can handle action with different specs version
   current: string;
   // list of versions not supported in any case
   exceptions: string[];
@@ -114,14 +114,14 @@ export interface IRequestLogicReduceExpectedAmountParameters {
 /** Event */
 export interface IRequestLogicEvent {
   // Name of this event is actually an action
-  name: REQUEST_LOGIC_ACTION;
+  name: REQUEST_LOGIC_ACTION_NAME;
   // the information given in the event
   parameters?: any;
-  transactionSigner: Identity.IIdentity;
+  actionSigner: Identity.IIdentity;
 }
 
-/** Possible actions in a transaction */
-export enum REQUEST_LOGIC_ACTION {
+/** Enum of name possible in a action */
+export enum REQUEST_LOGIC_ACTION_NAME {
   CREATE = 'create',
   BROADCAST = 'broadcastSignedRequest',
   ACCEPT = 'accept',

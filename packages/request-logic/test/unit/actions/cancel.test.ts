@@ -18,7 +18,7 @@ import * as TestData from '../utils/test-data-generator';
 describe('actions/cancel', () => {
   describe('format', () => {
     it('can cancel without extensionsData', () => {
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -28,28 +28,27 @@ describe('actions/cancel', () => {
         },
       );
 
-      expect(txCancel, 'txCancel.data is wrong').to.have.property('data');
-      expect(txCancel.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.CANCEL);
-      expect(txCancel.data, 'txCancel.data must have the property parameters').to.have.property(
-        'parameters',
+      expect(actionCancel.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
       );
 
-      expect(txCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(actionCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.be
+        .undefined;
 
-      expect(txCancel, 'txCancel.signature is wrong').to.have.property('signature');
-      expect(txCancel.signature.method, 'txCancel.signature.method is wrong').to.equal(
+      expect(actionCancel, 'actionCancel.signature is wrong').to.have.property('signature');
+      expect(actionCancel.signature.method, 'actionCancel.signature.method is wrong').to.equal(
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
-      expect(txCancel.signature.value, 'txCancel.signature.value').to.equal(
-        '0xa302a86be6f508921f8551326baa02c42c525336bd8bdd1ea8a4484d4edd605644d058691d6d9ce13bfaa557714eed209766dffc070ea3e1f70f77350513d4951c',
+      expect(actionCancel.signature.value, 'actionCancel.signature.value').to.equal(
+        '0xb522bf1c5aad3d3914cee8a2c485506113473535dc9cc555d6cb53a920689155215f059d0c18c32fb455799f97e72fbe4fde477dd1136778e25aa1c396bea1f91b',
       );
     });
 
     it('can cancel with extensionsData', () => {
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
@@ -60,32 +59,30 @@ describe('actions/cancel', () => {
         },
       );
 
-      expect(txCancel, 'txCancel.data is wrong').to.have.property('data');
-      expect(txCancel.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.CANCEL);
-      expect(txCancel.data, 'txCancel.data must have the property parameters').to.have.property(
-        'parameters',
+      expect(actionCancel.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
       );
 
-      expect(txCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
+      expect(actionCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
-      expect(txCancel, 'txCancel.signature is wrong').to.have.property('signature');
-      expect(txCancel.signature.method, 'txCancel.signature.method is wrong').to.equal(
+      expect(actionCancel, 'actionCancel.signature is wrong').to.have.property('signature');
+      expect(actionCancel.signature.method, 'actionCancel.signature.method is wrong').to.equal(
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
-      expect(txCancel.signature.value, 'txCancel.signature.value').to.equal(
-        '0x06582e76b9690ee99440812d7e3512d81de7bcc2b8bd63c886ae7f91fd983b4a433436e6856ba1a6848e3a81f72257c8e104953343ec06b9684018d062d7141f1c',
+      expect(actionCancel.signature.value, 'actionCancel.signature.value').to.equal(
+        '0xc7160f386f55bd4ad8bade960ac774279f1bdad321be6d292414f0cdff56f96914f773936de056a36aa0e8eb76def70b08f951692aa74b5c29502bcf487f73431b',
       );
     });
   });
 
-  describe('applyTransactionToRequest', () => {
+  describe('applyActionToRequest', () => {
     it('can cancel by payer with state === created', () => {
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -94,8 +91,8 @@ describe('actions/cancel', () => {
           privateKey: TestData.payerRaw.privateKey,
         },
       );
-      const request = CancelAction.applyTransactionToRequest(
-        txCancel,
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -135,14 +132,14 @@ describe('actions/cancel', () => {
       }
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.CANCEL,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
     it('cannot cancel by payer with state === accepted', () => {
       try {
-        const txCancel = CancelAction.format(
+        const actionCancel = CancelAction.format(
           {
             requestId: TestData.requestIdMock,
           },
@@ -152,8 +149,8 @@ describe('actions/cancel', () => {
           },
         );
 
-        CancelAction.applyTransactionToRequest(
-          txCancel,
+        CancelAction.applyActionToRequest(
+          actionCancel,
           Utils.deepCopy(TestData.requestAcceptedNoExtension),
         );
 
@@ -166,7 +163,7 @@ describe('actions/cancel', () => {
     });
     it('cannot cancel by payer with state === cancelled', () => {
       try {
-        const txCancel = CancelAction.format(
+        const actionCancel = CancelAction.format(
           {
             requestId: TestData.requestIdMock,
           },
@@ -176,8 +173,8 @@ describe('actions/cancel', () => {
           },
         );
 
-        CancelAction.applyTransactionToRequest(
-          txCancel,
+        CancelAction.applyActionToRequest(
+          actionCancel,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -190,7 +187,7 @@ describe('actions/cancel', () => {
     });
 
     it('can cancel by payee with state === created', () => {
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -199,8 +196,8 @@ describe('actions/cancel', () => {
           privateKey: TestData.payeeRaw.privateKey,
         },
       );
-      const request = CancelAction.applyTransactionToRequest(
-        txCancel,
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -239,13 +236,13 @@ describe('actions/cancel', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.CANCEL,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
     it('can cancel by payee with state === accepted', () => {
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -255,8 +252,8 @@ describe('actions/cancel', () => {
         },
       );
 
-      const request = CancelAction.applyTransactionToRequest(
-        txCancel,
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
         Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
@@ -295,14 +292,14 @@ describe('actions/cancel', () => {
         );
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.CANCEL,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
     it('cannot cancel by payee with state === cancelled', () => {
       try {
-        const txCancel = CancelAction.format(
+        const actionCancel = CancelAction.format(
           {
             requestId: TestData.requestIdMock,
           },
@@ -311,8 +308,8 @@ describe('actions/cancel', () => {
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
-        CancelAction.applyTransactionToRequest(
-          txCancel,
+        CancelAction.applyActionToRequest(
+          actionCancel,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -326,7 +323,7 @@ describe('actions/cancel', () => {
 
     it('cannot cancel by thirdparty', () => {
       try {
-        const txCancel = CancelAction.format(
+        const actionCancel = CancelAction.format(
           {
             requestId: TestData.requestIdMock,
           },
@@ -336,8 +333,8 @@ describe('actions/cancel', () => {
           },
         );
 
-        CancelAction.applyTransactionToRequest(
-          txCancel,
+        CancelAction.applyActionToRequest(
+          actionCancel,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -351,9 +348,9 @@ describe('actions/cancel', () => {
 
     it('cannot cancel if no requestId', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
             parameters: {},
             version: CURRENT_VERSION,
           },
@@ -363,8 +360,8 @@ describe('actions/cancel', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        CancelAction.applyTransactionToRequest(
-          tx,
+        CancelAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -382,15 +379,15 @@ describe('actions/cancel', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
-            name: Types.REQUEST_LOGIC_ACTION.CREATE,
+            actionSigner: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
               isSignedRequest: false,
-            },
-            transactionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
             },
           },
         ],
@@ -404,9 +401,9 @@ describe('actions/cancel', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -418,7 +415,7 @@ describe('actions/cancel', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        CancelAction.applyTransactionToRequest(tx, requestContextNoPayer);
+        CancelAction.applyActionToRequest(action, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -436,15 +433,15 @@ describe('actions/cancel', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
-            name: Types.REQUEST_LOGIC_ACTION.CREATE,
+            actionSigner: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
               isSignedRequest: false,
-            },
-            transactionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
             },
           },
         ],
@@ -458,9 +455,9 @@ describe('actions/cancel', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -472,7 +469,7 @@ describe('actions/cancel', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        CancelAction.applyTransactionToRequest(tx, requestContextNoPayee);
+        CancelAction.applyActionToRequest(action, requestContextNoPayee);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -483,7 +480,7 @@ describe('actions/cancel', () => {
     });
     it('can cancel with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -494,8 +491,8 @@ describe('actions/cancel', () => {
         },
       );
 
-      const request = CancelAction.applyTransactionToRequest(
-        txCancel,
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -536,15 +533,15 @@ describe('actions/cancel', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.CANCEL,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('can cancel with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -555,8 +552,8 @@ describe('actions/cancel', () => {
         },
       );
 
-      const request = CancelAction.applyTransactionToRequest(
-        txCancel,
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -597,13 +594,13 @@ describe('actions/cancel', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.CANCEL,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
     it('can cancel without extensionsData and extensionsData before', () => {
-      const txCancel = CancelAction.format(
+      const actionCancel = CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -613,8 +610,8 @@ describe('actions/cancel', () => {
         },
       );
 
-      const request = CancelAction.applyTransactionToRequest(
-        txCancel,
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -655,9 +652,9 @@ describe('actions/cancel', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.CANCEL,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
   });

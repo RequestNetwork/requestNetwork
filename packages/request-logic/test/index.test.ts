@@ -10,6 +10,7 @@ import RequestLogic from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
 
 import Version from '../src/version';
+
 const CURRENT_VERSION = Version.currentVersion;
 
 const chai = require('chai');
@@ -24,7 +25,7 @@ const createParams = {
   payee: TestData.payeeRaw.identity,
   payer: TestData.payerRaw.identity,
 };
-const requestId = '0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa';
+const requestId = '0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d';
 
 const fakeDataAccess: DataAccessTypes.IDataAccess = {
   getTransactionsByTopic: chai.spy(),
@@ -37,14 +38,11 @@ describe('index', () => {
   describe('createRequest', () => {
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeDataAccess);
-
-      requestLogic.createRequest(createParams, {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-        privateKey: TestData.payeeRaw.privateKey,
-      });
+      requestLogic.createRequest(createParams, TestData.payeeRaw.signatureParams);
 
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"action":"create","parameters":{"currency":"ETH","expectedAmount":"123400000000000000","payee":{"type":"ethereumAddress","value":"0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce"},"payer":{"type":"ethereumAddress","value":"0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6"}},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xfbbe97a8c095d1379db035dc96ccdfdd7bc633b30dc8b6a6b4a97bb60a855a8172972cba0ab2dd817ec6786b0e70c413f279a1ce406cc155ddecefbf2048502b1b"}}',
+        '{"data":{"name":"create","parameters":{"currency":"ETH","expectedAmount":"123400000000000000","payee":{"type":"ethereumAddress","value":"0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce"},"payer":{"type":"ethereumAddress","value":"0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6"}},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xafbd2b18f725f60082f86d8cd87d4c70f957e5988e551911f62391485814a289450e3cb1897c690eb812ba95da078812cf678b5f0544ae20896c0ce9ad4096d21b"}}',
+        TestData.payeeRaw.signatureParams,
         [requestId],
       );
     });
@@ -56,13 +54,11 @@ describe('index', () => {
         requestId,
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
+      requestLogic.acceptRequest(acceptParams, TestData.payerRaw.signatureParams);
 
-      requestLogic.acceptRequest(acceptParams, {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-        privateKey: TestData.payerRaw.privateKey,
-      });
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"action":"accept","parameters":{"requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x6778e3b660d4035282a115d418729c2b02d98a671f31147da1e4e926588781e85733be4a4e263118fbf5811bb6395c3875ea38906adf1b518cd4a2e932c87d121b"}}',
+        '{"data":{"name":"accept","parameters":{"requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x7a4db0cae7a70060bce038081ed2aefdff8f1662980087e82987735363356bd93dca3556a75f54d04307b7f5bfc2558c5cabbdfef3d21d610bda27464f3a33661b"}}',
+        TestData.payerRaw.signatureParams,
         [requestId],
       );
     });
@@ -74,13 +70,11 @@ describe('index', () => {
         requestId,
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
+      requestLogic.cancelRequest(cancelRequest, TestData.payeeRaw.signatureParams);
 
-      requestLogic.cancelRequest(cancelRequest, {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-        privateKey: TestData.payeeRaw.privateKey,
-      });
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"action":"cancel","parameters":{"requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x144e230f3750ea8c588f5f40a39a2a6475ad6622aaef7b7215e26393688fba705e16eb8495b41c73157fb4ee4705d61ab55e49211c9d8db3e78c9ee5859ac11f1b"}}',
+        '{"data":{"name":"cancel","parameters":{"requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x12fa1e87a7852dbe6d8e527e68fb4bc9171a14a72a8fcaef92e715840c2f8c993df15a54a54af3e4bbe6f567bb753776547da9fdad1b1ca39e10e0d09f3113821c"}}',
+        TestData.payeeRaw.signatureParams,
         [requestId],
       );
     });
@@ -94,12 +88,13 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      requestLogic.increaseExpectecAmountRequest(increaseRequest, {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-        privateKey: TestData.payerRaw.privateKey,
-      });
+      requestLogic.increaseExpectecAmountRequest(
+        increaseRequest,
+        TestData.payerRaw.signatureParams,
+      );
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"action":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xc535f9d1e4fdeef27572e4a6149cbfc5fe83e6aaf8d0a787251bc387557b1a8e0988c678c6e74cc01f6bc4bd0e5f957ac2234eaaa21d733e20c9a05965088cc71c"}}',
+        '{"data":{"name":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x1b68bbdedecafd4105d4e0fadfeebbb76937fae3a6bb20aa685c81d2ddd6c61b173b9d2b65f021caa3bf31738c72efb424c677f82025eabb704e626643a3155e1b"}}',
+        TestData.payerRaw.signatureParams,
         [requestId],
       );
     });
@@ -113,12 +108,10 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      requestLogic.reduceExpectecAmountRequest(reduceRequest, {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-        privateKey: TestData.payeeRaw.privateKey,
-      });
+      requestLogic.reduceExpectecAmountRequest(reduceRequest, TestData.payeeRaw.signatureParams);
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"action":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x01f7f2db93b34f593812b8c7950fd472e606a42b535cf0ddd7523570217042aa"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xaa121e72ebd5ddaf9eea3e29da1f8982a5bfba616e34c03419b513ef3b33a643639aebf709d10ebc0f1c74c4dcbbba497cdd16eec3b5f2af583b9e2ff8aadcc41c"}}',
+        '{"data":{"name":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x70e3a85e2d2466f2c97263a0bd476871c3835d331557e2299be57e11a43c78b33238e9ae1513b887147e3182473d2d9c20836c6a1c1ef64962181044113854c61b"}}',
+        TestData.payeeRaw.signatureParams,
         [requestId],
       );
     });
@@ -126,9 +119,9 @@ describe('index', () => {
 
   describe('getRequestById', () => {
     it('can getRequestById', async () => {
-      const txCreate = {
+      const actionCreate: Types.IRequestLogicAction = {
         data: {
-          action: Types.REQUEST_LOGIC_ACTION.CREATE,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
           parameters: {
             currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
             expectedAmount: '123400000000000000',
@@ -140,12 +133,13 @@ describe('index', () => {
         signature: {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
-            '0xfbbe97a8c095d1379db035dc96ccdfdd7bc633b30dc8b6a6b4a97bb60a855a8172972cba0ab2dd817ec6786b0e70c413f279a1ce406cc155ddecefbf2048502b1b',
+            '0xafbd2b18f725f60082f86d8cd87d4c70f957e5988e551911f62391485814a289450e3cb1897c690eb812ba95da078812cf678b5f0544ae20896c0ce9ad4096d21b',
         },
       };
-      const txAccept = {
+
+      const actionAccept: Types.IRequestLogicAction = {
         data: {
-          action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
           parameters: {
             requestId,
           },
@@ -154,12 +148,12 @@ describe('index', () => {
         signature: {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
-            '0x6778e3b660d4035282a115d418729c2b02d98a671f31147da1e4e926588781e85733be4a4e263118fbf5811bb6395c3875ea38906adf1b518cd4a2e932c87d121b',
+            '0x7a4db0cae7a70060bce038081ed2aefdff8f1662980087e82987735363356bd93dca3556a75f54d04307b7f5bfc2558c5cabbdfef3d21d610bda27464f3a33661b',
         },
       };
-      const rxReduce = {
+      const rxReduce: Types.IRequestLogicAction = {
         data: {
-          action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
             requestId,
@@ -169,19 +163,19 @@ describe('index', () => {
         signature: {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
-            '0xaa121e72ebd5ddaf9eea3e29da1f8982a5bfba616e34c03419b513ef3b33a643639aebf709d10ebc0f1c74c4dcbbba497cdd16eec3b5f2af583b9e2ff8aadcc41c',
+            '0x70e3a85e2d2466f2c97263a0bd476871c3835d331557e2299be57e11a43c78b33238e9ae1513b887147e3182473d2d9c20836c6a1c1ef64962181044113854c61b',
         },
       };
-      const listTxs: Promise<string[]> = new Promise(resolve => {
+      const listActions: Promise<string[]> = new Promise(resolve => {
         return resolve([
-          JSON.stringify(txCreate),
-          JSON.stringify(txAccept),
+          JSON.stringify(actionCreate),
+          JSON.stringify(actionAccept),
           JSON.stringify(rxReduce),
         ]);
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByTopic: () => listTxs,
+        getTransactionsByTopic: () => listActions,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };
@@ -194,28 +188,28 @@ describe('index', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
-            name: Types.REQUEST_LOGIC_ACTION.CREATE,
+            actionSigner: TestData.payeeRaw.identity,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
               isSignedRequest: false,
             },
-            transactionSigner: TestData.payeeRaw.identity,
           },
           {
-            name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            actionSigner: TestData.payerRaw.identity,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
             parameters: {
               extensionsDataLength: 0,
             },
-            transactionSigner: TestData.payerRaw.identity,
           },
           {
-            name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            actionSigner: TestData.payeeRaw.identity,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: '1000',
               extensionsDataLength: 0,
             },
-            transactionSigner: TestData.payeeRaw.identity,
           },
         ],
         expectedAmount: '123399999999999000',
@@ -228,12 +222,12 @@ describe('index', () => {
     });
 
     it('cannnot getRequestById on corrupted data (not parsable JSON)', async () => {
-      const listTxs: Promise<string[]> = new Promise(resolve => {
+      const listActions: Promise<string[]> = new Promise(resolve => {
         return resolve(['{NOT a regular JSON}']);
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByTopic: () => listTxs,
+        getTransactionsByTopic: () => listActions,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };
@@ -245,7 +239,7 @@ describe('index', () => {
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
         expect(e.message, 'exception not right').to.be.equal(
-          'Impossible to parse the transactions',
+          'Impossible to parse the actions: SyntaxError: Unexpected token N in JSON at position 1',
         );
       }
     });

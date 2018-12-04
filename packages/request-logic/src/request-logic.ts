@@ -21,23 +21,19 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Types.IRequestLogicRequest the new request
+   * @returns Promise<string>  the storage location of the transaction
    */
   public async createRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
     indexes: string[] = [],
   ): Promise<string> {
-    const transaction = RequestLogicCore.formatCreate(requestParameters, signatureParams);
-    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
+    const action = RequestLogicCore.formatCreate(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // concat index given and the default index (requestId)
     indexes.push(requestId);
-    return this.dataAccess.persistTransaction(
-      JSON.stringify(transaction),
-      signatureParams,
-      indexes,
-    );
+    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, indexes);
   }
 
   /**
@@ -46,18 +42,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns IRequestLogicTransaction  the transaction with the signature
+   * @returns Promise<string>  the storage location of the transaction
    */
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
   ): Promise<string> {
-    const transaction = RequestLogicCore.formatAccept(requestParameters, signatureParams);
-    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
+    const action = RequestLogicCore.formatAccept(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(transaction), signatureParams, [
-      requestId,
-    ]);
+    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
   }
 
   /**
@@ -66,18 +60,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns IRequestLogicTransaction  the transaction with the signature
+   * @returns Promise<string>  the storage location of the transaction
    */
   public async cancelRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
   ): Promise<string> {
-    const transaction = RequestLogicCore.formatCancel(requestParameters, signatureParams);
-    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
+    const action = RequestLogicCore.formatCancel(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(transaction), signatureParams, [
-      requestId,
-    ]);
+    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
   }
 
   /**
@@ -86,21 +78,19 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns IRequestLogicTransaction  the transaction with the signature
+   * @returns Promise<string>  the storage location of the transaction
    */
   public async increaseExpectecAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
   ): Promise<string> {
-    const transaction = RequestLogicCore.formatIncreaseExpectedAmount(
+    const action = RequestLogicCore.formatIncreaseExpectedAmount(
       requestParameters,
       signatureParams,
     );
-    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(transaction), signatureParams, [
-      requestId,
-    ]);
+    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
   }
 
   /**
@@ -109,41 +99,35 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns IRequestLogicTransaction  the transaction with the signature
+   * @returns Promise<string>  the storage location of the transaction
    */
   public async reduceExpectecAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
   ): Promise<string> {
-    const transaction = RequestLogicCore.formatReduceExpectedAmount(
-      requestParameters,
-      signatureParams,
-    );
-    const requestId = RequestLogicCore.getRequestIdFromTransaction(transaction);
+    const action = RequestLogicCore.formatReduceExpectedAmount(requestParameters, signatureParams);
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(transaction), signatureParams, [
-      requestId,
-    ]);
+    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
   }
 
   /**
-   * Function to get a request from its requestId from the transaction in the data-access layer
+   * Function to get a request from its requestId from the action in the data-access layer
    *
    * @param RequestLogicRequestId requestId the requestId of the request to retrieve
    *
-   * @returns IRequestLogicTransaction  the transaction with the signature
+   * @returns Promise<RequestLogicTypes.IRequestLogicRequest | null> the request constructed from the actions
    */
   public async getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,
-  ): Promise<RequestLogicTypes.IRequestLogicRequest | undefined> {
-    const transactions = await this.dataAccess.getTransactionsByTopic(requestId);
+  ): Promise<RequestLogicTypes.IRequestLogicRequest | null> {
+    const actions = await this.dataAccess.getTransactionsByTopic(requestId);
+
     try {
-      // second parameter is null, because the first transaction must be a creation (no state expected)
-      return transactions
-        .map(t => JSON.parse(t))
-        .reduce(RequestLogicCore.applyTransactionToRequest, null);
+      // second parameter is null, because the first action must be a creation (no state expected)
+      return actions.map(t => JSON.parse(t)).reduce(RequestLogicCore.applyActionToRequest, null);
     } catch (e) {
-      throw new Error('Impossible to parse the transactions');
+      throw new Error(`Impossible to parse the actions: ${e}`);
     }
   }
 }

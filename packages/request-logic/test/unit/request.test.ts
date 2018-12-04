@@ -67,15 +67,15 @@ describe('Request', () => {
     it('can getRoleInRequest()', () => {
       expect(
         Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension),
-        'getRoleInTransaction() error',
+        'getRoleInRequest() error',
       ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYEE);
       expect(
         Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension),
-        'getRoleInTransaction() error',
+        'getRoleInRequest() error',
       ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYER);
       expect(
         Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension),
-        'getRoleInTransaction() error',
+        'getRoleInRequest() error',
       ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.THIRD_PARTY);
     });
   });

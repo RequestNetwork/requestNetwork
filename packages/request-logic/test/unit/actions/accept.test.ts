@@ -18,7 +18,7 @@ import * as TestData from '../utils/test-data-generator';
 describe('actions/accept', () => {
   describe('format', () => {
     it('can formatAccept without extensionsData', () => {
-      const txAccept = AcceptAction.format(
+      const actionAccept = AcceptAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -27,29 +27,27 @@ describe('actions/accept', () => {
           privateKey: TestData.payerRaw.privateKey,
         },
       );
-
-      expect(txAccept, 'txAccept should have a property data').to.have.property('data');
-      expect(txAccept.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.ACCEPT);
-      expect(txAccept.data, 'txAccept.data must have the property parameters').to.have.property(
-        'parameters',
+      expect(actionAccept.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
       );
 
-      expect(txAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(actionAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.be
+        .undefined;
 
-      expect(txAccept, 'txAccept.signature is wrong').to.have.property('signature');
-      expect(txAccept.signature.method, 'txAccept.signature.method is wrong').to.equal(
+      expect(actionAccept, 'actionAccept.signature is wrong').to.have.property('signature');
+      expect(actionAccept.signature.method, 'actionAccept.signature.method is wrong').to.equal(
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
-      expect(txAccept.signature.value, 'txAccept.signature.value').to.equal(
-        '0x1e2644fe043c09e48ada29771bbed9d84679c0c0c25019f4ea077441aaf5a2f31a0516ed56b9e4d04fa9ab4f3c8f20c6bbb5cfcb5ce7f2b65191e614e3fc00481b',
+      expect(actionAccept.signature.value, 'actionAccept.signature.value').to.equal(
+        '0x85982345e56cca13fd4f7110962cce7c2975421658f2babe801b52ab56f865a21ab3d1072d55ee443b986b52051e79b32f3c1cbcaa667a67051f708b43df35351c',
       );
     });
 
     it('can formatAccept with extensionsData', () => {
-      const txAccept = AcceptAction.format(
+      const actionAccept = AcceptAction.format(
         {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
@@ -59,33 +57,30 @@ describe('actions/accept', () => {
           privateKey: TestData.payerRaw.privateKey,
         },
       );
-
-      expect(txAccept, 'txAccept.data is wrong').to.have.property('data');
-      expect(txAccept.data.action, 'action is wrong').to.equal(Types.REQUEST_LOGIC_ACTION.ACCEPT);
-      expect(txAccept.data, 'txAccept.data must have the property parameters').to.have.property(
-        'parameters',
+      expect(actionAccept.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
       );
 
-      expect(txAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
       );
-      expect(txAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
+      expect(actionAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
 
-      expect(txAccept, 'txAccept.signature is wrong').to.have.property('signature');
-      expect(txAccept.signature.method, 'txAccept.signature.method is wrong').to.equal(
+      expect(actionAccept, 'actionAccept.signature is wrong').to.have.property('signature');
+      expect(actionAccept.signature.method, 'actionAccept.signature.method is wrong').to.equal(
         SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       );
-      expect(txAccept.signature.value, 'txAccept.signature.value').to.equal(
-        '0x410662eb8822bc60c8f53b066cb2f318308619f5ad4b2e81c8d4bb35bda5e9d6777b7df7889f5bd0d8996f77e2cba5c50da010057a669249e974c18cf136edbe1c',
+      expect(actionAccept.signature.value, 'actionAccept.signature.value').to.equal(
+        '0xbeb95c95b2b09c026329f7219a00608fbe95ed7127cafab13063ba2ac14ad1ef4c7bbf55836f2aa658d1fdb9e55dc9f91cc11cb4a0bece116bf80ebc016159501c',
       );
     });
   });
 
-  describe('applyTransactionToRequest', () => {
+  describe('applyActionToRequest', () => {
     it('can apply accept by payer', () => {
-      const txAccept = AcceptAction.format(
+      const actionAccept = AcceptAction.format(
         { requestId: TestData.requestIdMock },
         {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
@@ -93,8 +88,8 @@ describe('actions/accept', () => {
         },
       );
 
-      const request = AcceptAction.applyTransactionToRequest(
-        txAccept,
+      const request = AcceptAction.applyActionToRequest(
+        actionAccept,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -133,15 +128,15 @@ describe('actions/accept', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 0 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('cannot apply accept by payee', () => {
       try {
-        const txAccept = AcceptAction.format(
+        const actionAccept = AcceptAction.format(
           { requestId: TestData.requestIdMock },
           {
             method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
@@ -149,8 +144,8 @@ describe('actions/accept', () => {
           },
         );
 
-        AcceptAction.applyTransactionToRequest(
-          txAccept,
+        AcceptAction.applyActionToRequest(
+          actionAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -162,7 +157,7 @@ describe('actions/accept', () => {
 
     it('cannot apply accept by thirdparty', () => {
       try {
-        const txAccept = AcceptAction.format(
+        const actionAccept = AcceptAction.format(
           { requestId: TestData.requestIdMock },
           {
             method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
@@ -170,8 +165,8 @@ describe('actions/accept', () => {
           },
         );
 
-        AcceptAction.applyTransactionToRequest(
-          txAccept,
+        AcceptAction.applyActionToRequest(
+          actionAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -183,9 +178,9 @@ describe('actions/accept', () => {
 
     it('cannot apply accept if no requestId', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
             parameters: {},
             version: CURRENT_VERSION,
           },
@@ -195,8 +190,8 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        AcceptAction.applyTransactionToRequest(
-          tx,
+        AcceptAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -215,15 +210,15 @@ describe('actions/accept', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
-            name: Types.REQUEST_LOGIC_ACTION.CREATE,
+            actionSigner: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
               isSignedRequest: false,
-            },
-            transactionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
             },
           },
         ],
@@ -237,9 +232,9 @@ describe('actions/accept', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -251,7 +246,7 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        AcceptAction.applyTransactionToRequest(tx, requestContextNoPayer);
+        AcceptAction.applyActionToRequest(action, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -260,9 +255,9 @@ describe('actions/accept', () => {
     });
     it('cannot apply accept if state === CANCELLED in state', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -274,8 +269,8 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        AcceptAction.applyTransactionToRequest(
-          tx,
+        AcceptAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -287,9 +282,9 @@ describe('actions/accept', () => {
 
     it('cannot apply accept if state === ACCEPTED in state', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -301,8 +296,8 @@ describe('actions/accept', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        AcceptAction.applyTransactionToRequest(
-          tx,
+        AcceptAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -314,7 +309,7 @@ describe('actions/accept', () => {
 
     it('can apply accept with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txAccept = AcceptAction.format(
+      const actionAccept = AcceptAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -325,8 +320,8 @@ describe('actions/accept', () => {
         },
       );
 
-      const request = AcceptAction.applyTransactionToRequest(
-        txAccept,
+      const request = AcceptAction.applyActionToRequest(
+        actionAccept,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -368,15 +363,15 @@ describe('actions/accept', () => {
       }
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
 
     it('can apply accept with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txAccept = AcceptAction.format(
+      const actionAccept = AcceptAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -387,8 +382,8 @@ describe('actions/accept', () => {
         },
       );
 
-      const request = AcceptAction.applyTransactionToRequest(
-        txAccept,
+      const request = AcceptAction.applyActionToRequest(
+        actionAccept,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -411,9 +406,9 @@ describe('actions/accept', () => {
       );
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
-        transactionSigner: TestData.payerRaw.identity,
       });
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
@@ -434,13 +429,13 @@ describe('actions/accept', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+        actionSigner: TestData.payerRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
-        transactionSigner: TestData.payerRaw.identity,
       });
     });
     it('can apply accept without extensionsData and extensionsData before', () => {
-      const txAccept = AcceptAction.format(
+      const actionAccept = AcceptAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -450,8 +445,8 @@ describe('actions/accept', () => {
         },
       );
 
-      const request = AcceptAction.applyTransactionToRequest(
-        txAccept,
+      const request = AcceptAction.applyActionToRequest(
+        actionAccept,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 

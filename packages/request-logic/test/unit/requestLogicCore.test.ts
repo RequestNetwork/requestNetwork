@@ -16,12 +16,12 @@ import * as TestData from './utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
 describe('requestLogicCore', () => {
-  describe('applyTransactionToRequest', () => {
+  describe('applyActionToRequest', () => {
     it('cannot support unknown action', () => {
       try {
-        const tx: any = {
+        const action: any = {
           data: {
-            action: 'actionUnknown',
+            name: 'actionUnknown',
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
@@ -40,9 +40,9 @@ describe('requestLogicCore', () => {
           },
         };
 
-        RequestLogic.applyTransactionToRequest(
+        RequestLogic.applyActionToRequest(
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-          tx,
+          action,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -52,9 +52,9 @@ describe('requestLogicCore', () => {
     });
     it('does not support all versions', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.CREATE,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               currency: 'ETH',
               expectedAmount: TestData.arbitraryExpectedAmount,
@@ -73,19 +73,19 @@ describe('requestLogicCore', () => {
           },
         };
 
-        RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyActionToRequest(null, action);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('transaction version not supported');
+        expect(e.message, 'exception not right').to.be.equal('action version not supported');
       }
     });
 
     it('cannot apply accept with no state', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.ACCEPT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -97,7 +97,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyActionToRequest(null, action);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -119,7 +119,7 @@ describe('requestLogicCore', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const txAccept = RequestLogic.formatAccept(
+        const actionAccept = RequestLogic.formatAccept(
           {
             requestId: TestData.requestIdMock,
           },
@@ -128,7 +128,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payerRaw.privateKey,
           },
         );
-        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txAccept);
+        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionAccept);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -140,9 +140,9 @@ describe('requestLogicCore', () => {
 
     it('cannot cancel with no state', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.CANCEL,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
             parameters: {
               requestId: TestData.requestIdMock,
             },
@@ -154,7 +154,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyActionToRequest(null, action);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -176,7 +176,7 @@ describe('requestLogicCore', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const txCancel = RequestLogic.formatCancel(
+        const actionCancel = RequestLogic.formatCancel(
           {
             requestId: TestData.requestIdMock,
           },
@@ -185,7 +185,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.otherIdRaw.privateKey,
           },
         );
-        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txCancel);
+        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionCancel);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -197,9 +197,9 @@ describe('requestLogicCore', () => {
 
     it('cannot increase expected amount with no state', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.INCREASE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: TestData.arbitraryDeltaAmount,
               requestId: TestData.requestIdMock,
@@ -212,7 +212,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyActionToRequest(null, action);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -234,7 +234,7 @@ describe('requestLogicCore', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+        const actionIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
           {
             deltaAmount: TestData.arbitraryDeltaAmount,
             requestId: TestData.requestIdMock,
@@ -244,7 +244,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payerRaw.privateKey,
           },
         );
-        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txIncreaseAmount);
+        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionIncreaseAmount);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -255,9 +255,9 @@ describe('requestLogicCore', () => {
     });
     it('cannot reduce expected amount with no state', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: TestData.arbitraryDeltaAmount,
               requestId: TestData.requestIdMock,
@@ -270,7 +270,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyTransactionToRequest(null, tx);
+        RequestLogic.applyActionToRequest(null, action);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -291,7 +291,7 @@ describe('requestLogicCore', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const txReduceAmount = RequestLogic.formatReduceExpectedAmount(
+        const actionReduceAmount = RequestLogic.formatReduceExpectedAmount(
           {
             deltaAmount: TestData.arbitraryDeltaAmount,
             requestId: TestData.requestIdMock,
@@ -301,7 +301,7 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
-        RequestLogic.applyTransactionToRequest(regularRequestContextWithErrors, txReduceAmount);
+        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionReduceAmount);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -312,7 +312,7 @@ describe('requestLogicCore', () => {
     });
     it('it cannot apply creation with a state', () => {
       try {
-        const txCreation = RequestLogic.formatCreate(
+        const actionCreation = RequestLogic.formatCreate(
           {
             currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
             expectedAmount: TestData.arbitraryExpectedAmount,
@@ -346,7 +346,7 @@ describe('requestLogicCore', () => {
           state: Types.REQUEST_LOGIC_STATE.CREATED,
           version: CURRENT_VERSION,
         };
-        RequestLogic.applyTransactionToRequest(requestState, txCreation);
+        RequestLogic.applyActionToRequest(requestState, actionCreation);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -357,25 +357,27 @@ describe('requestLogicCore', () => {
     });
 
     it('can apply creaion with only the payee', () => {
-      const txCreation = RequestLogic.formatCreate(
-        {
-          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
-          expectedAmount: TestData.arbitraryExpectedAmount,
-          payee: {
-            type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-            value: TestData.payeeRaw.address,
-          },
+      const paramsCreate = {
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        payee: {
+          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: TestData.payeeRaw.address,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
-      );
+      };
+      const actionCreation = RequestLogic.formatCreate(paramsCreate, {
+        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+        privateKey: TestData.payeeRaw.privateKey,
+      });
 
-      const request = RequestLogic.applyTransactionToRequest(null, txCreation);
+      const request = RequestLogic.applyActionToRequest(null, actionCreation);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(txCreation),
+        Utils.crypto.normalizeKeccak256Hash({
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          parameters: paramsCreate,
+          version: CURRENT_VERSION,
+        }),
       );
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
@@ -405,7 +407,7 @@ describe('requestLogicCore', () => {
     });
 
     it('can apply accept by payer', () => {
-      const txAccept = RequestLogic.formatAccept(
+      const actionAccept = RequestLogic.formatAccept(
         { requestId: TestData.requestIdMock },
         {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
@@ -413,9 +415,9 @@ describe('requestLogicCore', () => {
         },
       );
 
-      const request = RequestLogic.applyTransactionToRequest(
+      const request = RequestLogic.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
-        txAccept,
+        actionAccept,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -455,7 +457,7 @@ describe('requestLogicCore', () => {
     });
 
     it('can cancel by payer with state === created', () => {
-      const txCancel = RequestLogic.formatCancel(
+      const actionCancel = RequestLogic.formatCancel(
         {
           requestId: TestData.requestIdMock,
         },
@@ -464,9 +466,9 @@ describe('requestLogicCore', () => {
           privateKey: TestData.payerRaw.privateKey,
         },
       );
-      const request = RequestLogic.applyTransactionToRequest(
+      const request = RequestLogic.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
-        txCancel,
+        actionCancel,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -508,7 +510,7 @@ describe('requestLogicCore', () => {
     it('can increase expected amount by payer', () => {
       const arbitraryDeltaAmount = '100000000000000000';
       const arbitraryExpectedAmountAfterDelta = '223400000000000000';
-      const txIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+      const actionIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -519,9 +521,9 @@ describe('requestLogicCore', () => {
         },
       );
 
-      const request = RequestLogic.applyTransactionToRequest(
+      const request = RequestLogic.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
-        txIncreaseAmount,
+        actionIncreaseAmount,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -563,7 +565,7 @@ describe('requestLogicCore', () => {
     it('can reduce expected amount by payee', () => {
       const arbitraryDeltaAmount = '100000000000000000';
       const arbitraryExpectedAmountAfterDelta = '23400000000000000';
-      const txReduceAmount = RequestLogic.formatReduceExpectedAmount(
+      const actionReduceAmount = RequestLogic.formatReduceExpectedAmount(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -574,9 +576,9 @@ describe('requestLogicCore', () => {
         },
       );
 
-      const request = RequestLogic.applyTransactionToRequest(
+      const request = RequestLogic.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
-        txReduceAmount,
+        actionReduceAmount,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);

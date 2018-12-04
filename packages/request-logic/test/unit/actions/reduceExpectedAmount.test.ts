@@ -26,7 +26,7 @@ const arbitraryExpectedAmountAfterDelta = '23400000000000000';
 describe('actions/reduceExpectedAmount', () => {
   describe('format', () => {
     it('can reduce expected amount without extensionsData', () => {
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -37,36 +37,34 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      expect(txReduceAmount, 'txReduceAmount.data should be a property').to.have.property('data');
-      expect(txReduceAmount.data.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-      );
-      expect(txReduceAmount.data, 'txReduceAmount.data.parameters is wrong').to.have.property(
-        'parameters',
+      expect(actionReduceAmount.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
       );
 
-      expect(txReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(actionReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
-      expect(txReduceAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
+      expect(actionReduceAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
         .undefined;
 
-      expect(txReduceAmount, 'txReduceAmount.signature should be a property').to.have.property(
-        'signature',
-      );
-      expect(txReduceAmount.signature.method, 'txReduceAmount.signature.method is wrong').to.equal(
-        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      );
-      expect(txReduceAmount.signature.value, 'txReduceAmount.signature.value').to.equal(
-        '0xe96bb22fe38dde63e04fbce8d06ac2d9fc319e9a6b361586b5337543cdc942a224087fe11a2f9d589ad2a73cd3f58d83e3a8aaf588b82e93a2ae99c551da86551c',
+      expect(
+        actionReduceAmount,
+        'actionReduceAmount.signature should be a property',
+      ).to.have.property('signature');
+      expect(
+        actionReduceAmount.signature.method,
+        'actionReduceAmount.signature.method is wrong',
+      ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
+      expect(actionReduceAmount.signature.value, 'actionReduceAmount.signature.value').to.equal(
+        '0x10c2dfb20b4639b0d4bd3ae735b216cb646c624e0495b207b95662d4584c066c4d922e7f47f28b59b89ccff877e1b133f66158a9c0a7957c354d6679e8f552c11c',
       );
     });
 
     it('can reduce expected amount with extensionsData', () => {
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: TestData.oneExtension,
@@ -78,33 +76,31 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      expect(txReduceAmount, 'txReduceAmount.data should be a property').to.have.property('data');
-      expect(txReduceAmount.data.action, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
-      );
-      expect(txReduceAmount.data, 'txReduceAmount.data.parameters is wrong').to.have.property(
-        'parameters',
+      expect(actionReduceAmount.data.name, 'action is wrong').to.equal(
+        Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
       );
 
-      expect(txReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
+      expect(actionReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
         requestIdMock,
       );
-      expect(txReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
+      expect(actionReduceAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
         arbitraryDeltaAmount,
       );
       expect(
-        txReduceAmount.data.parameters.extensionsData,
+        actionReduceAmount.data.parameters.extensionsData,
         'extensionsData is wrong',
       ).to.deep.equal(TestData.oneExtension);
 
-      expect(txReduceAmount, 'txReduceAmount.signature should be a property').to.have.property(
-        'signature',
-      );
-      expect(txReduceAmount.signature.method, 'txReduceAmount.signature.method is wrong').to.equal(
-        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      );
-      expect(txReduceAmount.signature.value, 'txReduceAmount.signature.value').to.equal(
-        '0xaeeb801d127ad9915763eefc579942f736bb4de2347289e99935107aeba0ee8441ca500343342bcce2d22d710a19bf24988ae0359b94d527cf16a255f2a218c41c',
+      expect(
+        actionReduceAmount,
+        'actionReduceAmount.signature should be a property',
+      ).to.have.property('signature');
+      expect(
+        actionReduceAmount.signature.method,
+        'actionReduceAmount.signature.method is wrong',
+      ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
+      expect(actionReduceAmount.signature.value, 'actionReduceAmount.signature.value').to.equal(
+        '0x1185d23aca21dae8a369b58fcd5df401b58c1ef37a243d0a30811f3742af5a9b78e5c0c5454d1edb95df9e2a2d317ca95a8abe9b9158dfbe2a73d37db35e12c31b',
       );
     });
 
@@ -169,9 +165,9 @@ describe('actions/reduceExpectedAmount', () => {
     });
   });
 
-  describe('applyTransactionToRequest', () => {
+  describe('applyActionToRequest', () => {
     it('can reduce expected amount by payee', () => {
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -182,8 +178,8 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-        txReduceAmount,
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -222,15 +218,15 @@ describe('actions/reduceExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
     it('cannot reduce expected amount by payer', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        const actionReduceAmount = ReduceExpectedAmountAction.format(
           {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -241,8 +237,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          txReduceAmount,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          actionReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -254,7 +250,7 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount by thirdparty', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        const actionReduceAmount = ReduceExpectedAmountAction.format(
           {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -265,8 +261,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          txReduceAmount,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          actionReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -278,9 +274,9 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount if no requestId', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
             },
@@ -292,8 +288,8 @@ describe('actions/reduceExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -305,9 +301,9 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount if no deltaAmount', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               requestId: requestIdMock,
             },
@@ -319,8 +315,8 @@ describe('actions/reduceExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -339,15 +335,15 @@ describe('actions/reduceExpectedAmount', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
-            name: Types.REQUEST_LOGIC_ACTION.CREATE,
+            actionSigner: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
               isSignedRequest: false,
-            },
-            transactionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
             },
           },
         ],
@@ -361,9 +357,9 @@ describe('actions/reduceExpectedAmount', () => {
         version: CURRENT_VERSION,
       };
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmount,
               requestId: requestIdMock,
@@ -376,7 +372,7 @@ describe('actions/reduceExpectedAmount', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        ReduceExpectedAmountAction.applyTransactionToRequest(tx, requestContextNoPayer);
+        ReduceExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -386,7 +382,7 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount if state === CANCELLED in state', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        const actionReduceAmount = ReduceExpectedAmountAction.format(
           {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -397,8 +393,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          txReduceAmount,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          actionReduceAmount,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
 
@@ -409,7 +405,7 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('can reduce expected amount if state === ACCEPTED in state', () => {
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -420,8 +416,8 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-        txReduceAmount,
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
         Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
@@ -460,15 +456,15 @@ describe('actions/reduceExpectedAmount', () => {
         );
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
     it('can reduce expected amount with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -480,8 +476,8 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-        txReduceAmount,
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -522,15 +518,15 @@ describe('actions/reduceExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
     it('can reduce expected amount with extensionsData and extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -542,8 +538,8 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-        txReduceAmount,
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -584,13 +580,13 @@ describe('actions/reduceExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
     it('can reduce expected amount without extensionsData and extensionsData before', () => {
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -601,8 +597,8 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-        txReduceAmount,
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -643,17 +639,17 @@ describe('actions/reduceExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
     it('cannot reduce expected amount with a negative amount', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: arbitraryDeltaAmountNegative,
               requestId: requestIdMock,
@@ -667,8 +663,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         };
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -682,9 +678,9 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with not a number', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: 'Not a number',
               requestId: requestIdMock,
@@ -698,8 +694,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         };
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -713,9 +709,9 @@ describe('actions/reduceExpectedAmount', () => {
 
     it('cannot reduce expected amount with decimal', () => {
       try {
-        const tx = {
+        const action = {
           data: {
-            action: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
             parameters: {
               deltaAmount: '0.0234',
               requestId: requestIdMock,
@@ -729,8 +725,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         };
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          tx,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
@@ -743,7 +739,7 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('can reduce expected amount to zero', () => {
-      const txReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryExpectedAmount,
           requestId: requestIdMock,
@@ -754,8 +750,8 @@ describe('actions/reduceExpectedAmount', () => {
         },
       );
 
-      const request = ReduceExpectedAmountAction.applyTransactionToRequest(
-        txReduceAmount,
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -792,15 +788,15 @@ describe('actions/reduceExpectedAmount', () => {
         );
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        name: Types.REQUEST_LOGIC_ACTION.REDUCE_EXPECTED_AMOUNT,
+        actionSigner: TestData.payeeRaw.identity,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: TestData.arbitraryExpectedAmount },
-        transactionSigner: TestData.payeeRaw.identity,
       });
     });
 
     it('cannot reduce expected amount below zero', () => {
       try {
-        const txReduceAmount = ReduceExpectedAmountAction.format(
+        const actionReduceAmount = ReduceExpectedAmountAction.format(
           {
             deltaAmount: biggerThanArbitraryExpectedAmount,
             requestId: requestIdMock,
@@ -811,8 +807,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         );
 
-        ReduceExpectedAmountAction.applyTransactionToRequest(
-          txReduceAmount,
+        ReduceExpectedAmountAction.applyActionToRequest(
+          actionReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
