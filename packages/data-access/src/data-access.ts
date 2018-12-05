@@ -31,7 +31,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Function to initialize the dataId topic with the previous block
    */
-  public async initialize() {
+  public async initialize(): Promise<void> {
     // cannot be initialized twice
     if (this.localDataidTopic) {
       throw new Error('already initialized');

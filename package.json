@@ -13,7 +13,9 @@
         "lerna": "lerna",
         "test": "lerna run test",
         "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types packages/utils",
-        "publish-coverage": "codecov --disable=gcov"
+        "publish-coverage": "codecov --disable=gcov",
+        "v2-lint": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" lint",
+        "v2-test": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" test"
     },
     "devDependencies": {
         "lerna": "3.4.3",

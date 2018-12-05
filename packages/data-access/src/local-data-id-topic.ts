@@ -24,7 +24,7 @@ export default class LocalDataIdIndex {
   public pushDataIdIndexedWithBlockTopics(
     dataId: string,
     blockTopics: DataAccessTypes.IRequestDataAccessTopics,
-  ) {
+  ): void {
     // index the new block with the topics
     for (const topic in blockTopics) {
       if (blockTopics.hasOwnProperty(topic)) {

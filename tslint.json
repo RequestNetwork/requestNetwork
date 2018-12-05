@@ -34,6 +34,32 @@
             }
         ],
         "no-unused-variable": true,
-        "jsdoc-format": true
+        "jsdoc-format": true,
+        "typedef": [
+            true,
+            "call-signature",
+            "arrow-call-signature",
+            "parameter",
+            "property-declaration"
+        ],
+        "cyclomatic-complexity": true,
+        "switch-default": true,
+        "restrict-plus-operands": true,
+        "prefer-conditional-expression": [true, "check-else-if"],
+        "no-unsafe-any": false, // We want it, but it triggers too many errors as of today
+        "no-unnecessary-class": true,
+        "no-unbound-method": true,
+        "no-this-assignment": [true, { "allow-destructuring": true }],
+        "no-switch-case-fall-through": true,
+        "no-return-await": true,
+        "no-invalid-this": true,
+        "no-invalid-template-strings": true,
+        "no-implicit-dependencies": true,
+        "no-floating-promises": true,
+        "no-dynamic-delete": true,
+        "no-duplicate-switch-case": true,
+        "ban-comma-operator": true,
+        "await-promise": true,
+        "no-magic-numbers": true
     }
 }
