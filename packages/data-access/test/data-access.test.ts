@@ -2,6 +2,8 @@ import 'mocha';
 
 const chai = require('chai');
 const spies = require('chai-spies');
+import Utils from '@requestnetwork/utils';
+
 const expect = chai.expect;
 chai.use(spies);
 
@@ -42,8 +44,11 @@ const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
   data: transactionDataMock2String,
   signature: signatureMock,
 };
+
 const transactionMock1String = JSON.stringify(transactionMock1);
-const transactionMock2String = JSON.stringify(transactionMock2);
+const transactionMock1Hash: string = Utils.crypto.normalizeKeccak256Hash(
+  transactionMock1String,
+);
 
 const arbitraryTopic1 = 'Oxaaaaaa';
 const arbitraryTopic2 = 'Oxccccccccccc';
@@ -66,14 +71,12 @@ const dataIdBlock2tx = 'dataIdBlock2tx';
 describe('data-access', () => {
   describe('constructor and getTransactionsByTopic', () => {
     it('can construct and getTransactionsByTopic', async () => {
-      const testTopics: Promise<string[]> = new Promise(resolve => {
-        return resolve([dataIdBlock2tx]);
-      });
+      const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
 
       const fakeStorage: IStorage = {
         append: chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllDataId: (): Promise<string[]> => testTopics,
+        read: (param: string): Promise<string> => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -87,23 +90,33 @@ describe('data-access', () => {
       expect(
         await dataAccess.getTransactionsByTopic(arbitraryTopic1),
         'result with arbitraryTopic1 wrong',
-      ).to.deep.equal([transactionMock1String]);
+      ).to.deep.equal({
+        meta: {
+          transactionsStorageLocation: ['dataIdBlock2tx'],
+        },
+        result: { transactions: [transactionMock1] },
+      });
 
       expect(
         await dataAccess.getTransactionsByTopic(arbitraryTopic2),
         'result with arbitraryTopic2 wrong',
-      ).to.deep.equal([transactionMock1String, transactionMock2String]);
+      ).to.deep.equal({
+        meta: {
+          transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
+        },
+        result: {
+          transactions: [transactionMock1, transactionMock2],
+        },
+      });
     });
 
     it('cannot initialize twice', async () => {
-      const testTopics: Promise<string[]> = new Promise(resolve => {
-        return resolve([dataIdBlock2tx]);
-      });
+      const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
 
       const fakeStorage: IStorage = {
         append: chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllDataId: (): Promise<string[]> => testTopics,
+        read: (param: string): Promise<string> => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -125,14 +138,12 @@ describe('data-access', () => {
     });
 
     it('cannot getTransactionsByTopic if not initialized', async () => {
-      const testTopics: Promise<string[]> = new Promise(resolve => {
-        return resolve([dataIdBlock2tx]);
-      });
+      const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
 
       const fakeStorage: IStorage = {
         append: chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllDataId: (): Promise<string[]> => testTopics,
+        read: (param: string): Promise<string> => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -195,8 +206,13 @@ describe('data-access', () => {
           ],
         }),
       );
-
-      expect(result, 'result wrong').to.equal('fakeDataId');
+      expect(result, 'result wrong').to.deep.equal({
+        meta: {
+          topics: [arbitraryTopic1, transactionMock1Hash],
+          transactionStorageLocation: 'fakeDataId',
+        },
+        result: {},
+      });
     });
 
     it('cannot persistTransaction() if not initialized', async () => {

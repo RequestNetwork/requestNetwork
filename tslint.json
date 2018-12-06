@@ -60,6 +60,6 @@
         "no-duplicate-switch-case": true,
         "ban-comma-operator": true,
         "await-promise": true,
-        "no-magic-numbers": true
+        "no-magic-numbers": [true, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     }
 }

@@ -33,7 +33,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     // concat index given and the default index (requestId)
     indexes.push(requestId);
-    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, indexes);
+
+    const resultPushTx = await this.dataAccess.persistTransaction(
+      JSON.stringify(action),
+      signatureParams,
+      indexes,
+    );
+    return resultPushTx.meta.transactionStorageLocation;
   }
 
   /**
@@ -51,7 +57,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatAccept(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
+    const resultPushTx = await this.dataAccess.persistTransaction(
+      JSON.stringify(action),
+      signatureParams,
+      [requestId],
+    );
+
+    return resultPushTx.meta.transactionStorageLocation;
   }
 
   /**
@@ -69,7 +81,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatCancel(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
+    const resultPushTx = await this.dataAccess.persistTransaction(
+      JSON.stringify(action),
+      signatureParams,
+      [requestId],
+    );
+
+    return resultPushTx.meta.transactionStorageLocation;
   }
 
   /**
@@ -90,7 +108,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
+    const resultPushTx = await this.dataAccess.persistTransaction(
+      JSON.stringify(action),
+      signatureParams,
+      [requestId],
+    );
+
+    return resultPushTx.meta.transactionStorageLocation;
   }
 
   /**
@@ -108,7 +132,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatReduceExpectedAmount(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    return this.dataAccess.persistTransaction(JSON.stringify(action), signatureParams, [requestId]);
+    const resultPushTx = await this.dataAccess.persistTransaction(
+      JSON.stringify(action),
+      signatureParams,
+      [requestId],
+    );
+
+    return resultPushTx.meta.transactionStorageLocation;
   }
 
   /**
@@ -121,11 +151,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,
   ): Promise<RequestLogicTypes.IRequestLogicRequest | null> {
-    const actions = await this.dataAccess.getTransactionsByTopic(requestId);
+    const resultGetTx = await this.dataAccess.getTransactionsByTopic(requestId);
+    const actions = resultGetTx.result.transactions;
 
     try {
       // second parameter is null, because the first action must be a creation (no state expected)
-      return actions.map(t => JSON.parse(t)).reduce(RequestLogicCore.applyActionToRequest, null);
+      return actions
+        .map((t: any) => JSON.parse(t.data))
+        .reduce(RequestLogicCore.applyActionToRequest, null);
     } catch (e) {
       throw new Error(`Impossible to parse the actions: ${e}`);
     }

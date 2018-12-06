@@ -5,16 +5,16 @@ import {
 } from '@requestnetwork/types';
 
 import Block from './block';
-import localDataidTopic from './local-data-id-topic';
+import LocationByTopic from './location-by-topic';
 import Transaction from './transaction';
 
 /**
  * Implementation of Data-Access layer without encryption
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
-  // DataId (Id of data on storage layer) topiced by transaction topic
+  // DataId (Id of data on storage layer) indexed by transaction topic
   // Will be used to get the data from storage with the transaction topic
-  private localDataidTopic: localDataidTopic | null = null;
+  private locationByTopic?: LocationByTopic;
 
   // Storage layer
   private storage: IStorage;
@@ -33,20 +33,24 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async initialize(): Promise<void> {
     // cannot be initialized twice
-    if (this.localDataidTopic) {
+    if (this.locationByTopic) {
       throw new Error('already initialized');
     }
-    this.localDataidTopic = new localDataidTopic();
+    this.locationByTopic = new LocationByTopic();
 
     // initialize the dataId topic with the previous block
     const primalBlocksDataId: string[] = await this.storage.getAllDataId();
     for (const dataId of primalBlocksDataId) {
       const dataToAdd: string = await this.storage.read(dataId);
-
       const block = JSON.parse(dataToAdd);
+      if (!block.header || !block.header.topics) {
+        throw Error(
+          `data from storage do not follow the standard, stroage location: "${dataId}"`,
+        );
+      }
 
       // topic the previous dataId with their block topic
-      this.localDataidTopic.pushDataIdIndexedWithBlockTopics(
+      this.locationByTopic.pushLocationIndexedWithBlockTopics(
         dataId,
         block.header.topics,
       );
@@ -65,9 +69,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   public async persistTransaction(
     transactionData: string,
     signatureParams: SignatureTypes.ISignatureParameters,
-    topics?: string[],
-  ): Promise<string> {
-    if (!this.localDataidTopic) {
+    topics: string[] = [],
+  ): Promise<DataAccessTypes.IRequestDataReturnPersistTransaction> {
+    if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
@@ -86,46 +90,71 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const dataId = await this.storage.append(JSON.stringify(updatedBlock));
 
     // topic the dataId with block topic
-    this.localDataidTopic.pushDataIdIndexedWithBlockTopics(
+    this.locationByTopic.pushLocationIndexedWithBlockTopics(
       dataId,
       updatedBlock.header.topics,
     );
 
-    return dataId;
+    return {
+      meta: {
+        topics,
+        transactionStorageLocation: dataId,
+      },
+      result: {},
+    };
   }
 
   /**
-   * Function to get a list of transactions topiced with topic
+   * Function to get a list of transactions indexed by topic
    *
    * @param string topic toppic to retrieve the transaction from
    *
-   * @returns IRequestDataAccessTransaction list of transactions topiced
+   * @returns IRequestDataAccessTransaction list of transactions indexed by topic
    */
-  public async getTransactionsByTopic(topic: string): Promise<string[]> {
-    if (!this.localDataidTopic) {
+  public async getTransactionsByTopic(
+    topic: string,
+  ): Promise<DataAccessTypes.IRequestDataReturnGetTransactionsByTopic> {
+    if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
-    const topicStorageList = this.localDataidTopic.getDataIdFromTopic(topic);
-    const blockList: DataAccessTypes.IRequestDataAccessBlock[] = [];
+    const locationStorageList = this.locationByTopic.getLocationFromTopic(
+      topic,
+    );
+    const blockList: any[] = [];
 
-    // get blocks topiced
-    for (const topicStorage of topicStorageList) {
-      const dataToAdd: string = await this.storage.read(topicStorage);
-      blockList.push(JSON.parse(dataToAdd));
+    // get blocks indexed by topic
+    for (const location of locationStorageList) {
+      const dataToAdd: string = await this.storage.read(location);
+      blockList.push({
+        block: JSON.parse(dataToAdd),
+        location,
+      });
     }
 
-    // get transactions topiced in the blocks
+    // get transactions indexed by topic in the blocks
     // 1. get the transactions wanted in each block
     // 2. merge all the transactions array in the same array
-    const transactionList: string[] = blockList
-      .map(block =>
-        block.header.topics[topic].map(position =>
-          JSON.stringify(block.transactions[position]),
+    const transactions: DataAccessTypes.IRequestDataAccessTransaction[] = blockList
+      .map(data =>
+        data.block.header.topics[topic].map(
+          (position: number) => data.block.transactions[position],
         ),
       )
       .reduce((accumulator, current) => accumulator.concat(current), []);
 
-    return transactionList;
+    // Generate the list of storage location of the transactions listed above
+    const transactionsStorageLocation: string[] = blockList
+      .map(data =>
+        Array(data.block.header.topics[topic].length).fill(data.location),
+      )
+      .reduce((accumulator, current) => accumulator.concat(current), []);
+
+    return {
+      meta: {
+        transactionsStorageLocation,
+      },
+      result: { transactions },
+    };
   }
 }

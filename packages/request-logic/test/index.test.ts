@@ -166,16 +166,32 @@ describe('index', () => {
             '0x70e3a85e2d2466f2c97263a0bd476871c3835d331557e2299be57e11a43c78b33238e9ae1513b887147e3182473d2d9c20836c6a1c1ef64962181044113854c61b',
         },
       };
-      const listActions: Promise<string[]> = new Promise(resolve => {
-        return resolve([
-          JSON.stringify(actionCreate),
-          JSON.stringify(actionAccept),
-          JSON.stringify(rxReduce),
-        ]);
+      const listActions: Promise<
+        DataAccessTypes.IRequestDataReturnGetTransactionsByTopic
+      > = Promise.resolve({
+        meta: { transactionsStorageLocation: ['fakeDataId', 'fakeDataId', 'fakeDataId'] },
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionAccept),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(rxReduce),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByTopic: () => listActions,
+        getTransactionsByTopic: (): Promise<
+          DataAccessTypes.IRequestDataReturnGetTransactionsByTopic
+        > => listActions,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };
@@ -222,12 +238,24 @@ describe('index', () => {
     });
 
     it('cannnot getRequestById on corrupted data (not parsable JSON)', async () => {
-      const listActions: Promise<string[]> = new Promise(resolve => {
-        return resolve(['{NOT a regular JSON}']);
+      const listActions: Promise<
+        DataAccessTypes.IRequestDataReturnGetTransactionsByTopic
+      > = Promise.resolve({
+        meta: { transactionsStorageLocation: ['fakeDataId'] },
+        result: {
+          transactions: [
+            {
+              data: '{NOT parsable}',
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
       });
 
       const fakeDataAccessGet: DataAccessTypes.IDataAccess = {
-        getTransactionsByTopic: () => listActions,
+        getTransactionsByTopic: (): Promise<
+          DataAccessTypes.IRequestDataReturnGetTransactionsByTopic
+        > => listActions,
         initialize: chai.spy(),
         persistTransaction: chai.spy(),
       };

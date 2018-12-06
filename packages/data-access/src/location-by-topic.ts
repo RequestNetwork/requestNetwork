@@ -8,40 +8,41 @@ interface ITopicStorageid {
 /**
  * Class used to store the block's data-id indexed by the header topics of the blocks themselves
  */
-export default class LocalDataIdIndex {
+export default class LocalLocationIndex {
   /**
    * Data id by topic
    * maps topic => [dataId]
    */
-  private topicStorageDataId: ITopicStorageid = {};
+  private topicStorageLocation: ITopicStorageid = {};
 
   /**
-   * Function to push dataId indexed with block topics
+   * Function to push location indexed with block topics
    *
    * @param string dataId dataId to index
    * @param IRequestDataAccessTopics blockTopics topics of the block
    */
-  public pushDataIdIndexedWithBlockTopics(
+  public pushLocationIndexedWithBlockTopics(
     dataId: string,
     blockTopics: DataAccessTypes.IRequestDataAccessTopics,
   ): void {
     // index the new block with the topics
     for (const topic in blockTopics) {
       if (blockTopics.hasOwnProperty(topic)) {
-        this.topicStorageDataId[topic] = this.topicStorageDataId[topic] || [];
-        this.topicStorageDataId[topic].push(dataId);
+        this.topicStorageLocation[topic] =
+          this.topicStorageLocation[topic] || [];
+        this.topicStorageLocation[topic].push(dataId);
       }
     }
   }
 
   /**
-   * Function to get dataId in the local index from topic
+   * Function to get location from topic
    *
    * @param string topic topic to retreives the dataId
    *
-   * @return string[] list of the dataId connected to the topic
+   * @return string[] list of the location connected to the topic
    */
-  public getDataIdFromTopic(topic: string): string[] {
-    return this.topicStorageDataId[topic] || [];
+  public getLocationFromTopic(topic: string): string[] {
+    return this.topicStorageLocation[topic] || [];
   }
 }

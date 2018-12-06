@@ -941,6 +941,7 @@ describe('CreateAction', () => {
           },
           signature: {
             method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+            // tslint:disable:no-magic-numbers
             value: '0x' + 'a'.repeat(130),
           },
         };

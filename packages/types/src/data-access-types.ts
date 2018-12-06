@@ -7,8 +7,34 @@ export interface IDataAccess {
     transactionData: string,
     signatureParams: Signature.ISignatureParameters,
     topics?: string[],
-  ) => Promise<string>;
-  getTransactionsByTopic: (topic: string) => Promise<string[]>;
+  ) => Promise<IRequestDataReturnPersistTransaction>;
+  getTransactionsByTopic: (
+    topic: string,
+  ) => Promise<IRequestDataReturnGetTransactionsByTopic>;
+}
+
+/** return interface for PersistTransaction  */
+export interface IRequestDataReturnPersistTransaction {
+  meta: {
+    // location of the persisted transaction
+    transactionStorageLocation: string;
+    // topics used to index the persisted transaction
+    topics: string[];
+    // meta-data from the layer below
+    metaStorage?: any;
+  };
+  result: {};
+}
+
+/** return interface for getTransactionsByTopic  */
+export interface IRequestDataReturnGetTransactionsByTopic {
+  meta: {
+    // location of the transactions (follow the position of the result.transactions)
+    transactionsStorageLocation: string[];
+    // meta-data from the layer below
+    metaStorage?: any;
+  };
+  result: { transactions: IRequestDataAccessTransaction[] };
 }
 
 /** Block: main data structure of data-access, contains transactions */
