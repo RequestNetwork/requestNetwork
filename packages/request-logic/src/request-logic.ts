@@ -27,19 +27,22 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
     indexes: string[] = [],
-  ): Promise<string> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnCreateRequest> {
     const action = RequestLogicCore.formatCreate(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // concat index given and the default index (requestId)
     indexes.push(requestId);
 
-    const resultPushTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.dataAccess.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       indexes,
     );
-    return resultPushTx.meta.transactionStorageLocation;
+    return {
+      meta: { dataAccessMeta: resultPersistTx.meta },
+      result: { requestId },
+    };
   }
 
   /**
@@ -53,17 +56,19 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
-  ): Promise<string> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     const action = RequestLogicCore.formatAccept(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPushTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.dataAccess.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
 
-    return resultPushTx.meta.transactionStorageLocation;
+    return {
+      meta: { dataAccessMeta: resultPersistTx.meta },
+    };
   }
 
   /**
@@ -77,17 +82,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async cancelRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
-  ): Promise<string> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     const action = RequestLogicCore.formatCancel(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPushTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.dataAccess.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
-
-    return resultPushTx.meta.transactionStorageLocation;
+    return {
+      meta: { dataAccessMeta: resultPersistTx.meta },
+    };
   }
 
   /**
@@ -101,20 +107,21 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async increaseExpectecAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
-  ): Promise<string> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     const action = RequestLogicCore.formatIncreaseExpectedAmount(
       requestParameters,
       signatureParams,
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPushTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.dataAccess.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
-
-    return resultPushTx.meta.transactionStorageLocation;
+    return {
+      meta: { dataAccessMeta: resultPersistTx.meta },
+    };
   }
 
   /**
@@ -128,17 +135,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async reduceExpectecAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
-  ): Promise<string> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     const action = RequestLogicCore.formatReduceExpectedAmount(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPushTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.dataAccess.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
-
-    return resultPushTx.meta.transactionStorageLocation;
+    return {
+      meta: { dataAccessMeta: resultPersistTx.meta },
+    };
   }
 
   /**
@@ -150,15 +158,20 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    */
   public async getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,
-  ): Promise<RequestLogicTypes.IRequestLogicRequest | null> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnGetRequestById> {
     const resultGetTx = await this.dataAccess.getTransactionsByTopic(requestId);
     const actions = resultGetTx.result.transactions;
 
     try {
       // second parameter is null, because the first action must be a creation (no state expected)
-      return actions
+      const request = actions
         .map((t: any) => JSON.parse(t.data))
         .reduce(RequestLogicCore.applyActionToRequest, null);
+
+      return {
+        meta: { dataAccessMeta: resultGetTx.meta },
+        result: { request },
+      };
     } catch (e) {
       throw new Error(`Impossible to parse the actions: ${e}`);
     }

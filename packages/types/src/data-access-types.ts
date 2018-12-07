@@ -15,25 +15,29 @@ export interface IDataAccess {
 
 /** return interface for PersistTransaction  */
 export interface IRequestDataReturnPersistTransaction {
+  /** meta information */
   meta: {
-    // location of the persisted transaction
+    /** location of the persisted transaction */
     transactionStorageLocation: string;
-    // topics used to index the persisted transaction
+    /** topics used to index the persisted transaction */
     topics: string[];
-    // meta-data from the layer below
-    metaStorage?: any;
+    /** meta-data from the layer below */
+    storageMeta?: any;
   };
+  /** result of the execution */
   result: {};
 }
 
 /** return interface for getTransactionsByTopic  */
 export interface IRequestDataReturnGetTransactionsByTopic {
+  /** meta information */
   meta: {
-    // location of the transactions (follow the position of the result.transactions)
+    /** location of the transactions (follow the position of the result.transactions) */
     transactionsStorageLocation: string[];
-    // meta-data from the layer below
-    metaStorage?: any;
+    /** meta-data from the layer below */
+    storageMeta?: any;
   };
+  /** result of the execution */
   result: { transactions: IRequestDataAccessTransaction[] };
 }
 

@@ -9,26 +9,47 @@ export interface IRequestLogic {
     requestParameters: IRequestLogicCreateParameters,
     signatureParams: Signature.ISignatureParameters,
     indexes: string[],
-  ) => Promise<string>;
+  ) => Promise<IRequestLogicReturnCreateRequest>;
   acceptRequest: (
     requestParameters: IRequestLogicAcceptParameters,
     signatureParams: Signature.ISignatureParameters,
-  ) => Promise<string>;
+  ) => Promise<IRequestLogicReturn>;
   cancelRequest: (
     requestParameters: IRequestLogicCancelParameters,
     signatureParams: Signature.ISignatureParameters,
-  ) => Promise<string>;
+  ) => Promise<IRequestLogicReturn>;
   increaseExpectecAmountRequest: (
     requestParameters: IRequestLogicIncreaseExpectedAmountParameters,
     signatureParams: Signature.ISignatureParameters,
-  ) => Promise<string>;
+  ) => Promise<IRequestLogicReturn>;
   reduceExpectecAmountRequest: (
     requestParameters: IRequestLogicReduceExpectedAmountParameters,
     signatureParams: Signature.ISignatureParameters,
-  ) => Promise<string>;
+  ) => Promise<IRequestLogicReturn>;
   getRequestById: (
     requestId: RequestLogicRequestId,
-  ) => Promise<IRequestLogicRequest | null>;
+  ) => Promise<IRequestLogicReturnGetRequestById>;
+}
+
+/** return of IRequestLogic functions */
+export interface IRequestLogicReturn {
+  /** result of the execution */
+  result?: any;
+  /** meta information */
+  meta: {
+    /** meta data given by the layer below (data-access) */
+    dataAccessMeta: any;
+  };
+}
+
+/** return of the function createRequest */
+export interface IRequestLogicReturnCreateRequest extends IRequestLogicReturn {
+  result: { requestId: RequestLogicRequestId };
+}
+
+/** return of the function getRequestById */
+export interface IRequestLogicReturnGetRequestById extends IRequestLogicReturn {
+  result: { request: RequestLogicRequestId | null };
 }
 
 /** Interface of a request logic action */
