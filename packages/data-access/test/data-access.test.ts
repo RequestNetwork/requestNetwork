@@ -9,8 +9,8 @@ chai.use(spies);
 
 import {
   DataAccess as DataAccessTypes,
-  IStorage,
   Signature as SignatureTypes,
+  Storage as StorageTypes,
 } from '@requestnetwork/types';
 
 import RequestDataAccessBlock from '../src/block';
@@ -73,10 +73,12 @@ describe('data-access', () => {
     it('can construct and getTransactionsByTopic', async () => {
       const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
 
-      const fakeStorage: IStorage = {
+      const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllDataId: (): Promise<string[]> => testTopics,
-        read: (param: string): Promise<string> => {
+        getAllData: () => chai.spy(),
+        getAllDataId: () => testTopics,
+        read: (param: string) => {
+
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -113,10 +115,11 @@ describe('data-access', () => {
     it('cannot initialize twice', async () => {
       const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
 
-      const fakeStorage: IStorage = {
+      const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllDataId: (): Promise<string[]> => testTopics,
-        read: (param: string): Promise<string> => {
+        getAllData: () => chai.spy(),
+        getAllDataId: () => testTopics,
+        read: (param: string) => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -140,10 +143,11 @@ describe('data-access', () => {
     it('cannot getTransactionsByTopic if not initialized', async () => {
       const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
 
-      const fakeStorage: IStorage = {
+      const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllDataId: (): Promise<string[]> => testTopics,
-        read: (param: string): Promise<string> => {
+        getAllData: () => chai.spy(),
+        getAllDataId: () => testTopics,
+        read: (param: string) => {
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -166,8 +170,9 @@ describe('data-access', () => {
 
   describe('persistTransaction', () => {
     it('can persistTransaction()', async () => {
-      const fakeStorageSpied: IStorage = {
+      const fakeStorageSpied: StorageTypes.IStorage = {
         append: chai.spy.returns('fakeDataId'),
+        getAllData: () => chai.spy(),
         getAllDataId: chai.spy.returns([]),
         read: chai.spy(),
       };
@@ -216,8 +221,9 @@ describe('data-access', () => {
     });
 
     it('cannot persistTransaction() if not initialized', async () => {
-      const fakeStorageSpied: IStorage = {
+      const fakeStorageSpied: StorageTypes.IStorage = {
         append: chai.spy.returns('fakeDataId'),
+        getAllData: () => chai.spy(),
         getAllDataId: chai.spy.returns([]),
         read: chai.spy(),
       };

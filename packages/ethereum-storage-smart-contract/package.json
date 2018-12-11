@@ -2,6 +2,7 @@
   "name": "@requestnetwork/ethereum-storage-smart-contract",
   "version": "0.1.0",
   "description": "Request smart contract to store ipfs hashes",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },

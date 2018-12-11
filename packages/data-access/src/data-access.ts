@@ -1,7 +1,7 @@
 import {
   DataAccess as DataAccessTypes,
-  IStorage,
   Signature as SignatureTypes,
+  Storage as StorageTypes,
 } from '@requestnetwork/types';
 
 import Block from './block';
@@ -17,14 +17,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private locationByTopic?: LocationByTopic;
 
   // Storage layer
-  private storage: IStorage;
+  private storage: StorageTypes.IStorage;
 
   /**
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
    */
-  public constructor(storage: IStorage) {
+  public constructor(storage: StorageTypes.IStorage) {
     this.storage = storage;
   }
 

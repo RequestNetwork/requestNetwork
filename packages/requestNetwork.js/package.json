@@ -41,7 +41,7 @@
     "cross-fetch": "2.2.2",
     "ethereumjs-util": "5.2.0",
     "ipfs-api": "git://github.com/RequestNetwork/js-ipfs-api.git#9a99b08313e623c14a17357bb9655814dbe1d018",
-    "requestnetworkartifacts": "^1.6.0",
+    "requestnetworkartifacts": "1.6.0",
     "tslib": "1.9.3",
     "typescript": "3.1.3",
     "wallet-address-validator": "0.1.7",
