@@ -19,9 +19,10 @@ export default {
 /**
  * Function to format  action to create a Request
  *
+ * If requestParameters.timestamp not given, "Date.now() / 1000" will be used as default
+ *
  * @param requestParameters IRequestLogicCreateParameters parameters to create a request
  * @param ISignatureParameters signatureParams Signature parameters
- *
  *
  * @returns IRequestLogicAction  the action with the signature
  */
@@ -49,6 +50,10 @@ function format(
     requestParameters.payer.type !== IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS
   ) {
     throw new Error('payer.type not supported');
+  }
+
+  if (!requestParameters.timestamp) {
+    requestParameters.timestamp = Utils.getCurrentTimestampInSecond();
   }
 
   // convert expectedAmount to string to have a consistent numbering

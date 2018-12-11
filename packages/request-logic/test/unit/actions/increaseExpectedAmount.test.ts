@@ -354,6 +354,7 @@ describe('actions/increaseExpectedAmount', () => {
         },
         requestId: requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {

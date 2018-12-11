@@ -229,6 +229,7 @@ describe('actions/accept', () => {
         },
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {

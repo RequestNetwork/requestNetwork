@@ -68,6 +68,8 @@ export const twoExtensions = [
   { id: 'extension3', value: 'whatever3' },
 ];
 
+export const arbitraryTimestamp = 1544426030;
+
 export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -99,6 +101,7 @@ export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
   },
   requestId: requestIdMock,
   state: Types.REQUEST_LOGIC_STATE.CREATED,
+  timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };
 
@@ -135,6 +138,7 @@ export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
   },
   requestId: requestIdMock,
   state: Types.REQUEST_LOGIC_STATE.CREATED,
+  timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };
 
@@ -176,6 +180,7 @@ export const requestCancelledNoExtension: Types.IRequestLogicRequest = {
   },
   requestId: requestIdMock,
   state: Types.REQUEST_LOGIC_STATE.CANCELLED,
+  timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };
 
@@ -217,5 +222,6 @@ export const requestAcceptedNoExtension: Types.IRequestLogicRequest = {
   },
   requestId: requestIdMock,
   state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+  timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };

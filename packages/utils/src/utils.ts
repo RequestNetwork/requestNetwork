@@ -4,8 +4,11 @@
 export default {
   deepCopy,
   deepSort,
+  getCurrentTimestampInSecond,
   isString,
 };
+
+const MILLISECOND_IN_SECOND = 1000;
 
 /**
  * Function to check if a variable is a string
@@ -51,4 +54,13 @@ function deepSort(nestedObject: any): any {
       }, {});
   }
   return nestedObject;
+}
+
+/**
+ * Function return the timestamp in second
+ *
+ * @returns number current timestamp in second
+ */
+function getCurrentTimestampInSecond(): number {
+  return Math.floor(Date.now() / MILLISECOND_IN_SECOND);
 }

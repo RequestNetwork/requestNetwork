@@ -90,6 +90,7 @@ describe('Request', () => {
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       expect(Request.checkRequest(requestError), 'checkRequest() must be true').to.be.true;
@@ -103,6 +104,7 @@ describe('Request', () => {
           expectedAmount: TestData.arbitraryExpectedAmount,
           requestId: TestData.requestIdMock,
           state: Types.REQUEST_LOGIC_STATE.CREATED,
+          timestamp: 1544426030,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestNoPayeeNoPayer);
@@ -160,6 +162,7 @@ describe('Request', () => {
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
           state: Types.REQUEST_LOGIC_STATE.CREATED,
+          timestamp: 1544426030,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);
@@ -183,6 +186,7 @@ describe('Request', () => {
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
           state: Types.REQUEST_LOGIC_STATE.CREATED,
+          timestamp: 1544426030,
           version: CURRENT_VERSION,
         };
         Request.checkRequest(requestError);

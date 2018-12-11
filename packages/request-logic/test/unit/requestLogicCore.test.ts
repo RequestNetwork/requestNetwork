@@ -116,6 +116,7 @@ describe('requestLogicCore', () => {
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
@@ -173,6 +174,7 @@ describe('requestLogicCore', () => {
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
@@ -231,6 +233,7 @@ describe('requestLogicCore', () => {
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
@@ -288,6 +291,7 @@ describe('requestLogicCore', () => {
         expectedAmount: '-1000',
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
@@ -344,6 +348,7 @@ describe('requestLogicCore', () => {
           },
           requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
           state: Types.REQUEST_LOGIC_STATE.CREATED,
+          timestamp: 1544426030,
           version: CURRENT_VERSION,
         };
         RequestLogic.applyActionToRequest(requestState, actionCreation);

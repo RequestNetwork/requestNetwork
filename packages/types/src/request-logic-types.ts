@@ -68,18 +68,26 @@ export interface IRequestLogicUnsignedAction {
 /** Request in request logic */
 export interface IRequestLogicRequest {
   version: string;
-  // request identifier
+  /** request identifier */
   requestId: RequestLogicRequestId;
-  // indentity of the request creator (the one who initiates it)
+  /** identity of the request creator (the one who initiates it) */
   creator: Identity.IIdentity;
   currency: REQUEST_LOGIC_CURRENCY;
   state: REQUEST_LOGIC_STATE;
   expectedAmount: RequestLogicAmount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
-  // Array of extensions data linked to the request
+  /** Array of extensions data linked to the request */
   extensionsData?: any[];
   events: IRequestLogicEvent[];
+  /** timestamp of the request creation in seconds
+   * Note: this precision is enough in a blockchain context
+   * Note: as it is a user given parameter, the only consensus on this date it between the payer and payee
+   * Note: The timestamp is used also do differentiate two identical requests (because the requestId is the hash of the creation action)
+   */
+  timestamp: number;
+  /** arbitrary number to differentiate several identical requests with the same timestamp */
+  nonce?: number;
 }
 
 /** Amounts in request logic */
@@ -90,10 +98,12 @@ export type RequestLogicRequestId = string;
 
 /** Configuration for the versionning */
 export interface IRequestLogicVersionSupportConfig {
-  // current version of the specification supported by this implementation
-  // will be use to check if the implemenation can handle action with different specs version
+  /**
+   * current version of the specifications supported by this implementation
+   * will be used to check if the implemenation can handle action with different specs version
+   */
   current: string;
-  // list of versions not supported in any case
+  /** list of versions not supported in any case */
   exceptions: string[];
 }
 
@@ -104,6 +114,13 @@ export interface IRequestLogicCreateParameters {
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
   extensionsData?: any[];
+  /** timestamp of the request creation in seconds
+   * Note: this precision is enough in a blockchain context
+   * Note: as it is a user given parameter, the only consensus on this date it between the payer and payee
+   */
+  timestamp?: number;
+  /** number to differentiate several identical requests with the timestamp is not enough */
+  nonce?: number;
 }
 
 /** Parameters to accept a request */
@@ -134,9 +151,9 @@ export interface IRequestLogicReduceExpectedAmountParameters {
 
 /** Event */
 export interface IRequestLogicEvent {
-  // Name of this event is actually an action
+  /** Name of this event is actually an action */
   name: REQUEST_LOGIC_ACTION_NAME;
-  // the information given in the event
+  /** the information given in the event */
   parameters?: any;
   actionSigner: Identity.IIdentity;
 }

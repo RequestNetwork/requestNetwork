@@ -10,6 +10,7 @@ export default {
   crypto,
   deepCopy: utils.deepCopy,
   deepSort: utils.deepSort,
+  getCurrentTimestampInSecond: utils.getCurrentTimestampInSecond,
   identity,
   isString: utils.isString,
   signature,

@@ -24,8 +24,9 @@ const createParams = {
   expectedAmount: TestData.arbitraryExpectedAmount,
   payee: TestData.payeeRaw.identity,
   payer: TestData.payerRaw.identity,
+  timestamp: 1544426030,
 };
-const requestId = '0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d';
+const requestId = '0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905';
 const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 // const fakeMetaDataAccess = { fakeData: 'value' };
@@ -52,7 +53,7 @@ describe('index', () => {
       });
 
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"create","parameters":{"currency":"ETH","expectedAmount":"123400000000000000","payee":{"type":"ethereumAddress","value":"0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce"},"payer":{"type":"ethereumAddress","value":"0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6"}},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xafbd2b18f725f60082f86d8cd87d4c70f957e5988e551911f62391485814a289450e3cb1897c690eb812ba95da078812cf678b5f0544ae20896c0ce9ad4096d21b"}}',
+        '{"data":{"name":"create","parameters":{"currency":"ETH","expectedAmount":"123400000000000000","payee":{"type":"ethereumAddress","value":"0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce"},"payer":{"type":"ethereumAddress","value":"0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6"},"timestamp":1544426030},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xac9e9e43381d882f3edc506277b8ad74ca3fc0ed2184663b65ccbab921df114807d7e68fd03b668afffee1feb977c9082657f1a05f57c0b1f92e9b46ca22dfc31c"}}',
         TestData.payeeRaw.signatureParams,
         [requestId],
       );
@@ -71,7 +72,7 @@ describe('index', () => {
       expect(ret.meta).to.be.deep.equal({ dataAccessMeta: fakeMetaDataAccess.meta });
 
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"accept","parameters":{"requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x7a4db0cae7a70060bce038081ed2aefdff8f1662980087e82987735363356bd93dca3556a75f54d04307b7f5bfc2558c5cabbdfef3d21d610bda27464f3a33661b"}}',
+        '{"data":{"name":"accept","parameters":{"requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xf94380c553c90810deb5625571649759f8591bf923f5773e436fec322d01752d676a6f822dee2c2097f4bb70b16273b4826e6026f9f98a31cfafab8f1bdda2eb1b"}}',
         TestData.payerRaw.signatureParams,
         [requestId],
       );
@@ -92,7 +93,7 @@ describe('index', () => {
       expect(ret.meta).to.be.deep.equal({ dataAccessMeta: fakeMetaDataAccess.meta });
 
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"cancel","parameters":{"requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x12fa1e87a7852dbe6d8e527e68fb4bc9171a14a72a8fcaef92e715840c2f8c993df15a54a54af3e4bbe6f567bb753776547da9fdad1b1ca39e10e0d09f3113821c"}}',
+        '{"data":{"name":"cancel","parameters":{"requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdeea8e4881abea508a85a5e45836009acbfb4ed17a85226da268cc7330fb570b604a86d101a9d26279da80136412fdf820465fe05053e067c223e269fcca9a501c"}}',
         TestData.payeeRaw.signatureParams,
         [requestId],
       );
@@ -115,7 +116,7 @@ describe('index', () => {
       expect(ret.meta).to.be.deep.equal({ dataAccessMeta: fakeMetaDataAccess.meta });
 
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x1b68bbdedecafd4105d4e0fadfeebbb76937fae3a6bb20aa685c81d2ddd6c61b173b9d2b65f021caa3bf31738c72efb424c677f82025eabb704e626643a3155e1b"}}',
+        '{"data":{"name":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x23b0c5cbe796e96078a1474c389bef434365b9ea63ed163794b2a2a24d29cf1677586ab2fd06312f54cd136c696ae716159fe351e582867d59c405c4d1e609c21b"}}',
         TestData.payerRaw.signatureParams,
         [requestId],
       );
@@ -137,7 +138,7 @@ describe('index', () => {
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({ dataAccessMeta: fakeMetaDataAccess.meta });
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0x80337a0e81cea9499673f668eec3bad626e31b1bf5346dfb8bde1ae22878df5d"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0x70e3a85e2d2466f2c97263a0bd476871c3835d331557e2299be57e11a43c78b33238e9ae1513b887147e3182473d2d9c20836c6a1c1ef64962181044113854c61b"}}',
+        '{"data":{"name":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xe626d971dfdcb794a08b6a816c8a1ab83ec5d33be82be83efb6801f0033c17c46ea4e37ec92b2d8fa370fd5cb8960fd4ca7c0246832e70706bab6275517e34541c"}}',
         TestData.payeeRaw.signatureParams,
         [requestId],
       );
@@ -154,13 +155,14 @@ describe('index', () => {
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
           },
           version: CURRENT_VERSION,
         },
         signature: {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
-            '0xafbd2b18f725f60082f86d8cd87d4c70f957e5988e551911f62391485814a289450e3cb1897c690eb812ba95da078812cf678b5f0544ae20896c0ce9ad4096d21b',
+            '0xac9e9e43381d882f3edc506277b8ad74ca3fc0ed2184663b65ccbab921df114807d7e68fd03b668afffee1feb977c9082657f1a05f57c0b1f92e9b46ca22dfc31c',
         },
       };
 
@@ -175,7 +177,7 @@ describe('index', () => {
         signature: {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
-            '0x7a4db0cae7a70060bce038081ed2aefdff8f1662980087e82987735363356bd93dca3556a75f54d04307b7f5bfc2558c5cabbdfef3d21d610bda27464f3a33661b',
+            '0xf94380c553c90810deb5625571649759f8591bf923f5773e436fec322d01752d676a6f822dee2c2097f4bb70b16273b4826e6026f9f98a31cfafab8f1bdda2eb1b',
         },
       };
       const rxReduce: Types.IRequestLogicAction = {
@@ -190,7 +192,7 @@ describe('index', () => {
         signature: {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
           value:
-            '0x70e3a85e2d2466f2c97263a0bd476871c3835d331557e2299be57e11a43c78b33238e9ae1513b887147e3182473d2d9c20836c6a1c1ef64962181044113854c61b',
+            '0xe626d971dfdcb794a08b6a816c8a1ab83ec5d33be82be83efb6801f0033c17c46ea4e37ec92b2d8fa370fd5cb8960fd4ca7c0246832e70706bab6275517e34541c',
         },
       };
       const meta = { transactionsStorageLocation: ['fakeDataId', 'fakeDataId', 'fakeDataId'] };
@@ -266,6 +268,7 @@ describe('index', () => {
             payer: TestData.payerRaw.identity,
             requestId,
             state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+            timestamp: 1544426030,
             version: CURRENT_VERSION,
           },
         },
