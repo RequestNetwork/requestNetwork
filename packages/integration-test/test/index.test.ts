@@ -1,0 +1,85 @@
+import { assert } from 'chai';
+import 'mocha';
+
+const hdWalletProvider = require('truffle-hdwallet-provider');
+
+import { DataAccess } from '@requestnetwork/data-access';
+import { EthereumStorage } from '@requestnetwork/ethereum-storage';
+import { RequestLogic } from '@requestnetwork/request-logic';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as RequestLogicTypes,
+  Signature as SignatureTypes,
+  Storage as StorageTypes,
+} from '@requestnetwork/types';
+
+let requestLogic: RequestLogicTypes.IRequestLogic;
+let provider: any;
+
+describe('Request system', () => {
+  beforeEach(async () => {
+    // Storage setup
+    const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+    provider = new hdWalletProvider(mnemonic, 'http://localhost:8545');
+    const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
+      host: 'localhost',
+      port: 5001,
+      protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
+      timeout: 10000,
+    };
+    const web3Connection: StorageTypes.IWeb3Connection = {
+      networkId: StorageTypes.EthereumNetwork.PRIVATE,
+      web3Provider: provider,
+    };
+    const ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
+
+    // Data access setup
+    const dataAccess = new DataAccess(ethereumStorage);
+    await dataAccess.initialize();
+
+    // Logic setup
+    requestLogic = new RequestLogic(dataAccess);
+  });
+
+  after(() => {
+    // Stop web3 provider
+    provider.engine.stop();
+  });
+
+  it('can create a request', async () => {
+    const signatureInfo: SignatureTypes.ISignatureParameters = {
+      method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+      privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+    };
+
+    const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
+      currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+      expectedAmount: '100000000000',
+      payee: {
+        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+      },
+      payer: {
+        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+      },
+    };
+
+    const topics = [
+      '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+      '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    ];
+
+    const resultCreation = await requestLogic.createRequest(
+      requestCreationHash,
+      signatureInfo,
+      topics,
+    );
+
+    assert.exists(resultCreation);
+
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    assert.equal(resultCreation.result.requestId.length, requestIdLength);
+  });
+});

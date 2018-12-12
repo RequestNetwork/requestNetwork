@@ -1,6 +1,6 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
-import { EthereumStorage } from '../src/ethereum-storage';
+import EthereumStorage from '../src/ethereum-storage';
 
 const mnemonic =
   'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';

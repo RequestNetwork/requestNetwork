@@ -140,6 +140,27 @@ jobs:
                   root: *working_directory
                   paths:
                       - packages/utils/.nyc_output
+    test-integration-test:
+        docker:
+            - *node_image
+            - *ipfs_image
+            - *ganache_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build integration-test"
+                  command: "yarn workspace @requestnetwork/integration-test run build"
+            - run:
+                  name: "Lint integration-test"
+                  command: "yarn workspace @requestnetwork/integration-test run lint"
+            - run:
+                  name: "Deploy test contract from ethereum-storage-smart-contract"
+                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run deploy"
+            - run:
+                  name: "Test integration-test"
+                  command: "yarn workspace @requestnetwork/integration-test run test"
     test-requestNetwork.js:
         docker:
             - *node_image
@@ -261,6 +282,9 @@ workflows:
                   requires:
                       - build
             - test-utils:
+                  requires:
+                      - build
+            - test-integration-test:
                   requires:
                       - build
             - test-requestNetwork.js:

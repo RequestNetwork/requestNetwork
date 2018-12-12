@@ -1,3 +1,1 @@
-import DataAccess from './data-access';
-
-export default DataAccess;
+export { default as DataAccess } from './data-access';

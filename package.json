@@ -12,8 +12,8 @@
     "scripts": {
         "lerna": "lerna",
         "test": "lerna run test",
-        "build": "tsc -b packages/data-access packages/ethereum-storage packages/request-logic packages/types packages/utils",
         "publish-coverage": "codecov --disable=gcov",
+        "v2-build": "tsc -b packages/data-access packages/integration-test packages/ethereum-storage packages/request-logic packages/types packages/utils",
         "v2-lint": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" lint",
         "v2-test": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" test"
     },

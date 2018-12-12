@@ -1,1 +1,1 @@
-export { EthereumStorage } from './ethereum-storage';
+export { default as EthereumStorage } from './ethereum-storage';

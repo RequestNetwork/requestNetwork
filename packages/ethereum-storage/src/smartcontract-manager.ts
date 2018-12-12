@@ -23,13 +23,11 @@ export default class SmartContractManager {
    * If values are missing, private network is used as http://localhost:8545
    */
   public constructor(web3Connection?: StorageTypes.IWeb3Connection) {
-    web3Connection =  web3Connection || {};
+    web3Connection = web3Connection || {};
 
     this.eth = new web3Eth(
       web3Connection.web3Provider ||
-        new web3Eth.providers.HttpProvider(
-          config.ethereum.nodeUrlDefault[config.ethereum.default],
-        ),
+        new web3Eth.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default]),
     );
 
     if (!this.eth) {
@@ -41,8 +39,7 @@ export default class SmartContractManager {
       : config.ethereum.default;
 
     // Verify the contract exists for the specified network
-    const hashStorageContract =
-      config.ethereum.contracts.RequestHashStorage[this.networkName];
+    const hashStorageContract = config.ethereum.contracts.RequestHashStorage[this.networkName];
     if (!hashStorageContract) {
       throw Error(`Contract not found on network ${this.networkName}`);
     }
@@ -82,9 +79,7 @@ export default class SmartContractManager {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
-    const fee = await this.requestHashStorage.methods
-      .getFeesAmount(contentSize)
-      .call();
+    const fee = await this.requestHashStorage.methods.getFeesAmount(contentSize).call();
 
     // Send transaction to contract
     await this.requestHashStorage.methods
@@ -122,11 +117,14 @@ export default class SmartContractManager {
    */
   public async getAllHashesAndSizesFromEthereum(): Promise<any[]> {
     // Reading all event logs
-    const events = await this.requestHashStorage.getPastEvents({
+    let events = await this.requestHashStorage.getPastEvents({
       event: 'NewHash',
       fromBlock: this.blockCreationNumber,
       toBlock: 'latest',
     });
+
+    // TODO PROT-235: getPastEvents returns all events, not just NewHash
+    events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
 
     // For each hash read in log events, we verify corresponding size is actual size of data inside ipfs
     // If size is correct, we return hash
@@ -134,7 +132,7 @@ export default class SmartContractManager {
       async (event: any): Promise<any> => {
         // Verify event object is correct
         if (!event.returnValues.hash || !event.returnValues.size) {
-          return {};
+          throw new Error(`event is incorrect: doesn't have a hash or size`);
         }
 
         return { hash: event.returnValues.hash, size: event.returnValues.size };
@@ -149,9 +147,7 @@ export default class SmartContractManager {
    * @param networkId Id of the network
    * @return name of the network
    */
-  private getNetworkNameFromId(
-    networkId: StorageTypes.EthereumNetwork,
-  ): string {
+  private getNetworkNameFromId(networkId: StorageTypes.EthereumNetwork): string {
     return {
       [StorageTypes.EthereumNetwork.PRIVATE as StorageTypes.EthereumNetwork]: 'private',
       [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'main',

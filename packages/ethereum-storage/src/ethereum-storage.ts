@@ -6,7 +6,7 @@ import SmartContractManager from './smartcontract-manager';
  * EthereumStorage
  * @notice Manages storage layer of the Request Network Protocol v2
  */
-export class EthereumStorage implements StorageTypes.IStorage {
+export default class EthereumStorage implements StorageTypes.IStorage {
   private ipfsManager: IpfsManager;
   private smartContractManager: SmartContractManager;
   /**
@@ -113,7 +113,6 @@ export class EthereumStorage implements StorageTypes.IStorage {
 
     const dataPromises = ids.map(
       async (id: string): Promise<string> => {
-
         // Return empty string if id has not been retrieved
         // Should be removed after PROT-197
         if (!id) {

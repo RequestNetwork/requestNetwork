@@ -6,7 +6,7 @@ import {
   RequestLogic as Types,
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
-import RequestLogic from '../src/index';
+import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
 
 import Version from '../src/version';

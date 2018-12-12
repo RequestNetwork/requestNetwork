@@ -1,3 +1,1 @@
-import RequestLogic from './request-logic';
-
-export default RequestLogic;
+export { default as RequestLogic } from './request-logic';
