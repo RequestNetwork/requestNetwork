@@ -3,6 +3,7 @@ import {
   Signature as SignatureTypes,
   Storage as StorageTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import Block from './block';
 import LocationByTopic from './location-by-topic';
@@ -39,10 +40,20 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     this.locationByTopic = new LocationByTopic();
 
     // initialize the dataId topic with the previous block
-    const primalBlocksDataId: string[] = await this.storage.getAllDataId();
-    for (const dataId of primalBlocksDataId) {
-      const dataToAdd: string = await this.storage.read(dataId);
-      const block = JSON.parse(dataToAdd);
+    const allDataIdsWithMeta = await this.storage.getAllDataId();
+
+    if (!allDataIdsWithMeta.result) {
+      throw Error(`data from storage do not follow the standard, result is missing`);
+    }
+
+    for (const dataId of allDataIdsWithMeta.result.dataIds) {
+      const resultRead = await this.storage.read(dataId);
+
+      if (!resultRead.result) {
+        throw Error(`data from storage do not follow the standard, result is missing`);
+      }
+
+      const block = JSON.parse(resultRead.result.content);
       if (!block.header || !block.header.topics) {
         throw Error(`data from storage do not follow the standard, storage location: "${dataId}"`);
       }
@@ -78,15 +89,19 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // create a block and add the transaction in it
     const updatedBlock = Block.pushTransaction(Block.createEmptyBlock(), transaction, topics);
     // get the topic of the data in storage
-    const dataId = await this.storage.append(JSON.stringify(updatedBlock));
+    const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
 
     // topic the dataId with block topic
-    this.locationByTopic.pushLocationIndexedWithBlockTopics(dataId, updatedBlock.header.topics);
+    this.locationByTopic.pushLocationIndexedWithBlockTopics(
+      resultAppend.result.dataId,
+      updatedBlock.header.topics,
+    );
 
     return {
       meta: {
+        storageMeta: resultAppend.meta,
         topics,
-        transactionStorageLocation: dataId,
+        transactionStorageLocation: resultAppend.result.dataId,
       },
       result: {},
     };
@@ -107,35 +122,46 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     }
 
     const locationStorageList = this.locationByTopic.getLocationFromTopic(topic);
-    const blockList: any[] = [];
+    const blockWithMetaList: any[] = [];
 
     // get blocks indexed by topic
     for (const location of locationStorageList) {
-      const dataToAdd: string = await this.storage.read(location);
-      blockList.push({
-        block: JSON.parse(dataToAdd),
+      const resultRead = await this.storage.read(location);
+
+      blockWithMetaList.push({
+        block: JSON.parse(resultRead.result.content),
         location,
+        meta: resultRead.meta,
       });
     }
-
     // get transactions indexed by topic in the blocks
     // 1. get the transactions wanted in each block
     // 2. merge all the transactions array in the same array
-    const transactions: DataAccessTypes.IRequestDataAccessTransaction[] = blockList
-      .map(data =>
-        data.block.header.topics[topic].map(
-          (position: number) => data.block.transactions[position],
+    const transactions: DataAccessTypes.IRequestDataAccessTransaction[] = Utils.flatten2DimensionsArray(
+      blockWithMetaList.map(blockAndMeta =>
+        blockAndMeta.block.header.topics[topic].map(
+          (position: number) => blockAndMeta.block.transactions[position],
         ),
-      )
-      .reduce((accumulator, current) => accumulator.concat(current), []);
+      ),
+    );
 
-    // Generate the list of storage location of the transactions listed above
-    const transactionsStorageLocation: string[] = blockList
-      .map(data => Array(data.block.header.topics[topic].length).fill(data.location))
-      .reduce((accumulator, current) => accumulator.concat(current), []);
+    // Generate the list of storage location of the transactions listed in result
+    const transactionsStorageLocation: string[] = Utils.flatten2DimensionsArray(
+      blockWithMetaList.map(blockAndMeta =>
+        Array(blockAndMeta.block.header.topics[topic].length).fill(blockAndMeta.location),
+      ),
+    );
+
+    // Generate the list of storage meta of the transactions listed in result
+    const storageMeta: string[] = Utils.flatten2DimensionsArray(
+      blockWithMetaList.map(blockAndMeta =>
+        Array(blockAndMeta.block.header.topics[topic].length).fill(blockAndMeta.meta),
+      ),
+    );
 
     return {
       meta: {
+        storageMeta,
         transactionsStorageLocation,
       },
       result: { transactions },

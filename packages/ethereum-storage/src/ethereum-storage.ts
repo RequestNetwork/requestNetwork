@@ -45,15 +45,15 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
    */
-  public async append(content: string): Promise<string> {
+  public async append(content: string): Promise<StorageTypes.IRequestStorageAppendReturn> {
     if (!content) {
       throw Error('Error: no content provided');
     }
 
     // Add content to ipfs
-    let id;
+    let dataId;
     try {
-      id = await this.ipfsManager.add(content);
+      dataId = await this.ipfsManager.add(content);
     } catch (error) {
       throw Error(`Ipfs add request error: ${error}`);
     }
@@ -61,19 +61,25 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // Get content length from ipfs
     let contentLength;
     try {
-      contentLength = await this.ipfsManager.getContentLength(id);
+      contentLength = await this.ipfsManager.getContentLength(dataId);
     } catch (error) {
       throw Error(`Ipfs get length request error: ${error}`);
     }
 
     // Add content hash to ethereum
     try {
-      await this.smartContractManager.addHashAndSizeToEthereum(id, contentLength);
+      await this.smartContractManager.addHashAndSizeToEthereum(dataId, contentLength);
     } catch (error) {
       throw Error(`Smart contract error: ${error}`);
     }
 
-    return id;
+    return {
+      // TODO PROT-236: Storage: get meta-data from ethereum smart contract when do a append()
+      meta: {
+        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+      },
+      result: { dataId },
+    };
   }
 
   /**
@@ -81,7 +87,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param Id Id used to retrieve content
    * @returns Promise resolving content from id
    */
-  public async read(id: string): Promise<string> {
+  public async read(id: string): Promise<StorageTypes.IRequestStorageReadReturn> {
     if (!id) {
       throw Error('No id provided');
     }
@@ -94,37 +100,52 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       throw Error(`Ipfs read request error: ${error}`);
     }
 
-    return content;
+    return {
+      // TODO PROT-219: Storage: get meta-data from ethereum smart contract when do a read()
+      meta: {
+        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+      },
+      result: { content },
+    };
   }
 
   /**
    * Get all data stored on the storage
    * @returns Promise resolving stored data
    */
-  public async getAllData(): Promise<string[]> {
-    const ids = await this.getAllDataId();
+  public async getAllData(): Promise<StorageTypes.IRequestStorageGetAllDataReturn> {
+    const allDataIds = await this.getAllDataId();
 
-    const dataPromises = ids.map(
-      async (id: string): Promise<string> => {
+    const dataPromises = allDataIds.result.dataIds.map(
+      async (id: string): Promise<StorageTypes.IRequestStorageReadReturn> => {
         // Return empty string if id has not been retrieved
-        // Should be removed after PROT-197
+        // TODO PROT-197 Should be removed after
         if (!id) {
-          return '';
+          return { meta: {}, result: { content: '' } };
         }
 
-        const content = await this.read(id);
-        return content;
+        return this.read(id);
       },
     );
 
-    return Promise.all(dataPromises);
+    const allContentsAndMeta = await Promise.all(dataPromises);
+    const metaData = allContentsAndMeta.map(obj => obj.meta);
+    const data = allContentsAndMeta.map(obj => obj.result.content);
+
+    return {
+      // TODO PROT-237: Storage: get meta-data from ethereum smart contract when do a getAllData()
+      meta: {
+        metaData,
+      },
+      result: { data },
+    };
   }
 
   /**
    * Get all id from data stored on the storage
    * @returns Promise resolving id of stored data
    */
-  public async getAllDataId(): Promise<string[]> {
+  public async getAllDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
     const hashAndSizePromises = await this.smartContractManager.getAllHashesAndSizesFromEthereum();
 
     // Filter hashes where size doesn't correspond to the size stored on ipfs
@@ -134,7 +155,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
         if (!hashAndSize.hash || !hashAndSize.size) {
           // The event log is incorrect
-          // PROT-197
+          // TODO PROT-197
           // throw Error('The event log has no hash or size');
           return '';
         }
@@ -149,7 +170,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           return '';
         }
         if (hashContentSize !== parseInt(hashAndSize.size, 10)) {
-          // PROT-197
+          // TODO PROT-197
           // throw Error(
           //   'The size of the content is not the size stored on ethereum',
           // );
@@ -159,7 +180,16 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         return hashAndSize.hash;
       },
     );
-
-    return Promise.all(filteredHashes);
+    const dataIds = await Promise.all(filteredHashes);
+    const metaDataIds = Array(dataIds.length).fill({
+      storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+    });
+    return {
+      // TODO PROT-237: Storage: get meta-data from ethereum smart contract when do a getAllData()
+      meta: {
+        metaDataIds,
+      },
+      result: { dataIds },
+    };
   }
 }

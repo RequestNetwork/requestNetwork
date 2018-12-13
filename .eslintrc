@@ -37,7 +37,8 @@
                     "tslint",
                     "tx",
                     "utils",
-                    "versioning"
+                    "versioning",
+                    "wei"
                 ],
                 "minLength": 3,
                 "skipIfMatch": [

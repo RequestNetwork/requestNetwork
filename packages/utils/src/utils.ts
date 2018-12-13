@@ -4,6 +4,7 @@
 export default {
   deepCopy,
   deepSort,
+  flatten2DimensionsArray,
   getCurrentTimestampInSecond,
   isString,
 };
@@ -63,4 +64,13 @@ function deepSort(nestedObject: any): any {
  */
 function getCurrentTimestampInSecond(): number {
   return Math.floor(Date.now() / MILLISECOND_IN_SECOND);
+}
+
+/** Function return a two dimensions array flatten
+ * @param any[] twoDimensionsArray the array to flatten
+ *
+ * @returns any[] the flat array
+ */
+function flatten2DimensionsArray(twoDimensionsArray: any[]): any[] {
+  return twoDimensionsArray.reduce((accumulator, current) => accumulator.concat(current), []);
 }

@@ -61,19 +61,140 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(blockWith1tx, transa
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
+const getAllDataIdResult: StorageTypes.IRequestStorageGetAllDataIdReturn = {
+  meta: {
+    metaDataIds: [],
+  },
+  result: {
+    dataIds: [dataIdBlock2tx],
+  },
+};
+
+const appendResult: StorageTypes.IRequestStorageAppendReturn = {
+  meta: {},
+  result: {
+    dataId: dataIdBlock2tx,
+  },
+};
+
 /* tslint:disable:no-unused-expression */
 describe('data-access', () => {
   describe('constructor and getTransactionsByTopic', () => {
-    it('can construct and getTransactionsByTopic', async () => {
-      const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
+    it('cannot initialize with data from read without result', async () => {
+      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+        getAllDataIdResult,
+      );
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
+          const dataIdBlock2txFake: any = {
+            meta: {},
+          };
           const result: any = {
-            dataIdBlock2tx: JSON.stringify(blockWith2tx),
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      const dataAccess = new DataAccess(fakeStorage);
+
+      try {
+        await dataAccess.initialize();
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'data from storage do not follow the standard, result is missing',
+        );
+      }
+    });
+
+    it('cannot initialize with data from getDataId without result', async () => {
+      const testTopics: Promise<any> = Promise.resolve({
+        meta: {
+          metaDataIds: [],
+        },
+      });
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getAllData: () => chai.spy(),
+        getAllDataId: () => testTopics,
+        read: (param: string) => {
+          const dataIdBlock2txFake: any = {
+            meta: {},
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      const dataAccess = new DataAccess(fakeStorage);
+
+      try {
+        await dataAccess.initialize();
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'data from storage do not follow the standard, result is missing',
+        );
+      }
+    });
+
+    it('cannot initialize with content from read not following the standard', async () => {
+      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+        getAllDataIdResult,
+      );
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getAllData: () => chai.spy(),
+        getAllDataId: () => testTopics,
+        read: (param: string) => {
+          const dataIdBlock2txFake: any = {
+            meta: {},
+            result: { content: JSON.stringify({ notFolling: 'the standad' }) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      const dataAccess = new DataAccess(fakeStorage);
+
+      try {
+        await dataAccess.initialize();
+        expect(false, 'exception not thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception not right').to.be.equal(
+          'data from storage do not follow the standard, storage location: "dataIdBlock2tx"',
+        );
+      }
+    });
+
+    it('can construct and getTransactionsByTopic', async () => {
+      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+        getAllDataIdResult,
+      );
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getAllData: () => chai.spy(),
+        getAllDataId: () => testTopics,
+        read: (param: string) => {
+          const dataIdBlock2txFake: StorageTypes.IRequestStorageReadReturn = {
+            meta: {},
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
           };
           return result[param];
         },
@@ -87,6 +208,7 @@ describe('data-access', () => {
         'result with arbitraryTopic1 wrong',
       ).to.deep.equal({
         meta: {
+          storageMeta: [{}],
           transactionsStorageLocation: ['dataIdBlock2tx'],
         },
         result: { transactions: [transactionMock1] },
@@ -97,6 +219,7 @@ describe('data-access', () => {
         'result with arbitraryTopic2 wrong',
       ).to.deep.equal({
         meta: {
+          storageMeta: [{}, {}],
           transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
         },
         result: {
@@ -106,15 +229,21 @@ describe('data-access', () => {
     });
 
     it('cannot initialize twice', async () => {
-      const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
+      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+        getAllDataIdResult,
+      );
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
+          const dataIdBlock2txFake: StorageTypes.IRequestStorageReadReturn = {
+            meta: {},
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
           const result: any = {
-            dataIdBlock2tx: JSON.stringify(blockWith2tx),
+            dataIdBlock2tx: dataIdBlock2txFake,
           };
           return result[param];
         },
@@ -132,15 +261,21 @@ describe('data-access', () => {
     });
 
     it('cannot getTransactionsByTopic if not initialized', async () => {
-      const testTopics: Promise<string[]> = Promise.resolve([dataIdBlock2tx]);
+      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+        getAllDataIdResult,
+      );
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
+          const dataIdBlock2txFake: StorageTypes.IRequestStorageReadReturn = {
+            meta: {},
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
           const result: any = {
-            dataIdBlock2tx: JSON.stringify(blockWith2tx),
+            dataIdBlock2tx: dataIdBlock2txFake,
           };
           return result[param];
         },
@@ -160,9 +295,9 @@ describe('data-access', () => {
   describe('persistTransaction', () => {
     it('can persistTransaction()', async () => {
       const fakeStorageSpied: StorageTypes.IStorage = {
-        append: chai.spy.returns('fakeDataId'),
+        append: chai.spy.returns(appendResult),
         getAllData: () => chai.spy(),
-        getAllDataId: chai.spy.returns([]),
+        getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -200,8 +335,9 @@ describe('data-access', () => {
       );
       expect(result, 'result wrong').to.deep.equal({
         meta: {
+          storageMeta: {},
           topics: [arbitraryTopic1, transactionMock1Hash],
-          transactionStorageLocation: 'fakeDataId',
+          transactionStorageLocation: dataIdBlock2tx,
         },
         result: {},
       });

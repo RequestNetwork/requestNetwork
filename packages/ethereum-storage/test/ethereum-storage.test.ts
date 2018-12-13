@@ -2,8 +2,7 @@ import { Storage as StorageTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import EthereumStorage from '../src/ethereum-storage';
 
-const mnemonic =
-  'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 
 const hdWalletProvider = require('truffle-hdwallet-provider');
 const provider = new hdWalletProvider(mnemonic, 'http://localhost:8545');
@@ -18,10 +17,7 @@ const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   web3Provider: provider,
 };
-const ethereumStorage = new EthereumStorage(
-  ipfsGatewayConnection,
-  web3Connection,
-);
+const ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
 
 const content = 'this is a little test !';
 const hash = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
@@ -33,25 +29,51 @@ describe('Index', () => {
   });
 
   it.skip('Allows to append a file', async () => {
-    const hashReturned = await ethereumStorage.append(content);
-    assert.equal(hash, hashReturned);
+    const result = await ethereumStorage.append(content);
+
+    const resultExpected: StorageTypes.IRequestStorageAppendReturn = {
+      meta: {
+        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+      },
+      result: { dataId: hash },
+    };
+    assert.deepEqual(resultExpected, result);
   });
 
   it.skip('Allows to read a file', async () => {
     await ethereumStorage.append(content);
-    const contentReturned = await ethereumStorage.read(hash);
-    assert.equal(content, contentReturned);
+    const result = await ethereumStorage.read(hash);
+
+    const resultExpected: StorageTypes.IRequestStorageReadReturn = {
+      meta: {
+        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+      },
+      result: { content },
+    };
+    assert.deepEqual(resultExpected, result);
   });
 
   it.skip('Allow to retrieve all data id', async () => {
     await ethereumStorage.append(content);
-    const idArray = await ethereumStorage.getAllDataId();
-    assert.equal(idArray, [hash]);
+    const result = await ethereumStorage.getAllDataId();
+
+    assert.deepEqual(result, {
+      meta: {
+        metaDataIds: [{ storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS }],
+      },
+      result: { dataIds: [hash] },
+    });
   });
 
   it.skip('Allow to retrieve all data', async () => {
-    let dataArray = await ethereumStorage.getAllData();
-    dataArray = dataArray.filter(id => id.length > 0);
-    assert.equal(dataArray, [content]);
+    const result = await ethereumStorage.getAllData();
+
+    const resultExpected: StorageTypes.IRequestStorageGetAllDataReturn = {
+      meta: {
+        metaData: [{ storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS }],
+      },
+      result: { data: [content] },
+    };
+    assert.deepEqual(result, resultExpected);
   });
 });

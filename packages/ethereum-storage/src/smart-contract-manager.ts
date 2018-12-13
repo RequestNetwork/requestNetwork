@@ -142,8 +142,7 @@ export default class SmartContractManager {
     return promises;
   }
 
-  /**
-   * Get the name of the Ethereum network from its id
+  /** Get the name of the Ethereum network from its id
    * @param networkId Id of the network
    * @return name of the network
    */
