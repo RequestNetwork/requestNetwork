@@ -47,8 +47,8 @@ const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
 const transactionMock1String = JSON.stringify(transactionMock1);
 const transactionMock1Hash: string = Utils.crypto.normalizeKeccak256Hash(transactionMock1String);
 
-const arbitraryTopic1 = 'Oxaaaaaa';
-const arbitraryTopic2 = 'Oxccccccccccc';
+const arbitraryTopic1 = '0xaaaaaa';
+const arbitraryTopic2 = '0xccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
 const blockWith1tx = RequestDataAccessBlock.pushTransaction(emptyblock, transactionMock1, [
@@ -180,7 +180,7 @@ describe('data-access', () => {
         JSON.stringify({
           header: {
             topics: {
-              Oxaaaaaa: [0],
+              '0xaaaaaa': [0],
               '0x509b20f14449dab328580335abb39cc2f162a6b69d97860f40e12417312adfdd': [0],
             },
             version: '0.1.0',
