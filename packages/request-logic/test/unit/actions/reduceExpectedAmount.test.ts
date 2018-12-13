@@ -248,7 +248,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
     });
 
-    it('cannot reduce expected amount by thirdparty', () => {
+    it('cannot reduce expected amount by third party', () => {
       try {
         const actionReduceAmount = ReduceExpectedAmountAction.format(
           {
@@ -401,7 +401,7 @@ describe('actions/reduceExpectedAmount', () => {
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must not be cancelled');
+        expect(e.message, 'exception not right').to.be.equal('the request must not be canceled');
       }
     });
 

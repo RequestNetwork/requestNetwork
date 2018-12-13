@@ -100,15 +100,15 @@ describe('index', () => {
     });
   });
 
-  describe('increaseExpectecAmountRequest', () => {
-    it('can increaseExpectecAmountRequest', async () => {
+  describe('increaseExpectedAmountRequest', () => {
+    it('can increaseExpectedAmountRequest', async () => {
       const increaseRequest = {
         deltaAmount: '1000',
         requestId,
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const ret = await requestLogic.increaseExpectecAmountRequest(
+      const ret = await requestLogic.increaseExpectedAmountRequest(
         increaseRequest,
         TestData.payerRaw.signatureParams,
       );
@@ -123,15 +123,15 @@ describe('index', () => {
     });
   });
 
-  describe('reduceExpectecAmountRequest', () => {
-    it('can reduceExpectecAmountRequest', async () => {
+  describe('reduceExpectedAmountRequest', () => {
+    it('can reduceExpectedAmountRequest', async () => {
       const reduceRequest = {
         deltaAmount: '1000',
         requestId,
       };
       const requestLogic = new RequestLogic(fakeDataAccess);
 
-      const ret = await requestLogic.reduceExpectecAmountRequest(
+      const ret = await requestLogic.reduceExpectedAmountRequest(
         reduceRequest,
         TestData.payeeRaw.signatureParams,
       );

@@ -18,17 +18,15 @@ export interface IRequestLogic {
     requestParameters: IRequestLogicCancelParameters,
     signatureParams: Signature.ISignatureParameters,
   ) => Promise<IRequestLogicReturn>;
-  increaseExpectecAmountRequest: (
+  increaseExpectedAmountRequest: (
     requestParameters: IRequestLogicIncreaseExpectedAmountParameters,
     signatureParams: Signature.ISignatureParameters,
   ) => Promise<IRequestLogicReturn>;
-  reduceExpectecAmountRequest: (
+  reduceExpectedAmountRequest: (
     requestParameters: IRequestLogicReduceExpectedAmountParameters,
     signatureParams: Signature.ISignatureParameters,
   ) => Promise<IRequestLogicReturn>;
-  getRequestById: (
-    requestId: RequestLogicRequestId,
-  ) => Promise<IRequestLogicReturnGetRequestById>;
+  getRequestById: (requestId: RequestLogicRequestId) => Promise<IRequestLogicReturnGetRequestById>;
 }
 
 /** return of IRequestLogic functions */
@@ -96,11 +94,11 @@ export type RequestLogicAmount = number | string | typeof bigNumber;
 /** RequestId */
 export type RequestLogicRequestId = string;
 
-/** Configuration for the versionning */
+/** Configuration for the versioning */
 export interface IRequestLogicVersionSupportConfig {
   /**
    * current version of the specifications supported by this implementation
-   * will be used to check if the implemenation can handle action with different specs version
+   * will be used to check if the implementation can handle action with different specs version
    */
   current: string;
   /** list of versions not supported in any case */
@@ -178,12 +176,12 @@ export enum REQUEST_LOGIC_CURRENCY {
 export enum REQUEST_LOGIC_STATE {
   CREATED = 'created',
   ACCEPTED = 'accepted',
-  CANCELLED = 'cancelled',
+  CANCELLED = 'canceled',
 }
 
 /** Identity roles */
 export enum REQUEST_LOGIC_ROLE {
   PAYEE = 'payee',
   PAYER = 'payer',
-  THIRD_PARTY = 'thirdparty',
+  THIRD_PARTY = 'third-party',
 }

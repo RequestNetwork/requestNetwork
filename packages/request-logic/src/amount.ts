@@ -31,8 +31,8 @@ function isValid(amount: Types.RequestLogicAmount): boolean {
 /**
  * Function to add an amount by another
  *
- * @param RequestLogicAmount amount the base amount (positve integer)
- * @param RequestLogicAmount delta the amount to add (positve integer)
+ * @param RequestLogicAmount amount the base amount (positive integer)
+ * @param RequestLogicAmount delta the amount to add (positive integer)
  *
  * @returns string the new amount in a string format
  */
@@ -54,8 +54,8 @@ function add(amount: Types.RequestLogicAmount, delta: Types.RequestLogicAmount):
  *
  * Throw if the new amount is not valid (i.e: negative..)
  *
- * @param RequestLogicAmount amount the base amount (positve integer)
- * @param RequestLogicAmount delta the amount to reduce (positve integer)
+ * @param RequestLogicAmount amount the base amount (positive integer)
+ * @param RequestLogicAmount delta the amount to reduce (positive integer)
  *
  * @returns string the new amount in a string format
  */

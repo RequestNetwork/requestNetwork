@@ -155,7 +155,7 @@ describe('actions/accept', () => {
       }
     });
 
-    it('cannot apply accept by thirdparty', () => {
+    it('cannot apply accept by third party', () => {
       try {
         const actionAccept = AcceptAction.format(
           { requestId: TestData.requestIdMock },

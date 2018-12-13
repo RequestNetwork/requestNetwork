@@ -48,7 +48,7 @@ function pushTransaction(
   // we don't want to modify the original block state
   const copiedBlock: Types.IRequestDataAccessBlock = Utils.deepCopy(block);
 
-  const newtransactionPosition = copiedBlock.transactions.length;
+  const newTransactionPosition = copiedBlock.transactions.length;
   copiedBlock.transactions.push(transaction);
 
   const txHash = Utils.crypto.normalizeKeccak256Hash(transaction.data);
@@ -58,16 +58,16 @@ function pushTransaction(
 
   // add topics in the header
   for (const topic of topics) {
-    copiedBlock.header.topics[topic] = (
-      copiedBlock.header.topics[topic] || []
-    ).concat([newtransactionPosition]);
+    copiedBlock.header.topics[topic] = (copiedBlock.header.topics[topic] || []).concat([
+      newTransactionPosition,
+    ]);
   }
 
   return copiedBlock;
 }
 
 /**
- * Function to get a transaction from its position
+ * Returns a transaction from its position
  *
  * @param IRequestDataAccessBlock block current block state
  * @param number position position of the transaction
@@ -82,7 +82,7 @@ function getTransactionFromPosition(
 }
 
 /**
- * Function to get several transactions from their positions
+ * Returns several transactions from their positions
  *
  * @param IRequestDataAccessBlock block current block state
  * @param number[] positions list of positions of the transactions
@@ -102,11 +102,11 @@ function getTransactionsByPositions(
 }
 
 /**
- * Function to get all transactions of the block
+ * Returns all transactions of a block
  *
  * @param IRequestDataAccessBlock block current block state
  *
- * @returns IRequestDataAccessTransaction[] all the transactions topiced by hashes
+ * @returns IRequestDataAccessTransaction[] all the transactions with topics
  */
 function getAllTransactions(
   block: Types.IRequestDataAccessBlock,
@@ -115,7 +115,7 @@ function getAllTransactions(
 }
 
 /**
- * Function to get a list of the positions of the transactions topiced by a topic
+ * Returns a list of the positions of the transactions with given topics
  *
  * @param IRequestDataAccessBlock block current block state
  * @param string topic the topic value
@@ -130,7 +130,7 @@ function getTransactionPositionFromTopic(
 }
 
 /**
- * Function to get a list of transactions position from a list of topics
+ * Returns a list of transactions position from a list of topics
  *
  * @param IRequestDataAccessBlock block current block state
  * @param string[] topics the topics value
@@ -151,14 +151,12 @@ function getTransactionPositionsByTopics(
 }
 
 /**
- * Function to get all the topics of the block
+ * Returns all the topics of the block
  *
  * @param IRequestDataAccessBlock block current block state
  *
  * @returns IRequestDataAccessTopics all the topics
  */
-function getAllTopics(
-  block: Types.IRequestDataAccessBlock,
-): Types.IRequestDataAccessTopics {
+function getAllTopics(block: Types.IRequestDataAccessBlock): Types.IRequestDataAccessTopics {
   return block.header.topics;
 }

@@ -1,6 +1,6 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import IpfsManager from './ipfs-manager';
-import SmartContractManager from './smartcontract-manager';
+import SmartContractManager from './smart-contract-manager';
 
 /**
  * EthereumStorage
@@ -23,24 +23,20 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   }
 
   /**
-   * Update gateway connection informations and connect to the new gateway
+   * Update gateway connection information and connect to the new gateway
    * Missing value are filled with default config value
    * @param ipfsConnection Information structure to connect to the ipfs gateway
    */
-  public updateIpfsGateway(
-    ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection,
-  ): void {
+  public updateIpfsGateway(ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection): void {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
   }
 
   /**
-   * Update Ethereum network connection informations and reconnect
+   * Update Ethereum network connection information and reconnect
    * Missing value are filled with default config value
    * @param web3Connection Information structure to connect to the Ethereum network
    */
-  public updateEthereumNetwork(
-    web3Connection: StorageTypes.IWeb3Connection,
-  ): void {
+  public updateEthereumNetwork(web3Connection: StorageTypes.IWeb3Connection): void {
     this.smartContractManager = new SmartContractManager(web3Connection);
   }
 
@@ -72,10 +68,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // Add content hash to ethereum
     try {
-      await this.smartContractManager.addHashAndSizeToEthereum(
-        id,
-        contentLength,
-      );
+      await this.smartContractManager.addHashAndSizeToEthereum(id, contentLength);
     } catch (error) {
       throw Error(`Smart contract error: ${error}`);
     }
@@ -149,9 +142,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         // Get content from ipfs and verify provided size is correct
         let hashContentSize;
         try {
-          hashContentSize = await this.ipfsManager.getContentLength(
-            hashAndSize.hash,
-          );
+          hashContentSize = await this.ipfsManager.getContentLength(hashAndSize.hash);
         } catch (error) {
           // PROT-197
           // throw Error(`IPFS getContentLength: ${error}`);

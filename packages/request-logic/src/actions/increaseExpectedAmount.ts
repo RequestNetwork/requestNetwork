@@ -74,7 +74,7 @@ function applyActionToRequest(
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
     if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
-      throw new Error('the request must not be cancelled');
+      throw new Error('the request must not be canceled');
     }
     // increase the expected amount and store it as string
     request.expectedAmount = Amount.add(request.expectedAmount, action.data.parameters.deltaAmount);

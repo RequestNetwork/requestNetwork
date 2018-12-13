@@ -1,6 +1,6 @@
 {
   "src/**/*.ts": [
-    "tslint --fix",
+    "tslint --project . --fix",
     "prettier --single-quote --write",
     "git add"
   ]

@@ -74,7 +74,7 @@ function applyActionToRequest(
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
     if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
-      throw new Error('the request must not be cancelled');
+      throw new Error('the request must not be canceled');
     }
     // reduce the expected amount and store it as string or throw if the result is not valid
     request.expectedAmount = Amount.reduce(

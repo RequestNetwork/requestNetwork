@@ -47,7 +47,7 @@ function createAction(
  *
  * @param ISignatureParameters action action to check
  *
- * @returns RequestEnum.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or thirdpart)
+ * @returns RequestEnum.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or third party)
  */
 function getSignerIdentityFromAction(action: Types.IRequestLogicAction): IdentityTypes.IIdentity {
   return Utils.signature.recover(getActionHash(action), action.signature);
@@ -88,7 +88,7 @@ function getRoleInUnsignedAction(
  *
  * @param IRequestLogicAction creation action of the request
  *
- * @returns RequestIdTYpe the requestId
+ * @returns RequestIdType the requestId
  */
 function getRequestId(action: Types.IRequestLogicAction): Types.RequestLogicRequestId {
   // if a creation we need to compute the hash

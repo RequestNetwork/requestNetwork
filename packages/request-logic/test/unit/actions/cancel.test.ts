@@ -161,7 +161,7 @@ describe('actions/cancel', () => {
         );
       }
     });
-    it('cannot cancel by payer with state === cancelled', () => {
+    it('cannot cancel by payer with state === canceled', () => {
       try {
         const actionCancel = CancelAction.format(
           {
@@ -297,7 +297,7 @@ describe('actions/cancel', () => {
         parameters: { extensionsDataLength: 0 },
       });
     });
-    it('cannot cancel by payee with state === cancelled', () => {
+    it('cannot cancel by payee with state === canceled', () => {
       try {
         const actionCancel = CancelAction.format(
           {
@@ -316,12 +316,12 @@ describe('actions/cancel', () => {
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
         expect(e.message, 'exception not right').to.be.equal(
-          'Cannot cancel an already cancelled request',
+          'Cannot cancel an already canceled request',
         );
       }
     });
 
-    it('cannot cancel by thirdparty', () => {
+    it('cannot cancel by third party', () => {
       try {
         const actionCancel = CancelAction.format(
           {

@@ -15,7 +15,7 @@ export default {
  *
  * version is not supported if higher than the current one
  * version is not supported if the major is different
- * version is not supported if the version is in the expections array define in config.json
+ * version is not supported if the version is in the exceptions array defined in config.json
  *
  * @param string version the version to check
  * @param IRequestLogicVersionSupportConfig versionConfiguration override the default configuration only for this check

@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import 'mocha';
-
-const hdWalletProvider = require('truffle-hdwallet-provider');
+const web3Eth = require('web3-eth');
 
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
@@ -19,8 +18,7 @@ let provider: any;
 describe('Request system', () => {
   beforeEach(async () => {
     // Storage setup
-    const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-    provider = new hdWalletProvider(mnemonic, 'http://localhost:8545');
+    provider = new web3Eth.providers.HttpProvider('http://localhost:8545');
     const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
       host: 'localhost',
       port: 5001,
@@ -43,7 +41,7 @@ describe('Request system', () => {
 
   after(() => {
     // Stop web3 provider
-    provider.engine.stop();
+    provider.disconnect();
   });
 
   it('can create a request', async () => {

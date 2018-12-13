@@ -28,10 +28,10 @@ A `transaction` is an object containing the data as a string and the signature o
 {
    "header":{
       "index":{
-         "Oxaaaaaa":[
+         "0xaaaaaa":[
             0
          ],
-         "Oxccccccccccc":[
+         "0xccccccccccc":[
             0,
             1
          ],

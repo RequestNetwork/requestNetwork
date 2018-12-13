@@ -81,7 +81,7 @@ function applyActionToRequest(
  *
  * @param IRequestLogicAction action action
  *
- * @returns RequestIdTYpe the requestId
+ * @returns RequestIdType the requestId
  */
 function getRequestIdFromAction(action: Types.IRequestLogicAction): Types.RequestLogicRequestId {
   return Action.getRequestId(action);

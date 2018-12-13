@@ -1,0 +1,49 @@
+{
+    "root": true,
+    "parser": "typescript-eslint-parser",
+    "plugins": ["typescript", "spellcheck"],
+    "rules": {
+        "spellcheck/spell-checker": [
+            "error",
+            {
+                "comments": true,
+                "strings": true,
+                "identifiers": true,
+                "lang": "en_US",
+                "skipWords": [
+                    "abi",
+                    "api",
+                    "arg",
+                    "blockchain",
+                    "chai",
+                    "ecdsa",
+                    "enum",
+                    "eth",
+                    "ethereum",
+                    "http",
+                    "https",
+                    "ipfs",
+                    "javascript",
+                    "keccak",
+                    "kovan",
+                    "localhost",
+                    "lte",
+                    "param",
+                    "params",
+                    "requestnetwork",
+                    "rinkeby",
+                    "semver",
+                    "timestamp",
+                    "tslint",
+                    "tx",
+                    "utils",
+                    "versioning"
+                ],
+                "minLength": 3,
+                "skipIfMatch": [
+                    "^(0x|0X)?[a-fA-F0-9]+$" // Hexadecimal strings
+                ]
+            }
+        ]
+    }
+}

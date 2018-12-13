@@ -32,8 +32,7 @@ const signatureMock = {
 
 const signatureMockSignature = {
   method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  privateKey:
-    '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+  privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
 };
 
 const transactionMock1: DataAccessTypes.IRequestDataAccessTransaction = {
@@ -46,24 +45,19 @@ const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
 };
 
 const transactionMock1String = JSON.stringify(transactionMock1);
-const transactionMock1Hash: string = Utils.crypto.normalizeKeccak256Hash(
-  transactionMock1String,
-);
+const transactionMock1Hash: string = Utils.crypto.normalizeKeccak256Hash(transactionMock1String);
 
 const arbitraryTopic1 = 'Oxaaaaaa';
 const arbitraryTopic2 = 'Oxccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
-const blockWith1tx = RequestDataAccessBlock.pushTransaction(
-  emptyblock,
-  transactionMock1,
-  [arbitraryTopic1, arbitraryTopic2],
-);
-const blockWith2tx = RequestDataAccessBlock.pushTransaction(
-  blockWith1tx,
-  transactionMock2,
-  [arbitraryTopic2],
-);
+const blockWith1tx = RequestDataAccessBlock.pushTransaction(emptyblock, transactionMock1, [
+  arbitraryTopic1,
+  arbitraryTopic2,
+]);
+const blockWith2tx = RequestDataAccessBlock.pushTransaction(blockWith1tx, transactionMock2, [
+  arbitraryTopic2,
+]);
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
@@ -78,7 +72,6 @@ describe('data-access', () => {
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
-
           const result: any = {
             dataIdBlock2tx: JSON.stringify(blockWith2tx),
           };
@@ -134,9 +127,7 @@ describe('data-access', () => {
         await dataAccess.initialize();
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'already initialized',
-        );
+        expect(e.message, 'exception not right').to.be.equal('already initialized');
       }
     });
 
@@ -161,9 +152,7 @@ describe('data-access', () => {
         await dataAccess.getTransactionsByTopic(arbitraryTopic1);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'DataAccess must be initialized',
-        );
+        expect(e.message, 'exception not right').to.be.equal('DataAccess must be initialized');
       }
     });
   });
@@ -192,9 +181,7 @@ describe('data-access', () => {
           header: {
             topics: {
               Oxaaaaaa: [0],
-              '0x509b20f14449dab328580335abb39cc2f162a6b69d97860f40e12417312adfdd': [
-                0,
-              ],
+              '0x509b20f14449dab328580335abb39cc2f162a6b69d97860f40e12417312adfdd': [0],
             },
             version: '0.1.0',
           },
@@ -230,16 +217,12 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(fakeStorageSpied);
 
       try {
-        await dataAccess.persistTransaction(
-          transactionMock1String,
-          signatureMockSignature,
-          [arbitraryTopic1],
-        );
+        await dataAccess.persistTransaction(transactionMock1String, signatureMockSignature, [
+          arbitraryTopic1,
+        ]);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'DataAccess must be initialized',
-        );
+        expect(e.message, 'exception not right').to.be.equal('DataAccess must be initialized');
       }
     });
   });

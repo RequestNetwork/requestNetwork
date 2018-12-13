@@ -1,7 +1,4 @@
-import {
-  Identity as IdentityTypes,
-  Signature as SignatureTypes,
-} from '@requestnetwork/types';
+import { Identity as IdentityTypes, Signature as SignatureTypes } from '@requestnetwork/types';
 import Crypto from './crypto';
 
 /**
@@ -18,19 +15,15 @@ export default {
  *
  * @param ISignatureParameters signatureParams Signature parameters
  *
- * @returns REQUEST_ROLE the role of the signer (payee, payer or thirdpart)
+ * @returns REQUEST_ROLE the role of the signer (payee, payer or third party)
  */
 function getIdentityFromSignatureParams(
   signatureParams: SignatureTypes.ISignatureParameters,
 ): IdentityTypes.IIdentity {
-  if (
-    signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA
-  ) {
+  if (signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
     return {
       type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-      value: Crypto.ecutils.getAddressFromPrivateKey(
-        signatureParams.privateKey,
-      ),
+      value: Crypto.EcUtils.getAddressFromPrivateKey(signatureParams.privateKey),
     };
   }
 
@@ -50,10 +43,8 @@ function sign(
   signatureParams: SignatureTypes.ISignatureParameters,
 ): SignatureTypes.ISignature {
   let value: string;
-  if (
-    signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA
-  ) {
-    value = Crypto.ecutils.sign(signatureParams.privateKey, data);
+  if (signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
+    value = Crypto.EcUtils.sign(signatureParams.privateKey, data);
     return { method: signatureParams.method, value };
   }
 
@@ -68,13 +59,10 @@ function sign(
  *
  * @returns IIdentity identity of the signer
  */
-function recover(
-  data: string,
-  signature: SignatureTypes.ISignature,
-): IdentityTypes.IIdentity {
+function recover(data: string, signature: SignatureTypes.ISignature): IdentityTypes.IIdentity {
   let value: string;
   if (signature.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
-    value = Crypto.ecutils.recover(signature.value, data);
+    value = Crypto.EcUtils.recover(signature.value, data);
     return {
       type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       value,

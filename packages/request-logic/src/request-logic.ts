@@ -16,7 +16,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to create a request and persist it on the data-acess layer
+   * Function to create a request and persist it on the data-access layer
    *
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -46,7 +46,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to accept a request and persist it on the data-acess layer
+   * Function to accept a request and persist it on the data-access layer
    *
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -72,7 +72,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to cancel a request and persist it on the data-acess layer
+   * Function to cancel a request and persist it on the data-access layer
    *
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -97,14 +97,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to increase expected amount of a request and persist it on the data-acess layer
+   * Function to increase expected amount of a request and persist it on the data-access layer
    *
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
    * @returns Promise<string>  the storage location of the transaction
    */
-  public async increaseExpectecAmountRequest(
+  public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
@@ -125,14 +125,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to reduce expected amount of a request and persist it on the data-acess layer
+   * Function to reduce expected amount of a request and persist it on the data-access layer
    *
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
    * @returns Promise<string>  the storage location of the transaction
    */
-  public async reduceExpectecAmountRequest(
+  public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
     signatureParams: SignatureTypes.ISignatureParameters,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {

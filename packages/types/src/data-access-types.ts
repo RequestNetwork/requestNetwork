@@ -8,9 +8,7 @@ export interface IDataAccess {
     signatureParams: Signature.ISignatureParameters,
     topics?: string[],
   ) => Promise<IRequestDataReturnPersistTransaction>;
-  getTransactionsByTopic: (
-    topic: string,
-  ) => Promise<IRequestDataReturnGetTransactionsByTopic>;
+  getTransactionsByTopic: (topic: string) => Promise<IRequestDataReturnGetTransactionsByTopic>;
 }
 
 /** return interface for PersistTransaction  */
@@ -53,7 +51,7 @@ export interface IRequestDataAccessBlockHeader {
   version: string;
 }
 
-/** Topics, to index the transctions */
+/** Topics, to index the transactions */
 export interface IRequestDataAccessTopics {
   [key: string]: number[];
 }

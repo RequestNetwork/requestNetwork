@@ -248,7 +248,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
     });
 
-    it('cannot increase expected amount by thirdparty', () => {
+    it('cannot increase expected amount by third party', () => {
       try {
         const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
           {
@@ -401,7 +401,7 @@ describe('actions/increaseExpectedAmount', () => {
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must not be cancelled');
+        expect(e.message, 'exception not right').to.be.equal('the request must not be canceled');
       }
     });
 

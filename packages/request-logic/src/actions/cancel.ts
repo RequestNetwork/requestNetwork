@@ -67,7 +67,7 @@ function applyActionToRequest(
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
     if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
-      throw new Error('Cannot cancel an already cancelled request');
+      throw new Error('Cannot cancel an already canceled request');
     }
     request.state = Types.REQUEST_LOGIC_STATE.CANCELLED;
     return request;

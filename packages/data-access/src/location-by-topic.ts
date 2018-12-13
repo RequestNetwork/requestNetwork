@@ -1,7 +1,7 @@
 import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
 
 // Interface of the object to store the data-id indexed by transactions topics
-interface ITopicStorageid {
+interface ITopicStorageId {
   [key: string]: string[];
 }
 
@@ -13,7 +13,7 @@ export default class LocalLocationIndex {
    * Data id by topic
    * maps topic => [dataId]
    */
-  private topicStorageLocation: ITopicStorageid = {};
+  private topicStorageLocation: ITopicStorageId = {};
 
   /**
    * Function to push location indexed with block topics
@@ -28,8 +28,7 @@ export default class LocalLocationIndex {
     // index the new block with the topics
     for (const topic in blockTopics) {
       if (blockTopics.hasOwnProperty(topic)) {
-        this.topicStorageLocation[topic] =
-          this.topicStorageLocation[topic] || [];
+        this.topicStorageLocation[topic] = this.topicStorageLocation[topic] || [];
         this.topicStorageLocation[topic].push(dataId);
       }
     }
@@ -38,7 +37,7 @@ export default class LocalLocationIndex {
   /**
    * Function to get location from topic
    *
-   * @param string topic topic to retreives the dataId
+   * @param string topic topic to retrieve the dataId
    *
    * @return string[] list of the location connected to the topic
    */

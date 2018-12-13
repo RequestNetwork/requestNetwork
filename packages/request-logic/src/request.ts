@@ -17,7 +17,7 @@ export default {
  * @param IIdentity identity the identity to check
  * @param IRequestLogicRequest request the request
  *
- * @returns Types.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or thirdpart)
+ * @returns Types.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or third party)
  */
 function getRoleInRequest(
   identity: IdentityTypes.IIdentity,

@@ -1,10 +1,9 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import config from '../src/config';
-import SmartContractManager from '../src/smartcontract-manager';
+import SmartContractManager from '../src/smart-contract-manager';
 
-const mnemonic =
-  'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 
 const hdWalletProvider = require('truffle-hdwallet-provider');
 const provider = new hdWalletProvider(mnemonic, 'http://localhost:8545');
@@ -72,10 +71,7 @@ describe('SmartContractManager', () => {
   });
 
   it.skip('Allows to add other content than hash to smart contract', async () => {
-    await smartContractManager.addHashAndSizeToEthereum(
-      otherContent,
-      otherSize,
-    );
+    await smartContractManager.addHashAndSizeToEthereum(otherContent, otherSize);
     // Reading last event log
     const events = await contract.getPastEvents({
       event: 'NewHash',

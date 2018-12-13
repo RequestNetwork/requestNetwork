@@ -17,8 +17,8 @@ export default {
  * @returns string the address
  */
 function getAddressFromPrivateKey(privateKey: string): string {
-  const pubkey = EthCrypto.publicKeyByPrivateKey(privateKey);
-  const address = EthCrypto.publicKey.toAddress(pubkey);
+  const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
+  const address = EthCrypto.publicKey.toAddress(publicKey);
   return address;
 }
 

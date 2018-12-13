@@ -44,16 +44,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       const dataToAdd: string = await this.storage.read(dataId);
       const block = JSON.parse(dataToAdd);
       if (!block.header || !block.header.topics) {
-        throw Error(
-          `data from storage do not follow the standard, stroage location: "${dataId}"`,
-        );
+        throw Error(`data from storage do not follow the standard, storage location: "${dataId}"`);
       }
 
       // topic the previous dataId with their block topic
-      this.locationByTopic.pushLocationIndexedWithBlockTopics(
-        dataId,
-        block.header.topics,
-      );
+      this.locationByTopic.pushLocationIndexedWithBlockTopics(dataId, block.header.topics);
     }
   }
 
@@ -81,19 +76,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       signatureParams as SignatureTypes.ISignatureParameters,
     );
     // create a block and add the transaction in it
-    const updatedBlock = Block.pushTransaction(
-      Block.createEmptyBlock(),
-      transaction,
-      topics,
-    );
+    const updatedBlock = Block.pushTransaction(Block.createEmptyBlock(), transaction, topics);
     // get the topic of the data in storage
     const dataId = await this.storage.append(JSON.stringify(updatedBlock));
 
     // topic the dataId with block topic
-    this.locationByTopic.pushLocationIndexedWithBlockTopics(
-      dataId,
-      updatedBlock.header.topics,
-    );
+    this.locationByTopic.pushLocationIndexedWithBlockTopics(dataId, updatedBlock.header.topics);
 
     return {
       meta: {
@@ -107,7 +95,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Function to get a list of transactions indexed by topic
    *
-   * @param string topic toppic to retrieve the transaction from
+   * @param string topic topic to retrieve the transaction from
    *
    * @returns IRequestDataAccessTransaction list of transactions indexed by topic
    */
@@ -118,9 +106,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       throw new Error('DataAccess must be initialized');
     }
 
-    const locationStorageList = this.locationByTopic.getLocationFromTopic(
-      topic,
-    );
+    const locationStorageList = this.locationByTopic.getLocationFromTopic(topic);
     const blockList: any[] = [];
 
     // get blocks indexed by topic
@@ -145,9 +131,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // Generate the list of storage location of the transactions listed above
     const transactionsStorageLocation: string[] = blockList
-      .map(data =>
-        Array(data.block.header.topics[topic].length).fill(data.location),
-      )
+      .map(data => Array(data.block.header.topics[topic].length).fill(data.location))
       .reduce((accumulator, current) => accumulator.concat(current), []);
 
     return {

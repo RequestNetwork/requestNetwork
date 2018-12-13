@@ -14,7 +14,7 @@ export default {
  * @param any parameters the object to check
  * @param IIdentity identity the identity to check
  *
- * @returns Types.REQUEST_LOGIC_ROLE the role of indentity in parameters
+ * @returns Types.REQUEST_LOGIC_ROLE the role of identity in parameters
  */
 function getRole(identity: IdentityTypes.IIdentity, parameters: any): Types.REQUEST_LOGIC_ROLE {
   if (parameters.payee && Utils.identity.areEqual(parameters.payee, identity)) {
