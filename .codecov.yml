@@ -13,6 +13,8 @@ coverage:
                 # 20% is a very high drop, but it is to allow flexibility during the initial phase of the project
                 # it should be lowered to 3-5% for bigger packages
                 threshold: 20
+            client-side:
+                flags: client-side
             data-access:
                 flags: data-access
             ethereum-storage:
@@ -26,6 +28,9 @@ coverage:
 # one flag for each package
 # at one point, it could make sense to have flags for unit tests, integration tests and smart contract tests
 flags:
+    client-side:
+        paths:
+            - packages/client-side/
     data-access:
         paths:
             - packages/data-access/

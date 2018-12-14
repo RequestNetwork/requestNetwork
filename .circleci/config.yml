@@ -28,6 +28,29 @@ jobs:
             - persist_to_workspace:
                   root: *working_directory
                   paths: .
+    test-client-side:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build client-side"
+                  command: "yarn workspace @requestnetwork/client-side run build"
+            - run:
+                  name: "Build client-side web"
+                  command: "yarn workspace @requestnetwork/client-side run build:web"
+            - run:
+                  name: "Lint client-side"
+                  command: "yarn workspace @requestnetwork/client-side run lint "
+            - run:
+                  name: "Test client-side"
+                  command: "yarn workspace @requestnetwork/client-side run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/client-side/.nyc_output
     test-data-access:
         docker:
             - *node_image
@@ -269,6 +292,9 @@ workflows:
         jobs:
             - build
             # Test
+            - test-client-side:
+                  requires:
+                      - build
             - test-data-access:
                   requires:
                       - build
@@ -296,6 +322,7 @@ workflows:
             # Publish the code coverage
             - publish-coverage:
                   requires:
+                      - test-client-side
                       - test-data-access
                       - test-ethereum-storage
                       - test-request-logic

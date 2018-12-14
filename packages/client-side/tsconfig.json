@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "outFile": "dist/requestnetwork-client-side.js",
+    "rootDir": "src",
+    "module": "amd"
+  },
+  "include": ["./src/**/*"],
+  "references": [
+    { "path": "../data-access" },
+    { "path": "../request-logic" },
+    { "path": "../types" }
+  ]
+}
