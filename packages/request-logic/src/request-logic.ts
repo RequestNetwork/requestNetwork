@@ -164,7 +164,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     try {
       // second parameter is null, because the first action must be a creation (no state expected)
-      const request = actions
+      const request: RequestLogicTypes.IRequestLogicRequest | null = actions
         .map((t: any) => JSON.parse(t.data))
         .reduce(RequestLogicCore.applyActionToRequest, null);
 

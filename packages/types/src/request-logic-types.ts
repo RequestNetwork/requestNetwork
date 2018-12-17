@@ -47,7 +47,7 @@ export interface IRequestLogicReturnCreateRequest extends IRequestLogicReturn {
 
 /** return of the function getRequestById */
 export interface IRequestLogicReturnGetRequestById extends IRequestLogicReturn {
-  result: { request: RequestLogicRequestId | null };
+  result: { request: IRequestLogicRequest | null };
 }
 
 /** Interface of a request logic action */
