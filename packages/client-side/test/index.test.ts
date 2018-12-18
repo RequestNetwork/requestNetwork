@@ -51,6 +51,37 @@ describe('index', () => {
     sandbox.restore();
   });
 
+  it('uses http://localhost by default', async () => {
+    const mock = new mockAdapter(axios);
+
+    const callback = (config: any): any => {
+      expect(config.baseURL).to.equal('http://localhost');
+      return [200, {}];
+    };
+    const spy = chai.spy(callback);
+    mock.onPost('/persistTransaction').reply(spy);
+
+    const requestNetwork = new RequestNetwork();
+    await requestNetwork.createRequest(requestCreationHash, signatureInfo, topics);
+    expect(spy).to.have.been.called.once;
+  });
+
+  it('uses baseUrl given in parameter', async () => {
+    const baseURL = 'http://request.network/api';
+    const mock = new mockAdapter(axios);
+
+    const callback = (config: any): any => {
+      expect(config.baseURL).to.equal(baseURL);
+      return [200, {}];
+    };
+    const spy = chai.spy(callback);
+    mock.onPost('/persistTransaction').reply(spy);
+
+    const requestNetwork = new RequestNetwork({ baseURL });
+    await requestNetwork.createRequest(requestCreationHash, signatureInfo, topics);
+    expect(spy).to.have.been.called.once;
+  });
+
   it('allows to create a request', async () => {
     const requestNetwork = new RequestNetwork();
 
