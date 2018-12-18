@@ -34,10 +34,12 @@ export interface IRequestLogicReturn {
   /** result of the execution */
   result?: any;
   /** meta information */
-  meta: {
-    /** meta data given by the layer below (data-access) */
-    dataAccessMeta: any;
-  };
+  meta: IRequestLogicReturnMeta;
+}
+
+/** meta data given by the layer below (data-access) */
+export interface IRequestLogicReturnMeta {
+  dataAccessMeta: any;
 }
 
 /** return of the function createRequest */

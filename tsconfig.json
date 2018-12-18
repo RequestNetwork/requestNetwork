@@ -10,6 +10,7 @@
         "baseUrl": "./packages",
         "skipLibCheck": true,
         "noUnusedLocals": true,
-        "noUnusedParameters": true
+        "noUnusedParameters": true,
+        "moduleResolution": "node"
     }
 }
