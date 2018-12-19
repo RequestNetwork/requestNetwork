@@ -22,13 +22,15 @@
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
   "scripts": {
-    "build": "tsc -b",
-    "build:web": "browserify src/index.ts -p tsify  -p tinyify --debug | exorcist dist/requestnetwork-client-side.min.js.map > dist/requestnetwork-client-side.min.js",
+    "build": "run-p build:commonjs build:umd",
+    "build:commonjs": "tsc -b",
+    "build:umd": "webpack",
     "clean": "shx rm -rf dist",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "lint": "tslint --project .",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register --require amd-loader \"test/**/*.ts\"",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
+    "prepare": "yarn run build",
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
@@ -38,27 +40,30 @@
     "@types/chai-spies": "1.0.0",
     "@types/mocha": "5.2.5",
     "amd-loader": "0.0.8",
+    "awesome-typescript-loader": "5.2.1",
     "axios-mock-adapter": "1.15.0",
     "chai": "4.2.0",
     "chai-spies": "1.0.0",
+    "duplicate-package-checker-webpack-plugin": "3.0.0",
     "husky": "1.1.2",
     "lint-staged": "7.3.0",
     "mocha": "5.2.0",
+    "npm-run-all": "4.1.5",
     "nyc": "13.1.0",
     "prettier": "1.14.3",
     "shx": "0.3.2",
     "source-map-support": "0.5.9",
+    "terser-webpack-plugin": "1.1.0",
     "ts-node": "7.0.1",
     "tslint": "5.11.0",
-    "typescript": "3.1.3"
+    "typescript": "3.1.3",
+    "webpack": "4.27.1",
+    "webpack-bundle-analyzer": "3.0.3",
+    "webpack-cli": "3.1.2"
   },
   "dependencies": {
     "@requestnetwork/request-logic": "0.1.0",
     "@requestnetwork/types": "0.1.0",
-    "axios": "0.18.0",
-    "browserify": "16.2.3",
-    "exorcist": "1.0.1",
-    "tinyify": "2.5.0",
-    "tsify": "4.0.1"
+    "axios": "0.18.0"
   }
 }

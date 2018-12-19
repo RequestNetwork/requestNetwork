@@ -37,10 +37,7 @@ jobs:
                   at: *working_directory
             - run:
                   name: "Build client-side"
-                  command: "yarn workspace @requestnetwork/client-side run build"
-            - run:
-                  name: "Build client-side web"
-                  command: "yarn workspace @requestnetwork/client-side run build:web"
+                  command: "yarn workspace @requestnetwork/client-side run build:commonjs"
             - run:
                   name: "Lint client-side"
                   command: "yarn workspace @requestnetwork/client-side run lint "
