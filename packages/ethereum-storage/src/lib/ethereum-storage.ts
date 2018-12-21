@@ -7,8 +7,14 @@ import SmartContractManager from './smart-contract-manager';
  * @notice Manages storage layer of the Request Network Protocol v2
  */
 export default class EthereumStorage implements StorageTypes.IStorage {
+  /**
+   * Manager for the storage smart contract
+   * This attribute is left public for mocking purpose to facilitate tests on the module
+   */
+  public smartContractManager: SmartContractManager;
+  // Manager for IPFS
   private ipfsManager: IpfsManager;
-  private smartContractManager: SmartContractManager;
+
   /**
    * Constructor
    * @param ipfsGatewayConnection Information structure to connect to the ipfs gateway
@@ -181,9 +187,17 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       },
     );
     const dataIds = await Promise.all(filteredHashes);
-    const metaDataIds = Array(dataIds.length).fill({
-      storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+
+    // Empty dataId has no metadata
+    // TODO PROT-197: Replace map() function with fill() since all dataIds will be correct
+    const metaDataIds = dataIds.map(dataId => {
+      let metadataId = {};
+      if (dataId) {
+        metadataId = { storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS };
+      }
+      return metadataId;
     });
+
     return {
       // TODO PROT-237: Storage: get meta-data from ethereum smart contract when do a getAllData()
       meta: {

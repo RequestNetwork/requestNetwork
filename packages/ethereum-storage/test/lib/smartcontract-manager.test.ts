@@ -33,16 +33,26 @@ const contract = new eth.Contract(
 // Define a mock for getPastEvents to be independant of the state of ganache instance
 const pastEventsMock = [
   {
+    event: 'NewHash',
     returnValues: {
       hash: hashStr,
       size: realSize,
     },
   },
+  // This event has an invalid size but it should not be ignored in smart contract manager
   {
-    // This event should be ignored
+    event: 'NewHash',
     returnValues: {
       hash: hashStr,
       size: fakeSize,
+    },
+  },
+  // We can add any data into the storage
+  {
+    event: 'NewHash',
+    returnValues: {
+      hash: otherContent,
+      size: otherSize,
     },
   },
 ];
@@ -55,7 +65,7 @@ describe('SmartContractManager', () => {
     provider.engine.stop();
   });
 
-  it.skip('Allows to add hashes to smart contract', async () => {
+  it('Allows to add hashes to smart contract', async () => {
     await smartContractManager.addHashAndSizeToEthereum(hashStr, realSize);
     // Reading last event log
     const events = await contract.getPastEvents({
@@ -70,7 +80,7 @@ describe('SmartContractManager', () => {
     assert.equal(events[0].returnValues.size, realSize);
   });
 
-  it.skip('Allows to add other content than hash to smart contract', async () => {
+  it('Allows to add other content than hash to smart contract', async () => {
     await smartContractManager.addHashAndSizeToEthereum(otherContent, otherSize);
     // Reading last event log
     const events = await contract.getPastEvents({
@@ -85,7 +95,7 @@ describe('SmartContractManager', () => {
     assert.equal(events[0].returnValues.size, otherSize);
   });
 
-  it.skip('Allows to get all hashes', async () => {
+  it('Allows to get all hashes', async () => {
     const allHashesAndSizesPromise = await smartContractManager.getAllHashesAndSizesFromEthereum();
     const allHashesAndSizes = await Promise.all(allHashesAndSizesPromise);
 
@@ -93,5 +103,7 @@ describe('SmartContractManager', () => {
     assert.equal(allHashesAndSizes[0].size, realSize);
     assert.equal(allHashesAndSizes[1].hash, hashStr);
     assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.equal(allHashesAndSizes[2].hash, otherContent);
+    assert.equal(allHashesAndSizes[2].size, otherSize);
   });
 });

@@ -84,6 +84,9 @@ jobs:
                   name: "Lint ethereum-storage"
                   command: "yarn workspace @requestnetwork/ethereum-storage run lint:lib"
             - run:
+                  name: "Deploy contracs ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run deploy"      
+            - run:
                   name: "Test ethereum-storage"
                   command: "yarn workspace @requestnetwork/ethereum-storage run test:lib"
             - run:

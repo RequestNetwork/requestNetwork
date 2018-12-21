@@ -124,8 +124,11 @@ export default class SmartContractManager {
     // If size is correct, we return hash
     const promises = events.map(
       async (event: any): Promise<any> => {
-        // Verify event object is correct
-        if (!event.returnValues.hash || !event.returnValues.size) {
+
+        // Check if the event object is correct
+        // We check "typeof field === 'undefined'"" instead of "!field"
+        // because you can add empty string as hash or 0 as size in the storage smart contract
+        if (typeof event.returnValues.hash === 'undefined' || typeof event.returnValues.size === 'undefined') {
           throw new Error(`event is incorrect: doesn't have a hash or size`);
         }
 
