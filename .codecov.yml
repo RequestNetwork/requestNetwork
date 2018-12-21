@@ -21,6 +21,8 @@ coverage:
                 flags: ethereum-storage
             request-logic:
                 flags: request-logic
+            request-node:
+                flags: request-node
             utils:
                 flags: utils
 
@@ -40,6 +42,9 @@ flags:
     request-logic:
         paths:
             - packages/request-logic/
+    request-node:
+        paths:
+            - packages/request-node/
     utils:
         paths:
             - packages/utils/
