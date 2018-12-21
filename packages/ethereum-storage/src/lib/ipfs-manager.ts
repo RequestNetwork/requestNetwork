@@ -2,7 +2,7 @@ import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as FormData from 'form-data';
 import * as http from 'http';
 import * as https from 'https';
-import config from './config';
+import { getDefaultIpfs } from './config';
 
 /**
  * Manages Ipfs communication used as storage
@@ -21,9 +21,7 @@ export default class IpfsManager {
    * Private network is used for default values
    */
   public constructor(
-    _ipfsConnection: StorageTypes.IIpfsGatewayConnection = config.ipfs.nodeUrlDefault[
-      config.ipfs.default
-    ],
+    _ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs(),
   ) {
     this.ipfsConnection = _ipfsConnection;
   }

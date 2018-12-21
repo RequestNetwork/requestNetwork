@@ -79,34 +79,26 @@ jobs:
                   at: *working_directory
             - run:
                   name: "Build ethereum-storage"
-                  command: "yarn workspace @requestnetwork/ethereum-storage run build"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run build:lib"
             - run:
                   name: "Lint ethereum-storage"
-                  command: "yarn workspace @requestnetwork/ethereum-storage run lint"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run lint:lib"
             - run:
                   name: "Test ethereum-storage"
-                  command: "yarn workspace @requestnetwork/ethereum-storage run test"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run test:lib"
+            - run:
+                  name: "Build smart contracts ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run build:sol"
+            - run:
+                  name: "Lint smart contracts ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run lint:sol"
+            - run:
+                  name: "Test smart contracts ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run test:sol"
             - persist_to_workspace:
                   root: *working_directory
                   paths:
                       - packages/ethereum-storage/.nyc_output
-    test-ethereum-storage-smart-contract:
-        docker:
-            - *node_image
-            - *ganache_image
-        working_directory: *working_directory
-        steps:
-            - attach_workspace:
-                  at: *working_directory
-            - run:
-                  name: "Lint solidity ethereum-storage-smart-contract"
-                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run lint:sol"
-            - run:
-                  name: "Lint javascript ethereum-storage-smart-contract"
-                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run lint:js"
-            - run:
-                  name: "Test ethereum-storage-smart-contract"
-                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run test"
     test-request-logic:
         docker:
             - *node_image
@@ -176,8 +168,8 @@ jobs:
                   name: "Lint integration-test"
                   command: "yarn workspace @requestnetwork/integration-test run lint"
             - run:
-                  name: "Deploy test contract from ethereum-storage-smart-contract"
-                  command: "yarn workspace @requestnetwork/ethereum-storage-smart-contract run deploy"
+                  name: "Deploy test contract from ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run deploy"
             - run:
                   name: "Test integration-test"
                   command: "yarn workspace @requestnetwork/integration-test run test"

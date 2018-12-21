@@ -1,7 +1,7 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
-import config from '../src/config';
-import SmartContractManager from '../src/smart-contract-manager';
+import * as artifactsUtils from '../../src/lib/artifacts-utils';
+import SmartContractManager from '../../src/lib/smart-contract-manager';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 
@@ -26,8 +26,8 @@ const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
 const contract = new eth.Contract(
-  config.ethereum.contracts.RequestHashStorage.abi,
-  config.ethereum.contracts.RequestHashStorage.private.address,
+  artifactsUtils.getContractAbi(),
+  artifactsUtils.getAddress('private'),
 );
 
 // Define a mock for getPastEvents to be independant of the state of ganache instance

@@ -2,10 +2,15 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": ".",
+    "resolveJsonModule": true,
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/lib/**/*", "./artifacts/**/*"],
   "references": [
     { "path": "../types" },
+  ],
+  "files": [
+    "./artifacts/0.1.0.json",
+    "./artifacts/artifacts.json"
   ]
 }

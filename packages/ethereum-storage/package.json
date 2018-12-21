@@ -5,15 +5,16 @@
   "description": "Request Network storage layer based on ethereum",
   "keywords": [
     "requestnetwork",
-    "ethereum-storage"
+    "ethereum-storage",
+    "smart-contracts"
   ],
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/ethereum-storage#readme",
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/lib/index.js",
+  "types": "dist/src/lib/index.d.ts",
   "directories": {
-    "lib": "src",
-    "test": "test"
+    "lib": "src/lib",
+    "test": "test/lib"
   },
   "files": [
     "src"
@@ -23,12 +24,21 @@
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist",
-    "lint": "tslint --project . && eslint \"src/**/*.ts\"",
+    "build:lib": "tsc -b",
+    "build:sol": "truffle compile --contracts_directory=./src",
+    "build": "yarn run build:lib && yarn run build:sol",
+    "clean:lib": "shx rm -rf dist",
+    "clean:sol": "shx rm -rf build",
+    "clean": "yarn run clean:lib && yarn run clean:sol",
+    "lint:lib": "tslint --project . && eslint \"src/lib/**/*.ts\"",
+    "lint:sol": "solium --dir src/contracts",
+    "lint": "yarn run lint:lib && yarn run lint:sol",
     "lint-staged": "lint-staged",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "deploy": "truffle --contracts_directory=./src deploy",
+    "test:lib": "nyc mocha --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
+    "test:sol": "truffle test --contracts_directory=./src test/contracts/requestHashStorage.js",
+    "test": "yarn run test:lib && yarn run test:sol",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "bugs": {
@@ -37,6 +47,7 @@
   "devDependencies": {
     "@types/form-data": "2.2.1",
     "chai": "4.2.0",
+    "chai-bignumber": "3.0.0",
     "eslint": "5.10.0",
     "eslint-plugin-spellcheck": "0.0.11",
     "eslint-plugin-typescript": "0.14.0",
@@ -44,9 +55,12 @@
     "lint-staged": "7.3.0",
     "mocha": "5.2.0",
     "nyc": "13.1.0",
+    "openzeppelin-solidity": "2.0.0",
     "prettier": "1.14.3",
     "shx": "0.3.2",
+    "solium": "1.1.8",
     "source-map-support": "0.5.9",
+    "truffle": "4.1.14",
     "truffle-hdwallet-provider": "0.0.6",
     "ts-node": "7.0.1",
     "tslint": "5.11.0",

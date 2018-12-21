@@ -1,6 +1,11 @@
 {
     "root": true,
     "parser": "typescript-eslint-parser",
+    "parserOptions":
+    {
+        "ecmaVersion": 10,
+        "sourceType": "module"
+    },
     "plugins": ["typescript", "spellcheck"],
     "rules": {
         "spellcheck/spell-checker": [
@@ -21,14 +26,17 @@
                     "enum",
                     "eth",
                     "ethereum",
+                    "filename",
                     "http",
                     "https",
+                    "infura",
                     "ipfs",
                     "javascript",
                     "keccak",
                     "kovan",
                     "localhost",
                     "lte",
+                    "mainnet",
                     "memberof",
                     "param",
                     "params",

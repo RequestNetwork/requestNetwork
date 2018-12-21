@@ -1,6 +1,6 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
-import IpfsManager from '../src/ipfs-manager';
+import IpfsManager from '../../src/lib/ipfs-manager';
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',

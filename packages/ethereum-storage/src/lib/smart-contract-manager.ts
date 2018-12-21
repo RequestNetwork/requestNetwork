@@ -1,5 +1,6 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
-import config from './config';
+import * as artifactsUtils from './artifacts-utils';
+import * as config from './config';
 
 const web3Eth = require('web3-eth');
 
@@ -8,14 +9,13 @@ const web3Eth = require('web3-eth');
  * to store the hashes of the data on Ethereum
  */
 export default class SmartContractManager {
-  public networkName: string = '';
   public eth: any;
   public requestHashStorage: any;
 
   // Block where the contract has been created
   // This value is stored in config file for each network
   // This value is used to optimize past event retrieval
-  public blockCreationNumber: number;
+  public creationBlockNumber: number;
 
   /**
    * Constructor
@@ -27,30 +27,24 @@ export default class SmartContractManager {
 
     this.eth = new web3Eth(
       web3Connection.web3Provider ||
-        new web3Eth.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default]),
+        new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
     );
 
     if (!this.eth) {
       throw Error('Cannot connect to ethereum network');
     }
 
-    this.networkName = web3Connection.networkId
+    const networkName = web3Connection.networkId
       ? this.getNetworkNameFromId(web3Connection.networkId)
-      : config.ethereum.default;
-
-    // Verify the contract exists for the specified network
-    const hashStorageContract = config.ethereum.contracts.RequestHashStorage[this.networkName];
-    if (!hashStorageContract) {
-      throw Error(`Contract not found on network ${this.networkName}`);
-    }
+      : config.getDefaultEthereumNetwork();
 
     // Initialize smart contract instance
     this.requestHashStorage = new this.eth.Contract(
-      config.ethereum.contracts.RequestHashStorage.abi,
-      hashStorageContract.address,
+      artifactsUtils.getContractAbi(),
+      artifactsUtils.getAddress(networkName),
     );
 
-    this.blockCreationNumber = hashStorageContract.blockCreationNumber || 0;
+    this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(networkName) || 0;
   }
 
   /**
@@ -87,7 +81,7 @@ export default class SmartContractManager {
       .send({
         from: account,
         gas: '100000',
-        gasPrice: gasPrice || config.ethereum.gasPriceDefault,
+        gasPrice: gasPrice || config.getDefaultEthereumGasPrice(),
         value: fee,
       })
       .on('error', (transactionError: string) => {
@@ -119,7 +113,7 @@ export default class SmartContractManager {
     // Reading all event logs
     let events = await this.requestHashStorage.getPastEvents({
       event: 'NewHash',
-      fromBlock: this.blockCreationNumber,
+      fromBlock: this.creationBlockNumber,
       toBlock: 'latest',
     });
 

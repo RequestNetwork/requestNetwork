@@ -4,8 +4,8 @@ const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
 contract('RequestHashStorage', function(accounts) {
   const admin = accounts[0];
-  const otherguy = accounts[1];
-  const yetotherguy = accounts[2];
+  const otherGuy = accounts[1];
+  const yetOtherGuy = accounts[2];
   const burner = accounts[3];
   const arbitraryAmount = 100;
   const hashExample = 'Qmaisz6NMhDB51cCvNWa1GMS7LU1pAxdF4Ld6Ft9kZEP2a';
@@ -41,20 +41,20 @@ contract('RequestHashStorage', function(accounts) {
       threshold: 100,
     });
 
-    ({ logs } = await requestHashStorage.setRequestBurnerContract(yetotherguy, {
+    ({ logs } = await requestHashStorage.setRequestBurnerContract(yetOtherGuy, {
       from: admin,
     }));
     expectEvent.inLogs(logs, 'UpdatedBurnerContract', {
-      burnerAddress: yetotherguy,
+      burnerAddress: yetOtherGuy,
     });
   });
 
   it('Non admin should not be able to change fees management values', async function() {
-    await shouldFail.reverting(requestHashStorage.setFeeParameters(100, 2, 1, { from: otherguy }));
-    await shouldFail.reverting(requestHashStorage.setMinimumFeeThreshold(100, { from: otherguy }));
+    await shouldFail.reverting(requestHashStorage.setFeeParameters(100, 2, 1, { from: otherGuy }));
+    await shouldFail.reverting(requestHashStorage.setMinimumFeeThreshold(100, { from: otherGuy }));
     await shouldFail.reverting(
-      requestHashStorage.setRequestBurnerContract(yetotherguy, {
-        from: otherguy,
+      requestHashStorage.setRequestBurnerContract(yetOtherGuy, {
+        from: otherGuy,
       }),
     );
   });
@@ -149,15 +149,15 @@ contract('RequestHashStorage', function(accounts) {
     assert(newBurnerBalance.eq(oldBurnerBalance.add(fee)), 'Fee not collected by burner');
 
     // Test with another address for burner
-    await requestHashStorage.setRequestBurnerContract(yetotherguy, {
+    await requestHashStorage.setRequestBurnerContract(yetOtherGuy, {
       from: admin,
     });
-    oldBurnerBalance = web3.eth.getBalance(yetotherguy);
+    oldBurnerBalance = web3.eth.getBalance(yetOtherGuy);
     fee = await requestHashStorage.getFeesAmount(arbitraryAmount);
     await requestHashStorage.submitHash(hashExample, arbitraryAmount, {
       value: fee,
     });
-    newBurnerBalance = web3.eth.getBalance(yetotherguy);
+    newBurnerBalance = web3.eth.getBalance(yetOtherGuy);
     assert(
       newBurnerBalance.eq(oldBurnerBalance.plus(fee)),
       'Fee not collected by burner after changing burner address',
