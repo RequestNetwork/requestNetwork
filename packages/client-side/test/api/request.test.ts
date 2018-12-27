@@ -17,19 +17,19 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
     return;
   },
   async acceptRequest(): Promise<any> {
-    return { request: {}, meta: {} };
+    return { meta: {} };
   },
   async cancelRequest(): Promise<any> {
-    return;
+    return { meta: {} };
   },
   async increaseExpectedAmountRequest(): Promise<any> {
-    return;
+    return { meta: {} };
   },
   async reduceExpectedAmountRequest(): Promise<any> {
-    return;
+    return { meta: {} };
   },
   async getRequestById(): Promise<any> {
-    return;
+    return { meta: {}, result: {} };
   },
 };
 
@@ -71,30 +71,46 @@ describe('api/request', () => {
   });
 
   describe('cancel', () => {
-    it('is not implemented yet', async () => {
+    it('calls request-logic', async () => {
+      const spy = sandbox.on(mockRequestLogic, 'cancelRequest');
+
       const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(request.cancel());
+      await request.cancel(signatureInfo);
+
+      expect(spy).to.have.been.called.once;
     });
   });
 
   describe('increaseExpectedAmountRequest', () => {
-    it('is not implemented yet', async () => {
+    it('calls request-logic', async () => {
+      const spy = sandbox.on(mockRequestLogic, 'increaseExpectedAmountRequest');
+
       const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(request.increaseExpectedAmountRequest());
+      await request.increaseExpectedAmountRequest(3, signatureInfo);
+
+      expect(spy).to.have.been.called.once;
     });
   });
 
   describe('reduceExpectedAmountRequest', () => {
-    it('is not implemented yet', async () => {
+    it('calls request-logic', async () => {
+      const spy = sandbox.on(mockRequestLogic, 'reduceExpectedAmountRequest');
+
       const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(request.reduceExpectedAmountRequest());
+      await request.reduceExpectedAmountRequest(3, signatureInfo);
+
+      expect(spy).to.have.been.called.once;
     });
   });
 
   describe('getData', () => {
-    it('is not implemented yet', async () => {
+    it('calls request-logic', async () => {
+      const spy = sandbox.on(mockRequestLogic, 'getRequestById');
+
       const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(await request.getData());
+      await request.getData();
+
+      expect(spy).to.have.been.called.once;
     });
   });
 

@@ -152,4 +152,55 @@ describe('index', () => {
     expect(axiosSpyGet).to.have.been.called.exactly(0);
     expect(axiosSpyPost).to.have.been.called.once;
   });
+
+  it('allows to cancel a request', async () => {
+    const requestNetwork = new RequestNetwork();
+    const { request } = await requestNetwork.createRequest(
+      requestCreationHash,
+      signatureInfo,
+      topics,
+    );
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.cancel(signatureInfo);
+
+    expect(axiosSpyGet).to.have.been.called.exactly(0);
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to increase the expected amount a request', async () => {
+    const requestNetwork = new RequestNetwork();
+    const { request } = await requestNetwork.createRequest(
+      requestCreationHash,
+      signatureInfo,
+      topics,
+    );
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.increaseExpectedAmountRequest(3, signatureInfo);
+
+    expect(axiosSpyGet).to.have.been.called.exactly(0);
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to reduce the expected amount a request', async () => {
+    const requestNetwork = new RequestNetwork();
+    const { request } = await requestNetwork.createRequest(
+      requestCreationHash,
+      signatureInfo,
+      topics,
+    );
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.reduceExpectedAmountRequest(3, signatureInfo);
+
+    expect(axiosSpyGet).to.have.been.called.exactly(0);
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
 });

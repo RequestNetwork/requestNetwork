@@ -40,7 +40,7 @@ export default class Request {
    * Accepts a request
    *
    * @param ISignatureParameters signatureParams Signature parameters
-   * @param any[] extensionsData
+   * @param {any[]} [extensionsData=[]]
    * @returns Promise<Request>
    */
   public async accept(
@@ -56,25 +56,68 @@ export default class Request {
   }
 
   /**
-   * Cancel a request
+   * Cancels a request
    *
+   * @param ISignatureParameters signatureParams Signature parameters
+   * @param {any[]} [extensionsData=[]]
+   * @returns Promise<Request>
    */
-  public cancel(): void {
-    return;
+  public async cancel(
+    signatureParams: SignatureTypes.ISignatureParameters,
+    extensionsData: any[] = [],
+  ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
+    const parameters: RequestLogicTypes.IRequestLogicCancelParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+    const { meta } = await this.requestLogic.cancelRequest(parameters, signatureParams);
+    return { request: this, meta };
   }
 
   /**
-   * Increases the expected amount of the request
+   * Increases the expected amount of the request.
+   *
+   * @param {RequestLogicTypes.RequestLogicAmount} deltaAmount Amount by which to increase the expected amount
+   * @param {SignatureTypes.ISignatureParameters} signatureParams Signature parameters
+   * @param {any[]} [extensionsData=[]]
+   * @returns {Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }>}
+   * @memberof Request
    */
-  public increaseExpectedAmountRequest(): void {
-    return;
+  public async increaseExpectedAmountRequest(
+    deltaAmount: RequestLogicTypes.RequestLogicAmount,
+    signatureParams: SignatureTypes.ISignatureParameters,
+    extensionsData: any[] = [],
+  ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
+    const parameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters = {
+      deltaAmount,
+      extensionsData,
+      requestId: this.requestId,
+    };
+    const { meta } = await this.requestLogic.increaseExpectedAmountRequest(
+      parameters,
+      signatureParams,
+    );
+    return { request: this, meta };
   }
 
   /**
    * Reduces the expected amount of the request. This can be called by the payee e.g. to apply discounts or special offers.
    */
-  public reduceExpectedAmountRequest(): void {
-    return;
+  public async reduceExpectedAmountRequest(
+    deltaAmount: RequestLogicTypes.RequestLogicAmount,
+    signatureParams: SignatureTypes.ISignatureParameters,
+    extensionsData: any[] = [],
+  ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
+    const parameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters = {
+      deltaAmount,
+      extensionsData,
+      requestId: this.requestId,
+    };
+    const { meta } = await this.requestLogic.reduceExpectedAmountRequest(
+      parameters,
+      signatureParams,
+    );
+    return { request: this, meta };
   }
 
   /**
@@ -91,6 +134,7 @@ export default class Request {
    * Pays a request
    */
   public pay(): void {
+    // Not implemented yet
     return;
   }
 
@@ -98,6 +142,7 @@ export default class Request {
    * Refunds a request
    */
   public refund(): void {
+    // Not implemented yet
     return;
   }
 
@@ -105,6 +150,7 @@ export default class Request {
    * Gets the events of the Request
    */
   public getHistory(): void {
+    // Not implemented yet
     return;
   }
 }
