@@ -70,7 +70,7 @@ const getAllDataIdResult: StorageTypes.IRequestStorageGetAllDataIdReturn = {
   },
 };
 
-const appendResult: StorageTypes.IRequestStorageAppendReturn = {
+const appendResult: StorageTypes.IRequestStorageOneDataIdAndMeta = {
   meta: {},
   result: {
     dataId: dataIdBlock2tx,
@@ -189,7 +189,7 @@ describe('data-access', () => {
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
-          const dataIdBlock2txFake: StorageTypes.IRequestStorageReadReturn = {
+          const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -238,7 +238,7 @@ describe('data-access', () => {
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
-          const dataIdBlock2txFake: StorageTypes.IRequestStorageReadReturn = {
+          const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -270,7 +270,7 @@ describe('data-access', () => {
         getAllData: () => chai.spy(),
         getAllDataId: () => testTopics,
         read: (param: string) => {
-          const dataIdBlock2txFake: StorageTypes.IRequestStorageReadReturn = {
+          const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
           };

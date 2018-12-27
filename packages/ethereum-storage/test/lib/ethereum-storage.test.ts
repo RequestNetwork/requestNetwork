@@ -32,32 +32,40 @@ const fakeSize2 = 0;
 // Define a mock for getPastEvents to be independant of the state of ganache instance
 const pastEventsMock = [
   {
+    blockNumber: 1,
     event: 'NewHash',
     returnValues: {
       hash: hash1,
       size: realSize1,
     },
+    transactionHash: '0xa',
   },
   {
+    blockNumber: 1,
     event: 'NewHash',
     returnValues: {
       hash: hash1,
       size: fakeSize1,
     },
+    transactionHash: '0xa',
   },
   {
+    blockNumber: 2,
     event: 'NewHash',
     returnValues: {
       hash: hash2,
       size: realSize2,
     },
+    transactionHash: '0xb',
   },
   {
+    blockNumber: 3,
     event: 'NewHash',
     returnValues: {
       hash: hash2,
       size: fakeSize2,
     },
+    transactionHash: '0xc',
   },
 ];
 const getPastEventsMock = () => pastEventsMock;
@@ -71,31 +79,92 @@ describe('EthereumStorage', () => {
   beforeEach(() => {
     ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
     ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
+    ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
+      StorageTypes.IRequestStorageEthereumMetadata
+    > => {
+      return {
+        blockConfirmation: 10,
+        blockNumber: 10,
+        blockTimestamp: 1545816416,
+        cost: '110',
+        fee: '100',
+        gasFee: '10',
+        networkName: 'private',
+        smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+        transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+      };
+    };
   });
 
   it('Allows to append a file', async () => {
     const result = await ethereumStorage.append(content1);
 
-    const resultExpected: StorageTypes.IRequestStorageAppendReturn = {
+    if (!result.meta.ethereum) {
+      assert.fail('result.meta.ethereum does not exist');
+      return;
+    }
+
+    const resultExpected: StorageTypes.IRequestStorageOneDataIdAndMeta = {
       meta: {
+        ethereum: {
+          blockConfirmation: 10,
+          blockNumber: 10,
+          blockTimestamp: 1545816416,
+          cost: '110',
+          fee: '100',
+          gasFee: '10',
+          networkName: 'private',
+          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+        },
+        ipfs: {
+          size: realSize1,
+        },
         storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
       },
       result: { dataId: hash1 },
     };
-    assert.deepEqual(resultExpected, result);
+    assert.deepEqual(result, resultExpected);
+  });
+
+  it('throws when append and addHashAndSizeToEthereum throws', async () => {
+    ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
+      StorageTypes.IRequestStorageEthereumMetadata
+    > => {
+      throw Error('fake error');
+    };
+
+    try {
+      await ethereumStorage.append(content1);
+      assert.fail('result.meta.ethereum does not exist');
+    } catch (e) {
+      assert.equal(e.message, 'Smart contract error: Error: fake error');
+    }
   });
 
   it('Allows to read a file', async () => {
     await ethereumStorage.append(content1);
     const result = await ethereumStorage.read(hash1);
 
-    const resultExpected: StorageTypes.IRequestStorageReadReturn = {
-      meta: {
-        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-      },
-      result: { content: content1 },
-    };
-    assert.deepEqual(resultExpected, result);
+    if (!result.meta.ethereum) {
+      assert.fail('result.meta.ethereum does not exist');
+      return;
+    }
+
+    assert.deepEqual(result.result, { content: content1 });
+    assert.deepEqual(result.meta.ipfs, {
+      size: realSize1,
+    });
+
+    assert.equal(result.meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.equal(result.meta.ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.isAtLeast(result.meta.ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.ethereum.blockTimestamp);
   });
 
   it('Allow to retrieve all data id', async () => {
@@ -104,17 +173,45 @@ describe('EthereumStorage', () => {
     await ethereumStorage.append(content2);
     const result = await ethereumStorage.getAllDataId();
 
-    assert.deepEqual(result, {
-      meta: {
-        metaDataIds: [
-          { storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS },
-          {},
-          { storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS },
-          {},
-        ],
-      },
-      result: { dataIds: [hash1, '', hash2, ''] },
+    if (!result.meta.metaDataIds[0].ethereum) {
+      assert.fail('result.meta.metaDataIds[0].ethereum does not exist');
+      return;
+    }
+    assert.deepEqual(result.meta.metaDataIds[0].ipfs, {
+      size: realSize1,
     });
+    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.equal(result.meta.metaDataIds[0].ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.metaDataIds[0].ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.isAtLeast(result.meta.metaDataIds[0].ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.metaDataIds[0].ethereum.blockTimestamp);
+
+    assert.deepEqual(result.meta.metaDataIds[1], {});
+
+    if (!result.meta.metaDataIds[2].ethereum) {
+      assert.fail('result.meta.metaDataIds[2].ethereum does not exist');
+      return;
+    }
+    assert.deepEqual(result.meta.metaDataIds[2].ipfs, {
+      size: realSize2,
+    });
+    assert.equal(result.meta.metaDataIds[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+    assert.equal(result.meta.metaDataIds[2].ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.metaDataIds[2].ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.metaDataIds[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+    assert.isAtLeast(result.meta.metaDataIds[2].ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.metaDataIds[2].ethereum.blockTimestamp);
+
+    assert.deepEqual(result.meta.metaDataIds[3], {});
+
+    assert.deepEqual(result.result, { dataIds: [hash1, '', hash2, ''] });
   });
 
   it('Allow to retrieve all data', async () => {
@@ -122,17 +219,44 @@ describe('EthereumStorage', () => {
     await ethereumStorage.append(content2);
     const result = await ethereumStorage.getAllData();
 
-    const resultExpected: StorageTypes.IRequestStorageGetAllDataReturn = {
-      meta: {
-        metaData: [
-          { storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS },
-          {},
-          { storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS },
-          {},
-        ],
-      },
-      result: { data: [content1, '', content2, ''] },
-    };
-    assert.deepEqual(result, resultExpected);
+    if (!result.meta.metaData[0].ethereum) {
+      assert.fail('result.meta.metaData[0].ethereum does not exist');
+      return;
+    }
+    assert.deepEqual(result.meta.metaData[0].ipfs, {
+      size: realSize1,
+    });
+    assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.equal(result.meta.metaData[0].ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.metaData[0].ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.isAtLeast(result.meta.metaData[0].ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.metaData[0].ethereum.blockTimestamp);
+
+    assert.deepEqual(result.meta.metaData[1], {});
+
+    if (!result.meta.metaData[2].ethereum) {
+      assert.fail('result.meta.metaData[2].ethereum does not exist');
+      return;
+    }
+    assert.deepEqual(result.meta.metaData[2].ipfs, {
+      size: realSize2,
+    });
+    assert.equal(result.meta.metaData[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+    assert.equal(result.meta.metaData[2].ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.metaData[2].ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.metaData[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+    assert.isAtLeast(result.meta.metaData[2].ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.metaData[2].ethereum.blockTimestamp);
+
+    assert.deepEqual(result.meta.metaData[3], {});
+
+    assert.deepEqual(result.result, { data: [content1, '', content2, ''] });
   });
 });

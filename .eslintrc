@@ -1,8 +1,7 @@
 {
     "root": true,
     "parser": "typescript-eslint-parser",
-    "parserOptions":
-    {
+    "parserOptions": {
         "ecmaVersion": 10,
         "sourceType": "module"
     },
@@ -39,6 +38,7 @@
                     "mainnet",
                     "memberof",
                     "metadata",
+                    "mul",
                     "param",
                     "params",
                     "requestnetwork",

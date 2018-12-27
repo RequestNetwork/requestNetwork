@@ -33,27 +33,33 @@ const contract = new eth.Contract(
 // Define a mock for getPastEvents to be independant of the state of ganache instance
 const pastEventsMock = [
   {
+    blockNumber: 1,
     event: 'NewHash',
     returnValues: {
       hash: hashStr,
       size: realSize,
     },
+    transactionHash: '0xa',
   },
   // This event has an invalid size but it should not be ignored in smart contract manager
   {
+    blockNumber: 2,
     event: 'NewHash',
     returnValues: {
       hash: hashStr,
       size: fakeSize,
     },
+    transactionHash: '0xb',
   },
   // We can add any data into the storage
   {
+    blockNumber: 3,
     event: 'NewHash',
     returnValues: {
       hash: otherContent,
       size: otherSize,
     },
+    transactionHash: '0xc',
   },
 ];
 const getPastEventsMock = () => pastEventsMock;
@@ -67,6 +73,7 @@ describe('SmartContractManager', () => {
 
   it('Allows to add hashes to smart contract', async () => {
     await smartContractManager.addHashAndSizeToEthereum(hashStr, realSize);
+
     // Reading last event log
     const events = await contract.getPastEvents({
       event: 'NewHash',
@@ -105,5 +112,24 @@ describe('SmartContractManager', () => {
     assert.equal(allHashesAndSizes[1].size, fakeSize);
     assert.equal(allHashesAndSizes[2].hash, otherContent);
     assert.equal(allHashesAndSizes[2].size, otherSize);
+  });
+
+  it('allows to getMetaFromEthereum() a hash', async () => {
+    const meta = await smartContractManager.getMetaFromEthereum(hashStr);
+
+    assert.equal(meta.blockNumber, pastEventsMock[0].blockNumber);
+    assert.equal(meta.networkName, 'private');
+    assert.equal(meta.smartContractAddress, '0x345ca3e014aaf5dca488057592ee47305d9b3e10');
+    assert.equal(meta.transactionHash, '0xa');
+    assert.isAtLeast(meta.blockConfirmation, 0);
+  });
+
+  it('allows to getMetaFromEthereum() a hash not indexed', async () => {
+    try {
+      await smartContractManager.getMetaFromEthereum('empty');
+      assert.fail('must have exception');
+    } catch (e) {
+      assert.equal(e.message, 'contentHash not indexed on ethereum');
+    }
   });
 });

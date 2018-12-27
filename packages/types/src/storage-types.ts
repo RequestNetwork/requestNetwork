@@ -1,15 +1,13 @@
-const bigNumber: any = require('bn.js');
-
 /** Interface of the storage */
 export interface IStorage {
-  append: (data: string) => Promise<IRequestStorageAppendReturn>;
-  read: (dataId: string) => Promise<IRequestStorageReadReturn>;
+  append: (data: string) => Promise<IRequestStorageOneDataIdAndMeta>;
+  read: (dataId: string) => Promise<IRequestStorageOneContentAndMeta>;
   getAllData: () => Promise<IRequestStorageGetAllDataReturn>;
   getAllDataId: () => Promise<IRequestStorageGetAllDataIdReturn>;
 }
 
 /** return interface for append  */
-export interface IRequestStorageAppendReturn {
+export interface IRequestStorageOneDataIdAndMeta {
   /** meta information */
   meta: IRequestStorageMetaOneData;
   /** result of the execution */
@@ -20,7 +18,7 @@ export interface IRequestStorageAppendReturn {
 }
 
 /** return interface for read  */
-export interface IRequestStorageReadReturn {
+export interface IRequestStorageOneContentAndMeta {
   /** meta information */
   meta: IRequestStorageMetaOneData;
   /** result of the execution */
@@ -61,27 +59,44 @@ export interface IRequestStorageMetaOneData {
   /** Storage type for now only ethereum + ipfs */
   storageType?: StorageSystemType;
   /** meta about ethereum smart contract */
-  ethereum?: {
-    /** network id where the smart contract is deployed */
-    networkId: number;
-    /** Smart contract address where is stored the data id */
-    smartContractAddress: string;
-    /** hash of the transaction that stored the data id */
-    transactionHash: string;
-    /** block number of the transaction that stored the data id */
-    blockNumber: number;
-    /** block timestamp of the transaction that stored the data id */
-    blockTimestamp: number;
-    /** number of block confirmation of the transaction */
-    blockConfirmation: number;
-    /** cost in wei of the transaction that stored the data id */
-    cost: typeof bigNumber;
-  };
-  /** meta about ipfs file */
+  ethereum?: IRequestStorageEthereumMetadata;
+  /** IPFS file metadata */
   ipfs?: {
-    /** Size in octet of the file on ipfs */
+    /** Size in bytes of the file on ipfs */
     size: number;
   };
+}
+
+/** return interface for getAllHashesAndSizes() */
+export interface IRequestStorageGetAllHashesAndSizes {
+  /** meta information */
+  meta: IRequestStorageEthereumMetadata;
+  /** data id of the persisted data */
+  hash: string;
+  /** data size of the persisted data */
+  size: number;
+}
+
+/** Ethereum storage meta data */
+export interface IRequestStorageEthereumMetadata {
+  /** network name where the smart contract is deployed */
+  networkName: string;
+  /** Smart contract address where is stored the data id */
+  smartContractAddress: string;
+  /** hash of the transaction that stored the data id */
+  transactionHash: string;
+  /** block number of the transaction that stored the data id */
+  blockNumber: number;
+  /** block timestamp of the transaction that stored the data id */
+  blockTimestamp: number;
+  /** number of block confirmation of the transaction */
+  blockConfirmation: number;
+  /** total cost (request fee + gas fee) in wei of the transaction that stored the data id */
+  cost?: string;
+  /** request fee in wei of the transaction that stored the data id */
+  fee?: string;
+  /** gas fee in wei of the transaction that stored the data id */
+  gasFee?: string;
 }
 
 /** Ethereum network id */
