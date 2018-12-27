@@ -305,7 +305,7 @@ describe('index', () => {
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
         expect(e.message, 'exception not right').to.be.equal(
-          'Impossible to parse the actions: SyntaxError: Unexpected token N in JSON at position 1',
+          'Unexpected token N in JSON at position 1',
         );
       }
     });

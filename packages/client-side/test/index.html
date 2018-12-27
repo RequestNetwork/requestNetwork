@@ -34,18 +34,27 @@
       }
 
       (async () => {
-        const requestNetwork = new RequestNetwork.RequestNetwork();
+        // Initialize the library in local test mode
+        const requestNetwork = new RequestNetwork.RequestNetwork({ useMockStorage: true });
 
         const { requestCreationHash, signatureInfo, topics } = getMockData();
+
+        // Create a request
         const { request } = await requestNetwork.createRequest(
           requestCreationHash,
           signatureInfo,
           topics,
         );
 
+        // Retrieve the previously created request from its ID
         const requestFromId = requestNetwork.fromRequestId(request.requestId);
-        console.log(request);
-        console.log(requestFromId);
+
+        // Get the data of the request
+        const {
+          result: { request: requestData },
+        } = await requestFromId.getData();
+
+        console.log(requestData);
       })();
     </script>
   </body>

@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Client side test",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--no-timeouts",
+                "--require",
+                "ts-node/register",
+                "${workspaceFolder}/packages/client-side/test/*.test.ts",
+                "--colors"
+            ],
+            "cwd": "${workspaceFolder}/packages/client-side/",
+            "protocol": "inspector",
+            "sourceMaps": true
+        },
+        {
             "name": "Integration test",
             "type": "node",
             "request": "launch",

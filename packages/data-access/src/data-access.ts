@@ -33,11 +33,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Function to initialize the dataId topic with the previous block
    */
   public async initialize(): Promise<void> {
-    // cannot be initialized twice
-    if (this.locationByTopic) {
-      throw new Error('already initialized');
+    this.initializeEmpty();
+    if (!this.locationByTopic) {
+      throw new Error('locationByTopic should be created');
     }
-    this.locationByTopic = new LocationByTopic();
 
     // initialize the dataId topic with the previous block
     const allDataIdsWithMeta = await this.storage.getAllDataId();
@@ -166,5 +165,18 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       },
       result: { transactions },
     };
+  }
+
+  /**
+   * Creates an empty LocationByTopic
+   *
+   * @protected
+   * @memberof DataAccess
+   */
+  protected initializeEmpty(): void {
+    if (this.locationByTopic) {
+      throw new Error('already initialized');
+    }
+    this.locationByTopic = new LocationByTopic();
   }
 }

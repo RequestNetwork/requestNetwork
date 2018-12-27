@@ -32,7 +32,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // concat index given and the default index (requestId)
-    indexes.push(requestId);
+    indexes = [...indexes, requestId];
 
     const resultPersistTx = await this.dataAccess.persistTransaction(
       JSON.stringify(action),
@@ -173,7 +173,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         result: { request },
       };
     } catch (e) {
-      throw new Error(`Impossible to parse the actions: ${e}`);
+      // Error parsing the actions
+      throw e;
     }
   }
 }

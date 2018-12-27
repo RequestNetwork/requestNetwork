@@ -37,16 +37,16 @@ const topics = [
   '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 ];
 
+function mockAxios(): any {
+  const mock = new mockAdapter(axios);
+  mock.onPost('/persistTransaction').reply(200, { result: {} });
+  mock.onGet('/getTransactionsByTopic').reply(200, { result: { transactions: [] } });
+  return mock;
+}
+
 // Integration tests
 /* tslint:disable:no-unused-expression */
 describe('index', () => {
-  beforeEach(async () => {
-    // Mock axios
-    const mock = new mockAdapter(axios);
-    mock.onPost('/persistTransaction').reply(200, { result: {} });
-    mock.onGet('/getTransactionsByTopic').reply(200, { result: { transactions: [] } });
-  });
-
   afterEach(() => {
     sandbox.restore();
   });
@@ -77,12 +77,13 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
 
-    const requestNetwork = new RequestNetwork({ baseURL });
+    const requestNetwork = new RequestNetwork({ nodeConnectionConfig: { baseURL } });
     await requestNetwork.createRequest(requestCreationHash, signatureInfo, topics);
     expect(spy).to.have.been.called.once;
   });
 
   it('allows to create a request', async () => {
+    mockAxios();
     const requestNetwork = new RequestNetwork();
 
     const axiosSpyGet = sandbox.on(axios, 'get');
@@ -105,6 +106,7 @@ describe('index', () => {
   });
 
   it('allows to get a request from its ID', async () => {
+    mockAxios();
     const requestNetwork = new RequestNetwork();
 
     const { request } = await requestNetwork.createRequest(
@@ -119,6 +121,7 @@ describe('index', () => {
   });
 
   it('allows to get data a request', async () => {
+    mockAxios();
     const requestNetwork = new RequestNetwork();
     const { request } = await requestNetwork.createRequest(
       requestCreationHash,
@@ -136,7 +139,22 @@ describe('index', () => {
     expect(axiosSpyPost).to.have.been.called.exactly(0);
   });
 
+  it('works with mocked storage', async () => {
+    const requestNetwork = new RequestNetwork({ useMockStorage: true });
+    const { request } = await requestNetwork.createRequest(
+      requestCreationHash,
+      signatureInfo,
+      topics,
+    );
+
+    const data = await request.getData();
+
+    expect(data.result).to.exist;
+    expect(data.result.request.expectedAmount).to.equal(requestCreationHash.expectedAmount);
+  });
+
   it('allows to accept a request', async () => {
+    mockAxios();
     const requestNetwork = new RequestNetwork();
     const { request } = await requestNetwork.createRequest(
       requestCreationHash,

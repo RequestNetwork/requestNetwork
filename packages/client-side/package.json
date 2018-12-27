@@ -62,8 +62,10 @@
     "webpack-cli": "3.1.2"
   },
   "dependencies": {
+    "@requestnetwork/data-access": "0.1.0",
     "@requestnetwork/request-logic": "0.1.0",
     "@requestnetwork/types": "0.1.0",
+    "@requestnetwork/utils": "0.1.0",
     "axios": "0.18.0"
   }
 }
