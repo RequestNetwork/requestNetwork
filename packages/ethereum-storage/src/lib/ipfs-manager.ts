@@ -20,9 +20,7 @@ export default class IpfsManager {
    * If no values are provided default values from config are used
    * Private network is used for default values
    */
-  public constructor(
-    _ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs(),
-  ) {
+  public constructor(_ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs()) {
     this.ipfsConnection = _ipfsConnection;
   }
 
@@ -39,7 +37,7 @@ export default class IpfsManager {
 
         // Preparing form data for add request
         const addForm = new FormData();
-        addForm.append('file', new Buffer(content));
+        addForm.append('file', Buffer.from(content));
 
         // Creating object for add request
         const addRequest = protocolModule.request({

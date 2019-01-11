@@ -1,16 +1,26 @@
 {
   "name": "request-network-smart-contracts",
   "version": "0.2.7",
+  "private": true,
   "description": "Smart contracts that implement the Request Network protocol.",
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkSmartContracts",
   "keywords": [
-    "ethereum",
-    "request",
-    "requestnetwork",
-    "smart contracts"
+      "ethereum",
+      "request",
+      "requestnetwork",
+      "smart contracts"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkSmartContracts",
+  "bugs": {
+      "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+    },
   "license": "MIT",
-  "repository": "github:RequestNetwork/requestNetwork",
+  "engines": {
+    "node" : ">=8.0.0"
+  },
   "scripts": {
     "clean": "rimraf -rf ./build ./export",
     "ganache": "ganache-cli --networkId=6666 -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
@@ -29,6 +39,5 @@
     "truffle": "4.1.11",
     "truffle-hdwallet-provider": "0.0.5",
     "web3-eth-abi": "1.0.0-beta.34"
-  },
-  "private": true
+  }
 }

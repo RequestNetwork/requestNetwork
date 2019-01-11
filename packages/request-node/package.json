@@ -1,20 +1,27 @@
 {
   "name": "@requestnetwork/request-node",
   "version": "0.1.0",
-  "description": "Basic node for request network v2",
+  "description": "Basic node for request network v2.",
   "keywords": [
     "requestnetwork",
     "request-node"
-  ],
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node",
-  "main": "dist/server",
-  "files": [
-    "dist"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/server",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -b",
     "test": "nyc mocha --require ts-node/register source-map-support/register test/**/*.ts",
@@ -23,9 +30,6 @@
     "lint-staged": "lint-staged",
     "lint": "tslint --project .",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
-  },
-  "bugs": {
-    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
   "dependencies": {
     "express": "4.16.4",

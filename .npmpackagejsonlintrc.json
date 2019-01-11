@@ -1,0 +1,78 @@
+{
+    "rules": {
+        "require-author": "off",
+        "require-description": "error",
+        "require-engines": "error",
+        "require-license": "error",
+        "require-name": "error",
+        "require-repository": "error",
+        "require-version": "error",
+        "require-bugs": "error",
+        "require-homepage": "error",
+        "require-keywords": "error",
+        "bin-type": "error",
+        "config-type": "error",
+        "dependencies-type": "error",
+        "description-type": "error",
+        "devDependencies-type": "error",
+        "directories-type": "error",
+        "engines-type": "error",
+        "files-type": "error",
+        "homepage-type": "error",
+        "keywords-type": "error",
+        "license-type": "error",
+        "main-type": "error",
+        "man-type": "error",
+        "name-type": "error",
+        "preferGlobal-type": "error",
+        "private-type": "error",
+        "repository-type": "error",
+        "scripts-type": "error",
+        "version-type": "error",
+        "valid-values-engines": [
+            "error",
+            [{ "node": ">=8.0.0" }, { "node": ">=8.0.0 <11.0.0" }]
+        ],
+        "valid-values-name-scope": ["warning", ["@requestnetwork"]],
+        "valid-values-author": ["error", ["Request Network"]],
+        "valid-values-private": "off",
+        "valid-values-license": ["error", ["private", "MIT"]],
+        "prefer-absolute-version-dependencies": "error",
+        "prefer-alphabetical-dependencies": "error",
+        "prefer-no-version-zero-dependencies": "off",
+        "prefer-absolute-version-devDependencies": "error",
+        "prefer-alphabetical-devDependencies": "error",
+        "prefer-no-version-zero-devDependencies": "off",
+        "name-format": "error",
+        "version-format": "error",
+        "no-restricted-dependencies": ["warning", ["web3"]],
+        "description-format": [
+            "error",
+            {
+                "requireCapitalFirstLetter": true,
+                "requireEndingPeriod": true
+            }
+        ],
+        "prefer-property-order": [
+            "error",
+            [
+                "name",
+                "version",
+                "private",
+                "description",
+                "keywords",
+                "repository",
+                "homepage",
+                "bugs",
+                "license",
+                "main",
+                "types",
+                "directories",
+                "files",
+                "scripts",
+                "dependencies",
+                "devDependencies"
+            ]
+        ]
+    }
+}

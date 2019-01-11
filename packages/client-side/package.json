@@ -1,13 +1,23 @@
 {
   "name": "@requestnetwork/client-side",
   "version": "0.1.0",
-  "description": "Client side library for Request Network",
+  "description": "Client side library for Request Network.",
   "keywords": [
     "requestnetwork",
     "client-side"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
   "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/client-side#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
   "license": "MIT",
+  "engines": {
+    "node" : ">=8.0.0"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
@@ -17,10 +27,6 @@
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
-  },
   "scripts": {
     "build": "run-p build:commonjs build:umd",
     "build:commonjs": "tsc -b",
@@ -32,8 +38,12 @@
     "prepare": "yarn run build",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
-  "bugs": {
-    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  "dependencies": {
+    "@requestnetwork/data-access": "0.1.0",
+    "@requestnetwork/request-logic": "0.1.0",
+    "@requestnetwork/types": "0.1.0",
+    "@requestnetwork/utils": "0.1.0",
+    "axios": "0.18.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.6",
@@ -60,12 +70,5 @@
     "webpack": "4.27.1",
     "webpack-bundle-analyzer": "3.0.3",
     "webpack-cli": "3.1.2"
-  },
-  "dependencies": {
-    "@requestnetwork/data-access": "0.1.0",
-    "@requestnetwork/request-logic": "0.1.0",
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0",
-    "axios": "0.18.0"
   }
 }
