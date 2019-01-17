@@ -4,8 +4,7 @@ import * as Signature from './signature-types';
 export interface IDataAccess {
   initialize: () => Promise<void>;
   persistTransaction: (
-    transactionData: string,
-    signatureParams: Signature.ISignatureParameters,
+    transactionData: IRequestDataAccessTransaction,
     topics?: string[],
   ) => Promise<IRequestDataReturnPersistTransaction>;
   getTransactionsByTopic: (topic: string) => Promise<IRequestDataReturnGetTransactionsByTopic>;

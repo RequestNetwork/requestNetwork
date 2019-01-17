@@ -1,4 +1,4 @@
-import { DataAccess as DataAccessTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
 import axios, { AxiosRequestConfig } from 'axios';
 
 /**
@@ -48,20 +48,17 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * Persists a new transaction on a node through HTTP.
    *
    * @param {string} transactionData
-   * @param {SignatureTypes.ISignatureParameters} signatureParams
    * @param {string[]} [topics]
    * @returns {Promise<DataAccessTypes.IRequestDataReturnPersistTransaction>}
    * @memberof HttpDataAccess
    */
   public async persistTransaction(
-    transactionData: string,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    transactionData: DataAccessTypes.IRequestDataAccessTransaction,
     topics?: string[],
   ): Promise<DataAccessTypes.IRequestDataReturnPersistTransaction> {
     const { data } = await axios.post(
       '/persistTransaction',
       {
-        signatureParams,
         topics,
         transactionData,
       },

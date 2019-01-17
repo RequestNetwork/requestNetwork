@@ -8,6 +8,7 @@
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
     { "path": "../request-logic" },
+    { "path": "../transaction-manager" },
     { "path": "../types" }
   ]
 }

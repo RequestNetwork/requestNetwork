@@ -5,6 +5,7 @@ const web3Eth = require('web3-eth');
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
+import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
@@ -35,8 +36,11 @@ describe('Request system', () => {
     const dataAccess = new DataAccess(ethereumStorage);
     await dataAccess.initialize();
 
+    // Transaction manager setup
+    const transactionManager = new TransactionManager(dataAccess);
+
     // Logic setup
-    requestLogic = new RequestLogic(dataAccess);
+    requestLogic = new RequestLogic(transactionManager);
   });
 
   after(() => {

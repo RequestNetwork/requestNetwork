@@ -1,7 +1,7 @@
 import {
-  DataAccess as DataAccessTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
+  Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import RequestLogicCore from './requestLogicCore';
 
@@ -9,14 +9,14 @@ import RequestLogicCore from './requestLogicCore';
  * Implementation of Request Logic
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
-  private dataAccess: DataAccessTypes.IDataAccess;
+  private transactionManager: TransactionTypes.ITransactionManager;
 
-  public constructor(dataAccess: DataAccessTypes.IDataAccess) {
-    this.dataAccess = dataAccess;
+  public constructor(transactionManager: TransactionTypes.ITransactionManager) {
+    this.transactionManager = transactionManager;
   }
 
   /**
-   * Function to create a request and persist it on the data-access layer
+   * Function to create a request and persist it on the transaction manager layer
    *
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -34,19 +34,19 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // concat index given and the default index (requestId)
     indexes = [...indexes, requestId];
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       indexes,
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
       result: { requestId },
     };
   }
 
   /**
-   * Function to accept a request and persist it on the data-access layer
+   * Function to accept a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -60,19 +60,19 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatAccept(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
 
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
   /**
-   * Function to cancel a request and persist it on the data-access layer
+   * Function to cancel a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -86,18 +86,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatCancel(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
   /**
-   * Function to increase expected amount of a request and persist it on the data-access layer
+   * Function to increase expected amount of a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -114,18 +114,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
   /**
-   * Function to reduce expected amount of a request and persist it on the data-access layer
+   * Function to reduce expected amount of a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
@@ -139,13 +139,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatReduceExpectedAmount(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
@@ -159,7 +159,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,
   ): Promise<RequestLogicTypes.IRequestLogicReturnGetRequestById> {
-    const resultGetTx = await this.dataAccess.getTransactionsByTopic(requestId);
+    const resultGetTx = await this.transactionManager.getTransactionsByTopic(requestId);
     const actions = resultGetTx.result.transactions;
 
     try {
@@ -169,7 +169,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         .reduce(RequestLogicCore.applyActionToRequest, null);
 
       return {
-        meta: { dataAccessMeta: resultGetTx.meta },
+        meta: { transactionManagerMeta: resultGetTx.meta },
         result: { request },
       };
     } catch (e) {

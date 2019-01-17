@@ -37,9 +37,9 @@ export interface IRequestLogicReturn {
   meta: IRequestLogicReturnMeta;
 }
 
-/** meta data given by the layer below (data-access) */
+/** meta data given by the layer below (transaction manager) */
 export interface IRequestLogicReturnMeta {
-  dataAccessMeta: any;
+  transactionManagerMeta: any;
 }
 
 /** return of the function createRequest */

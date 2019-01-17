@@ -1,5 +1,9 @@
 import { RequestLogic } from '@requestnetwork/request-logic';
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { TransactionManager } from '@requestnetwork/transaction-manager';
+import {
+  DataAccess as DataAccessTypes,
+  Transaction as TransactionTypes,
+} from '@requestnetwork/types';
 import { AxiosRequestConfig } from 'axios';
 import RequestNetwork from './api/request-network';
 import HttpDataAccess from './http-data-access';
@@ -35,7 +39,9 @@ export default class HttpRequestNetwork extends RequestNetwork {
       ? new MockDataAccess(new MockStorage())
       : new HttpDataAccess(nodeConnectionConfig);
 
-    const requestLogic = new RequestLogic(dataAccess);
+    const transaction: TransactionTypes.ITransactionManager = new TransactionManager(dataAccess);
+
+    const requestLogic = new RequestLogic(transaction);
 
     super(requestLogic);
   }

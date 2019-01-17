@@ -2,7 +2,6 @@ import 'mocha';
 
 const chai = require('chai');
 const spies = require('chai-spies');
-import Utils from '@requestnetwork/utils';
 
 const expect = chai.expect;
 chai.use(spies);
@@ -30,11 +29,6 @@ const signatureMock = {
     '0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b',
 };
 
-const signatureMockSignature = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
-};
-
 const transactionMock1: DataAccessTypes.IRequestDataAccessTransaction = {
   data: transactionDataMock1String,
   signature: signatureMock,
@@ -43,9 +37,6 @@ const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
   data: transactionDataMock2String,
   signature: signatureMock,
 };
-
-const transactionMock1String = JSON.stringify(transactionMock1);
-const transactionMock1Hash: string = Utils.crypto.normalizeKeccak256Hash(transactionMock1String);
 
 const arbitraryTopic1 = '0xaaaaaa';
 const arbitraryTopic2 = '0xccccccccccc';
@@ -87,9 +78,9 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: () => chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
           };
@@ -121,9 +112,9 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: () => chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
           };
@@ -153,9 +144,9 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: () => chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
             result: { content: JSON.stringify({ notFolling: 'the standad' }) },
@@ -186,9 +177,9 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: () => chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
@@ -235,9 +226,9 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: () => chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
@@ -267,9 +258,9 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: () => chai.spy(),
-        getAllDataId: () => testTopics,
-        read: (param: string) => {
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
@@ -296,18 +287,14 @@ describe('data-access', () => {
     it('can persistTransaction()', async () => {
       const fakeStorageSpied: StorageTypes.IStorage = {
         append: chai.spy.returns(appendResult),
-        getAllData: () => chai.spy(),
+        getAllData: (): any => chai.spy(),
         getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
       await dataAccess.initialize();
 
-      const result = await dataAccess.persistTransaction(
-        transactionMock1String,
-        signatureMockSignature,
-        [arbitraryTopic1],
-      );
+      const result = await dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]);
 
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
@@ -316,18 +303,17 @@ describe('data-access', () => {
           header: {
             topics: {
               '0xaaaaaa': [0],
-              '0x509b20f14449dab328580335abb39cc2f162a6b69d97860f40e12417312adfdd': [0],
+              '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca': [0],
             },
             version: '0.1.0',
           },
           transactions: [
             {
-              data:
-                '{"data":"{\\"attribut1\\":\\"plop\\",\\"attribut2\\":\\"value\\"}","signature":{"method":"ecdsa","value":"0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b"}}',
+              data: '{"attribut1":"plop","attribut2":"value"}',
               signature: {
                 method: 'ecdsa',
                 value:
-                  '0xd78d75d3d8632482c87b51e129b29ca585f792c864e022c7d5519be8395fca87393c3a56b8dd1d2f40747dc748be5f19cd8e935fa5e75cdc5f1c92b09e226f3d1b',
+                  '0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b',
               },
             },
           ],
@@ -336,7 +322,10 @@ describe('data-access', () => {
       expect(result, 'result wrong').to.deep.equal({
         meta: {
           storageMeta: {},
-          topics: [arbitraryTopic1, transactionMock1Hash],
+          topics: [
+            arbitraryTopic1,
+            '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
+          ],
           transactionStorageLocation: dataIdBlock2tx,
         },
         result: {},
@@ -346,16 +335,14 @@ describe('data-access', () => {
     it('cannot persistTransaction() if not initialized', async () => {
       const fakeStorageSpied: StorageTypes.IStorage = {
         append: chai.spy.returns('fakeDataId'),
-        getAllData: () => chai.spy(),
+        getAllData: (): any => chai.spy(),
         getAllDataId: chai.spy.returns([]),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
 
       try {
-        await dataAccess.persistTransaction(transactionMock1String, signatureMockSignature, [
-          arbitraryTopic1,
-        ]);
+        await dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]);
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
         expect(e.message, 'exception not right').to.be.equal('DataAccess must be initialized');

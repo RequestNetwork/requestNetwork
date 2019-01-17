@@ -13,7 +13,7 @@
         "lerna": "lerna",
         "test": "lerna run test",
         "publish-coverage": "codecov --disable=gcov",
-        "v2-build": "tsc -b packages/client-side packages/data-access packages/integration-test packages/ethereum-storage packages/request-logic packages/request-node packages/types packages/utils packages/types",
+        "v2-build": "tsc -b packages/client-side packages/data-access packages/integration-test packages/ethereum-storage packages/request-logic packages/request-node packages/types packages/utils packages/types packages/transaction-manager",
         "v2-lint": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" lint",
         "v2-test": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" test",
         "packageJsonLint": "npmPkgJsonLint ./packages"
