@@ -10,6 +10,12 @@ import { getDefaultIpfs } from './config';
 export default class IpfsManager {
   public ipfsConnection: StorageTypes.IIpfsGatewayConnection;
 
+  /**
+   * Node module used to send request to ipfs
+   * This attribute is left public for mocking purposes
+   */
+  public ipfsConnectionModule: any;
+
   public readonly IPFS_API_ADD: string = '/api/v0/add';
   public readonly IPFS_API_CAT: string = '/api/v0/cat';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
@@ -22,6 +28,8 @@ export default class IpfsManager {
    */
   public constructor(_ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs()) {
     this.ipfsConnection = _ipfsConnection;
+
+    this.ipfsConnectionModule = this.getIpfsConnectionModuleModule(this.ipfsConnection.protocol);
   }
 
   /**
@@ -33,14 +41,12 @@ export default class IpfsManager {
     // Promise to wait for response from server
     return new Promise<string>(
       (resolve, reject): void => {
-        const protocolModule: any = this.getProtocolModule(this.ipfsConnection.protocol);
-
         // Preparing form data for add request
         const addForm = new FormData();
         addForm.append('file', Buffer.from(content));
 
         // Creating object for add request
-        const addRequest = protocolModule.request({
+        const addRequest = this.ipfsConnectionModule.request({
           headers: addForm.getHeaders(),
           host: this.ipfsConnection.host,
           method: 'post',
@@ -64,7 +70,6 @@ export default class IpfsManager {
             } catch (error) {
               reject(Error('Ipfs add request response cannot be parsed into JSON format'));
             }
-
             if (!jsonData || !jsonData.Hash) {
               reject(Error('Ipfs add request response has no Hash field'));
             }
@@ -73,12 +78,11 @@ export default class IpfsManager {
             resolve(jsonData.Hash);
           });
 
-          // Error handling
           res.on('error', (e: string) => {
             reject(Error(`Ipfs add request response error: ${e}`));
           });
           res.on('aborted', () => {
-            reject(Error('Ipfs add request has been aborted'));
+            reject(Error('Ipfs add request response has been aborted'));
           });
         });
 
@@ -86,7 +90,6 @@ export default class IpfsManager {
         addRequest.on('timeout', () => {
           reject(Error('Ipfs add request timeout'));
         });
-        // Throw error on abort
         addRequest.on('abort', () => {
           reject(Error('Ipfs add request has been aborted'));
         });
@@ -106,14 +109,12 @@ export default class IpfsManager {
     // Promise to wait for response from server
     return new Promise<string>(
       (resolve, reject): void => {
-        const protocolModule: any = this.getProtocolModule(this.ipfsConnection.protocol);
-
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
         }${this.IPFS_API_CAT}?arg=${hash}`;
 
-        const getRequest = protocolModule
+        const getRequest = this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
             let data = '';
 
@@ -125,12 +126,13 @@ export default class IpfsManager {
             res.on('end', () => {
               resolve(data);
             });
+
             // Error handling
             res.on('error', (e: string) => {
               reject(Error(`Ipfs read request response error: ${e}`));
             });
             res.on('aborted', () => {
-              reject(Error('Ipfs read request has been aborted'));
+              reject(Error('Ipfs read request response has been aborted'));
             });
           })
           .on('timeout', () => {
@@ -159,14 +161,12 @@ export default class IpfsManager {
     // Promise to wait for response from server
     return new Promise<number>(
       (resolve, reject): void => {
-        const protocolModule: any = this.getProtocolModule(this.ipfsConnection.protocol);
-
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
         }${this.IPFS_API_STAT}?arg=${hash}`;
 
-        const getRequest = protocolModule
+        const getRequest = this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
             let data = '';
 
@@ -176,21 +176,27 @@ export default class IpfsManager {
             });
             // All data has been received
             res.on('end', () => {
-              const jsonData = JSON.parse(data);
-
-              if (!jsonData.DataSize) {
-                reject(Error('Ipfs stat request response has no DataSize field'));
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                reject(Error('Ipfs stat request response cannot be parsed into JSON format'));
               }
 
-              // Return the data size
-              resolve(parseInt(jsonData.DataSize, 10));
+              if (!jsonData || !jsonData.DataSize) {
+                reject(Error('Ipfs stat request response has no DataSize field'));
+              } else {
+                // Return the data size
+                resolve(parseInt(jsonData.DataSize, 10));
+              }
             });
+
             // Error handling
             res.on('error', (e: string) => {
               reject(Error(`Ipfs stat request response error: ${e}`));
             });
             res.on('aborted', () => {
-              reject(Error('Ipfs stat request has been aborted'));
+              reject(Error('Ipfs stat request response has been aborted'));
             });
           })
           .on('timeout', () => {
@@ -215,11 +221,7 @@ export default class IpfsManager {
    * @param protocol Protocol used to send ipfs requests
    * @returns Network module
    */
-  public getProtocolModule(protocol: StorageTypes.IpfsGatewayProtocol): any {
-    if (!protocol) {
-      throw Error('Protocol not specified');
-    }
-
+  private getIpfsConnectionModuleModule(protocol: StorageTypes.IpfsGatewayProtocol): any {
     const protocolModule = {
       [StorageTypes.IpfsGatewayProtocol.HTTP as StorageTypes.IpfsGatewayProtocol]: http,
       [StorageTypes.IpfsGatewayProtocol.HTTPS as StorageTypes.IpfsGatewayProtocol]: https,

@@ -44,7 +44,9 @@ export function getCreationBlockNumber(networkName: string): number {
  * @param networkName the name of the network where the contract is deployed
  * @returns the deployment information of the contract as a json object containing address and the number of the creation block
  */
-function getDeploymentInformation(networkName: string): {address: string, creationBlockNumber: number } {
+function getDeploymentInformation(
+  networkName: string,
+): { address: string; creationBlockNumber: number } {
   const deploymentInformation = artifacts[ARTIFACTS_VERSION].deployment[networkName];
 
   // Check the artifact has been deployed into the specified network

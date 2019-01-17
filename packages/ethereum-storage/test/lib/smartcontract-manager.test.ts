@@ -1,18 +1,51 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
-import { assert } from 'chai';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as artifactsUtils from '../../src/lib/artifacts-utils';
 import SmartContractManager from '../../src/lib/smart-contract-manager';
 
-const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+// Extends chai for promises
+chai.use(chaiAsPromised);
+const assert = chai.assert;
 
-const hdWalletProvider = require('truffle-hdwallet-provider');
-const provider = new hdWalletProvider(mnemonic, 'http://localhost:8545');
+const web3HttpProvider = require('web3-providers-http');
 
+const provider = new web3HttpProvider('http://localhost:8545');
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
+  timeout: 1000,
   web3Provider: provider,
 };
-const smartContractManager = new SmartContractManager(web3Connection);
+
+const invalidHostProvider = new web3HttpProvider('http://nonexistent:8545');
+const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
+  networkId: StorageTypes.EthereumNetwork.PRIVATE,
+  timeout: 1000,
+  web3Provider: invalidHostProvider,
+};
+
+const mainnetProvider = new web3HttpProvider(
+  'https://mainnet.infura.io/v3/336bb135413f4f5f92138d4539ae4300',
+);
+const mainnetWeb3Connection: StorageTypes.IWeb3Connection = {
+  web3Provider: mainnetProvider,
+};
+
+const invalidProvider = 'invalidProvider';
+const invalidWeb3Connection: StorageTypes.IWeb3Connection = {
+  networkId: StorageTypes.EthereumNetwork.PRIVATE,
+  timeout: 1000,
+  web3Provider: invalidProvider,
+};
+
+const invalidNetwork = 999999;
+const invalidNetworkWeb3Connection: StorageTypes.IWeb3Connection = {
+  networkId: invalidNetwork,
+  timeout: 1000,
+  web3Provider: provider,
+};
+
+let smartContractManager: SmartContractManager;
 
 const hashStr = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize = 29;
@@ -61,14 +94,41 @@ const pastEventsMock = [
     },
     transactionHash: '0xc',
   },
+  // We can add any data into the storage
+  {
+    event: 'NewHash',
+    returnValues: {
+      hash: otherContent,
+      size: otherSize,
+    },
+  },
 ];
 const getPastEventsMock = () => pastEventsMock;
-smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
+
+// Mock to test case whare events are badly formatted
+const badEventsMock = [
+  {
+    blockNumber: 2,
+    event: 'NewHash',
+    returnValues: {
+      size: fakeSize,
+    },
+    transactionHash: '0xb',
+  },
+];
+const getBadEventsMock = () => badEventsMock;
 
 describe('SmartContractManager', () => {
-  after(() => {
-    // Stop web3 provider
-    provider.engine.stop();
+  beforeEach(() => {
+    smartContractManager = new SmartContractManager(web3Connection);
+    smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
+  });
+
+  it('getMainAccount should return the main account', async () => {
+    const accounts = await eth.getAccounts();
+    const mainAccount = await smartContractManager.getMainAccount();
+
+    assert.equal(mainAccount, accounts[0]);
   });
 
   it('Allows to add hashes to smart contract', async () => {
@@ -114,7 +174,58 @@ describe('SmartContractManager', () => {
     assert.equal(allHashesAndSizes[2].size, otherSize);
   });
 
-  it('allows to getMetaFromEthereum() a hash', async () => {
+  it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
+    smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
+    await assert.isRejected(smartContractManager.getMainAccount(), Error);
+  });
+
+  it('getMainAccount when web3 provider is initialized with no account should throw an error', async () => {
+    smartContractManager = new SmartContractManager(mainnetWeb3Connection);
+    await assert.isRejected(smartContractManager.getMainAccount(), Error, 'No account found');
+  });
+
+  it('addHashAndSizeToEthereum with a invalid host provider should throw a timeout error', async () => {
+    smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
+    await assert.isRejected(
+      smartContractManager.addHashAndSizeToEthereum(hashStr, realSize),
+      Error,
+    );
+  });
+
+  it('getAllHashesAndSizesFromEthereum with a invalid host provider should throw a timeout error', async () => {
+    smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
+    await assert.isRejected(smartContractManager.getAllHashesAndSizesFromEthereum(), Error);
+  });
+
+  it('Initialize smartcontract-manager with default values should not throw an error', async () => {
+    assert.doesNotThrow(() => new SmartContractManager(), Error);
+  });
+
+  it('Initialize smartcontract-manager with an invalid provider should throw an error', async () => {
+    assert.throws(
+      () => new SmartContractManager(invalidWeb3Connection),
+      Error,
+      `Can't initialize web3-eth`,
+    );
+  });
+
+  it('Initialize smartcontract-manager with an invalid network should throw an error', async () => {
+    assert.throws(
+      () => new SmartContractManager(invalidNetworkWeb3Connection),
+      Error,
+      `The network id ${invalidNetwork} doesn't exist`,
+    );
+  });
+
+  it('getAddress in artifacts-utils with a invalid host network should throw an error', async () => {
+    assert.throws(
+      () => artifactsUtils.getAddress('nonexistent'),
+      Error,
+      'No deployment for network',
+    );
+  });
+
+  it('Allows to getMetaFromEthereum() a hash', async () => {
     const meta = await smartContractManager.getMetaFromEthereum(hashStr);
 
     assert.equal(meta.blockNumber, pastEventsMock[0].blockNumber);
@@ -124,12 +235,24 @@ describe('SmartContractManager', () => {
     assert.isAtLeast(meta.blockConfirmation, 0);
   });
 
-  it('allows to getMetaFromEthereum() a hash not indexed', async () => {
+  it('Allows to getMetaFromEthereum() a hash not indexed', async () => {
     try {
       await smartContractManager.getMetaFromEthereum('empty');
       assert.fail('must have exception');
     } catch (e) {
       assert.equal(e.message, 'contentHash not indexed on ethereum');
     }
+  });
+
+  it('Badly formatted events from web3 should throw an error', async () => {
+    smartContractManager.requestHashStorage.getPastEvents = getBadEventsMock;
+
+    const allHashesPromises = await smartContractManager.getAllHashesAndSizesFromEthereum();
+
+    await assert.isRejected(
+      Promise.all(allHashesPromises),
+      Error,
+      `event is incorrect: doesn't have a hash or size`,
+    );
   });
 });

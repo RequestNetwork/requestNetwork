@@ -111,6 +111,7 @@ export enum EthereumNetwork {
 export interface IWeb3Connection {
   web3Provider?: any;
   networkId?: EthereumNetwork;
+  timeout?: number;
 }
 
 /** Information to connect to a ipfs gateway */
