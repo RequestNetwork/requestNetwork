@@ -189,7 +189,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -348,6 +348,8 @@ describe('actions/increaseExpectedAmount', () => {
           },
         ],
         expectedAmount: arbitraryExpectedAmount,
+        extensions: {},
+        extensionsData: [],
         payee: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
@@ -428,7 +430,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(

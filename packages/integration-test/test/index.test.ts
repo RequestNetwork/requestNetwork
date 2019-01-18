@@ -2,6 +2,7 @@ import { assert } from 'chai';
 import 'mocha';
 const web3Eth = require('web3-eth');
 
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
@@ -40,7 +41,7 @@ describe('Request system', () => {
     const transactionManager = new TransactionManager(dataAccess);
 
     // Logic setup
-    requestLogic = new RequestLogic(transactionManager);
+    requestLogic = new RequestLogic(transactionManager, AdvancedLogic);
   });
 
   after(() => {
@@ -49,6 +50,10 @@ describe('Request system', () => {
   });
 
   it('can create a request', async () => {
+    const contentDataExtensionData = AdvancedLogic.extensions.contentData.createCreationAction({
+      content: { this: 'could', be: 'an', invoice: true },
+    });
+
     const signatureInfo: SignatureTypes.ISignatureParameters = {
       method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
       privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
@@ -57,6 +62,7 @@ describe('Request system', () => {
     const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
       currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
       expectedAmount: '100000000000',
+      extensionsData: [contentDataExtensionData],
       payee: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
@@ -83,5 +89,9 @@ describe('Request system', () => {
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
     assert.equal(resultCreation.result.requestId.length, requestIdLength);
+
+    const request = await requestLogic.getRequestById(resultCreation.result.requestId);
+
+    assert.exists(request);
   });
 });

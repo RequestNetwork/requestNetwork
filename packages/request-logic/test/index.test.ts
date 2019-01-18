@@ -269,6 +269,7 @@ describe('index', () => {
               },
             ],
             expectedAmount: '123399999999999000',
+            extensions: {},
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
             requestId,

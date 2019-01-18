@@ -1,3 +1,4 @@
+import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 
@@ -77,8 +78,10 @@ export interface IRequestLogicRequest {
   expectedAmount: RequestLogicAmount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
-  /** Array of extensions data linked to the request */
-  extensionsData?: any[];
+  /** Extensions states */
+  extensions: IRequestLogicExtensionStates;
+  /** Extensions raw data */
+  extensionsData: any[];
   events: IRequestLogicEvent[];
   /** timestamp of the request creation in seconds
    * Note: this precision is enough in a blockchain context
@@ -88,6 +91,11 @@ export interface IRequestLogicRequest {
   timestamp: number;
   /** arbitrary number to differentiate several identical requests with the same timestamp */
   nonce?: number;
+}
+
+/** Extensions state indexed by their Id */
+export interface IRequestLogicExtensionStates {
+  [key: string]: Extension.IExtensionState;
 }
 
 /** Amounts in request logic */

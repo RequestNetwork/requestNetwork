@@ -226,7 +226,7 @@ export default class SmartContractManager {
         return {
           hash: event.returnValues.hash,
           meta,
-          size: event.returnValues.size,
+          size: +event.returnValues.size,
         };
       },
     );

@@ -1,4 +1,5 @@
 import {
+  AdvancedLogic as AdvancedLogicTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
   Transaction as TransactionTypes,
@@ -10,9 +11,14 @@ import RequestLogicCore from './requestLogicCore';
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private transactionManager: TransactionTypes.ITransactionManager;
+  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
 
-  public constructor(transactionManager: TransactionTypes.ITransactionManager) {
+  public constructor(
+    transactionManager: TransactionTypes.ITransactionManager,
+    advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
+  ) {
     this.transactionManager = transactionManager;
+    this.advancedLogic = advancedLogic;
   }
 
   /**
@@ -21,7 +27,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturnCreateRequest>  the request id and the meta data
    */
   public async createRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
@@ -51,7 +57,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
@@ -77,7 +83,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async cancelRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
@@ -102,7 +108,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
@@ -130,7 +136,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
@@ -166,7 +172,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       // second parameter is null, because the first action must be a creation (no state expected)
       const request: RequestLogicTypes.IRequestLogicRequest | null = actions
         .map((t: any) => JSON.parse(t.data))
-        .reduce(RequestLogicCore.applyActionToRequest, null);
+        .reduce(
+          (requestState, action) =>
+            RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
+          null,
+        );
 
       return {
         meta: { transactionManagerMeta: resultGetTx.meta },

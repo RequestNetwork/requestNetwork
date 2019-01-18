@@ -5,5 +5,5 @@
     "rootDir": "src"
   },
   "include": ["./src/**/*"],
-  "references": [{ "path": "../advanced-logic" }, { "path": "../types" }, { "path": "../utils" }]
+  "references": [{ "path": "../types" }, { "path": "../utils" }]
 }

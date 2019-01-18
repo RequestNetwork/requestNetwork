@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { RequestLogic as Types } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+
 import Request from '../../src/request';
 import * as TestData from './utils/test-data-generator';
 
@@ -11,58 +11,6 @@ const CURRENT_VERSION = Version.currentVersion;
 
 /* tslint:disable:no-unused-expression */
 describe('Request', () => {
-  describe('pushExtensionsData', () => {
-    it('can pushExtensionsData with array extensionsData on virgin request', () => {
-      const newRequest = Request.pushExtensionsData(
-        Utils.deepCopy(TestData),
-        TestData.twoExtensions,
-      );
-      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
-        TestData.twoExtensions,
-      );
-    });
-    it('can pushExtensionsData with array extensionsData on request with extensionsData', () => {
-      const newRequest = Request.pushExtensionsData(
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
-        TestData.twoExtensions,
-      );
-      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
-        TestData.oneExtension.concat(TestData.twoExtensions),
-      );
-    });
-
-    it('can pushExtensionsData with undefined on virgin request', () => {
-      const newRequest = Request.pushExtensionsData(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
-      );
-      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.undefined;
-    });
-    it('can pushExtensionsData with undefined on request with extension', () => {
-      const newRequest = Request.pushExtensionsData(
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
-      );
-      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
-        TestData.oneExtension,
-      );
-    });
-    it('can pushExtensionsData with empty array on virgin request', () => {
-      const newRequest = Request.pushExtensionsData(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
-        [],
-      );
-      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal([]);
-    });
-    it('can pushExtensionsData with empty array on request with extension', () => {
-      const newRequest = Request.pushExtensionsData(
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
-        [],
-      );
-      expect(newRequest.extensionsData, 'newRequest extensionsData error').to.be.deep.equal(
-        TestData.oneExtension,
-      );
-    });
-  });
-
   describe('getRoleInRequest', () => {
     it('can getRoleInRequest()', () => {
       expect(
@@ -87,6 +35,8 @@ describe('Request', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
+        extensions: {},
+        extensionsData: [],
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
@@ -102,6 +52,8 @@ describe('Request', () => {
           currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
+          extensions: {},
+          extensionsData: [],
           requestId: TestData.requestIdMock,
           state: Types.REQUEST_LOGIC_STATE.CREATED,
           timestamp: 1544426030,
@@ -159,6 +111,8 @@ describe('Request', () => {
           currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: '-10000',
+          extensions: {},
+          extensionsData: [],
           payee: TestData.payeeRaw.identity,
           requestId: TestData.requestIdMock,
           state: Types.REQUEST_LOGIC_STATE.CREATED,
