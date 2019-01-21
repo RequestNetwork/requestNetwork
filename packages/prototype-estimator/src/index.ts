@@ -33,6 +33,7 @@ const testCases = [
   },
 ];
 
+// Execute all the test cases in parallel and display the results in a table
 // tslint:disable:no-floating-promises
 // tslint:disable:no-console
 Promise.all(
