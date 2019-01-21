@@ -21,7 +21,8 @@
   },
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "speed": "ts-node src/speed.ts"
   },
   "dependencies": {
     "@requestnetwork/client-side": "0.1.0",
@@ -29,7 +30,8 @@
     "@requestnetwork/ethereum-storage": "0.1.0",
     "@requestnetwork/request-logic": "0.1.0",
     "@requestnetwork/request-node": "0.1.0",
-    "@requestnetwork/types": "0.1.0"
+    "@requestnetwork/types": "0.1.0",
+    "benchmark": "2.1.4"
   },
   "devDependencies": {
     "prettier": "1.14.3",

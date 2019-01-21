@@ -7,6 +7,7 @@ const port = process.env.PORT || defaultPort;
  * Listen for requests
  */
 const server = requestNode.listen(port, () => {
+  console.log(`Listening on port ${port}`);
   return 0;
 });
 
