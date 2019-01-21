@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["./src/**/*"],
+  "references": [
+    { "path": "../data-access" },
+    { "path": "../ethereum-storage" },
+    { "path": "../request-logic" },
+    { "path": "../types" }
+  ]
+}

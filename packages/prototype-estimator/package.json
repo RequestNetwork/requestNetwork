@@ -1,0 +1,26 @@
+{
+  "name": "@requestnetwork/prototype-estimator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tool to estimate size and throughput of v2 system.",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "run": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@requestnetwork/client-side": "0.1.0",
+    "@requestnetwork/request-node": "0.1.0"
+  },
+  "devDependencies": {
+    "@requestnetwork/data-access": "0.1.0",
+    "@requestnetwork/ethereum-storage": "0.1.0",
+    "@requestnetwork/request-logic": "0.1.0",
+    "@requestnetwork/types": "0.1.0",
+    "prettier": "1.14.3",
+    "shx": "0.3.2",
+    "source-map-support": "0.5.9",
+    "ts-node": "7.0.1",
+    "typescript": "3.1.3"
+  }
+}
