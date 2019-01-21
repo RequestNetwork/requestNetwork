@@ -3,7 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "description": "Tool to estimate size and throughput of v2 system.",
+  "keywords": [
+    "requestnetwork",
+    "estimator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/prototype-estimator",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
   "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/index.ts"
