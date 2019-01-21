@@ -71,11 +71,4 @@ export default class MockStorage implements StorageTypes.IStorage {
       },
     };
   }
-
-  /**
-   * Clears the data
-   */
-  public clear(): void {
-    this.data = {};
-  }
 }
