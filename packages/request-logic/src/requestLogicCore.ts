@@ -1,4 +1,4 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import { AdvancedLogic as AdvancedLogicTypes, RequestLogic as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Action from './action';
 import Request from './request';
@@ -10,7 +10,7 @@ import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
 import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
 
 /**
- * Implementation of the request logic specification
+ * Implementation of Request Logic Core
  */
 export default {
   applyActionToRequest,
@@ -24,15 +24,18 @@ export default {
 
 /**
  * Function Entry point to apply any action to a request
+ * If advancedLogic given, the extensions will be handled
  *
  * @param Types.IRequestLogicRequest request The request before update, null for creation - will not be modified
  * @param Types.IRequestLogicAction action The action to apply
+ * @param AdvancedLogicTypes.IAdvancedLogic advancedLogic module to handle exception
  *
  * @returns Types.IRequestLogicRequest  The request updated
  */
 function applyActionToRequest(
   request: Types.IRequestLogicRequest | null,
   action: Types.IRequestLogicAction,
+  advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
 ): Types.IRequestLogicRequest {
   if (!Action.isActionVersionSupported(action)) {
     throw new Error('action version not supported');
@@ -41,39 +44,60 @@ function applyActionToRequest(
   // we don't want to modify the original request state
   const requestCopied: Types.IRequestLogicRequest | null = request ? Utils.deepCopy(request) : null;
 
+  let requestAfterApply: Types.IRequestLogicRequest | null = null;
+
   // Creation request
   if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CREATE) {
     if (requestCopied) {
       throw new Error('no request is expected at the creation');
     }
-    return CreateAction.createRequest(action);
+    requestAfterApply = CreateAction.createRequest(action);
+  } else {
+    // Update request
+    if (!requestCopied) {
+      throw new Error('request is expected');
+    }
+
+    // Will throw if the request is not valid
+    Request.checkRequest(requestCopied);
+
+    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT) {
+      requestAfterApply = AcceptAction.applyActionToRequest(action, requestCopied);
+    }
+
+    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CANCEL) {
+      requestAfterApply = CancelAction.applyActionToRequest(action, requestCopied);
+    }
+
+    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
+      requestAfterApply = IncreaseExpectedAmountAction.applyActionToRequest(action, requestCopied);
+    }
+
+    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
+      requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(action, requestCopied);
+    }
   }
 
-  // Update request
-  if (!requestCopied) {
-    throw new Error('request is expected');
+  if (!requestAfterApply) {
+    throw new Error(`Unknown action ${action.data.name}`);
   }
 
-  // Will throw if the request is not valid
-  Request.checkRequest(requestCopied);
-
-  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT) {
-    return AcceptAction.applyActionToRequest(action, requestCopied);
+  // skip extension application if no extension given or no advanced logic layer given
+  if (action.data.parameters.extensionsData && advancedLogic) {
+    // Apply the extension on the state
+    requestAfterApply.extensions = action.data.parameters.extensionsData.reduce(
+      (extensionState: Types.IRequestLogicExtensionStates, extensionAction: any) => {
+        return advancedLogic.applyActionToExtensions(
+          extensionState,
+          extensionAction,
+          requestAfterApply as Types.IRequestLogicRequest,
+        );
+      },
+      {},
+    );
   }
 
-  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CANCEL) {
-    return CancelAction.applyActionToRequest(action, requestCopied);
-  }
-
-  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
-    return IncreaseExpectedAmountAction.applyActionToRequest(action, requestCopied);
-  }
-
-  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
-    return ReduceExpectedAmountAction.applyActionToRequest(action, requestCopied);
-  }
-
-  throw new Error(`Unknown action ${action.data.name}`);
+  return requestAfterApply;
 }
 
 /**

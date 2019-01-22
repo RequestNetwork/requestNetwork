@@ -7,11 +7,20 @@ const config: any = {
     default: 'private',
     gasPriceDefault: '4000000000',
     nodeUrlDefault: {
-      main:
-        'https://mainnet.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
-      private: 'http://localhost:8545',
-      rinkeby:
-        'https://rinkeby.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
+      main: {
+        timeout: 10000,
+        url:
+          'https://mainnet.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
+      },
+      private: {
+        timeout: 10000,
+        url: 'http://localhost:8545',
+      },
+      rinkeby: {
+        timeout: 10000,
+        url:
+          'https://rinkeby.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
+      },
     },
   },
   ipfs: {
@@ -46,7 +55,15 @@ export function getDefaultIpfs(): StorageTypes.IIpfsGatewayConnection {
  * @returns the url to connect to the network
  */
 export function getDefaultEthereumProvider(): string {
-  return config.ethereum.nodeUrlDefault[config.ethereum.default];
+  return config.ethereum.nodeUrlDefault[config.ethereum.default].url;
+}
+
+/**
+ * Retrieve from config the timeout threshold for the default provider url for Ethereum
+ * @returns the url to connect to the network
+ */
+export function getDefaultEthereumProviderTimeout(): number {
+  return config.ethereum.nodeUrlDefault[config.ethereum.default].timeout;
 }
 
 /**

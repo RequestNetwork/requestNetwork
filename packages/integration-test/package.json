@@ -33,9 +33,11 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@requestnetwork/advanced-logic": "0.1.0",
     "@requestnetwork/data-access": "0.1.0",
     "@requestnetwork/ethereum-storage": "0.1.0",
     "@requestnetwork/request-logic": "0.1.0",
+    "@requestnetwork/transaction-manager": "0.1.0",
     "@requestnetwork/types": "0.1.0",
     "@types/chai": "4.1.6",
     "@types/mocha": "5.2.5",

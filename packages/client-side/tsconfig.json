@@ -8,6 +8,7 @@
   "references": [
     { "path": "../data-access" },
     { "path": "../request-logic" },
+    { "path": "../transaction-manager" },
     { "path": "../types" }
   ]
 }
