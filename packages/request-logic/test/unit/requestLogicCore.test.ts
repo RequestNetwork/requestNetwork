@@ -2,17 +2,27 @@ import { expect } from 'chai';
 import 'mocha';
 
 import {
+  AdvancedLogic as AdvancedLogicTypes,
+  Extension as ExtensionTypes,
   Identity as IdentityTypes,
   RequestLogic as Types,
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import RequestLogic from '../../src/requestLogicCore';
 
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from './utils/test-data-generator';
+
+import RequestLogicCore from '../../src/requestLogicCore';
+
+const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+  applyActionToExtensions: (
+    extensionStates: Types.IRequestLogicExtensionStates,
+  ): Types.IRequestLogicExtensionStates => extensionStates,
+  extensions: {},
+};
 
 /* tslint:disable:no-unused-expression */
 describe('requestLogicCore', () => {
@@ -40,9 +50,10 @@ describe('requestLogicCore', () => {
           },
         };
 
-        RequestLogic.applyActionToRequest(
+        RequestLogicCore.applyActionToRequest(
           Utils.deepCopy(TestData.requestCreatedNoExtension),
           action,
+          fakeAdvancedLogic,
         );
 
         expect(false, 'exception not thrown').to.be.true;
@@ -73,7 +84,7 @@ describe('requestLogicCore', () => {
           },
         };
 
-        RequestLogic.applyActionToRequest(null, action);
+        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -97,7 +108,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyActionToRequest(null, action);
+        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -106,7 +117,7 @@ describe('requestLogicCore', () => {
     });
 
     it('cannot apply accept with wrong state', () => {
-      const regularRequestContextWithErrors = {
+      const regularRequestContextWithErrors: Types.IRequestLogicRequest = {
         creator: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
@@ -114,13 +125,15 @@ describe('requestLogicCore', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
+        extensions: {},
+        extensionsData: [],
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
-        const actionAccept = RequestLogic.formatAccept(
+        const actionAccept = RequestLogicCore.formatAccept(
           {
             requestId: TestData.requestIdMock,
           },
@@ -129,7 +142,11 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payerRaw.privateKey,
           },
         );
-        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionAccept);
+        RequestLogicCore.applyActionToRequest(
+          regularRequestContextWithErrors,
+          actionAccept,
+          fakeAdvancedLogic,
+        );
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -155,7 +172,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyActionToRequest(null, action);
+        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -172,13 +189,15 @@ describe('requestLogicCore', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
+        extensions: {},
+        extensionsData: [],
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
-        const actionCancel = RequestLogic.formatCancel(
+        const actionCancel = RequestLogicCore.formatCancel(
           {
             requestId: TestData.requestIdMock,
           },
@@ -187,7 +206,11 @@ describe('requestLogicCore', () => {
             privateKey: TestData.otherIdRaw.privateKey,
           },
         );
-        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionCancel);
+        RequestLogicCore.applyActionToRequest(
+          regularRequestContextWithErrors,
+          actionCancel,
+          fakeAdvancedLogic,
+        );
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -214,7 +237,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyActionToRequest(null, action);
+        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -231,13 +254,15 @@ describe('requestLogicCore', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
+        extensions: {},
+        extensionsData: [],
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
-        const actionIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+        const actionIncreaseAmount = RequestLogicCore.formatIncreaseExpectedAmount(
           {
             deltaAmount: TestData.arbitraryDeltaAmount,
             requestId: TestData.requestIdMock,
@@ -247,7 +272,11 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payerRaw.privateKey,
           },
         );
-        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionIncreaseAmount);
+        RequestLogicCore.applyActionToRequest(
+          regularRequestContextWithErrors,
+          actionIncreaseAmount,
+          fakeAdvancedLogic,
+        );
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -273,7 +302,7 @@ describe('requestLogicCore', () => {
               '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
           },
         };
-        RequestLogic.applyActionToRequest(null, action);
+        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -289,13 +318,15 @@ describe('requestLogicCore', () => {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
+        extensions: {},
+        extensionsData: [],
         requestId: TestData.requestIdMock,
         state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       try {
-        const actionReduceAmount = RequestLogic.formatReduceExpectedAmount(
+        const actionReduceAmount = RequestLogicCore.formatReduceExpectedAmount(
           {
             deltaAmount: TestData.arbitraryDeltaAmount,
             requestId: TestData.requestIdMock,
@@ -305,7 +336,11 @@ describe('requestLogicCore', () => {
             privateKey: TestData.payeeRaw.privateKey,
           },
         );
-        RequestLogic.applyActionToRequest(regularRequestContextWithErrors, actionReduceAmount);
+        RequestLogicCore.applyActionToRequest(
+          regularRequestContextWithErrors,
+          actionReduceAmount,
+          fakeAdvancedLogic,
+        );
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -316,7 +351,7 @@ describe('requestLogicCore', () => {
     });
     it('it cannot apply creation with a state', () => {
       try {
-        const actionCreation = RequestLogic.formatCreate(
+        const actionCreation = RequestLogicCore.formatCreate(
           {
             currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
             expectedAmount: TestData.arbitraryExpectedAmount,
@@ -342,6 +377,8 @@ describe('requestLogicCore', () => {
           currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
+          extensions: {},
+          extensionsData: [],
           payer: {
             type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
             value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
@@ -351,7 +388,7 @@ describe('requestLogicCore', () => {
           timestamp: 1544426030,
           version: CURRENT_VERSION,
         };
-        RequestLogic.applyActionToRequest(requestState, actionCreation);
+        RequestLogicCore.applyActionToRequest(requestState, actionCreation, fakeAdvancedLogic);
 
         expect(false, 'exception not thrown').to.be.true;
       } catch (e) {
@@ -365,17 +402,28 @@ describe('requestLogicCore', () => {
       const paramsCreate = {
         currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: [
+          {
+            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
+            parameters: { content: { what: 'ever', it: 'is' } },
+            type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
+          },
+        ],
         payee: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
       };
-      const actionCreation = RequestLogic.formatCreate(paramsCreate, {
+      const actionCreation = RequestLogicCore.formatCreate(paramsCreate, {
         method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
         privateKey: TestData.payeeRaw.privateKey,
       });
 
-      const request = RequestLogic.applyActionToRequest(null, actionCreation);
+      const request = RequestLogicCore.applyActionToRequest(
+        null,
+        actionCreation,
+        fakeAdvancedLogic,
+      );
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
@@ -389,7 +437,6 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -410,9 +457,8 @@ describe('requestLogicCore', () => {
       }
       expect(request.payer, 'payer is wrong').to.be.undefined;
     });
-
     it('can apply accept by payer', () => {
-      const actionAccept = RequestLogic.formatAccept(
+      const actionAccept = RequestLogicCore.formatAccept(
         { requestId: TestData.requestIdMock },
         {
           method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
@@ -420,9 +466,10 @@ describe('requestLogicCore', () => {
         },
       );
 
-      const request = RequestLogic.applyActionToRequest(
+      const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionAccept,
+        fakeAdvancedLogic,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -431,7 +478,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -462,7 +509,7 @@ describe('requestLogicCore', () => {
     });
 
     it('can cancel by payer with state === created', () => {
-      const actionCancel = RequestLogic.formatCancel(
+      const actionCancel = RequestLogicCore.formatCancel(
         {
           requestId: TestData.requestIdMock,
         },
@@ -471,9 +518,10 @@ describe('requestLogicCore', () => {
           privateKey: TestData.payerRaw.privateKey,
         },
       );
-      const request = RequestLogic.applyActionToRequest(
+      const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionCancel,
+        fakeAdvancedLogic,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -482,7 +530,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -515,7 +563,7 @@ describe('requestLogicCore', () => {
     it('can increase expected amount by payer', () => {
       const arbitraryDeltaAmount = '100000000000000000';
       const arbitraryExpectedAmountAfterDelta = '223400000000000000';
-      const actionIncreaseAmount = RequestLogic.formatIncreaseExpectedAmount(
+      const actionIncreaseAmount = RequestLogicCore.formatIncreaseExpectedAmount(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -526,9 +574,10 @@ describe('requestLogicCore', () => {
         },
       );
 
-      const request = RequestLogic.applyActionToRequest(
+      const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionIncreaseAmount,
+        fakeAdvancedLogic,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -537,7 +586,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -570,7 +619,7 @@ describe('requestLogicCore', () => {
     it('can reduce expected amount by payee', () => {
       const arbitraryDeltaAmount = '100000000000000000';
       const arbitraryExpectedAmountAfterDelta = '23400000000000000';
-      const actionReduceAmount = RequestLogic.formatReduceExpectedAmount(
+      const actionReduceAmount = RequestLogicCore.formatReduceExpectedAmount(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -581,9 +630,10 @@ describe('requestLogicCore', () => {
         },
       );
 
-      const request = RequestLogic.applyActionToRequest(
+      const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionReduceAmount,
+        fakeAdvancedLogic,
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
@@ -592,7 +642,7 @@ describe('requestLogicCore', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(

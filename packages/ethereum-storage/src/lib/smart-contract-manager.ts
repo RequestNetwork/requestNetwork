@@ -19,21 +19,20 @@ export default class SmartContractManager {
   public eth: any;
   public requestHashStorage: any;
 
-  // Block where the contract has been created
-  // This value is stored in config file for each network
-  // This value is used to optimize past event retrieval
-  public creationBlockNumber: number;
-
   /**
    * cache of the blocks timestamp
    * to ask only once the timestamp of a block
    * Dictionary of timestamp index by blockNumber
    */
   protected blockTimestamp: IBlockTimestampDictionary = {};
-
   protected networkName: string = '';
-
   protected smartContractAddress: string;
+
+  // Block where the contract has been created
+  // This value is stored in config file for each network
+  // This value is used to optimize past event retrieval
+  private creationBlockNumber: number;
+  private timeout: number;
 
   /**
    * Constructor
@@ -43,18 +42,26 @@ export default class SmartContractManager {
   public constructor(web3Connection?: StorageTypes.IWeb3Connection) {
     web3Connection = web3Connection || {};
 
-    this.eth = new web3Eth(
-      web3Connection.web3Provider ||
-        new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
-    );
-
-    if (!this.eth) {
-      throw Error('Cannot connect to ethereum network');
+    try {
+      this.eth = new web3Eth(
+        web3Connection.web3Provider ||
+          new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
+      );
+    } catch (error) {
+      throw Error(`Can't initialize web3-eth ${error}`);
     }
 
-    this.networkName = web3Connection.networkId
-      ? this.getNetworkNameFromId(web3Connection.networkId)
-      : config.getDefaultEthereumNetwork();
+    // Checks if networkId is defined
+    // If not defined we use default value from config
+    this.networkName =
+      typeof web3Connection.networkId === 'undefined'
+        ? config.getDefaultEthereumNetwork()
+        : this.getNetworkNameFromId(web3Connection.networkId);
+
+    // If networkName is undefined, it means the network doesn't exist
+    if (typeof this.networkName === 'undefined') {
+      throw Error(`The network id ${web3Connection.networkId} doesn't exist`);
+    }
 
     this.smartContractAddress = artifactsUtils.getAddress(this.networkName);
 
@@ -64,6 +71,8 @@ export default class SmartContractManager {
       this.smartContractAddress,
     );
 
+    this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
+
     this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
   }
 
@@ -72,9 +81,15 @@ export default class SmartContractManager {
    * @return Promise resolving the default account
    */
   public async getMainAccount(): Promise<string> {
-    const accounts = await this.eth.getAccounts();
-    if (!accounts && !accounts[0]) {
-      throw new Error('No accounts found');
+    // Get the accounts on the provider
+    // Throws an error if timeout is reached
+    const accounts = await Promise.race([
+      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.eth.getAccounts(),
+    ]);
+
+    if (!accounts || !accounts[0]) {
+      throw Error('No account found');
     }
     return accounts[0];
   }
@@ -93,39 +108,48 @@ export default class SmartContractManager {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
-    const fee = await this.requestHashStorage.methods.getFeesAmount(contentSize).call();
+    // Get the fee from the size of the content
+    // Throws an error if timeout is reached
+    const fee = await Promise.race([
+      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.requestHashStorage.methods.getFeesAmount(contentSize).call(),
+    ]);
 
     const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
 
     // Send transaction to contract
-    const receipt = await this.requestHashStorage.methods
-      .submitHash(contentHash, contentSize)
-      .send({
-        from: account,
-        gas: '100000',
-        gasPrice: gasPriceToUse,
-        value: fee,
-      })
-      .on('error', (transactionError: string) => {
-        throw Error(`Ethereum transaction error:  ${transactionError}`);
-      })
-      .on('transactionHash', (transactionHash: string) => {
-        // TODO(PROT-181): Implement a log manager for the library
-        /* tslint:disable:no-console */
-        console.log(`transactionHash :  ${transactionHash}`);
-      })
-      .on('receipt', (receiptInCallback: string) => {
-        // TODO(PROT-181): Implement a log manager for the library
-        /* tslint:disable:no-console */
-        console.log(`receipt :  ${receiptInCallback}`);
-      })
-      .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-        // TODO(PROT-181): Implement a log manager for the library
-        // TODO(PROT-252): return after X confirmation instead of 0
-        /* tslint:disable:no-console */
-        console.log(`confirmation :  ${confirmationNumber}`);
-        console.log(`receipt :  ${receiptAfterConfirmation}`);
-      });
+    // Throws an error if timeout is reached
+    const receipt = await Promise.race([
+      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.requestHashStorage.methods
+        .submitHash(contentHash, contentSize)
+        .send({
+          from: account,
+          gas: '100000',
+          gasPrice: gasPriceToUse,
+          value: fee,
+        })
+        .on('error', (transactionError: string) => {
+          throw Error(`Ethereum transaction error:  ${transactionError}`);
+        })
+        .on('transactionHash', (transactionHash: string) => {
+          // TODO(PROT-181): Implement a log manager for the library
+          /* tslint:disable:no-console */
+          console.log(`transactionHash :  ${transactionHash}`);
+        })
+        .on('receipt', (receiptInCallback: string) => {
+          // TODO(PROT-181): Implement a log manager for the library
+          /* tslint:disable:no-console */
+          console.log(`receipt :  ${receiptInCallback}`);
+        })
+        .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
+          // TODO(PROT-181): Implement a log manager for the library
+          // TODO(PROT-252): return after X confirmation instead of 0
+          /* tslint:disable:no-console */
+          console.log(`confirmation :  ${confirmationNumber}`);
+          console.log(`receipt :  ${receiptAfterConfirmation}`);
+        }),
+    ]);
 
     const gasFee = new bigNumber(receipt.gasUsed).mul(new bigNumber(gasPriceToUse));
     const cost = gasFee.add(new bigNumber(fee));
@@ -156,7 +180,7 @@ export default class SmartContractManager {
 
     const event = events.find((element: any) => element.returnValues.hash === contentHash);
     if (!event) {
-      throw new Error(`contentHash not indexed on ethereum`);
+      throw Error(`contentHash not indexed on ethereum`);
     }
 
     return this.createEthereumMetaData(event.blockNumber, event.transactionHash);
@@ -170,11 +194,14 @@ export default class SmartContractManager {
     StorageTypes.IRequestStorageGetAllHashesAndSizes[]
   > {
     // Reading all event logs
-    let events = await this.requestHashStorage.getPastEvents({
-      event: 'NewHash',
-      fromBlock: this.creationBlockNumber,
-      toBlock: 'latest',
-    });
+    let events = await Promise.race([
+      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.requestHashStorage.getPastEvents({
+        event: 'NewHash',
+        fromBlock: this.creationBlockNumber,
+        toBlock: 'latest',
+      }),
+    ]);
 
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
@@ -187,10 +214,11 @@ export default class SmartContractManager {
         // We check "typeof field === 'undefined'"" instead of "!field"
         // because you can add empty string as hash or 0 as size in the storage smart contract
         if (
+          typeof event.returnValues === 'undefined' ||
           typeof event.returnValues.hash === 'undefined' ||
           typeof event.returnValues.size === 'undefined'
         ) {
-          throw new Error(`event is incorrect: doesn't have a hash or size`);
+          throw Error(`event is incorrect: doesn't have a hash or size`);
         }
 
         const meta = this.createEthereumMetaData(event.blockNumber, event.transactionHash);
@@ -198,7 +226,7 @@ export default class SmartContractManager {
         return {
           hash: event.returnValues.hash,
           meta,
-          size: event.returnValues.size,
+          size: +event.returnValues.size,
         };
       },
     );
@@ -254,6 +282,24 @@ export default class SmartContractManager {
       [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
       [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
     }[networkId];
+  }
+
+  /**
+   * Promise that rejects when the specified timeout is reached
+   * This promise is used concurrently with Web3 functions to throw
+   * when the Web3 provider is not responding
+   * @param timeout Timeout threshold to throw the error
+   * @param message Timeout error message
+   */
+  private async timeoutPromise(timeout: number, message: string): Promise<any> {
+    return new Promise(
+      (_resolve, reject): any => {
+        const timeoutId = setTimeout(() => {
+          clearTimeout(timeoutId);
+          reject(new Error(message));
+        }, timeout);
+      },
+    );
   }
 
   /** Create the ethereum metadata

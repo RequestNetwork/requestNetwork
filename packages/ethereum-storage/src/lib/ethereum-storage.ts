@@ -12,8 +12,11 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * This attribute is left public for mocking purpose to facilitate tests on the module
    */
   public smartContractManager: SmartContractManager;
-  // Manager for IPFS
-  private ipfsManager: IpfsManager;
+  /**
+   * Manager for IPFS
+   * This attribute is left public for mocking purpose to facilitate tests on the module
+   */
+  public ipfsManager: IpfsManager;
 
   /**
    * Constructor
@@ -53,7 +56,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async append(content: string): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta> {
     if (!content) {
-      throw Error('Error: no content provided');
+      throw Error('No content provided');
     }
 
     // Add content to ipfs

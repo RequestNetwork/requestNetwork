@@ -1,5 +1,6 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import { RequestLogic } from '@requestnetwork/request-logic';
+import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
@@ -43,7 +44,7 @@ async function setup(): Promise<{ mockStorage: MockStorage; requestLogic: Reques
   await dataAccess.initialize();
 
   // Logic setup
-  return { mockStorage, requestLogic: new RequestLogic(dataAccess) };
+  return { mockStorage, requestLogic: new RequestLogic(new TransactionManager(dataAccess)) };
 }
 
 /**

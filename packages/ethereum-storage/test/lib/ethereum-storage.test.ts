@@ -1,22 +1,42 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
-import { assert } from 'chai';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import EthereumStorage from '../../src/lib/ethereum-storage';
 
-const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+// Extends chai for promises
+chai.use(chaiAsPromised);
+const assert = chai.assert;
 
-const hdWalletProvider = require('truffle-hdwallet-provider');
-const provider = new hdWalletProvider(mnemonic, 'http://localhost:8545');
+const web3HttpProvider = require('web3-providers-http');
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
   port: 5001,
   protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 10000,
+  timeout: 1000,
 };
+
+const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
+  host: 'nonexistent',
+  port: 5001,
+  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
+  timeout: 1000,
+};
+
+const provider = new web3HttpProvider('http://localhost:8545');
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
+  timeout: 1000,
   web3Provider: provider,
 };
+
+const invalidHostNetworkProvider = new web3HttpProvider('http://nonexistentnetwork:8545');
+const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
+  networkId: StorageTypes.EthereumNetwork.PRIVATE,
+  timeout: 1000,
+  web3Provider: invalidHostNetworkProvider,
+};
+
 let ethereumStorage: EthereumStorage;
 
 const content1 = 'this is a little test !';
@@ -71,11 +91,6 @@ const pastEventsMock = [
 const getPastEventsMock = () => pastEventsMock;
 
 describe('EthereumStorage', () => {
-  after(() => {
-    // Stop web3 provider
-    provider.engine.stop();
-  });
-
   beforeEach(() => {
     ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
     ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
@@ -94,6 +109,15 @@ describe('EthereumStorage', () => {
         transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
       };
     };
+  });
+
+  it('Allows to update Ethereum network', async () => {
+    ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection);
+    assert.notDeepEqual(provider, ethereumStorage.smartContractManager.eth.currentProvider);
+    assert.deepEqual(
+      invalidHostNetworkProvider,
+      ethereumStorage.smartContractManager.eth.currentProvider,
+    );
   });
 
   it('Allows to append a file', async () => {
@@ -167,7 +191,7 @@ describe('EthereumStorage', () => {
     assert.exists(result.meta.ethereum.blockTimestamp);
   });
 
-  it('Allow to retrieve all data id', async () => {
+  it('Allows to retrieve all data id', async () => {
     // These contents have to be appended in order to check their size
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
@@ -214,7 +238,7 @@ describe('EthereumStorage', () => {
     assert.deepEqual(result.result, { dataIds: [hash1, '', hash2, ''] });
   });
 
-  it('Allow to retrieve all data', async () => {
+  it('Allows to retrieve all data', async () => {
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
     const result = await ethereumStorage.getAllData();
@@ -258,5 +282,38 @@ describe('EthereumStorage', () => {
     assert.deepEqual(result.meta.metaData[3], {});
 
     assert.deepEqual(result.result, { data: [content1, '', content2, ''] });
+  });
+
+  it('Append and read with no parameter should throw an error', async () => {
+    await assert.isRejected(ethereumStorage.append(''), Error, 'No content provided');
+
+    await assert.isRejected(ethereumStorage.read(''), Error, 'No id provided');
+  });
+
+  it('Append and read on an invalid ipfs gateway should throw an error', async () => {
+    ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection);
+
+    await assert.isRejected(ethereumStorage.append(content1), Error, 'Ipfs add request error');
+    await assert.isRejected(ethereumStorage.read(hash1), Error, 'Ipfs read request error');
+  });
+
+  it('Failed getContentLength from ipfs-manager in append and read functions should throw an error', async () => {
+    // To test this case, we create a mock for getContentLength of the ipfs manager that always throws an error
+    ethereumStorage.ipfsManager.getContentLength = async _hash => {
+      throw Error('Any error in getContentLength');
+    };
+
+    await assert.isRejected(
+      ethereumStorage.append(content1),
+      Error,
+      'Ipfs get length request error',
+    );
+    await assert.isRejected(ethereumStorage.read(hash1), Error, 'Ipfs get length request error');
+  });
+
+  it('Append content with an invalid web3 connection should throw an error', async () => {
+    ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection);
+
+    await assert.isRejected(ethereumStorage.append(content1), Error, 'Smart contract error');
   });
 });

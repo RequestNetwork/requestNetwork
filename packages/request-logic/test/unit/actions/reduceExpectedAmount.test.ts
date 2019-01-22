@@ -189,7 +189,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -348,6 +348,8 @@ describe('actions/reduceExpectedAmount', () => {
           },
         ],
         expectedAmount: arbitraryExpectedAmount,
+        extensions: {},
+        extensionsData: [],
         payer: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
@@ -428,7 +430,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -760,7 +762,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal('0');
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(

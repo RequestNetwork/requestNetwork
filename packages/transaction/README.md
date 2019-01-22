@@ -1,3 +1,0 @@
-# `@requestNetwork/transaction`
-
-> TODO: description

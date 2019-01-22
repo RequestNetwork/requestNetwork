@@ -78,6 +78,26 @@ jobs:
                   root: *working_directory
                   paths:
                       - packages/data-access/.nyc_output
+    test-transaction-manager:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build transaction-manager"
+                  command: "yarn workspace @requestnetwork/transaction-manager run build"
+            - run:
+                  name: "Lint transaction-manager"
+                  command: "yarn workspace @requestnetwork/transaction-manager run lint"
+            - run:
+                  name: "Test transaction-manager"
+                  command: "yarn workspace @requestnetwork/transaction-manager run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/transaction-manager/.nyc_output
     test-ethereum-storage:
         docker:
             - *node_image
@@ -323,6 +343,9 @@ workflows:
             - test-client-side:
                   requires:
                       - build
+            - test-transaction-manager:
+                  requires:
+                      - build
             - test-data-access:
                   requires:
                       - build
@@ -355,6 +378,7 @@ workflows:
                   requires:
                       - test-client-side
                       - test-data-access
+                      - test-transaction-manager
                       - test-ethereum-storage
                       - test-request-logic
                       - test-request-node

@@ -102,7 +102,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -207,7 +207,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -263,7 +263,7 @@ describe('actions/cancel', () => {
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
-      expect(request.extensionsData, 'extensionsData is wrong').to.be.undefined;
+      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
@@ -392,6 +392,8 @@ describe('actions/cancel', () => {
           },
         ],
         expectedAmount: TestData.arbitraryExpectedAmount,
+        extensions: {},
+        extensionsData: [],
         payee: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
@@ -447,6 +449,8 @@ describe('actions/cancel', () => {
           },
         ],
         expectedAmount: TestData.arbitraryExpectedAmount,
+        extensions: {},
+        extensionsData: [],
         payer: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payerRaw.address,

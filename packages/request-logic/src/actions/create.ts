@@ -108,6 +108,7 @@ function createRequest(action: Types.IRequestLogicAction): Types.IRequestLogicRe
 
   // Copy to not modify the action itself
   const request: Types.IRequestLogicRequest = Utils.deepCopy(action.data.parameters);
+  request.extensions = {};
   request.requestId = Action.getRequestId(action);
   request.version = Action.getVersionFromAction(action);
   request.events = [generateEvent(action, signer)];

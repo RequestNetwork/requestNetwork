@@ -1,7 +1,8 @@
 import {
-  DataAccess as DataAccessTypes,
+  AdvancedLogic as AdvancedLogicTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
+  Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import RequestLogicCore from './requestLogicCore';
 
@@ -9,19 +10,24 @@ import RequestLogicCore from './requestLogicCore';
  * Implementation of Request Logic
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
-  private dataAccess: DataAccessTypes.IDataAccess;
+  private transactionManager: TransactionTypes.ITransactionManager;
+  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
 
-  public constructor(dataAccess: DataAccessTypes.IDataAccess) {
-    this.dataAccess = dataAccess;
+  public constructor(
+    transactionManager: TransactionTypes.ITransactionManager,
+    advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
+  ) {
+    this.transactionManager = transactionManager;
+    this.advancedLogic = advancedLogic;
   }
 
   /**
-   * Function to create a request and persist it on the data-access layer
+   * Function to create a request and persist it on the transaction manager layer
    *
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturnCreateRequest>  the request id and the meta data
    */
   public async createRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
@@ -34,24 +40,24 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // concat index given and the default index (requestId)
     indexes = [...indexes, requestId];
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       indexes,
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
       result: { requestId },
     };
   }
 
   /**
-   * Function to accept a request and persist it on the data-access layer
+   * Function to accept a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
@@ -60,24 +66,24 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatAccept(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
 
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
   /**
-   * Function to cancel a request and persist it on the data-access layer
+   * Function to cancel a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async cancelRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
@@ -86,23 +92,23 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatCancel(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
   /**
-   * Function to increase expected amount of a request and persist it on the data-access layer
+   * Function to increase expected amount of a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
@@ -114,23 +120,23 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
   /**
-   * Function to reduce expected amount of a request and persist it on the data-access layer
+   * Function to reduce expected amount of a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param ISignatureParameters signatureParams Signature parameters
    *
-   * @returns Promise<string>  the storage location of the transaction
+   * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
@@ -139,13 +145,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const action = RequestLogicCore.formatReduceExpectedAmount(requestParameters, signatureParams);
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
-    const resultPersistTx = await this.dataAccess.persistTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       signatureParams,
       [requestId],
     );
     return {
-      meta: { dataAccessMeta: resultPersistTx.meta },
+      meta: { transactionManagerMeta: resultPersistTx.meta },
     };
   }
 
@@ -159,17 +165,21 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestById(
     requestId: RequestLogicTypes.RequestLogicRequestId,
   ): Promise<RequestLogicTypes.IRequestLogicReturnGetRequestById> {
-    const resultGetTx = await this.dataAccess.getTransactionsByTopic(requestId);
+    const resultGetTx = await this.transactionManager.getTransactionsByTopic(requestId);
     const actions = resultGetTx.result.transactions;
 
     try {
       // second parameter is null, because the first action must be a creation (no state expected)
       const request: RequestLogicTypes.IRequestLogicRequest | null = actions
         .map((t: any) => JSON.parse(t.data))
-        .reduce(RequestLogicCore.applyActionToRequest, null);
+        .reduce(
+          (requestState, action) =>
+            RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
+          null,
+        );
 
       return {
-        meta: { dataAccessMeta: resultGetTx.meta },
+        meta: { transactionManagerMeta: resultGetTx.meta },
         result: { request },
       };
     } catch (e) {

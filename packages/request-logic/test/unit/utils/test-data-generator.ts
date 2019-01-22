@@ -91,6 +91,8 @@ export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
+  extensions: {},
+  extensionsData: [],
   payee: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
@@ -127,6 +129,7 @@ export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
+  extensions: {},
   extensionsData: oneExtension,
   payee: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -170,6 +173,8 @@ export const requestCancelledNoExtension: Types.IRequestLogicRequest = {
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
+  extensions: {},
+  extensionsData: [],
   payee: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
@@ -212,6 +217,8 @@ export const requestAcceptedNoExtension: Types.IRequestLogicRequest = {
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
+  extensions: {},
+  extensionsData: [],
   payee: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,

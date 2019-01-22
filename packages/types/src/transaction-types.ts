@@ -1,7 +1,7 @@
 import * as Signature from './signature-types';
 
-/** Data Access Layer */
-export interface ITransactionLayer {
+/** Transaction Manager interface */
+export interface ITransactionManager {
   persistTransaction: (
     transactionData: string,
     signatureParams: Signature.ISignatureParameters,
@@ -14,10 +14,6 @@ export interface ITransactionLayer {
 export interface IRequestDataReturnPersistTransaction {
   /** meta information */
   meta: {
-    /** location of the persisted transaction */
-    transactionStorageLocation: string;
-    /** topics used to index the persisted transaction */
-    topics: string[];
     /** meta-data from the layer below */
     dataAccessMeta?: any;
   };
@@ -29,8 +25,6 @@ export interface IRequestDataReturnPersistTransaction {
 export interface IRequestDataReturnGetTransactionsByTopic {
   /** meta information */
   meta: {
-    /** location of the transactions (follow the position of the result.transactions) */
-    transactionsStorageLocation: string[];
     /** meta-data from the layer below */
     dataAccessMeta?: any;
   };

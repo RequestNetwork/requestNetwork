@@ -1,13 +1,8 @@
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Block from './block';
 import LocationByTopic from './location-by-topic';
-import Transaction from './transaction';
 
 /**
  * Implementation of Data-Access layer without encryption
@@ -72,19 +67,13 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
-    transactionData: string,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    transaction: DataAccessTypes.IRequestDataAccessTransaction,
     topics: string[] = [],
   ): Promise<DataAccessTypes.IRequestDataReturnPersistTransaction> {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
-    // create the transaction
-    const transaction = Transaction.createTransaction(
-      transactionData,
-      signatureParams as SignatureTypes.ISignatureParameters,
-    );
     // create a block and add the transaction in it
     const updatedBlock = Block.pushTransaction(Block.createEmptyBlock(), transaction, topics);
     // get the topic of the data in storage
