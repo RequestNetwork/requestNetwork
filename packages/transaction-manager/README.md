@@ -1,3 +1,3 @@
-# `@requestNetwork/transaction`
+# `@requestNetwork/transaction-manager`
 
 > TODO: description
