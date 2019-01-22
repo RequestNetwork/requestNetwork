@@ -206,8 +206,6 @@ export default class SmartContractManager {
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
 
-    // For each hash read in log events, we verify corresponding size is actual size of data inside ipfs
-    // If size is correct, we return hash
     const promises = events.map(
       async (event: any): Promise<any> => {
         // Check if the event object is correct

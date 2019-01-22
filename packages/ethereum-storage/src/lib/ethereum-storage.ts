@@ -1,4 +1,6 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
+import * as Bluebird from 'bluebird';
+import BadDataInSmartContractError from './bad-data-in-smart-contract-error';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
 
@@ -147,18 +149,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public async getAllData(): Promise<StorageTypes.IRequestStorageGetAllDataReturn> {
     const allDataIds = await this.getAllDataId();
 
+    // Read content for each id
     const dataPromises = allDataIds.result.dataIds.map(
       async (id: string): Promise<StorageTypes.IRequestStorageOneContentAndMeta> => {
-        // Return empty string if id has not been retrieved
-        // TODO PROT-197 Should be removed after
-        if (!id) {
-          return { meta: {}, result: { content: '' } };
-        }
-
         return this.read(id);
       },
     );
 
+    // Get value of all promises
     const allContentsAndMeta = await Promise.all(dataPromises);
     const metaData = allContentsAndMeta.map(obj => obj.meta);
     const data = allContentsAndMeta.map(obj => obj.result.content);
@@ -178,23 +176,18 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public async getAllDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
     const hashAndSizePromises = await this.smartContractManager.getAllHashesAndSizesFromEthereum();
 
-    // Filter hashes where size doesn't correspond to the size stored on ipfs
-    const filteredHashes = hashAndSizePromises.map(
+    // Parse hashes and sizes
+    // Reject on error when parsing the hash on ipfs
+    // or when the size doesn't correspond to the size of the content stored on ipfs
+    const parsedDataIdAndMetaPromises = hashAndSizePromises.map(
       async (
         hashAndSizePromise: StorageTypes.IRequestStorageGetAllHashesAndSizes,
       ): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta> => {
         const hashAndSize = await hashAndSizePromise;
 
-        if (!hashAndSize.hash || !hashAndSize.size) {
+        if (typeof hashAndSize.hash === 'undefined' || typeof hashAndSize.size === 'undefined') {
           // The event log is incorrect
-          // TODO PROT-197
-          // throw Error('The event log has no hash or size');
-          return {
-            meta: {},
-            result: {
-              dataId: '',
-            },
-          };
+          throw Error('The event log has no hash or size');
         }
 
         // Get content from ipfs and verify provided size is correct
@@ -202,26 +195,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         try {
           hashContentSize = await this.ipfsManager.getContentLength(hashAndSize.hash);
         } catch (error) {
-          // TODO PROT-197
-          // throw Error(`IPFS getContentLength: ${error}`);
-          return {
-            meta: {},
-            result: {
-              dataId: '',
-            },
-          };
+          throw new BadDataInSmartContractError(`IPFS getContentLength error: ${error}`);
         }
         if (hashContentSize !== hashAndSize.size) {
-          // TODO PROT-197
-          // throw Error(
-          //   'The size of the content is not the size stored on ethereum',
-          // );
-          return {
-            meta: {},
-            result: {
-              dataId: '',
-            },
-          };
+          throw new BadDataInSmartContractError(
+            'The size of the content is not the size stored on ethereum',
+          );
         }
 
         // get meta data from ethereum
@@ -244,20 +223,19 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         };
       },
     );
-    const arrayOfDataIdAndMeta = await Promise.all(filteredHashes);
 
-    // create the array of data ids
-    const dataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => {
-      // TODO PROT-197
-      // if no dataId, put an empty string to keep the match between dataIds and metaDataIds arrays
-      return dataIdAndMeta.result.dataId || '';
-    });
-    // create the array of metadata
-    const metaDataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => {
-      // TODO PROT-197
-      // if no meta, put an empty object to keep the match between dataIds and metaDataIds arrays
-      return dataIdAndMeta.meta || {};
-    });
+    // Filter the rejected parsed promises
+    let arrayOfDataIdAndMeta;
+    try {
+      arrayOfDataIdAndMeta = await this.filterDataIdAndMetaPromises(parsedDataIdAndMetaPromises);
+    } catch (e) {
+      throw e;
+    }
+
+    // Create the array of data ids
+    const dataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.dataId);
+    // Create the array of metadata
+    const metaDataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.meta);
 
     return {
       meta: {
@@ -265,5 +243,49 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       },
       result: { dataIds },
     };
+  }
+
+  /**
+   * Filter the parsed promises
+   * Anybody can add any data into the storage smart contract
+   * Therefore we can find in the storage smart contract:
+   * - Hash that doesn't match to any file in IPFS
+   * - Size value that doesn't match to the real size of the file stored on IPFS
+   * In these cases, we simply ignore the values instead of throwing an error
+   * For other errors, we throw an Error
+   *
+   * @param dataIdAndMetaPromises Promises containing data id and meta
+   * @returns Filtered promises
+   */
+  private async filterDataIdAndMetaPromises(
+    dataIdAndMetaPromises: Array<Promise<StorageTypes.IRequestStorageOneDataIdAndMeta>>,
+  ): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta[]> {
+    // Convert the promises into bluebird promises
+    // to be able to inspect the status of the promise with reflect
+    const dataIdAndMetaInspections: any = Bluebird.all(
+      dataIdAndMetaPromises.map(
+        (dataIdAndMetaPromise: Promise<StorageTypes.IRequestStorageOneDataIdAndMeta>) =>
+          Bluebird.resolve(dataIdAndMetaPromise).reflect(),
+      ),
+    );
+
+    const filteredDataIdAndMeta: any[] = await dataIdAndMetaInspections
+      .filter((inspection: any) => {
+        if (inspection.isFulfilled()) {
+          // The parsing has been fulfilled
+          return true;
+        }
+        if (inspection.reason() instanceof BadDataInSmartContractError) {
+          // If the error concerns bad data in the smart contract:
+          // Hash that doesn't correspond to any file in IPFS or
+          // size value that doesn't correspond to the real size of the file stored on IPFS
+          // We ignore the error
+          return false;
+        }
+        throw Error(`getAllDataId error: ${inspection.reason()}`);
+      })
+      .map((inspection: any) => inspection.value());
+
+    return filteredDataIdAndMeta;
   }
 }
