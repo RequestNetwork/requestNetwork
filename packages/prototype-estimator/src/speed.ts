@@ -85,10 +85,8 @@ function analyzeBenchmark(benchmark: any): IBenchmark {
     hz: countPerSec,
     stats: { mean, moe: marginOfError },
   } = benchmark;
-  return { count, countPerSec, mean, marginOfError };
+  return { count, countPerSec: Math.round(countPerSec), mean, marginOfError };
 }
-
-getCreateRequestThroughput().then(result => console.log(result));
 
 /**
  * Readable results of a benchmark
