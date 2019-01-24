@@ -69,7 +69,9 @@ function executeTests(testCasesArgument: ITestCase[]): Promise<ITestCaseResults[
 
         // Promise to run the speed benchmark on the test case
         const speedTestPromise = testCase.benchmarks.speed
-          ? getCreateRequestThroughput().then(result => ({ countPerSec: result.countPerSec }))
+          ? getCreateRequestThroughput(testCase.case).then(result => ({
+              countPerSec: result.countPerSec,
+            }))
           : Promise.resolve(null);
 
         // Run the 2 benchmarks and merge their result in an object

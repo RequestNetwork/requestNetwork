@@ -32,9 +32,14 @@ const topics = [
 /**
  * Creates several requests and returns how many requests have been created per second
  *
+ * @param {String} actions.content Content of the request
  * @returns {Promise<IBenchmark>}
  */
-function getCreateRequestThroughput(): Promise<IBenchmark> {
+function getCreateRequestThroughput(
+  actions: any = {
+    content: '',
+  },
+): Promise<IBenchmark> {
   return new Promise(resolve => {
     const requestNetwork = new RequestNetwork({ useMockStorage: true });
 
@@ -44,6 +49,11 @@ function getCreateRequestThroughput(): Promise<IBenchmark> {
       .add('create request', {
         defer: true,
         fn(deferred: any): Promise<any> {
+          // TODO: add actions.content when client-size has the content-data feature
+          if (actions.content) {
+            // This block is only here to keep the argument while making tsc happy
+            actions.content = '';
+          }
           return requestNetwork
             .createRequest(requestCreationHash, signatureInfo, topics)
             .then(() => deferred.resolve());
