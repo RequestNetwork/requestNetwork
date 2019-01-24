@@ -205,6 +205,28 @@ jobs:
                   root: *working_directory
                   paths:
                       - packages/utils/.nyc_output
+
+    test-ethereum-private-key-signature-provider:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build ethereum-private-key-signature-provider"
+                  command: "yarn workspace @requestnetwork/ethereum-private-key-signature-provider run build"
+            - run:
+                  name: "Lint ethereum-private-key-signature-provider"
+                  command: "yarn workspace @requestnetwork/ethereum-private-key-signature-provider run lint"
+            - run:
+                  name: "Test ethereum-private-key-signature-provider"
+                  command: "yarn workspace @requestnetwork/ethereum-private-key-signature-provider run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/ethereum-private-key-signature-provider/.nyc_output
+
     test-integration-test:
         docker:
             - *node_image
@@ -323,6 +345,9 @@ jobs:
                   name: "Coverage request-logic"
                   command: "yarn workspace @requestnetwork/request-logic run coverage"
             - run:
+                  name: "Coverage ethereum-private-key-signature-provider"
+                  command: "yarn workspace @requestnetwork/ethereum-private-key-signature-provider run coverage"
+            - run:
                   name: "Coverage request-node"
                   command: "yarn workspace @requestnetwork/request-node run coverage"
             - run:
@@ -364,6 +389,9 @@ workflows:
             - test-utils:
                   requires:
                       - build
+            - test-ethereum-private-key-signature-provider:
+                  requires:
+                      - build
             - test-integration-test:
                   requires:
                       - build
@@ -381,9 +409,11 @@ workflows:
                       - test-transaction-manager
                       - test-ethereum-storage
                       - test-request-logic
+                      - test-ethereum-private-key-signature-provider
                       - test-request-node
                       - test-requestNetwork.js
                       - test-utils
+                      - test-ethereum-private-key-signature-provider
             # Build documentation
             - build-docs-requestNetwork.js:
                   requires:
