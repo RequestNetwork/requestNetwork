@@ -91,6 +91,7 @@ function applyActionToRequest(
           extensionState,
           extensionAction,
           requestAfterApply as Types.IRequestLogicRequest,
+          Action.getSignerIdentityFromAction(action),
         );
       },
       {},

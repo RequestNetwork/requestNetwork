@@ -21,12 +21,12 @@ describe('advanced-logic.ts', () => {
         previousState,
         TestData.createContentDataExtensionData,
         requestCreatedNoExtensionBefore,
+        TestData.payeeRaw.identity,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
         TestData.expectedCreatedContentDataState,
       );
-
       expect(previousState, 'previous extension state must not change').to.deep.equal({});
       expect(
         requestCreatedNoExtensionBefore,
@@ -44,6 +44,7 @@ describe('advanced-logic.ts', () => {
             version: '0.1.0',
           } as any,
           TestData.requestCreatedNoExtension,
+          TestData.payeeRaw.identity,
         ),
       ).to.throw('extension not recognized, id: unknownExtension');
     });

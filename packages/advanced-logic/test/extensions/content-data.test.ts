@@ -19,6 +19,7 @@ describe('content-data', () => {
         previousState,
         TestData.createContentDataExtensionData,
         requestCreatedNoExtensionBefore,
+        TestData.otherIdRaw.identity,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
@@ -36,12 +37,13 @@ describe('content-data', () => {
         ContentData.applyActionToExtension(
           TestData.expectedCreatedContentDataState,
           {
+            action: ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE,
             id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
             parameters: { content: { what: 'ever', it: 'is' } },
-            type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
             version: '0.1.0',
-          } as any,
+          },
           TestData.requestCreatedWithContentData,
+          TestData.otherIdRaw.identity,
         ),
       ).to.throw('This extension have already been created');
     });
@@ -51,12 +53,13 @@ describe('content-data', () => {
         ContentData.applyActionToExtension(
           {},
           {
+            action: ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE,
             id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
             parameters: {},
-            type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
             version: '0.1.0',
-          } as any,
+          },
           TestData.requestCreatedNoExtension,
+          TestData.otherIdRaw.identity,
         ),
       ).to.throw('No content has been given for the extension content-data');
     });

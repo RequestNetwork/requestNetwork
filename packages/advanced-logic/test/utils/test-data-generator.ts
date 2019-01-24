@@ -60,10 +60,10 @@ export const arbitraryDeltaAmount = '100000000000000000';
 export const arbitraryExpectedAmountMinusDelta = '23400000000000000';
 export const arbitraryExpectedAmountPlusDelta = '223400000000000000';
 
-export const createContentDataExtensionData = {
+export const createContentDataExtensionData: ExtensionTypes.IExtensionAction = {
+  action: ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE,
   id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
   parameters: { content: { what: 'ever', it: 'is' } },
-  type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
   version: '0.1.0',
 };
 

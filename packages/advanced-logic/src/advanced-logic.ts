@@ -1,6 +1,11 @@
-import { Extension as ExtensionTypes, RequestLogic as Types } from '@requestnetwork/types';
+import {
+  Extension as ExtensionTypes,
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+} from '@requestnetwork/types';
 
 import contentData from './extensions/content-data';
+import addressBasedBtc from './extensions/payment-network/bitcoin/address-based';
 
 /**
  * Module to manage Advanced logic extensions
@@ -9,6 +14,7 @@ import contentData from './extensions/content-data';
 export default {
   applyActionToExtensions,
   extensions: {
+    addressBasedBtc,
     contentData,
   },
 };
@@ -19,6 +25,7 @@ export default {
  * @param extensionsState IRequestLogicExtensionStates previous state of the extensions
  * @param extensionAction IExtensionAction action to apply
  * @param requestState IRequestLogicRequest request state read-only
+ * @param actionSigner IIdentity identity of the signer
  *
  * @returns state of the extension
  */
@@ -26,27 +33,26 @@ function applyActionToExtensions(
   extensionsState: Types.IRequestLogicExtensionStates,
   extensionAction: ExtensionTypes.IExtensionAction,
   requestState: Types.IRequestLogicRequest,
+  actionSigner: IdentityTypes.IIdentity,
 ): Types.IRequestLogicExtensionStates {
   const id: ExtensionTypes.EXTENSION_ID = extensionAction.id;
-  const type: ExtensionTypes.EXTENSION_TYPE = getExtensionTypeFromId(id);
 
-  if (type === ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA) {
-    return contentData.applyActionToExtension(extensionsState, extensionAction, requestState);
+  if (id === ExtensionTypes.EXTENSION_ID.CONTENT_DATA) {
+    return contentData.applyActionToExtension(
+      extensionsState,
+      extensionAction,
+      requestState,
+      actionSigner,
+    );
+  }
+  if (id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
+    return addressBasedBtc.applyActionToExtension(
+      extensionsState,
+      extensionAction,
+      requestState,
+      actionSigner,
+    );
   }
 
   throw Error(`extension not recognized, id: ${id}`);
-}
-
-/**
- * Get the extension type from the extension id
- *
- * @param id EXTENSION_ID the extension id
- *
- * @returns extension type if extension id supported, undefined otherwise
- */
-function getExtensionTypeFromId(id: ExtensionTypes.EXTENSION_ID): ExtensionTypes.EXTENSION_TYPE {
-  return {
-    [ExtensionTypes.EXTENSION_ID.CONTENT_DATA as string]: ExtensionTypes.EXTENSION_TYPE
-      .CONTENT_DATA,
-  }[id];
 }

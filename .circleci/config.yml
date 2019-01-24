@@ -152,6 +152,26 @@ jobs:
                   root: *working_directory
                   paths:
                       - packages/request-logic/.nyc_output
+    test-advanced-logic:
+        docker:
+            - *node_image
+        working_directory: *working_directory
+        steps:
+            - attach_workspace:
+                  at: *working_directory
+            - run:
+                  name: "Build advanced-logic"
+                  command: "yarn workspace @requestnetwork/advanced-logic run build"
+            - run:
+                  name: "Lint advanced-logic"
+                  command: "yarn workspace @requestnetwork/advanced-logic run lint"
+            - run:
+                  name: "Test advanced-logic"
+                  command: "yarn workspace @requestnetwork/advanced-logic run test"
+            - persist_to_workspace:
+                  root: *working_directory
+                  paths:
+                      - packages/advanced-logic/.nyc_output
     test-request-node:
         docker:
             - *node_image
@@ -345,6 +365,9 @@ jobs:
                   name: "Coverage request-logic"
                   command: "yarn workspace @requestnetwork/request-logic run coverage"
             - run:
+                  name: "Coverage advanced-logic"
+                  command: "yarn workspace @requestnetwork/advanced-logic run coverage"
+            - run:
                   name: "Coverage ethereum-private-key-signature-provider"
                   command: "yarn workspace @requestnetwork/ethereum-private-key-signature-provider run coverage"
             - run:
@@ -380,6 +403,9 @@ workflows:
             - test-request-logic:
                   requires:
                       - build
+            - test-advanced-logic:
+                  requires:
+                      - build
             - test-request-node:
                   requires:
                       - build
@@ -409,7 +435,11 @@ workflows:
                       - test-transaction-manager
                       - test-ethereum-storage
                       - test-request-logic
+<<<<<<< HEAD
+                      - test-advanced-logic
+=======
                       - test-ethereum-private-key-signature-provider
+>>>>>>> develop-v2
                       - test-request-node
                       - test-requestNetwork.js
                       - test-utils

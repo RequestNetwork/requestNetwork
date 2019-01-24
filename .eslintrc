@@ -20,6 +20,8 @@
                     "arg",
                     "axios",
                     "blockchain",
+                    "btc",
+                    "bitcoin",
                     "chai",
                     "ecdsa",
                     "enum",

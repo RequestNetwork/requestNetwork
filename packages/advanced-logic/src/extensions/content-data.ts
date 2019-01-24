@@ -8,10 +8,11 @@ import Utils from '@requestnetwork/utils';
 /**
  * Implementation of the content data extension
  */
-export default {
+const contentDataManager: ExtensionTypes.ContentData.IContentDataManager = {
   applyActionToExtension,
   createCreationAction,
 };
+export default contentDataManager;
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -25,15 +26,15 @@ const CURRENT_VERSION = '0.1.0';
  */
 function createCreationAction(
   creationParameters: ExtensionTypes.ContentData.IContentDataCreationParameters,
-): ExtensionTypes.IExtensionCreationAction {
+): ExtensionTypes.IExtensionAction {
   if (!creationParameters.content) {
     throw Error('No content has been given for the extension content-data');
   }
 
   return {
+    action: ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE,
     id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
     parameters: creationParameters,
-    type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
     version: CURRENT_VERSION,
   };
 }
@@ -53,6 +54,10 @@ function applyActionToExtension(
   extensionAction: ExtensionTypes.IExtensionAction,
   requestState: RequestLogicTypes.IRequestLogicRequest,
 ): RequestLogicTypes.IRequestLogicExtensionStates {
+  if (extensionAction.action !== ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE) {
+    throw Error(`Unknown action: ${extensionAction.action}`);
+  }
+
   if (requestState.extensions[ExtensionTypes.EXTENSION_ID.CONTENT_DATA]) {
     throw Error(`This extension have already been created`);
   }

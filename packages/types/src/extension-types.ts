@@ -1,6 +1,19 @@
 import * as ContentData from './extensions/content-data-types';
+import * as PnBitcoinAddressBased from './extensions/pn-bitcoin-address-based-types';
+import * as Identity from './identity-types';
+import * as RequestLogic from './request-logic-types';
 
-export { ContentData };
+export { ContentData, PnBitcoinAddressBased };
+
+/** Extension interface is extended by the extensions implementation */
+export interface IExtension {
+  applyActionToExtension: (
+    extensionsState: RequestLogic.IRequestLogicExtensionStates,
+    extensionAction: IExtensionAction,
+    requestState: RequestLogic.IRequestLogicRequest,
+    actionSigner: Identity.IIdentity,
+  ) => RequestLogic.IRequestLogicExtensionStates;
+}
 
 /** Extensions state in advanced logic */
 export interface IExtensionState {
@@ -11,22 +24,12 @@ export interface IExtensionState {
   values: any;
 }
 
-/** Action type */
-export type IExtensionAction = IExtensionCreationAction | IExtensionUpdateAction;
-
 /** Creation action object */
-export interface IExtensionCreationAction {
-  type: EXTENSION_TYPE;
-  id: EXTENSION_ID;
-  version: string;
-  parameters?: any;
-}
-
-/** Update action object */
-export interface IExtensionUpdateAction {
+export interface IExtensionAction {
   action: string;
   id: EXTENSION_ID;
   parameters?: any;
+  version?: string;
 }
 
 /** extension event object */
@@ -38,9 +41,11 @@ export interface IExtensionEvent {
 /** Identification of extensions handled by this implementation */
 export enum EXTENSION_ID {
   CONTENT_DATA = 'content-data',
+  PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
 }
 
 /** Type of extensions */
 export enum EXTENSION_TYPE {
   CONTENT_DATA = 'content-data',
+  PAYMENT_NETWORK = 'payment-network',
 }
