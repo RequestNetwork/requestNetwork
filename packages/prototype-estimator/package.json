@@ -31,7 +31,8 @@
     "@requestnetwork/request-node": "0.1.0",
     "@requestnetwork/transaction-manager": "0.1.0",
     "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0"
+    "@requestnetwork/utils": "0.1.0",
+    "benchmark": "2.1.4"
   },
   "devDependencies": {
     "prettier": "1.14.3",

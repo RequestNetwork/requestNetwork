@@ -1,6 +1,7 @@
-import getSizeOfRequest from './size';
+import TestExecutor, { ITestCase } from './test-case-executor';
 
-const testCases = [
+// The test cases to run
+const testCases: ITestCase[] = [
   {
     name: 'created',
     case: {
@@ -9,6 +10,10 @@ const testCases = [
       increase: false,
       reduce: false,
       content: '',
+    },
+    benchmarks: {
+      size: true,
+      speed: true,
     },
   },
   {
@@ -20,6 +25,10 @@ const testCases = [
       reduce: false,
       content: '',
     },
+    benchmarks: {
+      size: true,
+      speed: false,
+    },
   },
   {
     name: 'created + accepted + increase + reduce',
@@ -30,17 +39,13 @@ const testCases = [
       reduce: true,
       content: '',
     },
+    benchmarks: {
+      size: true,
+      speed: false,
+    },
   },
 ];
 
-// Execute all the test cases in parallel and display the results in a table
 // tslint:disable:no-floating-promises
 // tslint:disable:no-console
-Promise.all(
-  testCases.map(testCase =>
-    getSizeOfRequest(testCase.case).then(size => ({
-      name: testCase.name,
-      size,
-    })),
-  ),
-).then(data => console.table(data));
+TestExecutor.executeTests(testCases).then(testCaseResult => console.table(testCaseResult));
