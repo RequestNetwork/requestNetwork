@@ -24,6 +24,7 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
+    "@requestnetwork/advanced-logic": "0.1.0",
     "@requestnetwork/client-side": "0.1.0",
     "@requestnetwork/data-access": "0.1.0",
     "@requestnetwork/ethereum-storage": "0.1.0",

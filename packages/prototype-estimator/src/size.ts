@@ -1,3 +1,4 @@
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -44,7 +45,10 @@ async function setup(): Promise<{ mockStorage: MockStorage; requestLogic: Reques
   await dataAccess.initialize();
 
   // Logic setup
-  return { mockStorage, requestLogic: new RequestLogic(new TransactionManager(dataAccess)) };
+  return {
+    mockStorage,
+    requestLogic: new RequestLogic(new TransactionManager(dataAccess), AdvancedLogic),
+  };
 }
 
 /**
@@ -66,14 +70,19 @@ async function getSizeOfRequest(
     content: '',
   },
 ) {
+  let _requestCreationHash = requestCreationHash;
   const { requestLogic, mockStorage } = await setup();
   let requestId: string;
   if (actions.create) {
     if (actions.content) {
-      // TODO
+      _requestCreationHash = Object.assign({}, requestCreationHash, {
+        extensionsData: [
+          AdvancedLogic.extensions.contentData.createCreationAction({ content: actions.content }),
+        ],
+      });
     }
     const resultCreation = await requestLogic.createRequest(
-      requestCreationHash,
+      _requestCreationHash,
       signatureInfo,
       topics,
     );
