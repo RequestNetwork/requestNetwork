@@ -21,8 +21,7 @@
   },
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "speed": "ts-node src/speed.ts"
+    "start": "ts-node src/index.ts"
   },
   "dependencies": {
     "@requestnetwork/client-side": "0.1.0",

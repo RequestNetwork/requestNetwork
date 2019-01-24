@@ -2,7 +2,7 @@ import getSizeOfRequest from './size';
 import getCreateRequestThroughput from './speed';
 
 // Describes a test case for a benchmark. For example "run speed and size benchmark on the creation of a request with content"
-interface TestCase {
+interface ITestCase {
   // Name of the test case
   name: string;
 
@@ -31,8 +31,24 @@ interface TestCase {
   };
 }
 
+/**
+ * Results for test case
+ *
+ * @interface ITestCaseResults
+ */
+interface IBenchmarkResults {
+  // Name of the test case
+  name: string;
+
+  // Size of the request for the test case
+  size: number;
+
+  // throughput of the test case (in count per seconds)
+  countPerSec: number;
+}
+
 // The test cases to run
-const testCases: TestCase[] = [
+const testCases: ITestCase[] = [
   {
     name: 'created',
     case: {
@@ -77,24 +93,33 @@ const testCases: TestCase[] = [
   },
 ];
 
-// Execute all the test cases in parallel and display the results in a table
+/**
+ * Execute all the test cases in parallel and return the results in a IBenchmarkResults array
+ *
+ * @param {ITestCase[]} testCasesArgument
+ * @returns {Promise<IBenchmarkResults[]>}
+ */
+function executeTests(testCasesArgument: ITestCase[]): Promise<IBenchmarkResults[]> {
+  return Promise.all(
+    testCasesArgument.map(testCase => {
+      // Promise to run the size benchmark on the test case
+      const sizeTestPromise = testCase.benchmarks.size
+        ? getSizeOfRequest(testCase.case).then(size => ({ size }))
+        : Promise.resolve(null);
+
+      // Promise to run the speed benchmark on the test case
+      const speedTestPromise = testCase.benchmarks.speed
+        ? getCreateRequestThroughput().then(result => ({ countPerSec: result.countPerSec }))
+        : Promise.resolve(null);
+
+      // Run the 2 benchmarks and merge their result in an object
+      return Promise.all([sizeTestPromise, speedTestPromise]).then(([sizeResult, speedResults]) =>
+        Object.assign({ name: testCase.name }, sizeResult, speedResults),
+      );
+    }),
+  );
+}
+
 // tslint:disable:no-floating-promises
 // tslint:disable:no-console
-Promise.all(
-  testCases.map(testCase => {
-    // Promise to run the size benchmark on the test case
-    const sizeTestPromise = testCase.benchmarks.size
-      ? getSizeOfRequest(testCase.case).then(size => ({ size }))
-      : Promise.resolve(null);
-
-    // Promise to run the speed benchmark on the test case
-    const speedTestPromise = testCase.benchmarks.speed
-      ? getCreateRequestThroughput().then(result => ({ countPerSec: result.countPerSec }))
-      : Promise.resolve(null);
-
-    // Run the 2 benchmarks and merge their result in an object
-    return Promise.all([sizeTestPromise, speedTestPromise]).then(([sizeResult, speedResults]) =>
-      Object.assign({ name: testCase.name }, sizeResult, speedResults),
-    );
-  }),
-).then(data => console.table(data));
+executeTests(testCases).then(data => console.table(data));

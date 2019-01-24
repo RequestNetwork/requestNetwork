@@ -29,41 +29,22 @@ const topics = [
   '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 ];
 
-// const requestFromId = requestNetwork.fromRequestId(request.requestId);
-// const {
-//   result: { request: requestData },
-// } = await requestFromId.getData();
-// console.log(requestData);
-
 /**
- * Creates a request and returns the size in the storage
+ * Creates several requests and returns how many requests have been created per second
  *
- * @param {Boolean} actions.create Should it create a request?
- * @param {Boolean} actions.accept Should it accept a request?
- * @param {Boolean} actions.increase Should it increase the amount a request?
- * @param {Boolean} actions.reduce Should it reduce the amount a request?
- * @param {String} actions.content Content of the request
- * @returns
+ * @returns {Promise<IBenchmark>}
  */
 function getCreateRequestThroughput(): Promise<IBenchmark> {
-  // actions: any = {
-  //   create: true,
-  //   accept: false,
-  //   increase: false,
-  //   reduce: false,
-  //   content: '',
-  // },
   return new Promise(resolve => {
     const requestNetwork = new RequestNetwork({ useMockStorage: true });
 
     const suite = new Benchmark.Suite();
 
-    // tslint:disable:no-floating-promises
-    suite
+    return suite
       .add('create request', {
         defer: true,
-        fn(deferred: any): void {
-          requestNetwork
+        fn(deferred: any): Promise<any> {
+          return requestNetwork
             .createRequest(requestCreationHash, signatureInfo, topics)
             .then(() => deferred.resolve());
         },
