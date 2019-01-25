@@ -41,7 +41,7 @@ function getCreateRequestThroughput(
   },
 ): Promise<IBenchmark> {
   return new Promise(resolve => {
-    const requestNetwork = new RequestNetwork({ useMockStorage: true });
+    const requestNetwork = new RequestNetwork();
 
     const suite = new Benchmark.Suite();
 

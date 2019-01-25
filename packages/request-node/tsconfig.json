@@ -4,5 +4,9 @@
     "outDir": "dist",
     "rootDir": "src",
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
+  "references": [
+    { "path": "../data-access" },
+    { "path": "../ethereum-storage" },
+  ]
 }

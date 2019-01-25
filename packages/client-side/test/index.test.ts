@@ -51,11 +51,11 @@ describe('index', () => {
     sandbox.restore();
   });
 
-  it('uses http://localhost by default', async () => {
+  it('uses http://localhost:3000 by default', async () => {
     const mock = new mockAdapter(axios);
 
     const callback = (config: any): any => {
-      expect(config.baseURL).to.equal('http://localhost');
+      expect(config.baseURL).to.equal('http://localhost:3000');
       return [200, {}];
     };
     const spy = chai.spy(callback);
