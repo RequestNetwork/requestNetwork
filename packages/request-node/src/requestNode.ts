@@ -52,11 +52,9 @@ class RequestNode {
     try {
       await this.dataAccess.initialize();
     } catch (error) {
-      const failureMessage = `Node failed to initialize: ${error}`;
-
       // tslint:disable-next-line:no-console
-      console.error(failureMessage);
-      throw Error(failureMessage);
+      console.error(`Node failed to initialize`);
+      throw error;
     }
 
     this.initialized = true;

@@ -25,7 +25,7 @@
   "scripts": {
     "build": "tsc -b",
     "test": "nyc mocha --exit --require ts-node/register source-map-support/register test/**/*.ts",
-    "start": "node ./dist/server.js",
+    "start": "ts-node src/server.ts",
     "clean": "shx rm -rf dist",
     "lint-staged": "lint-staged",
     "lint": "tslint --project .",
