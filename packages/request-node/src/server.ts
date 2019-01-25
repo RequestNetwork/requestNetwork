@@ -14,6 +14,5 @@ const startNode = async (): Promise<void> => {
   });
 };
 
-startNode().catch(error => {
-  throw error;
-});
+// tslint:disable-next-line:no-console
+startNode().catch(error => console.error(error));
