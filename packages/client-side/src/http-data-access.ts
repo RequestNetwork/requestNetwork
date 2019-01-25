@@ -27,7 +27,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   constructor(nodeConnectionConfig: AxiosRequestConfig = {}) {
     this.axiosConfig = Object.assign(
       {
-        baseURL: 'http://localhost',
+        baseURL: 'http://localhost:3000',
       },
       nodeConnectionConfig,
     );

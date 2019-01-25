@@ -1,13 +1,19 @@
+import { getServerPort } from './config';
 import requestNode from './requestNode';
 
-const defaultPort = 3000;
-const port = process.env.PORT || defaultPort;
+const startNode = async (): Promise<void> => {
+  // Initialize request node instance and listen for requests
+  const requestNodeInstance = new requestNode();
+  await requestNodeInstance.initialize();
 
-// Listen for HTTP requests
-const server = requestNode.listen(port, () => {
-  // tslint:disable:no-console
-  console.log(`Listening on port ${port}`);
-  return 0;
+  const port = getServerPort();
+  requestNodeInstance.listen(port, () => {
+    // tslint:disable:no-console
+    console.log(`Listening on port ${port}`);
+    return 0;
+  });
+};
+
+startNode().catch(error => {
+  throw error;
 });
-
-export default server;

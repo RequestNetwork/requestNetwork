@@ -175,6 +175,8 @@ jobs:
     test-request-node:
         docker:
             - *node_image
+            - *ipfs_image
+            - *ganache_image
         working_directory: *working_directory
         steps:
             - attach_workspace:
@@ -185,6 +187,9 @@ jobs:
             - run:
                   name: "Lint request-node"
                   command: "yarn workspace @requestnetwork/request-node run lint"
+            - run:
+                  name: "Deploy test contract from ethereum-storage"
+                  command: "yarn workspace @requestnetwork/ethereum-storage run deploy"
             - run:
                   name: "Test request-node"
                   command: "yarn workspace @requestnetwork/request-node run test"
