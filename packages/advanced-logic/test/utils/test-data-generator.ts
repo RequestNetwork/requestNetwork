@@ -153,3 +153,41 @@ export const requestCreatedWithContentData: Types.IRequestLogicRequest = {
   timestamp: arbitraryTimestamp,
   version: '0.1.0',
 };
+
+export const requestCreatedWithPNBitcoinAddressBased: Types.IRequestLogicRequest = {
+  creator: {
+    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    value: payeeRaw.address,
+  },
+
+  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+  events: [
+    {
+      actionSigner: {
+        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        value: payeeRaw.address,
+      },
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsDataLength: 1,
+        isSignedRequest: false,
+      },
+    },
+  ],
+  expectedAmount: arbitraryExpectedAmount,
+  extensions: expectedCreatedContentDataState,
+  extensionsData: [createContentDataExtensionData],
+  payee: {
+    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    value: payeeRaw.address,
+  },
+  payer: {
+    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    value: payerRaw.address,
+  },
+  requestId: requestIdMock,
+  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  timestamp: arbitraryTimestamp,
+  version: '0.1.0',
+};

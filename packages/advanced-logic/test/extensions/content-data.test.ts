@@ -63,6 +63,22 @@ describe('content-data', () => {
         ),
       ).to.throw('No content has been given for the extension content-data');
     });
+
+    it('cannot create state if action unknown', () => {
+      expect(() => {
+        ContentData.applyActionToExtension(
+          {},
+          {
+            action: 'unknown action',
+            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
+            parameters: {},
+            version: '0.1.0',
+          },
+          TestData.requestCreatedNoExtension,
+          TestData.otherIdRaw.identity,
+        );
+      }, 'must throw').to.throw('Unknown action: unknown action');
+    });
   });
 
   describe('createCreationAction', () => {
