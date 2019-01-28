@@ -15,10 +15,10 @@ const dataAccess = require('@requestNetwork/data-access');
 The request network data-access implements the structure of the data on the blockchain
 
 The architecture is made by a sorted list of `blocks`.
-A `block` is a json (see /format) object containing:
+A `block` is a JSON (see /format) object containing:
 
 - a sorted list of `transactions`
-- an index of this transactions (a dictionnary referencing the transactions by arbitrary string)
+- an index of this transactions (a dictionary referencing the transactions by arbitrary string)
 
 A `transaction` is an object containing the data as a string and the signature of these data. (the data will be the actions from the request logic layer)
 
