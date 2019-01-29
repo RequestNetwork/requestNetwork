@@ -8,12 +8,14 @@ import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
+  AdvancedLogic as AdvancedLogicTypes,
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
   Storage as StorageTypes,
 } from '@requestnetwork/types';
 
+let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
 let provider: any;
 
@@ -40,8 +42,11 @@ describe('Request system', () => {
     // Transaction manager setup
     const transactionManager = new TransactionManager(dataAccess);
 
+    // Advanced Logic setup
+    advancedLogic = new AdvancedLogic();
+
     // Logic setup
-    requestLogic = new RequestLogic(transactionManager, AdvancedLogic);
+    requestLogic = new RequestLogic(transactionManager, advancedLogic);
   });
 
   after(() => {
@@ -50,7 +55,7 @@ describe('Request system', () => {
   });
 
   it('can create a request', async () => {
-    const contentDataExtensionData = AdvancedLogic.extensions.contentData.createCreationAction({
+    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
 

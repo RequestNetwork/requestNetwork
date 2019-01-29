@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Extension as ExtensionTypes } from '@requestnetwork/types';
+import { AdvancedLogic as Types, Extension as ExtensionTypes } from '@requestnetwork/types';
 
 import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
 
@@ -12,14 +12,18 @@ import { expect } from 'chai';
 
 import * as TestData from './utils/test-data-generator';
 
+let advancedLogic: Types.IAdvancedLogic;
 /* tslint:disable:no-unused-expression */
 describe('advanced-logic.ts', () => {
+  beforeEach(() => {
+    advancedLogic = new AdvancedLogic();
+  });
   describe('applyActionToExtensions', () => {
     it('can applyActionToExtensions', () => {
       const requestCreatedNoExtensionBefore = Utils.deepCopy(TestData.requestCreatedNoExtension);
       const previousState = {};
 
-      const newExtensionState = AdvancedLogic.applyActionToExtensions(
+      const newExtensionState = advancedLogic.applyActionToExtensions(
         previousState,
         TestData.createContentDataExtensionData,
         requestCreatedNoExtensionBefore,
@@ -41,7 +45,7 @@ describe('advanced-logic.ts', () => {
         DataBTCCreate.requestStateNoExtensions,
       );
 
-      const newExtensionState = AdvancedLogic.applyActionToExtensions(
+      const newExtensionState = advancedLogic.applyActionToExtensions(
         requestCreatedNoExtensionBefore.extensions,
         DataBTCCreate.actionCreationWithPaymentAndRefund,
         requestCreatedNoExtensionBefore,
@@ -59,7 +63,7 @@ describe('advanced-logic.ts', () => {
 
     it('cannot apply unknown extension to extensions state', () => {
       expect(() =>
-        AdvancedLogic.applyActionToExtensions(
+        advancedLogic.applyActionToExtensions(
           {},
           {
             id: 'unknownExtension',
