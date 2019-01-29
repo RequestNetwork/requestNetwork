@@ -4,6 +4,7 @@ import Action from './action';
 import Request from './request';
 
 import AcceptAction from './actions/accept';
+import AddExtensionsData from './actions/addExtensionsData';
 import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
 import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
@@ -15,6 +16,7 @@ import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
 export default {
   applyActionToRequest,
   formatAccept: AcceptAction.format,
+  formatAddExtensionsData: AddExtensionsData.format,
   formatCancel: CancelAction.format,
   formatCreate: CreateAction.format,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
@@ -75,6 +77,10 @@ function applyActionToRequest(
 
     if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
       requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(action, requestCopied);
+    }
+
+    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.ADD_EXTENSIONS_DATA) {
+      requestAfterApply = AddExtensionsData.applyActionToRequest(action, requestCopied);
     }
   }
 

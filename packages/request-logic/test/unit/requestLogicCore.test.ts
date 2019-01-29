@@ -602,5 +602,21 @@ describe('requestLogicCore', () => {
         );
       }
     });
+
+    it('can apply add extensions data to a request', () => {
+      const actionAddExtensionsData = RequestLogicCore.formatAddExtensionsData(
+        { requestId: TestData.requestIdMock, extensionsData: TestData.oneExtension },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+
+      const request = RequestLogicCore.applyActionToRequest(
+        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        actionAddExtensionsData,
+        fakeAdvancedLogic,
+      );
+
+      expect(request.extensionsData, 'extensions is wrong').to.be.deep.equal(TestData.oneExtension);
+    });
   });
 });

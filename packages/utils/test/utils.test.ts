@@ -80,6 +80,13 @@ describe('Utils', () => {
     expect(Utils.isString({ var: 'plop' }), 'istring("") error').to.be.false;
   });
 
+  it('getCurrentTimestampInSecond()', () => {
+    const time = Math.floor(Date.now() / 1000);
+    expect(Utils.getCurrentTimestampInSecond(), 'getCurrentTimestampInSecond() error').to.be.equal(
+      time,
+    );
+  });
+
   describe('flatten2DimensionsArray', () => {
     it('can flatten2DimensionsArray() 1 dimension array', () => {
       const arbitraryArray: any[] = [1, 2, 3, 4, 5];

@@ -239,6 +239,48 @@ describe('index', () => {
     });
   });
 
+  describe('addExtensionsDataRequest', () => {
+    it('can addExtensionsDataRequest', async () => {
+      const addExtRequest = {
+        extensionsData: TestData.oneExtension,
+        requestId,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProviderArbitrary,
+      );
+
+      const ret = await requestLogic.addExtensionsDataRequest(
+        addExtRequest,
+        TestData.payeeRaw.identity,
+      );
+      expect(ret.result, 'ret.result is wrong').to.be.undefined;
+      expect(ret.meta).to.be.deep.equal({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+        '{"data":{"name":"addExtensionsData","parameters":{"extensionsData":[{"id":"extension1","value":"whatever1"}],"requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        [requestId],
+      );
+    });
+    it('cannot addExtensionsDataRequest without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
+      const addExtRequest = {
+        extensionsData: TestData.oneExtension,
+        requestId,
+      };
+
+      try {
+        await requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity);
+        expect(false, 'must have thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'wrong exception').to.equal(
+          'You must give a signature provider to create actions',
+        );
+      }
+    });
+  });
+
   describe('getRequestById', () => {
     it('can getRequestById', async () => {
       const actionCreate: Types.IRequestLogicAction = Utils.signature.sign(

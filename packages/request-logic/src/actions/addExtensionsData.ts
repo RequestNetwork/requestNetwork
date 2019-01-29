@@ -10,7 +10,7 @@ import Request from '../request';
 import Version from '../version';
 
 /**
- * Implementation of the action cancel from request logic specification
+ * Implementation of the action add extensions data from request logic specification
  */
 export default {
   applyActionToRequest,
@@ -18,22 +18,29 @@ export default {
 };
 
 /**
- * Function to format an action to cancel a Request
+ * Function to format an action to add extensions data to a Request
  *
- * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
+ * @param IRequestLogicAddExtensionsDataParameters acceptParameters parameters to accept a request
  * @param IIdentity signerIdentity Identity of the signer
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IRequestLogicAction  the action with the signature
  */
 function format(
-  cancelParameters: Types.IRequestLogicCancelParameters,
+  addExtensionsDataParameters: Types.IRequestLogicAddExtensionsDataParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Types.IRequestLogicAction {
+  if (
+    !addExtensionsDataParameters.extensionsData ||
+    addExtensionsDataParameters.extensionsData.length === 0
+  ) {
+    throw new Error('extensionsData must be given');
+  }
+
   const unsignedAction: Types.IRequestLogicUnsignedAction = {
-    name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
-    parameters: cancelParameters,
+    name: Types.REQUEST_LOGIC_ACTION_NAME.ADD_EXTENSIONS_DATA,
+    parameters: addExtensionsDataParameters,
     version: Version.currentVersion,
   };
 
@@ -41,9 +48,9 @@ function format(
 }
 
 /**
- * Function to apply an Cancel action an a request
+ * Function to apply an addition of extensions data to a request
  *
- * @param Types.IRequestLogicAction action the action to apply
+ * @param Types.IRequestLogicAction action  the action to apply
  *
  * @returns Types.IRequestLogicRequest the new request
  */
@@ -54,36 +61,25 @@ function applyActionToRequest(
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
+  if (
+    !action.data.parameters.extensionsData ||
+    action.data.parameters.extensionsData.length === 0
+  ) {
+    throw new Error('extensionsData must be given');
+  }
 
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
-  const signerRole = Request.getRoleInRequest(signer, request);
 
   // avoid to mutate the request
   let requestCopied: Types.IRequestLogicRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, signer));
 
-  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
-    if (request.state !== Types.REQUEST_LOGIC_STATE.CREATED) {
-      throw new Error('A payer cancel need to be done on a request with the state created');
-    }
-    requestCopied.state = Types.REQUEST_LOGIC_STATE.CANCELLED;
-    return requestCopied;
-  }
-
-  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
-    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
-      throw new Error('Cannot cancel an already canceled request');
-    }
-    requestCopied.state = Types.REQUEST_LOGIC_STATE.CANCELLED;
-    return requestCopied;
-  }
-
-  throw new Error('Signer must be the payer or the payee');
+  return requestCopied;
 }
 
 /**
- * Private function to generate the event 'Cancel' from an action
+ * Private function to generate the event 'Accept' from an action
  *
  * @param Types.IRequestLogicAction action the action that create the event
  * @param IdentityTypes.IIdentity actionSigner the signer of the action
@@ -98,7 +94,7 @@ function generateEvent(
 
   const event: Types.IRequestLogicEvent = {
     actionSigner,
-    name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+    name: Types.REQUEST_LOGIC_ACTION_NAME.ADD_EXTENSIONS_DATA,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },

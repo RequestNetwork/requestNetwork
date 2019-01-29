@@ -3,6 +3,7 @@ import {
   RequestLogic as Types,
   SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import Action from '../action';
 import Amount from '../amount';
@@ -71,20 +72,22 @@ function applyActionToRequest(
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  request = Request.pushExtensionsData(request, action.data.parameters.extensionsData);
-  request.events.push(generateEvent(action, signer));
+  // avoid to mutate the request
+  let requestCopied: Types.IRequestLogicRequest = Utils.deepCopy(request);
+  requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
+  requestCopied.events.push(generateEvent(action, signer));
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
     if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
       throw new Error('the request must not be canceled');
     }
     // reduce the expected amount and store it as string or throw if the result is not valid
-    request.expectedAmount = Amount.reduce(
+    requestCopied.expectedAmount = Amount.reduce(
       request.expectedAmount,
       action.data.parameters.deltaAmount,
     );
 
-    return request;
+    return requestCopied;
   }
 
   throw new Error('signer must be the payee');

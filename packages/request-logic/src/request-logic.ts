@@ -189,6 +189,38 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
+   * Function to add extensions data to a request and persist it through the transaction manager layer
+   *
+   * @param IRequestLogicAddExtensionsDataParameters requestParameters parameters to add extensions Data to a request
+   * @param IIdentity signerIdentity Identity of the signer
+   *
+   * @returns Promise<IRequestLogicReturn> the meta data
+   */
+  public async addExtensionsDataRequest(
+    requestParameters: RequestLogicTypes.IRequestLogicAddExtensionsDataParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+
+    const action = RequestLogicCore.formatAddExtensionsData(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
+
+    const resultPersistTx = await this.transactionManager.persistTransaction(
+      JSON.stringify(action),
+      [requestId],
+    );
+    return {
+      meta: { transactionManagerMeta: resultPersistTx.meta },
+    };
+  }
+
+  /**
    * Function to get a request from its requestId from the action in the data-access layer
    *
    * @param RequestLogicRequestId requestId the requestId of the request to retrieve

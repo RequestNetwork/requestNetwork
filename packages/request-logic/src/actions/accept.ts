@@ -3,6 +3,8 @@ import {
   RequestLogic as Types,
   SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
+
 import Action from '../action';
 import Request from '../request';
 import Version from '../version';
@@ -69,11 +71,12 @@ function applyActionToRequest(
   } else {
     throw new Error('Signer must be the payer');
   }
+  // avoid to mutate the request
+  let requestCopied: Types.IRequestLogicRequest = Utils.deepCopy(request);
+  requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
+  requestCopied.events.push(generateEvent(action, signer));
 
-  request = Request.pushExtensionsData(request, action.data.parameters.extensionsData);
-  request.events.push(generateEvent(action, signer));
-
-  return request;
+  return requestCopied;
 }
 
 /**

@@ -157,6 +157,12 @@ export interface IRequestLogicReduceExpectedAmountParameters {
   extensionsData?: any[];
 }
 
+/** Parameters to add extensions data to a request */
+export interface IRequestLogicAddExtensionsDataParameters {
+  requestId: RequestLogicRequestId;
+  extensionsData: any[];
+}
+
 /** Event */
 export interface IRequestLogicEvent {
   /** Name of this event is actually an action */
@@ -174,6 +180,7 @@ export enum REQUEST_LOGIC_ACTION_NAME {
   CANCEL = 'cancel',
   REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
   INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
+  ADD_EXTENSIONS_DATA = 'addExtensionsData',
 }
 
 /** Supported currencies */
