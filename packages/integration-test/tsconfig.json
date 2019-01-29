@@ -8,6 +8,7 @@
     { "path": "../advanced-logic" },
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
+    { "path": "../ethereum-private-key-signature-provider" },
     { "path": "../request-logic" },
     { "path": "../transaction-manager" },
     { "path": "../types" }

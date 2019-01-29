@@ -1,7 +1,7 @@
 import {
   Identity as IdentityTypes,
   RequestLogic as Types,
-  Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Action from '../action';
@@ -22,13 +22,15 @@ export default {
  * If requestParameters.timestamp not given, "Date.now() / 1000" will be used as default
  *
  * @param requestParameters IRequestLogicCreateParameters parameters to create a request
- * @param ISignatureParameters signatureParams Signature parameters
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IRequestLogicAction  the action with the signature
  */
 function format(
   requestParameters: Types.IRequestLogicCreateParameters,
-  signatureParams: SignatureTypes.ISignatureParameters,
+  signerIdentity: IdentityTypes.IIdentity,
+  signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Types.IRequestLogicAction {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
@@ -65,9 +67,7 @@ function format(
     parameters: requestParameters,
     version,
   };
-  const signerIdentity: IdentityTypes.IIdentity = Utils.signature.getIdentityFromSignatureParams(
-    signatureParams,
-  );
+
   const signerRole: Types.REQUEST_LOGIC_ROLE = Action.getRoleInUnsignedAction(
     signerIdentity,
     unsignedAction,
@@ -80,7 +80,7 @@ function format(
     throw new Error('Signer must be the payee or the payer');
   }
 
-  return Action.createAction(unsignedAction, signatureParams);
+  return Action.createAction(unsignedAction, signerIdentity, signatureProvider);
 }
 
 /**

@@ -1,7 +1,12 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { RequestLogic as Types, Signature as SignatureTypes } from '@requestnetwork/types';
+import {
+  Identity as IdentityTypes,
+  RequestLogic as Types,
+  Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Action from '../../src/action';
@@ -10,7 +15,11 @@ import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from './utils/test-data-generator';
-// import { sign } from 'eth-crypto';
+
+const chai = require('chai');
+const spies = require('chai-spies');
+
+chai.use(spies);
 
 const randomUnsignedAction = {
   name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
@@ -29,6 +38,12 @@ const signedAction = {
     value:
       '0xbcf77e28b615620636cefbad5bc6abf8324aad610581d7cec0394da216da12f063332e0a03a337a6352665c421b11ab187e515bd3518eeb12f42f8c64eb44c6e1b',
   },
+};
+
+const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
+  sign: chai.spy((data: any) => ({ data, signature: TestData.fakeSignature })),
+  supportedIdentityTypes: chai.spy.returns([IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS]),
+  supportedMethods: chai.spy.returns([SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA]),
 };
 
 /* tslint:disable:no-unused-expression */
@@ -56,23 +71,21 @@ describe('Action', () => {
   });
 
   it('can createAction()', () => {
-    const action = Action.createAction(randomUnsignedAction, {
-      method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      privateKey: TestData.payeeRaw.privateKey,
+    const action = Action.createAction(
+      randomUnsignedAction,
+      TestData.payeeRaw.identity,
+      fakeSignatureProvider,
+    );
+
+    expect(fakeSignatureProvider.sign).to.have.been.called.with(
+      randomUnsignedAction,
+      TestData.payeeRaw.identity,
+    );
+
+    expect(action, 'createAction() action error').to.be.deep.equal({
+      data: randomUnsignedAction,
+      signature: TestData.fakeSignature,
     });
-
-    expect(action.signature, 'createAction() signature error').to.be.deep.equal({
-      method: 'ecdsa',
-      value:
-        '0xbcf77e28b615620636cefbad5bc6abf8324aad610581d7cec0394da216da12f063332e0a03a337a6352665c421b11ab187e515bd3518eeb12f42f8c64eb44c6e1b',
-    });
-
-    expect(action, 'createAction() action error').to.be.deep.equal(signedAction);
-  });
-
-  it('can getSignerIdentityFromAction()', () => {
-    const id = Action.getSignerIdentityFromAction(signedAction);
-    expect(id, 'recover() error').to.be.deep.equal(TestData.payeeRaw.identity);
   });
 
   it('can isActionVersionSupported()', () => {

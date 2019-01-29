@@ -28,92 +28,80 @@ const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('requestLogicCore', () => {
   describe('applyActionToRequest', () => {
     it('cannot support unknown action', () => {
-      try {
-        const action: any = {
-          data: {
-            name: 'actionUnknown',
-            parameters: {
-              currency: 'ETH',
-              expectedAmount: TestData.arbitraryExpectedAmount,
-              extensionsData: [{ id: 'extension1', value: 'whatever' }],
-              payer: {
-                type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-                value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-              },
+      const action: any = {
+        data: {
+          name: 'actionUnknown',
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payer: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
-            version: CURRENT_VERSION,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
+      expect(() =>
         RequestLogicCore.applyActionToRequest(
           Utils.deepCopy(TestData.requestCreatedNoExtension),
           action,
           fakeAdvancedLogic,
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('Unknown action actionUnknown');
-      }
+        ),
+      ).to.throw('Unknown action actionUnknown');
     });
     it('does not support all versions', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
-            parameters: {
-              currency: 'ETH',
-              expectedAmount: TestData.arbitraryExpectedAmount,
-              extensionsData: [{ id: 'extension1', value: 'whatever' }],
-              payer: {
-                type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-                value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-              },
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payer: {
+              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
-            version: '2.0.0',
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: '2.0.0',
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
-        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('action version not supported');
-      }
+      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
+        'action version not supported',
+      );
     });
 
     it('cannot apply accept with no state', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('request is expected');
-      }
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
+        'request is expected',
+      );
     });
 
     it('cannot apply accept with wrong state', () => {
@@ -132,52 +120,41 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const actionAccept = RequestLogicCore.formatAccept(
-          {
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
+      const actionAccept = RequestLogicCore.formatAccept(
+        {
+          requestId: TestData.requestIdMock,
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() =>
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionAccept,
           fakeAdvancedLogic,
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'request.payee and request.payer are missing',
-        );
-      }
+        ),
+      ).to.throw('request.payee and request.payer are missing');
     });
 
     it('cannot cancel with no state', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('request is expected');
-      }
+      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
+        'request is expected',
+      );
     });
 
     it('cannot cancel with wrong state', () => {
@@ -196,53 +173,42 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const actionCancel = RequestLogicCore.formatCancel(
-          {
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.otherIdRaw.privateKey,
-          },
-        );
+      const actionCancel = RequestLogicCore.formatCancel(
+        {
+          requestId: TestData.requestIdMock,
+        },
+        TestData.otherIdRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() =>
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionCancel,
           fakeAdvancedLogic,
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'request.payee and request.payer are missing',
-        );
-      }
+        ),
+      ).to.throw('request.payee and request.payer are missing');
     });
 
     it('cannot increase expected amount with no state', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: TestData.arbitraryDeltaAmount,
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: TestData.arbitraryDeltaAmount,
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('request is expected');
-      }
+      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
+        'request is expected',
+      );
     });
 
     it('cannot increase expected amount with wrong state', () => {
@@ -261,53 +227,41 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const actionIncreaseAmount = RequestLogicCore.formatIncreaseExpectedAmount(
-          {
-            deltaAmount: TestData.arbitraryDeltaAmount,
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
+      const actionIncreaseAmount = RequestLogicCore.formatIncreaseExpectedAmount(
+        {
+          deltaAmount: TestData.arbitraryDeltaAmount,
+          requestId: TestData.requestIdMock,
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() =>
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionIncreaseAmount,
           fakeAdvancedLogic,
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'request.payee and request.payer are missing',
-        );
-      }
+        ),
+      ).to.throw('request.payee and request.payer are missing');
     });
     it('cannot reduce expected amount with no state', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: TestData.arbitraryDeltaAmount,
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: TestData.arbitraryDeltaAmount,
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('request is expected');
-      }
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
+        'request is expected',
+      );
     });
     it('cannot reduce expected amount with wrong state', () => {
       const regularRequestContextWithErrors = {
@@ -325,77 +279,61 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const actionReduceAmount = RequestLogicCore.formatReduceExpectedAmount(
-          {
-            deltaAmount: TestData.arbitraryDeltaAmount,
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payeeRaw.privateKey,
-          },
-        );
+      const actionReduceAmount = RequestLogicCore.formatReduceExpectedAmount(
+        {
+          deltaAmount: TestData.arbitraryDeltaAmount,
+          requestId: TestData.requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() =>
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionReduceAmount,
           fakeAdvancedLogic,
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'request.payee and request.payer are missing',
-        );
-      }
+        ),
+      ).to.throw('request.payee and request.payer are missing');
     });
     it('it cannot apply creation with a state', () => {
-      try {
-        const actionCreation = RequestLogicCore.formatCreate(
-          {
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
-            },
-            payer: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payerRaw.address,
-            },
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
-        const requestState = {
-          creator: {
-            type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-            value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-          },
+      const actionCreation = RequestLogicCore.formatCreate(
+        {
           currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
-          events: [],
           expectedAmount: TestData.arbitraryExpectedAmount,
-          extensions: {},
-          extensionsData: [],
+          payee: {
+            type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+            value: TestData.payeeRaw.address,
+          },
           payer: {
             type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-            value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+            value: TestData.payerRaw.address,
           },
-          requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
-          state: Types.REQUEST_LOGIC_STATE.CREATED,
-          timestamp: 1544426030,
-          version: CURRENT_VERSION,
-        };
-        RequestLogicCore.applyActionToRequest(requestState, actionCreation, fakeAdvancedLogic);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'no request is expected at the creation',
-        );
-      }
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      const requestState = {
+        creator: {
+          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+        },
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+        events: [],
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensions: {},
+        extensionsData: [],
+        payer: {
+          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+        },
+        requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
+        timestamp: 1544426030,
+        version: CURRENT_VERSION,
+      };
+      expect(() =>
+        RequestLogicCore.applyActionToRequest(requestState, actionCreation, fakeAdvancedLogic),
+      ).to.throw('no request is expected at the creation');
     });
 
     it('can apply creaion with only the payee', () => {
@@ -414,10 +352,11 @@ describe('requestLogicCore', () => {
           value: TestData.payeeRaw.address,
         },
       };
-      const actionCreation = RequestLogicCore.formatCreate(paramsCreate, {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-        privateKey: TestData.payeeRaw.privateKey,
-      });
+      const actionCreation = RequestLogicCore.formatCreate(
+        paramsCreate,
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
       const request = RequestLogicCore.applyActionToRequest(
         null,
@@ -460,10 +399,8 @@ describe('requestLogicCore', () => {
     it('can apply accept by payer', () => {
       const actionAccept = RequestLogicCore.formatAccept(
         { requestId: TestData.requestIdMock },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = RequestLogicCore.applyActionToRequest(
@@ -513,10 +450,8 @@ describe('requestLogicCore', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
       const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
@@ -568,10 +503,8 @@ describe('requestLogicCore', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = RequestLogicCore.applyActionToRequest(
@@ -624,10 +557,8 @@ describe('requestLogicCore', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = RequestLogicCore.applyActionToRequest(

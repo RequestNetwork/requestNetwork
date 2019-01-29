@@ -31,10 +31,8 @@ describe('actions/reduceExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       expect(actionReduceAmount.data.name, 'action is wrong').to.equal(
@@ -49,18 +47,6 @@ describe('actions/reduceExpectedAmount', () => {
       );
       expect(actionReduceAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
         .undefined;
-
-      expect(
-        actionReduceAmount,
-        'actionReduceAmount.signature should be a property',
-      ).to.have.property('signature');
-      expect(
-        actionReduceAmount.signature.method,
-        'actionReduceAmount.signature.method is wrong',
-      ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
-      expect(actionReduceAmount.signature.value, 'actionReduceAmount.signature.value').to.equal(
-        '0x10c2dfb20b4639b0d4bd3ae735b216cb646c624e0495b207b95662d4584c066c4d922e7f47f28b59b89ccff877e1b133f66158a9c0a7957c354d6679e8f552c11c',
-      );
     });
 
     it('can reduce expected amount with extensionsData', () => {
@@ -70,10 +56,8 @@ describe('actions/reduceExpectedAmount', () => {
           extensionsData: TestData.oneExtension,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       expect(actionReduceAmount.data.name, 'action is wrong').to.equal(
@@ -90,78 +74,45 @@ describe('actions/reduceExpectedAmount', () => {
         actionReduceAmount.data.parameters.extensionsData,
         'extensionsData is wrong',
       ).to.deep.equal(TestData.oneExtension);
-
-      expect(
-        actionReduceAmount,
-        'actionReduceAmount.signature should be a property',
-      ).to.have.property('signature');
-      expect(
-        actionReduceAmount.signature.method,
-        'actionReduceAmount.signature.method is wrong',
-      ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
-      expect(actionReduceAmount.signature.value, 'actionReduceAmount.signature.value').to.equal(
-        '0x1185d23aca21dae8a369b58fcd5df401b58c1ef37a243d0a30811f3742af5a9b78e5c0c5454d1edb95df9e2a2d317ca95a8abe9b9158dfbe2a73d37db35e12c31b',
-      );
     });
 
     it('cannot reduce expected amount with not a number', () => {
-      try {
+      expect(() => {
         ReduceExpectedAmountAction.format(
           {
             deltaAmount: 'this not a number',
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
+          TestData.payeeRaw.identity,
+          TestData.fakeSignatureProvider,
         );
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+      }).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot reduce expected amount with decimal', () => {
-      try {
+      expect(() => {
         ReduceExpectedAmountAction.format(
           {
             deltaAmount: '0.1234',
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
+          TestData.payeeRaw.identity,
+          TestData.fakeSignatureProvider,
         );
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+      }).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot reduce expected amount with negative', () => {
-      try {
+      expect(() => {
         ReduceExpectedAmountAction.format(
           {
             deltaAmount: '-1234',
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
+          TestData.payeeRaw.identity,
+          TestData.fakeSignatureProvider,
         );
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+      }).to.throw('deltaAmount must be a string representing a positive integer');
     });
   });
 
@@ -172,10 +123,8 @@ describe('actions/reduceExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
@@ -225,105 +174,84 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('cannot reduce expected amount by payer', () => {
-      try {
-        const actionReduceAmount = ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            requestId: requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('signer must be the payee');
-      }
+      }).to.throw('signer must be the payee');
     });
 
     it('cannot reduce expected amount by third party', () => {
-      try {
-        const actionReduceAmount = ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            requestId: requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.otherIdRaw.privateKey,
-          },
-        );
-
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.otherIdRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('signer must be the payee');
-      }
+      }).to.throw('signer must be the payee');
     });
 
     it('cannot reduce expected amount if no requestId', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: arbitraryDeltaAmount,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: arbitraryDeltaAmount,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('requestId must be given');
-      }
+      }).to.throw('requestId must be given');
     });
 
     it('cannot reduce expected amount if no deltaAmount', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('deltaAmount must be given');
-      }
+      }).to.throw('deltaAmount must be given');
     });
 
     it('cannot reduce expected amount if no payee in state', () => {
@@ -359,52 +287,42 @@ describe('actions/reduceExpectedAmount', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: arbitraryDeltaAmount,
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
-          },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        ReduceExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must have a payee');
-      }
-    });
-
-    it('cannot reduce expected amount if state === CANCELLED in state', () => {
-      try {
-        const actionReduceAmount = ReduceExpectedAmountAction.format(
-          {
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payeeRaw.privateKey,
-          },
-        );
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() => {
+        ReduceExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer);
+      }).to.throw('the request must have a payee');
+    });
 
+    it('cannot reduce expected amount if state === CANCELLED in state', () => {
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must not be canceled');
-      }
+      }).to.throw('the request must not be canceled');
     });
 
     it('can reduce expected amount if state === ACCEPTED in state', () => {
@@ -413,10 +331,8 @@ describe('actions/reduceExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
@@ -473,10 +389,8 @@ describe('actions/reduceExpectedAmount', () => {
           extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
@@ -535,10 +449,8 @@ describe('actions/reduceExpectedAmount', () => {
           extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
@@ -594,10 +506,8 @@ describe('actions/reduceExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
@@ -649,96 +559,77 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('cannot reduce expected amount with a negative amount', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: arbitraryDeltaAmountNegative,
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: arbitraryDeltaAmountNegative,
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+      }).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot reduce expected amount with not a number', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: 'Not a number',
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: 'Not a number',
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+      }).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot reduce expected amount with decimal', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: '0.0234',
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '0.0234',
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+      }).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('can reduce expected amount to zero', () => {
@@ -747,10 +638,8 @@ describe('actions/reduceExpectedAmount', () => {
           deltaAmount: arbitraryExpectedAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
@@ -798,27 +687,20 @@ describe('actions/reduceExpectedAmount', () => {
     });
 
     it('cannot reduce expected amount below zero', () => {
-      try {
-        const actionReduceAmount = ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: biggerThanArbitraryExpectedAmount,
-            requestId: requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payeeRaw.privateKey,
-          },
-        );
-
+      const actionReduceAmount = ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: biggerThanArbitraryExpectedAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('result of reduce is not valid');
-      }
+      }).to.throw('result of reduce is not valid');
     });
   });
 });

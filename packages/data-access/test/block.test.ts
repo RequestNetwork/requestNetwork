@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { DataAccess as Types, Signature as SignatureTypes } from '@requestnetwork/types';
+import { DataAccess as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import RequestDataAccessBlock from '../src/block';
 
@@ -17,17 +17,12 @@ const transactionDataMock2String = JSON.stringify({
   attribut2: 'bar',
 });
 const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionDataMock2String);
-const signatureMock = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  value: '0x12345',
-};
+
 const transactionMock: Types.IRequestDataAccessTransaction = {
   data: transactionDataMock1String,
-  signature: signatureMock,
 };
 const transactionMock2: Types.IRequestDataAccessTransaction = {
   data: transactionDataMock2String,
-  signature: signatureMock,
 };
 
 const arbitraryTopic1 = '0xaaaaaa';
@@ -382,11 +377,9 @@ describe('block', () => {
         transactions: [
           {
             data: '{"attribut1":"plop","attribut2":"value"}',
-            signature: { method: 'ecdsa', value: '0x12345' },
           },
           {
             data: '{"attribut1":"foo","attribut2":"bar"}',
-            signature: { method: 'ecdsa', value: '0x12345' },
           },
         ],
       });

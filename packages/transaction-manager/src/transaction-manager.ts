@@ -1,8 +1,4 @@
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Transaction as Types,
-} from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes, Transaction as Types } from '@requestnetwork/types';
 
 import TransactionCore from './transaction';
 
@@ -22,19 +18,16 @@ export default class TransactionManager implements Types.ITransactionManager {
    * later it will handle encryption
    *
    * @param string transaction transaction to persist
+   * @param IIdentity signerIdentity Identity of the signer
    * @param string[] topics list of string to topic the transaction
    *
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
     transactionData: Types.ITransactionData,
-    signatureParams: SignatureTypes.ISignatureParameters,
     topics: string[] = [],
   ): Promise<Types.IRequestDataReturnPersistTransaction> {
-    const transaction: Types.ITransaction = TransactionCore.createTransaction(
-      transactionData,
-      signatureParams,
-    );
+    const transaction: Types.ITransaction = TransactionCore.createTransaction(transactionData);
 
     const resultPersist = await this.dataAccess.persistTransaction(transaction, topics);
 

@@ -22,10 +22,8 @@ describe('actions/cancel', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       expect(actionCancel.data.name, 'action is wrong').to.equal(
@@ -37,14 +35,6 @@ describe('actions/cancel', () => {
       );
       expect(actionCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.be
         .undefined;
-
-      expect(actionCancel, 'actionCancel.signature is wrong').to.have.property('signature');
-      expect(actionCancel.signature.method, 'actionCancel.signature.method is wrong').to.equal(
-        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      );
-      expect(actionCancel.signature.value, 'actionCancel.signature.value').to.equal(
-        '0xb522bf1c5aad3d3914cee8a2c485506113473535dc9cc555d6cb53a920689155215f059d0c18c32fb455799f97e72fbe4fde477dd1136778e25aa1c396bea1f91b',
-      );
     });
 
     it('can cancel with extensionsData', () => {
@@ -53,10 +43,8 @@ describe('actions/cancel', () => {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       expect(actionCancel.data.name, 'action is wrong').to.equal(
@@ -69,14 +57,6 @@ describe('actions/cancel', () => {
       expect(actionCancel.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
-
-      expect(actionCancel, 'actionCancel.signature is wrong').to.have.property('signature');
-      expect(actionCancel.signature.method, 'actionCancel.signature.method is wrong').to.equal(
-        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      );
-      expect(actionCancel.signature.value, 'actionCancel.signature.value').to.equal(
-        '0xc7160f386f55bd4ad8bade960ac774279f1bdad321be6d292414f0cdff56f96914f773936de056a36aa0e8eb76def70b08f951692aa74b5c29502bcf487f73431b',
-      );
     });
   });
 
@@ -86,10 +66,8 @@ describe('actions/cancel', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
       const request = CancelAction.applyActionToRequest(
         actionCancel,
@@ -138,52 +116,36 @@ describe('actions/cancel', () => {
       });
     });
     it('cannot cancel by payer with state === accepted', () => {
-      try {
-        const actionCancel = CancelAction.format(
-          {
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
+      const actionCancel = CancelAction.format(
+        {
+          requestId: TestData.requestIdMock,
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
           Utils.deepCopy(TestData.requestAcceptedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'A payer cancel need to be done on a request with the state created',
-        );
-      }
+        ),
+      ).to.throw('A payer cancel need to be done on a request with the state created');
     });
     it('cannot cancel by payer with state === canceled', () => {
-      try {
-        const actionCancel = CancelAction.format(
-          {
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
+      const actionCancel = CancelAction.format(
+        {
+          requestId: TestData.requestIdMock,
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'A payer cancel need to be done on a request with the state created',
-        );
-      }
+        ),
+      ).to.throw('A payer cancel need to be done on a request with the state created');
     });
 
     it('can cancel by payee with state === created', () => {
@@ -191,10 +153,8 @@ describe('actions/cancel', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
       const request = CancelAction.applyActionToRequest(
         actionCancel,
@@ -246,10 +206,8 @@ describe('actions/cancel', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payeeRaw.privateKey,
-        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = CancelAction.applyActionToRequest(
@@ -298,77 +256,59 @@ describe('actions/cancel', () => {
       });
     });
     it('cannot cancel by payee with state === canceled', () => {
-      try {
-        const actionCancel = CancelAction.format(
-          {
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payeeRaw.privateKey,
-          },
-        );
+      const actionCancel = CancelAction.format(
+        {
+          requestId: TestData.requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+
+      expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'Cannot cancel an already canceled request',
-        );
-      }
+        ),
+      ).to.throw('Cannot cancel an already canceled request');
     });
 
     it('cannot cancel by third party', () => {
-      try {
-        const actionCancel = CancelAction.format(
-          {
-            requestId: TestData.requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.otherIdRaw.privateKey,
-          },
-        );
+      const actionCancel = CancelAction.format(
+        {
+          requestId: TestData.requestIdMock,
+        },
+        TestData.otherIdRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'Signer must be the payer or the payee',
-        );
-      }
+        ),
+      ).to.throw('Signer must be the payer or the payee');
     });
 
     it('cannot cancel if no requestId', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
-            parameters: {},
-            version: CURRENT_VERSION,
-          },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          parameters: {},
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+
+      expect(() =>
         CancelAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('requestId must be given');
-      }
+        ),
+      ).to.throw('requestId must be given');
     });
     it('cannot cancel by payer if no payer in state', () => {
       const requestContextNoPayer = {
@@ -403,29 +343,24 @@ describe('actions/cancel', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        CancelAction.applyActionToRequest(action, requestContextNoPayer);
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'Signer must be the payer or the payee',
-        );
-      }
+      expect(() => CancelAction.applyActionToRequest(action, requestContextNoPayer)).to.throw(
+        'Signer must be the payer or the payee',
+      );
     });
     it('cannot cancel by payee if no payee in state', () => {
       const requestContextNoPayee = {
@@ -460,29 +395,24 @@ describe('actions/cancel', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        CancelAction.applyActionToRequest(action, requestContextNoPayee);
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'Signer must be the payer or the payee',
-        );
-      }
+      expect(() => CancelAction.applyActionToRequest(action, requestContextNoPayee)).to.throw(
+        'Signer must be the payer or the payee',
+      );
     });
     it('can cancel with extensionsData and no extensionsData before', () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
@@ -491,10 +421,8 @@ describe('actions/cancel', () => {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = CancelAction.applyActionToRequest(
@@ -552,10 +480,8 @@ describe('actions/cancel', () => {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = CancelAction.applyActionToRequest(
@@ -610,10 +536,8 @@ describe('actions/cancel', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = CancelAction.applyActionToRequest(

@@ -44,16 +44,17 @@ export default class EthPrivateKeySignatureProvider
    *
    * @returns string the signature
    */
-  public sign(data: any, signer: IdentityTypes.IIdentity): SignatureProviderTypes.ISignedData {
+  public sign(data: any, signer: IdentityTypes.IIdentity): SignatureTypes.ISignedData {
     const actualSigner = signer;
 
     if (!this.supportedIdentityTypes.includes(actualSigner.type)) {
       throw Error(`Identity type not supported ${actualSigner.type}`);
     }
 
+    // toLowerCase to avoid mismatch because of case
     const signatureParameter:
       | SignatureTypes.ISignatureParameters
-      | undefined = this.signatureParametersDictionary.get(actualSigner.value);
+      | undefined = this.signatureParametersDictionary.get(actualSigner.value.toLowerCase());
 
     if (!signatureParameter) {
       throw Error(`private key unknown for the address ${actualSigner.value}`);
@@ -72,27 +73,6 @@ export default class EthPrivateKeySignatureProvider
   }
 
   /**
-   * Recovers Identity from data and signature
-   *
-   * @param ISignedData signedData the data and signature
-   *
-   * @returns IIdentity identity of the signer
-   */
-  public recover(signedData: SignatureProviderTypes.ISignedData): IdentityTypes.IIdentity {
-    if (!this.supportedMethods.includes(signedData.signature.method)) {
-      throw Error(`Signing method not supported ${signedData.signature.method}`);
-    }
-
-    const hashData = Utils.crypto.normalizeKeccak256Hash(signedData.data);
-    const address = Utils.crypto.EcUtils.recover(signedData.signature.value, hashData);
-
-    return {
-      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-      value: address,
-    };
-  }
-
-  /**
    * Function to add a new private key in the provider
    *
    * @param ISignatureParameters signatureParams signature parameters to add
@@ -107,7 +87,10 @@ export default class EthPrivateKeySignatureProvider
     }
 
     // compute the address from private key
-    const address = Utils.crypto.EcUtils.getAddressFromPrivateKey(signatureParams.privateKey);
+    // toLowerCase to avoid mismatch because of case
+    const address = Utils.crypto.EcUtils.getAddressFromPrivateKey(
+      signatureParams.privateKey,
+    ).toLowerCase();
 
     this.signatureParametersDictionary.set(address, signatureParams);
 

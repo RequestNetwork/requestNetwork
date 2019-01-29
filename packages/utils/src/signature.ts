@@ -33,19 +33,19 @@ function getIdentityFromSignatureParams(
 /**
  * Function to sign data from signature parameters
  *
- * @param string data the data to sign
+ * @param any data the data to sign
  * @param ISignatureParameters signatureParams Signature parameters
  *
  * @returns ISignature the signature
  */
 function sign(
-  data: string,
+  data: any,
   signatureParams: SignatureTypes.ISignatureParameters,
-): SignatureTypes.ISignature {
+): SignatureTypes.ISignedData {
   let value: string;
   if (signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
-    value = Crypto.EcUtils.sign(signatureParams.privateKey, data);
-    return { method: signatureParams.method, value };
+    value = Crypto.EcUtils.sign(signatureParams.privateKey, Crypto.normalizeKeccak256Hash(data));
+    return { data, signature: { method: signatureParams.method, value } };
   }
 
   throw new Error('signatureParams.method not supported');
@@ -54,15 +54,17 @@ function sign(
 /**
  * Function to recover signer identity from signature
  *
- * @param string data the data signed
- * @param ISignature signature the signature itself
+ * @param ISignedData signedData the data signed
  *
  * @returns IIdentity identity of the signer
  */
-function recover(data: string, signature: SignatureTypes.ISignature): IdentityTypes.IIdentity {
+function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
   let value: string;
-  if (signature.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
-    value = Crypto.EcUtils.recover(signature.value, data);
+  if (signedData.signature.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
+    value = Crypto.EcUtils.recover(
+      signedData.signature.value,
+      Crypto.normalizeKeccak256Hash(signedData.data),
+    );
     return {
       type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
       value,

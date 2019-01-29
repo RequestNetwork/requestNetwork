@@ -18,3 +18,9 @@ export interface ISignature {
 export enum REQUEST_SIGNATURE_METHOD {
   ECDSA = 'ecdsa',
 }
+
+/** Signed data interface */
+export interface ISignedData {
+  data: any;
+  signature: ISignature;
+}

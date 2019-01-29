@@ -6,11 +6,7 @@ const spies = require('chai-spies');
 const expect = chai.expect;
 chai.use(spies);
 
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@requestnetwork/types';
 
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
@@ -23,19 +19,12 @@ const transactionDataMock2String = JSON.stringify({
   attribut1: 'foo',
   attribut2: 'bar',
 });
-const signatureMock = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  value:
-    '0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b',
-};
 
 const transactionMock1: DataAccessTypes.IRequestDataAccessTransaction = {
   data: transactionDataMock1String,
-  signature: signatureMock,
 };
 const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
   data: transactionDataMock2String,
-  signature: signatureMock,
 };
 
 const arbitraryTopic1 = '0xaaaaaa';
@@ -310,11 +299,6 @@ describe('data-access', () => {
           transactions: [
             {
               data: '{"attribut1":"plop","attribut2":"value"}',
-              signature: {
-                method: 'ecdsa',
-                value:
-                  '0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b',
-              },
             },
           ],
         }),

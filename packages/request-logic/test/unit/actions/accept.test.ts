@@ -22,10 +22,8 @@ describe('actions/accept', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
       expect(actionAccept.data.name, 'action is wrong').to.equal(
         Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
@@ -36,14 +34,6 @@ describe('actions/accept', () => {
       );
       expect(actionAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.be
         .undefined;
-
-      expect(actionAccept, 'actionAccept.signature is wrong').to.have.property('signature');
-      expect(actionAccept.signature.method, 'actionAccept.signature.method is wrong').to.equal(
-        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      );
-      expect(actionAccept.signature.value, 'actionAccept.signature.value').to.equal(
-        '0x85982345e56cca13fd4f7110962cce7c2975421658f2babe801b52ab56f865a21ab3d1072d55ee443b986b52051e79b32f3c1cbcaa667a67051f708b43df35351c',
-      );
     });
 
     it('can formatAccept with extensionsData', () => {
@@ -52,10 +42,8 @@ describe('actions/accept', () => {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
       expect(actionAccept.data.name, 'action is wrong').to.equal(
         Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
@@ -67,14 +55,6 @@ describe('actions/accept', () => {
       expect(actionAccept.data.parameters.extensionsData, 'extensionsData is wrong').to.deep.equal(
         TestData.oneExtension,
       );
-
-      expect(actionAccept, 'actionAccept.signature is wrong').to.have.property('signature');
-      expect(actionAccept.signature.method, 'actionAccept.signature.method is wrong').to.equal(
-        SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      );
-      expect(actionAccept.signature.value, 'actionAccept.signature.value').to.equal(
-        '0xbeb95c95b2b09c026329f7219a00608fbe95ed7127cafab13063ba2ac14ad1ef4c7bbf55836f2aa658d1fdb9e55dc9f91cc11cb4a0bece116bf80ebc016159501c',
-      );
     });
   });
 
@@ -82,10 +62,8 @@ describe('actions/accept', () => {
     it('can apply accept by payer', () => {
       const actionAccept = AcceptAction.format(
         { requestId: TestData.requestIdMock },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = AcceptAction.applyActionToRequest(
@@ -135,70 +113,54 @@ describe('actions/accept', () => {
     });
 
     it('cannot apply accept by payee', () => {
-      try {
-        const actionAccept = AcceptAction.format(
-          { requestId: TestData.requestIdMock },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payeeRaw.privateKey,
-          },
-        );
+      const actionAccept = AcceptAction.format(
+        { requestId: TestData.requestIdMock },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() =>
         AcceptAction.applyActionToRequest(
           actionAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('Signer must be the payer');
-      }
+        ),
+      ).to.throw('Signer must be the payer');
     });
 
     it('cannot apply accept by third party', () => {
-      try {
-        const actionAccept = AcceptAction.format(
-          { requestId: TestData.requestIdMock },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.otherIdRaw.privateKey,
-          },
-        );
+      const actionAccept = AcceptAction.format(
+        { requestId: TestData.requestIdMock },
+        TestData.otherIdRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() =>
         AcceptAction.applyActionToRequest(
           actionAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('Signer must be the payer');
-      }
+        ),
+      ).to.throw('Signer must be the payer');
     });
 
     it('cannot apply accept if no requestId', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
-            parameters: {},
-            version: CURRENT_VERSION,
-          },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {},
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() =>
         AcceptAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('requestId must be given');
-      }
+        ),
+      ).to.throw('requestId must be given');
     });
 
     it('cannot apply accept if no payer in state', () => {
@@ -234,80 +196,72 @@ describe('actions/accept', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
-          },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        AcceptAction.applyActionToRequest(action, requestContextNoPayer);
 
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must have a payer');
-      }
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: TestData.requestIdMock,
+          },
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+
+      expect(() => AcceptAction.applyActionToRequest(action, requestContextNoPayer)).to.throw(
+        'the request must have a payer',
+      );
     });
     it('cannot apply accept if state === CANCELLED in state', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+
+      expect(() =>
         AcceptAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request state must be created');
-      }
+        ),
+      ).to.throw('the request state must be created');
     });
 
     it('cannot apply accept if state === ACCEPTED in state', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId: TestData.requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: TestData.requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+
+      expect(() =>
         AcceptAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request state must be created');
-      }
+        ),
+      ).to.throw('the request state must be created');
     });
 
     it('can apply accept with extensionsData and no extensionsData before', () => {
@@ -317,10 +271,8 @@ describe('actions/accept', () => {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = AcceptAction.applyActionToRequest(
@@ -379,10 +331,8 @@ describe('actions/accept', () => {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
@@ -441,10 +391,8 @@ describe('actions/accept', () => {
         {
           requestId: TestData.requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = AcceptAction.applyActionToRequest(

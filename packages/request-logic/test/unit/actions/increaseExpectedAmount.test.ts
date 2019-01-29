@@ -30,10 +30,8 @@ describe('actions/increaseExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
@@ -48,18 +46,6 @@ describe('actions/increaseExpectedAmount', () => {
       );
       expect(actionIncreaseAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
         .undefined;
-
-      expect(
-        actionIncreaseAmount,
-        'actionIncreaseAmount.signature must be a property',
-      ).to.have.property('signature');
-      expect(
-        actionIncreaseAmount.signature.method,
-        'actionIncreaseAmount.signature.method is wrong',
-      ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
-      expect(actionIncreaseAmount.signature.value, 'actionIncreaseAmount.signature.value').to.equal(
-        '0x7a07be92cbdcceb63ff9270ca3bd04e0834013618746e28e326fb87c8e30ef9e41dbfcc454e2536eabda5888c4e6712bf6630428b87467ef4b859e3e9849198b1b',
-      );
     });
 
     it('can increase expected amount with extensionsData', () => {
@@ -69,10 +55,8 @@ describe('actions/increaseExpectedAmount', () => {
           extensionsData: TestData.oneExtension,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
@@ -89,79 +73,45 @@ describe('actions/increaseExpectedAmount', () => {
         actionIncreaseAmount.data.parameters.extensionsData,
         'extensionsData is wrong',
       ).to.deep.equal(TestData.oneExtension);
-
-      expect(
-        actionIncreaseAmount,
-        'actionIncreaseAmount.signature must be a property',
-      ).to.have.property('signature');
-      expect(
-        actionIncreaseAmount.signature.method,
-        'actionIncreaseAmount.signature.method is wrong',
-      ).to.equal(SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA);
-      expect(actionIncreaseAmount.signature.value, 'actionIncreaseAmount.signature.value').to.equal(
-        '0xf44877582b520d94b90b8a58f818b593bdefae0066553a24aa17489dcf1145a74edffd516a89676c654fc7288dcb97d2a26121529728b84593d80659bac377fc1b',
-      );
     });
 
     it('cannot increase expected amount with not a number', () => {
-      try {
+      expect(() =>
         IncreaseExpectedAmountAction.format(
           {
             deltaAmount: 'this is not a number',
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+          TestData.payerRaw.identity,
+          TestData.fakeSignatureProvider,
+        ),
+      ).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with decimal', () => {
-      try {
+      expect(() =>
         IncreaseExpectedAmountAction.format(
           {
             deltaAmount: '0.12345',
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+          TestData.payerRaw.identity,
+          TestData.fakeSignatureProvider,
+        ),
+      ).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with a negative number', () => {
-      try {
+      expect(() =>
         IncreaseExpectedAmountAction.format(
           {
             deltaAmount: '-1234',
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+          TestData.payerRaw.identity,
+          TestData.fakeSignatureProvider,
+        ),
+      ).to.throw('deltaAmount must be a string representing a positive integer');
     });
   });
 
@@ -172,10 +122,8 @@ describe('actions/increaseExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
@@ -225,105 +173,86 @@ describe('actions/increaseExpectedAmount', () => {
     });
 
     it('cannot increase expected amount by payee', () => {
-      try {
-        const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            requestId: requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payeeRaw.privateKey,
-          },
-        );
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('signer must be the payer');
-      }
+        ),
+      ).to.throw('signer must be the payer');
     });
 
     it('cannot increase expected amount by third party', () => {
-      try {
-        const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            requestId: requestIdMock,
-          },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.otherIdRaw.privateKey,
-          },
-        );
-
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.otherIdRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('signer must be the payer');
-      }
+        ),
+      ).to.throw('signer must be the payer');
     });
 
     it('cannot increase expected amount if no requestId', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: arbitraryDeltaAmount,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: arbitraryDeltaAmount,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('requestId must be given');
-      }
+        ),
+      ).to.throw('requestId must be given');
     });
 
     it('cannot increase expected amount if no deltaAmount', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('deltaAmount must be given');
-      }
+        ),
+      ).to.throw('deltaAmount must be given');
     });
 
     it('cannot increase expected amount if no payer in state', () => {
@@ -359,52 +288,42 @@ describe('actions/increaseExpectedAmount', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: arbitraryDeltaAmount,
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
-          },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
-        IncreaseExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer);
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must have a payer');
-      }
-    });
-
-    it('cannot increase expected amount if state === CANCELLED in state', () => {
-      try {
-        const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
-          {
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
           },
-          {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            privateKey: TestData.payerRaw.privateKey,
-          },
-        );
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
+      expect(() =>
+        IncreaseExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer),
+      ).to.throw('the request must have a payer');
+    });
 
+    it('cannot increase expected amount if state === CANCELLED in state', () => {
+      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
           Utils.deepCopy(TestData.requestCancelledNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('the request must not be canceled');
-      }
+        ),
+      ).to.throw('the request must not be canceled');
     });
 
     it('can increase expected amount if state === ACCEPTED in state', () => {
@@ -413,10 +332,8 @@ describe('actions/increaseExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
@@ -473,10 +390,8 @@ describe('actions/increaseExpectedAmount', () => {
           extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
@@ -535,10 +450,8 @@ describe('actions/increaseExpectedAmount', () => {
           extensionsData: newExtensionsData,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
@@ -594,10 +507,8 @@ describe('actions/increaseExpectedAmount', () => {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
         },
-        {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-          privateKey: TestData.payerRaw.privateKey,
-        },
+        TestData.payerRaw.identity,
+        TestData.fakeSignatureProvider,
       );
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
@@ -649,97 +560,79 @@ describe('actions/increaseExpectedAmount', () => {
     });
 
     it('cannot increase expected amount with a negative amount', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: arbitraryDeltaAmountNegative,
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: arbitraryDeltaAmountNegative,
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+        ),
+      ).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with not a number', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: 'Not a number',
-              requestId: requestIdMock,
-              version: CURRENT_VERSION,
-            },
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: 'Not a number',
+            requestId: requestIdMock,
             version: CURRENT_VERSION,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+        ),
+      ).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with decimal', () => {
-      try {
-        const action = {
-          data: {
-            name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: '0.0234',
-              requestId: requestIdMock,
-            },
-            version: CURRENT_VERSION,
+      const action = {
+        data: {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '0.0234',
+            requestId: requestIdMock,
           },
-          signature: {
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-            value:
-              '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
-          },
-        };
+          version: CURRENT_VERSION,
+        },
+        signature: {
+          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          value:
+            '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+        },
+      };
 
+      expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
-
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'deltaAmount must be a string representing a positive integer',
-        );
-      }
+        ),
+      ).to.throw('deltaAmount must be a string representing a positive integer');
     });
   });
 });

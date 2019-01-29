@@ -58,22 +58,13 @@ describe('Amount', () => {
 
   describe('add', () => {
     it('cannot add amounts not number', () => {
-      try {
-        Amount.add('Not a number', '1000000000000000000');
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal(
-          'amount must represent a positive integer',
-        );
-      }
-      try {
-        Amount.add('1000000000000000000', 'Not a number');
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal(
-          'delta must represent a positive integer',
-        );
-      }
+      expect(() => Amount.add('Not a number', '1000000000000000000')).to.throw(
+        'amount must represent a positive integer',
+      );
+
+      expect(() => Amount.add('1000000000000000000', 'Not a number')).to.throw(
+        'delta must represent a positive integer',
+      );
     });
     it('can add two amounts', () => {
       expect(
@@ -85,22 +76,13 @@ describe('Amount', () => {
 
   describe('reduce', () => {
     it('cannot reduce amounts not number', () => {
-      try {
-        Amount.reduce('Not a number', '1000000000000000000');
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal(
-          'amount must represent a positive integer',
-        );
-      }
-      try {
-        Amount.reduce('1000000000000000000', 'Not a number');
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal(
-          'delta must represent a positive integer',
-        );
-      }
+      expect(() => Amount.reduce('Not a number', '1000000000000000000')).to.throw(
+        'amount must represent a positive integer',
+      );
+
+      expect(() => Amount.reduce('1000000000000000000', 'Not a number')).to.throw(
+        'delta must represent a positive integer',
+      );
     });
     it('can reduce two amounts', () => {
       expect(
@@ -109,12 +91,9 @@ describe('Amount', () => {
       ).to.equal(TestData.arbitraryExpectedAmountMinusDelta);
     });
     it('cannot reduce lower zero', () => {
-      try {
-        Amount.reduce(TestData.arbitraryDeltaAmount, TestData.arbitraryExpectedAmount);
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal('result of reduce is not valid');
-      }
+      expect(() =>
+        Amount.reduce(TestData.arbitraryDeltaAmount, TestData.arbitraryExpectedAmount),
+      ).to.throw('result of reduce is not valid');
     });
   });
 });

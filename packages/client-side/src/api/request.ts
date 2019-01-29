@@ -1,6 +1,6 @@
 import {
+  Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
 } from '@requestnetwork/types';
 
 /**
@@ -39,38 +39,38 @@ export default class Request {
   /**
    * Accepts a request
    *
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param {any[]} [extensionsData=[]]
    * @returns Promise<Request>
    */
   public async accept(
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
     extensionsData: any[] = [],
   ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
     const parameters: RequestLogicTypes.IRequestLogicAcceptParameters = {
       extensionsData,
       requestId: this.requestId,
     };
-    const { meta } = await this.requestLogic.acceptRequest(parameters, signatureParams);
+    const { meta } = await this.requestLogic.acceptRequest(parameters, signerIdentity);
     return { request: this, meta };
   }
 
   /**
    * Cancels a request
    *
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param {any[]} [extensionsData=[]]
    * @returns Promise<Request>
    */
   public async cancel(
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
     extensionsData: any[] = [],
   ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
     const parameters: RequestLogicTypes.IRequestLogicCancelParameters = {
       extensionsData,
       requestId: this.requestId,
     };
-    const { meta } = await this.requestLogic.cancelRequest(parameters, signatureParams);
+    const { meta } = await this.requestLogic.cancelRequest(parameters, signerIdentity);
     return { request: this, meta };
   }
 
@@ -78,14 +78,14 @@ export default class Request {
    * Increases the expected amount of the request.
    *
    * @param {RequestLogicTypes.RequestLogicAmount} deltaAmount Amount by which to increase the expected amount
-   * @param {SignatureTypes.ISignatureParameters} signatureParams Signature parameters
+   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param {any[]} [extensionsData=[]]
    * @returns {Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }>}
    * @memberof Request
    */
   public async increaseExpectedAmountRequest(
     deltaAmount: RequestLogicTypes.RequestLogicAmount,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
     extensionsData: any[] = [],
   ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
     const parameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters = {
@@ -95,7 +95,7 @@ export default class Request {
     };
     const { meta } = await this.requestLogic.increaseExpectedAmountRequest(
       parameters,
-      signatureParams,
+      signerIdentity,
     );
     return { request: this, meta };
   }
@@ -105,7 +105,7 @@ export default class Request {
    */
   public async reduceExpectedAmountRequest(
     deltaAmount: RequestLogicTypes.RequestLogicAmount,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
     extensionsData: any[] = [],
   ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
     const parameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters = {
@@ -115,7 +115,7 @@ export default class Request {
     };
     const { meta } = await this.requestLogic.reduceExpectedAmountRequest(
       parameters,
-      signatureParams,
+      signerIdentity,
     );
     return { request: this, meta };
   }

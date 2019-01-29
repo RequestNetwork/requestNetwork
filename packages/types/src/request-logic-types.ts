@@ -8,24 +8,24 @@ const bigNumber: any = require('bn.js');
 export interface IRequestLogic {
   createRequest: (
     requestParameters: IRequestLogicCreateParameters,
-    signatureParams: Signature.ISignatureParameters,
+    signerIdentity: Identity.IIdentity,
     indexes: string[],
   ) => Promise<IRequestLogicReturnCreateRequest>;
   acceptRequest: (
     requestParameters: IRequestLogicAcceptParameters,
-    signatureParams: Signature.ISignatureParameters,
+    signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   cancelRequest: (
     requestParameters: IRequestLogicCancelParameters,
-    signatureParams: Signature.ISignatureParameters,
+    signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   increaseExpectedAmountRequest: (
     requestParameters: IRequestLogicIncreaseExpectedAmountParameters,
-    signatureParams: Signature.ISignatureParameters,
+    signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   reduceExpectedAmountRequest: (
     requestParameters: IRequestLogicReduceExpectedAmountParameters,
-    signatureParams: Signature.ISignatureParameters,
+    signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   getRequestById: (requestId: RequestLogicRequestId) => Promise<IRequestLogicReturnGetRequestById>;
 }

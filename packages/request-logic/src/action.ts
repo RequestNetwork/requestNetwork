@@ -1,7 +1,7 @@
 import {
   Identity as IdentityTypes,
   RequestLogic as Types,
-  Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Role from './role';
@@ -26,20 +26,17 @@ export default {
  * @notice it will sign the hash (keccak256) of the action data
  *
  * @param IRequestLogicUnsignedAction unsignedAction The unsigned action to sign
- * @param ISignatureParameters signatureParams Signature parameters
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IRequestLogicAction the action with the signature
  */
 function createAction(
   unsignedAction: Types.IRequestLogicUnsignedAction,
-  signatureParams: SignatureTypes.ISignatureParameters,
+  signerIdentity: IdentityTypes.IIdentity,
+  signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Types.IRequestLogicAction {
-  const signature = Utils.signature.sign(
-    Utils.crypto.normalizeKeccak256Hash(unsignedAction),
-    signatureParams,
-  );
-
-  return { data: Utils.deepCopy(unsignedAction), signature };
+  return signatureProvider.sign(unsignedAction, signerIdentity);
 }
 
 /**
@@ -50,7 +47,7 @@ function createAction(
  * @returns RequestEnum.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or third party)
  */
 function getSignerIdentityFromAction(action: Types.IRequestLogicAction): IdentityTypes.IIdentity {
-  return Utils.signature.recover(getActionHash(action), action.signature);
+  return Utils.signature.recover(action);
 }
 
 /**

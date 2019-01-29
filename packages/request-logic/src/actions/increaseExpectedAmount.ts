@@ -1,7 +1,7 @@
 import {
   Identity as IdentityTypes,
   RequestLogic as Types,
-  Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
 
 import Action from '../action';
@@ -21,13 +21,15 @@ export default {
  * Function to format an action to increase expected amount of a Request
  *
  * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
- * @param ISignatureParameters signatureParams Signature parameters
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IRequestLogicAction  the action with the signature
  */
 function format(
   increaseAmountParameters: Types.IRequestLogicIncreaseExpectedAmountParameters,
-  signatureParams: SignatureTypes.ISignatureParameters,
+  signerIdentity: IdentityTypes.IIdentity,
+  signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Types.IRequestLogicAction {
   if (!Amount.isValid(increaseAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
@@ -39,7 +41,7 @@ function format(
     version: Version.currentVersion,
   };
 
-  return Action.createAction(unsignedAction, signatureParams);
+  return Action.createAction(unsignedAction, signerIdentity, signatureProvider);
 }
 
 /**

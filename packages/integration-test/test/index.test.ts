@@ -4,6 +4,7 @@ const web3Eth = require('web3-eth');
 
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/ethereum-private-key-signature-provider';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -18,6 +19,8 @@ import {
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
 let provider: any;
+let signatureInfo: SignatureTypes.ISignatureParameters;
+let signerIdentity: IdentityTypes.IIdentity;
 
 describe('Request system', () => {
   beforeEach(async () => {
@@ -42,11 +45,22 @@ describe('Request system', () => {
     // Transaction manager setup
     const transactionManager = new TransactionManager(dataAccess);
 
+    // Signature provider setup
+    signatureInfo = {
+      method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+      privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+    };
+    signerIdentity = {
+      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+    };
+    const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
+
     // Advanced Logic setup
     advancedLogic = new AdvancedLogic();
 
     // Logic setup
-    requestLogic = new RequestLogic(transactionManager, advancedLogic);
+    requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
   });
 
   after(() => {
@@ -59,19 +73,11 @@ describe('Request system', () => {
       content: { this: 'could', be: 'an', invoice: true },
     });
 
-    const signatureInfo: SignatureTypes.ISignatureParameters = {
-      method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-      privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-    };
-
     const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
       currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
       expectedAmount: '100000000000',
       extensionsData: [contentDataExtensionData],
-      payee: {
-        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-        value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-      },
+      payee: signerIdentity,
       payer: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
@@ -85,7 +91,7 @@ describe('Request system', () => {
 
     const resultCreation = await requestLogic.createRequest(
       requestCreationHash,
-      signatureInfo,
+      signerIdentity,
       topics,
     );
 

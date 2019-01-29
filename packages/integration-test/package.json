@@ -35,6 +35,7 @@
   "devDependencies": {
     "@requestnetwork/advanced-logic": "0.1.0",
     "@requestnetwork/data-access": "0.1.0",
+    "@requestnetwork/ethereum-private-key-signature-provider": "0.1.0",
     "@requestnetwork/ethereum-storage": "0.1.0",
     "@requestnetwork/request-logic": "0.1.0",
     "@requestnetwork/transaction-manager": "0.1.0",

@@ -2,8 +2,10 @@ import {
   Identity as IdentityTypes,
   RequestLogic as Types,
   Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
 
+import Utils from '@requestnetwork/utils';
 import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
@@ -231,4 +233,32 @@ export const requestAcceptedNoExtension: Types.IRequestLogicRequest = {
   state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
   timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
+};
+
+export const fakeSignature = {
+  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+  value:
+    '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
+};
+
+export const fakeIdentity = {
+  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  value: '0x0000',
+};
+
+export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
+  sign: (data: any, identity: IdentityTypes.IIdentity): any =>
+    ({
+      [payeeRaw.address as string]: Utils.signature.sign(data, payeeRaw.signatureParams),
+      [payerRaw.address as string]: Utils.signature.sign(data, payerRaw.signatureParams),
+      [otherIdRaw.address as string]: Utils.signature.sign(data, otherIdRaw.signatureParams),
+    }[identity.value]),
+  supportedIdentityTypes: [IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA],
+};
+
+export const fakeSignatureProviderArbitrary: SignatureProviderTypes.ISignatureProvider = {
+  sign: (data: any): any => ({ data, signature: fakeSignature }),
+  supportedIdentityTypes: [IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA],
 };

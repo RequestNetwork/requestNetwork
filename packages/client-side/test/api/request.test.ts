@@ -1,7 +1,8 @@
 import {
+  Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
 } from '@requestnetwork/types';
+
 import { assert } from 'chai';
 import 'mocha';
 import Request from '../../src/api/request';
@@ -33,9 +34,9 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   },
 };
 
-const signatureInfo: SignatureTypes.ISignatureParameters = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+const signatureIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -64,7 +65,7 @@ describe('api/request', () => {
       const spy = sandbox.on(mockRequestLogic, 'acceptRequest');
 
       const request = new Request(mockRequestLogic, '1');
-      await request.accept(signatureInfo);
+      await request.accept(signatureIdentity);
 
       expect(spy).to.have.been.called.once;
     });
@@ -75,7 +76,7 @@ describe('api/request', () => {
       const spy = sandbox.on(mockRequestLogic, 'cancelRequest');
 
       const request = new Request(mockRequestLogic, '1');
-      await request.cancel(signatureInfo);
+      await request.cancel(signatureIdentity);
 
       expect(spy).to.have.been.called.once;
     });
@@ -86,7 +87,7 @@ describe('api/request', () => {
       const spy = sandbox.on(mockRequestLogic, 'increaseExpectedAmountRequest');
 
       const request = new Request(mockRequestLogic, '1');
-      await request.increaseExpectedAmountRequest(3, signatureInfo);
+      await request.increaseExpectedAmountRequest(3, signatureIdentity);
 
       expect(spy).to.have.been.called.once;
     });
@@ -97,7 +98,7 @@ describe('api/request', () => {
       const spy = sandbox.on(mockRequestLogic, 'reduceExpectedAmountRequest');
 
       const request = new Request(mockRequestLogic, '1');
-      await request.reduceExpectedAmountRequest(3, signatureInfo);
+      await request.reduceExpectedAmountRequest(3, signatureIdentity);
 
       expect(spy).to.have.been.called.once;
     });

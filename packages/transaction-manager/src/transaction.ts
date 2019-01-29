@@ -1,5 +1,4 @@
-import { Signature as SignatureTypes, Transaction as Types } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { Transaction as Types } from '@requestnetwork/types';
 
 /**
  * Function to manage Request logic transactions
@@ -14,17 +13,11 @@ export default {
  * @notice it will sign the hash (keccak256) of the transaction
  *
  * @param ITransactionData data The data to sign
- * @param ISignatureParameters signatureParams Signature parameters
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns ITransaction the transaction with the signature
  */
-function createTransaction(
-  data: Types.ITransactionData,
-  signatureParams: SignatureTypes.ISignatureParameters,
-): Types.ITransaction {
-  const signature = Utils.signature.sign(
-    Utils.crypto.normalizeKeccak256Hash(data),
-    signatureParams,
-  );
-  return { data, signature };
+function createTransaction(data: Types.ITransactionData): Types.ITransaction {
+  return { data };
 }

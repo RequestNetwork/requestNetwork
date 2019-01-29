@@ -2,6 +2,7 @@ import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   DataAccess as DataAccessTypes,
+  SignatureProvider as SignatureProviderTypes,
   Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import { AxiosRequestConfig } from 'axios';
@@ -22,13 +23,19 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * Creates an instance of HttpRequestNetwork.
    * @param {AxiosRequestConfig} [options.nodeConnectionConfig={}] Configuration options to connect to the node. Follows Axios configuration format.
    * @param boolean [options.useMockStorage=false] When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
+   * @param ISignatureProvider [options.signatureProvider] Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
    * @memberof HttpRequestNetwork
    */
   constructor(
     {
       nodeConnectionConfig,
+      signatureProvider,
       useMockStorage,
-    }: { nodeConnectionConfig?: AxiosRequestConfig; useMockStorage?: boolean } = {
+    }: {
+      nodeConnectionConfig?: AxiosRequestConfig;
+      signatureProvider?: SignatureProviderTypes.ISignatureProvider;
+      useMockStorage?: boolean;
+    } = {
       nodeConnectionConfig: {},
       useMockStorage: false,
     },
@@ -41,7 +48,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
 
     const transaction: TransactionTypes.ITransactionManager = new TransactionManager(dataAccess);
 
-    const requestLogic = new RequestLogic(transaction);
+    const requestLogic = new RequestLogic(transaction, signatureProvider);
 
     super(requestLogic);
   }

@@ -1,10 +1,7 @@
-import * as Signature from './signature-types';
-
 /** Transaction Manager interface */
 export interface ITransactionManager {
   persistTransaction: (
     transactionData: string,
-    signatureParams: Signature.ISignatureParameters,
     topics?: string[],
   ) => Promise<IRequestDataReturnPersistTransaction>;
   getTransactionsByTopic: (topic: string) => Promise<IRequestDataReturnGetTransactionsByTopic>;
@@ -35,7 +32,6 @@ export interface IRequestDataReturnGetTransactionsByTopic {
 /** Transaction */
 export interface ITransaction {
   data: ITransactionData;
-  signature: Signature.ISignature;
 }
 
 /** Transaction data */

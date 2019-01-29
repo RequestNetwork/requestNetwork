@@ -1,7 +1,7 @@
 import {
   Identity as IdentityTypes,
   RequestLogic as Types,
-  Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Action from '../action';
 import Request from '../request';
@@ -18,14 +18,16 @@ export default {
 /**
  * Function to format an action to accept a Request
  *
- * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
- * @param ISignatureParameters signatureParams Signature parameters
+ * @param acceptParameters IRequestLogicAcceptParameters parameters to accept a request
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IRequestLogicAction  the action with the signature
  */
 function format(
   acceptParameters: Types.IRequestLogicAcceptParameters,
-  signatureParams: SignatureTypes.ISignatureParameters,
+  signerIdentity: IdentityTypes.IIdentity,
+  signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Types.IRequestLogicAction {
   const unsignedAction: Types.IRequestLogicUnsignedAction = {
     name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
@@ -33,7 +35,7 @@ function format(
     version: Version.currentVersion,
   };
 
-  return Action.createAction(unsignedAction, signatureParams);
+  return Action.createAction(unsignedAction, signerIdentity, signatureProvider);
 }
 
 /**

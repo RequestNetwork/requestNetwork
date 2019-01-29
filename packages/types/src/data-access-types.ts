@@ -1,5 +1,3 @@
-import * as Signature from './signature-types';
-
 /** Data Access Layer */
 export interface IDataAccess {
   initialize: () => Promise<void>;
@@ -58,7 +56,6 @@ export interface IRequestDataAccessTopics {
 /** Transaction */
 export interface IRequestDataAccessTransaction {
   data: IRequestDataAccessTransactionData;
-  signature: Signature.ISignature;
 }
 
 /** Transaction data */

@@ -1,7 +1,8 @@
 import {
   AdvancedLogic as AdvancedLogicTypes,
+  Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
+  SignatureProvider as SignatureProviderTypes,
   Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import RequestLogicCore from './requestLogicCore';
@@ -11,13 +12,16 @@ import RequestLogicCore from './requestLogicCore';
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private transactionManager: TransactionTypes.ITransactionManager;
+  private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
 
   public constructor(
     transactionManager: TransactionTypes.ITransactionManager,
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
     advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
   ) {
     this.transactionManager = transactionManager;
+    this.signatureProvider = signatureProvider;
     this.advancedLogic = advancedLogic;
   }
 
@@ -25,16 +29,25 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * Function to create a request and persist it on the transaction manager layer
    *
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param IIdentity signerIdentity Identity of the signer
+   * @param string[] topics list of string to topic the request
    *
    * @returns Promise<IRequestLogicReturnCreateRequest>  the request id and the meta data
    */
   public async createRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
     indexes: string[] = [],
   ): Promise<RequestLogicTypes.IRequestLogicReturnCreateRequest> {
-    const action = RequestLogicCore.formatCreate(requestParameters, signatureParams);
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+
+    const action = RequestLogicCore.formatCreate(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // concat index given and the default index (requestId)
@@ -42,7 +55,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
-      signatureParams,
       indexes,
     );
     return {
@@ -55,20 +67,26 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * Function to accept a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
-    const action = RequestLogicCore.formatAccept(requestParameters, signatureParams);
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+    const action = RequestLogicCore.formatAccept(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
-      signatureParams,
       [requestId],
     );
 
@@ -81,20 +99,26 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * Function to cancel a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async cancelRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
-    const action = RequestLogicCore.formatCancel(requestParameters, signatureParams);
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+    const action = RequestLogicCore.formatCancel(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
-      signatureParams,
       [requestId],
     );
     return {
@@ -106,23 +130,26 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * Function to increase expected amount of a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
     const action = RequestLogicCore.formatIncreaseExpectedAmount(
       requestParameters,
-      signatureParams,
+      signerIdentity,
+      this.signatureProvider,
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
-      signatureParams,
       [requestId],
     );
     return {
@@ -134,20 +161,26 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * Function to reduce expected amount of a request and persist it on through the transaction manager layer
    *
    * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
-    const action = RequestLogicCore.formatReduceExpectedAmount(requestParameters, signatureParams);
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+    const action = RequestLogicCore.formatReduceExpectedAmount(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
-      signatureParams,
       [requestId],
     );
     return {

@@ -1,6 +1,6 @@
 import {
+  Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
 } from '@requestnetwork/types';
 
 import Request from './request';
@@ -21,19 +21,19 @@ export default class RequestNetwork {
    * Creates a request.
    *
    * @param requestParameters IRequestLogicCreateParameters parameters to create a request
-   * @param ISignatureParameters signatureParams Signature parameters
+   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @memberof RequestNetwork
    * @returns Promise<Request> the request
    */
   public async createRequest(
     requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
-    signatureParams: SignatureTypes.ISignatureParameters,
+    signerIdentity: IdentityTypes.IIdentity,
     indexes: string[] = [],
   ): Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }> {
     const {
       result: { requestId },
       meta,
-    } = await this.requestLogic.createRequest(requestParameters, signatureParams, indexes);
+    } = await this.requestLogic.createRequest(requestParameters, signerIdentity, indexes);
     return { request: new Request(this.requestLogic, requestId), meta };
   }
 
