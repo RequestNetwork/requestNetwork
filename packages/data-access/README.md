@@ -1,28 +1,102 @@
-# `@requestNetwork/data-access`
+# @requestNetwork/data-access
 
-> TODO: description
+`@requestNetwork/data-access` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+It is the default implementation of the Data Access layer. The Data Access layer is responsible for:
+
+- Indexing transactions to allow retrieval. In the context of the Request Protocol, examples of transactions are "create a request", "accept a request", "change the expected amount of a request"
+- Batching them into blocks to save on cost
+- Accessing transactions through a local cache
+
+## Installation
+
+```bash
+npm install @requestNetwork/data-access
+```
 
 ## Usage
 
-```
-const dataAccess = require('@requestNetwork/data-access');
+### Persist a Transaction
 
-// TODO: DEMONSTRATE API
+```javascript
+import DataAccess from '@requestNetwork/data-access';
+import {
+  DataAccess as DataAccessTypes,
+  Signature as SignatureTypes,
+  Storage as StorageTypes,
+} from '@requestnetwork/types';
+
+const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
+
+const dataAccess = new DataAccess(storage);
+await dataAccess.initialize();
+
+const transactionData = JSON.stringify({
+  attribut1: 'some value',
+  attribut2: 'some other value',
+});
+
+const transactionDataSignature = {
+  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+  value:
+    '0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b',
+};
+
+const transaction: DataAccessTypes.IRequestDataAccessTransaction = {
+  data: transactionData,
+  signature: transactionDataSignature,
+};
+
+const transactionTopic = 'myRequest';
+
+const result = await dataAccess.persistTransaction(transaction, [transactionTopic]);
 ```
+
+### Get a Transaction
+
+```javascript
+import DataAccess from '@requestNetwork/data-access';
+import {
+  DataAccess as DataAccessTypes,
+  Signature as SignatureTypes,
+  Storage as StorageTypes,
+} from '@requestnetwork/types';
+
+const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
+
+const dataAccess = new DataAccess(storage);
+await dataAccess.initialize();
+
+const transactionTopic = 'myRequest';
+
+const { result } = await dataAccess.getTransactionsByTopic(transactionTopic);
+```
+
+## Features
+
+### Indexing
+
+Transactions are indexed with `topics`. When persisting a transaction on data-access, topics can be given as second parameters. These topics will allow retrieving transactions later. For example, each transaction made by @requestnetwork/request-logic are indexed with the `requestId`.
+
+### Batching
+
+To save on costs, transactions are batched together. This is the responsibility of Data Access layer. This package creates `blocks` that are collections of `transactions`
+
+### Cache
+
+In order to speed up recovery of transactions, data-access has a local cache of topics=>transaction. This is the reason why this package should be initialized with `dataAccess.initialize()` before being operational.
 
 ## Architecture
 
-The request network data-access implements the structure of the data on the blockchain
+data-access implements the structure of the data on the blockchain.
 
-The architecture is made by a sorted list of `blocks`.
-A `block` is a JSON (see /format) object containing:
+The architecture is a sorted list of `blocks`. A `block` is a JSON (see packages/data-access/format/) object containing:
 
 - a sorted list of `transactions`
 - an index of this transactions (a dictionary referencing the transactions by arbitrary string)
 
 A `transaction` is an object containing the data as a string and the signature of these data. (the data will be the actions from the request logic layer)
 
-### Example of a block
+### Example of a block
 
 ```JSON
 {
@@ -50,21 +124,24 @@ A `transaction` is an object containing the data as a string and the signature o
             "method":"ecdsa",
             "value":"0x12345"
          },
-         "transaction":{
-            "attribut1":"plop",
-            "attribut2":"value"
-         }
+         "transaction":"{\"attribut1\":\"plop\",\"attribut2\":\"value\"}"
       },
       {
          "signature":{
             "method":"ecdsa",
             "value":"0x12345"
          },
-         "transaction":{
-            "attribut1":"foo",
-            "attribut2":"bar"
-         }
+         "transaction":"{\"attribut1\":\"foo\",\"attribut2\":\"bar\"}"
       }
    ]
 }
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+
+## License
+
+[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)

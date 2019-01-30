@@ -2,14 +2,14 @@
 
 You can be interested in this document if:
 
--   you want to create your own implementation of the Request protocol
--   you are curious enough to dive and see what is under the hood of the Request protocol
+- you want to create your own implementation of the Request protocol
+- you are curious enough to dive and see what is under the hood of the Request protocol
 
 Prerequisite: Having read the advanced logic specification (see [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat)).
 
 ## Description
 
-This extension allows the payments and the refunds to be made on the bitcoin blockchain.
+This extension allows the payments and the refunds to be made on the Bitcoin blockchain.
 One address for the payment and one for the refund must be created and used exclusively for **one and only one** request.
 
 ## Properties
@@ -45,7 +45,7 @@ One address for the payment and one for the refund must be created and used excl
 
 This action is valid, if:
 
--   The request `currency` must be "BTC"
+- The request `currency` must be "BTC"
 
 #### Warnings
 
@@ -100,9 +100,9 @@ the 'create' event:
 
 This action is valid, if:
 
--   The extension state with the id "pn-btc-address-based" exists
--   The signer is the `payee`
--   The extension property `paymentAddress` is undefined
+- The extension state with the id "pn-btc-address-based" exists
+- The signer is the `payee`
+- The extension property `paymentAddress` is undefined
 
 ##### Warnings
 
@@ -140,9 +140,9 @@ the 'addPaymentAddress' event:
 
 This action is valid, if:
 
--   The extension state with the id "pn-btc-address-based" exists
--   The signer is the `payer`
--   The extension property `refundAddress` is undefined
+- The extension state with the id "pn-btc-address-based" exists
+- The signer is the `payer`
+- The extension property `refundAddress` is undefined
 
 ##### Warnings
 
