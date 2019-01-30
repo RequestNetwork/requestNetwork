@@ -445,7 +445,6 @@ workflows:
                       - test-request-node
                       - test-requestNetwork.js
                       - test-utils
-                      - test-ethereum-private-key-signature-provider
             # Build documentation
             - build-docs-requestNetwork.js:
                   requires:
