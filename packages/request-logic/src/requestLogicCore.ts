@@ -100,7 +100,7 @@ function applyActionToRequest(
           Action.getSignerIdentityFromAction(action),
         );
       },
-      {},
+      requestAfterApply.extensions,
     );
   }
 
