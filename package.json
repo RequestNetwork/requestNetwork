@@ -14,8 +14,8 @@
         "test": "lerna run test",
         "publish-coverage": "codecov --disable=gcov",
         "v2-build": "tsc -b packages/client-side packages/data-access packages/integration-test packages/ethereum-storage packages/request-logic packages/request-node packages/types packages/utils packages/types packages/advanced-logic packages/transaction-manager packages/ethereum-private-key-signature-provider",
-        "v2-lint": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" lint",
-        "v2-test": "lerna run --scope \"@requestnetwork/*\" --ignore \"@requestnetwork/request-network.js\" test",
+        "v2-lint": "lerna run --scope \"@requestnetwork/*\" lint",
+        "v2-test": "lerna run --scope \"@requestnetwork/*\" test",
         "packageJsonLint": "npmPkgJsonLint ./packages"
     },
     "devDependencies": {

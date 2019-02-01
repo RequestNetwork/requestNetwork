@@ -1,9 +1,0 @@
-node_modules/
-public/
-.gatsby-context.js
-.DS_Store
-
-# Don't keep the generated pages in source control
-pages/docs/*
-!pages/docs/_template.jsx
-pages/index.md

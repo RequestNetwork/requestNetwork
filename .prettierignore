@@ -1,6 +1,2 @@
 # packages where linting isn't enabled yet
-packages/requestNetwork.js/*
-packages/requestNetworkArtifacts/*
 packages/requestNetworkDataFormat/*
-packages/requestNetworkSmartContracts/*
-packages/docs-smart-contracts/*

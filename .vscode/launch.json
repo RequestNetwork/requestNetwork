@@ -35,32 +35,6 @@
             "cwd": "${workspaceFolder}/packages/integration-test/",
             "protocol": "inspector",
             "sourceMaps": true
-        },
-        {
-            "name": "Truffle tests smart contracts",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceFolder}/packages/requestNetworkSmartContracts/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test"],
-            "cwd": "${workspaceFolder}/packages/requestNetworkSmartContracts",
-            "outFiles": ["${workspaceFolder}/test/**/*"],
-            "protocol": "inspector"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Mocha Tests requestNetwork.js",
-            "program": "${workspaceFolder}/packages/requestNetwork.js/node_modules/mocha/bin/_mocha",
-            "args": [
-                "--no-timeouts",
-                "--require",
-                "ts-node/register",
-                "${workspaceFolder}/packages/requestNetwork.js/test/**/*.ts",
-                "--colors"
-            ],
-            "cwd": "${workspaceFolder}/packages/requestNetwork.js",
-            "protocol": "inspector",
-            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }
