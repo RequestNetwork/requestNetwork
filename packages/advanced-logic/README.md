@@ -17,7 +17,7 @@ Specifications of Advanced Logic can be found [here](https://github.com/RequestN
 
 ### Content Data
 
-This extension allows linking content data to the request. The content data can be used to give extra information about the request. You can find examples of content data format [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat).
+This extension allows linking content data to the request. The content data can be used to give extra information about the request. You can find examples of content data format [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-format).
 
 Specifications of Content Data can be found [here](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/packages/advanced-logic/specs/content-data-0.1.0-DRAFT.md)
 todo

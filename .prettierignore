@@ -1,2 +1,2 @@
 # packages where linting isn't enabled yet
-packages/requestNetworkDataFormat/*
+packages/data-format/*

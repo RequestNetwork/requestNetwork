@@ -5,7 +5,7 @@ You can be interested in this document if:
 - you want to create your own implementation of the Request protocol
 - you are curious enough to dive and see what is under the hood of the Request protocol
 
-Prerequisite: Having read the advanced logic specification (see [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat)).
+Prerequisite: Having read the advanced logic specification (see [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-format)).
 
 ## Description
 

@@ -2,15 +2,15 @@
 
 You can be interested in this document if:
 
--   you want to create your own implementation of the Request protocol
--   you are curious enough to dive and see what is under the hood of the Request protocol
+- you want to create your own implementation of the Request protocol
+- you are curious enough to dive and see what is under the hood of the Request protocol
 
 Prerequisite: Having read the advanced logic specification (see [here]('./advanced-logic-specs-0.1.0-DRAFT.md'))
 
 ## Description
 
 This extension allows linking content data to the request.
-The content data can be used to give extra information about the request. You can find examples of content data format [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat).
+The content data can be used to give extra information about the request. You can find examples of content data format [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-format).
 
 ## Properties
 
@@ -68,7 +68,7 @@ None.
 
 The content data can be used to document the request.
 
-Example (see [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat)):
+Example (see [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-format)):
 
 ```JSON
 {

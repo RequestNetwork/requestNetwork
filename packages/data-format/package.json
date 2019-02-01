@@ -1,17 +1,17 @@
 {
-  "name": "requestnetwork-data-format",
+  "name": "@requestnetwork/data-format",
   "version": "0.1.4",
   "description": "Data format for the Request Network protocol.",
   "keywords": [
     "request",
     "requestnetwork",
-    "requestnetworkdataformat"
+    "data-format"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/requestNetworkDataFormat",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-format",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
