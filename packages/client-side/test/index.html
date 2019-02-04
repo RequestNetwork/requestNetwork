@@ -3,9 +3,13 @@
   <head>
     <title>@requestnetwork/client-side Test Page</title>
     <script src="..\dist\requestnetwork.min.js"></script>
+    <script src="..\..\ethereum-private-key-signature-provider\dist\ethereum-private-key-signature-provider.min.js"></script>
   </head>
   <body>
     <script>
+      // TODO: remove console.log and use EthereumPrivateKeySignatureProvider
+      console.log(EthereumPrivateKeySignatureProvider);
+
       function getMockData() {
         return {
           signatureInfo: {

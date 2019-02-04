@@ -14,7 +14,7 @@ type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParam
  * Allows to sign() with "Ethereum_address" identities thanks to their private key given in constructor() or addSignatureParameters()
  * Allows to recover() identity from a signature
  */
-export default class EthPrivateKeySignatureProvider
+export default class EthereumPrivateKeySignatureProvider
   implements SignatureProviderTypes.ISignatureProvider {
   /** list of supported signing method */
   public supportedMethods: SignatureTypes.REQUEST_SIGNATURE_METHOD[] = [

@@ -51,9 +51,11 @@
           "timestamp",
           "tslint",
           "tx",
+          "tsconfig",
           "typeof",
           "utils",
           "versioning",
+          "webpack",
           "wei"
         ],
         "minLength": 3,
