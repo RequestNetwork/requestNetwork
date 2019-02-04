@@ -19,22 +19,13 @@ Join the [Request Hub][requesthub-slack-url] to get in touch with us.
 | [`@requestnetwork/advanced-logic`](/packages/advanced-logic)                                                   | [![npm](https://img.shields.io/npm/v/@requestnetwork/advanced-logic.svg)](https://www.npmjs.com/package/@requestnetwork/advanced-logic)                                                   | Extensions to the protocol                                      |
 | [`@requestnetwork/client-side`](/packages/client-side)                                                         | [![npm](https://img.shields.io/npm/v/@requestnetwork/client-side.svg)](https://www.npmjs.com/package/@requestnetwork/client-side)                                                         | Library to use Request nodes as servers                         |
 | [`@requestnetwork/data-access`](/packages/data-access)                                                         | [![npm](https://img.shields.io/npm/v/@requestnetwork/data-access.svg)](https://www.npmjs.com/package/@requestnetwork/data-access)                                                         | Indexing an batching of transactions                            |
-<<<<<<< HEAD
 | [`@requestnetwork/data-format`](/packages/data-format)                                                         | [![npm](https://img.shields.io/npm/v/@requestnetwork/data-format.svg)](https://www.npmjs.com/package/@requestnetwork/data-format)                                                         | Standards for data stored on Request, like invoices format      |
 | [`@requestnetwork/ethereum-private-key-signature-provider`](/packages/ethereum-private-key-signature-provider) | [![npm](https://img.shields.io/npm/v/@requestnetwork/ethereum-private-key-signature-provider.svg)](https://www.npmjs.com/package/@requestnetwork/ethereum-private-key-signature-provider) | Sign requests using Ethereum private keys                       |
-=======
-| [`@requestnetwork/data-format`](/packages/data-format)                                                         | [![npm](https://img.shields.io/npm/v/@requestnetwork/data-format.svg)](https://www.npmjs.com/package/@requestnetwork/data-format)                                                         | Standards for invoice data                                      |
-| [`@requestnetwork/ethereum-private-key-signature-provider`](/packages/ethereum-private-key-signature-provider) | [![npm](https://img.shields.io/npm/v/@requestnetwork/ethereum-private-key-signature-provider.svg)](https://www.npmjs.com/package/@requestnetwork/ethereum-private-key-signature-provider) | Sign requests using private keys                                |
->>>>>>> develop-v2
 | [`@requestnetwork/ethereum-storage`](/packages/ethereum-storage)                                               | [![npm](https://img.shields.io/npm/v/@requestnetwork/ethereum-storage.svg)](https://www.npmjs.com/package/@requestnetwork/ethereum-storage)                                               | Storage of Request data on Ethereum and IPFS                    |
 | [`@requestnetwork/integration-test`](/packages/integration-test)                                               | [![npm](https://img.shields.io/npm/v/@requestnetwork/integration-test.svg)](https://www.npmjs.com/package/@requestnetwork/integration-test)                                               | Integration test for the Request system                         |
 | [`@requestnetwork/prototype-estimator`](/packages/prototype-estimator)                                         | [![npm](https://img.shields.io/npm/v/@requestnetwork/prototype-estimator.svg)](https://www.npmjs.com/package/@requestnetwork/prototype-estimator)                                         | Give estimates of size and throughput of the Request sytem      |
 | [`@requestnetwork/request-logic`](/packages/request-logic)                                                     | [![npm](https://img.shields.io/npm/v/@requestnetwork/request-logic.svg)](https://www.npmjs.com/package/@requestnetwork/request-logic)                                                     | The Request business logic: properties and actions of requests  |
-<<<<<<< HEAD
 | [`@requestnetwork/request-node`](/packages/request-node)                                                       | [![npm](https://img.shields.io/npm/v/@requestnetwork/request-node.svg)](https://www.npmjs.com/package/@requestnetwork/request-node)                                                       | Web server that allows easy access to Request system            |
-=======
-| [`@requestnetwork/request-node`](/packages/request-node)                                                       | [![npm](https://img.shields.io/npm/v/@requestnetwork/request-node.svg)](https://www.npmjs.com/package/@requestnetwork/request-node)                                                       | Web server that allows easy access to Request storage           |
->>>>>>> develop-v2
 | [`@requestnetwork/transaction-manager`](/packages/transaction-manager)                                         | [![npm](https://img.shields.io/npm/v/@requestnetwork/transaction-manager.svg)](https://www.npmjs.com/package/@requestnetwork/transaction-manager)                                         | Creates transactions to be sent to Data Access                  |
 | [`@requestnetwork/types`](/packages/types)                                                                     | [![npm](https://img.shields.io/npm/v/@requestnetwork/types.svg)](https://www.npmjs.com/package/@requestnetwork/types)                                                                     | Typescript types shared across @requestnetwork packages         |
 | [`@requestnetwork/utils`](/packages/utils)                                                                     | [![npm](https://img.shields.io/npm/v/@requestnetwork/utils.svg)](https://www.npmjs.com/package/@requestnetwork/utils)                                                                     | Collection of tools shared between the @requestnetwork packages |
@@ -63,10 +54,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ## License
 
 [MIT](https://github.com/RequestNetwork/requestNetwork/blob/master/LICENSE)
-<<<<<<< HEAD
 
 ## V1 packages
 
 This repository hosts the packages for the second version of Request. The v1 packages are deprecated and can be found on [requestNetwork-v1-archive](https://github.com/RequestNetwork/requestNetwork-v1-archive).
-=======
->>>>>>> develop-v2
