@@ -32,7 +32,13 @@ export default class SmartContractManager {
   // This value is stored in config file for each network
   // This value is used to optimize past event retrieval
   private creationBlockNumber: number;
+
+  // Timeout threshold when connecting to Web3 provider
   private timeout: number;
+
+  // Number of the last synchronized block
+  // This the last block we read event logs from
+  private lastSyncedBlockNumber: number;
 
   /**
    * Constructor
@@ -74,6 +80,7 @@ export default class SmartContractManager {
     this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
 
     this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
+    this.lastSyncedBlockNumber = this.creationBlockNumber;
   }
 
   /**
@@ -187,18 +194,51 @@ export default class SmartContractManager {
   }
 
   /**
-   * Get all hashes inside storage smart contract by reading log events
-   * @return Promise resolving hashes from past events
+   * Get all hashes and sizes with metadata inside storage smart contract past events
+   * @return All hashes and sizes with metadata
    */
   public async getAllHashesAndSizesFromEthereum(): Promise<
     StorageTypes.IRequestStorageGetAllHashesAndSizes[]
   > {
+    return this.getHashesAndSizesFromEthereum(this.creationBlockNumber);
+  }
+
+  /**
+   * Get hashes and sizes with metadata inside storage smart contract past events
+   * from the number of the last synced block
+   * @return Hashes and sizes with metadata from the number of the last synced block
+   */
+  public async getHashesAndSizesFromLastSyncedBlockFromEthereum(): Promise<
+    StorageTypes.IRequestStorageGetAllHashesAndSizes[]
+  > {
+    let hashesAndSizesFromLastSyncedBlock: StorageTypes.IRequestStorageGetAllHashesAndSizes[] = [];
+
+    // Empty array is returned if we are already synced to the last block number
+    const lastBlock = await this.getLastBlockNumber();
+    if (this.lastSyncedBlockNumber < lastBlock) {
+      hashesAndSizesFromLastSyncedBlock = await this.getHashesAndSizesFromEthereum(
+        this.lastSyncedBlockNumber,
+      );
+    }
+
+    return hashesAndSizesFromLastSyncedBlock;
+  }
+
+  /**
+   * Get hashes and sizes with metadata inside storage smart contract past events
+   * from the specified block number
+   * @param fromBlock number of the block to start to get events
+   * @return Hashes and sizes with metadata from the specified block number
+   */
+  private async getHashesAndSizesFromEthereum(
+    fromBlock: number,
+  ): Promise<StorageTypes.IRequestStorageGetAllHashesAndSizes[]> {
     // Reading all event logs
     let events = await Promise.race([
       this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
       this.requestHashStorage.getPastEvents({
         event: 'NewHash',
-        fromBlock: this.creationBlockNumber,
+        fromBlock,
         toBlock: 'latest',
       }),
     ]);
@@ -206,30 +246,42 @@ export default class SmartContractManager {
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
 
-    const promises = events.map(
-      async (event: any): Promise<any> => {
-        // Check if the event object is correct
-        // We check "typeof field === 'undefined'"" instead of "!field"
-        // because you can add empty string as hash or 0 as size in the storage smart contract
-        if (
-          typeof event.returnValues === 'undefined' ||
-          typeof event.returnValues.hash === 'undefined' ||
-          typeof event.returnValues.size === 'undefined'
-        ) {
-          throw Error(`event is incorrect: doesn't have a hash or size`);
-        }
-
-        const meta = this.createEthereumMetaData(event.blockNumber, event.transactionHash);
-
-        return {
-          hash: event.returnValues.hash,
-          meta,
-          size: +event.returnValues.size,
-        };
-      },
+    const eventsWithMetaData = events.map((eventItem: any) =>
+      this.checkAndAddMetaDataToEvent(eventItem),
     );
 
-    return promises;
+    // Set lastSyncedBlockNumber to the last block number of Ethereum
+    // since we read all the blocks
+    this.lastSyncedBlockNumber = await this.getLastBlockNumber();
+
+    return eventsWithMetaData;
+  }
+
+  /**
+   * Throws an error if the event is not correctly formatted (missing field)
+   * Attaches to the event the corresponding metadata
+   * @param event event of type NewHash
+   * @returns processed event
+   */
+  private async checkAndAddMetaDataToEvent(event: any): Promise<any> {
+    // Check if the event object is correct
+    // We check "typeof field === 'undefined'"" instead of "!field"
+    // because you can add empty string as hash or 0 as size in the storage smart contract
+    if (
+      typeof event.returnValues === 'undefined' ||
+      typeof event.returnValues.hash === 'undefined' ||
+      typeof event.returnValues.size === 'undefined'
+    ) {
+      throw Error(`event is incorrect: doesn't have a hash or size`);
+    }
+
+    const meta = this.createEthereumMetaData(event.blockNumber, event.transactionHash);
+
+    return {
+      hash: event.returnValues.hash,
+      meta,
+      size: +event.returnValues.size,
+    };
   }
 
   /**

@@ -50,7 +50,7 @@ describe('Ipfs manager', () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection);
   });
 
-  it('Allows to add files to ipfs', async () => {
+  it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     assert.equal(hash, hashReturned);
 
@@ -58,7 +58,7 @@ describe('Ipfs manager', () => {
     assert.equal(hash2, hashReturned);
   });
 
-  it('Allows to read files from ipfs', async () => {
+  it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
     let contentReturned = await ipfsManager.read(hash);
     assert.equal(content, contentReturned);
@@ -68,7 +68,7 @@ describe('Ipfs manager', () => {
     assert.equal(content2, contentReturned);
   });
 
-  it('Allows to get file size from ipfs', async () => {
+  it('allows to get file size from ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     let sizeReturned = await ipfsManager.getContentLength(hashReturned);
     assert.equal(contentLengthOnIpfs, sizeReturned);
@@ -78,7 +78,7 @@ describe('Ipfs manager', () => {
     assert.equal(contentLengthOnIpfs2, sizeReturned);
   });
 
-  it('Operations with a invalid host network should throw ENOTFOUND errors', async () => {
+  it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
     ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
 
     await assert.isRejected(ipfsManager.add(content), Error, 'getaddrinfo ENOTFOUND');
@@ -86,7 +86,7 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.getContentLength(hash), Error, 'getaddrinfo ENOTFOUND');
   });
 
-  it('Read a non-existent hash on an existent network should throw a timeout error', async () => {
+  it('read a non-existent hash on an existent network should throw a timeout error', async () => {
     await assert.isRejected(ipfsManager.read(notAddedHash), Error, 'Ipfs read request timeout');
   });
 
@@ -98,11 +98,11 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('Initialize ipfs-manager with default values should not throw an error', async () => {
+  it('initializing ipfs-manager with default values should not throw an error', async () => {
     assert.doesNotThrow(() => new IpfsManager(), Error);
   });
 
-  it('Initialize ipfs-manager with an invalid protocol should throw an error', async () => {
+  it('initializing ipfs-manager with an invalid protocol should throw an error', async () => {
     assert.throws(
       () => new IpfsManager(invalidProtocolIpfsGatewayConnection),
       Error,
@@ -110,7 +110,7 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('Aborting read request should throw an error', async () => {
+  it('aborting read request should throw an error', async () => {
     let hookedRequest: any;
 
     // Hook the get function of the protocol module to allow us to send customized event
@@ -126,7 +126,7 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.read(hash), Error, 'Ipfs read request has been aborted');
   });
 
-  it('Aborting read request response should throw an error', async () => {
+  it('aborting read request response should throw an error', async () => {
     let hookedRequestResponse: any;
 
     // Hook the response of the request response to send customized event ot it
@@ -147,7 +147,7 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('Error on read request response should throw an error', async () => {
+  it('error on read request response should throw an error', async () => {
     let hookedRequestResponse: any;
 
     // Hook the response of the request response to send customized event ot it
@@ -164,7 +164,7 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.read(hash), Error, 'Ipfs read request response error');
   });
 
-  it('Aborting getContentLength request should throw an error', async () => {
+  it('aborting getContentLength request should throw an error', async () => {
     let hookedRequest: any;
 
     // Hook the get function of the protocol module to allow us to send customized event
@@ -183,7 +183,7 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('Aborting getContentLength request response should throw an error', async () => {
+  it('aborting getContentLength request response should throw an error', async () => {
     let hookedRequestResponse: any;
 
     // Hook the response of the request response to send customized event ot it
@@ -204,7 +204,7 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('Error on getContentLength request response should throw an error', async () => {
+  it('error on getContentLength request response should throw an error', async () => {
     let hookedRequestResponse: any;
 
     // Hook the response of the request response to send customized event ot it

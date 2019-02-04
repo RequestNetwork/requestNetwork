@@ -4,6 +4,7 @@ export interface IStorage {
   read: (dataId: string) => Promise<IRequestStorageOneContentAndMeta>;
   getAllData: () => Promise<IRequestStorageGetAllDataReturn>;
   getAllDataId: () => Promise<IRequestStorageGetAllDataIdReturn>;
+  getNewDataId: () => Promise<IRequestStorageGetNewDataIdReturn>;
 }
 
 /** return interface for append  */
@@ -30,6 +31,19 @@ export interface IRequestStorageOneContentAndMeta {
 
 /** return interface for array return */
 export interface IRequestStorageGetAllDataIdReturn {
+  /** meta information */
+  meta: {
+    /** meta of the dataIds (follow the position of the result.dataIds) */
+    metaDataIds: IRequestStorageMetaOneData[];
+  };
+  result: {
+    /** array of all data id stored */
+    dataIds: string[];
+  };
+}
+
+/** return interface for array return */
+export interface IRequestStorageGetNewDataIdReturn {
   /** meta information */
   meta: {
     /** meta of the dataIds (follow the position of the result.dataIds) */

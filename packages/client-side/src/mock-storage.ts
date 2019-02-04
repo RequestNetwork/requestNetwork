@@ -55,6 +55,17 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
+  public async getNewDataId(): Promise<StorageTypes.IRequestStorageGetNewDataIdReturn> {
+    return {
+      meta: {
+        metaDataIds: [],
+      },
+      result: {
+        dataIds: [],
+      },
+    };
+  }
+
   public async getAllData(): Promise<StorageTypes.IRequestStorageGetAllDataReturn> {
     const results = Object.values(this.data).map(String);
 

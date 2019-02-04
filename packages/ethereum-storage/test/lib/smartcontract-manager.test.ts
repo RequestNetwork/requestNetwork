@@ -66,7 +66,7 @@ const contract = new eth.Contract(
 // Define a mock for getPastEvents to be independant of the state of ganache instance
 const pastEventsMock = [
   {
-    blockNumber: 1,
+    blockNumber: 0,
     event: 'NewHash',
     returnValues: {
       hash: hashStr,
@@ -76,7 +76,7 @@ const pastEventsMock = [
   },
   // This event has an invalid size but it should not be ignored in smart contract manager
   {
-    blockNumber: 2,
+    blockNumber: 1,
     event: 'NewHash',
     returnValues: {
       hash: hashStr,
@@ -86,7 +86,7 @@ const pastEventsMock = [
   },
   // We can add any data into the storage
   {
-    blockNumber: 3,
+    blockNumber: 2,
     event: 'NewHash',
     returnValues: {
       hash: otherContent,
@@ -96,6 +96,7 @@ const pastEventsMock = [
   },
   // We can add any data into the storage
   {
+    blockNumber: 3,
     event: 'NewHash',
     returnValues: {
       hash: otherContent,
@@ -103,7 +104,16 @@ const pastEventsMock = [
     },
   },
 ];
-const getPastEventsMock = () => pastEventsMock;
+
+// Return past event from pastEventsMock from fromBlock
+const getPastEventsMock = (info: { event: string; fromBlock: number; toBlock: string }): any => {
+  const returnedPastEvents = pastEventsMock.slice();
+  // Removes event while blockNumber < fromBlock
+  while (returnedPastEvents.length > 0 && returnedPastEvents[0].blockNumber < info.fromBlock) {
+    returnedPastEvents.shift();
+  }
+  return returnedPastEvents;
+};
 
 // Mock to test case whare events are badly formatted
 const badEventsMock = [
@@ -131,7 +141,7 @@ describe('SmartContractManager', () => {
     assert.equal(mainAccount, accounts[0]);
   });
 
-  it('Allows to add hashes to smart contract', async () => {
+  it('allows to add hashes to smart contract', async () => {
     await smartContractManager.addHashAndSizeToEthereum(hashStr, realSize);
 
     // Reading last event log
@@ -147,7 +157,7 @@ describe('SmartContractManager', () => {
     assert.equal(events[0].returnValues.size, realSize);
   });
 
-  it('Allows to add other content than hash to smart contract', async () => {
+  it('allows to add other content than hash to smart contract', async () => {
     await smartContractManager.addHashAndSizeToEthereum(otherContent, otherSize);
     // Reading last event log
     const events = await contract.getPastEvents({
@@ -162,16 +172,89 @@ describe('SmartContractManager', () => {
     assert.equal(events[0].returnValues.size, otherSize);
   });
 
-  it('Allows to get all hashes', async () => {
+  it('allows to get all hashes', async () => {
     const allHashesAndSizesPromise = await smartContractManager.getAllHashesAndSizesFromEthereum();
     const allHashesAndSizes = await Promise.all(allHashesAndSizesPromise);
 
+    assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
     assert.equal(allHashesAndSizes[0].size, realSize);
     assert.equal(allHashesAndSizes[1].hash, hashStr);
     assert.equal(allHashesAndSizes[1].size, fakeSize);
     assert.equal(allHashesAndSizes[2].hash, otherContent);
     assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.equal(allHashesAndSizes[3].hash, otherContent);
+    assert.equal(allHashesAndSizes[3].size, otherSize);
+  });
+
+  // Additionnal event logs
+  const additionalPastEvents = [
+    {
+      blockNumber: 4,
+      event: 'NewHash',
+      returnValues: {
+        hash: otherContent,
+        size: otherSize,
+      },
+      transactionHash: '0xd',
+    },
+    {
+      blockNumber: 5,
+      event: 'NewHash',
+      returnValues: {
+        hash: hashStr,
+        size: fakeSize,
+      },
+      transactionHash: '0xe',
+    },
+  ];
+
+  it('allows to get new hashes added to event logs', async () => {
+    // We create a copy of pastEventsMock because this array will be modified with new events
+    // We create another getPastEvents function for this new array
+    let temporaryPastEvents = pastEventsMock.slice();
+    smartContractManager.requestHashStorage.getPastEvents = (info: {
+      event: string;
+      fromBlock: number;
+      toBlock: string;
+    }): any => {
+      const returnedPastEvents = temporaryPastEvents.slice();
+      // Removes event while blockNumber < fromBlock
+      while (returnedPastEvents.length > 0 && returnedPastEvents[0].blockNumber < info.fromBlock) {
+        returnedPastEvents.shift();
+      }
+
+      return returnedPastEvents;
+    };
+
+    // The last event of temporaryPastEvents has a block number of 3
+    // Therefore the value returned by eth.getBlockNumber should be 4
+    // when getAllHashesAndSizesFromEthereum is called
+    smartContractManager.eth.getBlockNumber = () => 4;
+
+    // Get the hashes
+    const allHashesAndSizesPromise = await smartContractManager.getAllHashesAndSizesFromEthereum();
+    await Promise.all(allHashesAndSizesPromise);
+
+    // Add the new hashes
+    temporaryPastEvents = temporaryPastEvents.concat(additionalPastEvents);
+
+    // 2 new blocks has been added therefore the value returned by eth.getBlockNumber
+    // should be 6
+    smartContractManager.eth.getBlockNumber = () => 6;
+
+    let newHashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
+    const newHashesAndSizes = await Promise.all(newHashesAndSizesPromise);
+
+    assert.equal(newHashesAndSizes.length, 2);
+    assert.equal(newHashesAndSizes[0].hash, otherContent);
+    assert.equal(newHashesAndSizes[0].size, otherSize);
+    assert.equal(newHashesAndSizes[1].hash, hashStr);
+    assert.equal(newHashesAndSizes[1].size, fakeSize);
+
+    // New call should return no new hash
+    newHashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
+    assert.equal(newHashesAndSizesPromise.length, 0);
   });
 
   it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
@@ -197,11 +280,11 @@ describe('SmartContractManager', () => {
     await assert.isRejected(smartContractManager.getAllHashesAndSizesFromEthereum(), Error);
   });
 
-  it('Initialize smartcontract-manager with default values should not throw an error', async () => {
+  it('initializes smartcontract-manager with default values should not throw an error', async () => {
     assert.doesNotThrow(() => new SmartContractManager(), Error);
   });
 
-  it('Initialize smartcontract-manager with an invalid provider should throw an error', async () => {
+  it('initializes smartcontract-manager with an invalid provider should throw an error', async () => {
     assert.throws(
       () => new SmartContractManager(invalidWeb3Connection),
       Error,
@@ -209,7 +292,7 @@ describe('SmartContractManager', () => {
     );
   });
 
-  it('Initialize smartcontract-manager with an invalid network should throw an error', async () => {
+  it('initializes smartcontract-manager with an invalid network should throw an error', async () => {
     assert.throws(
       () => new SmartContractManager(invalidNetworkWeb3Connection),
       Error,
@@ -225,7 +308,7 @@ describe('SmartContractManager', () => {
     );
   });
 
-  it('Allows to getMetaFromEthereum() a hash', async () => {
+  it('allows to getMetaFromEthereum() a hash', async () => {
     const meta = await smartContractManager.getMetaFromEthereum(hashStr);
 
     assert.equal(meta.blockNumber, pastEventsMock[0].blockNumber);
@@ -235,7 +318,7 @@ describe('SmartContractManager', () => {
     assert.isAtLeast(meta.blockConfirmation, 0);
   });
 
-  it('Allows to getMetaFromEthereum() a hash not indexed', async () => {
+  it('allows to getMetaFromEthereum() a hash not indexed', async () => {
     try {
       await smartContractManager.getMetaFromEthereum('empty');
       assert.fail('must have exception');
@@ -244,7 +327,7 @@ describe('SmartContractManager', () => {
     }
   });
 
-  it('Badly formatted events from web3 should throw an error', async () => {
+  it('badly formatted events from web3 should throw an error', async () => {
     smartContractManager.requestHashStorage.getPastEvents = getBadEventsMock;
 
     const allHashesPromises = await smartContractManager.getAllHashesAndSizesFromEthereum();

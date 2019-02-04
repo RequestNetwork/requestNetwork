@@ -174,12 +174,36 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Promise resolving id of stored data
    */
   public async getAllDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
-    const hashAndSizePromises = await this.smartContractManager.getAllHashesAndSizesFromEthereum();
+    const hashesAndSizes = await this.smartContractManager.getAllHashesAndSizesFromEthereum();
 
+    return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
+  }
+
+  /**
+   * Get new id from data stored on the storage
+   * @returns Promise resolving id of stored data
+   */
+  public async getNewDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
+    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
+
+    return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
+  }
+
+  /**
+   * Verify the hashes are present on IPFS with the corresponding size and add metadata
+   * Filtered incorrect hashes
+   * @param hashesAndSizes Promises of hash and size from the smart contract
+   * @returns Filtered list of dataId with metadata
+   */
+  private async hashesAndSizesToFilteredDataIdAndMeta(
+    hashesAndSizes: StorageTypes.IRequestStorageGetAllHashesAndSizes[],
+  ): Promise<
+    StorageTypes.IRequestStorageGetAllDataIdReturn | StorageTypes.IRequestStorageGetNewDataIdReturn
+  > {
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
     // or when the size doesn't correspond to the size of the content stored on ipfs
-    const parsedDataIdAndMetaPromises = hashAndSizePromises.map(
+    const parsedDataIdAndMetaPromises = hashesAndSizes.map(
       async (
         hashAndSizePromise: StorageTypes.IRequestStorageGetAllHashesAndSizes,
       ): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta> => {

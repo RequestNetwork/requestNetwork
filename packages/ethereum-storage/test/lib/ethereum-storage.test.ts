@@ -120,7 +120,7 @@ describe('EthereumStorage', () => {
     };
   });
 
-  it('Allows to update Ethereum network', async () => {
+  it('allows to update Ethereum network', async () => {
     ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection);
     assert.notDeepEqual(provider, ethereumStorage.smartContractManager.eth.currentProvider);
     assert.deepEqual(
@@ -129,7 +129,7 @@ describe('EthereumStorage', () => {
     );
   });
 
-  it('Allows to append a file', async () => {
+  it('allows to append a file', async () => {
     const result = await ethereumStorage.append(content1);
 
     if (!result.meta.ethereum) {
@@ -175,7 +175,7 @@ describe('EthereumStorage', () => {
     }
   });
 
-  it('Allows to read a file', async () => {
+  it('allows to read a file', async () => {
     await ethereumStorage.append(content1);
     const result = await ethereumStorage.read(hash1);
 
@@ -200,7 +200,7 @@ describe('EthereumStorage', () => {
     assert.exists(result.meta.ethereum.blockTimestamp);
   });
 
-  it('Allows to retrieve all data id', async () => {
+  it('allows to retrieve all data id', async () => {
     // These contents have to be appended in order to check their size
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
@@ -246,7 +246,58 @@ describe('EthereumStorage', () => {
     assert.deepEqual(result.result, { dataIds: [hash1, hash2] });
   });
 
-  it('Allows to retrieve all data', async () => {
+  it('allows to retrieve new data id', async () => {
+    // To test this function, we call it without calling getAllDataId()
+    // In this case, getNewDataId() should have the same behavior as getAllDataId()
+
+    // 4 blocks in pastEventsMock
+    ethereumStorage.smartContractManager.eth.getBlockNumber = () => 4;
+
+    await ethereumStorage.append(content1);
+    await ethereumStorage.append(content2);
+    const result = await ethereumStorage.getNewDataId();
+
+    if (!result.meta.metaDataIds[0].ethereum) {
+      assert.fail('result.meta.metaDataIds[0].ethereum does not exist');
+      return;
+    }
+    assert.deepEqual(result.meta.metaDataIds[0].ipfs, {
+      size: realSize1,
+    });
+    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.equal(result.meta.metaDataIds[0].ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.metaDataIds[0].ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+    assert.isAtLeast(result.meta.metaDataIds[0].ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.metaDataIds[0].ethereum.blockTimestamp);
+
+    if (!result.meta.metaDataIds[1].ethereum) {
+      assert.fail('result.meta.metaDataIds[2].ethereum does not exist');
+      return;
+    }
+
+    // We compare with the third value of pastEventsMock because the second one is ignored
+    // Since the size is fake
+    assert.deepEqual(result.meta.metaDataIds[1].ipfs, {
+      size: realSize2,
+    });
+    assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+    assert.equal(result.meta.metaDataIds[1].ethereum.networkName, 'private');
+    assert.equal(
+      result.meta.metaDataIds[1].ethereum.smartContractAddress,
+      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+    );
+    assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+    assert.isAtLeast(result.meta.metaDataIds[1].ethereum.blockConfirmation, 1);
+    assert.exists(result.meta.metaDataIds[1].ethereum.blockTimestamp);
+
+    assert.deepEqual(result.result, { dataIds: [hash1, hash2] });
+  });
+
+  it('allows to retrieve all data', async () => {
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
     const result = await ethereumStorage.getAllData();
@@ -288,20 +339,20 @@ describe('EthereumStorage', () => {
     assert.deepEqual(result.result, { data: [content1, content2] });
   });
 
-  it('Append and read with no parameter should throw an error', async () => {
+  it('append and read with no parameter should throw an error', async () => {
     await assert.isRejected(ethereumStorage.append(''), Error, 'No content provided');
 
     await assert.isRejected(ethereumStorage.read(''), Error, 'No id provided');
   });
 
-  it('Append and read on an invalid ipfs gateway should throw an error', async () => {
+  it('append and read on an invalid ipfs gateway should throw an error', async () => {
     ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection);
 
     await assert.isRejected(ethereumStorage.append(content1), Error, 'Ipfs add request error');
     await assert.isRejected(ethereumStorage.read(hash1), Error, 'Ipfs read request error');
   });
 
-  it('Failed getContentLength from ipfs-manager in append and read functions should throw an error', async () => {
+  it('failed getContentLength from ipfs-manager in append and read functions should throw an error', async () => {
     // To test this case, we create a mock for getContentLength of the ipfs manager that always throws an error
     ethereumStorage.ipfsManager.getContentLength = async _hash => {
       throw Error('Any error in getContentLength');
@@ -315,13 +366,13 @@ describe('EthereumStorage', () => {
     await assert.isRejected(ethereumStorage.read(hash1), Error, 'Ipfs get length request error');
   });
 
-  it('Append content with an invalid web3 connection should throw an error', async () => {
+  it('append content with an invalid web3 connection should throw an error', async () => {
     ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection);
 
     await assert.isRejected(ethereumStorage.append(content1), Error, 'Smart contract error');
   });
 
-  it('getAllDataId should throw an error when data from getAllHashesAndSizesFromEthereum from are incorrect', async () => {
+  it('getAllDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
     // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
     ethereumStorage.smartContractManager.getAllHashesAndSizesFromEthereum = (): Promise<
       StorageTypes.IRequestStorageGetAllHashesAndSizes[]
