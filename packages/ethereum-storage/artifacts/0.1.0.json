@@ -315,21 +315,14 @@
   "ast": {
     "absolutePath": "src/contracts/RequestHashStorage.sol",
     "exportedSymbols": {
-      "RequestHashStorage": [
-        515
-      ]
+      "RequestHashStorage": [515]
     },
     "id": 516,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 462,
-        "literals": [
-          "solidity",
-          "^",
-          "0.4",
-          ".24"
-        ],
+        "literals": ["solidity", "^", "0.4", ".24"],
         "nodeType": "PragmaDirective",
         "src": "0:24:4"
       },
@@ -365,19 +358,12 @@
             "src": "191:19:4"
           }
         ],
-        "contractDependencies": [
-          403,
-          682
-        ],
+        "contractDependencies": [403, 682],
         "contractKind": "contract",
         "documentation": "@title RequestHashStorage\n@notice Contract that stores ipfs hashes with event logs",
         "fullyImplemented": true,
         "id": 515,
-        "linearizedBaseContracts": [
-          515,
-          682,
-          403
-        ],
+        "linearizedBaseContracts": [515, 682, 403],
         "name": "RequestHashStorage",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -663,10 +649,7 @@
                       "id": 487,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        700,
-                        701
-                      ],
+                      "overloadedDeclarations": [700, 701],
                       "referencedDeclaration": 700,
                       "src": "729:7:4",
                       "typeDescriptions": {
@@ -930,10 +913,7 @@
                       "id": 510,
                       "name": "revert",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        702,
-                        703
-                      ],
+                      "overloadedDeclarations": [702, 703],
                       "referencedDeclaration": 702,
                       "src": "1019:6:4",
                       "typeDescriptions": {
@@ -998,21 +978,14 @@
   "legacyAST": {
     "absolutePath": "src/contracts/RequestHashStorage.sol",
     "exportedSymbols": {
-      "RequestHashStorage": [
-        515
-      ]
+      "RequestHashStorage": [515]
     },
     "id": 516,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 462,
-        "literals": [
-          "solidity",
-          "^",
-          "0.4",
-          ".24"
-        ],
+        "literals": ["solidity", "^", "0.4", ".24"],
         "nodeType": "PragmaDirective",
         "src": "0:24:4"
       },
@@ -1048,19 +1021,12 @@
             "src": "191:19:4"
           }
         ],
-        "contractDependencies": [
-          403,
-          682
-        ],
+        "contractDependencies": [403, 682],
         "contractKind": "contract",
         "documentation": "@title RequestHashStorage\n@notice Contract that stores ipfs hashes with event logs",
         "fullyImplemented": true,
         "id": 515,
-        "linearizedBaseContracts": [
-          515,
-          682,
-          403
-        ],
+        "linearizedBaseContracts": [515, 682, 403],
         "name": "RequestHashStorage",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -1346,10 +1312,7 @@
                       "id": 487,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        700,
-                        701
-                      ],
+                      "overloadedDeclarations": [700, 701],
                       "referencedDeclaration": 700,
                       "src": "729:7:4",
                       "typeDescriptions": {
@@ -1613,10 +1576,7 @@
                       "id": 510,
                       "name": "revert",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        702,
-                        703
-                      ],
+                      "overloadedDeclarations": [702, 703],
                       "referencedDeclaration": 702,
                       "src": "1019:6:4",
                       "typeDescriptions": {

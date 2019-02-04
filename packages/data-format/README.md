@@ -13,16 +13,15 @@ npm install @requestNetwork/data-format
 ```js
 import dataFormat from '@requestnetowrk/data-format';
 
-let result = data-format.validate(A_JSON_OBJECT);
+let result = data - format.validate(A_JSON_OBJECT);
 
 if (!result.valid) {
-    // use the errors from result.errors
+  // use the errors from result.errors
 }
 ```
 
 ## Available JSON Schema
 
-| Name | Last version | Last version | Description |
-| ------------ | ------------ | ------------ | ------------ | 
-| [Invoice](/packages/data-format/src/format/rnf_invoice) | rnf_invoice | 0.0.2 | Format to create an invoice  |
-
+| Name                                                    | Last version | Last version | Description                 |
+| ------------------------------------------------------- | ------------ | ------------ | --------------------------- |
+| [Invoice](/packages/data-format/src/format/rnf_invoice) | rnf_invoice  | 0.0.2        | Format to create an invoice |

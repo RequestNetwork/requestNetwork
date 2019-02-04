@@ -17,49 +17,29 @@ const arbitraryBlockTopics2 = { topic1: [0, 1, 2], topic3: [0, 3] };
 describe('localIndex', () => {
   it('can pushLocationIndexedWithBlockTopics() and getLocationFromTopic()', () => {
     const localIndex = new LocationByTopic();
-    localIndex.pushLocationIndexedWithBlockTopics(
-      arbitraryDataId1,
-      arbitraryBlockTopics1,
-    );
+    localIndex.pushLocationIndexedWithBlockTopics(arbitraryDataId1, arbitraryBlockTopics1);
 
     const result = localIndex.getLocationFromTopic(arbitraryTxTopic1);
-    expect(result, 'localIndex data is wrong').to.deep.equal([
-      arbitraryDataId1,
-    ]);
+    expect(result, 'localIndex data is wrong').to.deep.equal([arbitraryDataId1]);
 
     const result2 = localIndex.getLocationFromTopic(arbitraryTxTopic2);
-    expect(result2, 'localIndex data is wrong').to.deep.equal([
-      arbitraryDataId1,
-    ]);
+    expect(result2, 'localIndex data is wrong').to.deep.equal([arbitraryDataId1]);
 
     const resultEmpty = localIndex.getLocationFromTopic(arbitraryTxTopic3);
     expect(resultEmpty, 'localIndex data is wrong').to.deep.equal([]);
   });
   it('can pushLocationIndexedWithBlockTopics() twice and getLocationFromTopic()', () => {
     const localIndex = new LocationByTopic();
-    localIndex.pushLocationIndexedWithBlockTopics(
-      arbitraryDataId1,
-      arbitraryBlockTopics1,
-    );
-    localIndex.pushLocationIndexedWithBlockTopics(
-      arbitraryDataId2,
-      arbitraryBlockTopics2,
-    );
+    localIndex.pushLocationIndexedWithBlockTopics(arbitraryDataId1, arbitraryBlockTopics1);
+    localIndex.pushLocationIndexedWithBlockTopics(arbitraryDataId2, arbitraryBlockTopics2);
 
     const result = localIndex.getLocationFromTopic(arbitraryTxTopic1);
-    expect(result, 'localIndex data is wrong').to.deep.equal([
-      arbitraryDataId1,
-      arbitraryDataId2,
-    ]);
+    expect(result, 'localIndex data is wrong').to.deep.equal([arbitraryDataId1, arbitraryDataId2]);
 
     const result2 = localIndex.getLocationFromTopic(arbitraryTxTopic2);
-    expect(result2, 'localIndex data is wrong').to.deep.equal([
-      arbitraryDataId1,
-    ]);
+    expect(result2, 'localIndex data is wrong').to.deep.equal([arbitraryDataId1]);
 
     const resultEmpty = localIndex.getLocationFromTopic(arbitraryTxTopic3);
-    expect(resultEmpty, 'localIndex data is wrong').to.deep.equal([
-      arbitraryDataId2,
-    ]);
+    expect(resultEmpty, 'localIndex data is wrong').to.deep.equal([arbitraryDataId2]);
   });
 });

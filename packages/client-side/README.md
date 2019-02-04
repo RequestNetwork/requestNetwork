@@ -58,13 +58,13 @@ A global `RequestNetwork` is exposed:
 <script src="requestnetwork.min.js"></script>
 
 <script>
-const requestNetwork = new RequestNetwork.RequestNetwork();
+  const requestNetwork = new RequestNetwork.RequestNetwork();
 
-const { request } = await requestNetwork.createRequest(
-  requestCreationHash,
-  signatureInfo,
-  topics,
-);
+  const { request } = await requestNetwork.createRequest(
+    requestCreationHash,
+    signatureInfo,
+    topics,
+  );
 </script>
 ```
 

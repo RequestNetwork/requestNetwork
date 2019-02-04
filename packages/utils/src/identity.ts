@@ -15,13 +15,9 @@ export default {
  * @param IIdentity id2 second identity
  * @returns boolean
  */
-function areEqual(
-  id1: IdentityTypes.IIdentity,
-  id2: IdentityTypes.IIdentity,
-): boolean {
+function areEqual(id1: IdentityTypes.IIdentity, id2: IdentityTypes.IIdentity): boolean {
   return (
-    id1.type === id2.type &&
-    normalizeIdentityValue(id1.value) === normalizeIdentityValue(id2.value)
+    id1.type === id2.type && normalizeIdentityValue(id1.value) === normalizeIdentityValue(id2.value)
   );
 }
 

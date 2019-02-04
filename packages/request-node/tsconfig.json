@@ -2,11 +2,12 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "src"
   },
   "include": ["./src/**/*"],
   "references": [
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
+    { "path": "../types" }
   ]
 }

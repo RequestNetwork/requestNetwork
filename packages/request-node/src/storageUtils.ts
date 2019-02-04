@@ -19,10 +19,7 @@ export function getEthereumStorage(mnemonic: string): EthereumStorage {
   };
 
   // Initializes web3 connection object
-  const provider = new hdWalletProvider(
-    mnemonic,
-    config.getStorageWeb3ProviderUrl(),
-  );
+  const provider = new hdWalletProvider(mnemonic, config.getStorageWeb3ProviderUrl());
 
   const web3Connection: StorageTypes.IWeb3Connection = {
     networkId: config.getStorageNetworkId(),

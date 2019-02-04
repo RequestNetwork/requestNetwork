@@ -22,7 +22,7 @@
       "country-name": "France"
     },
     "miscellaneous": {
-      "aliases" : ["Ultime Fauchelevent", "Urbain Fabre", "Prisoner 24601", "Prisoner 9430"]
+      "aliases": ["Ultime Fauchelevent", "Urbain Fabre", "Prisoner 24601", "Prisoner 9430"]
     }
   },
 
@@ -38,11 +38,12 @@
       "street-address": "20341 Whitworth Institute 405 N. Whitworth"
     },
     "miscellaneous": {
-      "Occupation" : ["Prison guard", "Police inspector", "Detective"]
+      "Occupation": ["Prison guard", "Police inspector", "Detective"]
     }
   },
 
-  "invoiceItems": [{
+  "invoiceItems": [
+    {
       "name": "Candlestick",
       "reference": "cs666",
       "quantity": 2,
@@ -51,7 +52,8 @@
       "taxPercent": 16.9,
       "currency": "XT",
       "deliveryDate": "2019-01-01T18:25:43.511Z"
-    },{
+    },
+    {
       "name": "handcuff",
       "reference": "hc99",
       "quantity": 1,
@@ -59,7 +61,8 @@
       "taxPercent": 5.5,
       "currency": "XTSS",
       "deliveryDate": "2019-01-01T18:25:43.511Z"
-    }],
+    }
+  ],
 
   "paymentTerms": {
     "dueDate": "2019-06-01T18:25:43.511Z",

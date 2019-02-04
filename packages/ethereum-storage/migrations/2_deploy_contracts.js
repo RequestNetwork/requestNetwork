@@ -1,10 +1,10 @@
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
-const addressContractBurner = "0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8";
+const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
 // Deploys, set up the contracts
 module.exports = async function(deployer) {
-  try { 
+  try {
     // Deploy the contract
     await deployer.deploy(RequestHashStorage, addressContractBurner);
     console.log('Contract deployed: ' + RequestHashStorage.address);
@@ -20,7 +20,7 @@ module.exports = async function(deployer) {
     await instance.setMinimumFeeThreshold('10000');
     await instance.setRequestBurnerContract(addressContractBurner);
 
-    console.log('Contract initialized')
+    console.log('Contract initialized');
   } catch (e) {
     console.error(e);
   }

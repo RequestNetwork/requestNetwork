@@ -3,14 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
   "include": ["./src/lib/**/*", "./artifacts/**/*"],
-  "references": [
-    { "path": "../types" },
-  ],
-  "files": [
-    "./artifacts/0.1.0.json",
-    "./artifacts/artifacts.json"
-  ]
+  "references": [{ "path": "../types" }],
+  "files": ["./artifacts/0.1.0.json", "./artifacts/artifacts.json"]
 }

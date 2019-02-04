@@ -2,13 +2,13 @@
 
 You can be interested in this document if:
 
--   you want to create your own implementation of the Request protocol
--   you want to implement a new extension in the advanced logic
--   you are curious enough to dive and see what is under the hood of the Request protocol
+- you want to create your own implementation of the Request protocol
+- you want to implement a new extension in the advanced logic
+- you are curious enough to dive and see what is under the hood of the Request protocol
 
 You don't need to read this document if:
 
--   you want to develop an app using the request protocol (see the API library instead [here TODO](#))
+- you want to develop an app using the request protocol (see the API library instead [here TODO](#))
 
 Prerequisite: Having read the request logic specification (see [TODO](#))
 
@@ -31,14 +31,14 @@ The extensions of the advanced logic follow the same design as the requests in t
 
 An extension is defined by :
 
--   a list of `properties` (the `state` of an extension is its properties value at time t)
--   a list of `actions` able to modify the `state`. Every action:
-    -   can have a list of `parameters` as input
-    -   must have a list of `conditions`, if they are not satisfied the action is ignored
-    -   can have a list of `warnings` to show the well-known vulnerabilities under conditions
-    -   can modify the `state`
--   a way to interpret the `properties` offchain
--   a `description` in English that explains the purpose of the extension. This explanation is targeted at the users of applications that don't support the extension in their UI.
+- a list of `properties` (the `state` of an extension is its properties value at time t)
+- a list of `actions` able to modify the `state`. Every action:
+  - can have a list of `parameters` as input
+  - must have a list of `conditions`, if they are not satisfied the action is ignored
+  - can have a list of `warnings` to show the well-known vulnerabilities under conditions
+  - can modify the `state`
+- a way to interpret the `properties` offchain
+- a `description` in English that explains the purpose of the extension. This explanation is targeted at the users of applications that don't support the extension in their UI.
 
 The `actions` are stored in the array `extensionsData` of the request state.
 The `extensionsData` are stored in the actions of the request logic.
@@ -73,12 +73,12 @@ The properties are in a JSON object.
 
 The types allowed in `values` are:
 
--   Object
--   Array
--   String
--   Enum
--   Amount
--   Identity
+- Object
+- Array
+- String
+- Enum
+- Amount
+- Identity
 
 Example:
 
@@ -99,11 +99,11 @@ Example:
 
 Specify an action of an extension is defining:
 
--   is the action a `creation` or an `update`?
--   the `action name`, if an update (for creation it is 'create')
--   the `parameters`
--   the `conditions` of validity (it can use the request state and the extension state )
--   the `result` (the modification on the extension state)
+- is the action a `creation` or an `update`?
+- the `action name`, if an update (for creation it is 'create')
+- the `parameters`
+- the `conditions` of validity (it can use the request state and the extension state )
+- the `result` (the modification on the extension state)
 
 #### Action name
 
@@ -140,8 +140,8 @@ The action result defines the modification made on the extension `state` from th
 
 Example:
 
--   the property 'paymentAddress' takes the value of paymentAddress from the action parameters
--   increases the property 'lateFees' by 10 percent
+- the property 'paymentAddress' takes the value of paymentAddress from the action parameters
+- increases the property 'lateFees' by 10 percent
 
 #### Offchain interpretation
 
@@ -150,7 +150,7 @@ The interpretation explains to the users on how to use the `state` and `actions`
 
 Example:
 
--   When a bitcoin transaction reaches the address given in `payeeAdress`, consider this transaction as payment for this request
+- When a bitcoin transaction reaches the address given in `payeeAdress`, consider this transaction as payment for this request
 
 ### Actions implementation
 
@@ -207,17 +207,17 @@ Having only one version for all the extensions, avoid the interdependence nightm
 
 The rules to handle a difference of extension versions are:
 
--   extension.version.major > expected
-    -   Ignore the request
-    -   Search for a new version of extensions implementation
--   extension.version.major < expected
-    -   Ignore the request
-    -   warning: "obsolete version"
--   extension.version.minor > expected
-    -   Ignore the request
-    -   Search for a new version of extensions implementation
--   Otherwise:
-    -   Handle the request normally
+- extension.version.major > expected
+  - Ignore the request
+  - Search for a new version of extensions implementation
+- extension.version.major < expected
+  - Ignore the request
+  - warning: "obsolete version"
+- extension.version.minor > expected
+  - Ignore the request
+  - Search for a new version of extensions implementation
+- Otherwise:
+  - Handle the request normally
 
 Note: A special attention must be paid about the request that triggers research of a new version of the protocol implementation. This can be a way to make users to download malicious software.
 
@@ -231,12 +231,12 @@ If an extensionsData does not follow the specification, it can be a difference o
 
 If the version is correct, then 2 cases are possible:
 
--   The request action is the request creation:
+- The request action is the request creation:
 
-    -   Ignore the request
-    -   warning: "unknown extension"
+  - Ignore the request
+  - warning: "unknown extension"
 
--   Otherwise:
+- Otherwise:
 
-    -   Ignore the extensionsData
-    -   warning : "Unknown extension data"
+  - Ignore the extensionsData
+  - warning : "Unknown extension data"
