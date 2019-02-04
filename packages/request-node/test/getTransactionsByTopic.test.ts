@@ -87,10 +87,10 @@ describe('getTransactionsByTopic', () => {
     expect(serverResponse.body.result.transactions).to.be.empty;
   });
 
-  it('responds with status 400 to requests with no value', async () => {
+  it('responds with status 422 to requests with no value', async () => {
     await request(server)
       .get('/getTransactionsByTopic')
       .set('Accept', 'application/json')
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(httpStatus.UNPROCESSABLE_ENTITY);
   });
 });

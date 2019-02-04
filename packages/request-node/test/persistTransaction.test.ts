@@ -50,21 +50,21 @@ describe('persistTransaction', () => {
       .to.be.empty;
   });
 
-  it('responds with status 400 to requests with no value', async () => {
+  it('responds with status 422 to requests with no value', async () => {
     await request(server)
       .post('/persistTransaction')
       .send({})
       .set('Accept', 'application/json')
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(httpStatus.UNPROCESSABLE_ENTITY);
   });
 
-  it('responds with status 400 to requests with badly formatted value', async () => {
+  it('responds with status 500 to requests with badly formatted value', async () => {
     await request(server)
       .post('/persistTransaction')
       .send({
         transactionData: badlyFormattedTransactionData,
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(httpStatus.INTERNAL_SERVER_ERROR);
   });
 });

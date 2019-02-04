@@ -20,7 +20,7 @@ export default async function actionPersistTransaction(
   // transactionData: data of the transaction
   // topics (optional): arbitrary strings that reference the transaction
   if (!clientRequest.body || !clientRequest.body.transactionData) {
-    serverResponse.status(httpStatus.BAD_REQUEST).send('Incorrect data');
+    serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
       dataAccessResponse = await dataAccess.persistTransaction(
@@ -30,7 +30,7 @@ export default async function actionPersistTransaction(
 
       serverResponse.status(httpStatus.OK).send(dataAccessResponse);
     } catch (e) {
-      serverResponse.status(httpStatus.BAD_REQUEST).send(e);
+      serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }
   }
 }
