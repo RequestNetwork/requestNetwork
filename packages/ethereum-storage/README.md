@@ -1,6 +1,6 @@
-# `@requestNetwork/ethereum-storage`
+# `@requestnetwork/ethereum-storage`
 
-`@requestNetwork/ethereum-storage` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/ethereum-storage` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is an implementation of the Storage layer of Request Network protocol that uses IPFS to immutably store the data and uses the Ethereum network to persist the IPFS hash of the data and make them permanently available to everyone.
 
 The package also stores the source and artifacts of the smart contract deployed on Ethereum.
@@ -8,13 +8,13 @@ The package also stores the source and artifacts of the smart contract deployed 
 ## Installation
 
 ```bash
-npm install @requestNetwork/ethereum-storage
+npm install @requestnetwork/ethereum-storage
 ```
 
 ## Usage
 
 ```
-import EthereumStorage from '@requestNetwork/ethereum-storage';
+import EthereumStorage from '@requestnetwork/ethereum-storage';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 
 const web3HttpProvider = require('web3-providers-http');
@@ -39,7 +39,6 @@ const data = 'Some data';
 
 await ethereumStorage.append(data);
 ```
-
 
 ## Smart Contract
 

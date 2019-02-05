@@ -1,6 +1,6 @@
-# @requestNetwork/ethereum-private-key-signature-provider
+# @requestnetwork/ethereum-private-key-signature-provider
 
-`@requestNetwork/ethereum-private-key-signature-provider` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/ethereum-private-key-signature-provider` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 
 Implementation of the signature provider from the private keys.
 The signature provider is used to make signature in the Request Network Protocol (e.g.: see [Request Logic](https://github.com/RequestNetwork/requestNetwork/packages/request-logic) and [Transaction Manager](https://github.com/RequestNetwork/requestNetwork/packages/transaction-manager)).
@@ -10,7 +10,7 @@ It uses the Request Network Protocol concepts of `Identity` and `Signature` desc
 ## Installation
 
 ```bash
-npm install @requestNetwork/ethereum-private-key-signature-provider
+npm install @requestnetwork/ethereum-private-key-signature-provider
 ```
 
 ## Usage
@@ -19,9 +19,9 @@ npm install @requestNetwork/ethereum-private-key-signature-provider
 import {
   Identity as IdentityTypes,
   Signature as SignatureTypes
-} from '@requestNetwork/types'
+} from '@requestnetwork/types'
 
-import EthereumPrivateKeySignatureProvider from '@requestNetwork/ethereum-private-key-signature-provider'
+import EthereumPrivateKeySignatureProvider from '@requestnetwork/ethereum-private-key-signature-provider'
 
 const signatureParametersExample: SignatureTypes.ISignature = {
   method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,

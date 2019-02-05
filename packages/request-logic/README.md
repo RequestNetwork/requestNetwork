@@ -1,6 +1,6 @@
-# @requestNetwork/request-logic
+# @requestnetwork/request-logic
 
-`@requestNetwork/request-logic` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/request-logic` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is the default implementation of the Request Logic layer. This layer is responsible for the business logic: properties and actions of requests.
 
 Request logic creates transactions, that are signed and sends them to the layer below, Transaction.
@@ -8,7 +8,7 @@ Request logic creates transactions, that are signed and sends them to the layer 
 ## Installation
 
 ```bash
-npm install @requestNetwork/request-logic
+npm install @requestnetwork/request-logic
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ import {
   SignatureProvider as SignatureProviderTypes,
   Transaction as TransactionTypes,
 } from '@requestnetwork/types';
-import { RequestLogic } from '@requestNetwork/request-logic';
+import { RequestLogic } from '@requestnetwork/request-logic';
 
 const createParams = {
   currency: Types.REQUEST_LOGIC_CURRENCY.ETH,

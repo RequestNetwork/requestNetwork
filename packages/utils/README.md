@@ -1,6 +1,6 @@
-# @requestNetwork/utils
+# @requestnetwork/utils
 
-`@requestNetwork/utils` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/utils` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is a collection of tools shared between the @requestnetwork packages.
 
 - Elliptic curve crypto and signature
@@ -24,7 +24,7 @@ It is a collection of tools shared between the @requestnetwork packages.
 ## Installation
 
 ```bash
-npm install @requestNetwork/utils
+npm install @requestnetwork/utils
 ```
 
 ## Usage

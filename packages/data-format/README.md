@@ -1,11 +1,11 @@
-# @requestNetwork/data-format
+# @requestnetwork/data-format
 
-`@requestNetwork/data-format` is a typescript library part of the [Request Network protocol].It is a JSON Schema library providing standard for the data of the Request Network protocol. It also provide a javascript entry point to validate a given JSON.
+`@requestnetwork/data-format` is a typescript library part of the [Request Network protocol].It is a JSON Schema library providing standard for the data of the Request Network protocol. It also provide a javascript entry point to validate a given JSON.
 
 ## Installation
 
 ```bash
-npm install @requestNetwork/data-format
+npm install @requestnetwork/data-format
 ```
 
 ### Usage

@@ -1,6 +1,6 @@
-# @requestNetwork/prototype-estimator
+# @requestnetwork/prototype-estimator
 
-`@requestNetwork/prototype-estimator` is a typescript script part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/prototype-estimator` is a typescript script part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 The script runs test cases on the v2 system to give estimates of size and throughput. The result is given as a `console.table` in the standard output.
 It is useful to measure and keep track of the size of requests in the storage, and the throughput of the system.
 

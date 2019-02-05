@@ -1,12 +1,12 @@
-# @requestNetwork/types
+# @requestnetwork/types
 
-`@requestNetwork/types` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/types` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is the collection of typescript types shared across @requestnetwork packages.
 
 ## Installation
 
 ```bash
-npm install @requestNetwork/types --save-dev
+npm install @requestnetwork/types --save-dev
 ```
 
 ## Usage

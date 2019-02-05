@@ -1,6 +1,6 @@
-# `@requestNetwork/request-node`
+# `@requestnetwork/request-node`
 
-`@requestNetwork/request-node` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/request-node` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 This package allows you to run a full Request Node. 
 
 Request Nodes are the basic servers used to allow any user to communicate with the Request Network protocol, these servers abstract the complexity of the storage layer for the users. The users can easily create a request or execute an action on a request by sending messages to the Node.

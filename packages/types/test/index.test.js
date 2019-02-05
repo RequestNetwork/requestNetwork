@@ -2,6 +2,6 @@
 
 const types = require('../src');
 
-describe('@requestNetwork/types', () => {
+describe('@requestnetwork/types', () => {
   it('needs tests');
 });

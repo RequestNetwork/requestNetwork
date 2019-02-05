@@ -1,6 +1,6 @@
-# @requestNetwork/data-access
+# @requestnetwork/data-access
 
-`@requestNetwork/data-access` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/data-access` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is the default implementation of the Data Access layer. The Data Access layer is responsible for:
 
 - Indexing transactions to allow retrieval. In the context of the Request Protocol, examples of transactions are "create a request", "accept a request", "change the expected amount of a request"
@@ -10,7 +10,7 @@ It is the default implementation of the Data Access layer. The Data Access layer
 ## Installation
 
 ```bash
-npm install @requestNetwork/data-access
+npm install @requestnetwork/data-access
 ```
 
 ## Usage
@@ -18,7 +18,7 @@ npm install @requestNetwork/data-access
 ### Persist a Transaction
 
 ```javascript
-import DataAccess from '@requestNetwork/data-access';
+import DataAccess from '@requestnetwork/data-access';
 import {
   DataAccess as DataAccessTypes,
   Signature as SignatureTypes,
@@ -54,7 +54,7 @@ const result = await dataAccess.persistTransaction(transaction, [transactionTopi
 ### Get a Transaction
 
 ```javascript
-import DataAccess from '@requestNetwork/data-access';
+import DataAccess from '@requestnetwork/data-access';
 import {
   DataAccess as DataAccessTypes,
   Signature as SignatureTypes,

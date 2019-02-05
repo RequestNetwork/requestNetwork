@@ -1,12 +1,12 @@
-# @requestNetwork/advanced-logic
+# @requestnetwork/advanced-logic
 
-`@requestNetwork/advanced-logic` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/advanced-logic` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is the default implementation of the Advanced Logic layer. This layer hosts the extensions to the protocol, see Implemented Extensions for the list.
 
 ## Installation
 
 ```bash
-npm install @requestNetwork/advanced-logic
+npm install @requestnetwork/advanced-logic
 ```
 
 ## Specifications

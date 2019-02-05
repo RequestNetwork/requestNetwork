@@ -27,13 +27,17 @@
   ],
   "scripts": {
     "build": "tsc -b",
+    "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"test/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "mocha --require ts-node/register \"test/**/*.ts\""
+    "test": "run-s test:node test:layers",
+    "test:layers": "mocha --require ts-node/register \"test/layers.test.ts\"",
+    "test:node": "mocha --require ts-node/register \"test/node-client.test.ts\""
   },
   "dependencies": {},
   "devDependencies": {
     "@requestnetwork/advanced-logic": "0.1.0",
+    "@requestnetwork/client-side": "0.1.0",
     "@requestnetwork/data-access": "0.1.0",
     "@requestnetwork/ethereum-private-key-signature-provider": "0.1.0",
     "@requestnetwork/ethereum-storage": "0.1.0",
@@ -46,6 +50,7 @@
     "husky": "1.1.2",
     "lint-staged": "7.3.0",
     "mocha": "5.2.0",
+    "npm-run-all": "4.1.5",
     "prettier": "1.14.3",
     "truffle-hdwallet-provider": "0.0.6",
     "ts-node": "7.0.1",

@@ -6,6 +6,7 @@
   },
   "references": [
     { "path": "../advanced-logic" },
+    { "path": "../client-side" },
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
     { "path": "../ethereum-private-key-signature-provider" },
