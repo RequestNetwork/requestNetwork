@@ -4,7 +4,7 @@ const web3Eth = require('web3-eth');
 
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
-import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/ethereum-private-key-signature-provider';
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';

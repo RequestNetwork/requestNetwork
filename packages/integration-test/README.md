@@ -26,7 +26,7 @@ It tests the direct integration of the layers:
 
 - @requestnetwork/advanced-logic
 - @requestnetwork/data-access
-- @requestnetwork/ethereum-private-key-signature-provider
+- @requestnetwork/epk-signature
 - @requestnetwork/ethereum-storage
 - @requestnetwork/request-logic
 - @requestnetwork/transaction-manager
@@ -39,7 +39,7 @@ npm run test:layers
 
 It tests the integration of the Request node and the client side library:
 
-- @requestnetwork/client-side
+- @requestnetwork/request-client.js
 - @requestnetwork/request-node
 
 ```bash

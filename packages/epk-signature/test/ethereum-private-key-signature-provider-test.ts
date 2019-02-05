@@ -49,7 +49,7 @@ const signedDataExpected = {
   },
 };
 /* tslint:disable:no-unused-expression */
-describe('eth-private-key-signature-provider', () => {
+describe('ethereum-private-key-signature-provider', () => {
   describe('constructor', () => {
     it('can construct', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);

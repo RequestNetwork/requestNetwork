@@ -38,7 +38,7 @@ jobs:
       - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
-  test-client-side:
+  test-request-client.js:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -46,18 +46,18 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build client-side'
-          command: 'yarn workspace @requestnetwork/client-side run build:commonjs'
+          name: 'Build request-client.js'
+          command: 'yarn workspace @requestnetwork/request-client.js run build:commonjs'
       - run:
-          name: 'Lint client-side'
-          command: 'yarn workspace @requestnetwork/client-side run lint '
+          name: 'Lint request-client.js'
+          command: 'yarn workspace @requestnetwork/request-client.js run lint '
       - run:
-          name: 'Test client-side'
-          command: 'yarn workspace @requestnetwork/client-side run test'
+          name: 'Test request-client.js'
+          command: 'yarn workspace @requestnetwork/request-client.js run test'
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/client-side/.nyc_output
+            - packages/request-client.js/.nyc_output
   test-data-access:
     docker:
       - *node_image
@@ -230,7 +230,7 @@ jobs:
           root: *working_directory
           paths:
             - packages/utils/.nyc_output
-  test-ethereum-private-key-signature-provider:
+  test-epk-signature:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -238,18 +238,18 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build ethereum-private-key-signature-provider'
-          command: 'yarn workspace @requestnetwork/ethereum-private-key-signature-provider run build'
+          name: 'Build epk-signature'
+          command: 'yarn workspace @requestnetwork/epk-signature run build'
       - run:
-          name: 'Lint ethereum-private-key-signature-provider'
-          command: 'yarn workspace @requestnetwork/ethereum-private-key-signature-provider run lint'
+          name: 'Lint epk-signature'
+          command: 'yarn workspace @requestnetwork/epk-signature run lint'
       - run:
-          name: 'Test ethereum-private-key-signature-provider'
-          command: 'yarn workspace @requestnetwork/ethereum-private-key-signature-provider run test'
+          name: 'Test epk-signature'
+          command: 'yarn workspace @requestnetwork/epk-signature run test'
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/ethereum-private-key-signature-provider/.nyc_output
+            - packages/epk-signature/.nyc_output
   test-integration-test:
     docker:
       - *node_image
@@ -296,8 +296,8 @@ jobs:
           name: 'Coverage advanced-logic'
           command: 'yarn workspace @requestnetwork/advanced-logic run coverage'
       - run:
-          name: 'Coverage ethereum-private-key-signature-provider'
-          command: 'yarn workspace @requestnetwork/ethereum-private-key-signature-provider run coverage'
+          name: 'Coverage epk-signature'
+          command: 'yarn workspace @requestnetwork/epk-signature run coverage'
       - run:
           name: 'Coverage request-node'
           command: 'yarn workspace @requestnetwork/request-node run coverage'
@@ -316,7 +316,7 @@ workflows:
           requires:
             - build
       # Test
-      - test-client-side:
+      - test-request-client.js:
           requires:
             - build
       - test-transaction-manager:
@@ -343,7 +343,7 @@ workflows:
       - test-utils:
           requires:
             - build
-      - test-ethereum-private-key-signature-provider:
+      - test-epk-signature:
           requires:
             - build
       - test-integration-test:
@@ -352,12 +352,12 @@ workflows:
       # Publish the code coverage
       - publish-coverage:
           requires:
-            - test-client-side
+            - test-request-client.js
             - test-data-access
             - test-transaction-manager
             - test-ethereum-storage
             - test-request-logic
             - test-advanced-logic
-            - test-ethereum-private-key-signature-provider
+            - test-epk-signature
             - test-request-node
             - test-utils

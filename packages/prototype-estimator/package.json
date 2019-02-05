@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "@requestnetwork/advanced-logic": "0.1.0",
-    "@requestnetwork/client-side": "0.1.0",
     "@requestnetwork/data-access": "0.1.0",
     "@requestnetwork/ethereum-storage": "0.1.0",
+    "@requestnetwork/request-client.js": "0.1.0",
     "@requestnetwork/request-logic": "0.1.0",
     "@requestnetwork/request-node": "0.1.0",
     "@requestnetwork/transaction-manager": "0.1.0",

@@ -35,7 +35,7 @@ const createParams = {
   timestamp: 1544426030,
 };
 
-const signatureProvider: SignatureProviderTypes.ISignatureProvider // A signature provider, for example @requestnetwork/ethereum-private-key-signature-provider
+const signatureProvider: SignatureProviderTypes.ISignatureProvider // A signature provider, for example @requestnetwork/epk-signature
 
 const transactionManager: TransactionTypes.ITransactionManager; // A transaction manager, for example @requestnetwork/transaction-manager
 

@@ -1,5 +1,5 @@
-import { Request, RequestNetwork } from '@requestnetwork/client-side';
-import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/ethereum-private-key-signature-provider';
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import { Request, RequestNetwork } from '@requestnetwork/request-client.js';
 import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,

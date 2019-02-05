@@ -1,5 +1,5 @@
 {
-  "name": "@requestnetwork/ethereum-private-key-signature-provider",
+  "name": "@requestnetwork/epk-signature",
   "version": "0.1.0",
   "private": true,
   "description": "Signature provider using ethereum private keys.",

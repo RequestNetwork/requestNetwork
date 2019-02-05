@@ -1,13 +1,13 @@
-# @requestnetwork/client-side
+# @requestnetwork/request-client.js
 
-`@requestnetwork/client-side` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/request-client.js` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 This package allows you to interact with the Request blockchain through [Request nodes](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node). This client side library uses Request nodes as servers, connected in HTTP. See the Request node documentation for more details on their API.
 It ships both as a commonjs and a UMD module. This means you can use it in node application and in web pages.
 
 ## Installation
 
 ```bash
-npm install @requestnetwork/client-side
+npm install @requestnetwork/request-client.js
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ npm install @requestnetwork/client-side
 ### Usage as commonjs module
 
 ```javascript
-import { RequestNetwork } from '@requestnetwork/client-side';
+import { RequestNetwork } from '@requestnetwork/request-client.js';
 import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
@@ -68,7 +68,7 @@ A global `RequestNetwork` is exposed:
 </script>
 ```
 
-A full example is available in `packages\client-side\test\index.html`
+A full example is available in `packages\request-client.js\test\index.html`
 
 ### Configure which Request node to use
 

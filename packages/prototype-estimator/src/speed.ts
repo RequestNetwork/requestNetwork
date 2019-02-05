@@ -1,4 +1,4 @@
-import { RequestNetwork } from '@requestnetwork/client-side';
+import { RequestNetwork } from '@requestnetwork/request-client.js';
 import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,

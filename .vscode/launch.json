@@ -13,10 +13,10 @@
         "--no-timeouts",
         "--require",
         "ts-node/register",
-        "${workspaceFolder}/packages/client-side/test/*.test.ts",
+        "${workspaceFolder}/packages/request-client.js/test/*.test.ts",
         "--colors"
       ],
-      "cwd": "${workspaceFolder}/packages/client-side/",
+      "cwd": "${workspaceFolder}/packages/request-client.js/",
       "protocol": "inspector",
       "sourceMaps": true
     },

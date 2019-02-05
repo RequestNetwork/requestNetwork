@@ -1,16 +1,16 @@
 {
-  "name": "@requestnetwork/client-side",
+  "name": "@requestnetwork/request-client.js",
   "version": "0.1.0",
   "description": "Client side library for Request Network.",
   "keywords": [
     "requestnetwork",
-    "client-side"
+    "request-client.js"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/client-side#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-client.js#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.1.0",
-    "@requestnetwork/ethereum-private-key-signature-provider": "0.1.0",
+    "@requestnetwork/epk-signature": "0.1.0",
     "@requestnetwork/request-logic": "0.1.0",
     "@requestnetwork/transaction-manager": "0.1.0",
     "@requestnetwork/types": "0.1.0",

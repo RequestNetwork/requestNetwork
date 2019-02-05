@@ -17,7 +17,7 @@ Once received by the Node, other request actors connecting to this Node can dire
 
 ## Usage
 
-The users can interact with a Request Node either by using the official [Client-side Library](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/client-side) or by sending manual HTTP requests to the API exposed by the server.
+The users can interact with a Request Node either by using the official [Client-side Library](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-client.js) or by sending manual HTTP requests to the API exposed by the server.
 
 ### API
 

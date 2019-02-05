@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 /**
  * This is to generate the umd bundle only
  * From https://github.com/0xProject/0x-monorepo/blob/development/packages/0x.js/webpack.config.js
@@ -9,23 +10,18 @@ const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack
 
 module.exports = {
   entry: {
-    'requestnetwork.min': './src/index.ts',
+    'epk-signature.min': './src/index.ts',
   },
   mode: 'production',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd',
-    library: 'RequestNetwork',
+    library: 'EthereumPrivateKeySignatureProvider',
     umdNamedDefine: true,
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
-    alias: {
-      // Dedup packages
-      'bn.js': path.resolve(__dirname, '../../node_modules/bn.js'),
-      'ethereumjs-util': path.resolve(__dirname, '../../node_modules/ethereumjs-util'),
-    },
   },
   devtool: 'source-map',
   optimization: {
@@ -57,3 +53,4 @@ module.exports = {
     new DuplicatePackageCheckerPlugin(),
   ],
 };
+/* eslint-enable spellcheck/spell-checker */

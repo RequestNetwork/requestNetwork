@@ -5,7 +5,7 @@ The script runs test cases on the v2 system to give estimates of size and throug
 It is useful to measure and keep track of the size of requests in the storage, and the throughput of the system.
 
 `Size` is the size on IPFS
-`Count per second` is the number of transactions made from the client-side library to a local Request node
+`Count per second` is the number of transactions made from the request-client.js library to a local Request node
 
 ## Usage
 

@@ -25,6 +25,7 @@
           "chai",
           "ecdsa",
           "enum",
+          "epk",
           "eth",
           "ethereum",
           "filename",

@@ -10,18 +10,23 @@ const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack
 
 module.exports = {
   entry: {
-    'ethereum-private-key-signature-provider.min': './src/index.ts',
+    'requestnetwork.min': './src/index.ts',
   },
   mode: 'production',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd',
-    library: 'EthereumPrivateKeySignatureProvider',
+    library: 'RequestNetwork',
     umdNamedDefine: true,
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
+    alias: {
+      // Dedup packages
+      'bn.js': path.resolve(__dirname, '../../node_modules/bn.js'),
+      'ethereumjs-util': path.resolve(__dirname, '../../node_modules/ethereumjs-util'),
+    },
   },
   devtool: 'source-map',
   optimization: {
@@ -53,4 +58,3 @@ module.exports = {
     new DuplicatePackageCheckerPlugin(),
   ],
 };
-/* eslint-enable spellcheck/spell-checker */

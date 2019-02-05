@@ -1,4 +1,4 @@
-// Copy from packages\client-side\src\mock-storage.ts
+// Copy from packages\request-client.js\src\mock-storage.ts
 
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';

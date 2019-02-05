@@ -6,10 +6,10 @@
   },
   "references": [
     { "path": "../advanced-logic" },
-    { "path": "../client-side" },
+    { "path": "../request-client.js" },
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
-    { "path": "../ethereum-private-key-signature-provider" },
+    { "path": "../epk-signature" },
     { "path": "../request-logic" },
     { "path": "../transaction-manager" },
     { "path": "../types" }
