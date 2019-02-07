@@ -13,7 +13,7 @@ npm install @requestnetwork/ethereum-storage
 
 ## Usage
 
-```
+```js
 import EthereumStorage from '@requestnetwork/ethereum-storage';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 
