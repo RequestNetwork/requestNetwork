@@ -4,7 +4,7 @@ references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
   node_image: &node_image
-    image: circleci/node:8
+    image: circleci/node:10
   ipfs_image: &ipfs_image
     image: ipfs/go-ipfs
   ganache_image: &ganache_image
