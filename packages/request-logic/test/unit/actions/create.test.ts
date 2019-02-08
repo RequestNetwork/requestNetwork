@@ -732,6 +732,7 @@ describe('CreateAction', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payerRaw.address,
         },
+        timestamp: TestData.arbitraryTimestamp,
       };
       const actionCreation = CreateAction.format(
         createParams,
