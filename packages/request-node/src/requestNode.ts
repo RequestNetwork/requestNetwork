@@ -4,8 +4,8 @@ import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
 import { getMnemonic } from './config';
-import actionGetTransactionsByTopic from './request/getTransactionsByTopic';
-import actionPersistTransaction from './request/persistTransaction';
+import getTransactionsByTopic from './request/getTransactionsByTopic';
+import persistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
 const NOT_FOUND_MESSAGE =
@@ -87,7 +87,7 @@ class RequestNode {
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return actionPersistTransaction(clientRequest, serverResponse, this.dataAccess);
+        return persistTransaction.actionPersistTransaction(clientRequest, serverResponse, this.dataAccess);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
@@ -97,7 +97,7 @@ class RequestNode {
     // Route for getTransactionsByTopic request
     router.get('/getTransactionsByTopic', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return actionGetTransactionsByTopic(clientRequest, serverResponse, this.dataAccess);
+        return getTransactionsByTopic.actionGetTransactionsByTopic(clientRequest, serverResponse, this.dataAccess);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
