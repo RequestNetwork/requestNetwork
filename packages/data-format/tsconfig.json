@@ -1,17 +1,9 @@
 {
-  "compileOnSave": false,
+  "extends": "../../tsconfig",
   "compilerOptions": {
-    "strict": true,
     "outDir": "dist",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es5",
-    "importHelpers": true,
-    "typeRoots": ["node_modules/@types"],
-    "lib": ["es2015", "dom"]
-  }
+    "rootDir": "src",
+    "resolveJsonModule": true
+  },
+  "include": ["./src/**/*", "./src/format/address.json", "./src/format/**/*.json"]
 }

@@ -78,6 +78,26 @@ jobs:
           root: *working_directory
           paths:
             - packages/data-access/.nyc_output
+  test-data-format:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build data-format'
+          command: 'yarn workspace @requestnetwork/data-format run build'
+      - run:
+          name: 'Lint data-format'
+          command: 'yarn workspace @requestnetwork/data-format run lint'
+      - run:
+          name: 'Test data-format'
+          command: 'yarn workspace @requestnetwork/data-format run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/data-format/.nyc_output
   test-transaction-manager:
     docker:
       - *node_image
@@ -287,6 +307,9 @@ jobs:
           name: 'Coverage data-access'
           command: 'yarn workspace @requestnetwork/data-access run coverage'
       - run:
+          name: 'Coverage data-format'
+          command: 'yarn workspace @requestnetwork/data-format run coverage'
+      - run:
           name: 'Coverage ethereum-storage'
           command: 'yarn workspace @requestnetwork/ethereum-storage run coverage'
       - run:
@@ -325,6 +348,9 @@ workflows:
       - test-data-access:
           requires:
             - build
+      - test-data-format:
+          requires:
+            - build
       - test-ethereum-storage:
           requires:
             - build
@@ -354,6 +380,7 @@ workflows:
           requires:
             - test-request-client.js
             - test-data-access
+            - test-data-format
             - test-transaction-manager
             - test-ethereum-storage
             - test-request-logic

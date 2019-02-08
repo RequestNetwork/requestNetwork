@@ -2,8 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 import DataFormat from '../src/index';
 
+// tslint:disable:no-unused-expression
 describe('Request Network Data Validator', () => {
-  it('should validate a correct invoice 0.0.1 format', () => {
+  it('should validate a correct invoice 0.0.1 format', async () => {
     const dataJson = require('./data/example-valid-0.0.1.json');
     const result = DataFormat.validate(dataJson);
     expect(result.valid, 'result.valid should be true').to.be.true;
@@ -52,5 +53,19 @@ describe('Request Network Data Validator', () => {
     expect(result.errors[0].message, 'result.errors is wrong').to.equal(
       `should have required property \'name\'`,
     );
+  });
+
+  it('should not validate a json with meta.format missing', () => {
+    const dataJson = { meta: {} };
+    const result = DataFormat.validate(dataJson);
+    expect(result.valid, 'result.valid should be false').to.be.false;
+    expect(result.errors[0].message, 'result.errors is wrong').to.equal('meta.format not found');
+  });
+
+  it('should not validate a json with meta.version missing', () => {
+    const dataJson = { meta: { format: 'rnf-invoice' } };
+    const result = DataFormat.validate(dataJson);
+    expect(result.valid, 'result.valid should be false').to.be.false;
+    expect(result.errors[0].message, 'result.errors is wrong').to.equal('meta.version not found');
   });
 });

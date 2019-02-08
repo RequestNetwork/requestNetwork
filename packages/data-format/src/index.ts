@@ -1,8 +1,10 @@
 // JSON Schema of an address
-const schemaAddress = require('./format/address.json');
+import * as schemaAddress from './format/address.json';
 
-// another json validator from https://github.com/epoberezkin/ajv
-const Ajv = require('ajv');
+/* eslint-disable spellcheck/spell-checker */
+// another json validation tool from https://github.com/epoberezkin/ajv
+import * as AJV from 'ajv';
+/* eslint-disable spellcheck/spell-checker */
 
 export default {
   /**
@@ -11,17 +13,22 @@ export default {
    * @return  object.valid == true if the json is valid, object.valid == false and object.errors otherwise.
    */
   validate(data: any): any {
-    const ajv = new Ajv()
+    const validationTool = new AJV()
       .addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
       .addSchema(schemaAddress);
 
     // Check the meta information
-    if (!data.meta) return { valid: false, errors: [{ message: 'meta not found' }] };
-    if (!data.meta.format) return { valid: false, errors: [{ message: 'meta.format not found' }] };
-    if (!data.meta.version)
+    if (!data.meta) {
+      return { valid: false, errors: [{ message: 'meta not found' }] };
+    }
+    if (!data.meta.format) {
+      return { valid: false, errors: [{ message: 'meta.format not found' }] };
+    }
+    if (!data.meta.version) {
       return { valid: false, errors: [{ message: 'meta.version not found' }] };
+    }
 
-    // Try to retreive the schema json
+    // Try to retrieve the schema json
     let schema;
     try {
       schema = require(`./format/${data.meta.format}/${data.meta.format}-${
@@ -32,8 +39,8 @@ export default {
     }
 
     // Compile and Validate
-    var validate = ajv.compile(schema);
-    var valid = validate(data);
+    const validate = validationTool.compile(schema);
+    const valid = validate(data);
 
     // If not valid return the error
     if (!valid) {
