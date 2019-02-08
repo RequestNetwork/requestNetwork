@@ -6,6 +6,7 @@
   },
   "include": ["./src/**/*"],
   "references": [
+    { "path": "../advanced-logic" },
     { "path": "../data-access" },
     { "path": "../epk-signature" },
     { "path": "../request-logic" },

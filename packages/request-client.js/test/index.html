@@ -7,9 +7,6 @@
   </head>
   <body>
     <script>
-      // TODO: remove console.log and use EthereumPrivateKeySignatureProvider
-      console.log(EthereumPrivateKeySignatureProvider);
-
       function getMockData() {
         return {
           signatureInfo: {
@@ -18,7 +15,7 @@
           },
 
           requestCreationHash: {
-            currency: RequestNetwork.Types.RequestLogic.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: RequestNetwork.Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
             expectedAmount: '100000000000',
             payee: {
               type: RequestNetwork.Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -34,31 +31,50 @@
             '0x627306090abab3a6e1400e9345bc60c78a8bef57',
             '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
           ],
+
+          paymentNetwork: {
+            id: RequestNetwork.Types.Extension.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+            parameters: {
+              paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+            },
+          },
         };
       }
 
       (async () => {
-        // Initialize the library in local test mode
-        const requestNetwork = new RequestNetwork.RequestNetwork({ useMockStorage: true });
+        const { paymentNetwork, requestCreationHash, signatureInfo, topics } = getMockData();
 
-        const { requestCreationHash, signatureInfo, topics } = getMockData();
-
-        // Create a request
-        const { request } = await requestNetwork.createRequest(
-          requestCreationHash,
+        // Initialize the signature provider
+        const signatureProvider = new EthereumPrivateKeySignatureProvider.EthereumPrivateKeySignatureProvider(
           signatureInfo,
-          topics,
         );
 
+        // Initialize the library in local test mode
+        const requestNetwork = new RequestNetwork.RequestNetwork({
+          signatureProvider,
+          useMockStorage: true,
+        });
+
+        // Create a request
+        const request = await requestNetwork.createRequest({
+          paymentNetwork,
+          requestInfo: requestCreationHash,
+          signer: requestCreationHash.payee,
+          topics,
+        });
+
         // Retrieve the previously created request from its ID
-        const requestFromId = requestNetwork.fromRequestId(request.requestId);
+        const requestFromId = await requestNetwork.fromRequestId(request.requestId);
+
+        // At any time, you can refresh the request data to check if there are changes
+        // await requestFromId.refresh();
 
         // Get the data of the request
-        const {
-          result: { request: requestData },
-        } = await requestFromId.getData();
+        const { request: requestData, balance, meta } = await requestFromId.getData();
 
-        console.log(requestData);
+        console.log('request: ', requestData);
+        console.log('balance: ', balance);
+        console.log('meta: ', meta);
       })();
     </script>
   </body>

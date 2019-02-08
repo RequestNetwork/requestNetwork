@@ -11,9 +11,9 @@ import RequestLogicCore from './requestLogicCore';
  * Implementation of Request Logic
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
+  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
   private transactionManager: TransactionTypes.ITransactionManager;
   private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
-  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
 
   public constructor(
     transactionManager: TransactionTypes.ITransactionManager,

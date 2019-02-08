@@ -27,6 +27,10 @@ export interface IRequestLogic {
     requestParameters: IRequestLogicReduceExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
+  addExtensionsDataRequest: (
+    requestParameters: IRequestLogicAddExtensionsDataParameters,
+    signerIdentity: Identity.IIdentity,
+  ) => Promise<IRequestLogicReturn>;
   getRequestById: (requestId: RequestLogicRequestId) => Promise<IRequestLogicReturnGetRequestById>;
 }
 

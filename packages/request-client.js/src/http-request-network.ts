@@ -1,9 +1,6 @@
-import { RequestLogic } from '@requestnetwork/request-logic';
-import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   DataAccess as DataAccessTypes,
   SignatureProvider as SignatureProviderTypes,
-  Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import { AxiosRequestConfig } from 'axios';
 import RequestNetwork from './api/request-network';
@@ -46,10 +43,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
       ? new MockDataAccess(new MockStorage())
       : new HttpDataAccess(nodeConnectionConfig);
 
-    const transaction: TransactionTypes.ITransactionManager = new TransactionManager(dataAccess);
-
-    const requestLogic = new RequestLogic(transaction, signatureProvider);
-
-    super(requestLogic);
+    super(dataAccess, signatureProvider);
   }
 }

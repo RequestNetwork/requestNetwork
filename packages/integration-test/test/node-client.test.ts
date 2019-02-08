@@ -37,21 +37,25 @@ describe('Request client using a request node', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
-    const { request } = await requestNetwork.createRequest(
-      requestCreationHash,
-      payeeIdentity,
+    const request = await requestNetwork.createRequest({
+      requestInfo: requestCreationHash,
+      signer: payeeIdentity,
       topics,
-    );
+    });
     assert.instanceOf(request, Request);
     assert.exists(request.requestId);
 
     // Get the data
-    const { result: result1 } = await request.getData();
-    assert.equal(result1.request.expectedAmount, '100000000000');
+    let requestData = await request.getData();
+    assert.equal(requestData.requestInfo && requestData.requestInfo.expectedAmount, '100000000000');
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
 
     // Reduce the amount and get the data
     await request.reduceExpectedAmountRequest('20000000000', payeeIdentity);
-    const { result: result2 } = await request.getData();
-    assert.equal(result2.request.expectedAmount, '80000000000');
+    requestData = await request.getData();
+    assert.equal(requestData.requestInfo && requestData.requestInfo.expectedAmount, '80000000000');
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
   });
 });
