@@ -67,15 +67,15 @@ function applyActionToRequest(
     if (request.state !== Types.REQUEST_LOGIC_STATE.CREATED) {
       throw new Error('A payer cancel need to be done on a request with the state created');
     }
-    requestCopied.state = Types.REQUEST_LOGIC_STATE.CANCELLED;
+    requestCopied.state = Types.REQUEST_LOGIC_STATE.CANCELED;
     return requestCopied;
   }
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
-    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
+    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELED) {
       throw new Error('Cannot cancel an already canceled request');
     }
-    requestCopied.state = Types.REQUEST_LOGIC_STATE.CANCELLED;
+    requestCopied.state = Types.REQUEST_LOGIC_STATE.CANCELED;
     return requestCopied;
   }
 

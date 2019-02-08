@@ -76,7 +76,7 @@ describe('actions/cancel', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -143,7 +143,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
-          Utils.deepCopy(TestData.requestCancelledNoExtension),
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('A payer cancel need to be done on a request with the state created');
     });
@@ -163,7 +163,7 @@ describe('actions/cancel', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -217,7 +217,7 @@ describe('actions/cancel', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -267,7 +267,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
-          Utils.deepCopy(TestData.requestCancelledNoExtension),
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('Cannot cancel an already canceled request');
     });
@@ -432,7 +432,7 @@ describe('actions/cancel', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -491,7 +491,7 @@ describe('actions/cancel', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -547,7 +547,7 @@ describe('actions/cancel', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
       expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELLED);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );

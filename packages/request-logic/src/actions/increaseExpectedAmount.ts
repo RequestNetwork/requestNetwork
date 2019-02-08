@@ -78,7 +78,7 @@ function applyActionToRequest(
   requestCopied.events.push(generateEvent(action, signer));
 
   if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
-    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELLED) {
+    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELED) {
       throw new Error('the request must not be canceled');
     }
     // increase the expected amount and store it as string

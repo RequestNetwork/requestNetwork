@@ -307,7 +307,7 @@ describe('actions/reduceExpectedAmount', () => {
       }).to.throw('the request must have a payee');
     });
 
-    it('cannot reduce expected amount if state === CANCELLED in state', () => {
+    it('cannot reduce expected amount if state === CANCELED in state', () => {
       const actionReduceAmount = ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -320,7 +320,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
-          Utils.deepCopy(TestData.requestCancelledNoExtension),
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
         );
       }).to.throw('the request must not be canceled');
     });

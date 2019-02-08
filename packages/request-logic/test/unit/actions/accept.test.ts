@@ -216,7 +216,7 @@ describe('actions/accept', () => {
         'the request must have a payer',
       );
     });
-    it('cannot apply accept if state === CANCELLED in state', () => {
+    it('cannot apply accept if state === CANCELED in state', () => {
       const action = {
         data: {
           name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
@@ -235,7 +235,7 @@ describe('actions/accept', () => {
       expect(() =>
         AcceptAction.applyActionToRequest(
           action,
-          Utils.deepCopy(TestData.requestCancelledNoExtension),
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('the request state must be created');
     });
@@ -259,7 +259,7 @@ describe('actions/accept', () => {
       expect(() =>
         AcceptAction.applyActionToRequest(
           action,
-          Utils.deepCopy(TestData.requestCancelledNoExtension),
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('the request state must be created');
     });

@@ -147,7 +147,7 @@ export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
   version: CURRENT_VERSION,
 };
 
-export const requestCancelledNoExtension: Types.IRequestLogicRequest = {
+export const requestCanceledNoExtension: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
@@ -186,7 +186,7 @@ export const requestCancelledNoExtension: Types.IRequestLogicRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CANCELLED,
+  state: Types.REQUEST_LOGIC_STATE.CANCELED,
   timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };

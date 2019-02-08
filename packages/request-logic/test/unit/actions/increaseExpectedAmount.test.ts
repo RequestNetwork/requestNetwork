@@ -308,7 +308,7 @@ describe('actions/increaseExpectedAmount', () => {
       ).to.throw('the request must have a payer');
     });
 
-    it('cannot increase expected amount if state === CANCELLED in state', () => {
+    it('cannot increase expected amount if state === CANCELED in state', () => {
       const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
@@ -321,7 +321,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
-          Utils.deepCopy(TestData.requestCancelledNoExtension),
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('the request must not be canceled');
     });

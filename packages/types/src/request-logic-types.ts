@@ -193,7 +193,7 @@ export enum REQUEST_LOGIC_CURRENCY {
 export enum REQUEST_LOGIC_STATE {
   CREATED = 'created',
   ACCEPTED = 'accepted',
-  CANCELLED = 'canceled',
+  CANCELED = 'canceled',
 }
 
 /** Identity roles */
