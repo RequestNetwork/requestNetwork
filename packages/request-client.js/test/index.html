@@ -38,11 +38,22 @@
               paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
             },
           },
+          contentData: {
+            it: 'is',
+            some: 'content',
+            true: true,
+          },
         };
       }
 
       (async () => {
-        const { paymentNetwork, requestCreationHash, signatureInfo, topics } = getMockData();
+        const {
+          contentData,
+          paymentNetwork,
+          requestCreationHash,
+          signatureInfo,
+          topics,
+        } = getMockData();
 
         // Initialize the signature provider
         const signatureProvider = new EthereumPrivateKeySignatureProvider.EthereumPrivateKeySignatureProvider(
@@ -57,6 +68,7 @@
 
         // Create a request
         const request = await requestNetwork.createRequest({
+          contentData,
           paymentNetwork,
           requestInfo: requestCreationHash,
           signer: requestCreationHash.payee,

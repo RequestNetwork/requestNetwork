@@ -204,7 +204,7 @@ describe('index', () => {
 
     const data = await request.refresh();
 
-    expect(data.requestInfo).to.exist;
+    expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
     expect(axiosSpyGet).to.have.been.called.once;
@@ -224,12 +224,10 @@ describe('index', () => {
 
     const data = await request.getData();
 
-    expect(data.requestInfo).to.exist;
+    expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
-    expect(data.requestInfo && data.requestInfo.expectedAmount).to.equal(
-      requestParameters.expectedAmount,
-    );
+    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
   });
 
   it('works with mocked storage and payment network', async () => {
@@ -254,12 +252,34 @@ describe('index', () => {
 
     const data = await request.getData();
 
-    expect(data.requestInfo).to.exist;
+    expect(data).to.exist;
     expect(data.balance).to.exist;
     expect(data.meta).to.exist;
-    expect(data.requestInfo && data.requestInfo.expectedAmount).to.equal(
-      requestParameters.expectedAmount,
-    );
+    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+  });
+
+  it('works with mocked storage and content data', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const contentData = {
+      invoice: true,
+      what: 'ever',
+    };
+
+    const request = await requestNetwork.createRequest({
+      contentData,
+      requestInfo: requestParameters,
+      signer: signerIdentity,
+      topics,
+    });
+
+    const data = await request.getData();
+    expect(data).to.exist;
+    expect(data.balance).to.be.null;
+    expect(data.meta).to.exist;
   });
 
   it('allows to accept a request', async () => {

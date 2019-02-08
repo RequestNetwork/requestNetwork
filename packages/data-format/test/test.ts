@@ -63,9 +63,24 @@ describe('Request Network Data Validator', () => {
   });
 
   it('should not validate a json with meta.version missing', () => {
-    const dataJson = { meta: { format: 'rnf-invoice' } };
+    const dataJson = { meta: { format: 'rnf_invoice' } };
     const result = DataFormat.validate(dataJson);
     expect(result.valid, 'result.valid should be false').to.be.false;
     expect(result.errors[0].message, 'result.errors is wrong').to.equal('meta.version not found');
+  });
+
+  it('should not know a json with meta.format unknown', () => {
+    const dataJson = { meta: { format: 'rnf-unknown' } };
+    expect(DataFormat.isKnownFormat(dataJson), 'should be false').to.be.false;
+  });
+
+  it('should know a valid json', () => {
+    const dataJson = require('./data/example-valid-0.0.1.json');
+    expect(DataFormat.isKnownFormat(dataJson), 'should be true').to.be.true;
+  });
+
+  it('should not know an unvalid json but with format known', () => {
+    const dataJson = { meta: { format: 'rnf_invoice' } };
+    expect(DataFormat.isKnownFormat(dataJson), 'should be true').to.be.true;
   });
 });

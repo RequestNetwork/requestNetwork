@@ -49,4 +49,12 @@ export default {
 
     return { valid: true };
   },
+  /**
+   * Check if the object format is known
+   * @param data the object to check
+   * @return true if the object format is known
+   */
+  isKnownFormat(data: any): boolean {
+    return !!data.meta && data.meta.format === 'rnf_invoice';
+  },
 };

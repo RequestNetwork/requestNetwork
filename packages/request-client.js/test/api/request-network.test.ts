@@ -30,6 +30,39 @@ describe('api/request-network', () => {
     assert.isFunction(requestnetwork.fromRequestId);
   });
 
+  describe('createRequest', () => {
+    it('cannot createRequest() with extensionsData', async () => {
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getTransactionsByTopic(): Promise<any> {
+          return {
+            result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
+          };
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+
+      try {
+        await requestnetwork.createRequest({
+          requestInfo: { extensionsData: ['not expected'] } as any,
+          signer: {} as any,
+        });
+        // tslint:disable-next-line:no-unused-expression
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message, 'exception wrong').to.equal(
+          'extensionsData in request parameters must be empty',
+        );
+      }
+    });
+  });
+
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {

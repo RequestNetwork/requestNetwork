@@ -8,10 +8,10 @@ import {
 export * from '@requestnetwork/types';
 
 /** Interface request data */
-export interface IRequestData {
-  requestInfo: RequestLogicTypes.IRequestLogicRequest | null;
+export interface IRequestData extends RequestLogicTypes.IRequestLogicRequest {
   meta: RequestLogicTypes.IRequestLogicReturnMeta | null;
   balance: IBalanceWithEvents | null;
+  contentData: any;
 }
 
 /** Create request parameters */
@@ -20,6 +20,7 @@ export interface ICreateRequestParameters {
   signer: IdentityTypes.IIdentity;
   paymentNetwork?: IPaymentNetworkCreateParameters;
   topics?: string[];
+  contentData?: any;
 }
 
 /** Object interface to list the payment network id and its module by currency */

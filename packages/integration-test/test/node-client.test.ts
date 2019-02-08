@@ -1,25 +1,20 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { Request, RequestNetwork } from '@requestnetwork/request-client.js';
-import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-} from '@requestnetwork/types';
+import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 
 import { assert } from 'chai';
 import 'mocha';
 
-const payeeIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+const payeeIdentity: Types.Identity.IIdentity = {
+  type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
-const payerIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+const payerIdentity: Types.Identity.IIdentity = {
+  type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 
-const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+const requestCreationHash: Types.RequestLogic.IRequestLogicCreateParameters = {
+  currency: Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,
@@ -28,7 +23,7 @@ const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
 const topics = [payerIdentity.value, payeeIdentity.value];
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+  method: Types.Signature.REQUEST_SIGNATURE_METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 });
 
@@ -47,15 +42,50 @@ describe('Request client using a request node', () => {
 
     // Get the data
     let requestData = await request.getData();
-    assert.equal(requestData.requestInfo && requestData.requestInfo.expectedAmount, '100000000000');
+    assert.equal(requestData.expectedAmount, '100000000000');
     assert.equal(requestData.balance, null);
     assert.exists(requestData.meta);
 
     // Reduce the amount and get the data
     await request.reduceExpectedAmountRequest('20000000000', payeeIdentity);
     requestData = await request.getData();
-    assert.equal(requestData.requestInfo && requestData.requestInfo.expectedAmount, '80000000000');
+    assert.equal(requestData.expectedAmount, '80000000000');
     assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+  });
+
+  it('can create a request with payment network and content data', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      parameters: {
+        // eslint-disable-next-line spellcheck/spell-checker
+        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+      },
+    };
+
+    const contentData = {
+      it: 'is',
+      some: 'content',
+      true: true,
+    };
+
+    // Create a request
+    const request = await requestNetwork.createRequest({
+      contentData,
+      paymentNetwork,
+      requestInfo: requestCreationHash,
+      signer: payeeIdentity,
+      topics,
+    });
+    assert.instanceOf(request, Request);
+    assert.exists(request.requestId);
+
+    // Get the data
+    const requestData = await request.getData();
+    assert.equal(requestData.expectedAmount, '100000000000');
+    assert.exists(requestData.balance);
     assert.exists(requestData.meta);
   });
 });

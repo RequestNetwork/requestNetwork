@@ -10,6 +10,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
+import ContentDataManager from './content-data-manager';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 
@@ -25,6 +26,8 @@ export default class RequestNetwork {
   private transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
+  private contentDataManager: ContentDataManager;
+
   /**
    * Constructor
    *
@@ -39,6 +42,7 @@ export default class RequestNetwork {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
+    this.contentDataManager = new ContentDataManager(this.advancedLogic);
   }
 
   /**
@@ -51,6 +55,7 @@ export default class RequestNetwork {
   public async createRequest(parameters: Types.ICreateRequestParameters): Promise<Request> {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
+    const contentData = parameters.contentData;
     const topics = parameters.topics || [];
 
     if (requestParameters.extensionsData) {
@@ -78,12 +83,24 @@ export default class RequestNetwork {
       }
     }
 
+    if (contentData) {
+      // create the extensions data for the content data
+      copiedRequestParameters.extensionsData.push(
+        this.contentDataManager.createExtensionsDataForCreation(contentData),
+      );
+    }
+
     const {
       result: { requestId },
     } = await this.requestLogic.createRequest(copiedRequestParameters, parameters.signer, topics);
 
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork);
+    const request = new Request(
+      this.requestLogic,
+      requestId,
+      paymentNetwork,
+      this.contentDataManager,
+    );
 
     // refresh the local request data
     await request.refresh();
@@ -112,7 +129,12 @@ export default class RequestNetwork {
     }
 
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork);
+    const request = new Request(
+      this.requestLogic,
+      requestId,
+      paymentNetwork,
+      this.contentDataManager,
+    );
 
     // refresh the local request data
     await request.refresh();

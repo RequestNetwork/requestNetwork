@@ -5,6 +5,10 @@ import {
 
 import * as Types from '../types';
 
+import ContentDataManager from './content-data-manager';
+
+import Utils from '@requestnetwork/utils';
+
 /**
  * Class representing a request.
  * Instances of this class can be accepted, paid, refunded, etc.
@@ -24,6 +28,7 @@ export default class Request {
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private paymentNetwork: Types.IPaymentNetworkManager | null = null;
+  private contentDataManager: ContentDataManager | null;
   /**
    * Data of the request (see request-logic)
    *
@@ -32,6 +37,16 @@ export default class Request {
    * @memberof Request
    */
   private requestData: RequestLogicTypes.IRequestLogicRequest | null = null;
+
+  /**
+   * Content data parsed from the extensions data
+   *
+   * @private
+   * @type {(any | null)}
+   * @memberof Request
+   */
+  private contentData: any | null = null;
+
   /**
    * Meta data of the request (e.g: from where the data have been retrieved)
    *
@@ -59,9 +74,11 @@ export default class Request {
     requestLogic: RequestLogicTypes.IRequestLogic,
     requestId: RequestLogicTypes.RequestLogicRequestId,
     paymentNetwork?: Types.IPaymentNetworkManager | null,
+    contentDataManager?: ContentDataManager | null,
   ) {
     this.requestLogic = requestLogic;
     this.requestId = requestId;
+    this.contentDataManager = contentDataManager || null;
     this.paymentNetwork = paymentNetwork || null;
   }
 
@@ -269,7 +286,12 @@ export default class Request {
    * @memberof Request
    */
   public getData(): Types.IRequestData {
-    return { requestInfo: this.requestData, meta: this.requestMeta, balance: this.balance };
+    const result: Types.IRequestData = Utils.deepCopy(this.requestData);
+    result.meta = this.requestMeta;
+    result.balance = this.balance;
+    result.contentData = this.contentData;
+
+    return result;
   }
 
   /**
@@ -289,6 +311,10 @@ export default class Request {
 
     if (this.paymentNetwork) {
       this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
+    }
+
+    if (this.contentDataManager) {
+      this.contentData = await this.contentDataManager.getContent(requestAndMeta.result.request);
     }
 
     this.requestData = requestAndMeta.result.request;
