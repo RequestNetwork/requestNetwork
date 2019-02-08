@@ -4,6 +4,9 @@ import {
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
 
+// Export all the types to avoid the users to import them beside the present module
+export * from '@requestnetwork/types';
+
 /** Interface request data */
 export interface IRequestData {
   requestInfo: RequestLogicTypes.IRequestLogicRequest | null;
@@ -31,7 +34,7 @@ export interface IPaymentNetworkModuleByType {
 
 /** Interface to create a payment network  */
 export interface IPaymentNetworkCreateParameters {
-  id: ExtensionTypes.EXTENSION_ID;
+  id: PAYMENT_NETWORK_ID;
   parameters: any;
 }
 
@@ -59,4 +62,9 @@ export interface IPaymentNetworkEvent {
 export enum EVENTS_NAMES {
   PAYMENT = 'payment',
   REFUND = 'refund',
+}
+
+/** List of payment networks available (abstract the extensions type) */
+export enum PAYMENT_NETWORK_ID {
+  BITCOIN_ADDRESS_BASED = ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
 }

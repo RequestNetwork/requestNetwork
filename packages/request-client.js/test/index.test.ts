@@ -1,7 +1,6 @@
 const axios = require('axios');
 
 import {
-  Extension as ExtensionTypes,
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
@@ -84,7 +83,7 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -240,7 +239,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },

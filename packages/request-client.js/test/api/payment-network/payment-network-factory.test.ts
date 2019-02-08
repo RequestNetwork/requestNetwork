@@ -27,7 +27,7 @@ describe('api/payment-network/payment-network-factory', () => {
   describe('createPaymentNetwork', () => {
     it('can createPaymentNetwork', async () => {
       const paymentNetworkParameters: Types.IPaymentNetworkCreateParameters = {
-        id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
         parameters: {
           paymentAddress: 'bitcoin address here',
         },
@@ -44,7 +44,7 @@ describe('api/payment-network/payment-network-factory', () => {
 
     it('cannot createPaymentNetwork with currency not handled', async () => {
       const paymentNetworkParameters: Types.IPaymentNetworkCreateParameters = {
-        id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
         parameters: {
           paymentAddress: 'bitcoin address here',
         },
@@ -59,8 +59,8 @@ describe('api/payment-network/payment-network-factory', () => {
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {
-      const paymentNetworkParameters: Types.IPaymentNetworkCreateParameters = {
-        id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
+      const paymentNetworkParameters: any = {
+        id: 'ETHEREUM_MAGIC',
         parameters: {
           paymentAddress: 'bitcoin address here',
         },
@@ -72,7 +72,7 @@ describe('api/payment-network/payment-network-factory', () => {
           paymentNetworkParameters,
         );
       }, 'should throw wrong').to.throw(
-        'the payment network id: content-data is not supported for the currency: BTC',
+        'the payment network id: ETHEREUM_MAGIC is not supported for the currency: BTC',
       );
     });
   });

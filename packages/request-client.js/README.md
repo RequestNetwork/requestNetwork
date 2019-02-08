@@ -15,27 +15,27 @@ npm install @requestnetwork/request-client.js
 ### Usage as commonjs module
 
 ```javascript
-import { RequestNetwork } from '@requestnetwork/request-client.js';
-import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-} from '@requestnetwork/types';
-
-const signatureInfo: SignatureTypes.ISignatureParameters = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+import * as RequestNetwork from '@requestnetwork/request-client.js';
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+// payee information
+const payeeSignatureInfo = {
+  method: RequestNetwork.Types.Signature.REQUEST_SIGNATURE_METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
+const payeeIdentity = {
+  type: RequestNetwork.Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+};
 
-const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+// Signature providers
+const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
+
+const requestInfo: RequestNetwork.Types.RequestLogic.IRequestLogicCreateParameters = {
+  currency: RequestNetwork.Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
   expectedAmount: '100000000000',
-  payee: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-    value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  },
+  payee: payeeIdentity,
   payer: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: RequestNetwork.Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };
@@ -45,9 +45,27 @@ const topics = [
   '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 ];
 
-const requestNetwork = new RequestNetwork();
+const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+  parameters: {
+    paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+  },
+};
 
-const { request } = await requestNetwork.createRequest(requestCreationHash, signatureInfo, topics);
+(async (): Promise<void> => {
+  const requestNetwork = new RequestNetwork.RequestNetwork({
+    signatureProvider,
+  });
+
+  const request = await requestNetwork.createRequest({
+    paymentNetwork,
+    requestInfo,
+    signer: payeeIdentity,
+    topics,
+  });
+
+  console.log(request);
+})();
 ```
 
 ### Usage as UMD module
@@ -60,11 +78,12 @@ A global `RequestNetwork` is exposed:
 <script>
   const requestNetwork = new RequestNetwork.RequestNetwork();
 
-  const { request } = await requestNetwork.createRequest(
-    requestCreationHash,
-    signatureInfo,
+  const { request } = await requestNetwork.createRequest({
+    requestInfo,
+    signer,
+    paymentNetwork,
     topics,
-  );
+  });
 </script>
 ```
 
@@ -98,12 +117,18 @@ We are currently writing the full API reference and more detailed guides. This s
 ### Create a request
 
 ```javascript
-const { request } = await requestNetwork.createRequest(requestCreationHash, signatureInfo, topics);
+const { request } = await requestNetwork.createRequest({
+  requestInfo,
+  signer,
+  paymentNetwork,
+  topics,
+});
 ```
 
-`requestCreationHash`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
+`requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
 `signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
 `topics`: string[]
+`paymentNetwork`: IPaymentNetworkCreateParameters
 
 ### Get a request from its ID
 
