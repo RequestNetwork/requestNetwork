@@ -1,5 +1,6 @@
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
@@ -13,14 +14,15 @@ const signatureInfo: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
+const signerIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+};
 
 const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
   currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
   expectedAmount: '100000000000',
-  payee: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-    value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  },
+  payee: signerIdentity,
   payer: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
@@ -32,8 +34,14 @@ const topics = [
   '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 ];
 
+// Signature provider setup
+const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
+
+// Advanced logic setup
+const advancedLogic = new AdvancedLogic();
+
 /**
- * Sets up the test environment: instanciate the layers, including a mock storage
+ * Sets up the test environment: instantiate the layers, including a mock storage
  *
  * @returns {Promise<RequestLogic>}
  */
@@ -47,7 +55,11 @@ async function setup(): Promise<{ mockStorage: MockStorage; requestLogic: Reques
   // Logic setup
   return {
     mockStorage,
-    requestLogic: new RequestLogic(new TransactionManager(dataAccess), AdvancedLogic),
+    requestLogic: new RequestLogic(
+      new TransactionManager(dataAccess),
+      signatureProvider,
+      advancedLogic,
+    ),
   };
 }
 
@@ -62,6 +74,7 @@ async function setup(): Promise<{ mockStorage: MockStorage; requestLogic: Reques
  * @returns
  */
 async function getSizeOfRequest(
+  // tslint:disable:object-literal-sort-keys
   actions: any = {
     create: true,
     accept: false,
@@ -69,7 +82,7 @@ async function getSizeOfRequest(
     reduce: false,
     content: '',
   },
-) {
+): Promise<number> {
   let _requestCreationHash = requestCreationHash;
   const { requestLogic, mockStorage } = await setup();
   let requestId: string;
@@ -77,29 +90,29 @@ async function getSizeOfRequest(
     if (actions.content) {
       _requestCreationHash = Object.assign({}, requestCreationHash, {
         extensionsData: [
-          AdvancedLogic.extensions.contentData.createCreationAction({ content: actions.content }),
+          advancedLogic.extensions.contentData.createCreationAction({ content: actions.content }),
         ],
       });
     }
     const resultCreation = await requestLogic.createRequest(
       _requestCreationHash,
-      signatureInfo,
+      signerIdentity,
       topics,
     );
     requestId = resultCreation.result.requestId;
     if (actions.accept) {
-      await requestLogic.acceptRequest({ requestId }, signatureInfo);
+      await requestLogic.acceptRequest({ requestId }, signerIdentity);
     }
     if (actions.increase) {
       await requestLogic.increaseExpectedAmountRequest(
         { requestId, deltaAmount: 1000 },
-        signatureInfo,
+        signerIdentity,
       );
     }
     if (actions.reduce) {
       await requestLogic.reduceExpectedAmountRequest(
         { requestId, deltaAmount: 1000 },
-        signatureInfo,
+        signerIdentity,
       );
     }
   }

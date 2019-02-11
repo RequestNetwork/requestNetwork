@@ -1,25 +1,23 @@
-import { RequestNetwork } from '@requestnetwork/request-client.js';
-import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-} from '@requestnetwork/types';
-const Benchmark = require('benchmark');
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
 
-const signatureInfo: SignatureTypes.ISignatureParameters = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+const benchmark = require('benchmark');
+
+const signatureInfo: Types.Signature.ISignatureParameters = {
+  method: Types.Signature.REQUEST_SIGNATURE_METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
+const signerIdentity: Types.Identity.IIdentity = {
+  type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+};
 
-const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+const requestCreationHash: Types.RequestLogic.IRequestLogicCreateParameters = {
+  currency: Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
   expectedAmount: '100000000000',
-  payee: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-    value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  },
+  payee: signerIdentity,
   payer: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };
@@ -28,6 +26,11 @@ const topics = [
   '0x627306090abab3a6e1400e9345bc60c78a8bef57',
   '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 ];
+
+const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
+
+// nonce to avoid requestId collision
+let nonce = 0;
 
 /**
  * Creates several requests and returns how many requests have been created per second
@@ -40,28 +43,33 @@ function getCreateRequestThroughput(
     content: '',
   },
 ): Promise<IBenchmark> {
-  return new Promise(resolve => {
-    const requestNetwork = new RequestNetwork();
+  return new Promise(
+    (resolve): any => {
+      const requestNetwork = new RequestNetwork({ signatureProvider });
 
-    const suite = new Benchmark.Suite();
+      const suite = new benchmark.Suite();
 
-    return suite
-      .add('create request', {
-        defer: true,
-        fn(deferred: any): Promise<any> {
-          // TODO: add actions.content when client-size has the content-data feature
-          if (actions.content) {
-            // This block is only here to keep the argument while making tsc happy
-            actions.content = '';
-          }
-          return requestNetwork
-            .createRequest(requestCreationHash, signatureInfo, topics)
-            .then(() => deferred.resolve());
-        },
-      })
-      .on('complete', (results: any) => resolve(analyzeBenchmark(results.currentTarget[0])))
-      .run();
-  });
+      return suite
+        .add('create request', {
+          defer: true,
+          fn(deferred: any): Promise<any> {
+            // increment to avoid requestId collision
+            requestCreationHash.nonce = nonce++;
+
+            return requestNetwork
+              .createRequest({
+                contentData: actions.content,
+                requestInfo: requestCreationHash,
+                signer: signerIdentity,
+                topics,
+              })
+              .then(() => deferred.resolve());
+          },
+        })
+        .on('complete', (results: any) => resolve(analyzeBenchmark(results.currentTarget[0])))
+        .run();
+    },
+  );
 }
 
 /**
@@ -70,12 +78,12 @@ function getCreateRequestThroughput(
  * @param {*} benchmark
  * @returns
  */
-function analyzeBenchmark(benchmark: any): IBenchmark {
+function analyzeBenchmark(benchmarkToAnalyze: any): IBenchmark {
   const {
     count,
     hz: countPerSec,
     stats: { mean, moe: marginOfError },
-  } = benchmark;
+  } = benchmarkToAnalyze;
   return { count, countPerSec: Math.round(countPerSec), mean, marginOfError };
 }
 

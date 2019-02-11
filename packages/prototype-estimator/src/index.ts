@@ -1,6 +1,7 @@
 import TestExecutor, { ITestCase } from './test-case-executor';
 const longContent = require('./example-valid-0.0.2.json');
 
+// tslint:disable:object-literal-sort-keys
 // The test cases to run
 const testCases: ITestCase[] = [
   {
