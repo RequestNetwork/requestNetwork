@@ -1,8 +1,10 @@
 import 'mocha';
 
 const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const spies = require('chai-spies');
 
+chai.use(chaiAsPromised);
 const expect = chai.expect;
 chai.use(spies);
 
@@ -83,14 +85,9 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(fakeStorage);
 
-      try {
-        await dataAccess.initialize();
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'data from storage do not follow the standard, result is missing',
-        );
-      }
+      await expect(dataAccess.initialize()).to.be.rejectedWith(
+        'data from storage do not follow the standard, result is missing',
+      );
     });
 
     it('cannot initialize with data from getDataId without result', async () => {
@@ -118,14 +115,9 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(fakeStorage);
 
-      try {
-        await dataAccess.initialize();
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'data from storage do not follow the standard, result is missing',
-        );
-      }
+      await expect(dataAccess.initialize()).to.be.rejectedWith(
+        'data from storage do not follow the standard, result is missing',
+      );
     });
 
     it('cannot initialize with content from read not following the standard', async () => {
@@ -152,14 +144,9 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(fakeStorage);
 
-      try {
-        await dataAccess.initialize();
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'data from storage do not follow the standard, storage location: "dataIdBlock2tx"',
-        );
-      }
+      await expect(dataAccess.initialize()).to.be.rejectedWith(
+        'data from storage do not follow the standard, storage location: "dataIdBlock2tx"',
+      );
     });
 
     it('can construct and getTransactionsByTopic', async () => {
@@ -237,12 +224,7 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(fakeStorage);
       await dataAccess.initialize();
 
-      try {
-        await dataAccess.initialize();
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('already initialized');
-      }
+      await expect(dataAccess.initialize()).to.be.rejectedWith('already initialized');
     });
 
     it('cannot getTransactionsByTopic if not initialized', async () => {
@@ -269,12 +251,9 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(fakeStorage);
 
-      try {
-        await dataAccess.getTransactionsByTopic(arbitraryTopic1);
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('DataAccess must be initialized');
-      }
+      await expect(dataAccess.getTransactionsByTopic(arbitraryTopic1)).to.be.rejectedWith(
+        'DataAccess must be initialized',
+      );
     });
   });
 
@@ -333,12 +312,9 @@ describe('data-access', () => {
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
 
-      try {
-        await dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]);
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal('DataAccess must be initialized');
-      }
+      await expect(
+        dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]),
+      ).to.be.rejectedWith('DataAccess must be initialized');
     });
   });
 });
