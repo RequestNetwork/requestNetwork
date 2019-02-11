@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./StorageFeeCollector.sol";
 
@@ -11,7 +11,7 @@ contract RequestHashStorage is StorageFeeCollector {
   /**
    * @param _addressBurner Burner address address
    */
-  constructor(address _addressBurner) 
+  constructor(address payable _addressBurner) 
     StorageFeeCollector(_addressBurner)
     public
   {
@@ -26,7 +26,7 @@ contract RequestHashStorage is StorageFeeCollector {
    * @param _hash Hash of the request to be stored
    * @param _size Size of the request to be stored
    */
-  function submitHash(string _hash, uint256 _size)
+  function submitHash(string calldata _hash, uint256 _size)
     external
     payable
   {
@@ -42,7 +42,7 @@ contract RequestHashStorage is StorageFeeCollector {
 
   // Fallback function returns funds to the sender
   function() 
-    public
+    external
     payable 
   { 
     revert();

@@ -8,7 +8,7 @@ references:
   ipfs_image: &ipfs_image
     image: ipfs/go-ipfs
   ganache_image: &ganache_image
-    image: trufflesuite/ganache-cli:v6.1.3
+    image: trufflesuite/ganache-cli:v6.3.0
     command:
       - '-l'
       - '90000000'

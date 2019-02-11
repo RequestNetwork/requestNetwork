@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -31,7 +31,7 @@ contract StorageFeeCollector is Ownable {
   uint256 public threshold;
 
   // address of the contract that will burn req token
-  address public requestBurnerContract;
+  address payable public requestBurnerContract;
 
   event UpdatedFeeParameters(uint256 minimumFee, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
   event UpdatedMinimumFeeThreshold(uint256 threshold);
@@ -41,7 +41,7 @@ contract StorageFeeCollector is Ownable {
    * @param _requestBurnerContract Address of the contract where to send the ether.
    * This burner contract will have a function that can be called by anyone and will exchange ether to req via Kyber and burn the REQ
    */  
-  constructor(address _requestBurnerContract) 
+  constructor(address payable _requestBurnerContract) 
     public
   {
     requestBurnerContract = _requestBurnerContract;
@@ -82,7 +82,7 @@ contract StorageFeeCollector is Ownable {
     * @notice Set the request burner address.
     * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
     */  
-  function setRequestBurnerContract(address _requestBurnerContract) 
+  function setRequestBurnerContract(address payable _requestBurnerContract) 
     external
     onlyOwner
   {

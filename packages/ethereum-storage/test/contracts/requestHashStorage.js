@@ -1,5 +1,5 @@
-const expectEvent = require('openzeppelin-solidity/test/helpers/expectEvent');
-const shouldFail = require('openzeppelin-solidity/test/helpers/shouldFail');
+const BigNumber = require('bn.js');
+const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
 contract('RequestHashStorage', function(accounts) {
@@ -29,16 +29,16 @@ contract('RequestHashStorage', function(accounts) {
       from: admin,
     });
     expectEvent.inLogs(logs, 'UpdatedFeeParameters', {
-      minimumFee: 100,
-      rateFeesNumerator: 2,
-      rateFeesDenominator: 1,
+      minimumFee: '100',
+      rateFeesNumerator: '2',
+      rateFeesDenominator: '1',
     });
 
     ({ logs } = await requestHashStorage.setMinimumFeeThreshold(100, {
       from: admin,
     }));
     expectEvent.inLogs(logs, 'UpdatedMinimumFeeThreshold', {
-      threshold: 100,
+      threshold: '100',
     });
 
     ({ logs } = await requestHashStorage.setRequestBurnerContract(yetOtherGuy, {
@@ -87,13 +87,13 @@ contract('RequestHashStorage', function(accounts) {
     let { logs } = await requestHashStorage.submitHash(hashExample, 10, { value: 100 });
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample,
-      size: 10,
+      size: '10',
     });
 
     ({ logs } = await requestHashStorage.submitHash(hashExample2, 100, { value: 100 }));
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample2,
-      size: 100,
+      size: '100',
     });
 
     await requestHashStorage.setMinimumFeeThreshold(500, {
@@ -102,7 +102,7 @@ contract('RequestHashStorage', function(accounts) {
     ({ logs } = await requestHashStorage.submitHash(hashExample3, 500, { value: 100 }));
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample3,
-      size: 500,
+      size: '500',
     });
 
     await requestHashStorage.setFeeParameters(300, 1, 1, {
@@ -111,7 +111,7 @@ contract('RequestHashStorage', function(accounts) {
     ({ logs } = await requestHashStorage.submitHash(hashExample3, 500, { value: 300 }));
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample3,
-      size: 500,
+      size: '500',
     });
   });
 
@@ -119,7 +119,7 @@ contract('RequestHashStorage', function(accounts) {
     let { logs } = await requestHashStorage.submitHash(hashExample, 150, { value: 150 });
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample,
-      size: 150,
+      size: '150',
     });
 
     // 200 => 100 + 100*2 = 300
@@ -127,7 +127,7 @@ contract('RequestHashStorage', function(accounts) {
     ({ logs } = await requestHashStorage.submitHash(hashExample2, 200, { value: 300 }));
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample2,
-      size: 200,
+      size: '200',
     });
 
     // 400 => 100 + 300/2 = 250
@@ -135,31 +135,34 @@ contract('RequestHashStorage', function(accounts) {
     ({ logs } = await requestHashStorage.submitHash(hashExample3, 400, { value: 250 }));
     expectEvent.inLogs(logs, 'NewHash', {
       hash: hashExample3,
-      size: 400,
+      size: '400',
     });
   });
 
   it('Burner contract receives funds', async function() {
-    let oldBurnerBalance = web3.eth.getBalance(burner);
+    let oldBurnerBalance = new BigNumber(await web3.eth.getBalance(burner));
     let fee = await requestHashStorage.getFeesAmount(arbitraryAmount);
     await requestHashStorage.submitHash(hashExample, arbitraryAmount, {
       value: fee,
     });
-    let newBurnerBalance = web3.eth.getBalance(burner);
-    assert(newBurnerBalance.eq(oldBurnerBalance.add(fee)), 'Fee not collected by burner');
+    let newBurnerBalance = new BigNumber(await web3.eth.getBalance(burner));
+    assert(
+      new BigNumber(newBurnerBalance).eq(oldBurnerBalance.add(fee)),
+      'Fee not collected by burner',
+    );
 
     // Test with another address for burner
     await requestHashStorage.setRequestBurnerContract(yetOtherGuy, {
       from: admin,
     });
-    oldBurnerBalance = web3.eth.getBalance(yetOtherGuy);
+    oldBurnerBalance = new BigNumber(await web3.eth.getBalance(yetOtherGuy));
     fee = await requestHashStorage.getFeesAmount(arbitraryAmount);
     await requestHashStorage.submitHash(hashExample, arbitraryAmount, {
       value: fee,
     });
-    newBurnerBalance = web3.eth.getBalance(yetOtherGuy);
+    newBurnerBalance = new BigNumber(await web3.eth.getBalance(yetOtherGuy));
     assert(
-      newBurnerBalance.eq(oldBurnerBalance.plus(fee)),
+      newBurnerBalance.eq(oldBurnerBalance.add(fee)),
       'Fee not collected by burner after changing burner address',
     );
   });
