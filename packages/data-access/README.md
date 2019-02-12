@@ -6,6 +6,7 @@ It is the default implementation of the Data Access layer. The Data Access layer
 - Indexing transactions to allow retrieval. In the context of the Request Protocol, examples of transactions are "create a request", "accept a request", "change the expected amount of a request"
 - Batching them into blocks to save on cost
 - Accessing transactions through a local cache
+- Synchronizing with the storage
 
 ## Installation
 
@@ -84,6 +85,10 @@ To save on costs, transactions are batched together. This is the responsibility 
 ### Cache
 
 In order to speed up recovery of transactions, data-access has a local cache of topics=>transaction. This is the reason why this package should be initialized with `dataAccess.initialize()` before being operational.
+
+### Synchronization
+
+Blocks can be added into the storage by other peers running their own data-access instance. Therefore, to remain consistent with the global state of the network, this package need to synchronize with these new blocks.`dataAccess.synchronizeNewDataIds()` allows to synchronize manually with all unsynchronized blocks. The synchronization can also be done automatically, `dataAccess.startAutoSynchronization()` allows to automatically synchronize with new blocks, the interval time between each synchronization can be defined in data-access constructor. `dataAccess.stopAutoSynchronization()` allows to stop automatic synchronization.
 
 ## Architecture
 

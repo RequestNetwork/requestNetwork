@@ -1,8 +1,9 @@
 import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
 
 // Interface of the object to store the data-id indexed by transactions topics
+// We use a Set data structure because dataIds are unique
 interface ITopicStorageId {
-  [key: string]: string[];
+  [key: string]: Set<string>;
 }
 
 /**
@@ -28,8 +29,8 @@ export default class LocalLocationIndex {
     // index the new block with the topics
     for (const topic in blockTopics) {
       if (blockTopics.hasOwnProperty(topic)) {
-        this.topicStorageLocation[topic] = this.topicStorageLocation[topic] || [];
-        this.topicStorageLocation[topic].push(dataId);
+        this.topicStorageLocation[topic] = this.topicStorageLocation[topic] || new Set([]);
+        this.topicStorageLocation[topic].add(dataId);
       }
     }
   }
@@ -42,6 +43,6 @@ export default class LocalLocationIndex {
    * @return string[] list of the location connected to the topic
    */
   public getLocationFromTopic(topic: string): string[] {
-    return this.topicStorageLocation[topic] || [];
+    return Array.from(this.topicStorageLocation[topic] || []);
   }
 }

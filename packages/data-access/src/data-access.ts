@@ -2,7 +2,11 @@ import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@request
 import Utils from '@requestnetwork/utils';
 
 import Block from './block';
+import IntervalTimer from './interval-timer';
 import LocationByTopic from './location-by-topic';
+
+// Default interval time for auto synchronization
+const DEFAULT_INTERVAL_TIME: number = 10000;
 
 /**
  * Implementation of Data-Access layer without encryption
@@ -15,13 +19,22 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // Storage layer
   private storage: StorageTypes.IStorage;
 
+  // The function used to synchronize with the storage should be called periodically
+  // This object allows to handle the periodical call of the function
+  private synchronizationTimer: IntervalTimer;
+
   /**
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
+   * @param number synchronizationIntervalTime Interval time between each synchronization
    */
-  public constructor(storage: StorageTypes.IStorage) {
+  public constructor(storage: StorageTypes.IStorage, synchronizationIntervalTime: number = DEFAULT_INTERVAL_TIME) {
     this.storage = storage;
+    this.synchronizationTimer = new IntervalTimer(
+      (): Promise<void> => this.synchronizeNewDataIds(),
+      synchronizationIntervalTime,
+    );
   }
 
   /**
@@ -36,25 +49,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // initialize the dataId topic with the previous block
     const allDataIdsWithMeta = await this.storage.getAllDataId();
 
-    if (!allDataIdsWithMeta.result) {
-      throw Error(`data from storage do not follow the standard, result is missing`);
-    }
-
-    for (const dataId of allDataIdsWithMeta.result.dataIds) {
-      const resultRead = await this.storage.read(dataId);
-
-      if (!resultRead.result) {
-        throw Error(`data from storage do not follow the standard, result is missing`);
-      }
-
-      const block = JSON.parse(resultRead.result.content);
-      if (!block.header || !block.header.topics) {
-        throw Error(`data from storage do not follow the standard, storage location: "${dataId}"`);
-      }
-
-      // topic the previous dataId with their block topic
-      this.locationByTopic.pushLocationIndexedWithBlockTopics(dataId, block.header.topics);
-    }
+    // check if the data returned by getAllDataId are correct
+    // if yes, the dataIds are indexed with LocationByTopic
+    await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta, this.locationByTopic);
   }
 
   /**
@@ -157,6 +154,41 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
+   * Function to synchronize with the new dataIds on the storage
+   */
+  public async synchronizeNewDataIds(): Promise<void> {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
+
+    // Read new dataIds from storage
+    const newDataIdsWithMeta = await this.storage.getNewDataId();
+
+    // check if the data returned by getNewDataId are correct
+    // if yes, the dataIds are indexed with LocationByTopic
+    await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta, this.locationByTopic);
+  }
+
+  /**
+   * Start to synchronize with the storage automatically
+   * Once called, synchronizeNewDataId function is called periodically
+   */
+  public startAutoSynchronization(): void {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
+
+    this.synchronizationTimer.start();
+  }
+
+  /**
+   * Stop to synchronize with the storage automatically
+   */
+  public stopAutoSynchronization(): void {
+    this.synchronizationTimer.stop();
+  }
+
+  /**
    * Creates an empty LocationByTopic
    *
    * @protected
@@ -167,5 +199,44 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       throw new Error('already initialized');
     }
     this.locationByTopic = new LocationByTopic();
+  }
+
+  /**
+   * Check the format of the dataIds, extract the topics from it and push location indexed with the topics
+   *
+   * @private
+   * @param dataIdsWithMeta dataIds from getAllDataId and getNewDataId from storage functions
+   * @param locationByTopic LocationByTopic object to push location
+   */
+  private async pushLocationsWithTopicsFromDataIds(
+    dataIdsWithMeta:
+      | StorageTypes.IRequestStorageGetAllDataIdReturn
+      | StorageTypes.IRequestStorageGetNewDataIdReturn,
+    locationByTopic: LocationByTopic,
+  ): Promise<void> {
+    if (!dataIdsWithMeta.result) {
+      throw Error(`data from storage do not follow the standard, result is missing`);
+    }
+
+    for (const dataId of dataIdsWithMeta.result.dataIds) {
+      const resultRead = await this.storage.read(dataId);
+
+      if (!resultRead.result) {
+        throw Error(`data from storage do not follow the standard, result is missing`);
+      }
+
+      let block;
+      try {
+        block = JSON.parse(resultRead.result.content);
+      } catch (e) {
+        throw Error(`can't parse content of the dataId: ${e}`);
+      }
+      if (!block.header || !block.header.topics) {
+        throw Error(`data from storage do not follow the standard, storage location: "${dataId}"`);
+      }
+
+      // topic the previous dataId with their block topic
+      locationByTopic.pushLocationIndexedWithBlockTopics(dataId, block.header.topics);
+    }
   }
 }

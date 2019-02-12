@@ -1,4 +1,5 @@
 import 'mocha';
+import * as sinon from 'sinon';
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -59,8 +60,27 @@ const appendResult: StorageTypes.IRequestStorageOneDataIdAndMeta = {
   },
 };
 
+const emptyDataIdresult: StorageTypes.IRequestStorageGetNewDataIdReturn = {
+  meta: {
+    metaDataIds: [],
+  },
+  result: {
+    dataIds: [],
+  },
+};
+
+let clock: sinon.SinonFakeTimers;
+
 /* tslint:disable:no-unused-expression */
 describe('data-access', () => {
+  beforeEach(async () => {
+    clock = sinon.useFakeTimers();
+  });
+
+  afterEach(async () => {
+    sinon.restore();
+  });
+
   describe('constructor and getTransactionsByTopic', () => {
     it('cannot initialize with data from read without result', async () => {
       const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
@@ -71,7 +91,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getAllData: (): any => chai.spy(),
         getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -101,7 +121,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getAllData: (): any => chai.spy(),
         getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -129,7 +149,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getAllData: (): any => chai.spy(),
         getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -149,6 +169,33 @@ describe('data-access', () => {
       );
     });
 
+    it('cannot initialize with content from read not being JSON parsable', async () => {
+      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+        getAllDataIdResult,
+      );
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getAllData: (): any => chai.spy(),
+        getAllDataId: (): any => testTopics,
+        getNewDataId: (): any => emptyDataIdresult,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: any = {
+            meta: {},
+            result: { content: 'This is not JSON parsable' },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      const dataAccess = new DataAccess(fakeStorage);
+
+      await expect(dataAccess.initialize()).to.be.rejectedWith(`can't parse content of the dataId`);
+    });
+
     it('can construct and getTransactionsByTopic', async () => {
       const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
@@ -158,7 +205,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getAllData: (): any => chai.spy(),
         getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
@@ -208,7 +255,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getAllData: (): any => chai.spy(),
         getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
@@ -236,7 +283,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getAllData: (): any => chai.spy(),
         getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
             meta: {},
@@ -263,7 +310,7 @@ describe('data-access', () => {
         append: chai.spy.returns(appendResult),
         getAllData: (): any => chai.spy(),
         getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -307,7 +354,7 @@ describe('data-access', () => {
         append: chai.spy.returns('fakeDataId'),
         getAllData: (): any => chai.spy(),
         getAllDataId: chai.spy.returns([]),
-        getNewDataId: (): any => {},
+        getNewDataId: (): any => emptyDataIdresult,
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -316,5 +363,149 @@ describe('data-access', () => {
         dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]),
       ).to.be.rejectedWith('DataAccess must be initialized');
     });
+  });
+
+  it('synchronizeNewDataId() should throw an error if not initialized', async () => {
+    const fakeStorageSpied: StorageTypes.IStorage = {
+      append: chai.spy.returns(appendResult),
+      getAllData: (): any => chai.spy(),
+      getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
+      getNewDataId: (): any => emptyDataIdresult,
+      read: chai.spy(),
+    };
+    const dataAccess = new DataAccess(fakeStorageSpied);
+
+    await expect(dataAccess.synchronizeNewDataIds()).to.be.rejectedWith(
+      'DataAccess must be initialized',
+    );
+  });
+
+  it('allows to get new transactions after synchronizeNewDataId() call', async () => {
+    const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      getAllDataIdResult,
+    );
+
+    // We create a fakeStorage where getAllDataId() called at initialization returns empty structure
+    // and getNewDataId() returns testTopics
+    const fakeStorage: StorageTypes.IStorage = {
+      append: chai.spy(),
+      getAllData: (): any => chai.spy(),
+      getAllDataId: (): any => emptyDataIdresult,
+      getNewDataId: (): any => testTopics,
+      read: (param: string): any => {
+        const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+          meta: {},
+          result: { content: JSON.stringify(blockWith2tx) },
+        };
+        const result: any = {
+          dataIdBlock2tx: dataIdBlock2txFake,
+        };
+        return result[param];
+      },
+    };
+
+    const dataAccess = new DataAccess(fakeStorage);
+    await dataAccess.initialize();
+
+    expect(
+      await dataAccess.getTransactionsByTopic(arbitraryTopic1),
+      'result with arbitraryTopic1 not empty',
+    ).to.deep.equal({
+      meta: {
+        storageMeta: [],
+        transactionsStorageLocation: [],
+      },
+      result: { transactions: [] },
+    });
+
+    expect(
+      await dataAccess.getTransactionsByTopic(arbitraryTopic2),
+      'result with arbitraryTopic2 not empty',
+    ).to.deep.equal({
+      meta: {
+        storageMeta: [],
+        transactionsStorageLocation: [],
+      },
+      result: {
+        transactions: [],
+      },
+    });
+
+    // Transactions should be available avec synchronization
+    await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
+
+    expect(
+      await dataAccess.getTransactionsByTopic(arbitraryTopic1),
+      'result with arbitraryTopic1 wrong',
+    ).to.deep.equal({
+      meta: {
+        storageMeta: [{}],
+        transactionsStorageLocation: ['dataIdBlock2tx'],
+      },
+      result: { transactions: [transactionMock1] },
+    });
+
+    expect(
+      await dataAccess.getTransactionsByTopic(arbitraryTopic2),
+      'result with arbitraryTopic2 wrong',
+    ).to.deep.equal({
+      meta: {
+        storageMeta: [{}, {}],
+        transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
+      },
+      result: {
+        transactions: [transactionMock1, transactionMock2],
+      },
+    });
+  });
+
+  it('startSynchronizationTimer() should throw an error if not initialized', async () => {
+    const fakeStorageSpied: StorageTypes.IStorage = {
+      append: chai.spy.returns(appendResult),
+      getAllData: (): any => chai.spy(),
+      getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
+      getNewDataId: (): any => emptyDataIdresult,
+      read: chai.spy(),
+    };
+    const dataAccess = new DataAccess(fakeStorageSpied);
+
+    expect(() => dataAccess.startAutoSynchronization()).to.throw('DataAccess must be initialized');
+  });
+
+  it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
+    const fakeStorage: StorageTypes.IStorage = {
+      append: chai.spy(),
+      getAllData: (): any => chai.spy(),
+      getAllDataId: (): any => emptyDataIdresult,
+      getNewDataId: (): any => emptyDataIdresult,
+      read: (param: string): any => {
+        const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+          meta: {},
+          result: { content: JSON.stringify(blockWith2tx) },
+        };
+        const result: any = {
+          dataIdBlock2tx: dataIdBlock2txFake,
+        };
+        return result[param];
+      },
+    };
+
+    const dataAccess = new DataAccess(fakeStorage, 1000);
+    dataAccess.synchronizeNewDataIds = chai.spy();
+    await dataAccess.initialize();
+
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(0);
+
+    dataAccess.startAutoSynchronization();
+    clock.tick(1100);
+
+    // Should have been called once after 1100ms
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
+
+    dataAccess.stopAutoSynchronization();
+    clock.tick(1000);
+
+    // Not called anymore after stopAutoSynchronization()
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
   });
 });
