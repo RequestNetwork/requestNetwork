@@ -3,9 +3,7 @@ import {
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
 import * as Types from '../../../types';
-
 import BitcoinInfoRetriever from './bitcoin-info-retriever';
-
 const bigNumber: any = require('bn.js');
 
 /**
@@ -14,6 +12,9 @@ const bigNumber: any = require('bn.js');
 export default class PaymentNetworkBTCAddressBased {
   private extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased;
 
+  /**
+   * @param advancedLogic Instance of Advanced Logic layer, to get the extension
+   */
   public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased) {
     this.extension = extension;
   }
@@ -23,7 +24,8 @@ export default class PaymentNetworkBTCAddressBased {
    *
    * @param any paymentNetworkCreationParameters
    *
-   * @returns any the extensions data object
+   * @param paymentNetworkCreationParameters Parameters to create the extension
+   * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
     paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedCreationParameters,
@@ -37,9 +39,8 @@ export default class PaymentNetworkBTCAddressBased {
   /**
    * Creates the extensions data to add payment address
    *
-   * @param any parameters
-   *
-   * @returns any the extensions data object
+   * @param Parameters to add payment information
+   * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
     parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddPaymentAddressParameters,
@@ -52,9 +53,8 @@ export default class PaymentNetworkBTCAddressBased {
   /**
    * Creates the extensions data to add refund address
    *
-   * @param any parameters
-   *
-   * @returns any the extensions data object
+   * @param Parameters to add refund information
+   * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
     parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddRefundAddressParameters,
@@ -120,9 +120,9 @@ export default class PaymentNetworkBTCAddressBased {
    * Extracts the balance and events of an address
    *
    * @private
-   * @param address address to check
+   * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @returns
+   * @returns The balance
    */
   private async extractBalanceAndEvents(
     address: string,

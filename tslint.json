@@ -42,7 +42,7 @@
     "restrict-plus-operands": true,
     "prefer-conditional-expression": [true, "check-else-if"],
     "no-unsafe-any": false, // We want it, but it triggers too many errors as of today
-    "no-unnecessary-class": true,
+    "no-unnecessary-class": [true, "allow-static-only"],
     "no-unbound-method": true,
     "no-this-assignment": [true, { "allow-destructuring": true }],
     "no-switch-case-fall-through": true,

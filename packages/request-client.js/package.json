@@ -33,6 +33,7 @@
     "build:umd": "webpack",
     "clean": "shx rm -rf dist",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
+    "docs": "shx rm -rf ./docs && compodoc -p tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
@@ -52,6 +53,7 @@
     "node-fetch": "2.3.0"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "1.1.8",
     "@types/bn.js": "4.11.4",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",

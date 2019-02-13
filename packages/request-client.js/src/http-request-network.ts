@@ -10,18 +10,14 @@ import MockStorage from './mock-storage';
 
 /**
  * Exposes RequestNetwork module configured to use http-data-access.
- *
- * @export
- * @class HttpRequestNetwork
- * @extends {RequestNetwork}
  */
 export default class HttpRequestNetwork extends RequestNetwork {
   /**
    * Creates an instance of HttpRequestNetwork.
-   * @param {AxiosRequestConfig} [options.nodeConnectionConfig={}] Configuration options to connect to the node. Follows Axios configuration format.
-   * @param boolean [options.useMockStorage=false] When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
-   * @param ISignatureProvider [options.signatureProvider] Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
-   * @memberof HttpRequestNetwork
+   *
+   * @param options.nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
+   * @param options.useMockStorage When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
+   * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
    */
   constructor(
     {

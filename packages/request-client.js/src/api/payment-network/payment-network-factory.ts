@@ -3,12 +3,11 @@ import {
   Extension as ExtensionTypes,
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
-
 import * as Types from '../../types';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 
-/** Register the payment network from currency and type */
+/** Register the payment network by currency and type */
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     [ExtensionTypes.EXTENSION_ID
@@ -19,17 +18,17 @@ const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
-export default {
+export default class PaymentNetworkFactory {
   /**
    * Creates a payment network according to payment network creation parameters
    * It throws if the payment network given is not supported by this library
    *
-   * @param {AdvancedLogicTypes.IAdvancedLogic} advancedLogic the advanced-logic layer in charge of the extensions
-   * @param {RequestLogicTypes.REQUEST_LOGIC_CURRENCY} currency the currency of the request
-   * @param {Types.IPaymentNetworkCreateParameters} paymentNetworkCreationParameters creation parameters of payment network
-   * @returns {Types.IPaymentNetwork} the module to handle the payment network
+   * @param advancedLogic the advanced-logic layer in charge of the extensions
+   * @param currency the currency of the request
+   * @param paymentNetworkCreationParameters creation parameters of payment network
+   * @returns the module to handle the payment network
    */
-  createPaymentNetwork(
+  public static createPaymentNetwork(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
     currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY,
     paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
@@ -47,16 +46,17 @@ export default {
     }
 
     return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id](advancedLogic);
-  },
+  }
+
   /**
    * Gets the module to the payment network of a request
    * It throws if the payment network found is not supported by this library
    *
-   * @param {AdvancedLogicTypes.IAdvancedLogic} advancedLogic the advanced-logic layer in charge of the extensions
-   * @param {RequestLogicTypes.IRequestLogicRequest} request the request
-   * @returns {(Types.IPaymentNetwork | null)} the module to handle the payment network or null if no payment network found
+   * @param advancedLogic the advanced-logic layer in charge of the extensions
+   * @param request the request
+   * @returns the module to handle the payment network or null if no payment network found
    */
-  getPaymentNetworkFromRequest(
+  public static getPaymentNetworkFromRequest(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
     request: RequestLogicTypes.IRequestLogicRequest,
   ): Types.IPaymentNetwork | null {
@@ -81,6 +81,5 @@ export default {
     }
 
     return new paymentNetworkForCurrency[paymentNetworkId](advancedLogic);
-  },
-  supportedPaymentNetwork,
-};
+  }
+}

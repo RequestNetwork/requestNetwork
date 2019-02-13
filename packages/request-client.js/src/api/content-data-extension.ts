@@ -1,22 +1,23 @@
+import DataFormat from '@requestnetwork/data-format';
 import {
   AdvancedLogic as AdvancedLogicTypes,
   Extension as ExtensionTypes,
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import DataFormat from '@requestnetwork/data-format';
-
+// Extension ID for this class: content data
 const CONTENT_DATA_EXTENSION_ID = ExtensionTypes.EXTENSION_ID.CONTENT_DATA;
 
 /**
  * Handles the content data of a request
- *
- * @export
- * @class ContentDataExtension
  */
 export default class ContentDataExtension {
+  // Content data extension
   private extension: ExtensionTypes.ContentData.IContentData;
 
+  /**
+   * @param advancedLogic Instance of the advanced logic layer
+   */
   public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
     this.extension = advancedLogic.extensions.contentData;
   }
@@ -24,9 +25,8 @@ export default class ContentDataExtension {
   /**
    * Creates the extensions data for the creation of this extension
    *
-   * @param {*} content content to link to the request
-   * @returns {*} extensionsData ready to be added to the request
-   * @memberof ContentData
+   * @param content Content to link to the request
+   * @returns ExtensionsData ready to be added to the request
    */
   public createExtensionsDataForCreation(content: any): any {
     if (DataFormat.isKnownFormat(content)) {
@@ -46,9 +46,8 @@ export default class ContentDataExtension {
   /**
    * Gets the content from the extensions state
    *
-   * @param {RequestLogicTypes.IRequestLogicRequest} request
-   * @returns {*}
-   * @memberof ContentDataExtension
+   * @param request The request of which we want the content
+   * @returns The content
    */
   public getContent(request: RequestLogicTypes.IRequestLogicRequest): any {
     if (request.extensions[CONTENT_DATA_EXTENSION_ID]) {

@@ -2,12 +2,9 @@ import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
-
-import * as Types from '../types';
-
-import ContentDataExtension from './content-data-extension';
-
 import Utils from '@requestnetwork/utils';
+import * as Types from '../types';
+import ContentDataExtension from './content-data-extension';
 
 /**
  * Class representing a request.
@@ -15,60 +12,44 @@ import Utils from '@requestnetwork/utils';
  * Use the member function `getData` to access the properties of the Request.
  *
  * Requests should be created with `RequestNetwork.createRequest()`.
- *
- * @class Request
  */
 export default class Request {
   /**
    * Unique ID of the request
-   *
-   * @type {RequestLogicTypes.RequestLogicRequestId}
    */
   public readonly requestId: RequestLogicTypes.RequestLogicRequestId;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private paymentNetwork: Types.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
+
   /**
    * Data of the request (see request-logic)
-   *
-   * @private
-   * @type {(RequestLogicTypes.IRequestLogicRequest | null)}
-   * @memberof Request
    */
   private requestData: RequestLogicTypes.IRequestLogicRequest | null = null;
 
   /**
    * Content data parsed from the extensions data
-   *
-   * @private
-   * @type {(any | null)}
-   * @memberof Request
    */
   private contentData: any | null = null;
 
   /**
-   * Meta data of the request (e.g: from where the data have been retrieved)
-   *
-   * @private
-   * @type {(RequestLogicTypes.IRequestLogicReturnMeta | null)}
-   * @memberof Request
+   * Meta data of the request (e.g: where the data have been retrieved from)
    */
   private requestMeta: RequestLogicTypes.IRequestLogicReturnMeta | null = null;
+
   /**
    * Balance and payments/refund events
-   *
-   * @private
-   * @type {(Types.IBalanceWithEvents | null)}
-   * @memberof Request
    */
   private balance: Types.IBalanceWithEvents | null = null;
 
   /**
    * Creates an instance of Request
    *
-   * @param {RequestLogicTypes.IRequestLogic} requestLogic
-   * @param {RequestLogicTypes.RequestLogicRequestId} requestId ID of the Request
+   * @param requestLogic Instance of the request-logic layer
+   * @param requestId ID of the Request
+   * @param paymentNetwork Instance of a payment network to manage the request
+   * @param contentDataManager Instance of content data manager
    */
   constructor(
     requestLogic: RequestLogicTypes.IRequestLogic,
@@ -85,9 +66,9 @@ export default class Request {
   /**
    * Accepts a request
    *
-   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
-   * @param {*} [refundInformation] refund information to add (any because it is specific to the payment network used by the request)
-   * @returns Promise<Request>
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param refundInformation Refund information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
    */
   public async accept(
     signerIdentity: IdentityTypes.IIdentity,
@@ -116,9 +97,9 @@ export default class Request {
   /**
    * Cancels a request
    *
-   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
-   * @param {*} [refundInformation] refund information to add (any because it is specific to the payment network used by the request)
-   * @returns Promise<Request>
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
    */
   public async cancel(
     signerIdentity: IdentityTypes.IIdentity,
@@ -148,11 +129,10 @@ export default class Request {
   /**
    * Increases the expected amount of the request.
    *
-   * @param {RequestLogicTypes.RequestLogicAmount} deltaAmount Amount by which to increase the expected amount
-   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
-   * @param {*} [refundInformation] refund information to add (any because it is specific to the payment network used by the request)
-   * @returns {Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }>}
-   * @memberof Request
+   * @param deltaAmount Amount by which to increase the expected amount
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param refundInformation Refund information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
    */
   public async increaseExpectedAmountRequest(
     deltaAmount: RequestLogicTypes.RequestLogicAmount,
@@ -182,11 +162,10 @@ export default class Request {
   /**
    * Reduces the expected amount of the request. This can be called by the payee e.g. to apply discounts or special offers.
    *
-   * @param {RequestLogicTypes.RequestLogicAmount} deltaAmount Amount by which to reduce the expected amount
-   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
-   * @param {*} [paymentInformation] payment information to add (any because it is specific to the payment network used by the request)
-   * @returns {Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }>}
-   * @memberof Request
+   * @param deltaAmount Amount by which to reduce the expected amount
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param paymentInformation Payment information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
    */
   public async reduceExpectedAmountRequest(
     deltaAmount: RequestLogicTypes.RequestLogicAmount,
@@ -216,12 +195,11 @@ export default class Request {
   }
 
   /**
-   * Add Payment information
+   * Adds payment information
    *
-   * @param {*} paymentInformation payment information to add (any because it is specific to the payment network used by the request)
-   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
-   * @returns {Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }>}
-   * @memberof Request
+   * @param paymentInformation Payment information to add (any because it is specific to the payment network used by the request)
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @returns The updated request
    */
   public async addPaymentInformation(
     paymentInformation: any,
@@ -248,12 +226,11 @@ export default class Request {
   }
 
   /**
-   * Add Refund information
+   * Adds refund information
    *
-   * @param {*} refundInformation refund information to add (any because it is specific to the payment network used by the request)
-   * @param {IdentityTypes.IIdentity} signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
-   * @returns {Promise<{ request: Request; meta: RequestLogicTypes.IRequestLogicReturnMeta }>}
-   * @memberof Request
+   * @param refundInformation Refund information to add (any because it is specific to the payment network used by the request)
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @returns The updated request
    */
   public async addRefundInformation(
     refundInformation: any,
@@ -282,8 +259,7 @@ export default class Request {
   /**
    * Gets the request data
    *
-   * @returns {Types.IRequestData}
-   * @memberof Request
+   * @returns The updated request data
    */
   public getData(): Types.IRequestData {
     const result: Types.IRequestData = Utils.deepCopy(this.requestData);
@@ -297,8 +273,7 @@ export default class Request {
   /**
    * Refresh the request data and balance from the network (check if new events happened - e.g: accept, payments etc..) and return these data
    *
-   * @returns {Promise<Types.IRequestData>} Refreshed request data
-   * @memberof Request
+   * @returns Refreshed request data
    */
   public async refresh(): Promise<Types.IRequestData> {
     const requestAndMeta: RequestLogicTypes.IRequestLogicReturnGetRequestById = await this.requestLogic.getRequestById(

@@ -3,10 +3,6 @@ import Utils from '@requestnetwork/utils';
 
 /**
  * Storage layer implemented with in-memory hashmap, to be used for testing.
- *
- * @export
- * @class MockStorage
- * @implements {StorageTypes.IStorage}
  */
 export default class MockStorage implements StorageTypes.IStorage {
   private data: { [key: string]: string } = {};

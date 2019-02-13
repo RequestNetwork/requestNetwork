@@ -9,17 +9,13 @@ import {
   Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-
+import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 
-import * as Types from '../types';
-
 /**
- * Entry point to create requests.
- *
- * @class RequestNetwork
+ * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
  */
 export default class RequestNetwork {
   private requestLogic: RequestLogicTypes.IRequestLogic;
@@ -29,11 +25,8 @@ export default class RequestNetwork {
   private contentData: ContentDataExtension;
 
   /**
-   * Constructor
-   *
-   * @param {DataAccessTypes.IDataAccess} dataAccess module in charge of the data
-   * @param {SignatureProviderTypes.ISignatureProvider} [signatureProvider] module in charge of the signatures
-   * @memberof RequestNetwork
+   * @param dataAccess instance of data-access layer
+   * @param signatureProvider module in charge of the signatures
    */
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
@@ -48,9 +41,8 @@ export default class RequestNetwork {
   /**
    * Creates a request.
    *
-   * @param requestParameters ICreateRequestParameters parameters to create a request
-   * @memberof RequestNetwork
-   * @returns Promise<Request> the request
+   * @param requestParameters Parameters to create a request
+   * @returns The created request
    */
   public async createRequest(parameters: Types.ICreateRequestParameters): Promise<Request> {
     const requestParameters = parameters.requestInfo;
@@ -61,6 +53,7 @@ export default class RequestNetwork {
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');
     }
+
     // avoid mutation of the parameters
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
@@ -106,9 +99,8 @@ export default class RequestNetwork {
   /**
    * Create a Request instance from an existing Request's ID
    *
-   * @param {RequestLogicTypes.RequestLogicRequestId} requestId The ID of the Request
-   * @returns {Request} the Request
-   * @memberof RequestNetwork
+   * @param requestId The ID of the Request
+   * @returns the Request
    */
   public async fromRequestId(requestId: RequestLogicTypes.RequestLogicRequestId): Promise<Request> {
     const requestAndMeta: RequestLogicTypes.IRequestLogicReturnGetRequestById = await this.requestLogic.getRequestById(

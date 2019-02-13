@@ -7,8 +7,8 @@ export default {
   /**
    * Returns the number of decimals for a currency
    *
-   * @param {RequestLogicTypes.REQUEST_LOGIC_CURRENCY} currency The currency
-   * @returns {number}
+   * @param currency The currency
+   * @returns The number of decimals
    */
   getDecimalsForCurrency(currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY): number {
     const decimals = {
