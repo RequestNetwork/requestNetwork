@@ -78,7 +78,7 @@ A global `RequestNetwork` is exposed:
 <script>
   const requestNetwork = new RequestNetwork.RequestNetwork();
 
-  const { request } = await requestNetwork.createRequest({
+  const request = await requestNetwork.createRequest({
     requestInfo,
     signer,
     paymentNetwork,
@@ -117,7 +117,7 @@ We are currently writing the full API reference and more detailed guides. This s
 ### Create a request
 
 ```javascript
-const { request } = await requestNetwork.createRequest({
+const request = await requestNetwork.createRequest({
   requestInfo,
   signer,
   paymentNetwork,
@@ -175,7 +175,25 @@ await request.reduceExpectedAmountRequest(amount, signatureInfo);
 ### Get a request data
 
 ```javascript
-const { result } = await request.getData();
+const requestData = await request.getData();
+/*
+{ 
+  requestId,
+  currency,
+  expectedAmount,
+  payee,
+  payer,
+  timestamp,
+  extensions,
+  version,
+  events,
+  state,
+  creator,
+  meta,
+  balance,
+  contentData,
+}
+*/
 ```
 
 `result.request`: [IRequestLogicRequest](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L70)

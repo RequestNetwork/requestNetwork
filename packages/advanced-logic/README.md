@@ -26,6 +26,8 @@ todo
 
 This extension allows the payments and the refunds to be made on the Bitcoin blockchain.
 
+Note: this extension can be used with the bitcoin mainnet and testnet.
+
 Specifications of Address based bitcoin payments can be found [here](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md)
 
 ## Contributing

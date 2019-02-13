@@ -24,6 +24,8 @@ One address for the payment and one for the refund must be created and used excl
 | **values.paymentAddress** | String | Bitcoin address for the payment                | Optional      |
 | **values.refundAddress**  | String | Bitcoin address for the refund                 | Optional      |
 
+Note: to use the bitcoin testnet just replace the id by "pn-testnet-bitcoin-address-based"
+
 ---
 
 ## Actions
