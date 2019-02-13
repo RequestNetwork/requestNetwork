@@ -42,7 +42,7 @@ POST /persistTransaction {BODY}
 
 ```
 curl \
-	-d '{"topics":["topicExample"], "transactionData":{data: "someData"}}' \
+	-d '{"topics":["topicExample"], "transactionData":{"data": "someData"}}' \
 	-H "Content-Type: application/json" \
 	-X POST http://localhost:3000/persistTransaction
 ```
