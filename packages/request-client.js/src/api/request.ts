@@ -5,7 +5,7 @@ import {
 
 import * as Types from '../types';
 
-import ContentDataManager from './content-data-manager';
+import ContentDataExtension from './content-data-extension';
 
 import Utils from '@requestnetwork/utils';
 
@@ -27,8 +27,8 @@ export default class Request {
   public readonly requestId: RequestLogicTypes.RequestLogicRequestId;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
-  private paymentNetwork: Types.IPaymentNetworkManager | null = null;
-  private contentDataManager: ContentDataManager | null;
+  private paymentNetwork: Types.IPaymentNetwork | null = null;
+  private contentDataExtension: ContentDataExtension | null;
   /**
    * Data of the request (see request-logic)
    *
@@ -73,12 +73,12 @@ export default class Request {
   constructor(
     requestLogic: RequestLogicTypes.IRequestLogic,
     requestId: RequestLogicTypes.RequestLogicRequestId,
-    paymentNetwork?: Types.IPaymentNetworkManager | null,
-    contentDataManager?: ContentDataManager | null,
+    paymentNetwork?: Types.IPaymentNetwork | null,
+    contentDataExtension?: ContentDataExtension | null,
   ) {
     this.requestLogic = requestLogic;
     this.requestId = requestId;
-    this.contentDataManager = contentDataManager || null;
+    this.contentDataExtension = contentDataExtension || null;
     this.paymentNetwork = paymentNetwork || null;
   }
 
@@ -313,8 +313,8 @@ export default class Request {
       this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
     }
 
-    if (this.contentDataManager) {
-      this.contentData = await this.contentDataManager.getContent(requestAndMeta.result.request);
+    if (this.contentDataExtension) {
+      this.contentData = await this.contentDataExtension.getContent(requestAndMeta.result.request);
     }
 
     this.requestData = requestAndMeta.result.request;

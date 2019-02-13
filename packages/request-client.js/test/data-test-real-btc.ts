@@ -10,9 +10,9 @@ export const parameters: RequestLogicTypes.IRequestLogicCreateParameters = {
   extensionsData: [
     {
       action: 'create',
-      id: 'pn-testnet-bitcoin-address-based',
+      id: 'pn-bitcoin-address-based',
       parameters: {
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+        paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
       },
       version: '0.1.0',
     },
@@ -25,7 +25,7 @@ export const parameters: RequestLogicTypes.IRequestLogicCreateParameters = {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
-  timestamp: 1549953337,
+  timestamp: 1549956270,
 };
 
 export const data = {
@@ -37,7 +37,7 @@ export const data = {
 export const signature: SignatureTypes.ISignature = {
   method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
   value:
-    '0x5bf14cb6c310a48b268c42c9c67deda6edbe57c5eb0a0e1d7fbed1faef8a3b082a3e064efb3f8097fa292e6554b71e811e0df49c70434959c60a36173dd795841b',
+    '0x3f2b20a14eedd019ae4094793be5290c40125af372fc7e3939f0a8c146db32d570c5a304987f0db6e75eede6a65bb2522c39d7696b8013cb8b0f933870bd2a741c',
 };
 export const action: RequestLogicTypes.IRequestLogicAction = {
   data,

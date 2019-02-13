@@ -19,23 +19,23 @@ export const refundTestnetBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
   parameters: {
-    paymentAddress: paymentBTCAddress,
+    paymentAddress: paymentTestnetBTCAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
   parameters: {
-    refundAddress: refundBTCAddress,
+    refundAddress: refundTestnetBTCAddress,
   },
 };
 
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
         name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.CREATE,
@@ -44,21 +44,21 @@ export const extensionStateWithPaymentAfterCreation = {
       {
         name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS,
         parameters: {
-          paymentAddress: paymentBTCAddress,
+          paymentAddress: paymentTestnetBTCAddress,
         },
       },
     ],
-    id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
     values: {
-      paymentAddress: paymentBTCAddress,
+      paymentAddress: paymentTestnetBTCAddress,
     },
     version: '0.1.0',
   },
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
         name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.CREATE,
@@ -67,14 +67,14 @@ export const extensionStateWithRefundAfterCreation = {
       {
         name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS,
         parameters: {
-          refundAddress: refundBTCAddress,
+          refundAddress: refundTestnetBTCAddress,
         },
       },
     ],
-    id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
     values: {
-      refundAddress: refundBTCAddress,
+      refundAddress: refundTestnetBTCAddress,
     },
     version: '0.1.0',
   },

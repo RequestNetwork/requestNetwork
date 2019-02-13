@@ -15,11 +15,10 @@ export default {
 /**
  * Gets BTC address info using blockchain.info public API
  *
- * @param {number} bitcoinNetworkId the Bitcoin network ID: 0 (mainnet) or 3 (testnet)
- * @param {string[]} _address BTC address to check
- * @param {Types.EVENTS_NAMES} eventName Indicates if it is an address for payment or refund
- * @returns {Promise<IBalanceWithEvents>} object containing address info
- * @memberof BitcoinService
+ * @param bitcoinNetworkId the Bitcoin network ID: 0 (mainnet) or 3 (testnet)
+ * @param address BTC address to check
+ * @param eventName Indicates if it is an address for payment or refund
+ * @returns object containing address info
  */
 async function getAddressInfo(
   bitcoinNetworkId: number,
@@ -46,9 +45,9 @@ async function getAddressInfo(
 /**
  * Parses the address information from the data of blockchain.info
  *
- * @param {*} addressInfo data of blockchain.info
- * @param {Types.EVENTS_NAMES} eventName Indicates if it is an address for payment or refund
- * @returns {Types.IBalanceWithEvents}
+ * @param addressInfo data of blockchain.info
+ * @param eventName Indicates if it is an address for payment or refund
+ * @returns
  */
 function parseBlockchainInfo(
   addressInfo: any,
@@ -88,10 +87,10 @@ function parseBlockchainInfo(
 }
 
 /**
- *  Get the BlockchainInfo url to fetch according to the networkId
+ * Get the BlockchainInfo url to fetch according to the networkId
  *
- * @param {number} bitcoinNetworkId the Bitcoin network ID: 0 (mainnet) or 3 (testnet)
- * @returns {string}
+ * @param bitcoinNetworkId the Bitcoin network ID: 0 (mainnet) or 3 (testnet)
+ * @returns url blockchain info
  */
 function getBlockchainInfoUrl(bitcoinNetworkId: number): string {
   if (bitcoinNetworkId === 0) {

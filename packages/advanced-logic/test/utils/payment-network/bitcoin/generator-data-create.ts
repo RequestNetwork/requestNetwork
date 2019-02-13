@@ -8,8 +8,10 @@ import {
 
 // ---------------------------------------------------------------------
 // BTC address
-export const paymentBTCAddress = 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v';
-export const refundBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
+export const paymentBTCAddress = '16uyvigo8mMAfE3Ctr5Rwgab1aWNDPDMZD';
+export const refundBTCAddress = '13etbjB89ZDMfmcctwT5qwMtrJdmWPBN8W';
+export const paymentTestnetBTCAddress = 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v';
+export const refundTestnetBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
 
 // ---------------------------------------------------------------------
 // actions

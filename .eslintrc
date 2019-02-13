@@ -59,6 +59,7 @@
           "tsconfig",
           "typeof",
           "utils",
+          "validator",
           "versioning",
           "webpack",
           "wei"

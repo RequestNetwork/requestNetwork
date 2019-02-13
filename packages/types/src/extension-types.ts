@@ -42,6 +42,7 @@ export interface IExtensionEvent {
 export enum EXTENSION_ID {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
+  PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
 }
 
 /** Type of extensions */

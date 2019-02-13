@@ -39,7 +39,9 @@
   "dependencies": {
     "@requestnetwork/types": "0.1.0",
     "@requestnetwork/utils": "0.1.0",
-    "lodash": "4.17.11"
+    "@types/node": "11.9.0",
+    "lodash": "4.17.11",
+    "wallet-address-validator": "0.2.4"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

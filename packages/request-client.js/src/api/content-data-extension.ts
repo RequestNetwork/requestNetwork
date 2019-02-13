@@ -12,13 +12,13 @@ const CONTENT_DATA_EXTENSION_ID = ExtensionTypes.EXTENSION_ID.CONTENT_DATA;
  * Handles the content data of a request
  *
  * @export
- * @class ContentDataManager
+ * @class ContentDataExtension
  */
-export default class ContentDataManager {
-  private extensionManager: ExtensionTypes.ContentData.IContentDataManager;
+export default class ContentDataExtension {
+  private extension: ExtensionTypes.ContentData.IContentData;
 
   public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
-    this.extensionManager = advancedLogic.extensions.contentData;
+    this.extension = advancedLogic.extensions.contentData;
   }
 
   /**
@@ -40,7 +40,7 @@ export default class ContentDataManager {
       }
     }
 
-    return this.extensionManager.createCreationAction({ content });
+    return this.extension.createCreationAction({ content });
   }
 
   /**
@@ -48,7 +48,7 @@ export default class ContentDataManager {
    *
    * @param {RequestLogicTypes.IRequestLogicRequest} request
    * @returns {*}
-   * @memberof ContentDataManager
+   * @memberof ContentDataExtension
    */
   public getContent(request: RequestLogicTypes.IRequestLogicRequest): any {
     if (request.extensions[CONTENT_DATA_EXTENSION_ID]) {

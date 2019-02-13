@@ -8,11 +8,11 @@ import Utils from '@requestnetwork/utils';
 /**
  * Implementation of the content data extension
  */
-const contentDataManager: ExtensionTypes.ContentData.IContentDataManager = {
+const contentData: ExtensionTypes.ContentData.IContentData = {
   applyActionToExtension,
   createCreationAction,
 };
-export default contentDataManager;
+export default contentData;
 
 const CURRENT_VERSION = '0.1.0';
 

@@ -1,8 +1,8 @@
 import { AdvancedLogic as AdvancedLogicTypes } from '@requestnetwork/types';
 
-import ContentDataManager from '../../src/api/content-data-manager';
+import ContentDataExtension from '../../src/api/content-data-extension';
 
-import * as TestData from './data-for-content-data-manager.test';
+import * as TestData from './data-for-content-data-extension.test';
 
 import 'chai';
 import 'mocha';
@@ -26,21 +26,21 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
 };
 
-let contentDataManager: ContentDataManager;
+let contentDataExtension: ContentDataExtension;
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/content-data-manager', () => {
+describe('api/content-data-extension', () => {
   beforeEach(() => {
     sandbox.restore();
-    contentDataManager = new ContentDataManager(mockAdvancedLogic);
+    contentDataExtension = new ContentDataExtension(mockAdvancedLogic);
   });
   describe('createExtensionsDataForCreation', () => {
     it('can createExtensionsDataForCreation', async () => {
       const content = { what: 'ever', content: 'it', is: true };
       const spy = sandbox.on(mockAdvancedLogic.extensions.contentData, 'createCreationAction');
 
-      contentDataManager.createExtensionsDataForCreation(content);
+      contentDataExtension.createExtensionsDataForCreation(content);
 
       expect(spy).to.have.been.called.once;
     });
@@ -48,7 +48,7 @@ describe('api/content-data-manager', () => {
       const content = TestData;
       const spy = sandbox.on(mockAdvancedLogic.extensions.contentData, 'createCreationAction');
 
-      contentDataManager.createExtensionsDataForCreation(content);
+      contentDataExtension.createExtensionsDataForCreation(content);
 
       expect(spy).to.have.been.called.once;
     });
@@ -56,7 +56,7 @@ describe('api/content-data-manager', () => {
       const content = { meta: { format: 'rnf_invoice', version: '0.0.2' } };
 
       expect(() => {
-        contentDataManager.createExtensionsDataForCreation(content);
+        contentDataExtension.createExtensionsDataForCreation(content);
       }).to.throw();
     });
   });

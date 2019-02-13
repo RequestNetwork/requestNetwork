@@ -10,7 +10,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import ContentDataManager from './content-data-manager';
+import ContentDataExtension from './content-data-extension';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 
@@ -26,7 +26,7 @@ export default class RequestNetwork {
   private transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
-  private contentDataManager: ContentDataManager;
+  private contentData: ContentDataExtension;
 
   /**
    * Constructor
@@ -42,7 +42,7 @@ export default class RequestNetwork {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
-    this.contentDataManager = new ContentDataManager(this.advancedLogic);
+    this.contentData = new ContentDataExtension(this.advancedLogic);
   }
 
   /**
@@ -65,7 +65,7 @@ export default class RequestNetwork {
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
-    let paymentNetwork: Types.IPaymentNetworkManager | null = null;
+    let paymentNetwork: Types.IPaymentNetwork | null = null;
     if (paymentNetworkCreationParameters) {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork(
         this.advancedLogic,
@@ -86,7 +86,7 @@ export default class RequestNetwork {
     if (contentData) {
       // create the extensions data for the content data
       copiedRequestParameters.extensionsData.push(
-        this.contentDataManager.createExtensionsDataForCreation(contentData),
+        this.contentData.createExtensionsDataForCreation(contentData),
       );
     }
 
@@ -95,12 +95,7 @@ export default class RequestNetwork {
     } = await this.requestLogic.createRequest(copiedRequestParameters, parameters.signer, topics);
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      requestId,
-      paymentNetwork,
-      this.contentDataManager,
-    );
+    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
 
     // refresh the local request data
     await request.refresh();
@@ -120,7 +115,7 @@ export default class RequestNetwork {
       requestId,
     );
 
-    let paymentNetwork: Types.IPaymentNetworkManager | null = null;
+    let paymentNetwork: Types.IPaymentNetwork | null = null;
     if (requestAndMeta.result.request) {
       paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
         this.advancedLogic,
@@ -129,12 +124,7 @@ export default class RequestNetwork {
     }
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      requestId,
-      paymentNetwork,
-      this.contentDataManager,
-    );
+    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
 
     // refresh the local request data
     await request.refresh();

@@ -1,8 +1,6 @@
 import 'mocha';
 
-import bitcoinAddressBasedManager from '../../../../src/extensions/payment-network/bitcoin/address-based';
-
-import { Extension as ExtensionTypes } from '@requestnetwork/types';
+import mainnetBitcoinAddressBasedManager from '../../../../src/extensions/payment-network/bitcoin/mainnet-address-based';
 
 import Utils from '@requestnetwork/utils';
 
@@ -13,17 +11,14 @@ import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/generator
 import * as TestData from '../../../utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
-describe('extensions/payment-network/bitcoin/address-based', () => {
+describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund', () => {
       expect(
-        bitcoinAddressBasedManager.createCreationAction(
-          ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-          {
-            paymentAddress: DataBTCCreate.paymentBTCAddress,
-            refundAddress: DataBTCCreate.refundBTCAddress,
-          },
-        ),
+        mainnetBitcoinAddressBasedManager.createCreationAction({
+          paymentAddress: DataBTCCreate.paymentBTCAddress,
+          refundAddress: DataBTCCreate.refundBTCAddress,
+        }),
         'extensionsdata is wrong',
       ).to.deep.equal(DataBTCCreate.actionCreationWithPaymentAndRefund);
     });
@@ -32,12 +27,9 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       expect(
         Utils.deepCopy(
-          bitcoinAddressBasedManager.createCreationAction(
-            ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-            {
-              paymentAddress: DataBTCCreate.paymentBTCAddress,
-            },
-          ),
+          mainnetBitcoinAddressBasedManager.createCreationAction({
+            paymentAddress: DataBTCCreate.paymentBTCAddress,
+          }),
         ),
         'extensionsdata is wrong',
       ).to.deep.equal(DataBTCCreate.actionCreationOnlyPayment);
@@ -46,12 +38,9 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       expect(
         Utils.deepCopy(
-          bitcoinAddressBasedManager.createCreationAction(
-            ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-            {
-              refundAddress: DataBTCCreate.refundBTCAddress,
-            },
-          ),
+          mainnetBitcoinAddressBasedManager.createCreationAction({
+            refundAddress: DataBTCCreate.refundBTCAddress,
+          }),
         ),
         'extensionsdata is wrong',
       ).to.deep.equal(DataBTCCreate.actionCreationOnlyRefund);
@@ -59,42 +48,61 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
     it('can createCreationAction with nothing', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       expect(
-        Utils.deepCopy(
-          bitcoinAddressBasedManager.createCreationAction(
-            ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-            {},
-          ),
-        ),
+        Utils.deepCopy(mainnetBitcoinAddressBasedManager.createCreationAction({})),
         'extensionsdata is wrong',
       ).to.deep.equal(DataBTCCreate.actionCreationEmpty);
+    });
+
+    it('cannot createCreationAction with payment address not a mainnet bitcoin address', () => {
+      expect(() => {
+        mainnetBitcoinAddressBasedManager.createCreationAction({
+          paymentAddress: DataBTCCreate.paymentTestnetBTCAddress,
+        });
+      }, 'must throw').to.throw('paymentAddress is not a valid bitcoin address');
+    });
+    it('cannot createCreationAction with refund address not a mainnet bitcoin address', () => {
+      expect(() => {
+        mainnetBitcoinAddressBasedManager.createCreationAction({
+          refundAddress: DataBTCCreate.refundTestnetBTCAddress,
+        });
+      }, 'must throw').to.throw('refundAddress is not a valid bitcoin address');
     });
   });
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
       expect(
-        bitcoinAddressBasedManager.createAddPaymentAddressAction(
-          ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-          {
-            paymentAddress: DataBTCAddPaymentAddress.paymentBTCAddress,
-          },
-        ),
+        mainnetBitcoinAddressBasedManager.createAddPaymentAddressAction({
+          paymentAddress: DataBTCAddPaymentAddress.paymentBTCAddress,
+        }),
         'extensionsdata is wrong',
       ).to.deep.equal(DataBTCAddPaymentAddress.actionAddPaymentAddress);
+    });
+
+    it('cannot createAddPaymentAddressAction with payment address not a mainnet bitcoin address', () => {
+      expect(() => {
+        mainnetBitcoinAddressBasedManager.createAddPaymentAddressAction({
+          paymentAddress: DataBTCCreate.paymentTestnetBTCAddress,
+        });
+      }, 'must throw').to.throw('paymentAddress is not a valid bitcoin address');
     });
   });
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
       expect(
-        bitcoinAddressBasedManager.createAddRefundAddressAction(
-          ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-          {
-            refundAddress: DataBTCAddPaymentAddress.refundBTCAddress,
-          },
-        ),
+        mainnetBitcoinAddressBasedManager.createAddRefundAddressAction({
+          refundAddress: DataBTCAddPaymentAddress.refundBTCAddress,
+        }),
         'extensionsdata is wrong',
       ).to.deep.equal(DataBTCAddPaymentAddress.actionAddRefundAddress);
+    });
+    it('cannot createAddRefundAddressAction with payment address not a mainnet bitcoin address', () => {
+      expect(() => {
+        mainnetBitcoinAddressBasedManager.createAddRefundAddressAction({
+          refundAddress: DataBTCCreate.refundTestnetBTCAddress,
+        });
+      }, 'must throw').to.throw('refundAddress is not a valid bitcoin address');
     });
   });
 
@@ -104,7 +112,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
         const unknownAction = Utils.deepCopy(DataBTCAddPaymentAddress.actionAddPaymentAddress);
         unknownAction.action = 'unknown action';
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedEmpty.extensions,
             unknownAction,
             DataBTCCreate.requestStateCreatedEmpty,
@@ -116,7 +124,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
         const unknownAction = Utils.deepCopy(DataBTCAddPaymentAddress.actionAddPaymentAddress);
         unknownAction.id = 'unknown id';
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedEmpty.extensions,
             unknownAction,
             DataBTCCreate.requestStateCreatedEmpty,
@@ -131,7 +139,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
     describe('applyActionToExtension/create', () => {
       it('can applyActionToExtensions of creation', () => {
         expect(
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateNoExtensions.extensions,
             DataBTCCreate.actionCreationWithPaymentAndRefund,
             DataBTCCreate.requestStateNoExtensions,
@@ -140,10 +148,9 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
           'new extension state wrong',
         ).to.deep.equal(DataBTCCreate.extensionStateWithPaymentAndRefund);
       });
-
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund.extensions,
             DataBTCCreate.actionCreationWithPaymentAndRefund,
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund,
@@ -153,7 +160,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       });
       it('cannot applyActionToExtensions of creation on a not BTC request', () => {
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             TestData.requestCreatedNoExtension.extensions,
             DataBTCCreate.actionCreationWithPaymentAndRefund,
             TestData.requestCreatedNoExtension,
@@ -161,12 +168,44 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
           );
         }, 'must throw').to.throw('This extension can be used only on BTC request');
       });
+
+      it('cannot applyActionToExtensions of creation with payment address not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataBTCCreate.actionCreationWithPaymentAndRefund,
+        );
+        testnetPaymentAddress.parameters.paymentAddress =
+          DataBTCAddPaymentAddress.paymentTestnetBTCAddress;
+        expect(() => {
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
+            DataBTCCreate.requestStateNoExtensions.extensions,
+            testnetPaymentAddress,
+            DataBTCCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+          );
+        }, 'must throw').to.throw('paymentAddress is not a valid bitcoin address');
+      });
+
+      it('cannot applyActionToExtensions of creation with refund address not valid', () => {
+        const testnetRefundAddress = Utils.deepCopy(
+          DataBTCCreate.actionCreationWithPaymentAndRefund,
+        );
+        testnetRefundAddress.parameters.refundAddress =
+          DataBTCAddPaymentAddress.refundTestnetBTCAddress;
+        expect(() => {
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
+            DataBTCCreate.requestStateNoExtensions.extensions,
+            testnetRefundAddress,
+            DataBTCCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+          );
+        }, 'must throw').to.throw('refundAddress is not a valid bitcoin address');
+      });
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {
       it('can applyActionToExtensions of addPaymentAddress', () => {
         expect(
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedEmpty.extensions,
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             DataBTCCreate.requestStateCreatedEmpty,
@@ -177,7 +216,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       });
       it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateNoExtensions.extensions,
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             DataBTCCreate.requestStateNoExtensions,
@@ -189,7 +228,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
         const previousState = Utils.deepCopy(DataBTCCreate.requestStateCreatedEmpty);
         previousState.payee = undefined;
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             previousState.extensions,
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             previousState,
@@ -200,7 +239,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
         const previousState = Utils.deepCopy(DataBTCCreate.requestStateCreatedEmpty);
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             previousState.extensions,
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             previousState,
@@ -210,7 +249,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       });
       it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund.extensions,
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund,
@@ -218,12 +257,27 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
           );
         }, 'must throw').to.throw(`Payment address already given`);
       });
+      it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataBTCAddPaymentAddress.actionAddPaymentAddress,
+        );
+        testnetPaymentAddress.parameters.paymentAddress =
+          DataBTCAddPaymentAddress.paymentTestnetBTCAddress;
+        expect(() => {
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
+            DataBTCCreate.requestStateCreatedEmpty.extensions,
+            testnetPaymentAddress,
+            DataBTCCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+          );
+        }, 'must throw').to.throw('paymentAddress is not a valid bitcoin address');
+      });
     });
 
     describe('applyActionToExtension/addRefundAddress', () => {
       it('can applyActionToExtensions of addRefundAddress', () => {
         expect(
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedEmpty.extensions,
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             DataBTCCreate.requestStateCreatedEmpty,
@@ -234,7 +288,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       });
       it('cannot applyActionToExtensions of addRefundAddress without a previous state', () => {
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateNoExtensions.extensions,
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             DataBTCCreate.requestStateNoExtensions,
@@ -246,7 +300,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
         const previousState = Utils.deepCopy(DataBTCCreate.requestStateCreatedEmpty);
         previousState.payer = undefined;
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             previousState.extensions,
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             previousState,
@@ -257,7 +311,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
         const previousState = Utils.deepCopy(DataBTCCreate.requestStateCreatedEmpty);
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             previousState.extensions,
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             previousState,
@@ -267,13 +321,28 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       });
       it('cannot applyActionToExtensions of addRefundAddress with payment address already given', () => {
         expect(() => {
-          bitcoinAddressBasedManager.applyActionToExtension(
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund.extensions,
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund,
             TestData.payerRaw.identity,
           );
         }, 'must throw').to.throw(`Refund address already given`);
+      });
+      it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataBTCAddPaymentAddress.actionAddRefundAddress,
+        );
+        testnetPaymentAddress.parameters.refundAddress =
+          DataBTCAddPaymentAddress.paymentTestnetBTCAddress;
+        expect(() => {
+          mainnetBitcoinAddressBasedManager.applyActionToExtension(
+            DataBTCCreate.requestStateCreatedEmpty.extensions,
+            testnetPaymentAddress,
+            DataBTCCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+          );
+        }, 'must throw').to.throw('refundAddress is not a valid bitcoin address');
       });
     });
   });

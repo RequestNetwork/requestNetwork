@@ -40,7 +40,7 @@ export interface IPaymentNetworkCreateParameters {
 }
 
 /** Interface of the class to manage a payment network  */
-export interface IPaymentNetworkManager {
+export interface IPaymentNetwork {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => any;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
@@ -68,4 +68,6 @@ export enum EVENTS_NAMES {
 /** List of payment networks available (abstract the extensions type) */
 export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.EXTENSION_ID
+    .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
 }

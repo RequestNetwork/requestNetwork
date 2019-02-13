@@ -1,7 +1,7 @@
 import * as Extension from '../extension-types';
 
 /** Manager of the extension */
-export interface IBitcoinAddressBasedManager extends Extension.IExtension {
+export interface IBitcoinAddressBased extends Extension.IExtension {
   createAddPaymentAddressAction: (
     creationParameters: IPnBtcAddressBasedAddPaymentAddressParameters,
   ) => Extension.IExtensionAction;
@@ -11,6 +11,7 @@ export interface IBitcoinAddressBasedManager extends Extension.IExtension {
   createCreationAction: (
     creationParameters: IPnBtcAddressBasedCreationParameters,
   ) => Extension.IExtensionAction;
+  isValidAddress: (address: string) => boolean;
 }
 
 /** Extension values of the extension */

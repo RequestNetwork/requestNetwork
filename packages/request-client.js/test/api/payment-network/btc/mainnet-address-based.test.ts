@@ -1,6 +1,6 @@
 import { AdvancedLogic as AdvancedLogicTypes } from '@requestnetwork/types';
 
-import BTCAddressedBased from '../../../../src/api/payment-network/btc/address-based';
+import BTCAddressedBased from '../../../../src/api/payment-network/btc/mainnet-address-based';
 
 import 'chai';
 import 'mocha';
@@ -34,7 +34,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/btc/address-based', () => {
+describe('api/btc/mainnet-address-based', () => {
   beforeEach(() => {
     sandbox.restore();
     btcAddressedBased = new BTCAddressedBased(mockAdvancedLogic);
@@ -61,14 +61,14 @@ describe('api/btc/address-based', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
+  it('can createExtensionsDataForAddRefundInformation', async () => {
     const spy = sandbox.on(
       mockAdvancedLogic.extensions.addressBasedBtc,
       'createAddRefundAddressAction',
     );
 
     btcAddressedBased.createExtensionsDataForAddRefundInformation({
-      paymentAddress: 'address bitcoin',
+      refundAddress: 'address bitcoin',
     });
 
     expect(spy).to.have.been.called.once;

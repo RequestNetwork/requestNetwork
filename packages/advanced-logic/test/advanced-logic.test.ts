@@ -3,6 +3,7 @@ import 'mocha';
 import { AdvancedLogic as Types, Extension as ExtensionTypes } from '@requestnetwork/types';
 
 import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
+import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create';
 
 import Utils from '@requestnetwork/utils';
 
@@ -59,6 +60,27 @@ describe('advanced-logic.ts', () => {
         requestCreatedNoExtensionBefore,
         'previous extension state must not change',
       ).to.deep.equal(DataBTCCreate.requestStateNoExtensions);
+    });
+
+    it('can applyActionToExtensions with pn testnet bitcoin address based', () => {
+      const requestCreatedNoExtensionBefore = Utils.deepCopy(
+        DataTestnetBTCCreate.requestStateNoExtensions,
+      );
+
+      const newExtensionState = advancedLogic.applyActionToExtensions(
+        requestCreatedNoExtensionBefore.extensions,
+        DataTestnetBTCCreate.actionCreationWithPaymentAndRefund,
+        requestCreatedNoExtensionBefore,
+        TestData.payeeRaw.identity,
+      );
+
+      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
+        DataTestnetBTCCreate.extensionStateWithPaymentAndRefund,
+      );
+      expect(
+        requestCreatedNoExtensionBefore,
+        'previous extension state must not change',
+      ).to.deep.equal(DataTestnetBTCCreate.requestStateNoExtensions);
     });
 
     it('cannot apply unknown extension to extensions state', () => {

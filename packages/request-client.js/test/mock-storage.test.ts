@@ -12,6 +12,16 @@ describe('mock-storage', () => {
     assert.equal(meta.storageType, StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
   });
 
+  it('cannot append no data ', async () => {
+    const storage = new MockStorage();
+    try {
+      await storage.append(null as any);
+      assert.fail();
+    } catch (e) {
+      assert.equal(e.message, 'Error: no content provided');
+    }
+  });
+
   it('can read data', async () => {
     const storage = new MockStorage();
     const { result: resultAppend } = await storage.append('stuff');
@@ -20,6 +30,16 @@ describe('mock-storage', () => {
 
     assert.isString(resultRead.content, 'stuff');
     assert.equal(meta.storageType, StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
+  });
+
+  it('cannot read no data ', async () => {
+    const storage = new MockStorage();
+    try {
+      await storage.read(null as any);
+      assert.fail();
+    } catch (e) {
+      assert.equal(e.message, 'No id provided');
+    }
   });
 
   it('can get all data Ids', async () => {
@@ -64,5 +84,17 @@ describe('mock-storage', () => {
 
     const { result: resultAllDataId } = await storage.getAllDataId();
     assert.equal(resultAllDataId.dataIds.length, 1);
+  });
+
+  it('can get all data Ids', async () => {
+    const storage = new MockStorage();
+    const { result: resultAppend1 } = await storage.append('stuff1');
+    const { result: resultAppend2 } = await storage.append('stuff2');
+
+    const { result, meta } = await storage.getNewDataId();
+
+    assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
+    assert.deepEqual(result.dataIds, []);
+    assert.deepEqual(meta.metaDataIds, []);
   });
 });

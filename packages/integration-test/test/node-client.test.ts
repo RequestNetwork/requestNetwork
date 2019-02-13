@@ -58,7 +58,7 @@ describe('Request client using a request node', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         // eslint-disable-next-line spellcheck/spell-checker
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',

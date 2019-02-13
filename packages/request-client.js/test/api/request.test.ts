@@ -38,7 +38,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   },
 };
 
-const mockPaymentNetwork: Types.IPaymentNetworkManager = {
+const mockPaymentNetwork: Types.IPaymentNetwork = {
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },

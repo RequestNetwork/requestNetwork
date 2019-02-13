@@ -12,6 +12,7 @@ const mockAdapter = require('axios-mock-adapter');
 import { Request, RequestNetwork } from '../src/index';
 import * as Types from '../src/types';
 import * as TestData from './data-test';
+import * as TestDataRealBTC from './data-test-real-btc';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -83,9 +84,40 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+      },
+    };
+
+    await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParameters,
+      signer: signerIdentity,
+      topics,
+    });
+    expect(spy).to.have.been.called.once;
+  });
+
+  it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
+    const mock = new mockAdapter(axios);
+
+    const callback = (config: any): any => {
+      expect(config.baseURL).to.equal('http://localhost:3000');
+      return [200, {}];
+    };
+    const spy = chai.spy(callback);
+    mock.onPost('/persistTransaction').reply(spy);
+    mock
+      .onGet('/getTransactionsByTopic')
+      .reply(200, { result: { transactions: [{ data: JSON.stringify(TestDataRealBTC.action) }] } });
+
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      parameters: {
+        paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
       },
     };
 
@@ -237,7 +269,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },

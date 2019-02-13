@@ -4,7 +4,7 @@ import {
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import BTCAddressedBased from '../../../src/api/payment-network/btc/address-based';
+import BTCAddressedBased from '../../../src/api/payment-network/btc/mainnet-address-based';
 
 import { expect } from 'chai';
 

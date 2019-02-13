@@ -1,5 +1,4 @@
 import {
-  AdvancedLogic as AdvancedLogicTypes,
   Extension as ExtensionTypes,
   RequestLogic as RequestLogicTypes,
 } from '@requestnetwork/types';
@@ -9,78 +8,97 @@ import BitcoinInfoRetriever from './bitcoin-info-retriever';
 
 const bigNumber: any = require('bn.js');
 
-const PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED =
-  ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED;
 /**
  * Entry point to handle payment networks with BTC based address
- *
- * @class PaymentNetworkBTCAddressBased
  */
-export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetworkManager {
-  private extensionManager: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBasedManager;
+export default class PaymentNetworkBTCAddressBased {
+  private extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased;
 
-  public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
-    this.extensionManager = advancedLogic.extensions.addressBasedBtc;
+  public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased) {
+    this.extension = extension;
   }
 
-  /** Creates the extensions data for the creation of this extension
+  /**
+   * Creates the extensions data for the creation of this extension
    *
    * @param any paymentNetworkCreationParameters
    *
    * @returns any the extensions data object
    */
-  public createExtensionsDataForCreation(paymentNetworkCreationParameters: any): any {
-    return this.extensionManager.createCreationAction({
+  public createExtensionsDataForCreation(
+    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedCreationParameters,
+  ): ExtensionTypes.IExtensionAction {
+    return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
     });
   }
 
-  /** Creates the extensions data to add payment address
+  /**
+   * Creates the extensions data to add payment address
    *
    * @param any parameters
    *
    * @returns any the extensions data object
    */
-  public createExtensionsDataForAddPaymentInformation(parameters: any): any {
-    return this.extensionManager.createAddPaymentAddressAction({
+  public createExtensionsDataForAddPaymentInformation(
+    parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddPaymentAddressParameters,
+  ): ExtensionTypes.IExtensionAction {
+    return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
 
-  /** Creates the extensions data to add refund address
+  /**
+   * Creates the extensions data to add refund address
    *
    * @param any parameters
    *
    * @returns any the extensions data object
    */
-  public createExtensionsDataForAddRefundInformation(parameters: any): any {
-    return this.extensionManager.createAddRefundAddressAction({
+  public createExtensionsDataForAddRefundInformation(
+    parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddRefundAddressParameters,
+  ): ExtensionTypes.IExtensionAction {
+    return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
 
+  /**
+   * Gets the balance and the payment/refund events
+   *
+   * @param request the request to check
+   * @param paymentNetworkId payment network id
+   * @param networkId bitcoin network id
+   * @returns the balance and the payment/refund events
+   */
   public async getBalance(
     request: RequestLogicTypes.IRequestLogicRequest,
+    paymentNetworkId: ExtensionTypes.EXTENSION_ID,
+    networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
-    if (!request.extensions[PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]) {
-      throw new Error(
-        `The request do not have the extension : ̀${PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED}`,
-      );
+    if (!request.extensions[paymentNetworkId]) {
+      throw new Error(`The request do not have the extension : ̀${paymentNetworkId}`);
     }
-    const paymentAddress =
-      request.extensions[PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED].values.paymentAddress;
-    const refundAddress =
-      request.extensions[PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED].values.refundAddress;
+    const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
+    const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
 
     let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
-      payments = await this.extractBalanceAndEvents(paymentAddress, Types.EVENTS_NAMES.PAYMENT);
+      payments = await this.extractBalanceAndEvents(
+        paymentAddress,
+        Types.EVENTS_NAMES.PAYMENT,
+        networkId,
+      );
     }
 
     let refunds: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
-      refunds = await this.extractBalanceAndEvents(refundAddress, Types.EVENTS_NAMES.REFUND);
+      refunds = await this.extractBalanceAndEvents(
+        refundAddress,
+        Types.EVENTS_NAMES.REFUND,
+        networkId,
+      );
     }
 
     const balance: string = new bigNumber(new bigNumber(payments.balance || 0))
@@ -102,16 +120,15 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * Extracts the balance and events of an address
    *
    * @private
-   * @param {string} address address to check
-   * @param {Types.EVENTS_NAMES} eventName Indicate if it is an address for payment or refund
-   * @returns {Promise<Types.IBalanceWithEvents>}
-   * @memberof PaymentNetworkBTCAddressBased
+   * @param address address to check
+   * @param eventName Indicate if it is an address for payment or refund
+   * @returns
    */
   private async extractBalanceAndEvents(
     address: string,
     eventName: Types.EVENTS_NAMES,
+    networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
-    // TODO PROT-326: Add a way to change the bitcoin network
-    return BitcoinInfoRetriever.getAddressInfo(3, address, eventName);
+    return BitcoinInfoRetriever.getAddressInfo(networkId, address, eventName);
   }
 }

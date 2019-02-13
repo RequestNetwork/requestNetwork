@@ -6,7 +6,8 @@ import {
 } from '@requestnetwork/types';
 
 import contentData from './extensions/content-data';
-import addressBasedBtc from './extensions/payment-network/bitcoin/address-based';
+import addressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
+import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
 
 /**
  * Module to manage Advanced logic extensions
@@ -16,6 +17,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
   public extensions: any = {
     addressBasedBtc,
+    addressBasedTestnetBtc,
     contentData,
   };
 
@@ -47,6 +49,14 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
     }
     if (id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
       return addressBasedBtc.applyActionToExtension(
+        extensionsState,
+        extensionAction,
+        requestState,
+        actionSigner,
+      );
+    }
+    if (id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
+      return addressBasedTestnetBtc.applyActionToExtension(
         extensionsState,
         extensionAction,
         requestState,
