@@ -1,6 +1,9 @@
 {
   "name": "@requestnetwork/request-logic",
   "version": "0.1.1-alpha.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Main package for the Request Network logic layer.",
   "keywords": [
     "requestnetwork",
@@ -65,5 +68,6 @@
     "ts-node": "8.0.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

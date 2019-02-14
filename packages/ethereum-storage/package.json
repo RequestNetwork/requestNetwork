@@ -1,6 +1,9 @@
 {
   "name": "@requestnetwork/ethereum-storage",
   "version": "0.1.1-alpha.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Request Network storage layer based on ethereum.",
   "keywords": [
     "requestnetwork",
@@ -81,5 +84,6 @@
     "tslint": "5.12.1",
     "typescript": "3.3.1",
     "web3-providers-http": "1.0.0-beta.37"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

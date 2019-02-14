@@ -1,6 +1,9 @@
 {
   "name": "@requestnetwork/utils",
   "version": "0.1.1-alpha.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "General tools for Request Network packages.",
   "keywords": [
     "requestnetwork",
@@ -57,5 +60,6 @@
     "source-map-support": "0.5.10",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

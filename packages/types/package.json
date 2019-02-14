@@ -1,6 +1,9 @@
 {
   "name": "@requestnetwork/types",
   "version": "0.1.1-alpha.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Types for Request Network packages.",
   "keywords": [
     "requestnetwork",
@@ -49,5 +52,6 @@
     "shx": "0.3.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
