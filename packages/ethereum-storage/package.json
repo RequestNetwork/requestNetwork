@@ -1,7 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
   "version": "0.1.0",
-  "private": true,
   "description": "Request Network storage layer based on ethereum.",
   "keywords": [
     "requestnetwork",

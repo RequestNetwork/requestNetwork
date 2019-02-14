@@ -1,7 +1,6 @@
 {
   "name": "@requestnetwork/utils",
   "version": "0.1.0",
-  "private": true,
   "description": "General tools for Request Network packages.",
   "keywords": [
     "requestnetwork",

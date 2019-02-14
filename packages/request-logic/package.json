@@ -1,7 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
   "version": "0.1.0",
-  "private": true,
   "description": "Main package for the Request Network logic layer.",
   "keywords": [
     "requestnetwork",

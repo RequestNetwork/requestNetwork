@@ -1,7 +1,6 @@
 {
   "name": "@requestnetwork/transaction-manager",
   "version": "0.1.0",
-  "private": true,
   "description": "Request Network transaction layer, handle signature and encryption for the transaction.",
   "keywords": [
     "requestnetwork",

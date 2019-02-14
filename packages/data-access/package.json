@@ -1,7 +1,6 @@
 {
   "name": "@requestnetwork/data-access",
   "version": "0.1.0",
-  "private": true,
   "description": "Main package for the Request Network data access layer.",
   "keywords": [
     "requestnetwork",
