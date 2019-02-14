@@ -1,4 +1,0 @@
-{
-    "_info": "this tsconfig file is used so that compodoc only builds documentation for the src/ directory",
-    "extends": "../tsconfig"
-}

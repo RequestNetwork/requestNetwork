@@ -1,0 +1,3 @@
+{
+  "test/**/*.ts": ["tslint --project . --fix", "prettier --single-quote --write", "git add"]
+}

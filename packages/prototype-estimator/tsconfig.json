@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["./src/**/*"],
+  "references": [
+    { "path": "../data-access" },
+    { "path": "../epk-signature" },
+    { "path": "../ethereum-storage" },
+    { "path": "../request-logic" },
+    { "path": "../transaction-manager" },
+    { "path": "../types" }
+  ]
+}
