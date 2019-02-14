@@ -1,7 +1,9 @@
 {
   "name": "@requestnetwork/epk-signature",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Signature provider using ethereum private keys.",
   "keywords": [
     "requestnetwork",
@@ -39,8 +41,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0"
+    "@requestnetwork/types": "0.1.1-alpha.1",
+    "@requestnetwork/utils": "0.1.1-alpha.2"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
@@ -68,5 +70,6 @@
     "webpack": "4.29.1",
     "webpack-bundle-analyzer": "3.0.3",
     "webpack-cli": "3.2.3"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

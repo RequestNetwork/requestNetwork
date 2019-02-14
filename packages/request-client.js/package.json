@@ -1,6 +1,9 @@
 {
   "name": "@requestnetwork/request-client.js",
-  "version": "0.1.0",
+  "version": "0.1.1-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Client side library for Request Network.",
   "keywords": [
     "requestnetwork",
@@ -40,14 +43,14 @@
     "test": "nyc mocha --require ts-node/register --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.1.0",
-    "@requestnetwork/data-access": "0.1.0",
-    "@requestnetwork/data-format": "0.1.4",
-    "@requestnetwork/epk-signature": "0.1.0",
-    "@requestnetwork/request-logic": "0.1.0",
-    "@requestnetwork/transaction-manager": "0.1.0",
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0",
+    "@requestnetwork/advanced-logic": "0.1.1-alpha.2",
+    "@requestnetwork/data-access": "0.1.1-alpha.2",
+    "@requestnetwork/data-format": "0.1.1-alpha.1",
+    "@requestnetwork/epk-signature": "0.1.1-alpha.2",
+    "@requestnetwork/request-logic": "0.1.1-alpha.2",
+    "@requestnetwork/transaction-manager": "0.1.1-alpha.2",
+    "@requestnetwork/types": "0.1.1-alpha.1",
+    "@requestnetwork/utils": "0.1.1-alpha.2",
     "axios": "0.18.0",
     "bn.js": "4.11.8",
     "node-fetch": "2.3.0"
@@ -84,5 +87,6 @@
     "webpack": "4.29.1",
     "webpack-bundle-analyzer": "3.0.3",
     "webpack-cli": "3.2.3"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

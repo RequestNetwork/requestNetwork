@@ -1,7 +1,9 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Main package for the Request Network logic layer.",
   "keywords": [
     "requestnetwork",
@@ -38,9 +40,9 @@
     "example": "ts-node specs/example/example.ts"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.1.0",
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0",
+    "@requestnetwork/advanced-logic": "0.1.1-alpha.2",
+    "@requestnetwork/types": "0.1.1-alpha.1",
+    "@requestnetwork/utils": "0.1.1-alpha.2",
     "bn.js": "4.11.8",
     "semver": "5.6.0"
   },
@@ -66,5 +68,6 @@
     "ts-node": "8.0.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

@@ -1,7 +1,9 @@
 {
   "name": "@requestnetwork/transaction-manager",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Request Network transaction layer, handle signature and encryption for the transaction.",
   "keywords": [
     "requestnetwork",
@@ -37,8 +39,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0"
+    "@requestnetwork/types": "0.1.1-alpha.1",
+    "@requestnetwork/utils": "0.1.1-alpha.2"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
@@ -60,5 +62,6 @@
     "ts-node": "8.0.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
-  }
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
