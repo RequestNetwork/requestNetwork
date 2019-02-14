@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/transaction-manager",
-  "version": "0.1.0",
+  "version": "0.1.1-alpha.0",
   "description": "Request Network transaction layer, handle signature and encryption for the transaction.",
   "keywords": [
     "requestnetwork",
@@ -36,8 +36,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0"
+    "@requestnetwork/types": "^0.1.1-alpha.0",
+    "@requestnetwork/utils": "^0.1.1-alpha.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

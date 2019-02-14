@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-signature",
-  "version": "0.1.0",
+  "version": "0.1.1-alpha.0",
   "description": "Signature provider using ethereum private keys.",
   "keywords": [
     "requestnetwork",
@@ -38,8 +38,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.0",
-    "@requestnetwork/utils": "0.1.0"
+    "@requestnetwork/types": "^0.1.1-alpha.0",
+    "@requestnetwork/utils": "^0.1.1-alpha.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
