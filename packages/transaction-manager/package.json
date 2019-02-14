@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/transaction-manager",
-  "version": "0.1.1-alpha.1",
+  "version": "0.1.1-alpha.2",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@requestnetwork/types": "0.1.1-alpha.1",
-    "@requestnetwork/utils": "0.1.1-alpha.1"
+    "@requestnetwork/utils": "0.1.1-alpha.2"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
