@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "format": "rnf_invoice",
+    "version": "0.0.1"
+  },
+
+  "creationDate": "2018-01-01T18:25:43.511Z",
+  "invoiceNumber": "123456789",
+  "purchaseOrderId": "987654321",
+  "note": "this is an example of invoice",
+  "terms": "there is no specific terms",
+
+  "buyerInfo": {
+    "email": "javertlimited@detective.com",
+    "businessName": "Javert Limited",
+    "phone": "+16501123456",
+    "address": {
+      "locality": "Seattle",
+      "region": "WA",
+      "country-name": "United-State",
+      "postal-code": "98052",
+      "street-address": "20341 Whitworth Institute 405 N. Whitworth"
+    },
+    "miscellaneous": {
+      "Occupation": ["Prison guard", "Police inspector", "Detective"]
+    }
+  },
+
+  "invoiceItems": [
+    {
+      "reference": "cs666",
+      "quantity": 2,
+      "unitPrice": 0.01,
+      "discount": 0.002,
+      "taxPercent": 16.9,
+      "currency": "XTS",
+      "deliveryDate": "2019-01-01T18:25:43.511Z"
+    },
+    {
+      "name": "handcuff",
+      "reference": "hc99",
+      "quantity": 1,
+      "unitPrice": 0.001,
+      "taxPercent": 5.5,
+      "deliveryDate": "2019-01-01T18:25:43.511Z"
+    }
+  ],
+
+  "paymentTerms": {
+    "dueDate": "2019-06-01T18:25:43.511Z",
+    "lateFeesPercent": 10,
+    "lateFeesFix": 0.01,
+    "miscellaneous": {
+      "note": "payment before chrismas"
+    }
+  },
+
+  "miscellaneous": {
+    "manufacturerCompany": "Victor Hugo & Co.",
+    "deliveryCompany": "Gavroche Express"
+  }
+}

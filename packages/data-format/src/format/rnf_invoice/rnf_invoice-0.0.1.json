@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Request Network Format of an invoice",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "invoiceNumber", "creationDate", "invoiceItems"],
+  "properties": {
+    "meta": {
+      "description": "Meta information about the format",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "version"],
+      "properties": {
+        "format": {
+          "const": "rnf_invoice"
+        },
+        "version": {
+          "const": "0.0.1"
+        }
+      }
+    },
+    "creationDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "invoiceNumber": {
+      "type": "string"
+    },
+    "purchaseOrderId": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "terms": {
+      "type": "string"
+    },
+    "sellerInfo": {
+      "description": "Seller information",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "businessName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "http://json-schema.org/address"
+        },
+        "taxRegistration": {
+          "type": "string"
+        },
+        "companyRegistration": {
+          "type": "string"
+        },
+        "miscellaneous": {
+          "type": "object"
+        }
+      }
+    },
+    "buyerInfo": {
+      "description": "Buyer information",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "businessName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "http://json-schema.org/address"
+        },
+        "taxRegistration": {
+          "type": "string"
+        },
+        "miscellaneous": {
+          "type": "object"
+        }
+      }
+    },
+    "invoiceItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "quantity", "unitPrice", "taxPercent", "currency"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "discount": {
+            "type": "number"
+          },
+          "taxPercent": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "deliveryDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deliveryPeriod": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "paymentTerms": {
+      "description": "Payment terms",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lateFeesPercent": {
+          "type": "number"
+        },
+        "lateFeesFix": {
+          "type": "number"
+        },
+        "miscellaneous": {
+          "type": "object"
+        }
+      }
+    },
+    "miscellaneous": {
+      "type": "object"
+    }
+  }
+}

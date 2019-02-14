@@ -1,41 +1,22 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist
+dist
 
 # dependencies
-/node_modules
+node_modules
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Coverage
+coverage
+.nyc_output
+coverage.lcov
 
 # IDE - VSCode
 .vscode/*
-!.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-testem.log
-/typings
-
-# perso
-test/test.ts
-*.maybe
-*Kovan*
-*Rinkeby*
-
 # logs
 lerna-debug.log
+yarn-error.log

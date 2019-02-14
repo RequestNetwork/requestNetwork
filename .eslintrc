@@ -1,0 +1,74 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 10,
+    "sourceType": "module"
+  },
+  "plugins": ["typescript", "spellcheck"],
+  "rules": {
+    "spellcheck/spell-checker": [
+      "error",
+      {
+        "comments": true,
+        "strings": true,
+        "identifiers": true,
+        "lang": "en_US",
+        "skipWords": [
+          "abi",
+          "api",
+          "arg",
+          "axios",
+          "blockchain",
+          "btc",
+          "bitcoin",
+          "chai",
+          "cors",
+          "ecdsa",
+          "enum",
+          "epk",
+          "eslint",
+          "eth",
+          "ethereum",
+          "filename",
+          "http",
+          "https",
+          "infura",
+          "ipfs",
+          "javascript",
+          "hashmap",
+          "keccak",
+          "kovan",
+          "localhost",
+          "lodash",
+          "lte",
+          "mainnet",
+          "memberof",
+          "metadata",
+          "mul",
+          "param",
+          "params",
+          "requestnetwork",
+          "rinkeby",
+          "semver",
+          "timestamp",
+          "testnet",
+          "tslint",
+          "tx",
+          "txs",
+          "tsconfig",
+          "typeof",
+          "utils",
+          "validator",
+          "versioning",
+          "webpack",
+          "wei"
+        ],
+        "minLength": 3,
+        "skipIfMatch": [
+          "^(0x|0X)?[a-fA-F0-9]+$" // Hexadecimal strings
+        ]
+      }
+    ]
+  }
+}

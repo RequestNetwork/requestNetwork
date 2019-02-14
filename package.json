@@ -1,6 +1,28 @@
 {
-	"homepage": "https://github.com/RequestNetwork/requestNetwork",
-	"devDependencies": {
-		"lerna": "3.2.1"
-	}
+  "name": "@requestnetwork/request-network-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://github.com/RequestNetwork/requestNetwork",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "lerna run build",
+    "clean": "lerna run clean",
+    "build:tsc": "tsc -b packages/request-client.js packages/data-access packages/integration-test packages/ethereum-storage packages/request-logic packages/request-node packages/types packages/utils packages/types packages/advanced-logic packages/transaction-manager packages/epk-signature packages/data-format",
+    "lint": "lerna run lint",
+    "lerna": "lerna",
+    "packageJsonLint": "npmPkgJsonLint ./packages",
+    "publish-coverage": "codecov --disable=gcov",
+    "test": "lerna run test"
+  },
+  "devDependencies": {
+    "codecov": "3.1.0",
+    "lerna": "3.10.8",
+    "npm-package-json-lint": "3.5.0",
+    "typescript": "3.3.1"
+  }
 }
