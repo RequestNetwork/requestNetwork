@@ -22,6 +22,9 @@
     "node": ">=8.0.0"
   },
   "main": "dist/server",
+  "bin": {
+    "request-node": "dist/server.js"
+  },
   "files": [
     "dist"
   ],
