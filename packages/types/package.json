@@ -28,7 +28,7 @@
     "test": "test"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "tsc -b",

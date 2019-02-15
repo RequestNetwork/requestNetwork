@@ -29,7 +29,7 @@
     "test": "test/lib"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "scripts": {
     "build:lib": "tsc -b",

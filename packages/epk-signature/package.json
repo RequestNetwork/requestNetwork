@@ -28,7 +28,7 @@
     "test": "test"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "run-s build:commonjs build:umd",
