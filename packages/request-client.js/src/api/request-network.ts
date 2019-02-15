@@ -103,24 +103,34 @@ export default class RequestNetwork {
    * @returns the Request
    */
   public async fromRequestId(requestId: RequestLogicTypes.RequestLogicRequestId): Promise<Request> {
-    const requestAndMeta: RequestLogicTypes.IRequestLogicReturnGetRequestById = await this.requestLogic.getRequestById(
-      requestId,
-    );
-
-    let paymentNetwork: Types.IPaymentNetwork | null = null;
-    if (requestAndMeta.result.request) {
-      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-        this.advancedLogic,
-        requestAndMeta.result.request,
+    try {
+      const requestAndMeta: RequestLogicTypes.IRequestLogicReturnGetRequestById = await this.requestLogic.getRequestById(
+        requestId,
       );
+
+      let paymentNetwork: Types.IPaymentNetwork | null = null;
+      if (requestAndMeta.result.request) {
+        paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+          this.advancedLogic,
+          requestAndMeta.result.request,
+        );
+      }
+
+      // create the request object
+      const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+
+      // refresh the local request data
+      await request.refresh();
+
+      return request;
+    } catch (e) {
+      // create a better message until we have a better error system
+      if (e.message === 'no request is expected at the creation') {
+        throw Error(
+          'More than one request creation has been found - you may have given a wrong requestId',
+        );
+      }
+      throw e;
     }
-
-    // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
-
-    // refresh the local request data
-    await request.refresh();
-
-    return request;
   }
 }
