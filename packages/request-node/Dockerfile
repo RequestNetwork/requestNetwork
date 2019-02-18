@@ -1,17 +1,27 @@
-FROM yarnpkg/node-yarn
+FROM node:latest as builder
+WORKDIR /
+ADD package.json .
+RUN npm install
 
-# Adding necessary files and folders
-ADD package.json package.json
+# ADD src src
+# ADD tsconfig.json tsconfig.json
+# RUN npm install typescript
+# RUN npm run build
 
-# Add compiled sources
+
+FROM alpine:latest as main
+
+RUN apk add --update nodejs
+
+WORKDIR /request-node
+COPY --from=builder /node_modules node_modules
+ADD package.json .
+# WORKDIR /dist
 ADD dist dist
-
-# Installing necessary packages
-RUN yarn install
 
 # Port configuration
 ENV PORT 3000
 EXPOSE 3000
 
 # Run
-CMD ["yarn", "run", "start"]
+CMD ["node", "dist/server.js"]

@@ -125,48 +125,55 @@ export default class SmartContractManager {
     const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
 
     // Send transaction to contract
-    // Throws an error if timeout is reached
-    const receipt = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
-      this.requestHashStorage.methods
-        .submitHash(contentHash, contentSize)
-        .send({
-          from: account,
-          gas: '100000',
-          gasPrice: gasPriceToUse,
-          value: fee,
-        })
-        .on('error', (transactionError: string) => {
-          throw Error(`Ethereum transaction error:  ${transactionError}`);
-        })
-        .on('transactionHash', (transactionHash: string) => {
-          // TODO(PROT-181): Implement a log manager for the library
-          /* tslint:disable:no-console */
-          console.log(`transactionHash :  ${transactionHash}`);
-        })
-        .on('receipt', (receiptInCallback: string) => {
-          // TODO(PROT-181): Implement a log manager for the library
-          /* tslint:disable:no-console */
-          console.log(`receipt :  ${receiptInCallback}`);
-        })
-        .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-          // TODO(PROT-181): Implement a log manager for the library
-          // TODO(PROT-252): return after X confirmation instead of 0
-          /* tslint:disable:no-console */
-          console.log(`confirmation :  ${confirmationNumber}`);
-          console.log(`receipt :  ${receiptAfterConfirmation}`);
-        }),
-    ]);
+    return new Promise(
+      (resolve, reject): any => {
+        this.requestHashStorage.methods
+          .submitHash(contentHash, contentSize)
+          .send({
+            from: account,
+            gas: '100000',
+            gasPrice: gasPriceToUse,
+            value: fee,
+          })
+          .on('error', (transactionError: string) => {
+            reject(Error(`Ethereum transaction error:  ${transactionError}`));
+          })
+          .on('transactionHash', (transactionHash: string) => {
+            // TODO(PROT-181): Implement a log manager for the library
+            /* tslint:disable:no-console */
+            console.log(`transactionHash :  ${transactionHash}`);
+          })
+          .on('receipt', (receiptInCallback: string) => {
+            // TODO(PROT-181): Implement a log manager for the library
+            /* tslint:disable:no-console */
+            console.log(`receipt :  ${receiptInCallback}`);
+          })
+          .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
+            // TODO(PROT-181): Implement a log manager for the library
+            // TODO(PROT-252): return after X confirmation instead of 0
+            /* tslint:disable:no-console */
+            console.log(`confirmation :  ${confirmationNumber}`);
+            console.log(`receipt :  ${receiptAfterConfirmation}`);
 
-    const gasFee = new bigNumber(receipt.gasUsed).mul(new bigNumber(gasPriceToUse));
-    const cost = gasFee.add(new bigNumber(fee));
+            // We have to wait at least one confirmation to get Ethereum metadata
+            if (confirmationNumber > 0) {
+              const gasFee = new bigNumber(receiptAfterConfirmation.gasUsed).mul(
+                new bigNumber(gasPriceToUse),
+              );
+              const cost = gasFee.add(new bigNumber(fee));
 
-    return this.createEthereumMetaData(
-      receipt.blockNumber,
-      receipt.transactionHash,
-      cost.toString(),
-      fee,
-      gasFee.toString(),
+              resolve(
+                this.createEthereumMetaData(
+                  receiptAfterConfirmation.blockNumber,
+                  receiptAfterConfirmation.transactionHash,
+                  cost.toString(),
+                  fee,
+                  gasFee.toString(),
+                ),
+              );
+            }
+          });
+      },
     );
   }
 
@@ -372,7 +379,7 @@ export default class SmartContractManager {
     try {
       blockConfirmation = await this.getConfirmationNumber(blockNumber);
     } catch (error) {
-      throw Error(`Error getting block timestamp: ${error}`);
+      throw Error(`Error getting block confirmation number: ${error}`);
     }
 
     // Get timestamp of the block hosting the transaction
