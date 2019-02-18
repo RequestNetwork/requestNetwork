@@ -87,14 +87,14 @@ describe('api/request-network', () => {
       expect(request).to.instanceOf(Request);
     });
 
-    it('cannot fromRequestId() with double data', async () => {
+    it('cannot fromRequestId() with double creation data', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getTransactionsByTopic(): Promise<any> {
           return {
             result: {
               transactions: [
                 { data: JSON.stringify(TestData.action) },
-                { data: JSON.stringify(TestData.action) },
+                { data: JSON.stringify(TestData.anotherCreationAction) },
               ],
             },
           };

@@ -43,3 +43,13 @@ export const action: RequestLogicTypes.IRequestLogicAction = {
   data,
   signature,
 };
+
+export const anotherSignature: SignatureTypes.ISignature = {
+  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+  value:
+    '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+};
+export const anotherCreationAction: RequestLogicTypes.IRequestLogicAction = {
+  data,
+  signature: anotherSignature,
+};
