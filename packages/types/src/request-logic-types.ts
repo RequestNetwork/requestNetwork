@@ -45,6 +45,7 @@ export interface IRequestLogicReturn {
 /** meta data given by the layer below (transaction manager) */
 export interface IRequestLogicReturnMeta {
   transactionManagerMeta: any;
+  ignoredTransactions?: any[];
 }
 
 /** return of the function createRequest */
@@ -152,6 +153,8 @@ export interface IRequestLogicIncreaseExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
   extensionsData?: any[];
+  /** arbitrary number to differentiate several identical transaction */
+  nonce?: number;
 }
 
 /** Parameters to reduce amount of a request */
@@ -159,12 +162,16 @@ export interface IRequestLogicReduceExpectedAmountParameters {
   deltaAmount: RequestLogicAmount;
   requestId: RequestLogicRequestId;
   extensionsData?: any[];
+  /** arbitrary number to differentiate several identical transaction */
+  nonce?: number;
 }
 
 /** Parameters to add extensions data to a request */
 export interface IRequestLogicAddExtensionsDataParameters {
   requestId: RequestLogicRequestId;
   extensionsData: any[];
+  /** arbitrary number to differentiate several identical transaction */
+  nonce?: number;
 }
 
 /** Event */

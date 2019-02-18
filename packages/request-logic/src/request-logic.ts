@@ -5,6 +5,7 @@ import {
   SignatureProvider as SignatureProviderTypes,
   Transaction as TransactionTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
 
 /**
@@ -234,17 +235,23 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const actions = resultGetTx.result.transactions;
 
     try {
+      // array of transaction without duplicates to avoid replay attack
+      const transactionsWithoutDuplicates = Utils.unique(
+        actions.map((t: any) => JSON.parse(t.data)),
+      );
+
       // second parameter is null, because the first action must be a creation (no state expected)
-      const request: RequestLogicTypes.IRequestLogicRequest | null = actions
-        .map((t: any) => JSON.parse(t.data))
-        .reduce(
-          (requestState, action) =>
-            RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
-          null,
-        );
+      const request = transactionsWithoutDuplicates.uniqueItems.reduce(
+        (requestState: any, action: any) =>
+          RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
+        null,
+      );
 
       return {
-        meta: { transactionManagerMeta: resultGetTx.meta },
+        meta: {
+          ignoredTransactions: transactionsWithoutDuplicates.duplicates,
+          transactionManagerMeta: resultGetTx.meta,
+        },
         result: { request },
       };
     } catch (e) {

@@ -359,6 +359,7 @@ describe('index', () => {
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
+          ignoredTransactions: [],
           transactionManagerMeta: meta,
         },
         result: {
@@ -404,6 +405,292 @@ describe('index', () => {
       });
     });
 
+    it('can getRequestById ignore the same transactions even with different case', async () => {
+      const actionCreate: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const actionReduce: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionReduce2: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId: requestId.toUpperCase(),
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = {};
+      const listActions: Promise<
+        TransactionTypes.IRequestDataReturnGetTransactionsByTopic
+      > = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionAccept),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionReduce),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionReduce2),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByTopic: (): Promise<
+          TransactionTypes.IRequestDataReturnGetTransactionsByTopic
+        > => listActions,
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProviderArbitrary,
+      );
+
+      const request = await requestLogic.getRequestById(requestId);
+
+      expect(request, 'request result is wrong').to.deep.equal({
+        meta: {
+          ignoredTransactions: [actionReduce2],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+              },
+              {
+                actionSigner: TestData.payerRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+                parameters: {
+                  extensionsDataLength: 0,
+                },
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+              },
+            ],
+            expectedAmount: '123399999999999000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
+          },
+        },
+      });
+    });
+
+    it('can getRequestById do not ignore the same transactions if different nonces', async () => {
+      const actionCreate: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const actionReduce: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionReduce2: Types.IRequestLogicAction = Utils.signature.sign(
+        {
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            nonce: 1,
+            requestId: requestId.toUpperCase(),
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = {};
+      const listActions: Promise<
+        TransactionTypes.IRequestDataReturnGetTransactionsByTopic
+      > = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionAccept),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionReduce),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionReduce2),
+              signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByTopic: (): Promise<
+          TransactionTypes.IRequestDataReturnGetTransactionsByTopic
+        > => listActions,
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProviderArbitrary,
+      );
+
+      const request = await requestLogic.getRequestById(requestId);
+
+      expect(request, 'request result is wrong').to.deep.equal({
+        meta: {
+          ignoredTransactions: [],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+              },
+              {
+                actionSigner: TestData.payerRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+                parameters: {
+                  extensionsDataLength: 0,
+                },
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+              },
+            ],
+            expectedAmount: '123399999999998000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
+          },
+        },
+      });
+    });
     it('cannot getRequestById on corrupted data (not parsable JSON)', async () => {
       const listActions: Promise<
         TransactionTypes.IRequestDataReturnGetTransactionsByTopic
