@@ -14,13 +14,13 @@ describe('Role', () => {
       payer: TestData.payerRaw.identity,
     };
     expect(Role.getRole(TestData.payeeRaw.identity, obj), 'getRole("") error').to.be.equal(
-      Types.ROLE.PAYEE,
+      Types.REQUEST_LOGIC_ROLE.PAYEE,
     );
     expect(Role.getRole(TestData.payerRaw.identity, obj), 'getRole("") error').to.be.equal(
-      Types.ROLE.PAYER,
+      Types.REQUEST_LOGIC_ROLE.PAYER,
     );
     expect(Role.getRole(TestData.otherIdRaw.identity, obj), 'getRole("") error').to.be.equal(
-      Types.ROLE.THIRD_PARTY,
+      Types.REQUEST_LOGIC_ROLE.THIRD_PARTY,
     );
   });
 });

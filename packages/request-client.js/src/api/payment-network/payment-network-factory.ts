@@ -30,7 +30,7 @@ export default class PaymentNetworkFactory {
    */
   public static createPaymentNetwork(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    currency: RequestLogicTypes.CURRENCY,
+    currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY,
     paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
   ): Types.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetwork[currency];
@@ -58,7 +58,7 @@ export default class PaymentNetworkFactory {
    */
   public static getPaymentNetworkFromRequest(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    request: RequestLogicTypes.IRequest,
+    request: RequestLogicTypes.IRequestLogicRequest,
   ): Types.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(

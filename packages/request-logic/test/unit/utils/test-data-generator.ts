@@ -72,19 +72,19 @@ export const twoExtensions = [
 
 export const arbitraryTimestamp = 1544426030;
 
-export const requestCreatedNoExtension: Types.IRequest = {
+export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: Types.CURRENCY.ETH,
+  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 0,
@@ -104,25 +104,25 @@ export const requestCreatedNoExtension: Types.IRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.STATE.CREATED,
+  state: Types.REQUEST_LOGIC_STATE.CREATED,
   timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };
 
-export const requestCreatedWithExtensions: Types.IRequest = {
+export const requestCreatedWithExtensions: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
 
-  currency: Types.CURRENCY.ETH,
+  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 1,
@@ -142,24 +142,24 @@ export const requestCreatedWithExtensions: Types.IRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.STATE.CREATED,
+  state: Types.REQUEST_LOGIC_STATE.CREATED,
   timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };
 
-export const requestCanceledNoExtension: Types.IRequest = {
+export const requestCanceledNoExtension: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: Types.CURRENCY.ETH,
+  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 0,
@@ -171,7 +171,7 @@ export const requestCanceledNoExtension: Types.IRequest = {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CANCEL,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
@@ -186,24 +186,24 @@ export const requestCanceledNoExtension: Types.IRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.STATE.CANCELED,
+  state: Types.REQUEST_LOGIC_STATE.CANCELED,
   timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };
 
-export const requestAcceptedNoExtension: Types.IRequest = {
+export const requestAcceptedNoExtension: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: Types.CURRENCY.ETH,
+  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 0,
@@ -215,7 +215,7 @@ export const requestAcceptedNoExtension: Types.IRequest = {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payerRaw.address,
       },
-      name: Types.ACTION_NAME.ACCEPT,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
@@ -230,7 +230,7 @@ export const requestAcceptedNoExtension: Types.IRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.STATE.ACCEPTED,
+  state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
   timestamp: arbitraryTimestamp,
   version: CURRENT_VERSION,
 };

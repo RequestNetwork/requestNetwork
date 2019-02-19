@@ -26,7 +26,7 @@ describe('actions/accept', () => {
         TestData.fakeSignatureProvider,
       );
       expect(actionAccept.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.ACCEPT,
+        Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
       );
 
       expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -46,7 +46,7 @@ describe('actions/accept', () => {
         TestData.fakeSignatureProvider,
       );
       expect(actionAccept.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.ACCEPT,
+        Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
       );
 
       expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -72,8 +72,8 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -107,7 +107,7 @@ describe('actions/accept', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ACCEPT,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -145,7 +145,7 @@ describe('actions/accept', () => {
     it('cannot apply accept if no requestId', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ACCEPT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
           parameters: {},
           version: CURRENT_VERSION,
         },
@@ -169,14 +169,14 @@ describe('actions/accept', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
             actionSigner: {
               type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.ACTION_NAME.CREATE,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -192,14 +192,14 @@ describe('actions/accept', () => {
           value: TestData.payeeRaw.address,
         },
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
 
       const action = {
         data: {
-          name: Types.ACTION_NAME.ACCEPT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -219,7 +219,7 @@ describe('actions/accept', () => {
     it('cannot apply accept if state === CANCELED in state', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ACCEPT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -243,7 +243,7 @@ describe('actions/accept', () => {
     it('cannot apply accept if state === ACCEPTED in state', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ACCEPT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -281,8 +281,8 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -319,7 +319,7 @@ describe('actions/accept', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ACCEPT,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
       });
     });
@@ -340,8 +340,8 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -359,7 +359,7 @@ describe('actions/accept', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ACCEPT,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
       });
       expect(request, 'request should have property payee').to.have.property('payee');
@@ -382,7 +382,7 @@ describe('actions/accept', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ACCEPT,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
       });
     });
@@ -401,8 +401,8 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );

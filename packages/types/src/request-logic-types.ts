@@ -7,31 +7,31 @@ const bigNumber: any = require('bn.js');
 /** Request Logic layer */
 export interface IRequestLogic {
   createRequest: (
-    requestParameters: ICreateParameters,
+    requestParameters: IRequestLogicCreateParameters,
     signerIdentity: Identity.IIdentity,
     indexes: string[],
-  ) => Promise<IReturnCreateRequest>;
+  ) => Promise<IRequestLogicReturnCreateRequest>;
   acceptRequest: (
-    requestParameters: IAcceptParameters,
+    requestParameters: IRequestLogicAcceptParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   cancelRequest: (
-    requestParameters: ICancelParameters,
+    requestParameters: IRequestLogicCancelParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   increaseExpectedAmountRequest: (
-    requestParameters: IIncreaseExpectedAmountParameters,
+    requestParameters: IRequestLogicIncreaseExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   reduceExpectedAmountRequest: (
-    requestParameters: IReduceExpectedAmountParameters,
+    requestParameters: IRequestLogicReduceExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   addExtensionsDataRequest: (
-    requestParameters: IAddExtensionsDataParameters,
+    requestParameters: IRequestLogicAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
-  getRequestById: (requestId: RequestId) => Promise<IReturnGetRequestById>;
+  getRequestById: (requestId: RequestLogicRequestId) => Promise<IRequestLogicReturnGetRequestById>;
 }
 
 /** return of IRequestLogic functions */
@@ -39,55 +39,55 @@ export interface IRequestLogicReturn {
   /** result of the execution */
   result?: any;
   /** meta information */
-  meta: IReturnMeta;
+  meta: IRequestLogicReturnMeta;
 }
 
 /** meta data given by the layer below (transaction manager) */
-export interface IReturnMeta {
+export interface IRequestLogicReturnMeta {
   transactionManagerMeta: any;
   ignoredTransactions?: any[];
 }
 
 /** return of the function createRequest */
-export interface IReturnCreateRequest extends IRequestLogicReturn {
-  result: { requestId: RequestId };
+export interface IRequestLogicReturnCreateRequest extends IRequestLogicReturn {
+  result: { requestId: RequestLogicRequestId };
 }
 
 /** return of the function getRequestById */
-export interface IReturnGetRequestById extends IRequestLogicReturn {
-  result: { request: IRequest | null };
+export interface IRequestLogicReturnGetRequestById extends IRequestLogicReturn {
+  result: { request: IRequestLogicRequest | null };
 }
 
 /** Interface of a request logic action */
-export interface IAction {
-  data: IUnsignedAction;
+export interface IRequestLogicAction {
+  data: IRequestLogicUnsignedAction;
   signature: Signature.ISignature;
 }
 
 /** Interface of a request logic unsigned action */
-export interface IUnsignedAction {
-  name: ACTION_NAME;
+export interface IRequestLogicUnsignedAction {
+  name: REQUEST_LOGIC_ACTION_NAME;
   version: string;
   parameters: any;
 }
 
 /** Request in request logic */
-export interface IRequest {
+export interface IRequestLogicRequest {
   version: string;
   /** request identifier */
-  requestId: RequestId;
+  requestId: RequestLogicRequestId;
   /** identity of the request creator (the one who initiates it) */
   creator: Identity.IIdentity;
-  currency: CURRENCY;
-  state: STATE;
-  expectedAmount: Amount;
+  currency: REQUEST_LOGIC_CURRENCY;
+  state: REQUEST_LOGIC_STATE;
+  expectedAmount: RequestLogicAmount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
   /** Extensions states */
-  extensions: IExtensionStates;
+  extensions: IRequestLogicExtensionStates;
   /** Extensions raw data */
   extensionsData: any[];
-  events: IEvent[];
+  events: IRequestLogicEvent[];
   /** timestamp of the request creation in seconds
    * Note: this precision is enough in a blockchain context
    * Note: as it is a user given parameter, the only consensus on this date it between the payer and payee
@@ -99,18 +99,18 @@ export interface IRequest {
 }
 
 /** Extensions state indexed by their Id */
-export interface IExtensionStates {
+export interface IRequestLogicExtensionStates {
   [key: string]: Extension.IExtensionState;
 }
 
 /** Amounts in request logic */
-export type Amount = number | string | typeof bigNumber;
+export type RequestLogicAmount = number | string | typeof bigNumber;
 
 /** RequestId */
-export type RequestId = string;
+export type RequestLogicRequestId = string;
 
 /** Configuration for the versioning */
-export interface IVersionSupportConfig {
+export interface IRequestLogicVersionSupportConfig {
   /**
    * current version of the specifications supported by this implementation
    * will be used to check if the implementation can handle action with different specs version
@@ -121,9 +121,9 @@ export interface IVersionSupportConfig {
 }
 
 /** Parameters to create a request */
-export interface ICreateParameters {
-  currency: CURRENCY;
-  expectedAmount: Amount;
+export interface IRequestLogicCreateParameters {
+  currency: REQUEST_LOGIC_CURRENCY;
+  expectedAmount: RequestLogicAmount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
   extensionsData?: any[];
@@ -137,54 +137,54 @@ export interface ICreateParameters {
 }
 
 /** Parameters to accept a request */
-export interface IAcceptParameters {
-  requestId: RequestId;
+export interface IRequestLogicAcceptParameters {
+  requestId: RequestLogicRequestId;
   extensionsData?: any[];
 }
 
 /** Parameters to cancel a request */
-export interface ICancelParameters {
-  requestId: RequestId;
+export interface IRequestLogicCancelParameters {
+  requestId: RequestLogicRequestId;
   extensionsData?: any[];
 }
 
 /** Parameters to increase amount of a request */
-export interface IIncreaseExpectedAmountParameters {
-  deltaAmount: Amount;
-  requestId: RequestId;
+export interface IRequestLogicIncreaseExpectedAmountParameters {
+  deltaAmount: RequestLogicAmount;
+  requestId: RequestLogicRequestId;
   extensionsData?: any[];
   /** arbitrary number to differentiate several identical transaction */
   nonce?: number;
 }
 
 /** Parameters to reduce amount of a request */
-export interface IReduceExpectedAmountParameters {
-  deltaAmount: Amount;
-  requestId: RequestId;
+export interface IRequestLogicReduceExpectedAmountParameters {
+  deltaAmount: RequestLogicAmount;
+  requestId: RequestLogicRequestId;
   extensionsData?: any[];
   /** arbitrary number to differentiate several identical transaction */
   nonce?: number;
 }
 
 /** Parameters to add extensions data to a request */
-export interface IAddExtensionsDataParameters {
-  requestId: RequestId;
+export interface IRequestLogicAddExtensionsDataParameters {
+  requestId: RequestLogicRequestId;
   extensionsData: any[];
   /** arbitrary number to differentiate several identical transaction */
   nonce?: number;
 }
 
 /** Event */
-export interface IEvent {
+export interface IRequestLogicEvent {
   /** Name of this event is actually an action */
-  name: ACTION_NAME;
+  name: REQUEST_LOGIC_ACTION_NAME;
   /** the information given in the event */
   parameters?: any;
   actionSigner: Identity.IIdentity;
 }
 
 /** Enum of name possible in a action */
-export enum ACTION_NAME {
+export enum REQUEST_LOGIC_ACTION_NAME {
   CREATE = 'create',
   BROADCAST = 'broadcastSignedRequest',
   ACCEPT = 'accept',
@@ -195,20 +195,20 @@ export enum ACTION_NAME {
 }
 
 /** Supported currencies */
-export enum CURRENCY {
+export enum REQUEST_LOGIC_CURRENCY {
   ETH = 'ETH',
   BTC = 'BTC',
 }
 
 /** States of a request */
-export enum STATE {
+export enum REQUEST_LOGIC_STATE {
   CREATED = 'created',
   ACCEPTED = 'accepted',
   CANCELED = 'canceled',
 }
 
 /** Identity roles */
-export enum ROLE {
+export enum REQUEST_LOGIC_ROLE {
   PAYEE = 'payee',
   PAYER = 'payer',
   THIRD_PARTY = 'third-party',

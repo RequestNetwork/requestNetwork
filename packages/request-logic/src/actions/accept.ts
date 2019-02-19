@@ -20,19 +20,19 @@ export default {
 /**
  * Function to format an action to accept a Request
  *
- * @param acceptParameters parameters to accept a request
- * @param IIdentity Identity of the signer
- * @param ISignatureProvider Signature provider in charge of the signature
+ * @param acceptParameters IRequestLogicAcceptParameters parameters to accept a request
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
- * @returns IAction  the action with the signature
+ * @returns IRequestLogicAction  the action with the signature
  */
 function format(
-  acceptParameters: Types.IAcceptParameters,
+  acceptParameters: Types.IRequestLogicAcceptParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
-  const unsignedAction: Types.IUnsignedAction = {
-    name: Types.ACTION_NAME.ACCEPT,
+): Types.IRequestLogicAction {
+  const unsignedAction: Types.IRequestLogicUnsignedAction = {
+    name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
     parameters: acceptParameters,
     version: Version.currentVersion,
   };
@@ -43,11 +43,14 @@ function format(
 /**
  * Function to apply an Accept action on a request
  *
- * @param Types.IAction action  the action to apply
+ * @param Types.IRequestLogicAction action  the action to apply
  *
- * @returns Types.IRequest the new request
+ * @returns Types.IRequestLogicRequest the new request
  */
-function applyActionToRequest(action: Types.IAction, request: Types.IRequest): Types.IRequest {
+function applyActionToRequest(
+  action: Types.IRequestLogicAction,
+  request: Types.IRequestLogicRequest,
+): Types.IRequestLogicRequest {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -56,20 +59,20 @@ function applyActionToRequest(action: Types.IAction, request: Types.IRequest): T
     throw new Error('the request must have a payer');
   }
 
-  if (request.state !== Types.STATE.CREATED) {
+  if (request.state !== Types.REQUEST_LOGIC_STATE.CREATED) {
     throw new Error('the request state must be created');
   }
 
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  if (signerRole === Types.ROLE.PAYER) {
-    request.state = Types.STATE.ACCEPTED;
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
+    request.state = Types.REQUEST_LOGIC_STATE.ACCEPTED;
   } else {
     throw new Error('Signer must be the payer');
   }
   // avoid to mutate the request
-  let requestCopied: Types.IRequest = Utils.deepCopy(request);
+  let requestCopied: Types.IRequestLogicRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, signer));
 
@@ -79,17 +82,20 @@ function applyActionToRequest(action: Types.IAction, request: Types.IRequest): T
 /**
  * Private function to generate the event 'Accept' from an action
  *
- * @param Types.IAction action the action that create the event
+ * @param Types.IRequestLogicAction action the action that create the event
  * @param IdentityTypes.IIdentity actionSigner the signer of the action
  *
- * @returns Types.IEvent the event generated
+ * @returns Types.IRequestLogicEvent the event generated
  */
-function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdentity): Types.IEvent {
+function generateEvent(
+  action: Types.IRequestLogicAction,
+  actionSigner: IdentityTypes.IIdentity,
+): Types.IRequestLogicEvent {
   const params = action.data.parameters;
 
-  const event: Types.IEvent = {
+  const event: Types.IRequestLogicEvent = {
     actionSigner,
-    name: Types.ACTION_NAME.ACCEPT,
+    name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },

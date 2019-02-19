@@ -24,19 +24,19 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
   /**
    * Applies the extension action to the request extensions state
    *
-   * @param extensionsState IExtensionStates previous state of the extensions
+   * @param extensionsState IRequestLogicExtensionStates previous state of the extensions
    * @param extensionAction IExtensionAction action to apply
-   * @param requestState IRequest request state read-only
+   * @param requestState IRequestLogicRequest request state read-only
    * @param actionSigner IIdentity identity of the signer
    *
    * @returns state of the extension
    */
   public applyActionToExtensions(
-    extensionsState: RequestLogicTypes.IExtensionStates,
+    extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
     extensionAction: ExtensionTypes.IExtensionAction,
-    requestState: RequestLogicTypes.IRequest,
+    requestState: RequestLogicTypes.IRequestLogicRequest,
     actionSigner: IdentityTypes.IIdentity,
-  ): RequestLogicTypes.IExtensionStates {
+  ): RequestLogicTypes.IRequestLogicExtensionStates {
     const id: ExtensionTypes.EXTENSION_ID = extensionAction.id;
 
     if (id === ExtensionTypes.EXTENSION_ID.CONTENT_DATA) {

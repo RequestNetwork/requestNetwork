@@ -21,17 +21,17 @@ export default {
  *
  * If requestParameters.timestamp not given, "Date.now() / 1000" will be used as default
  *
- * @param requestParameters ICreateParameters parameters to create a request
+ * @param requestParameters IRequestLogicCreateParameters parameters to create a request
  * @param IIdentity signerIdentity Identity of the signer
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
- * @returns IAction  the action with the signature
+ * @returns IRequestLogicAction  the action with the signature
  */
 function format(
-  requestParameters: Types.ICreateParameters,
+  requestParameters: Types.IRequestLogicCreateParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
+): Types.IRequestLogicAction {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
   }
@@ -62,15 +62,21 @@ function format(
   requestParameters.expectedAmount = requestParameters.expectedAmount.toString();
   const version = Version.currentVersion;
 
-  const unsignedAction: Types.IUnsignedAction = {
-    name: Types.ACTION_NAME.CREATE,
+  const unsignedAction: Types.IRequestLogicUnsignedAction = {
+    name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
     parameters: requestParameters,
     version,
   };
 
-  const signerRole: Types.ROLE = Action.getRoleInUnsignedAction(signerIdentity, unsignedAction);
+  const signerRole: Types.REQUEST_LOGIC_ROLE = Action.getRoleInUnsignedAction(
+    signerIdentity,
+    unsignedAction,
+  );
 
-  if (signerRole !== Types.ROLE.PAYEE && signerRole !== Types.ROLE.PAYER) {
+  if (
+    signerRole !== Types.REQUEST_LOGIC_ROLE.PAYEE &&
+    signerRole !== Types.REQUEST_LOGIC_ROLE.PAYER
+  ) {
     throw new Error('Signer must be the payee or the payer');
   }
 
@@ -80,11 +86,11 @@ function format(
 /**
  * Function to create a request (create a request)
  *
- * @param Types.IAction action the action to evaluate
+ * @param Types.IRequestLogicAction action the action to evaluate
  *
- * @returns Types.IRequest the new request
+ * @returns Types.IRequestLogicRequest the new request
  */
-function createRequest(action: Types.IAction): Types.IRequest {
+function createRequest(action: Types.IRequestLogicAction): Types.IRequestLogicRequest {
   if (!action.data.parameters.payee && !action.data.parameters.payer) {
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
@@ -101,20 +107,20 @@ function createRequest(action: Types.IAction): Types.IRequest {
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
   // Copy to not modify the action itself
-  const request: Types.IRequest = Utils.deepCopy(action.data.parameters);
+  const request: Types.IRequestLogicRequest = Utils.deepCopy(action.data.parameters);
   request.extensions = {};
   request.requestId = Action.getRequestId(action);
   request.version = Action.getVersionFromAction(action);
   request.events = [generateEvent(action, signer)];
 
   const signerRole = Action.getRoleInAction(signer, action);
-  if (signerRole === Types.ROLE.PAYEE) {
-    request.state = Types.STATE.CREATED;
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYEE) {
+    request.state = Types.REQUEST_LOGIC_STATE.CREATED;
     request.creator = action.data.parameters.payee;
     return request;
   }
-  if (signerRole === Types.ROLE.PAYER) {
-    request.state = Types.STATE.ACCEPTED;
+  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
+    request.state = Types.REQUEST_LOGIC_STATE.ACCEPTED;
     request.creator = action.data.parameters.payer;
     return request;
   }
@@ -125,17 +131,20 @@ function createRequest(action: Types.IAction): Types.IRequest {
 /**
  * Private function to generate the event 'Create' from an action
  *
- * @param Types.IAction action the action data that create the event
+ * @param Types.IRequestLogicAction action the action data that create the event
  * @param IdentityTypes.IIdentity actionSigner the signer of the action
  *
- * @returns Types.IEvent the event generated
+ * @returns Types.IRequestLogicEvent the event generated
  */
-function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdentity): Types.IEvent {
+function generateEvent(
+  action: Types.IRequestLogicAction,
+  actionSigner: IdentityTypes.IIdentity,
+): Types.IRequestLogicEvent {
   const params = action.data.parameters;
 
-  const event: Types.IEvent = {
+  const event: Types.IRequestLogicEvent = {
     actionSigner,
-    name: Types.ACTION_NAME.CREATE,
+    name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
     parameters: {
       expectedAmount: params.expectedAmount,
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,

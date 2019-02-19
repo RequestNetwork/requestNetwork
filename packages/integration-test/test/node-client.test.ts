@@ -13,8 +13,8 @@ const payerIdentity: Types.Identity.IIdentity = {
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 
-const requestCreationHash: Types.RequestLogic.ICreateParameters = {
-  currency: Types.RequestLogic.CURRENCY.BTC,
+const requestCreationHash: Types.RequestLogic.IRequestLogicCreateParameters = {
+  currency: Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,

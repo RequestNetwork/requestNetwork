@@ -8,15 +8,15 @@ import {
 export * from '@requestnetwork/types';
 
 /** Interface request data */
-export interface IRequestData extends RequestLogicTypes.IRequest {
-  meta: RequestLogicTypes.IReturnMeta | null;
+export interface IRequestData extends RequestLogicTypes.IRequestLogicRequest {
+  meta: RequestLogicTypes.IRequestLogicReturnMeta | null;
   balance: IBalanceWithEvents | null;
   contentData: any;
 }
 
 /** Create request parameters */
 export interface ICreateRequestParameters {
-  requestInfo: RequestLogicTypes.ICreateParameters;
+  requestInfo: RequestLogicTypes.IRequestLogicCreateParameters;
   signer: IdentityTypes.IIdentity;
   paymentNetwork?: IPaymentNetworkCreateParameters;
   topics?: string[];
@@ -44,7 +44,7 @@ export interface IPaymentNetwork {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => any;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
-  getBalance(request: RequestLogicTypes.IRequest): Promise<IBalanceWithEvents>;
+  getBalance(request: RequestLogicTypes.IRequestLogicRequest): Promise<IBalanceWithEvents>;
 }
 
 /** Interface for balances and the events link to the payments and refund */

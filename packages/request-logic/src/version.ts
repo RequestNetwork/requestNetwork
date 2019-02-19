@@ -18,11 +18,14 @@ export default {
  * version is not supported if the version is in the exceptions array defined in config.json
  *
  * @param string version the version to check
- * @param IVersionSupportConfig versionConfiguration override the default configuration only for this check
+ * @param IRequestLogicVersionSupportConfig versionConfiguration override the default configuration only for this check
  *
  * @returns boolean true, if version is supported false otherwise
  */
-function isSupported(version: string, versionConfiguration?: Types.IVersionSupportConfig): boolean {
+function isSupported(
+  version: string,
+  versionConfiguration?: Types.IRequestLogicVersionSupportConfig,
+): boolean {
   versionConfiguration = versionConfiguration || Config.specificationVersion;
 
   return (

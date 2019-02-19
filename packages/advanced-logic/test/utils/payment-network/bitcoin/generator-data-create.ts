@@ -86,19 +86,19 @@ export const extensionStateCreatedEmpty = {
 
 // ---------------------------------------------------------------------
 // request states
-export const requestStateNoExtensions: Types.IRequest = {
+export const requestStateNoExtensions: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.CURRENCY.BTC,
+  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 0,
@@ -118,24 +118,24 @@ export const requestStateNoExtensions: Types.IRequest = {
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.STATE.CREATED,
+  state: Types.REQUEST_LOGIC_STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestStateCreatedWithPaymentAndRefund: Types.IRequest = {
+export const requestStateCreatedWithPaymentAndRefund: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.CURRENCY.BTC,
+  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 1,
@@ -155,24 +155,24 @@ export const requestStateCreatedWithPaymentAndRefund: Types.IRequest = {
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.STATE.CREATED,
+  state: Types.REQUEST_LOGIC_STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmpty: Types.IRequest = {
+export const requestStateCreatedEmpty: Types.IRequestLogicRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.CURRENCY.BTC,
+  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 1,
@@ -192,7 +192,7 @@ export const requestStateCreatedEmpty: Types.IRequest = {
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.STATE.CREATED,
+  state: Types.REQUEST_LOGIC_STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };

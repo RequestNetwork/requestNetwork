@@ -27,7 +27,7 @@ describe('actions/cancel', () => {
       );
 
       expect(actionCancel.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CANCEL,
+        Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
       );
 
       expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -48,7 +48,7 @@ describe('actions/cancel', () => {
       );
 
       expect(actionCancel.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CANCEL,
+        Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
       );
 
       expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -75,8 +75,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -111,7 +111,7 @@ describe('actions/cancel', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.CANCEL,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -162,8 +162,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -197,7 +197,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.CANCEL,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -216,8 +216,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -251,7 +251,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.CANCEL,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -292,7 +292,7 @@ describe('actions/cancel', () => {
     it('cannot cancel if no requestId', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.CANCEL,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
           parameters: {},
           version: CURRENT_VERSION,
         },
@@ -316,14 +316,14 @@ describe('actions/cancel', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
             actionSigner: {
               type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.ACTION_NAME.CREATE,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -339,13 +339,13 @@ describe('actions/cancel', () => {
           value: TestData.payeeRaw.address,
         },
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       const action = {
         data: {
-          name: Types.ACTION_NAME.CANCEL,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -368,14 +368,14 @@ describe('actions/cancel', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [
           {
             actionSigner: {
               type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.ACTION_NAME.CREATE,
+            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -391,13 +391,13 @@ describe('actions/cancel', () => {
           value: TestData.payerRaw.address,
         },
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       const action = {
         data: {
-          name: Types.ACTION_NAME.CANCEL,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -431,8 +431,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -468,7 +468,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.CANCEL,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
       });
     });
@@ -490,8 +490,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -527,7 +527,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.CANCEL,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
       });
     });
@@ -546,8 +546,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -583,7 +583,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.CANCEL,
+        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });

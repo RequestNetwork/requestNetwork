@@ -18,8 +18,9 @@ import * as TestData from './utils/test-data-generator';
 import RequestLogicCore from '../../src/requestLogicCore';
 
 const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions: (extensionStates: Types.IExtensionStates): Types.IExtensionStates =>
-    extensionStates,
+  applyActionToExtensions: (
+    extensionStates: Types.IRequestLogicExtensionStates,
+  ): Types.IRequestLogicExtensionStates => extensionStates,
   extensions: {},
 };
 
@@ -59,7 +60,7 @@ describe('requestLogicCore', () => {
     it('does not support all versions', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.CREATE,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
           parameters: {
             currency: 'ETH',
             expectedAmount: TestData.arbitraryExpectedAmount,
@@ -86,7 +87,7 @@ describe('requestLogicCore', () => {
     it('cannot apply accept with no state', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ACCEPT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -104,18 +105,18 @@ describe('requestLogicCore', () => {
     });
 
     it('cannot apply accept with wrong state', () => {
-      const regularRequestContextWithErrors: Types.IRequest = {
+      const regularRequestContextWithErrors: Types.IRequestLogicRequest = {
         creator: {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         extensions: {},
         extensionsData: [],
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -138,7 +139,7 @@ describe('requestLogicCore', () => {
     it('cannot cancel with no state', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.CANCEL,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
           parameters: {
             requestId: TestData.requestIdMock,
           },
@@ -162,13 +163,13 @@ describe('requestLogicCore', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         extensions: {},
         extensionsData: [],
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -191,7 +192,7 @@ describe('requestLogicCore', () => {
     it('cannot increase expected amount with no state', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: TestData.arbitraryDeltaAmount,
             requestId: TestData.requestIdMock,
@@ -216,13 +217,13 @@ describe('requestLogicCore', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         extensions: {},
         extensionsData: [],
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -245,7 +246,7 @@ describe('requestLogicCore', () => {
     it('cannot reduce expected amount with no state', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: TestData.arbitraryDeltaAmount,
             requestId: TestData.requestIdMock,
@@ -268,13 +269,13 @@ describe('requestLogicCore', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: '-1000',
         extensions: {},
         extensionsData: [],
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -297,7 +298,7 @@ describe('requestLogicCore', () => {
     it('it cannot apply creation with a state', () => {
       const actionCreation = RequestLogicCore.formatCreate(
         {
-          currency: Types.CURRENCY.ETH,
+          currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: {
             type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
@@ -316,7 +317,7 @@ describe('requestLogicCore', () => {
           type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
           value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
         },
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensions: {},
@@ -326,7 +327,7 @@ describe('requestLogicCore', () => {
           value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
         },
         requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
-        state: Types.STATE.CREATED,
+        state: Types.REQUEST_LOGIC_STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -337,7 +338,7 @@ describe('requestLogicCore', () => {
 
     it('can apply creaion with only the payee', () => {
       const paramsCreate = {
-        currency: Types.CURRENCY.ETH,
+        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensionsData: [
           {
@@ -365,13 +366,13 @@ describe('requestLogicCore', () => {
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
-          name: Types.ACTION_NAME.CREATE,
+          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
           parameters: paramsCreate,
           version: CURRENT_VERSION,
         }),
       );
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -409,8 +410,8 @@ describe('requestLogicCore', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -459,8 +460,8 @@ describe('requestLogicCore', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -513,8 +514,8 @@ describe('requestLogicCore', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -567,8 +568,8 @@ describe('requestLogicCore', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );

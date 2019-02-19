@@ -35,7 +35,7 @@ describe('api/payment-network/payment-network-factory', () => {
       expect(
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.CURRENCY.BTC,
+          RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
           paymentNetworkParameters,
         ),
         'createPayment createPaymentNetwork',
@@ -52,7 +52,7 @@ describe('api/payment-network/payment-network-factory', () => {
       expect(() => {
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.CURRENCY.ETH,
+          RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
           paymentNetworkParameters,
         );
       }, 'should throw wrong').to.throw('No payment network support the currency: ETH');
@@ -68,7 +68,7 @@ describe('api/payment-network/payment-network-factory', () => {
       expect(() => {
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.CURRENCY.BTC,
+          RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
           paymentNetworkParameters,
         );
       }, 'should throw wrong').to.throw(
@@ -80,7 +80,7 @@ describe('api/payment-network/payment-network-factory', () => {
   describe('getPaymentNetworkFromRequest', () => {
     it('can getPaymentNetworkFromRequest', async () => {
       const request: any = {
-        currency: RequestLogicTypes.CURRENCY.BTC,
+        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
         extensions: {
           [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
             id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
@@ -96,7 +96,7 @@ describe('api/payment-network/payment-network-factory', () => {
     });
     it('can getPaymentNetworkFromRequest with a request without payment network', async () => {
       const request: any = {
-        currency: RequestLogicTypes.CURRENCY.BTC,
+        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
         extensions: {
           [ExtensionTypes.EXTENSION_ID.CONTENT_DATA as string]: {
             id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
@@ -113,7 +113,7 @@ describe('api/payment-network/payment-network-factory', () => {
 
     it('cannot getPaymentNetworkFromRequest with extension id not handled', async () => {
       const request: any = {
-        currency: RequestLogicTypes.CURRENCY.BTC,
+        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
         extensions: {
           [ExtensionTypes.EXTENSION_ID.CONTENT_DATA as string]: {
             id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
@@ -130,7 +130,7 @@ describe('api/payment-network/payment-network-factory', () => {
 
     it('cannot getPaymentNetworkFromRequest with currency not handled', async () => {
       const request: any = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
         extensions: {
           [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
             id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,

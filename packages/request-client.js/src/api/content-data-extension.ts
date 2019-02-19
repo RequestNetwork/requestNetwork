@@ -49,7 +49,7 @@ export default class ContentDataExtension {
    * @param request The request of which we want the content
    * @returns The content
    */
-  public getContent(request: RequestLogicTypes.IRequest): any {
+  public getContent(request: RequestLogicTypes.IRequestLogicRequest): any {
     if (request.extensions[CONTENT_DATA_EXTENSION_ID]) {
       return request.extensions[CONTENT_DATA_EXTENSION_ID].values.content;
     }

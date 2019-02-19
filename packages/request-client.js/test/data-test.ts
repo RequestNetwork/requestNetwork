@@ -4,8 +4,8 @@ import {
   Signature as SignatureTypes,
 } from '@requestnetwork/types';
 
-export const parameters: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+export const parameters: RequestLogicTypes.IRequestLogicCreateParameters = {
+  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
   expectedAmount: '100000000000',
   extensionsData: [
     {
@@ -29,7 +29,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
 };
 
 export const data = {
-  name: RequestLogicTypes.ACTION_NAME.CREATE,
+  name: RequestLogicTypes.REQUEST_LOGIC_ACTION_NAME.CREATE,
   parameters,
   version: '0.1.0',
 };
@@ -39,7 +39,7 @@ export const signature: SignatureTypes.ISignature = {
   value:
     '0x5bf14cb6c310a48b268c42c9c67deda6edbe57c5eb0a0e1d7fbed1faef8a3b082a3e064efb3f8097fa292e6554b71e811e0df49c70434959c60a36173dd795841b',
 };
-export const action: RequestLogicTypes.IAction = {
+export const action: RequestLogicTypes.IRequestLogicAction = {
   data,
   signature,
 };
@@ -49,7 +49,7 @@ export const anotherSignature: SignatureTypes.ISignature = {
   value:
     '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
 };
-export const anotherCreationAction: RequestLogicTypes.IAction = {
+export const anotherCreationAction: RequestLogicTypes.IRequestLogicAction = {
   data,
   signature: anotherSignature,
 };

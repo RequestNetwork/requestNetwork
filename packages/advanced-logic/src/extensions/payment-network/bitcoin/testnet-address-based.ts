@@ -107,11 +107,11 @@ function createAddRefundAddressAction(
  * @returns state of the request updated
  */
 function applyActionToExtension(
-  extensionsState: RequestLogicTypes.IExtensionStates,
+  extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
   extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequest,
+  requestState: RequestLogicTypes.IRequestLogicRequest,
   actionSigner: IdentityTypes.IIdentity,
-): RequestLogicTypes.IExtensionStates {
+): RequestLogicTypes.IRequestLogicExtensionStates {
   return BitcoinAddressBased.applyActionToExtension(
     extensionsState,
     extensionAction,
