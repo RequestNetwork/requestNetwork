@@ -28,8 +28,8 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedCreationParameters,
-  ): ExtensionTypes.IExtensionAction {
+    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+  ): ExtensionTypes.IAction {
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
@@ -43,8 +43,8 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddPaymentAddressParameters,
-  ): ExtensionTypes.IExtensionAction {
+    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+  ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
@@ -57,8 +57,8 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddRefundAddressParameters,
-  ): ExtensionTypes.IExtensionAction {
+    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+  ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
@@ -73,8 +73,8 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns the balance and the payment/refund events
    */
   public async getBalance(
-    request: RequestLogicTypes.IRequestLogicRequest,
-    paymentNetworkId: ExtensionTypes.EXTENSION_ID,
+    request: RequestLogicTypes.IRequest,
+    paymentNetworkId: ExtensionTypes.ID,
     networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
     if (!request.extensions[paymentNetworkId]) {

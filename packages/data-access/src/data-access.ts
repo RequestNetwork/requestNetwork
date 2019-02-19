@@ -29,7 +29,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @param IStorage storage storage object
    * @param number synchronizationIntervalTime Interval time between each synchronization
    */
-  public constructor(storage: StorageTypes.IStorage, synchronizationIntervalTime: number = DEFAULT_INTERVAL_TIME) {
+  public constructor(
+    storage: StorageTypes.IStorage,
+    synchronizationIntervalTime: number = DEFAULT_INTERVAL_TIME,
+  ) {
     this.storage = storage;
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
@@ -64,9 +67,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
-    transaction: DataAccessTypes.IRequestDataAccessTransaction,
+    transaction: DataAccessTypes.ITransaction,
     topics: string[] = [],
-  ): Promise<DataAccessTypes.IRequestDataReturnPersistTransaction> {
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
@@ -97,11 +100,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param string topic topic to retrieve the transaction from
    *
-   * @returns IRequestDataAccessTransaction list of transactions indexed by topic
+   * @returns ITransaction list of transactions indexed by topic
    */
   public async getTransactionsByTopic(
     topic: string,
-  ): Promise<DataAccessTypes.IRequestDataReturnGetTransactionsByTopic> {
+  ): Promise<DataAccessTypes.IReturnGetTransactionsByTopic> {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
@@ -122,7 +125,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // get transactions indexed by topic in the blocks
     // 1. get the transactions wanted in each block
     // 2. merge all the transactions array in the same array
-    const transactions: DataAccessTypes.IRequestDataAccessTransaction[] = Utils.flatten2DimensionsArray(
+    const transactions: DataAccessTypes.ITransaction[] = Utils.flatten2DimensionsArray(
       blockWithMetaList.map(blockAndMeta =>
         blockAndMeta.block.header.topics[topic].map(
           (position: number) => blockAndMeta.block.transactions[position],
@@ -209,9 +212,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @param locationByTopic LocationByTopic object to push location
    */
   private async pushLocationsWithTopicsFromDataIds(
-    dataIdsWithMeta:
-      | StorageTypes.IRequestStorageGetAllDataIdReturn
-      | StorageTypes.IRequestStorageGetNewDataIdReturn,
+    dataIdsWithMeta: StorageTypes.IGetAllDataIdReturn | StorageTypes.IGetNewDataIdReturn,
     locationByTopic: LocationByTopic,
   ): Promise<void> {
     if (!dataIdsWithMeta.result) {

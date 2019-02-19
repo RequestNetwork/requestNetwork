@@ -10,10 +10,10 @@ export default {
    * @param currency The currency
    * @returns The number of decimals
    */
-  getDecimalsForCurrency(currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY): number {
+  getDecimalsForCurrency(currency: RequestLogicTypes.CURRENCY): number {
     const decimals = {
-      [RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH]: 18,
-      [RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC]: 8,
+      [RequestLogicTypes.CURRENCY.ETH]: 18,
+      [RequestLogicTypes.CURRENCY.BTC]: 8,
     }[currency];
     if (!decimals) {
       throw new Error(`Currency ${currency} not implemented`);

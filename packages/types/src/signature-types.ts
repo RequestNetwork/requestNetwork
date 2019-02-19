@@ -1,7 +1,7 @@
 /** Parameters needed to sign */
 export interface ISignatureParameters {
   // method of the signature
-  method: REQUEST_SIGNATURE_METHOD;
+  method: METHOD;
   // value used to sign
   privateKey: string;
 }
@@ -9,13 +9,13 @@ export interface ISignatureParameters {
 /** Signature */
 export interface ISignature {
   // method used to sign
-  method: REQUEST_SIGNATURE_METHOD;
+  method: METHOD;
   // the signature itself
   value: string;
 }
 
 /** Supported signature methods */
-export enum REQUEST_SIGNATURE_METHOD {
+export enum METHOD {
   ECDSA = 'ecdsa',
 }
 

@@ -23,10 +23,10 @@ const transactionDataMock2String = JSON.stringify({
   attribut2: 'bar',
 });
 
-const transactionMock1: DataAccessTypes.IRequestDataAccessTransaction = {
+const transactionMock1: DataAccessTypes.ITransaction = {
   data: transactionDataMock1String,
 };
-const transactionMock2: DataAccessTypes.IRequestDataAccessTransaction = {
+const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 
@@ -44,7 +44,7 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(blockWith1tx, transa
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
-const getAllDataIdResult: StorageTypes.IRequestStorageGetAllDataIdReturn = {
+const getAllDataIdResult: StorageTypes.IGetAllDataIdReturn = {
   meta: {
     metaDataIds: [],
   },
@@ -53,14 +53,14 @@ const getAllDataIdResult: StorageTypes.IRequestStorageGetAllDataIdReturn = {
   },
 };
 
-const appendResult: StorageTypes.IRequestStorageOneDataIdAndMeta = {
+const appendResult: StorageTypes.IOneDataIdAndMeta = {
   meta: {},
   result: {
     dataId: dataIdBlock2tx,
   },
 };
 
-const emptyDataIdresult: StorageTypes.IRequestStorageGetNewDataIdReturn = {
+const emptyDataIdresult: StorageTypes.IGetNewDataIdReturn = {
   meta: {
     metaDataIds: [],
   },
@@ -83,7 +83,7 @@ describe('data-access', () => {
 
   describe('constructor and getTransactionsByTopic', () => {
     it('cannot initialize with data from read without result', async () => {
-      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
       );
 
@@ -141,7 +141,7 @@ describe('data-access', () => {
     });
 
     it('cannot initialize with content from read not following the standard', async () => {
-      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
       );
 
@@ -170,7 +170,7 @@ describe('data-access', () => {
     });
 
     it('cannot initialize with content from read not being JSON parsable', async () => {
-      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
       );
 
@@ -197,7 +197,7 @@ describe('data-access', () => {
     });
 
     it('can construct and getTransactionsByTopic', async () => {
-      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
       );
 
@@ -207,7 +207,7 @@ describe('data-access', () => {
         getAllDataId: (): any => testTopics,
         getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -247,7 +247,7 @@ describe('data-access', () => {
     });
 
     it('cannot initialize twice', async () => {
-      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
       );
 
@@ -257,7 +257,7 @@ describe('data-access', () => {
         getAllDataId: (): any => testTopics,
         getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -275,7 +275,7 @@ describe('data-access', () => {
     });
 
     it('cannot getTransactionsByTopic if not initialized', async () => {
-      const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
         getAllDataIdResult,
       );
 
@@ -285,7 +285,7 @@ describe('data-access', () => {
         getAllDataId: (): any => testTopics,
         getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: {},
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -381,7 +381,7 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testTopics: Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> = Promise.resolve(
+    const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
       getAllDataIdResult,
     );
 
@@ -393,7 +393,7 @@ describe('data-access', () => {
       getAllDataId: (): any => emptyDataIdresult,
       getNewDataId: (): any => testTopics,
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+        const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
           meta: {},
           result: { content: JSON.stringify(blockWith2tx) },
         };
@@ -479,7 +479,7 @@ describe('data-access', () => {
       getAllDataId: (): any => emptyDataIdresult,
       getNewDataId: (): any => emptyDataIdresult,
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IRequestStorageOneContentAndMeta = {
+        const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
           meta: {},
           result: { content: JSON.stringify(blockWith2tx) },
         };

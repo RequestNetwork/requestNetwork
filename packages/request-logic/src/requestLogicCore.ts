@@ -28,28 +28,28 @@ export default {
  * Function Entry point to apply any action to a request
  * If advancedLogic given, the extensions will be handled
  *
- * @param Types.IRequestLogicRequest request The request before update, null for creation - will not be modified
- * @param Types.IRequestLogicAction action The action to apply
+ * @param Types.IRequest request The request before update, null for creation - will not be modified
+ * @param Types.IAction action The action to apply
  * @param AdvancedLogicTypes.IAdvancedLogic advancedLogic module to handle exception
  *
- * @returns Types.IRequestLogicRequest  The request updated
+ * @returns Types.IRequest  The request updated
  */
 function applyActionToRequest(
-  request: Types.IRequestLogicRequest | null,
-  action: Types.IRequestLogicAction,
+  request: Types.IRequest | null,
+  action: Types.IAction,
   advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
-): Types.IRequestLogicRequest {
+): Types.IRequest {
   if (!Action.isActionVersionSupported(action)) {
     throw new Error('action version not supported');
   }
 
   // we don't want to modify the original request state
-  const requestCopied: Types.IRequestLogicRequest | null = request ? Utils.deepCopy(request) : null;
+  const requestCopied: Types.IRequest | null = request ? Utils.deepCopy(request) : null;
 
-  let requestAfterApply: Types.IRequestLogicRequest | null = null;
+  let requestAfterApply: Types.IRequest | null = null;
 
   // Creation request
-  if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CREATE) {
+  if (action.data.name === Types.ACTION_NAME.CREATE) {
     if (requestCopied) {
       throw new Error('no request is expected at the creation');
     }
@@ -63,23 +63,23 @@ function applyActionToRequest(
     // Will throw if the request is not valid
     Request.checkRequest(requestCopied);
 
-    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT) {
+    if (action.data.name === Types.ACTION_NAME.ACCEPT) {
       requestAfterApply = AcceptAction.applyActionToRequest(action, requestCopied);
     }
 
-    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.CANCEL) {
+    if (action.data.name === Types.ACTION_NAME.CANCEL) {
       requestAfterApply = CancelAction.applyActionToRequest(action, requestCopied);
     }
 
-    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
+    if (action.data.name === Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
       requestAfterApply = IncreaseExpectedAmountAction.applyActionToRequest(action, requestCopied);
     }
 
-    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
+    if (action.data.name === Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
       requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(action, requestCopied);
     }
 
-    if (action.data.name === Types.REQUEST_LOGIC_ACTION_NAME.ADD_EXTENSIONS_DATA) {
+    if (action.data.name === Types.ACTION_NAME.ADD_EXTENSIONS_DATA) {
       requestAfterApply = AddExtensionsData.applyActionToRequest(action, requestCopied);
     }
   }
@@ -92,11 +92,11 @@ function applyActionToRequest(
   if (action.data.parameters.extensionsData && advancedLogic) {
     // Apply the extension on the state
     requestAfterApply.extensions = action.data.parameters.extensionsData.reduce(
-      (extensionState: Types.IRequestLogicExtensionStates, extensionAction: any) => {
+      (extensionState: Types.IExtensionStates, extensionAction: any) => {
         return advancedLogic.applyActionToExtensions(
           extensionState,
           extensionAction,
-          requestAfterApply as Types.IRequestLogicRequest,
+          requestAfterApply as Types.IRequest,
           Action.getSignerIdentityFromAction(action),
         );
       },
@@ -110,10 +110,10 @@ function applyActionToRequest(
 /**
  * Function to create a requestId from the creation action or get the requestId parameter otherwise
  *
- * @param IRequestLogicAction action action
+ * @param IAction action action
  *
  * @returns RequestIdType the requestId
  */
-function getRequestIdFromAction(action: Types.IRequestLogicAction): Types.RequestLogicRequestId {
+function getRequestIdFromAction(action: Types.IAction): Types.RequestId {
   return Action.getRequestId(action);
 }

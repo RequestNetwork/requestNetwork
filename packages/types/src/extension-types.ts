@@ -8,45 +8,45 @@ export { ContentData, PnBitcoinAddressBased };
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {
   applyActionToExtension: (
-    extensionsState: RequestLogic.IRequestLogicExtensionStates,
-    extensionAction: IExtensionAction,
-    requestState: RequestLogic.IRequestLogicRequest,
+    extensionsState: RequestLogic.IExtensionStates,
+    extensionAction: IAction,
+    requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
-  ) => RequestLogic.IRequestLogicExtensionStates;
+  ) => RequestLogic.IExtensionStates;
 }
 
 /** Extensions state in advanced logic */
-export interface IExtensionState {
-  type: EXTENSION_TYPE;
-  id: EXTENSION_ID;
+export interface IState {
+  type: TYPE;
+  id: ID;
   version: string;
-  events: IExtensionEvent[];
+  events: IEvent[];
   values: any;
 }
 
 /** Creation action object */
-export interface IExtensionAction {
+export interface IAction {
   action: string;
-  id: EXTENSION_ID;
+  id: ID;
   parameters?: any;
   version?: string;
 }
 
 /** extension event object */
-export interface IExtensionEvent {
+export interface IEvent {
   name: string;
   parameters: any;
 }
 
 /** Identification of extensions handled by this implementation */
-export enum EXTENSION_ID {
+export enum ID {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
   PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
 }
 
 /** Type of extensions */
-export enum EXTENSION_TYPE {
+export enum TYPE {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK = 'payment-network',
 }

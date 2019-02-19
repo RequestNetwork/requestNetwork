@@ -47,11 +47,11 @@ describe('Request system', () => {
 
     // Signature provider setup
     signatureInfo = {
-      method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+      method: SignatureTypes.METHOD.ECDSA,
       privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
     };
     signerIdentity = {
-      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
     };
     const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
@@ -73,13 +73,13 @@ describe('Request system', () => {
       content: { this: 'could', be: 'an', invoice: true },
     });
 
-    const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-      currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.ETH,
       expectedAmount: '100000000000',
       extensionsData: [contentDataExtensionData],
       payee: signerIdentity,
       payer: {
-        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
       },
     };
@@ -117,13 +117,13 @@ describe('Request system', () => {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
     );
-    const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-      currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.BTC,
       expectedAmount: '100000000000',
       extensionsData: [pnBTCExtensionData, contentDataExtensionData],
       payee: signerIdentity,
       payer: {
-        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
       },
     };

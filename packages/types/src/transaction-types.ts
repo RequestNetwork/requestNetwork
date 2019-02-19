@@ -3,12 +3,12 @@ export interface ITransactionManager {
   persistTransaction: (
     transactionData: string,
     topics?: string[],
-  ) => Promise<IRequestDataReturnPersistTransaction>;
-  getTransactionsByTopic: (topic: string) => Promise<IRequestDataReturnGetTransactionsByTopic>;
+  ) => Promise<IReturnPersistTransaction>;
+  getTransactionsByTopic: (topic: string) => Promise<IReturnGetTransactionsByTopic>;
 }
 
 /** return interface for PersistTransaction  */
-export interface IRequestDataReturnPersistTransaction {
+export interface IReturnPersistTransaction {
   /** meta information */
   meta: {
     /** meta-data from the layer below */
@@ -19,7 +19,7 @@ export interface IRequestDataReturnPersistTransaction {
 }
 
 /** return interface for getTransactionsByTopic  */
-export interface IRequestDataReturnGetTransactionsByTopic {
+export interface IReturnGetTransactionsByTopic {
   /** meta information */
   meta: {
     /** meta-data from the layer below */

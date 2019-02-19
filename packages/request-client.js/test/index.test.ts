@@ -21,28 +21,28 @@ chai.use(spies);
 const sandbox = chai.spy.sandbox();
 
 const signatureParameters: SignatureTypes.ISignatureParameters = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+  method: SignatureTypes.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
 const signerIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any): any => Utils.signature.sign(data, signatureParameters),
-  supportedIdentityTypes: [IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS],
-  supportedMethods: [SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA],
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
-const requestParameters: RequestLogicTypes.IRequestLogicCreateParameters = {
-  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+const requestParameters: RequestLogicTypes.ICreateParameters = {
+  currency: RequestLogicTypes.CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
   },
   payer: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };

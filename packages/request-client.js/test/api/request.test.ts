@@ -54,7 +54,7 @@ const mockPaymentNetwork: Types.IPaymentNetwork = {
 };
 
 const signatureIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 const bitcoinAddress = 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v';

@@ -6,7 +6,7 @@ import {
 } from '@requestnetwork/types';
 
 // Extension ID for this class: content data
-const CONTENT_DATA_EXTENSION_ID = ExtensionTypes.EXTENSION_ID.CONTENT_DATA;
+const CONTENT_DATA_ID = ExtensionTypes.ID.CONTENT_DATA;
 
 /**
  * Handles the content data of a request
@@ -49,9 +49,9 @@ export default class ContentDataExtension {
    * @param request The request of which we want the content
    * @returns The content
    */
-  public getContent(request: RequestLogicTypes.IRequestLogicRequest): any {
-    if (request.extensions[CONTENT_DATA_EXTENSION_ID]) {
-      return request.extensions[CONTENT_DATA_EXTENSION_ID].values.content;
+  public getContent(request: RequestLogicTypes.IRequest): any {
+    if (request.extensions[CONTENT_DATA_ID]) {
+      return request.extensions[CONTENT_DATA_ID].values.content;
     }
     return null;
   }

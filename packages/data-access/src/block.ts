@@ -19,9 +19,9 @@ export default {
 /**
  * Function to create an empty block
  *
- * @returns IRequestDataAccessBlock an empty block
+ * @returns IBlock an empty block
  */
-function createEmptyBlock(): Types.IRequestDataAccessBlock {
+function createEmptyBlock(): Types.IBlock {
   return {
     header: {
       topics: {},
@@ -34,19 +34,19 @@ function createEmptyBlock(): Types.IRequestDataAccessBlock {
 /**
  * Function to add a transaction and topics in the block
  *
- * @param IRequestDataAccessBlock block previous state will not be modified
- * @param IRequestDataAccessTransaction transaction transaction to push
+ * @param IBlock block previous state will not be modified
+ * @param ITransaction transaction transaction to push
  * @param string[] topics strings to topic the transaction
  *
- * @returns IRequestDataAccessBlock the new state
+ * @returns IBlock the new state
  */
 function pushTransaction(
-  block: Types.IRequestDataAccessBlock,
-  transaction: Types.IRequestDataAccessTransaction,
+  block: Types.IBlock,
+  transaction: Types.ITransaction,
   topics: string[] = [],
-): Types.IRequestDataAccessBlock {
+): Types.IBlock {
   // we don't want to modify the original block state
-  const copiedBlock: Types.IRequestDataAccessBlock = Utils.deepCopy(block);
+  const copiedBlock: Types.IBlock = Utils.deepCopy(block);
 
   const newTransactionPosition = copiedBlock.transactions.length;
   copiedBlock.transactions.push(transaction);
@@ -69,30 +69,27 @@ function pushTransaction(
 /**
  * Returns a transaction from its position
  *
- * @param IRequestDataAccessBlock block current block state
+ * @param IBlock block current block state
  * @param number position position of the transaction
  *
- * @returns IRequestDataAccessTransaction the transaction
+ * @returns ITransaction the transaction
  */
-function getTransactionFromPosition(
-  block: Types.IRequestDataAccessBlock,
-  position: number,
-): Types.IRequestDataAccessTransaction {
+function getTransactionFromPosition(block: Types.IBlock, position: number): Types.ITransaction {
   return block.transactions[position];
 }
 
 /**
  * Returns several transactions from their positions
  *
- * @param IRequestDataAccessBlock block current block state
+ * @param IBlock block current block state
  * @param number[] positions list of positions of the transactions
  *
- * @returns IRequestDataAccessTransaction[] the transactions
+ * @returns ITransaction[] the transactions
  */
 function getTransactionsByPositions(
-  block: Types.IRequestDataAccessBlock,
+  block: Types.IBlock,
   positions: number[],
-): Types.IRequestDataAccessTransaction[] {
+): Types.ITransaction[] {
   // remove duplicates and sort
   const sortedPositions = Array.from(new Set(positions)).sort();
 
@@ -104,43 +101,35 @@ function getTransactionsByPositions(
 /**
  * Returns all transactions of a block
  *
- * @param IRequestDataAccessBlock block current block state
+ * @param IBlock block current block state
  *
- * @returns IRequestDataAccessTransaction[] all the transactions with topics
+ * @returns ITransaction[] all the transactions with topics
  */
-function getAllTransactions(
-  block: Types.IRequestDataAccessBlock,
-): Types.IRequestDataAccessTransaction[] {
+function getAllTransactions(block: Types.IBlock): Types.ITransaction[] {
   return block.transactions;
 }
 
 /**
  * Returns a list of the positions of the transactions with given topics
  *
- * @param IRequestDataAccessBlock block current block state
+ * @param IBlock block current block state
  * @param string topic the topic value
  *
  * @returns number[] list of transaction position
  */
-function getTransactionPositionFromTopic(
-  block: Types.IRequestDataAccessBlock,
-  topic: string,
-): number[] {
+function getTransactionPositionFromTopic(block: Types.IBlock, topic: string): number[] {
   return block.header.topics[topic] || [];
 }
 
 /**
  * Returns a list of transactions position from a list of topics
  *
- * @param IRequestDataAccessBlock block current block state
+ * @param IBlock block current block state
  * @param string[] topics the topics value
  *
  * @returns number[] list of transaction positions
  */
-function getTransactionPositionsByTopics(
-  block: Types.IRequestDataAccessBlock,
-  topics: string[],
-): number[] {
+function getTransactionPositionsByTopics(block: Types.IBlock, topics: string[]): number[] {
   const result: number[] = topics
     .map(i => block.header.topics[i])
     .filter(value => value !== undefined)
@@ -153,10 +142,10 @@ function getTransactionPositionsByTopics(
 /**
  * Returns all the topics of the block
  *
- * @param IRequestDataAccessBlock block current block state
+ * @param IBlock block current block state
  *
- * @returns IRequestDataAccessTopics all the topics
+ * @returns ITopics all the topics
  */
-function getAllTopics(block: Types.IRequestDataAccessBlock): Types.IRequestDataAccessTopics {
+function getAllTopics(block: Types.IBlock): Types.ITopics {
   return block.header.topics;
 }

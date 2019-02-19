@@ -90,7 +90,7 @@ describe('advanced-logic.ts', () => {
           {
             id: 'unknownExtension',
             parameters: {},
-            type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
+            type: ExtensionTypes.TYPE.CONTENT_DATA,
             version: '0.1.0',
           } as any,
           TestData.requestCreatedNoExtension,

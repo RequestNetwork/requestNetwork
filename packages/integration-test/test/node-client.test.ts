@@ -5,16 +5,16 @@ import { assert } from 'chai';
 import 'mocha';
 
 const payeeIdentity: Types.Identity.IIdentity = {
-  type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 const payerIdentity: Types.Identity.IIdentity = {
-  type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 
-const requestCreationHash: Types.RequestLogic.IRequestLogicCreateParameters = {
-  currency: Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
+const requestCreationHash: Types.RequestLogic.ICreateParameters = {
+  currency: Types.RequestLogic.CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,
@@ -23,7 +23,7 @@ const requestCreationHash: Types.RequestLogic.IRequestLogicCreateParameters = {
 const topics = [payerIdentity.value, payeeIdentity.value];
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
-  method: Types.Signature.REQUEST_SIGNATURE_METHOD.ECDSA,
+  method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 });
 

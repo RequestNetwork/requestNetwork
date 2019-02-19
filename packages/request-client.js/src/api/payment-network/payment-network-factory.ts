@@ -10,9 +10,9 @@ import TestnetBTCAddressedBased from './btc/testnet-address-based';
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
-    [ExtensionTypes.EXTENSION_ID
+    [ExtensionTypes.ID
       .PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
-    [ExtensionTypes.EXTENSION_ID
+    [ExtensionTypes.ID
       .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
   },
 };
@@ -30,7 +30,7 @@ export default class PaymentNetworkFactory {
    */
   public static createPaymentNetwork(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY,
+    currency: RequestLogicTypes.CURRENCY,
     paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
   ): Types.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetwork[currency];
@@ -58,11 +58,11 @@ export default class PaymentNetworkFactory {
    */
   public static getPaymentNetworkFromRequest(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    request: RequestLogicTypes.IRequestLogicRequest,
+    request: RequestLogicTypes.IRequest,
   ): Types.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
-      extension => extension.type === ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+      extension => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
     );
 
     if (!extensionPaymentNetwork) {

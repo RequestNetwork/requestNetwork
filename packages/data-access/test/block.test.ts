@@ -18,10 +18,10 @@ const transactionDataMock2String = JSON.stringify({
 });
 const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionDataMock2String);
 
-const transactionMock: Types.IRequestDataAccessTransaction = {
+const transactionMock: Types.ITransaction = {
   data: transactionDataMock1String,
 };
-const transactionMock2: Types.IRequestDataAccessTransaction = {
+const transactionMock2: Types.ITransaction = {
   data: transactionDataMock2String,
 };
 

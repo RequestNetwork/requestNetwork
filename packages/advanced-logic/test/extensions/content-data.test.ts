@@ -37,8 +37,8 @@ describe('content-data', () => {
         ContentData.applyActionToExtension(
           TestData.expectedCreatedContentDataState,
           {
-            action: ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE,
-            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
+            action: ExtensionTypes.ContentData.ACTION.CREATE,
+            id: ExtensionTypes.ID.CONTENT_DATA,
             parameters: { content: { what: 'ever', it: 'is' } },
             version: '0.1.0',
           },
@@ -53,8 +53,8 @@ describe('content-data', () => {
         ContentData.applyActionToExtension(
           {},
           {
-            action: ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE,
-            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
+            action: ExtensionTypes.ContentData.ACTION.CREATE,
+            id: ExtensionTypes.ID.CONTENT_DATA,
             parameters: {},
             version: '0.1.0',
           },
@@ -70,7 +70,7 @@ describe('content-data', () => {
           {},
           {
             action: 'unknown action',
-            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
+            id: ExtensionTypes.ID.CONTENT_DATA,
             parameters: {},
             version: '0.1.0',
           },

@@ -33,8 +33,8 @@ const bitcoinAddressBasedManager: ExtensionTypes.PnBitcoinAddressBased.IBitcoinA
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
 function createCreationAction(
-  creationParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedCreationParameters,
-): ExtensionTypes.IExtensionAction {
+  creationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+): ExtensionTypes.IAction {
   if (creationParameters.paymentAddress && !isValidAddress(creationParameters.paymentAddress)) {
     throw Error('paymentAddress is not a valid bitcoin address');
   }
@@ -44,7 +44,7 @@ function createCreationAction(
   }
 
   return BitcoinAddressBased.createCreationAction(
-    ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+    ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     creationParameters,
   );
 }
@@ -54,11 +54,11 @@ function createCreationAction(
  *
  * @param extensions extensions parameters to create
  *
- * @returns IExtensionAction the extensionsData to be stored in the request
+ * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentAddressAction(
-  addPaymentAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddPaymentAddressParameters,
-): ExtensionTypes.IExtensionAction {
+  addPaymentAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+): ExtensionTypes.IAction {
   if (
     addPaymentAddressParameters.paymentAddress &&
     !isValidAddress(addPaymentAddressParameters.paymentAddress)
@@ -67,7 +67,7 @@ function createAddPaymentAddressAction(
   }
 
   return BitcoinAddressBased.createAddPaymentAddressAction(
-    ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+    ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     addPaymentAddressParameters,
   );
 }
@@ -77,11 +77,11 @@ function createAddPaymentAddressAction(
  *
  * @param extensions extensions parameters to create
  *
- * @returns IExtensionAction the extensionsData to be stored in the request
+ * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundAddressAction(
-  addRefundAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddRefundAddressParameters,
-): ExtensionTypes.IExtensionAction {
+  addRefundAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+): ExtensionTypes.IAction {
   if (
     addRefundAddressParameters.refundAddress &&
     !isValidAddress(addRefundAddressParameters.refundAddress)
@@ -90,7 +90,7 @@ function createAddRefundAddressAction(
   }
 
   return BitcoinAddressBased.createAddRefundAddressAction(
-    ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+    ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     addRefundAddressParameters,
   );
 }
@@ -107,11 +107,11 @@ function createAddRefundAddressAction(
  * @returns state of the request updated
  */
 function applyActionToExtension(
-  extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
-  extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  extensionsState: RequestLogicTypes.IExtensionStates,
+  extensionAction: ExtensionTypes.IAction,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
-): RequestLogicTypes.IRequestLogicExtensionStates {
+): RequestLogicTypes.IExtensionStates {
   return BitcoinAddressBased.applyActionToExtension(
     extensionsState,
     extensionAction,
