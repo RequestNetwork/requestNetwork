@@ -82,19 +82,19 @@ export const extensionStateWithRefundAfterCreation = {
 
 // ---------------------------------------------------------------------
 // request states
-export const requestStateCreatedEmptyThenAddPayment: Types.IRequestLogicRequest = {
+export const requestStateCreatedEmptyThenAddPayment: Types.IRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
+  currency: Types.CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 2,
@@ -114,24 +114,24 @@ export const requestStateCreatedEmptyThenAddPayment: Types.IRequestLogicRequest 
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyThenAddRefund: Types.IRequestLogicRequest = {
+export const requestStateCreatedEmptyThenAddRefund: Types.IRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
+  currency: Types.CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 2,
@@ -151,7 +151,7 @@ export const requestStateCreatedEmptyThenAddRefund: Types.IRequestLogicRequest =
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };

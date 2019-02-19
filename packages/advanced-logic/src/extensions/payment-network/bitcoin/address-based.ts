@@ -97,17 +97,15 @@ function createAddRefundAddressAction(
  * @returns state of the request updated
  */
 function applyActionToExtension(
-  extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
+  extensionsState: RequestLogicTypes.IExtensionStates,
   extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
-): RequestLogicTypes.IRequestLogicExtensionStates {
-  if (requestState.currency !== RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC) {
+): RequestLogicTypes.IExtensionStates {
+  if (requestState.currency !== RequestLogicTypes.CURRENCY.BTC) {
     throw Error(`This extension can be used only on BTC request`);
   }
-  const copiedExtensionState: RequestLogicTypes.IRequestLogicExtensionStates = Utils.deepCopy(
-    extensionsState,
-  );
+  const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
   // check if it is a testnet or mainnet BTC payment network
   let btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased | null = null;
@@ -229,7 +227,7 @@ function applyAddPaymentAddress(
   btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased,
   extensionState: ExtensionTypes.IExtensionState,
   extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
 ): ExtensionTypes.IExtensionState {
   if (
@@ -274,7 +272,7 @@ function applyAddRefundAddress(
   btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased,
   extensionState: ExtensionTypes.IExtensionState,
   extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
 ): ExtensionTypes.IExtensionState {
   if (

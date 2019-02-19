@@ -79,19 +79,19 @@ export const expectedCreatedContentDataState = {
 
 export const arbitraryTimestamp = 1544426030;
 
-export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
+export const requestCreatedNoExtension: Types.IRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+  currency: Types.CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 0,
@@ -111,25 +111,25 @@ export const requestCreatedNoExtension: Types.IRequestLogicRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestCreatedWithContentData: Types.IRequestLogicRequest = {
+export const requestCreatedWithContentData: Types.IRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
 
-  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+  currency: Types.CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 1,
@@ -149,25 +149,25 @@ export const requestCreatedWithContentData: Types.IRequestLogicRequest = {
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestCreatedWithPNBitcoinAddressBased: Types.IRequestLogicRequest = {
+export const requestCreatedWithPNBitcoinAddressBased: Types.IRequest = {
   creator: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
 
-  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+  currency: Types.CURRENCY.ETH,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
         value: payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 1,
@@ -187,7 +187,7 @@ export const requestCreatedWithPNBitcoinAddressBased: Types.IRequestLogicRequest
     value: payerRaw.address,
   },
   requestId: requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: arbitraryTimestamp,
   version: '0.1.0',
 };

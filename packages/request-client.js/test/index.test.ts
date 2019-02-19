@@ -34,8 +34,8 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   supportedMethods: [SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA],
 };
 
-const requestParameters: RequestLogicTypes.IRequestLogicCreateParameters = {
-  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+const requestParameters: RequestLogicTypes.ICreateParameters = {
+  currency: RequestLogicTypes.CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: {
     type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,

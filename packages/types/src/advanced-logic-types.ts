@@ -5,11 +5,11 @@ import * as RequestLogic from './request-logic-types';
 /** Advanced Logic layer */
 export interface IAdvancedLogic {
   applyActionToExtensions: (
-    extensionsState: RequestLogic.IRequestLogicExtensionStates,
+    extensionsState: RequestLogic.IExtensionStates,
     extensionAction: Extension.IExtensionAction,
-    requestState: RequestLogic.IRequestLogicRequest,
+    requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
-  ) => RequestLogic.IRequestLogicExtensionStates;
+  ) => RequestLogic.IExtensionStates;
   extensions: any;
 }
 

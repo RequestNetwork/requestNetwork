@@ -23,7 +23,7 @@ const expect = chai.expect;
 chai.use(spies);
 
 const createParams = {
-  currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+  currency: Types.CURRENCY.ETH,
   expectedAmount: TestData.arbitraryExpectedAmount,
   payee: TestData.payeeRaw.identity,
   payer: TestData.payerRaw.identity,
@@ -283,11 +283,11 @@ describe('index', () => {
 
   describe('getRequestById', () => {
     it('can getRequestById', async () => {
-      const actionCreate: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionCreate: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          name: Types.ACTION_NAME.CREATE,
           parameters: {
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.CURRENCY.ETH,
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -298,9 +298,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionAccept: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          name: Types.ACTION_NAME.ACCEPT,
           parameters: {
             requestId,
           },
@@ -309,9 +309,9 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: Types.IRequestLogicAction = Utils.signature.sign(
+      const rxReduce: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
             requestId,
@@ -365,11 +365,11 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.CURRENCY.ETH,
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+                name: Types.ACTION_NAME.CREATE,
                 parameters: {
                   expectedAmount: '123400000000000000',
                   extensionsDataLength: 0,
@@ -378,14 +378,14 @@ describe('index', () => {
               },
               {
                 actionSigner: TestData.payerRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+                name: Types.ACTION_NAME.ACCEPT,
                 parameters: {
                   extensionsDataLength: 0,
                 },
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
                 parameters: {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
@@ -397,7 +397,7 @@ describe('index', () => {
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
             requestId,
-            state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+            state: Types.STATE.ACCEPTED,
             timestamp: 1544426030,
             version: CURRENT_VERSION,
           },
@@ -406,11 +406,11 @@ describe('index', () => {
     });
 
     it('can getRequestById ignore the same transactions even with different case', async () => {
-      const actionCreate: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionCreate: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          name: Types.ACTION_NAME.CREATE,
           parameters: {
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.CURRENCY.ETH,
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -421,9 +421,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionAccept: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          name: Types.ACTION_NAME.ACCEPT,
           parameters: {
             requestId,
           },
@@ -432,9 +432,9 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const actionReduce: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionReduce: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
             requestId,
@@ -444,9 +444,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionReduce2: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionReduce2: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
             requestId: requestId.toUpperCase(),
@@ -504,11 +504,11 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.CURRENCY.ETH,
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+                name: Types.ACTION_NAME.CREATE,
                 parameters: {
                   expectedAmount: '123400000000000000',
                   extensionsDataLength: 0,
@@ -517,14 +517,14 @@ describe('index', () => {
               },
               {
                 actionSigner: TestData.payerRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+                name: Types.ACTION_NAME.ACCEPT,
                 parameters: {
                   extensionsDataLength: 0,
                 },
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
                 parameters: {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
@@ -536,7 +536,7 @@ describe('index', () => {
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
             requestId,
-            state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+            state: Types.STATE.ACCEPTED,
             timestamp: 1544426030,
             version: CURRENT_VERSION,
           },
@@ -545,11 +545,11 @@ describe('index', () => {
     });
 
     it('can getRequestById do not ignore the same transactions if different nonces', async () => {
-      const actionCreate: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionCreate: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+          name: Types.ACTION_NAME.CREATE,
           parameters: {
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.CURRENCY.ETH,
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -560,9 +560,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionAccept: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+          name: Types.ACTION_NAME.ACCEPT,
           parameters: {
             requestId,
           },
@@ -571,9 +571,9 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const actionReduce: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionReduce: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
             requestId,
@@ -583,9 +583,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionReduce2: Types.IRequestLogicAction = Utils.signature.sign(
+      const actionReduce2: Types.IAction = Utils.signature.sign(
         {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
             nonce: 1,
@@ -644,11 +644,11 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+            currency: Types.CURRENCY.ETH,
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+                name: Types.ACTION_NAME.CREATE,
                 parameters: {
                   expectedAmount: '123400000000000000',
                   extensionsDataLength: 0,
@@ -657,14 +657,14 @@ describe('index', () => {
               },
               {
                 actionSigner: TestData.payerRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.ACCEPT,
+                name: Types.ACTION_NAME.ACCEPT,
                 parameters: {
                   extensionsDataLength: 0,
                 },
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
                 parameters: {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
@@ -672,7 +672,7 @@ describe('index', () => {
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: Types.REQUEST_LOGIC_ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
                 parameters: {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
@@ -684,7 +684,7 @@ describe('index', () => {
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
             requestId,
-            state: Types.REQUEST_LOGIC_STATE.ACCEPTED,
+            state: Types.STATE.ACCEPTED,
             timestamp: 1544426030,
             version: CURRENT_VERSION,
           },

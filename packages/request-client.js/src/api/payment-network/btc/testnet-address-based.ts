@@ -68,9 +68,7 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @param the request to check
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(
-    request: RequestLogicTypes.IRequestLogicRequest,
-  ): Promise<Types.IBalanceWithEvents> {
+  public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
     return this.btcAddressBased.getBalance(
       request,
       PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,

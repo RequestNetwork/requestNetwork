@@ -8,11 +8,11 @@ export { ContentData, PnBitcoinAddressBased };
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {
   applyActionToExtension: (
-    extensionsState: RequestLogic.IRequestLogicExtensionStates,
+    extensionsState: RequestLogic.IExtensionStates,
     extensionAction: IExtensionAction,
-    requestState: RequestLogic.IRequestLogicRequest,
+    requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
-  ) => RequestLogic.IRequestLogicExtensionStates;
+  ) => RequestLogic.IExtensionStates;
 }
 
 /** Extensions state in advanced logic */

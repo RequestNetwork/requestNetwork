@@ -73,7 +73,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns the balance and the payment/refund events
    */
   public async getBalance(
-    request: RequestLogicTypes.IRequestLogicRequest,
+    request: RequestLogicTypes.IRequest,
     paymentNetworkId: ExtensionTypes.EXTENSION_ID,
     networkId: number,
   ): Promise<Types.IBalanceWithEvents> {

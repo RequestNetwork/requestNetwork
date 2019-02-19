@@ -22,9 +22,9 @@ const spies = require('chai-spies');
 chai.use(spies);
 
 const randomUnsignedAction = {
-  name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+  name: Types.ACTION_NAME.CREATE,
   parameters: {
-    currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+    currency: Types.CURRENCY.ETH,
     expectedAmount: '100000',
     payee: TestData.payeeRaw.identity,
     payer: TestData.payerRaw.identity,
@@ -59,15 +59,15 @@ describe('Action', () => {
     expect(
       Action.getRoleInAction(TestData.payeeRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYEE);
+    ).to.be.deep.equal(Types.ROLE.PAYEE);
     expect(
       Action.getRoleInAction(TestData.payerRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYER);
+    ).to.be.deep.equal(Types.ROLE.PAYER);
     expect(
       Action.getRoleInAction(TestData.otherIdRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.THIRD_PARTY);
+    ).to.be.deep.equal(Types.ROLE.THIRD_PARTY);
   });
 
   it('can createAction()', () => {

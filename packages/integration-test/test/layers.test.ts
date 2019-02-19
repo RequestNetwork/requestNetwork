@@ -73,8 +73,8 @@ describe('Request system', () => {
       content: { this: 'could', be: 'an', invoice: true },
     });
 
-    const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-      currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.ETH,
       expectedAmount: '100000000000',
       extensionsData: [contentDataExtensionData],
       payee: signerIdentity,
@@ -117,8 +117,8 @@ describe('Request system', () => {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
     );
-    const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-      currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.BTC,
       expectedAmount: '100000000000',
       extensionsData: [pnBTCExtensionData, contentDataExtensionData],
       payee: signerIdentity,

@@ -102,9 +102,9 @@ export default class RequestNetwork {
    * @param requestId The ID of the Request
    * @returns the Request
    */
-  public async fromRequestId(requestId: RequestLogicTypes.RequestLogicRequestId): Promise<Request> {
+  public async fromRequestId(requestId: RequestLogicTypes.RequestId): Promise<Request> {
     try {
-      const requestAndMeta: RequestLogicTypes.IRequestLogicReturnGetRequestById = await this.requestLogic.getRequestById(
+      const requestAndMeta: RequestLogicTypes.IReturnGetRequestById = await this.requestLogic.getRequestById(
         requestId,
       );
 

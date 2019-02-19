@@ -43,17 +43,17 @@ function createCreationAction(
  * Applies the extension action to the request
  * Is called to interpret the extensions data when applying the transaction
  *
- * @param extensionsState IRequestLogicExtensionStates previous state of the extensions
+ * @param extensionsState IExtensionStates previous state of the extensions
  * @param extensionAction IExtensionAction action to apply
- * @param requestState IRequestLogicRequest request state read-only
+ * @param requestState IRequest request state read-only
  *
  * @returns state of the request updated
  */
 function applyActionToExtension(
-  extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
+  extensionsState: RequestLogicTypes.IExtensionStates,
   extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
-): RequestLogicTypes.IRequestLogicExtensionStates {
+  requestState: RequestLogicTypes.IRequest,
+): RequestLogicTypes.IExtensionStates {
   if (extensionAction.action !== ExtensionTypes.ContentData.CONTENT_DATA_ACTION.CREATE) {
     throw Error(`Unknown action: ${extensionAction.action}`);
   }
@@ -67,9 +67,7 @@ function applyActionToExtension(
   }
 
   // Deep copy to not mutate the input parameter
-  const copiedExtensionState: RequestLogicTypes.IRequestLogicExtensionStates = Utils.deepCopy(
-    extensionsState,
-  );
+  const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
   copiedExtensionState[ExtensionTypes.EXTENSION_ID.CONTENT_DATA] = {
     events: [],

@@ -15,25 +15,22 @@ export default {
  * Function to get the role of an identity in a request
  *
  * @param IIdentity identity the identity to check
- * @param IRequestLogicRequest request the request
+ * @param IRequest request the request
  *
- * @returns Types.REQUEST_LOGIC_ROLE the role of the signer (payee, payer or third party)
+ * @returns Types.ROLE the role of the signer (payee, payer or third party)
  */
-function getRoleInRequest(
-  identity: IdentityTypes.IIdentity,
-  request: Types.IRequestLogicRequest,
-): Types.REQUEST_LOGIC_ROLE {
+function getRoleInRequest(identity: IdentityTypes.IIdentity, request: Types.IRequest): Types.ROLE {
   return Role.getRole(identity, request);
 }
 
 /**
  * Function to check if a request context is valid
  *
- * @param IRequestLogicRequest request the request to check
+ * @param IRequest request the request to check
  *
  * @returns boolean true if the request is valid, throw otherwise
  */
-function checkRequest(request: Types.IRequestLogicRequest): boolean {
+function checkRequest(request: Types.IRequest): boolean {
   if (!request.version) {
     throw Error('request.version is missing');
   }
@@ -77,15 +74,15 @@ function checkRequest(request: Types.IRequestLogicRequest): boolean {
 /**
  * Function to simply add the extensions data to the request
  *
- * @param Types.IRequestLogicRequest requestContext The current request context
- * @param Types.IRequestLogicRequest extensionsData The extensions data to add to the request
+ * @param Types.IRequest requestContext The current request context
+ * @param Types.IRequest extensionsData The extensions data to add to the request
  *
- * @returns Types.IRequestLogicRequest The request context with the extensions data added
+ * @returns Types.IRequest The request context with the extensions data added
  */
 function pushExtensionsData(
-  requestContext: Types.IRequestLogicRequest,
+  requestContext: Types.IRequest,
   extensionsData?: any[],
-): Types.IRequestLogicRequest {
+): Types.IRequest {
   if (extensionsData) {
     requestContext.extensionsData = (requestContext.extensionsData || []).concat(extensionsData);
   }
