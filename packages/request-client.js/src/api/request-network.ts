@@ -83,6 +83,14 @@ export default class RequestNetwork {
       );
     }
 
+    // add identities as topics
+    if (copiedRequestParameters.payee) {
+      topics.push(copiedRequestParameters.payee.value);
+    }
+    if (copiedRequestParameters.payer) {
+      topics.push(copiedRequestParameters.payer.value);
+    }
+
     const {
       result: { requestId },
     } = await this.requestLogic.createRequest(copiedRequestParameters, parameters.signer, topics);

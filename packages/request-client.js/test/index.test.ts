@@ -47,10 +47,6 @@ const requestParameters: RequestLogicTypes.ICreateParameters = {
   },
 };
 
-const topics = [
-  '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-];
 /* tslint:disable:no-magic-numbers */
 function mockAxios(): any {
   const mock = new mockAdapter(axios);
@@ -94,7 +90,6 @@ describe('index', () => {
       paymentNetwork,
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -125,7 +120,6 @@ describe('index', () => {
       paymentNetwork,
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -148,7 +142,6 @@ describe('index', () => {
     await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -174,7 +167,6 @@ describe('index', () => {
     await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -189,7 +181,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     expect(request).to.be.instanceOf(Request);
@@ -209,7 +200,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const requestFromId = await requestNetwork.fromRequestId(request.requestId);
@@ -228,7 +218,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
@@ -251,7 +240,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const data = await request.getData();
@@ -279,7 +267,6 @@ describe('index', () => {
       paymentNetwork,
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const data = await request.getData();
@@ -305,7 +292,6 @@ describe('index', () => {
       contentData,
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const data = await request.getData();
@@ -320,7 +306,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
@@ -337,7 +322,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
@@ -354,7 +338,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
@@ -371,7 +354,6 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
       signer: signerIdentity,
-      topics,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
