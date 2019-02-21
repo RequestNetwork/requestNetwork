@@ -6,7 +6,10 @@ import EthereumPrivateKeySignatureProvider from '../src/ethereum-private-key-sig
 
 import Utils from '@requestnetwork/utils';
 
-import { expect } from 'chai';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 
 const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -159,31 +162,33 @@ describe('ethereum-private-key-signature-provider', () => {
   });
 
   describe('sign', () => {
-    it('can sign', () => {
+    it('can sign', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
-      const signedData: SignatureTypes.ISignedData = signProvider.sign(data, id1Raw.identity);
+      const signedData: SignatureTypes.ISignedData = await signProvider.sign(data, id1Raw.identity);
 
       expect(signedData, 'signedData is wrong').to.be.deep.equal(signedDataExpected);
     });
-    it('cannot sign if identity not supported', () => {
+    it('cannot sign if identity not supported', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
       const arbitraryIdentity: any = { type: 'unknown type', value: '0x000' };
-      expect(() => {
-        signProvider.sign(data, arbitraryIdentity);
-      }, 'should throw').to.throw('Identity type not supported unknown type');
+      await expect(
+        signProvider.sign(data, arbitraryIdentity),
+        'should throw',
+      ).to.eventually.rejectedWith('Identity type not supported unknown type');
     });
-    it('cannot sign if private key of the identity not given', () => {
+    it('cannot sign if private key of the identity not given', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
       const arbitraryIdentity: IdentityTypes.IIdentity = {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x000',
       };
-      expect(() => {
-        signProvider.sign(data, arbitraryIdentity);
-      }, 'should throw').to.throw('private key unknown for the address 0x000');
+      await expect(
+        signProvider.sign(data, arbitraryIdentity),
+        'should throw',
+      ).to.eventually.rejectedWith('private key unknown for the address 0x000');
     });
   });
 });

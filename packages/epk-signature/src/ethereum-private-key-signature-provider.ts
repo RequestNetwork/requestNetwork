@@ -40,7 +40,10 @@ export default class EthereumPrivateKeySignatureProvider
    *
    * @returns string the signature
    */
-  public sign(data: any, signer: IdentityTypes.IIdentity): SignatureTypes.ISignedData {
+  public async sign(
+    data: any,
+    signer: IdentityTypes.IIdentity,
+  ): Promise<SignatureTypes.ISignedData> {
     const actualSigner = signer;
 
     if (!this.supportedIdentityTypes.includes(actualSigner.type)) {
