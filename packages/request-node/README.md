@@ -1,10 +1,9 @@
 # `@requestnetwork/request-node`
 
 `@requestnetwork/request-node` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
-This package allows you to run a full Request Node. 
+This package allows you to run a full Request Node.
 
 Request Nodes are the basic servers used to allow any user to communicate with the Request Network protocol, these servers abstract the complexity of the storage layer for the users. The users can easily create a request or execute an action on a request by sending messages to the Node.
-
 
 The Request Node runs the two bottom layers of the Request Network protocol:
 
@@ -33,11 +32,11 @@ POST /persistTransaction {BODY}
 
 ##### Body
 
-| Field           | Type   | Description                                                 |
-|-----------------|--------|-------------------------------------------------------------|
-| transactionData | {data: string} | Data of the request transaction from the [transaction layer](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction-manager)  |
-| topics          | string[] | Topics to attach to the transaction to allows its retrieval |
- 
+| Field           | Type           | Description                                                                                                                                             |
+| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| transactionData | {data: string} | Data of the request transaction from the [transaction layer](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction-manager) |
+| topics          | string[]       | Topics to attach to the transaction to allows its retrieval                                                                                             |
+
 ##### Example
 
 ```
@@ -49,15 +48,15 @@ curl \
 
 ##### Success 200
 
-| Field  | Type                     | Description              |
-|--------|--------------------------|--------------------------|
-| meta   | Object                   | Metadata of the response |
-| result | {} | Empty object      |
+| Field  | Type   | Description              |
+| ------ | ------ | ------------------------ |
+| meta   | Object | Metadata of the response |
+| result | {}     | Empty object             |
 
 ##### Error
 
 | Code | Description                                            |
-|------|--------------------------------------------------------|
+| ---- | ------------------------------------------------------ |
 | 422  | The input fields of the request are incorrect          |
 | 500  | The persistTransaction operation from DataAccess fails |
 
@@ -72,7 +71,7 @@ GET /getTransactionsByTopic?{PARAMETER}
 ##### Parameter
 
 | Field | Type   | Description                           |
-|-------|--------|---------------------------------------|
+| ----- | ------ | ------------------------------------- |
 | topic | string | Topic used to search for transactions |
 
 ##### Example
@@ -84,14 +83,14 @@ curl -i "http://localhost:3000/getTransactionsByTopic?topic=topicExample"
 ##### Success 200
 
 | Field  | Type                     | Description              |
-|--------|--------------------------|--------------------------|
+| ------ | ------------------------ | ------------------------ |
 | meta   | Object                   | Metadata of the response |
 | result | {transactions: string[]} | List of transaction      |
 
 ##### Error
 
 | Code | Description                                                |
-|------|------------------------------------------------------------|
+| ---- | ---------------------------------------------------------- |
 | 422  | The input fields of the request are incorrect              |
 | 500  | The getTransactionsByTopic operation from DataAccess fails |
 
@@ -101,7 +100,21 @@ A Node can be deployed by anyone. Users interested by running their own node can
 
 ### Installation
 
-The Request Node source must be downloaded from Github and built with Node.
+#### Through the npm executable
+
+```bash
+npm install -g @requestnetwork/request-node
+```
+
+This will allow you to run the node with
+
+```bash
+request-node start
+```
+
+#### Through the sources
+
+The Request Node source must be downloaded from Github and executed with Node.js.
 
 ```bash
 git clone https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node/request-node.git
@@ -120,6 +133,12 @@ A Request Node can be started locally with the following command:
 npm run start <options>
 ```
 
+or
+
+```bash
+request-node start <options>
+```
+
 All command line options are optional.
 
 The options used to run the server are defined as follows:
@@ -133,26 +152,26 @@ Default values correspond to the basic configuration used to run a server in a t
 #### Options:
 
 - `--port` Port for the server to listen for API requests
-	- Default value: `3000`
-	- Environment variable name: `$PORT`
+  - Default value: `3000`
+  - Environment variable name: `$PORT`
 - `--networkId` Id of the Ethereum network used
-	- Default value: `0`
-	- Environment variable name: `$ETHEREUM_NETWORK_ID`
-- `--providerHost` Url of the web3 provider for Ethereum
-	- Default value: `http://localhost:8545`
-	- Environment variable name: `$WEB3_PROVIDER_URL`
+  - Default value: `0`
+  - Environment variable name: `$ETHEREUM_NETWORK_ID`
+- `--providerHost` URL of the web3 provider for Ethereum
+  - Default value: `http://localhost:8545`
+  - Environment variable name: `$WEB3_PROVIDER_URL`
 - `--ipfsHost` Host of the IPFS gateway
-	- Default value: `localhost`
-	- Environment variable name: `$IPFS_HOST`
+  - Default value: `localhost`
+  - Environment variable name: `$IPFS_HOST`
 - `--ipfsPort` Port of the IPFS gateway
-	- Default value: `5001`
-	- Environment variable name: `$IPFS_PORT`
+  - Default value: `5001`
+  - Environment variable name: `$IPFS_PORT`
 - `--ipfsProtocol` Protocol used to connect to the IPFS gateway
-	- Default value: `http`
-	- Environment variable name: `$IPFS_PROTOCOL`
+  - Default value: `http`
+  - Environment variable name: `$IPFS_PROTOCOL`
 - `--ipfsTimeout` Timeout threshold to connect to the IPFS gateway
-	- Default value: `10000 `
-	- Environment variable name: `$IPFS_TIMEOUT`
+  - Default value: `10000`
+  - Environment variable name: `$IPFS_TIMEOUT`
 
 #### Mnemonic
 
@@ -170,7 +189,7 @@ This mnemonic should only be used for testing.
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. 
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 [Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
 
 ## License

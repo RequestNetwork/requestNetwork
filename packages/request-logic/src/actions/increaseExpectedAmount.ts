@@ -21,23 +21,23 @@ export default {
 /**
  * Function to format an action to increase expected amount of a Request
  *
- * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
+ * @param IIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
  * @param IIdentity signerIdentity Identity of the signer
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
- * @returns IRequestLogicAction  the action with the signature
+ * @returns IAction  the action with the signature
  */
 function format(
-  increaseAmountParameters: Types.IRequestLogicIncreaseExpectedAmountParameters,
+  increaseAmountParameters: Types.IIncreaseExpectedAmountParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IRequestLogicAction {
+): Types.IAction {
   if (!Amount.isValid(increaseAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
-  const unsignedAction: Types.IRequestLogicUnsignedAction = {
-    name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+  const unsignedAction: Types.IUnsignedAction = {
+    name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
     parameters: increaseAmountParameters,
     version: Version.currentVersion,
   };
@@ -48,14 +48,11 @@ function format(
 /**
  * Function to apply an increaseExpectedAmount action on a request
  *
- * @param Types.IRequestLogicAction action the action to apply
+ * @param Types.IAction action the action to apply
  *
- * @returns Types.IRequestLogicRequest the new request
+ * @returns Types.IRequest the new request
  */
-function applyActionToRequest(
-  action: Types.IRequestLogicAction,
-  request: Types.IRequestLogicRequest,
-): Types.IRequestLogicRequest {
+function applyActionToRequest(action: Types.IAction, request: Types.IRequest): Types.IRequest {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -73,12 +70,12 @@ function applyActionToRequest(
   const signerRole = Request.getRoleInRequest(signer, request);
 
   // avoid to mutate the request
-  let requestCopied: Types.IRequestLogicRequest = Utils.deepCopy(request);
+  let requestCopied: Types.IRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, signer));
 
-  if (signerRole === Types.REQUEST_LOGIC_ROLE.PAYER) {
-    if (request.state === Types.REQUEST_LOGIC_STATE.CANCELED) {
+  if (signerRole === Types.ROLE.PAYER) {
+    if (request.state === Types.STATE.CANCELED) {
       throw new Error('the request must not be canceled');
     }
     // increase the expected amount and store it as string
@@ -96,20 +93,17 @@ function applyActionToRequest(
 /**
  * Private function to generate the event 'IncreaseExpectedAmount' from an action
  *
- * @param Types.IRequestLogicAction action the action data that create the event
+ * @param Types.IAction action the action data that create the event
  * @param IdentityTypes.IIdentity actionSigner the signer of the action
  *
- * @returns Types.IRequestLogicEvent the event generated
+ * @returns Types.IEvent the event generated
  */
-function generateEvent(
-  action: Types.IRequestLogicAction,
-  actionSigner: IdentityTypes.IIdentity,
-): Types.IRequestLogicEvent {
+function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdentity): Types.IEvent {
   const params = action.data.parameters;
 
-  const event: Types.IRequestLogicEvent = {
+  const event: Types.IEvent = {
     actionSigner,
-    name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+    name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
     parameters: {
       deltaAmount: action.data.parameters.deltaAmount,
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,

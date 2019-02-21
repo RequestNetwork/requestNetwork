@@ -56,7 +56,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
    */
-  public async append(content: string): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta> {
+  public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
     if (!content) {
       throw Error('No content provided');
     }
@@ -103,7 +103,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param Id Id used to retrieve content
    * @returns Promise resolving content from id
    */
-  public async read(id: string): Promise<StorageTypes.IRequestStorageOneContentAndMeta> {
+  public async read(id: string): Promise<StorageTypes.IOneContentAndMeta> {
     if (!id) {
       throw Error('No id provided');
     }
@@ -146,12 +146,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Get all data stored on the storage
    * @returns Promise resolving stored data
    */
-  public async getAllData(): Promise<StorageTypes.IRequestStorageGetAllDataReturn> {
+  public async getAllData(): Promise<StorageTypes.IGetAllDataReturn> {
     const allDataIds = await this.getAllDataId();
 
     // Read content for each id
     const dataPromises = allDataIds.result.dataIds.map(
-      async (id: string): Promise<StorageTypes.IRequestStorageOneContentAndMeta> => {
+      async (id: string): Promise<StorageTypes.IOneContentAndMeta> => {
         return this.read(id);
       },
     );
@@ -173,7 +173,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Get all id from data stored on the storage
    * @returns Promise resolving id of stored data
    */
-  public async getAllDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
+  public async getAllDataId(): Promise<StorageTypes.IGetAllDataIdReturn> {
     const hashesAndSizes = await this.smartContractManager.getAllHashesAndSizesFromEthereum();
 
     return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
@@ -183,7 +183,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Get new id from data stored on the storage
    * @returns Promise resolving id of stored data
    */
-  public async getNewDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
+  public async getNewDataId(): Promise<StorageTypes.IGetAllDataIdReturn> {
     const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
 
     return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
@@ -196,17 +196,15 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Filtered list of dataId with metadata
    */
   private async hashesAndSizesToFilteredDataIdAndMeta(
-    hashesAndSizes: StorageTypes.IRequestStorageGetAllHashesAndSizes[],
-  ): Promise<
-    StorageTypes.IRequestStorageGetAllDataIdReturn | StorageTypes.IRequestStorageGetNewDataIdReturn
-  > {
+    hashesAndSizes: StorageTypes.IGetAllHashesAndSizes[],
+  ): Promise<StorageTypes.IGetAllDataIdReturn | StorageTypes.IGetNewDataIdReturn> {
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
     // or when the size doesn't correspond to the size of the content stored on ipfs
     const parsedDataIdAndMetaPromises = hashesAndSizes.map(
       async (
-        hashAndSizePromise: StorageTypes.IRequestStorageGetAllHashesAndSizes,
-      ): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta> => {
+        hashAndSizePromise: StorageTypes.IGetAllHashesAndSizes,
+      ): Promise<StorageTypes.IOneDataIdAndMeta> => {
         const hashAndSize = await hashAndSizePromise;
 
         if (typeof hashAndSize.hash === 'undefined' || typeof hashAndSize.size === 'undefined') {
@@ -282,14 +280,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Filtered promises
    */
   private async filterDataIdAndMetaPromises(
-    dataIdAndMetaPromises: Array<Promise<StorageTypes.IRequestStorageOneDataIdAndMeta>>,
-  ): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta[]> {
+    dataIdAndMetaPromises: Array<Promise<StorageTypes.IOneDataIdAndMeta>>,
+  ): Promise<StorageTypes.IOneDataIdAndMeta[]> {
     // Convert the promises into bluebird promises
     // to be able to inspect the status of the promise with reflect
     const dataIdAndMetaInspections: any = Bluebird.all(
-      dataIdAndMetaPromises.map(
-        (dataIdAndMetaPromise: Promise<StorageTypes.IRequestStorageOneDataIdAndMeta>) =>
-          Bluebird.resolve(dataIdAndMetaPromise).reflect(),
+      dataIdAndMetaPromises.map((dataIdAndMetaPromise: Promise<StorageTypes.IOneDataIdAndMeta>) =>
+        Bluebird.resolve(dataIdAndMetaPromise).reflect(),
       ),
     );
 

@@ -15,4 +15,5 @@ export default {
   identity,
   isString: utils.isString,
   signature,
+  unique: utils.unique,
 };

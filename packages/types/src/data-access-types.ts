@@ -2,14 +2,14 @@
 export interface IDataAccess {
   initialize: () => Promise<void>;
   persistTransaction: (
-    transactionData: IRequestDataAccessTransaction,
+    transactionData: ITransaction,
     topics?: string[],
-  ) => Promise<IRequestDataReturnPersistTransaction>;
-  getTransactionsByTopic: (topic: string) => Promise<IRequestDataReturnGetTransactionsByTopic>;
+  ) => Promise<IReturnPersistTransaction>;
+  getTransactionsByTopic: (topic: string) => Promise<IReturnGetTransactionsByTopic>;
 }
 
 /** return interface for PersistTransaction  */
-export interface IRequestDataReturnPersistTransaction {
+export interface IReturnPersistTransaction {
   /** meta information */
   meta: {
     /** location of the persisted transaction */
@@ -24,7 +24,7 @@ export interface IRequestDataReturnPersistTransaction {
 }
 
 /** return interface for getTransactionsByTopic  */
-export interface IRequestDataReturnGetTransactionsByTopic {
+export interface IReturnGetTransactionsByTopic {
   /** meta information */
   meta: {
     /** location of the transactions (follow the position of the result.transactions) */
@@ -33,30 +33,30 @@ export interface IRequestDataReturnGetTransactionsByTopic {
     storageMeta?: any;
   };
   /** result of the execution */
-  result: { transactions: IRequestDataAccessTransaction[] };
+  result: { transactions: ITransaction[] };
 }
 
 /** Block: main data structure of data-access, contains transactions */
-export interface IRequestDataAccessBlock {
-  header: IRequestDataAccessBlockHeader;
-  transactions: IRequestDataAccessTransaction[];
+export interface IBlock {
+  header: IBlockHeader;
+  transactions: ITransaction[];
 }
 
 /** Block Header */
-export interface IRequestDataAccessBlockHeader {
-  topics: IRequestDataAccessTopics;
+export interface IBlockHeader {
+  topics: ITopics;
   version: string;
 }
 
 /** Topics, to index the transactions */
-export interface IRequestDataAccessTopics {
+export interface ITopics {
   [key: string]: number[];
 }
 
 /** Transaction */
-export interface IRequestDataAccessTransaction {
-  data: IRequestDataAccessTransactionData;
+export interface ITransaction {
+  data: ITransactionData;
 }
 
 /** Transaction data */
-export type IRequestDataAccessTransactionData = string;
+export type ITransactionData = string;

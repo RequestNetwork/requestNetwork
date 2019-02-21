@@ -133,6 +133,9 @@ Example
 
 An action is a JSON object created to modify the properties of a request.
 An action is performed on a `request` under **conditions** specified in the action itself.
+An action is ignored if there exists a previous identical action. If their normalized hashes (see [How to sign a JSON object](#how-to-sign-a-json-object)) are identical the second action is ignored.
+This mechanism counters a replay attack where one can replay an action already signed (e.g.: reduceExpectedAmount).
+If one wants to create two similar actions, he must add an arbitrary number (see nonce later in this document).
 
 IMPORTANT :
 
@@ -400,11 +403,12 @@ Example of 'cancel' event:
 
 ##### Parameters
 
-|                    | Type   | Description                            | Requirement   |
-| ------------------ | ------ | -------------------------------------- | ------------- |
-| **requestId**      | String | ID of the request                      | **Mandatory** |
-| **deltaAmount**    | Amount | amount to reduce to the expectedAmount | **Mandatory** |
-| **extensionsData** | Array  | list of data used by the above layer   | Optional      |
+|                    | Type   | Description                               | Requirement   |
+| ------------------ | ------ | ----------------------------------------- | ------------- |
+| **requestId**      | String | ID of the request                         | **Mandatory** |
+| **deltaAmount**    | Amount | amount to reduce to the expectedAmount    | **Mandatory** |
+| **extensionsData** | Array  | list of data used by the above layer      | Optional      |
+| **nonce**          | Number | Number to differentiate identical actions | Optional      |
 
 ##### Conditions
 
@@ -475,11 +479,12 @@ Example of 'reduceExpectedAmount' event:
 
 ##### Parameters
 
-|                    | Type   | Description                          | Requirement   |
-| ------------------ | ------ | ------------------------------------ | ------------- |
-| **requestId**      | String | ID of the request                    | **Mandatory** |
-| **deltaAmount**    | Amount | amount to add to the expectedAmount  | **Mandatory** |
-| **extensionsData** | Array  | list of data used by the above layer | Optional      |
+|                    | Type   | Description                               | Requirement   |
+| ------------------ | ------ | ----------------------------------------- | ------------- |
+| **requestId**      | String | ID of the request                         | **Mandatory** |
+| **deltaAmount**    | Amount | amount to add to the expectedAmount       | **Mandatory** |
+| **extensionsData** | Array  | list of data used by the above layer      | Optional      |
+| **nonce**          | Number | Number to differentiate identical actions | Optional      |
 
 ##### Conditions
 
@@ -549,10 +554,11 @@ Example of 'increaseExpectedAmount' event:
 
 ##### Parameters
 
-|                    | Type   | Description                          | Requirement   |
-| ------------------ | ------ | ------------------------------------ | ------------- |
-| **requestId**      | String | ID of the request                    | **Mandatory** |
-| **extensionsData** | Array  | list of data used by the above layer | **Mandatory** |
+|                    | Type   | Description                               | Requirement   |
+| ------------------ | ------ | ----------------------------------------- | ------------- |
+| **requestId**      | String | ID of the request                         | **Mandatory** |
+| **extensionsData** | Array  | list of data used by the above layer      | **Mandatory** |
+| **nonce**          | Number | Number to differentiate identical actions | Optional      |
 
 ##### Conditions
 

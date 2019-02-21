@@ -14,15 +14,15 @@ export default {
  * @param any parameters the object to check
  * @param IIdentity identity the identity to check
  *
- * @returns Types.REQUEST_LOGIC_ROLE the role of identity in parameters
+ * @returns Types.ROLE the role of identity in parameters
  */
-function getRole(identity: IdentityTypes.IIdentity, parameters: any): Types.REQUEST_LOGIC_ROLE {
+function getRole(identity: IdentityTypes.IIdentity, parameters: any): Types.ROLE {
   if (parameters.payee && Utils.identity.areEqual(parameters.payee, identity)) {
-    return Types.REQUEST_LOGIC_ROLE.PAYEE;
+    return Types.ROLE.PAYEE;
   }
   if (parameters.payer && Utils.identity.areEqual(parameters.payer, identity)) {
-    return Types.REQUEST_LOGIC_ROLE.PAYER;
+    return Types.ROLE.PAYER;
   }
 
-  return Types.REQUEST_LOGIC_ROLE.THIRD_PARTY;
+  return Types.ROLE.THIRD_PARTY;
 }

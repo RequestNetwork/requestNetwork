@@ -17,13 +17,9 @@ type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParam
 export default class EthereumPrivateKeySignatureProvider
   implements SignatureProviderTypes.ISignatureProvider {
   /** list of supported signing method */
-  public supportedMethods: SignatureTypes.REQUEST_SIGNATURE_METHOD[] = [
-    SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  ];
+  public supportedMethods: SignatureTypes.METHOD[] = [SignatureTypes.METHOD.ECDSA];
   /** list of supported identity types */
-  public supportedIdentityTypes: IdentityTypes.REQUEST_IDENTITY_TYPE[] = [
-    IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
-  ];
+  public supportedIdentityTypes: IdentityTypes.TYPE[] = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
 
   /** Dictionary containing all the private key indexed by address */
   private signatureParametersDictionary: ISignatureParametersDictionary;
@@ -66,7 +62,7 @@ export default class EthereumPrivateKeySignatureProvider
     return {
       data,
       signature: {
-        method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+        method: SignatureTypes.METHOD.ECDSA,
         value: signatureValue,
       },
     };
@@ -95,7 +91,7 @@ export default class EthereumPrivateKeySignatureProvider
     this.signatureParametersDictionary.set(address, signatureParams);
 
     return {
-      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: address,
     };
   }
@@ -134,7 +130,7 @@ export default class EthereumPrivateKeySignatureProvider
    */
   public getAllRegisteredIdentities(): IdentityTypes.IIdentity[] {
     return Array.from(this.signatureParametersDictionary.keys(), address => ({
-      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: address,
     }));
   }

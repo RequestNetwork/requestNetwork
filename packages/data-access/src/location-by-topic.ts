@@ -20,11 +20,11 @@ export default class LocalLocationIndex {
    * Function to push location indexed with block topics
    *
    * @param string dataId dataId to index
-   * @param IRequestDataAccessTopics blockTopics topics of the block
+   * @param ITopics blockTopics topics of the block
    */
   public pushLocationIndexedWithBlockTopics(
     dataId: string,
-    blockTopics: DataAccessTypes.IRequestDataAccessTopics,
+    blockTopics: DataAccessTypes.ITopics,
   ): void {
     // index the new block with the topics
     for (const topic in blockTopics) {

@@ -8,7 +8,7 @@ import * as Types from '../../../types';
 import BTCAddressBased from './address-based';
 
 const PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED =
-  ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED;
+  ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED;
 const TESTNET_BITCOIN_NETWORK_ID = 3;
 
 /**
@@ -31,8 +31,8 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedCreationParameters,
-  ): ExtensionTypes.IExtensionAction {
+    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+  ): ExtensionTypes.IAction {
     return this.btcAddressBased.createExtensionsDataForCreation(paymentNetworkCreationParameters);
   }
 
@@ -44,8 +44,8 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddPaymentAddressParameters,
-  ): ExtensionTypes.IExtensionAction {
+    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+  ): ExtensionTypes.IAction {
     return this.btcAddressBased.createExtensionsDataForAddPaymentInformation(parameters);
   }
 
@@ -57,8 +57,8 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddRefundAddressParameters,
-  ): ExtensionTypes.IExtensionAction {
+    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+  ): ExtensionTypes.IAction {
     return this.btcAddressBased.createExtensionsDataForAddRefundInformation(parameters);
   }
 
@@ -68,9 +68,7 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @param the request to check
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(
-    request: RequestLogicTypes.IRequestLogicRequest,
-  ): Promise<Types.IBalanceWithEvents> {
+  public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
     return this.btcAddressBased.getBalance(
       request,
       PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,

@@ -57,6 +57,14 @@ class RequestNode {
       throw error;
     }
 
+    try {
+      await this.dataAccess.startAutoSynchronization();
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.error(`Node failed to start auto synchronization`);
+      throw error;
+    }
+
     this.initialized = true;
 
     // tslint:disable-next-line:no-console
@@ -87,7 +95,11 @@ class RequestNode {
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return persistTransaction.actionPersistTransaction(clientRequest, serverResponse, this.dataAccess);
+        return persistTransaction.actionPersistTransaction(
+          clientRequest,
+          serverResponse,
+          this.dataAccess,
+        );
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
@@ -97,7 +109,11 @@ class RequestNode {
     // Route for getTransactionsByTopic request
     router.get('/getTransactionsByTopic', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getTransactionsByTopic.actionGetTransactionsByTopic(clientRequest, serverResponse, this.dataAccess);
+        return getTransactionsByTopic.actionGetTransactionsByTopic(
+          clientRequest,
+          serverResponse,
+          this.dataAccess,
+        );
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }

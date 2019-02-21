@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-signature",
-  "version": "0.1.1-alpha.2",
+  "version": "0.1.1-alpha.4",
   "publishConfig": {
     "access": "public"
   },
@@ -28,7 +28,7 @@
     "test": "test"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "run-s build:commonjs build:umd",
@@ -41,8 +41,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.1",
-    "@requestnetwork/utils": "0.1.1-alpha.2"
+    "@requestnetwork/types": "0.1.1-alpha.3",
+    "@requestnetwork/utils": "0.1.1-alpha.4"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

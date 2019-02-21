@@ -27,7 +27,7 @@ describe('actions/cancel', () => {
       );
 
       expect(actionCancel.data.name, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        Types.ACTION_NAME.CANCEL,
       );
 
       expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -48,7 +48,7 @@ describe('actions/cancel', () => {
       );
 
       expect(actionCancel.data.name, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        Types.ACTION_NAME.CANCEL,
       );
 
       expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -75,8 +75,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -84,7 +84,7 @@ describe('actions/cancel', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -93,7 +93,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -102,7 +102,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -111,7 +111,7 @@ describe('actions/cancel', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -162,8 +162,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -171,7 +171,7 @@ describe('actions/cancel', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -180,7 +180,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -189,7 +189,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -197,7 +197,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -216,8 +216,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -225,7 +225,7 @@ describe('actions/cancel', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -234,7 +234,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -243,7 +243,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -251,7 +251,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });
@@ -292,12 +292,12 @@ describe('actions/cancel', () => {
     it('cannot cancel if no requestId', () => {
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          name: Types.ACTION_NAME.CANCEL,
           parameters: {},
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -313,17 +313,17 @@ describe('actions/cancel', () => {
     it('cannot cancel by payer if no payer in state', () => {
       const requestContextNoPayer = {
         creator: {
-          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.CURRENCY.ETH,
         events: [
           {
             actionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+            name: Types.ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -335,24 +335,24 @@ describe('actions/cancel', () => {
         extensions: {},
         extensionsData: [],
         payee: {
-          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
         requestId: TestData.requestIdMock,
-        state: Types.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          name: Types.ACTION_NAME.CANCEL,
           parameters: {
             requestId: TestData.requestIdMock,
           },
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -365,17 +365,17 @@ describe('actions/cancel', () => {
     it('cannot cancel by payee if no payee in state', () => {
       const requestContextNoPayee = {
         creator: {
-          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.CURRENCY.ETH,
         events: [
           {
             actionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+            name: Types.ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -387,24 +387,24 @@ describe('actions/cancel', () => {
         extensions: {},
         extensionsData: [],
         payer: {
-          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payerRaw.address,
         },
         requestId: TestData.requestIdMock,
-        state: Types.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+          name: Types.ACTION_NAME.CANCEL,
           parameters: {
             requestId: TestData.requestIdMock,
           },
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -431,8 +431,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -442,7 +442,7 @@ describe('actions/cancel', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -451,7 +451,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -460,7 +460,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -468,7 +468,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
       });
     });
@@ -490,8 +490,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -501,7 +501,7 @@ describe('actions/cancel', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -510,7 +510,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -519,7 +519,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -527,7 +527,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
       });
     });
@@ -546,8 +546,8 @@ describe('actions/cancel', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CANCELED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CANCELED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -557,7 +557,7 @@ describe('actions/cancel', () => {
 
       expect(request, 'request should have property creator').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -566,7 +566,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -575,7 +575,7 @@ describe('actions/cancel', () => {
       expect(request, 'request should have property payer').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -583,7 +583,7 @@ describe('actions/cancel', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.CANCEL,
+        name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
       });
     });

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { argv } from 'yargs';
 import * as config from './config';
 import requestNode from './requestNode';

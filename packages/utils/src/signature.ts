@@ -20,9 +20,9 @@ export default {
 function getIdentityFromSignatureParams(
   signatureParams: SignatureTypes.ISignatureParameters,
 ): IdentityTypes.IIdentity {
-  if (signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
+  if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
     return {
-      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: Crypto.EcUtils.getAddressFromPrivateKey(signatureParams.privateKey),
     };
   }
@@ -43,7 +43,7 @@ function sign(
   signatureParams: SignatureTypes.ISignatureParameters,
 ): SignatureTypes.ISignedData {
   let value: string;
-  if (signatureParams.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
+  if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
     value = Crypto.EcUtils.sign(signatureParams.privateKey, Crypto.normalizeKeccak256Hash(data));
     return { data, signature: { method: signatureParams.method, value } };
   }
@@ -60,13 +60,13 @@ function sign(
  */
 function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
   let value: string;
-  if (signedData.signature.method === SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA) {
+  if (signedData.signature.method === SignatureTypes.METHOD.ECDSA) {
     value = Crypto.EcUtils.recover(
       signedData.signature.value,
       Crypto.normalizeKeccak256Hash(signedData.data),
     );
     return {
-      type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value,
     };
   }

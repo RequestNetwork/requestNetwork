@@ -5,23 +5,23 @@ import * as RequestLogic from './request-logic-types';
 /** Advanced Logic layer */
 export interface IAdvancedLogic {
   applyActionToExtensions: (
-    extensionsState: RequestLogic.IRequestLogicExtensionStates,
-    extensionAction: Extension.IExtensionAction,
-    requestState: RequestLogic.IRequestLogicRequest,
+    extensionsState: RequestLogic.IExtensionStates,
+    extensionAction: Extension.IAction,
+    requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
-  ) => RequestLogic.IRequestLogicExtensionStates;
+  ) => RequestLogic.IExtensionStates;
   extensions: any;
 }
 
 /** Creation extension parameters */
-export interface IAdvancedLogicExtensionCreation {
-  id: Extension.EXTENSION_ID;
+export interface IExtensionCreation {
+  id: Extension.ID;
   parameters?: any;
 }
 
 /** Update extension parameters */
-export interface IAdvancedLogicExtensionUpdate {
-  id: Extension.EXTENSION_ID;
+export interface IExtensionUpdate {
+  id: Extension.ID;
   action: string;
   parameters?: any;
 }

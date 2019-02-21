@@ -5,6 +5,7 @@ import {
   SignatureProvider as SignatureProviderTypes,
   Transaction as TransactionTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
 
 /**
@@ -28,17 +29,17 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to create a request and persist it on the transaction manager layer
    *
-   * @param requestParameters IRequestLogicCreateParameters parameters to create a request
+   * @param requestParameters ICreateParameters parameters to create a request
    * @param IIdentity signerIdentity Identity of the signer
    * @param string[] topics list of string to topic the request
    *
    * @returns Promise<IRequestLogicReturnCreateRequest>  the request id and the meta data
    */
   public async createRequest(
-    requestParameters: RequestLogicTypes.IRequestLogicCreateParameters,
+    requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
     indexes: string[] = [],
-  ): Promise<RequestLogicTypes.IRequestLogicReturnCreateRequest> {
+  ): Promise<RequestLogicTypes.IReturnCreateRequest> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -66,13 +67,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to accept a request and persist it on through the transaction manager layer
    *
-   * @param IRequestLogicAcceptParameters acceptParameters parameters to accept a request
+   * @param IAcceptParameters acceptParameters parameters to accept a request
    * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async acceptRequest(
-    requestParameters: RequestLogicTypes.IRequestLogicAcceptParameters,
+    requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
@@ -98,13 +99,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to cancel a request and persist it on through the transaction manager layer
    *
-   * @param IRequestLogicCancelParameters cancelParameters parameters to cancel a request
+   * @param ICancelParameters cancelParameters parameters to cancel a request
    * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async cancelRequest(
-    requestParameters: RequestLogicTypes.IRequestLogicCancelParameters,
+    requestParameters: RequestLogicTypes.ICancelParameters,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
@@ -129,13 +130,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to increase expected amount of a request and persist it on through the transaction manager layer
    *
-   * @param IRequestLogicIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
+   * @param IIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async increaseExpectedAmountRequest(
-    requestParameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters,
+    requestParameters: RequestLogicTypes.IIncreaseExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
@@ -160,13 +161,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to reduce expected amount of a request and persist it on through the transaction manager layer
    *
-   * @param IRequestLogicReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
+   * @param IReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async reduceExpectedAmountRequest(
-    requestParameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters,
+    requestParameters: RequestLogicTypes.IReduceExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
@@ -191,13 +192,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to add extensions data to a request and persist it through the transaction manager layer
    *
-   * @param IRequestLogicAddExtensionsDataParameters requestParameters parameters to add extensions Data to a request
+   * @param IAddExtensionsDataParameters requestParameters parameters to add extensions Data to a request
    * @param IIdentity signerIdentity Identity of the signer
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async addExtensionsDataRequest(
-    requestParameters: RequestLogicTypes.IRequestLogicAddExtensionsDataParameters,
+    requestParameters: RequestLogicTypes.IAddExtensionsDataParameters,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
@@ -223,28 +224,34 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Function to get a request from its requestId from the action in the data-access layer
    *
-   * @param RequestLogicRequestId requestId the requestId of the request to retrieve
+   * @param requestId the requestId of the request to retrieve
    *
-   * @returns Promise<RequestLogicTypes.IRequestLogicRequest | null> the request constructed from the actions
+   * @returns the request constructed from the actions
    */
   public async getRequestById(
-    requestId: RequestLogicTypes.RequestLogicRequestId,
-  ): Promise<RequestLogicTypes.IRequestLogicReturnGetRequestById> {
+    requestId: RequestLogicTypes.RequestId,
+  ): Promise<RequestLogicTypes.IReturnGetRequestById> {
     const resultGetTx = await this.transactionManager.getTransactionsByTopic(requestId);
     const actions = resultGetTx.result.transactions;
 
     try {
+      // array of transaction without duplicates to avoid replay attack
+      const transactionsWithoutDuplicates = Utils.unique(
+        actions.map((t: any) => JSON.parse(t.data)),
+      );
+
       // second parameter is null, because the first action must be a creation (no state expected)
-      const request: RequestLogicTypes.IRequestLogicRequest | null = actions
-        .map((t: any) => JSON.parse(t.data))
-        .reduce(
-          (requestState, action) =>
-            RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
-          null,
-        );
+      const request = transactionsWithoutDuplicates.uniqueItems.reduce(
+        (requestState: any, action: any) =>
+          RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
+        null,
+      );
 
       return {
-        meta: { transactionManagerMeta: resultGetTx.meta },
+        meta: {
+          ignoredTransactions: transactionsWithoutDuplicates.duplicates,
+          transactionManagerMeta: resultGetTx.meta,
+        },
         result: { request },
       };
     } catch (e) {

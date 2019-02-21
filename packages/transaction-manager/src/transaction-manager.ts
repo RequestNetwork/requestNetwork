@@ -26,7 +26,7 @@ export default class TransactionManager implements Types.ITransactionManager {
   public async persistTransaction(
     transactionData: Types.ITransactionData,
     topics: string[] = [],
-  ): Promise<Types.IRequestDataReturnPersistTransaction> {
+  ): Promise<Types.IReturnPersistTransaction> {
     const transaction: Types.ITransaction = TransactionCore.createTransaction(transactionData);
 
     const resultPersist = await this.dataAccess.persistTransaction(transaction, topics);
@@ -46,11 +46,9 @@ export default class TransactionManager implements Types.ITransactionManager {
    *
    * @param string topic topic to retrieve the transaction from
    *
-   * @returns IRequestDataAccessTransaction list of transactions indexed by topic
+   * @returns IAccessTransaction list of transactions indexed by topic
    */
-  public async getTransactionsByTopic(
-    topic: string,
-  ): Promise<Types.IRequestDataReturnGetTransactionsByTopic> {
+  public async getTransactionsByTopic(topic: string): Promise<Types.IReturnGetTransactionsByTopic> {
     const resultGetTx = await this.dataAccess.getTransactionsByTopic(topic);
 
     return {

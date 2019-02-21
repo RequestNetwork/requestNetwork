@@ -24,22 +24,22 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
   /**
    * Applies the extension action to the request extensions state
    *
-   * @param extensionsState IRequestLogicExtensionStates previous state of the extensions
-   * @param extensionAction IExtensionAction action to apply
-   * @param requestState IRequestLogicRequest request state read-only
+   * @param extensionsState IExtensionStates previous state of the extensions
+   * @param extensionAction IAction action to apply
+   * @param requestState IRequest request state read-only
    * @param actionSigner IIdentity identity of the signer
    *
    * @returns state of the extension
    */
   public applyActionToExtensions(
-    extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
-    extensionAction: ExtensionTypes.IExtensionAction,
-    requestState: RequestLogicTypes.IRequestLogicRequest,
+    extensionsState: RequestLogicTypes.IExtensionStates,
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
     actionSigner: IdentityTypes.IIdentity,
-  ): RequestLogicTypes.IRequestLogicExtensionStates {
-    const id: ExtensionTypes.EXTENSION_ID = extensionAction.id;
+  ): RequestLogicTypes.IExtensionStates {
+    const id: ExtensionTypes.ID = extensionAction.id;
 
-    if (id === ExtensionTypes.EXTENSION_ID.CONTENT_DATA) {
+    if (id === ExtensionTypes.ID.CONTENT_DATA) {
       return contentData.applyActionToExtension(
         extensionsState,
         extensionAction,
@@ -47,7 +47,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
         actionSigner,
       );
     }
-    if (id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
+    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
       return addressBasedBtc.applyActionToExtension(
         extensionsState,
         extensionAction,
@@ -55,7 +55,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
         actionSigner,
       );
     }
-    if (id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
+    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
       return addressBasedTestnetBtc.applyActionToExtension(
         extensionsState,
         extensionAction,

@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.1.1-alpha.2",
+  "version": "0.1.1-alpha.4",
   "publishConfig": {
     "access": "public"
   },
@@ -22,12 +22,15 @@
     "node": ">=8.0.0"
   },
   "main": "dist/server",
+  "bin": {
+    "request-node": "dist/server.js"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "tsc -b",
-    "test": "nyc mocha --exit --require ts-node/register --require source-map-support/register test/**/*.ts",
+    "test": "nyc mocha --timeout=4000 --exit --require ts-node/register --require source-map-support/register test/**/*.ts",
     "start": "ts-node src/server.ts",
     "clean": "shx rm -rf dist",
     "lint-staged": "lint-staged",
@@ -35,9 +38,9 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.1.1-alpha.2",
-    "@requestnetwork/ethereum-storage": "0.1.1-alpha.2",
-    "@requestnetwork/types": "0.1.1-alpha.1",
+    "@requestnetwork/data-access": "0.1.1-alpha.4",
+    "@requestnetwork/ethereum-storage": "0.1.1-alpha.4",
+    "@requestnetwork/types": "0.1.1-alpha.3",
     "express": "4.16.4",
     "http-status-codes": "1.3.0",
     "truffle-hdwallet-provider": "1.0.3",

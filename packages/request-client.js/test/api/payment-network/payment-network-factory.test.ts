@@ -35,7 +35,7 @@ describe('api/payment-network/payment-network-factory', () => {
       expect(
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+          RequestLogicTypes.CURRENCY.BTC,
           paymentNetworkParameters,
         ),
         'createPayment createPaymentNetwork',
@@ -52,7 +52,7 @@ describe('api/payment-network/payment-network-factory', () => {
       expect(() => {
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+          RequestLogicTypes.CURRENCY.ETH,
           paymentNetworkParameters,
         );
       }, 'should throw wrong').to.throw('No payment network support the currency: ETH');
@@ -68,7 +68,7 @@ describe('api/payment-network/payment-network-factory', () => {
       expect(() => {
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+          RequestLogicTypes.CURRENCY.BTC,
           paymentNetworkParameters,
         );
       }, 'should throw wrong').to.throw(
@@ -80,11 +80,11 @@ describe('api/payment-network/payment-network-factory', () => {
   describe('getPaymentNetworkFromRequest', () => {
     it('can getPaymentNetworkFromRequest', async () => {
       const request: any = {
-        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+        currency: RequestLogicTypes.CURRENCY.BTC,
         extensions: {
-          [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
-            id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-            type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+          [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           },
         },
       };
@@ -96,11 +96,11 @@ describe('api/payment-network/payment-network-factory', () => {
     });
     it('can getPaymentNetworkFromRequest with a request without payment network', async () => {
       const request: any = {
-        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+        currency: RequestLogicTypes.CURRENCY.BTC,
         extensions: {
-          [ExtensionTypes.EXTENSION_ID.CONTENT_DATA as string]: {
-            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
-            type: ExtensionTypes.EXTENSION_TYPE.CONTENT_DATA,
+          [ExtensionTypes.ID.CONTENT_DATA as string]: {
+            id: ExtensionTypes.ID.CONTENT_DATA,
+            type: ExtensionTypes.TYPE.CONTENT_DATA,
           },
         },
       };
@@ -113,11 +113,11 @@ describe('api/payment-network/payment-network-factory', () => {
 
     it('cannot getPaymentNetworkFromRequest with extension id not handled', async () => {
       const request: any = {
-        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC,
+        currency: RequestLogicTypes.CURRENCY.BTC,
         extensions: {
-          [ExtensionTypes.EXTENSION_ID.CONTENT_DATA as string]: {
-            id: ExtensionTypes.EXTENSION_ID.CONTENT_DATA,
-            type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+          [ExtensionTypes.ID.CONTENT_DATA as string]: {
+            id: ExtensionTypes.ID.CONTENT_DATA,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           },
         },
       };
@@ -130,11 +130,11 @@ describe('api/payment-network/payment-network-factory', () => {
 
     it('cannot getPaymentNetworkFromRequest with currency not handled', async () => {
       const request: any = {
-        currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         extensions: {
-          [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
-            id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-            type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+          [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           },
         },
       };

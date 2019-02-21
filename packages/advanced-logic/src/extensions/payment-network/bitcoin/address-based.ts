@@ -31,11 +31,11 @@ const CURRENT_VERSION = '0.1.0';
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
 function createCreationAction(
-  extensionId: ExtensionTypes.EXTENSION_ID,
-  creationParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedCreationParameters,
-): ExtensionTypes.IExtensionAction {
+  extensionId: ExtensionTypes.ID,
+  creationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+): ExtensionTypes.IAction {
   return {
-    action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.CREATE,
+    action: ExtensionTypes.PnBitcoinAddressBased.ACTION.CREATE,
     id: extensionId,
     parameters: {
       paymentAddress: creationParameters.paymentAddress,
@@ -50,14 +50,14 @@ function createCreationAction(
  *
  * @param extensions extensions parameters to create
  *
- * @returns IExtensionAction the extensionsData to be stored in the request
+ * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentAddressAction(
-  extensionId: ExtensionTypes.EXTENSION_ID,
-  addPaymentAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddPaymentAddressParameters,
-): ExtensionTypes.IExtensionAction {
+  extensionId: ExtensionTypes.ID,
+  addPaymentAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+): ExtensionTypes.IAction {
   return {
-    action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS,
+    action: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
     id: extensionId,
     parameters: {
       paymentAddress: addPaymentAddressParameters.paymentAddress,
@@ -70,14 +70,14 @@ function createAddPaymentAddressAction(
  *
  * @param extensions extensions parameters to create
  *
- * @returns IExtensionAction the extensionsData to be stored in the request
+ * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundAddressAction(
-  extensionId: ExtensionTypes.EXTENSION_ID,
-  addRefundAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IPnBtcAddressBasedAddRefundAddressParameters,
-): ExtensionTypes.IExtensionAction {
+  extensionId: ExtensionTypes.ID,
+  addRefundAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+): ExtensionTypes.IAction {
   return {
-    action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS,
+    action: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
     id: extensionId,
     parameters: {
       refundAddress: addRefundAddressParameters.refundAddress,
@@ -97,36 +97,29 @@ function createAddRefundAddressAction(
  * @returns state of the request updated
  */
 function applyActionToExtension(
-  extensionsState: RequestLogicTypes.IRequestLogicExtensionStates,
-  extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  extensionsState: RequestLogicTypes.IExtensionStates,
+  extensionAction: ExtensionTypes.IAction,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
-): RequestLogicTypes.IRequestLogicExtensionStates {
-  if (requestState.currency !== RequestLogicTypes.REQUEST_LOGIC_CURRENCY.BTC) {
+): RequestLogicTypes.IExtensionStates {
+  if (requestState.currency !== RequestLogicTypes.CURRENCY.BTC) {
     throw Error(`This extension can be used only on BTC request`);
   }
-  const copiedExtensionState: RequestLogicTypes.IRequestLogicExtensionStates = Utils.deepCopy(
-    extensionsState,
-  );
+  const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
   // check if it is a testnet or mainnet BTC payment network
   let btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased | null = null;
-  if (extensionAction.id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
+  if (extensionAction.id === ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
     btc = BTCMainnet;
   }
-  if (
-    extensionAction.id === ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED
-  ) {
+  if (extensionAction.id === ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
     btc = BTCTestnet;
   }
   if (btc === null) {
     throw Error(`This extension is not recognized by the BTC payment network address based`);
   }
 
-  if (
-    extensionAction.action ===
-    ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.CREATE
-  ) {
+  if (extensionAction.action === ExtensionTypes.PnBitcoinAddressBased.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
       throw Error(`This extension have already been created`);
     }
@@ -141,10 +134,7 @@ function applyActionToExtension(
     throw Error(`This extension must have been already created`);
   }
 
-  if (
-    extensionAction.action ===
-    ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS
-  ) {
+  if (extensionAction.action === ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS) {
     copiedExtensionState[extensionAction.id] = applyAddPaymentAddress(
       btc,
       copiedExtensionState[extensionAction.id],
@@ -156,10 +146,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (
-    extensionAction.action ===
-    ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS
-  ) {
+  if (extensionAction.action === ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS) {
     copiedExtensionState[extensionAction.id] = applyAddRefundAddress(
       btc,
       copiedExtensionState[extensionAction.id],
@@ -182,8 +169,8 @@ function applyActionToExtension(
  */
 function applyCreation(
   btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased,
-  extensionAction: ExtensionTypes.IExtensionAction,
-): ExtensionTypes.IExtensionState {
+  extensionAction: ExtensionTypes.IAction,
+): ExtensionTypes.IState {
   if (
     extensionAction.parameters.paymentAddress &&
     !btc.isValidAddress(extensionAction.parameters.paymentAddress)
@@ -207,7 +194,7 @@ function applyCreation(
       },
     ],
     id: extensionAction.id,
-    type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress: extensionAction.parameters.paymentAddress,
       refundAddress: extensionAction.parameters.refundAddress,
@@ -227,11 +214,11 @@ function applyCreation(
  */
 function applyAddPaymentAddress(
   btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased,
-  extensionState: ExtensionTypes.IExtensionState,
-  extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
-): ExtensionTypes.IExtensionState {
+): ExtensionTypes.IState {
   if (
     extensionAction.parameters.paymentAddress &&
     !btc.isValidAddress(extensionAction.parameters.paymentAddress)
@@ -248,13 +235,13 @@ function applyAddPaymentAddress(
     throw Error(`The signer must be the payee`);
   }
 
-  const copiedExtensionState: ExtensionTypes.IExtensionState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // update payment address
   copiedExtensionState.values.paymentAddress = extensionAction.parameters.paymentAddress;
   // update events
   copiedExtensionState.events.push({
-    name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS,
+    name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
     parameters: { paymentAddress: extensionAction.parameters.paymentAddress },
   });
 
@@ -272,11 +259,11 @@ function applyAddPaymentAddress(
  */
 function applyAddRefundAddress(
   btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased,
-  extensionState: ExtensionTypes.IExtensionState,
-  extensionAction: ExtensionTypes.IExtensionAction,
-  requestState: RequestLogicTypes.IRequestLogicRequest,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
+  requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
-): ExtensionTypes.IExtensionState {
+): ExtensionTypes.IState {
   if (
     extensionAction.parameters.refundAddress &&
     !btc.isValidAddress(extensionAction.parameters.refundAddress)
@@ -293,13 +280,13 @@ function applyAddRefundAddress(
     throw Error(`The signer must be the payer`);
   }
 
-  const copiedExtensionState: ExtensionTypes.IExtensionState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // update refund address
   copiedExtensionState.values.refundAddress = extensionAction.parameters.refundAddress;
   // update events
   copiedExtensionState.events.push({
-    name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS,
+    name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
     parameters: { refundAddress: extensionAction.parameters.refundAddress },
   });
 

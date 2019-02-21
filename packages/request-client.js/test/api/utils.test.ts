@@ -6,13 +6,12 @@ import Utils from '../../src/api/utils';
 describe('api/utils', () => {
   describe('getDecimalsForCurrency', () => {
     it('returns the correct number of decimals', async () => {
-      assert.equal(Utils.getDecimalsForCurrency(RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH), 18);
+      // tslint:disable-next-line:no-magic-numbers
+      assert.equal(Utils.getDecimalsForCurrency(RequestLogicTypes.CURRENCY.ETH), 18);
     });
 
     it('throws for invalid currencies', async () => {
-      assert.throws(() =>
-        Utils.getDecimalsForCurrency('BANANA' as RequestLogicTypes.REQUEST_LOGIC_CURRENCY),
-      );
+      assert.throws(() => Utils.getDecimalsForCurrency('BANANA' as RequestLogicTypes.CURRENCY));
     });
   });
 });

@@ -18,15 +18,15 @@ export const refundTestnetBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
 // ---------------------------------------------------------------------
 // actions
 export const actionAddPaymentAddress = {
-  action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  action: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   parameters: {
     paymentAddress: paymentBTCAddress,
   },
 };
 export const actionAddRefundAddress = {
-  action: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  action: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   parameters: {
     refundAddress: refundBTCAddress,
   },
@@ -35,21 +35,21 @@ export const actionAddRefundAddress = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.CREATE,
+        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.CREATE,
         parameters: {},
       },
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_PAYMENT_ADDRESS,
+        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
         parameters: {
           paymentAddress: paymentBTCAddress,
         },
       },
     ],
-    id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-    type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress: paymentBTCAddress,
     },
@@ -58,21 +58,21 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.CREATE,
+        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.CREATE,
         parameters: {},
       },
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.PN_BTC_ADDRESS_BASED_ACTION.ADD_REFUND_ADDRESS,
+        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
         parameters: {
           refundAddress: refundBTCAddress,
         },
       },
     ],
-    id: ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-    type: ExtensionTypes.EXTENSION_TYPE.PAYMENT_NETWORK,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress: refundBTCAddress,
     },
@@ -82,19 +82,19 @@ export const extensionStateWithRefundAfterCreation = {
 
 // ---------------------------------------------------------------------
 // request states
-export const requestStateCreatedEmptyThenAddPayment: Types.IRequestLogicRequest = {
+export const requestStateCreatedEmptyThenAddPayment: Types.IRequest = {
   creator: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
+  currency: Types.CURRENCY.BTC,
   events: [
     {
       actionSigner: {
-        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 2,
@@ -106,32 +106,32 @@ export const requestStateCreatedEmptyThenAddPayment: Types.IRequestLogicRequest 
   extensions: extensionStateWithPaymentAfterCreation,
   extensionsData: [TestDataCreate.actionCreationEmpty, actionAddPaymentAddress],
   payee: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
   payer: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyThenAddRefund: Types.IRequestLogicRequest = {
+export const requestStateCreatedEmptyThenAddRefund: Types.IRequest = {
   creator: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.REQUEST_LOGIC_CURRENCY.BTC,
+  currency: Types.CURRENCY.BTC,
   events: [
     {
       actionSigner: {
-        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+      name: Types.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 2,
@@ -143,15 +143,15 @@ export const requestStateCreatedEmptyThenAddRefund: Types.IRequestLogicRequest =
   extensions: extensionStateWithRefundAfterCreation,
   extensionsData: [TestDataCreate.actionCreationEmpty, actionAddRefundAddress],
   payee: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
   payer: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.REQUEST_LOGIC_STATE.CREATED,
+  state: Types.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };

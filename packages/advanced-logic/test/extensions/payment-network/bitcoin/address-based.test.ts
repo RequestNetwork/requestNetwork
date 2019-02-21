@@ -18,7 +18,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
     it('can createCreationAction with payment and refund', () => {
       expect(
         bitcoinAddressBasedManager.createCreationAction(
-          ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+          ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           {
             paymentAddress: DataBTCCreate.paymentBTCAddress,
             refundAddress: DataBTCCreate.refundBTCAddress,
@@ -33,7 +33,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       expect(
         Utils.deepCopy(
           bitcoinAddressBasedManager.createCreationAction(
-            ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+            ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
             {
               paymentAddress: DataBTCCreate.paymentBTCAddress,
             },
@@ -47,7 +47,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       expect(
         Utils.deepCopy(
           bitcoinAddressBasedManager.createCreationAction(
-            ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+            ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
             {
               refundAddress: DataBTCCreate.refundBTCAddress,
             },
@@ -61,7 +61,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
       expect(
         Utils.deepCopy(
           bitcoinAddressBasedManager.createCreationAction(
-            ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+            ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
             {},
           ),
         ),
@@ -74,7 +74,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
     it('can createAddPaymentAddressAction', () => {
       expect(
         bitcoinAddressBasedManager.createAddPaymentAddressAction(
-          ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+          ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           {
             paymentAddress: DataBTCAddPaymentAddress.paymentBTCAddress,
           },
@@ -88,7 +88,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
     it('can createAddRefundAddressAction', () => {
       expect(
         bitcoinAddressBasedManager.createAddRefundAddressAction(
-          ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+          ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           {
             refundAddress: DataBTCAddPaymentAddress.refundBTCAddress,
           },

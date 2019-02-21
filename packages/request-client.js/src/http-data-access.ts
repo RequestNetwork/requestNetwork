@@ -41,9 +41,9 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * @param topics The topics used to index the transaction
    */
   public async persistTransaction(
-    transactionData: DataAccessTypes.IRequestDataAccessTransaction,
+    transactionData: DataAccessTypes.ITransaction,
     topics?: string[],
-  ): Promise<DataAccessTypes.IRequestDataReturnPersistTransaction> {
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     const { data } = await axios.post(
       '/persistTransaction',
       {
@@ -62,7 +62,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    */
   public async getTransactionsByTopic(
     topic: string,
-  ): Promise<DataAccessTypes.IRequestDataReturnGetTransactionsByTopic> {
+  ): Promise<DataAccessTypes.IReturnGetTransactionsByTopic> {
     const { data } = await axios.get(
       '/getTransactionsByTopic',
       Object.assign(this.axiosConfig, {

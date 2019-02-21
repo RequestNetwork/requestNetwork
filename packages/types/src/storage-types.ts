@@ -1,16 +1,16 @@
 /** Interface of the storage */
 export interface IStorage {
-  append: (data: string) => Promise<IRequestStorageOneDataIdAndMeta>;
-  read: (dataId: string) => Promise<IRequestStorageOneContentAndMeta>;
-  getAllData: () => Promise<IRequestStorageGetAllDataReturn>;
-  getAllDataId: () => Promise<IRequestStorageGetAllDataIdReturn>;
-  getNewDataId: () => Promise<IRequestStorageGetNewDataIdReturn>;
+  append: (data: string) => Promise<IOneDataIdAndMeta>;
+  read: (dataId: string) => Promise<IOneContentAndMeta>;
+  getAllData: () => Promise<IGetAllDataReturn>;
+  getAllDataId: () => Promise<IGetAllDataIdReturn>;
+  getNewDataId: () => Promise<IGetNewDataIdReturn>;
 }
 
 /** return interface for append  */
-export interface IRequestStorageOneDataIdAndMeta {
+export interface IOneDataIdAndMeta {
   /** meta information */
-  meta: IRequestStorageMetaOneData;
+  meta: IMetaOneData;
   /** result of the execution */
   result: {
     /** data id of the data persisted */
@@ -19,9 +19,9 @@ export interface IRequestStorageOneDataIdAndMeta {
 }
 
 /** return interface for read  */
-export interface IRequestStorageOneContentAndMeta {
+export interface IOneContentAndMeta {
   /** meta information */
-  meta: IRequestStorageMetaOneData;
+  meta: IMetaOneData;
   /** result of the execution */
   result: {
     /** the data itself */
@@ -30,11 +30,11 @@ export interface IRequestStorageOneContentAndMeta {
 }
 
 /** return interface for array return */
-export interface IRequestStorageGetAllDataIdReturn {
+export interface IGetAllDataIdReturn {
   /** meta information */
   meta: {
     /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaDataIds: IRequestStorageMetaOneData[];
+    metaDataIds: IMetaOneData[];
   };
   result: {
     /** array of all data id stored */
@@ -43,11 +43,11 @@ export interface IRequestStorageGetAllDataIdReturn {
 }
 
 /** return interface for array return */
-export interface IRequestStorageGetNewDataIdReturn {
+export interface IGetNewDataIdReturn {
   /** meta information */
   meta: {
     /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaDataIds: IRequestStorageMetaOneData[];
+    metaDataIds: IMetaOneData[];
   };
   result: {
     /** array of all data id stored */
@@ -56,11 +56,11 @@ export interface IRequestStorageGetNewDataIdReturn {
 }
 
 /** return interface for array return */
-export interface IRequestStorageGetAllDataReturn {
+export interface IGetAllDataReturn {
   /** meta information */
   meta: {
     /** meta of the data (follow the position of the result.contents) */
-    metaData: IRequestStorageMetaOneData[];
+    metaData: IMetaOneData[];
   };
   result: {
     /** array of all data stored */
@@ -69,11 +69,11 @@ export interface IRequestStorageGetAllDataReturn {
 }
 
 /** return interface for the meta of one piece of data in the storage */
-export interface IRequestStorageMetaOneData {
+export interface IMetaOneData {
   /** Storage type for now only ethereum + ipfs */
   storageType?: StorageSystemType;
   /** meta about ethereum smart contract */
-  ethereum?: IRequestStorageEthereumMetadata;
+  ethereum?: IEthereumMetadata;
   /** IPFS file metadata */
   ipfs?: {
     /** Size in bytes of the file on ipfs */
@@ -82,9 +82,9 @@ export interface IRequestStorageMetaOneData {
 }
 
 /** return interface for getAllHashesAndSizes() */
-export interface IRequestStorageGetAllHashesAndSizes {
+export interface IGetAllHashesAndSizes {
   /** meta information */
-  meta: IRequestStorageEthereumMetadata;
+  meta: IEthereumMetadata;
   /** data id of the persisted data */
   hash: string;
   /** data size of the persisted data */
@@ -92,7 +92,7 @@ export interface IRequestStorageGetAllHashesAndSizes {
 }
 
 /** Ethereum storage meta data */
-export interface IRequestStorageEthereumMetadata {
+export interface IEthereumMetadata {
   /** network name where the smart contract is deployed */
   networkName: string;
   /** Smart contract address where is stored the data id */

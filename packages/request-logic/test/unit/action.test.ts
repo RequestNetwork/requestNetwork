@@ -22,9 +22,9 @@ const spies = require('chai-spies');
 chai.use(spies);
 
 const randomUnsignedAction = {
-  name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+  name: Types.ACTION_NAME.CREATE,
   parameters: {
-    currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+    currency: Types.CURRENCY.ETH,
     expectedAmount: '100000',
     payee: TestData.payeeRaw.identity,
     payer: TestData.payerRaw.identity,
@@ -34,7 +34,7 @@ const randomUnsignedAction = {
 const signedAction = {
   data: randomUnsignedAction,
   signature: {
-    method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+    method: SignatureTypes.METHOD.ECDSA,
     value:
       '0xbcf77e28b615620636cefbad5bc6abf8324aad610581d7cec0394da216da12f063332e0a03a337a6352665c421b11ab187e515bd3518eeb12f42f8c64eb44c6e1b',
   },
@@ -42,8 +42,8 @@ const signedAction = {
 
 const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: chai.spy((data: any) => ({ data, signature: TestData.fakeSignature })),
-  supportedIdentityTypes: chai.spy.returns([IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS]),
-  supportedMethods: chai.spy.returns([SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA]),
+  supportedIdentityTypes: chai.spy.returns([IdentityTypes.TYPE.ETHEREUM_ADDRESS]),
+  supportedMethods: chai.spy.returns([SignatureTypes.METHOD.ECDSA]),
 };
 
 /* tslint:disable:no-unused-expression */
@@ -59,15 +59,15 @@ describe('Action', () => {
     expect(
       Action.getRoleInAction(TestData.payeeRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYEE);
+    ).to.be.deep.equal(Types.ROLE.PAYEE);
     expect(
       Action.getRoleInAction(TestData.payerRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.PAYER);
+    ).to.be.deep.equal(Types.ROLE.PAYER);
     expect(
       Action.getRoleInAction(TestData.otherIdRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.REQUEST_LOGIC_ROLE.THIRD_PARTY);
+    ).to.be.deep.equal(Types.ROLE.THIRD_PARTY);
   });
 
   it('can createAction()', () => {

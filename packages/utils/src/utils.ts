@@ -1,3 +1,5 @@
+import crypto from './crypto';
+
 /**
  * Collection of general purpose utility function
  */
@@ -7,6 +9,7 @@ export default {
   flatten2DimensionsArray,
   getCurrentTimestampInSecond,
   isString,
+  unique,
 };
 
 const MILLISECOND_IN_SECOND = 1000;
@@ -55,6 +58,38 @@ function deepSort(nestedObject: any): any {
       }, {});
   }
   return nestedObject;
+}
+
+/**
+ * Function to separate the duplicated object from an array
+ * Two object are assumed identical if their normalized Keccak256 hashes are equal
+ * Normalize here is a lowed case JSON stringify of the properties alphabetical sorted
+ *
+ * @param array the array to curate
+ * @returns an object containing the array with only unique element and an object with the duplication
+ */
+function unique(array: any[]): { uniqueItems: any[]; duplicates: any[] } {
+  const result = array.reduce(
+    (
+      accumulator: { uniqueItems: any[]; duplicates: any[]; uniqueItemsHashes: string[] },
+      element: any,
+    ) => {
+      const hash = crypto.normalizeKeccak256Hash(element);
+
+      if (accumulator.uniqueItemsHashes.includes(hash)) {
+        // if already included, adds it to the duplicates array
+        accumulator.duplicates.push(element);
+      } else {
+        // if not already included, includes it and reports the hash
+        accumulator.uniqueItems.push(element);
+        accumulator.uniqueItemsHashes.push(hash);
+      }
+      return accumulator;
+    },
+    { uniqueItems: [], duplicates: [], uniqueItemsHashes: [] },
+  );
+
+  return { uniqueItems: result.uniqueItems, duplicates: result.duplicates };
 }
 
 /**

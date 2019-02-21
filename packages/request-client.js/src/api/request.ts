@@ -17,7 +17,7 @@ export default class Request {
   /**
    * Unique ID of the request
    */
-  public readonly requestId: RequestLogicTypes.RequestLogicRequestId;
+  public readonly requestId: RequestLogicTypes.RequestId;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private paymentNetwork: Types.IPaymentNetwork | null = null;
@@ -26,7 +26,7 @@ export default class Request {
   /**
    * Data of the request (see request-logic)
    */
-  private requestData: RequestLogicTypes.IRequestLogicRequest | null = null;
+  private requestData: RequestLogicTypes.IRequest | null = null;
 
   /**
    * Content data parsed from the extensions data
@@ -36,7 +36,7 @@ export default class Request {
   /**
    * Meta data of the request (e.g: where the data have been retrieved from)
    */
-  private requestMeta: RequestLogicTypes.IRequestLogicReturnMeta | null = null;
+  private requestMeta: RequestLogicTypes.IReturnMeta | null = null;
 
   /**
    * Balance and payments/refund events
@@ -53,7 +53,7 @@ export default class Request {
    */
   constructor(
     requestLogic: RequestLogicTypes.IRequestLogic,
-    requestId: RequestLogicTypes.RequestLogicRequestId,
+    requestId: RequestLogicTypes.RequestId,
     paymentNetwork?: Types.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
   ) {
@@ -83,7 +83,7 @@ export default class Request {
         this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
       );
     }
-    const parameters: RequestLogicTypes.IRequestLogicAcceptParameters = {
+    const parameters: RequestLogicTypes.IAcceptParameters = {
       extensionsData,
       requestId: this.requestId,
     };
@@ -115,7 +115,7 @@ export default class Request {
       );
     }
 
-    const parameters: RequestLogicTypes.IRequestLogicCancelParameters = {
+    const parameters: RequestLogicTypes.ICancelParameters = {
       extensionsData,
       requestId: this.requestId,
     };
@@ -135,7 +135,7 @@ export default class Request {
    * @returns The updated request
    */
   public async increaseExpectedAmountRequest(
-    deltaAmount: RequestLogicTypes.RequestLogicAmount,
+    deltaAmount: RequestLogicTypes.Amount,
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
   ): Promise<Types.IRequestData> {
@@ -148,7 +148,7 @@ export default class Request {
         this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
       );
     }
-    const parameters: RequestLogicTypes.IRequestLogicIncreaseExpectedAmountParameters = {
+    const parameters: RequestLogicTypes.IIncreaseExpectedAmountParameters = {
       deltaAmount,
       extensionsData,
       requestId: this.requestId,
@@ -168,7 +168,7 @@ export default class Request {
    * @returns The updated request
    */
   public async reduceExpectedAmountRequest(
-    deltaAmount: RequestLogicTypes.RequestLogicAmount,
+    deltaAmount: RequestLogicTypes.Amount,
     signerIdentity: IdentityTypes.IIdentity,
     paymentInformation?: any,
   ): Promise<Types.IRequestData> {
@@ -182,7 +182,7 @@ export default class Request {
       );
     }
 
-    const parameters: RequestLogicTypes.IRequestLogicReduceExpectedAmountParameters = {
+    const parameters: RequestLogicTypes.IReduceExpectedAmountParameters = {
       deltaAmount,
       extensionsData,
       requestId: this.requestId,
@@ -215,7 +215,7 @@ export default class Request {
       this.paymentNetwork.createExtensionsDataForAddPaymentInformation(paymentInformation),
     );
 
-    const parameters: RequestLogicTypes.IRequestLogicAddExtensionsDataParameters = {
+    const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
       extensionsData,
       requestId: this.requestId,
     };
@@ -246,7 +246,7 @@ export default class Request {
       this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
     );
 
-    const parameters: RequestLogicTypes.IRequestLogicAddExtensionsDataParameters = {
+    const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
       extensionsData,
       requestId: this.requestId,
     };
@@ -276,7 +276,7 @@ export default class Request {
    * @returns Refreshed request data
    */
   public async refresh(): Promise<Types.IRequestData> {
-    const requestAndMeta: RequestLogicTypes.IRequestLogicReturnGetRequestById = await this.requestLogic.getRequestById(
+    const requestAndMeta: RequestLogicTypes.IReturnGetRequestById = await this.requestLogic.getRequestById(
       this.requestId,
     );
 

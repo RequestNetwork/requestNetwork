@@ -87,6 +87,61 @@ describe('Utils', () => {
     );
   });
 
+  describe('unique', () => {
+    it('can unique with different case in the values', () => {
+      const arbitraryArray = [
+        { att1: 'value1', att2: 'value2' },
+        { att1: 'value1', att2: 'Value2' },
+        { att3: 'value3', att4: 'value4' },
+        { att1: 'value1', att2: 'value2' },
+      ];
+
+      /* tslint:disable:object-literal-sort-keys */
+      expect(Utils.unique(arbitraryArray), 'unique(arbitraryArray) error').to.deep.equal({
+        uniqueItems: [{ att1: 'value1', att2: 'value2' }, { att3: 'value3', att4: 'value4' }],
+        duplicates: [{ att1: 'value1', att2: 'Value2' }, { att1: 'value1', att2: 'value2' }],
+      });
+    });
+
+    it('can unique with different case in the key', () => {
+      const arbitraryArray = [
+        { att1: 'value1', att2: 'value2' },
+        { att1: 'value1', Att2: 'Value2' },
+        { att3: 'value3', att4: 'value4' },
+        { att1: 'value1', att2: 'value2' },
+      ];
+
+      /* tslint:disable:object-literal-sort-keys */
+      expect(Utils.unique(arbitraryArray), 'unique(arbitraryArray) error').to.deep.equal({
+        uniqueItems: [
+          { att1: 'value1', att2: 'value2' },
+          { att1: 'value1', Att2: 'Value2' },
+          { att3: 'value3', att4: 'value4' },
+        ],
+        duplicates: [{ att1: 'value1', att2: 'value2' }],
+      });
+    });
+
+    it('can unique without duplication', () => {
+      const arbitraryArray = [
+        { att1: 'value1', att2: 'value2' },
+        { att1: 'value1', Att2: 'Value2' },
+        { att3: 'value3', att4: 'value4' },
+        { att5: 'value5', att6: 'value6' },
+      ];
+
+      /* tslint:disable:object-literal-sort-keys */
+      expect(Utils.unique(arbitraryArray), 'unique(arbitraryArray) error').to.deep.equal({
+        uniqueItems: [
+          { att1: 'value1', att2: 'value2' },
+          { att1: 'value1', Att2: 'Value2' },
+          { att3: 'value3', att4: 'value4' },
+          { att5: 'value5', att6: 'value6' },
+        ],
+        duplicates: [],
+      });
+    });
+  });
   describe('flatten2DimensionsArray', () => {
     it('can flatten2DimensionsArray() 1 dimension array', () => {
       const arbitraryArray: any[] = [1, 2, 3, 4, 5];

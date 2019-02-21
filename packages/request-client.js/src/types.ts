@@ -8,15 +8,15 @@ import {
 export * from '@requestnetwork/types';
 
 /** Interface request data */
-export interface IRequestData extends RequestLogicTypes.IRequestLogicRequest {
-  meta: RequestLogicTypes.IRequestLogicReturnMeta | null;
+export interface IRequestData extends RequestLogicTypes.IRequest {
+  meta: RequestLogicTypes.IReturnMeta | null;
   balance: IBalanceWithEvents | null;
   contentData: any;
 }
 
 /** Create request parameters */
 export interface ICreateRequestParameters {
-  requestInfo: RequestLogicTypes.IRequestLogicCreateParameters;
+  requestInfo: RequestLogicTypes.ICreateParameters;
   signer: IdentityTypes.IIdentity;
   paymentNetwork?: IPaymentNetworkCreateParameters;
   topics?: string[];
@@ -44,7 +44,7 @@ export interface IPaymentNetwork {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => any;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
-  getBalance(request: RequestLogicTypes.IRequestLogicRequest): Promise<IBalanceWithEvents>;
+  getBalance(request: RequestLogicTypes.IRequest): Promise<IBalanceWithEvents>;
 }
 
 /** Interface for balances and the events link to the payments and refund */
@@ -67,7 +67,7 @@ export enum EVENTS_NAMES {
 
 /** List of payment networks available (abstract the extensions type) */
 export enum PAYMENT_NETWORK_ID {
-  BITCOIN_ADDRESS_BASED = ExtensionTypes.EXTENSION_ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-  TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.EXTENSION_ID
+  BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID
     .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
 }

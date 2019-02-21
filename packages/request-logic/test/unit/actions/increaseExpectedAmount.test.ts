@@ -35,7 +35,7 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
       );
 
       expect(actionIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -60,7 +60,7 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
-        Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
       );
 
       expect(actionIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -132,8 +132,8 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -141,7 +141,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -150,7 +150,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -159,7 +159,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -167,7 +167,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
       });
     });
@@ -210,14 +210,14 @@ describe('actions/increaseExpectedAmount', () => {
     it('cannot increase expected amount if no requestId', () => {
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: arbitraryDeltaAmount,
           },
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -234,14 +234,14 @@ describe('actions/increaseExpectedAmount', () => {
     it('cannot increase expected amount if no deltaAmount', () => {
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             requestId: requestIdMock,
           },
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -258,17 +258,17 @@ describe('actions/increaseExpectedAmount', () => {
     it('cannot increase expected amount if no payer in state', () => {
       const requestContextNoPayer = {
         creator: {
-          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.REQUEST_LOGIC_CURRENCY.ETH,
+        currency: Types.CURRENCY.ETH,
         events: [
           {
             actionSigner: {
-              type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.REQUEST_LOGIC_ACTION_NAME.CREATE,
+            name: Types.ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -280,17 +280,17 @@ describe('actions/increaseExpectedAmount', () => {
         extensions: {},
         extensionsData: [],
         payee: {
-          type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
         requestId: requestIdMock,
-        state: Types.REQUEST_LOGIC_STATE.CREATED,
+        state: Types.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -298,7 +298,7 @@ describe('actions/increaseExpectedAmount', () => {
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -342,8 +342,8 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -351,7 +351,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -360,7 +360,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -369,7 +369,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -377,7 +377,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
       });
     });
@@ -400,8 +400,8 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -411,7 +411,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -420,7 +420,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -429,7 +429,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -437,7 +437,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
       });
     });
@@ -460,8 +460,8 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -471,7 +471,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -480,7 +480,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -489,7 +489,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -497,7 +497,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
       });
     });
@@ -517,8 +517,8 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.REQUEST_LOGIC_CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.REQUEST_LOGIC_STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -528,7 +528,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       expect(request, 'request.creator is wrong').to.have.property('creator');
       expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       );
       expect(request.creator.value, 'request.creator.value is wrong').to.equal(
         TestData.payeeRaw.address,
@@ -537,7 +537,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payee is wrong').to.have.property('payee');
       if (request.payee) {
         expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payee.value, 'request.payee.value is wrong').to.equal(
           TestData.payeeRaw.address,
@@ -546,7 +546,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(request, 'request.payer is wrong').to.have.property('payer');
       if (request.payer) {
         expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
         expect(request.payer.value, 'request.payer.value is wrong').to.equal(
           TestData.payerRaw.address,
@@ -554,7 +554,7 @@ describe('actions/increaseExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
       });
     });
@@ -562,7 +562,7 @@ describe('actions/increaseExpectedAmount', () => {
     it('cannot increase expected amount with a negative amount', () => {
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: arbitraryDeltaAmountNegative,
             requestId: requestIdMock,
@@ -570,7 +570,7 @@ describe('actions/increaseExpectedAmount', () => {
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -587,7 +587,7 @@ describe('actions/increaseExpectedAmount', () => {
     it('cannot increase expected amount with not a number', () => {
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: 'Not a number',
             requestId: requestIdMock,
@@ -596,7 +596,7 @@ describe('actions/increaseExpectedAmount', () => {
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
@@ -613,7 +613,7 @@ describe('actions/increaseExpectedAmount', () => {
     it('cannot increase expected amount with decimal', () => {
       const action = {
         data: {
-          name: Types.REQUEST_LOGIC_ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '0.0234',
             requestId: requestIdMock,
@@ -621,7 +621,7 @@ describe('actions/increaseExpectedAmount', () => {
           version: CURRENT_VERSION,
         },
         signature: {
-          method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+          method: SignatureTypes.METHOD.ECDSA,
           value:
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },

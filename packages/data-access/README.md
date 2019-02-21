@@ -42,7 +42,7 @@ const transactionDataSignature = {
     '0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b',
 };
 
-const transaction: DataAccessTypes.IRequestDataAccessTransaction = {
+const transaction: DataAccessTypes.ITransaction = {
   data: transactionData,
   signature: transactionDataSignature,
 };

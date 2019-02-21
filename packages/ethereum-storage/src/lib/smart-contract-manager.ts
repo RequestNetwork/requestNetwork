@@ -111,7 +111,7 @@ export default class SmartContractManager {
     contentHash: string,
     contentSize: number,
     gasPrice?: number,
-  ): Promise<StorageTypes.IRequestStorageEthereumMetadata> {
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
@@ -125,48 +125,55 @@ export default class SmartContractManager {
     const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
 
     // Send transaction to contract
-    // Throws an error if timeout is reached
-    const receipt = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
-      this.requestHashStorage.methods
-        .submitHash(contentHash, contentSize)
-        .send({
-          from: account,
-          gas: '100000',
-          gasPrice: gasPriceToUse,
-          value: fee,
-        })
-        .on('error', (transactionError: string) => {
-          throw Error(`Ethereum transaction error:  ${transactionError}`);
-        })
-        .on('transactionHash', (transactionHash: string) => {
-          // TODO(PROT-181): Implement a log manager for the library
-          /* tslint:disable:no-console */
-          console.log(`transactionHash :  ${transactionHash}`);
-        })
-        .on('receipt', (receiptInCallback: string) => {
-          // TODO(PROT-181): Implement a log manager for the library
-          /* tslint:disable:no-console */
-          console.log(`receipt :  ${receiptInCallback}`);
-        })
-        .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-          // TODO(PROT-181): Implement a log manager for the library
-          // TODO(PROT-252): return after X confirmation instead of 0
-          /* tslint:disable:no-console */
-          console.log(`confirmation :  ${confirmationNumber}`);
-          console.log(`receipt :  ${receiptAfterConfirmation}`);
-        }),
-    ]);
+    return new Promise(
+      (resolve, reject): any => {
+        this.requestHashStorage.methods
+          .submitHash(contentHash, contentSize)
+          .send({
+            from: account,
+            gas: '100000',
+            gasPrice: gasPriceToUse,
+            value: fee,
+          })
+          .on('error', (transactionError: string) => {
+            reject(Error(`Ethereum transaction error:  ${transactionError}`));
+          })
+          .on('transactionHash', (transactionHash: string) => {
+            // TODO(PROT-181): Implement a log manager for the library
+            /* tslint:disable:no-console */
+            console.log(`transactionHash :  ${transactionHash}`);
+          })
+          .on('receipt', (receiptInCallback: string) => {
+            // TODO(PROT-181): Implement a log manager for the library
+            /* tslint:disable:no-console */
+            console.log(`receipt :  ${receiptInCallback}`);
+          })
+          .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
+            // TODO(PROT-181): Implement a log manager for the library
+            // TODO(PROT-252): return after X confirmation instead of 0
+            /* tslint:disable:no-console */
+            console.log(`confirmation :  ${confirmationNumber}`);
+            console.log(`receipt :  ${receiptAfterConfirmation}`);
 
-    const gasFee = new bigNumber(receipt.gasUsed).mul(new bigNumber(gasPriceToUse));
-    const cost = gasFee.add(new bigNumber(fee));
+            // We have to wait at least one confirmation to get Ethereum metadata
+            if (confirmationNumber > 0) {
+              const gasFee = new bigNumber(receiptAfterConfirmation.gasUsed).mul(
+                new bigNumber(gasPriceToUse),
+              );
+              const cost = gasFee.add(new bigNumber(fee));
 
-    return this.createEthereumMetaData(
-      receipt.blockNumber,
-      receipt.transactionHash,
-      cost.toString(),
-      fee,
-      gasFee.toString(),
+              resolve(
+                this.createEthereumMetaData(
+                  receiptAfterConfirmation.blockNumber,
+                  receiptAfterConfirmation.transactionHash,
+                  cost.toString(),
+                  fee,
+                  gasFee.toString(),
+                ),
+              );
+            }
+          });
+      },
     );
   }
 
@@ -175,9 +182,7 @@ export default class SmartContractManager {
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
-  public async getMetaFromEthereum(
-    contentHash: string,
-  ): Promise<StorageTypes.IRequestStorageEthereumMetadata> {
+  public async getMetaFromEthereum(contentHash: string): Promise<StorageTypes.IEthereumMetadata> {
     // Reading all event logs
     const events = await this.requestHashStorage.getPastEvents({
       event: 'NewHash',
@@ -197,9 +202,7 @@ export default class SmartContractManager {
    * Get all hashes and sizes with metadata inside storage smart contract past events
    * @return All hashes and sizes with metadata
    */
-  public async getAllHashesAndSizesFromEthereum(): Promise<
-    StorageTypes.IRequestStorageGetAllHashesAndSizes[]
-  > {
+  public async getAllHashesAndSizesFromEthereum(): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
     return this.getHashesAndSizesFromEthereum(this.creationBlockNumber);
   }
 
@@ -209,9 +212,9 @@ export default class SmartContractManager {
    * @return Hashes and sizes with metadata from the number of the last synced block
    */
   public async getHashesAndSizesFromLastSyncedBlockFromEthereum(): Promise<
-    StorageTypes.IRequestStorageGetAllHashesAndSizes[]
+    StorageTypes.IGetAllHashesAndSizes[]
   > {
-    let hashesAndSizesFromLastSyncedBlock: StorageTypes.IRequestStorageGetAllHashesAndSizes[] = [];
+    let hashesAndSizesFromLastSyncedBlock: StorageTypes.IGetAllHashesAndSizes[] = [];
 
     // Empty array is returned if we are already synced to the last block number
     const lastBlock = await this.getLastBlockNumber();
@@ -232,7 +235,7 @@ export default class SmartContractManager {
    */
   private async getHashesAndSizesFromEthereum(
     fromBlock: number,
-  ): Promise<StorageTypes.IRequestStorageGetAllHashesAndSizes[]> {
+  ): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
     // Reading all event logs
     let events = await Promise.race([
       this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
@@ -358,7 +361,7 @@ export default class SmartContractManager {
    * @param cost total cost of the transaction (gas fee + request network fee)
    * @param fee Request network fee
    * @param gasFee gas fee of the ethereum transaction
-   * @return IRequestStorageEthereumMetadata the metadata formatted
+   * @return IEthereumMetadata the metadata formatted
    */
   private async createEthereumMetaData(
     blockNumber: number,
@@ -366,13 +369,13 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
-  ): Promise<StorageTypes.IRequestStorageEthereumMetadata> {
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the number confirmations of the block hosting the transaction
     let blockConfirmation;
     try {
       blockConfirmation = await this.getConfirmationNumber(blockNumber);
     } catch (error) {
-      throw Error(`Error getting block timestamp: ${error}`);
+      throw Error(`Error getting block confirmation number: ${error}`);
     }
 
     // Get timestamp of the block hosting the transaction

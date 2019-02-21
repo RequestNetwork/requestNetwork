@@ -19,11 +19,11 @@ import * as RequestNetwork from '@requestnetwork/request-client.js';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 // payee information
 const payeeSignatureInfo = {
-  method: RequestNetwork.Types.Signature.REQUEST_SIGNATURE_METHOD.ECDSA,
+  method: RequestNetwork.Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
 const payeeIdentity = {
-  type: RequestNetwork.Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 
@@ -35,7 +35,7 @@ const requestInfo: RequestNetwork.Types.RequestLogic.IRequestLogicCreateParamete
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: {
-    type: RequestNetwork.Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };

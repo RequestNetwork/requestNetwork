@@ -7,7 +7,7 @@ import Utils from '@requestnetwork/utils';
 export default class MockStorage implements StorageTypes.IStorage {
   private data: { [key: string]: string } = {};
 
-  public async append(content: string): Promise<StorageTypes.IRequestStorageOneDataIdAndMeta> {
+  public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
     if (!content) {
       throw Error('Error: no content provided');
     }
@@ -25,7 +25,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async read(id: string): Promise<StorageTypes.IRequestStorageOneContentAndMeta> {
+  public async read(id: string): Promise<StorageTypes.IOneContentAndMeta> {
     if (!id) {
       throw Error('No id provided');
     }
@@ -37,7 +37,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getAllDataId(): Promise<StorageTypes.IRequestStorageGetAllDataIdReturn> {
+  public async getAllDataId(): Promise<StorageTypes.IGetAllDataIdReturn> {
     const results = Object.keys(this.data);
     return {
       meta: {
@@ -51,7 +51,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getNewDataId(): Promise<StorageTypes.IRequestStorageGetNewDataIdReturn> {
+  public async getNewDataId(): Promise<StorageTypes.IGetNewDataIdReturn> {
     return {
       meta: {
         metaDataIds: [],
@@ -62,7 +62,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getAllData(): Promise<StorageTypes.IRequestStorageGetAllDataReturn> {
+  public async getAllData(): Promise<StorageTypes.IGetAllDataReturn> {
     const results = Object.values(this.data).map(String);
 
     return {

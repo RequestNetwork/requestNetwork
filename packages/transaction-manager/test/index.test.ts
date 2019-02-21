@@ -19,12 +19,12 @@ const data2 = '{or: "can", be:false}';
 const tx = { data };
 const tx2 = { data: data2 };
 
-const fakeMetaDataAccessPersistReturn: DataAccessTypes.IRequestDataReturnPersistTransaction = {
+const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = {
   meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
   result: { topics: [fakeTxHash] },
 };
 
-const fakeMetaDataAccessGetReturn: DataAccessTypes.IRequestDataReturnGetTransactionsByTopic = {
+const fakeMetaDataAccessGetReturn: DataAccessTypes.IReturnGetTransactionsByTopic = {
   meta: { transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'] },
   result: { transactions: [tx, tx2] },
 };

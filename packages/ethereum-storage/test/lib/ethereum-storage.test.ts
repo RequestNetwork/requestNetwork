@@ -104,7 +104,7 @@ describe('EthereumStorage', () => {
     ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
     ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
     ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
-      StorageTypes.IRequestStorageEthereumMetadata
+      StorageTypes.IEthereumMetadata
     > => {
       return {
         blockConfirmation: 10,
@@ -137,7 +137,7 @@ describe('EthereumStorage', () => {
       return;
     }
 
-    const resultExpected: StorageTypes.IRequestStorageOneDataIdAndMeta = {
+    const resultExpected: StorageTypes.IOneDataIdAndMeta = {
       meta: {
         ethereum: {
           blockConfirmation: 10,
@@ -162,7 +162,7 @@ describe('EthereumStorage', () => {
 
   it('throws when append and addHashAndSizeToEthereum throws', async () => {
     ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
-      StorageTypes.IRequestStorageEthereumMetadata
+      StorageTypes.IEthereumMetadata
     > => {
       throw Error('fake error');
     };
@@ -375,13 +375,13 @@ describe('EthereumStorage', () => {
   it('getAllDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
     // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
     ethereumStorage.smartContractManager.getAllHashesAndSizesFromEthereum = (): Promise<
-      StorageTypes.IRequestStorageGetAllHashesAndSizes[]
+      StorageTypes.IGetAllHashesAndSizes[]
     > => {
       return Promise.resolve([
         {
-          meta: {} as StorageTypes.IRequestStorageEthereumMetadata,
+          meta: {} as StorageTypes.IEthereumMetadata,
           size: 10,
-        } as StorageTypes.IRequestStorageGetAllHashesAndSizes,
+        } as StorageTypes.IGetAllHashesAndSizes,
       ]);
     };
 

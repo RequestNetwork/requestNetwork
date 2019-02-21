@@ -11,14 +11,14 @@ import { expect } from 'chai';
 const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
   identity: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
   },
   privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
   publicKey:
     '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
   signatureParams: {
-    method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+    method: SignatureTypes.METHOD.ECDSA,
     privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
   },
 };
@@ -26,14 +26,14 @@ const id1Raw = {
 export const id2Raw = {
   address: '0x818b6337657a23f58581715fc610577292e521d0',
   identity: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x818b6337657a23f58581715fc610577292e521d0',
   },
   privateKey: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
   publicKey:
     'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
   signatureParams: {
-    method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+    method: SignatureTypes.METHOD.ECDSA,
     privateKey: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
   },
 };
@@ -44,7 +44,7 @@ const signatureValueExpected = Utils.crypto.EcUtils.sign(id1Raw.privateKey, hash
 const signedDataExpected = {
   data,
   signature: {
-    method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+    method: SignatureTypes.METHOD.ECDSA,
     value: signatureValueExpected,
   },
 };
@@ -57,11 +57,11 @@ describe('ethereum-private-key-signature-provider', () => {
       expect(
         signProvider.supportedIdentityTypes,
         'signProvider.supportedIdentityTypes is wrong',
-      ).to.be.deep.equal([IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS]);
+      ).to.be.deep.equal([IdentityTypes.TYPE.ETHEREUM_ADDRESS]);
       expect(
         signProvider.supportedMethods,
         'signProvider.supportedMethods is wrong',
-      ).to.be.deep.equal([SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA]);
+      ).to.be.deep.equal([SignatureTypes.METHOD.ECDSA]);
 
       expect(
         signProvider.getAllRegisteredIdentities(),
@@ -82,7 +82,7 @@ describe('ethereum-private-key-signature-provider', () => {
       expect(
         () =>
           new EthereumPrivateKeySignatureProvider({
-            method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+            method: SignatureTypes.METHOD.ECDSA,
             privateKey: '0x0',
           }),
         'should have thrown',
@@ -178,7 +178,7 @@ describe('ethereum-private-key-signature-provider', () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
       const arbitraryIdentity: IdentityTypes.IIdentity = {
-        type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x000',
       };
       expect(() => {
