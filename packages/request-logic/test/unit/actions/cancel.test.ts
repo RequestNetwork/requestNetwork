@@ -17,8 +17,8 @@ import * as TestData from '../utils/test-data-generator';
 /* tslint:disable:no-unused-expression */
 describe('actions/cancel', () => {
   describe('format', () => {
-    it('can cancel without extensionsData', () => {
-      const actionCancel = CancelAction.format(
+    it('can cancel without extensionsData', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -26,9 +26,7 @@ describe('actions/cancel', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCancel.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CANCEL,
-      );
+      expect(actionCancel.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CANCEL);
 
       expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
@@ -37,8 +35,8 @@ describe('actions/cancel', () => {
         .undefined;
     });
 
-    it('can cancel with extensionsData', () => {
-      const actionCancel = CancelAction.format(
+    it('can cancel with extensionsData', async () => {
+      const actionCancel = await CancelAction.format(
         {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
@@ -47,9 +45,7 @@ describe('actions/cancel', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCancel.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CANCEL,
-      );
+      expect(actionCancel.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CANCEL);
 
       expect(actionCancel.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
@@ -61,8 +57,8 @@ describe('actions/cancel', () => {
   });
 
   describe('applyActionToRequest', () => {
-    it('can cancel by payer with state === created', () => {
-      const actionCancel = CancelAction.format(
+    it('can cancel by payer with state === created', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -115,8 +111,8 @@ describe('actions/cancel', () => {
         parameters: { extensionsDataLength: 0 },
       });
     });
-    it('cannot cancel by payer with state === accepted', () => {
-      const actionCancel = CancelAction.format(
+    it('cannot cancel by payer with state === accepted', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -131,8 +127,8 @@ describe('actions/cancel', () => {
         ),
       ).to.throw('A payer cancel need to be done on a request with the state created');
     });
-    it('cannot cancel by payer with state === canceled', () => {
-      const actionCancel = CancelAction.format(
+    it('cannot cancel by payer with state === canceled', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -148,8 +144,8 @@ describe('actions/cancel', () => {
       ).to.throw('A payer cancel need to be done on a request with the state created');
     });
 
-    it('can cancel by payee with state === created', () => {
-      const actionCancel = CancelAction.format(
+    it('can cancel by payee with state === created', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -201,8 +197,8 @@ describe('actions/cancel', () => {
         parameters: { extensionsDataLength: 0 },
       });
     });
-    it('can cancel by payee with state === accepted', () => {
-      const actionCancel = CancelAction.format(
+    it('can cancel by payee with state === accepted', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -255,8 +251,8 @@ describe('actions/cancel', () => {
         parameters: { extensionsDataLength: 0 },
       });
     });
-    it('cannot cancel by payee with state === canceled', () => {
-      const actionCancel = CancelAction.format(
+    it('cannot cancel by payee with state === canceled', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -272,8 +268,8 @@ describe('actions/cancel', () => {
       ).to.throw('Cannot cancel an already canceled request');
     });
 
-    it('cannot cancel by third party', () => {
-      const actionCancel = CancelAction.format(
+    it('cannot cancel by third party', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },
@@ -414,9 +410,9 @@ describe('actions/cancel', () => {
         'Signer must be the payer or the payee',
       );
     });
-    it('can cancel with extensionsData and no extensionsData before', () => {
+    it('can cancel with extensionsData and no extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionCancel = CancelAction.format(
+      const actionCancel = await CancelAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -473,9 +469,9 @@ describe('actions/cancel', () => {
       });
     });
 
-    it('can cancel with extensionsData and extensionsData before', () => {
+    it('can cancel with extensionsData and extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionCancel = CancelAction.format(
+      const actionCancel = await CancelAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -531,8 +527,8 @@ describe('actions/cancel', () => {
         parameters: { extensionsDataLength: 1 },
       });
     });
-    it('can cancel without extensionsData and extensionsData before', () => {
-      const actionCancel = CancelAction.format(
+    it('can cancel without extensionsData and extensionsData before', async () => {
+      const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
         },

@@ -25,8 +25,8 @@ const arbitraryExpectedAmountAfterDelta = '23400000000000000';
 /* tslint:disable:no-unused-expression */
 describe('actions/reduceExpectedAmount', () => {
   describe('format', () => {
-    it('can reduce expected amount without extensionsData', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('can reduce expected amount without extensionsData', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -49,8 +49,8 @@ describe('actions/reduceExpectedAmount', () => {
         .undefined;
     });
 
-    it('can reduce expected amount with extensionsData', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('can reduce expected amount with extensionsData', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: TestData.oneExtension,
@@ -117,8 +117,8 @@ describe('actions/reduceExpectedAmount', () => {
   });
 
   describe('applyActionToRequest', () => {
-    it('can reduce expected amount by payee', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('can reduce expected amount by payee', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -173,8 +173,8 @@ describe('actions/reduceExpectedAmount', () => {
       });
     });
 
-    it('cannot reduce expected amount by payer', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('cannot reduce expected amount by payer', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -191,8 +191,8 @@ describe('actions/reduceExpectedAmount', () => {
       }).to.throw('signer must be the payee');
     });
 
-    it('cannot reduce expected amount by third party', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('cannot reduce expected amount by third party', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -307,8 +307,8 @@ describe('actions/reduceExpectedAmount', () => {
       }).to.throw('the request must have a payee');
     });
 
-    it('cannot reduce expected amount if state === CANCELED in state', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('cannot reduce expected amount if state === CANCELED in state', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -325,8 +325,8 @@ describe('actions/reduceExpectedAmount', () => {
       }).to.throw('the request must not be canceled');
     });
 
-    it('can reduce expected amount if state === ACCEPTED in state', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('can reduce expected amount if state === ACCEPTED in state', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -381,9 +381,9 @@ describe('actions/reduceExpectedAmount', () => {
       });
     });
 
-    it('can reduce expected amount with extensionsData and no extensionsData before', () => {
+    it('can reduce expected amount with extensionsData and no extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -441,9 +441,9 @@ describe('actions/reduceExpectedAmount', () => {
       });
     });
 
-    it('can reduce expected amount with extensionsData and extensionsData before', () => {
+    it('can reduce expected amount with extensionsData and extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -500,8 +500,8 @@ describe('actions/reduceExpectedAmount', () => {
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
       });
     });
-    it('can reduce expected amount without extensionsData and extensionsData before', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('can reduce expected amount without extensionsData and extensionsData before', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -632,8 +632,8 @@ describe('actions/reduceExpectedAmount', () => {
       }).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
-    it('can reduce expected amount to zero', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('can reduce expected amount to zero', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: arbitraryExpectedAmount,
           requestId: requestIdMock,
@@ -686,8 +686,8 @@ describe('actions/reduceExpectedAmount', () => {
       });
     });
 
-    it('cannot reduce expected amount below zero', () => {
-      const actionReduceAmount = ReduceExpectedAmountAction.format(
+    it('cannot reduce expected amount below zero', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
         {
           deltaAmount: biggerThanArbitraryExpectedAmount,
           requestId: requestIdMock,

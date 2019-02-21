@@ -17,17 +17,15 @@ import * as TestData from '../utils/test-data-generator';
 /* tslint:disable:no-unused-expression */
 describe('actions/accept', () => {
   describe('format', () => {
-    it('can formatAccept without extensionsData', () => {
-      const actionAccept = AcceptAction.format(
+    it('can formatAccept without extensionsData', async () => {
+      const actionAccept = await AcceptAction.format(
         {
           requestId: TestData.requestIdMock,
         },
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionAccept.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.ACCEPT,
-      );
+      expect(actionAccept.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.ACCEPT);
 
       expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
@@ -36,8 +34,8 @@ describe('actions/accept', () => {
         .undefined;
     });
 
-    it('can formatAccept with extensionsData', () => {
-      const actionAccept = AcceptAction.format(
+    it('can formatAccept with extensionsData', async () => {
+      const actionAccept = await AcceptAction.format(
         {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
@@ -45,9 +43,7 @@ describe('actions/accept', () => {
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionAccept.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.ACCEPT,
-      );
+      expect(actionAccept.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.ACCEPT);
 
       expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
@@ -59,8 +55,8 @@ describe('actions/accept', () => {
   });
 
   describe('applyActionToRequest', () => {
-    it('can apply accept by payer', () => {
-      const actionAccept = AcceptAction.format(
+    it('can apply accept by payer', async () => {
+      const actionAccept = await AcceptAction.format(
         { requestId: TestData.requestIdMock },
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
@@ -112,23 +108,22 @@ describe('actions/accept', () => {
       });
     });
 
-    it('cannot apply accept by payee', () => {
-      const actionAccept = AcceptAction.format(
+    it('cannot apply accept by payee', async () => {
+      const actionAccept = await AcceptAction.format(
         { requestId: TestData.requestIdMock },
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
 
-      expect(() =>
+      expect(() => {
         AcceptAction.applyActionToRequest(
           actionAccept,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
-        ),
-      ).to.throw('Signer must be the payer');
+        );
+      }, 'should throw').to.throw('Signer must be the payer');
     });
-
-    it('cannot apply accept by third party', () => {
-      const actionAccept = AcceptAction.format(
+    it('cannot apply accept by third party', async () => {
+      const actionAccept = await AcceptAction.format(
         { requestId: TestData.requestIdMock },
         TestData.otherIdRaw.identity,
         TestData.fakeSignatureProvider,
@@ -264,9 +259,9 @@ describe('actions/accept', () => {
       ).to.throw('the request state must be created');
     });
 
-    it('can apply accept with extensionsData and no extensionsData before', () => {
+    it('can apply accept with extensionsData and no extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionAccept = AcceptAction.format(
+      const actionAccept = await AcceptAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -324,9 +319,9 @@ describe('actions/accept', () => {
       });
     });
 
-    it('can apply accept with extensionsData and extensionsData before', () => {
+    it('can apply accept with extensionsData and extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionAccept = AcceptAction.format(
+      const actionAccept = await AcceptAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -386,8 +381,8 @@ describe('actions/accept', () => {
         parameters: { extensionsDataLength: 1 },
       });
     });
-    it('can apply accept without extensionsData and extensionsData before', () => {
-      const actionAccept = AcceptAction.format(
+    it('can apply accept without extensionsData and extensionsData before', async () => {
+      const actionAccept = await AcceptAction.format(
         {
           requestId: TestData.requestIdMock,
         },

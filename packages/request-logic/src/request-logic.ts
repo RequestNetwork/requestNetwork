@@ -44,7 +44,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       throw new Error('You must give a signature provider to create actions');
     }
 
-    const action = RequestLogicCore.formatCreate(
+    const action = await RequestLogicCore.formatCreate(
       requestParameters,
       signerIdentity,
       this.signatureProvider,
@@ -79,7 +79,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
-    const action = RequestLogicCore.formatAccept(
+    const action = await RequestLogicCore.formatAccept(
       requestParameters,
       signerIdentity,
       this.signatureProvider,
@@ -111,7 +111,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
-    const action = RequestLogicCore.formatCancel(
+    const action = await RequestLogicCore.formatCancel(
       requestParameters,
       signerIdentity,
       this.signatureProvider,
@@ -142,7 +142,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
-    const action = RequestLogicCore.formatIncreaseExpectedAmount(
+    const action = await RequestLogicCore.formatIncreaseExpectedAmount(
       requestParameters,
       signerIdentity,
       this.signatureProvider,
@@ -173,7 +173,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
-    const action = RequestLogicCore.formatReduceExpectedAmount(
+    const action = await RequestLogicCore.formatReduceExpectedAmount(
       requestParameters,
       signerIdentity,
       this.signatureProvider,
@@ -205,7 +205,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       throw new Error('You must give a signature provider to create actions');
     }
 
-    const action = RequestLogicCore.formatAddExtensionsData(
+    const action = await RequestLogicCore.formatAddExtensionsData(
       requestParameters,
       signerIdentity,
       this.signatureProvider,
