@@ -1,8 +1,8 @@
-<img src="https://github.com/RequestNetwork/Request/raw/master/Hubs/Marketing%20and%20design/logo-horizontal.png" width="400px" >
+<img src="https://raw.githubusercontent.com/RequestNetwork/Request/master/Hubs/Request%20Logos/OnLight/png/Request_onlight_reg_green.png" width="400px" >
 
 ---
 
-[Request Network][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].
+[Request][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].
 
 This repository contains all the Request Network developer tools written in TypeScript.
 
