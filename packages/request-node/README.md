@@ -1,4 +1,4 @@
-# `@requestnetwork/request-node`
+# @requestnetwork/request-node
 
 `@requestnetwork/request-node` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 This package allows you to run a full Request Node.
