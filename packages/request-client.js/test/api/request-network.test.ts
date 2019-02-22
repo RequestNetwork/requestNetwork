@@ -86,41 +86,5 @@ describe('api/request-network', () => {
 
       expect(request).to.instanceOf(Request);
     });
-
-    it('cannot fromRequestId() with double creation data', async () => {
-      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async getTransactionsByTopic(): Promise<any> {
-          return {
-            result: {
-              transactions: [
-                { data: JSON.stringify(TestData.action) },
-                { data: JSON.stringify(TestData.anotherCreationAction) },
-              ],
-            },
-          };
-        },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-      };
-
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
-
-      try {
-        await requestnetwork.fromRequestId(
-          '0x4b97a5816a7a86d11aaec93e8ec3b253d916f7152935b97c85c7dc760ea1857a',
-        );
-
-        // tslint:disable-next-line:no-unused-expression
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception wrong').to.equal(
-          'More than one request creation has been found - you may have given a wrong requestId',
-        );
-      }
-    });
   });
 });

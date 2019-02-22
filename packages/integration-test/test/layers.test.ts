@@ -101,7 +101,7 @@ describe('Request system', () => {
     const requestIdLength = 66;
     assert.equal(resultCreation.result.requestId.length, requestIdLength);
 
-    const request = await requestLogic.getRequestById(resultCreation.result.requestId);
+    const request = await requestLogic.getFirstRequestFromTopic(resultCreation.result.requestId);
 
     assert.exists(request);
   });
@@ -145,7 +145,7 @@ describe('Request system', () => {
     const requestIdLength = 66;
     assert.equal(resultCreation.result.requestId.length, requestIdLength);
 
-    const request = await requestLogic.getRequestById(resultCreation.result.requestId);
+    const request = await requestLogic.getFirstRequestFromTopic(resultCreation.result.requestId);
 
     assert.exists(request);
   });

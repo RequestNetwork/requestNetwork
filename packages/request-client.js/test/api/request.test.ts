@@ -33,7 +33,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async addExtensionsDataRequest(): Promise<any> {
     return { meta: {}, result: {} };
   },
-  async getRequestById(): Promise<any> {
+  async getFirstRequestFromTopic(): Promise<any> {
     return { meta: {}, result: { request: { requestId: '1' } } };
   },
 };
@@ -299,7 +299,7 @@ describe('api/request', () => {
         async addExtensionsDataRequest(): Promise<any> {
           return { meta: {}, result: {} };
         },
-        async getRequestById(): Promise<any> {
+        async getFirstRequestFromTopic(): Promise<any> {
           return {
             meta: {},
             result: {
@@ -308,7 +308,7 @@ describe('api/request', () => {
           };
         },
       };
-      const spy = sandbox.on(mockRequestLogicWithRequest, 'getRequestById');
+      const spy = sandbox.on(mockRequestLogicWithRequest, 'getFirstRequestFromTopic');
 
       const request = new Request(mockRequestLogicWithRequest, '1');
       await request.refresh();

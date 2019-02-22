@@ -8,6 +8,8 @@ import {
 import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
 
+import Action from './action';
+
 /**
  * Implementation of Request Logic
  */
@@ -222,41 +224,110 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to get a request from its requestId from the action in the data-access layer
+   * Function to get a request from a topic from the actions in the data-access layer
    *
-   * @param requestId the requestId of the request to retrieve
+   * @param topic the topic of the request to retrieve
    *
    * @returns the request constructed from the actions
    */
-  public async getRequestById(
-    requestId: RequestLogicTypes.RequestId,
+  public async getFirstRequestFromTopic(
+    topic: string,
   ): Promise<RequestLogicTypes.IReturnGetRequestById> {
-    const resultGetTx = await this.transactionManager.getTransactionsByTopic(requestId);
+    const resultGetTx = await this.transactionManager.getTransactionsByTopic(topic);
     const actions = resultGetTx.result.transactions;
 
-    try {
-      // array of transaction without duplicates to avoid replay attack
-      const transactionsWithoutDuplicates = Utils.unique(
-        actions.map((t: any) => JSON.parse(t.data)),
-      );
+    // array of transaction without duplicates to avoid replay attack
+    const transactionsWithoutDuplicates = Utils.unique(
+      actions
+        .map((t: any) => {
+          // We ignore the transaction.data that cannot be parsed
+          try {
+            return JSON.parse(t.data);
+          } catch (e) {
+            return;
+          }
+        })
+        .filter((elem: any) => elem !== undefined),
+    );
 
-      // second parameter is null, because the first action must be a creation (no state expected)
-      const request = transactionsWithoutDuplicates.uniqueItems.reduce(
-        (requestState: any, action: any) =>
-          RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic),
-        null,
-      );
+    const ignoredTransactions = transactionsWithoutDuplicates.duplicates;
 
-      return {
+    // second parameter is null, because the first action must be a creation (no state expected)
+    const request = transactionsWithoutDuplicates.uniqueItems.reduce(
+      (requestState: any, action: any) => {
+        try {
+          return RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic);
+        } catch (e) {
+          // if an error occurs during the apply we ignore the action
+          ignoredTransactions.push(action);
+          return requestState;
+        }
+      },
+      null,
+    );
+
+    return {
+      meta: {
+        ignoredTransactions,
+        transactionManagerMeta: resultGetTx.meta,
+      },
+      result: { request },
+    };
+  }
+
+  /**
+   * Gets the requests indexed by a topic from the actions in the data-access layer
+   *
+   * @param topic
+   * @returns all the requests indexed by topic
+   */
+  public async getRequestsByTopic(
+    topic: string,
+  ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
+    const getTxResult = await this.transactionManager.getTransactionsByTopic(topic);
+    const actionsIndexedByTopic = getTxResult.result.transactions;
+
+    // get the requestIds from the actions indexed by the topic
+    const allRequestIds: string[] = actionsIndexedByTopic
+      .map((transaction: TransactionTypes.ITransaction) => {
+        // We ignore the transaction.data that cannot be parsed
+        try {
+          return Action.getRequestId(JSON.parse(transaction.data));
+        } catch (e) {
+          return '';
+        }
+      })
+      .filter((elem: any) => elem !== '');
+
+    const allUniqueRequestIds = Utils.unique(allRequestIds).uniqueItems;
+
+    // TODO PROT-395: we should optimize to have fewer calls
+    const allRequestsWithMeta: RequestLogicTypes.IReturnGetRequestById[] = await Promise.all(
+      allUniqueRequestIds.map((requestId: string) => this.getFirstRequestFromTopic(requestId)),
+    );
+
+    // Merge all the requests and meta in one object
+    return allRequestsWithMeta.reduce(
+      (
+        finalResult: RequestLogicTypes.IReturnGetRequestsByTopic,
+        returnGetById: RequestLogicTypes.IReturnGetRequestById,
+      ) => {
+        if (returnGetById && returnGetById.result.request) {
+          finalResult.result.requests.push(returnGetById.result.request);
+          // workaround to quiet the error "finalResult.meta.ignoredTransactions can be undefined" (but defined in the initialization value of the accumulator)
+          (finalResult.meta.ignoredTransactions || []).push(returnGetById.meta.ignoredTransactions);
+          finalResult.meta.transactionManagerMeta.push(returnGetById.meta.transactionManagerMeta);
+        }
+
+        return finalResult;
+      },
+      {
         meta: {
-          ignoredTransactions: transactionsWithoutDuplicates.duplicates,
-          transactionManagerMeta: resultGetTx.meta,
+          ignoredTransactions: [],
+          transactionManagerMeta: [],
         },
-        result: { request },
-      };
-    } catch (e) {
-      // Error parsing the actions
-      throw e;
-    }
+        result: { requests: [] },
+      },
+    );
   }
 }
