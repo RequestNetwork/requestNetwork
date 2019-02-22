@@ -30,7 +30,7 @@ function format(
   acceptParameters: Types.IAcceptParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
+): Promise<Types.IAction> {
   const unsignedAction: Types.IUnsignedAction = {
     name: Types.ACTION_NAME.ACCEPT,
     parameters: acceptParameters,

@@ -31,7 +31,7 @@ function format(
   requestParameters: Types.ICreateParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
+): Promise<Types.IAction> {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
   }

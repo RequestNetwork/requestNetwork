@@ -31,7 +31,7 @@ function format(
   reduceAmountParameters: Types.IReduceExpectedAmountParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
+): Promise<Types.IAction> {
   if (!Amount.isValid(reduceAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }

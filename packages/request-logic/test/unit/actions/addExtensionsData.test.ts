@@ -42,8 +42,8 @@ describe('actions/addExtensionsData', () => {
       }, 'should throw').to.throw('extensionsData must be given');
     });
 
-    it('can formatAddExtensionsData with extensionsData', () => {
-      const actionAddExtensionsData = AddExtensionsDataAction.format(
+    it('can formatAddExtensionsData with extensionsData', async () => {
+      const actionAddExtensionsData = await AddExtensionsDataAction.format(
         {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
@@ -71,8 +71,8 @@ describe('actions/addExtensionsData', () => {
   });
 
   describe('applyActionToRequest', () => {
-    it('can apply addExtensionsData', () => {
-      const actionAddExtensionsData = AddExtensionsDataAction.format(
+    it('can apply addExtensionsData', async () => {
+      const actionAddExtensionsData = await AddExtensionsDataAction.format(
         {
           extensionsData: TestData.oneExtension,
           requestId: TestData.requestIdMock,
@@ -190,9 +190,9 @@ describe('actions/addExtensionsData', () => {
       ).to.throw('extensionsData must be given');
     });
 
-    it('can apply addExtensionsData with extensionsData and no extensionsData before', () => {
+    it('can apply addExtensionsData with extensionsData and no extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionAddExtensionsData = AddExtensionsDataAction.format(
+      const actionAddExtensionsData = await AddExtensionsDataAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,
@@ -250,9 +250,9 @@ describe('actions/addExtensionsData', () => {
       });
     });
 
-    it('can apply addExtensionsData with extensionsData and extensionsData before', () => {
+    it('can apply addExtensionsData with extensionsData and extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionAddExtensionsData = AddExtensionsDataAction.format(
+      const actionAddExtensionsData = await AddExtensionsDataAction.format(
         {
           extensionsData: newExtensionsData,
           requestId: TestData.requestIdMock,

@@ -24,8 +24,8 @@ const arbitraryExpectedAmountAfterDelta = '223400000000000000';
 /* tslint:disable:no-unused-expression */
 describe('actions/increaseExpectedAmount', () => {
   describe('format', () => {
-    it('can increase expected amount without extensionsData', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('can increase expected amount without extensionsData', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -48,8 +48,8 @@ describe('actions/increaseExpectedAmount', () => {
         .undefined;
     });
 
-    it('can increase expected amount with extensionsData', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('can increase expected amount with extensionsData', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: TestData.oneExtension,
@@ -101,7 +101,7 @@ describe('actions/increaseExpectedAmount', () => {
       ).to.throw('deltaAmount must be a string representing a positive integer');
     });
 
-    it('cannot increase expected amount with a negative number', () => {
+    it('cannot increase expected amount with a negative number', async () => {
       expect(() =>
         IncreaseExpectedAmountAction.format(
           {
@@ -116,8 +116,8 @@ describe('actions/increaseExpectedAmount', () => {
   });
 
   describe('applyActionToRequest', () => {
-    it('can increase expected amount by payer', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('can increase expected amount by payer', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -172,8 +172,8 @@ describe('actions/increaseExpectedAmount', () => {
       });
     });
 
-    it('cannot increase expected amount by payee', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('cannot increase expected amount by payee', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -190,8 +190,8 @@ describe('actions/increaseExpectedAmount', () => {
       ).to.throw('signer must be the payer');
     });
 
-    it('cannot increase expected amount by third party', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('cannot increase expected amount by third party', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -308,8 +308,8 @@ describe('actions/increaseExpectedAmount', () => {
       ).to.throw('the request must have a payer');
     });
 
-    it('cannot increase expected amount if state === CANCELED in state', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('cannot increase expected amount if state === CANCELED in state', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -326,8 +326,8 @@ describe('actions/increaseExpectedAmount', () => {
       ).to.throw('the request must not be canceled');
     });
 
-    it('can increase expected amount if state === ACCEPTED in state', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('can increase expected amount if state === ACCEPTED in state', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
@@ -382,9 +382,9 @@ describe('actions/increaseExpectedAmount', () => {
       });
     });
 
-    it('can increase expected amount with extensionsData and no extensionsData before', () => {
+    it('can increase expected amount with extensionsData and no extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -442,9 +442,9 @@ describe('actions/increaseExpectedAmount', () => {
       });
     });
 
-    it('can increase expected amount with extensionsData and extensionsData before', () => {
+    it('can increase expected amount with extensionsData and extensionsData before', async () => {
       const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           extensionsData: newExtensionsData,
@@ -501,8 +501,8 @@ describe('actions/increaseExpectedAmount', () => {
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
       });
     });
-    it('can increase expected amount without extensionsData and extensionsData before', () => {
-      const actionIncreaseAmount = IncreaseExpectedAmountAction.format(
+    it('can increase expected amount without extensionsData and extensionsData before', async () => {
+      const actionIncreaseAmount = await IncreaseExpectedAmountAction.format(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: requestIdMock,
