@@ -176,7 +176,7 @@ describe('ethereum-private-key-signature-provider', () => {
       await expect(
         signProvider.sign(data, arbitraryIdentity),
         'should throw',
-      ).to.eventually.rejectedWith('Identity type not supported unknown type');
+      ).to.eventually.be.rejectedWith('Identity type not supported unknown type');
     });
     it('cannot sign if private key of the identity not given', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
@@ -188,7 +188,7 @@ describe('ethereum-private-key-signature-provider', () => {
       await expect(
         signProvider.sign(data, arbitraryIdentity),
         'should throw',
-      ).to.eventually.rejectedWith('private key unknown for the address 0x000');
+      ).to.eventually.be.rejectedWith('private key unknown for the address 0x000');
     });
   });
 });
