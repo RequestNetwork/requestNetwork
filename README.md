@@ -27,6 +27,7 @@ Join the [Request Hub][requesthub-slack-url] to get in touch with us.
 | [`@requestnetwork/transaction-manager`](/packages/transaction-manager) | [![npm](https://img.shields.io/npm/v/@requestnetwork/transaction-manager.svg)](https://www.npmjs.com/package/@requestnetwork/transaction-manager) | Creates transactions to be sent to Data Access                  |
 | [`@requestnetwork/types`](/packages/types)                             | [![npm](https://img.shields.io/npm/v/@requestnetwork/types.svg)](https://www.npmjs.com/package/@requestnetwork/types)                             | Typescript types shared across @requestnetwork packages         |
 | [`@requestnetwork/utils`](/packages/utils)                             | [![npm](https://img.shields.io/npm/v/@requestnetwork/utils.svg)](https://www.npmjs.com/package/@requestnetwork/utils)                             | Collection of tools shared between the @requestnetwork packages |
+| [`@requestnetwork/web3-signature`](/packages/web3-signature)           | [![npm](https://img.shields.io/npm/v/@requestnetwork/web3-signature.svg)](https://www.npmjs.com/package/@requestnetwork/web3-signature)           | Sign requests using web3 tools (like Metamask)                  |
 
 ### Private Packages
 

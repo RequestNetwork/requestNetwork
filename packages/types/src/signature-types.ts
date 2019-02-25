@@ -17,6 +17,7 @@ export interface ISignature {
 /** Supported signature methods */
 export enum METHOD {
   ECDSA = 'ecdsa',
+  ECDSA_ETHEREUM = 'ecdsa-ethereum',
 }
 
 /** Signed data interface */

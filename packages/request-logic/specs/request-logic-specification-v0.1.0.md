@@ -763,9 +763,10 @@ Example
 
 List of the Signature methods supported in this version:
 
-| Method    | Signature Value                        | SignatureParameter privateKey          | Identity Type from recover()                                 |
-| --------- | -------------------------------------- | -------------------------------------- | ------------------------------------------------------------ |
-| **ecdsa** | hexadecimal string (e.g.: "0xe649f..") | hexadecimal string (e.g.: "0xe649f..") | **EthereumAddress** _(see "Identity types supported" below)_ |
+| Method             | Signature Value                        | SignatureParameter privateKey          | Identity Type from recover()                                 | Comment                                                                                                                                                                                             |
+| ------------------ | -------------------------------------- | -------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ecdsa**          | hexadecimal string (e.g.: "0xe649f..") | hexadecimal string (e.g.: "0xe649f..") | **EthereumAddress** _(see "Identity types supported" below)_ |
+| **ecdsa-ethereum** | hexadecimal string (e.g.: "0xe649f..") | hexadecimal string (e.g.: "0xe649f..") | **EthereumAddress** _(see "Identity types supported" below)_ | Similar to ecdsa but the signature is made with the Ethereum padding `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`. Used for signing with the web3 tools (like Metamask). |
 
 ### Identity types supported
 

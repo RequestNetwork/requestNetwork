@@ -1,18 +1,19 @@
-# @requestnetwork/epk-signature
+# @requestnetwork/web3-signature
 
-Ethereum Private Key Signature Provider.
+Web3 Signature Provider.
 
-`@requestnetwork/epk-signature` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/web3-signature` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 
-Implementation of the signature provider from the private keys.
+Implementation of the signature provider from the web3 tools.
 The signature provider is used to make signature in the Request Network Protocol (e.g.: see [Request Logic](https://github.com/RequestNetwork/requestNetwork/packages/request-logic).
+This provider allows users to use Metamask to sign data.
 
 It uses the Request Network Protocol concepts of `Identity` and `Signature` described in the [request logic specification](https://github.com/RequestNetwork/requestNetwork/packages/request-logic/specs).
 
 ## Installation
 
 ```bash
-npm install @requestnetwork/epk-signature
+npm install @requestnetwork/web3-signature
 ```
 
 ## Usage
@@ -23,12 +24,7 @@ import {
   Signature as SignatureTypes
 } from '@requestnetwork/types'
 
-import EthereumPrivateKeySignatureProvider from '@requestnetwork/epk-signature'
-
-const signatureParametersExample: SignatureTypes.ISignature = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-};
+import Web3SignatureProvider from '@requestnetwork/web3-signature'
 
 // Identity from the previous signature parameter
 const identityExample: IdentityTypes.IIdentity = {
@@ -37,23 +33,11 @@ const identityExample: IdentityTypes.IIdentity = {
 };
 
 // Construct the provider with a
-const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureParametersExample);
-
-// can list the identity usable
-const listOfAvailableIdentity = signatureProvider.getAllRegisteredIdentities(); // [identityExample]
+const signatureProvider = new Web3SignatureProvider(web3.currentProvider);
 
 // can sign data with identity
 const dataToSign = { ... };
 const signedData = signatureProvider.sign(dataToSign, identityExample); // { data: { ... }, signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x...' }}
-
-// can add a new signature parameters
-signatureProvider.addSignatureParameters({method: ..., privateKey: ...});
-
-// can remove a signature parameters from its identity
-signatureProvider.removeRegisteredIdentity({type: ..., value: ...});
-
-// can remove all signature parameters
-signatureProvider.clearAllRegisteredIdentities();
 ```
 
 ## Contributing

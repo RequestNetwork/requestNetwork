@@ -45,6 +45,9 @@ function pushTransaction(
   transaction: Types.ITransaction,
   topics: string[] = [],
 ): Types.IBlock {
+  if (transaction.data === undefined) {
+    throw new Error('The transaction is missing the data property');
+  }
   // we don't want to modify the original block state
   const copiedBlock: Types.IBlock = Utils.deepCopy(block);
 
