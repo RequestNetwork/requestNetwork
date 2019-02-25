@@ -36,6 +36,14 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async getFirstRequestFromTopic(): Promise<any> {
     return { meta: {}, result: { request: { requestId: '1' } } };
   },
+  async getRequestsByTopic(): Promise<any> {
+    return {
+      meta: {},
+      result: {
+        requests: [],
+      },
+    };
+  },
 };
 
 const mockPaymentNetwork: Types.IPaymentNetwork = {
@@ -304,6 +312,14 @@ describe('api/request', () => {
             meta: {},
             result: {
               request: {},
+            },
+          };
+        },
+        async getRequestsByTopic(): Promise<any> {
+          return {
+            meta: {},
+            result: {
+              requests: [],
             },
           };
         },

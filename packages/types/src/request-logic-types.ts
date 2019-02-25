@@ -31,7 +31,8 @@ export interface IRequestLogic {
     requestParameters: IAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
-  getFirstRequestFromTopic: (requestId: RequestId) => Promise<IReturnGetRequestById>;
+  getFirstRequestFromTopic: (topic: string) => Promise<IReturnGetRequestById>;
+  getRequestsByTopic: (topic: string) => Promise<IReturnGetRequestsByTopic>;
 }
 
 /** return of IRequestLogic functions */

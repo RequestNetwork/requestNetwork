@@ -53,3 +53,24 @@ export const anotherCreationAction: RequestLogicTypes.IAction = {
   data,
   signature: anotherSignature,
 };
+
+export const actionCreationSecondRequest: RequestLogicTypes.IAction = {
+  data: {
+    name: RequestLogicTypes.ACTION_NAME.CREATE,
+    parameters: {
+      currency: 'ETH',
+      expectedAmount: '123400000000000000',
+      payee: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+      },
+      timestamp: 1544426030,
+    },
+    version: '0.1.0',
+  },
+  signature: {
+    method: SignatureTypes.METHOD.ECDSA,
+    value:
+      '0x2a9209322d8e5d6e0759c03e9274b1626a1a75151d4c75399cb947282c07085c77c81503054f5a2e52eb62069ac05399c19944d602b4693165f8bb2b058d20b41b',
+  },
+};

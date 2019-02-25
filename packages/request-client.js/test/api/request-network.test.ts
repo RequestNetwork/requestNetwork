@@ -1,4 +1,4 @@
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes, Identity as IdentityTypes } from '@requestnetwork/types';
 import { assert, expect } from 'chai';
 
 import 'mocha';
@@ -85,6 +85,47 @@ describe('api/request-network', () => {
       );
 
       expect(request).to.instanceOf(Request);
+    });
+  });
+
+  describe('fromIdentity', () => {
+    it('can get requests with payment network fromIdentity', async () => {
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getTransactionsByTopic(topic: string): Promise<any> {
+          let transactions: any[] = [];
+          if (topic === '0x627306090abab3a6e1400e9345bc60c78a8bef57') {
+            transactions = [
+              { data: JSON.stringify(TestData.action) },
+              { data: JSON.stringify(TestData.actionCreationSecondRequest) },
+            ];
+          }
+          if (topic === '0x955a6b23cf91ea6f683b018f6be509888fb857230d776e6b628f94f6fdd1aa3a') {
+            transactions = [{ data: JSON.stringify(TestData.action) }];
+          }
+          if (topic === '0x8d7daef669d7e01888c7bd977361b94ac9b59edaff02659c4499a1a94d581ccb') {
+            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
+          }
+          return {
+            result: {
+              transactions,
+            },
+          };
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requests: Request[] = await requestnetwork.fromIdentity({
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+      });
+
+      expect(requests.length).to.be.equal(2);
     });
   });
 });
