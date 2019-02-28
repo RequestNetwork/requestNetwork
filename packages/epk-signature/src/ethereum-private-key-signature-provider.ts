@@ -12,7 +12,6 @@ type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParam
 /**
  * Implementation of the signature provider from private key
  * Allows to sign() with "Ethereum_address" identities thanks to their private key given in constructor() or addSignatureParameters()
- * Allows to recover() identity from a signature
  */
 export default class EthereumPrivateKeySignatureProvider
   implements SignatureProviderTypes.ISignatureProvider {
@@ -40,7 +39,10 @@ export default class EthereumPrivateKeySignatureProvider
    *
    * @returns string the signature
    */
-  public sign(data: any, signer: IdentityTypes.IIdentity): SignatureTypes.ISignedData {
+  public async sign(
+    data: any,
+    signer: IdentityTypes.IIdentity,
+  ): Promise<SignatureTypes.ISignedData> {
     const actualSigner = signer;
 
     if (!this.supportedIdentityTypes.includes(actualSigner.type)) {

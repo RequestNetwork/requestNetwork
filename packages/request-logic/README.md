@@ -53,7 +53,8 @@ const { result } = await requestLogic.createRequest(createParams, {
 - `cancelRequest` : cancel a request
 - `increaseExpectedAmountRequest` : increase the amount of a request
 - `reduceExpectedAmountRequest` : reduce the amount of a request
-- `getRequestById` : get a request by its ID
+- `getFirstRequestFromTopic` : get the first request from the actions indexed by a topic (should be used with requestId)
+- `getRequestsByTopic` : get all the requests for a topic
 
 ## Contributing
 

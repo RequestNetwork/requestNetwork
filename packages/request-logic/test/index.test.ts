@@ -1,4 +1,3 @@
-// import { expect } from 'chai';
 import 'mocha';
 
 import {
@@ -44,6 +43,19 @@ const fakeTransactionManager: TransactionTypes.ITransactionManager = {
 /* tslint:disable:no-unused-expression */
 describe('index', () => {
   describe('createRequest', () => {
+    it('cannot createRequest without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
+
+      try {
+        await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
+        expect(false, 'must have thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'wrong exception').to.equal(
+          'You must give a signature provider to create actions',
+        );
+      }
+    });
+
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(
         fakeTransactionManager,
@@ -281,8 +293,8 @@ describe('index', () => {
     });
   });
 
-  describe('getRequestById', () => {
-    it('can getRequestById', async () => {
+  describe('getFirstRequestFromTopic', () => {
+    it('can getFirstRequestFromTopic', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -352,7 +364,7 @@ describe('index', () => {
         TestData.fakeSignatureProviderArbitrary,
       );
 
-      const request = await requestLogic.getRequestById(requestId);
+      const request = await requestLogic.getFirstRequestFromTopic(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
@@ -402,7 +414,7 @@ describe('index', () => {
       });
     });
 
-    it('can getRequestById ignore the same transactions even with different case', async () => {
+    it('can getFirstRequestFromTopic ignore the same transactions even with different case', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -488,7 +500,7 @@ describe('index', () => {
         TestData.fakeSignatureProviderArbitrary,
       );
 
-      const request = await requestLogic.getRequestById(requestId);
+      const request = await requestLogic.getFirstRequestFromTopic(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
@@ -538,7 +550,7 @@ describe('index', () => {
       });
     });
 
-    it('can getRequestById do not ignore the same transactions if different nonces', async () => {
+    it('can getFirstRequestFromTopic do not ignore the same transactions if different nonces', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -625,7 +637,7 @@ describe('index', () => {
         TestData.fakeSignatureProviderArbitrary,
       );
 
-      const request = await requestLogic.getRequestById(requestId);
+      const request = await requestLogic.getFirstRequestFromTopic(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
@@ -682,7 +694,8 @@ describe('index', () => {
         },
       });
     });
-    it('cannot getRequestById on corrupted data (not parsable JSON)', async () => {
+
+    it('should ignored the corrupted data (not parsable JSON)', async () => {
       const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
         meta: {},
         result: {
@@ -705,15 +718,301 @@ describe('index', () => {
         TestData.fakeSignatureProviderArbitrary,
       );
 
-      try {
-        await requestLogic.getRequestById(requestId);
+      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      expect(request.result.request, 'request should be null').to.be.null;
+    });
 
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.be.equal(
-          'Unexpected token N in JSON at position 1',
-        );
-      }
+    it('should ignored the corrupted data (e.g: wrong properties)', async () => {
+      const actionCreateCorrupted: any = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.CURRENCY.ETH,
+            expectedAmount: 'NOT A NUMBER',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+        meta: {},
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreateCorrupted),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByTopic> =>
+          listActions,
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProviderArbitrary,
+      );
+
+      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      expect(
+        request.meta.ignoredTransactions && request.meta.ignoredTransactions.length,
+      ).to.be.equal(1);
+      expect(
+        request.meta.ignoredTransactions && request.meta.ignoredTransactions[0],
+      ).to.be.deep.equal(actionCreateCorrupted);
+      expect(request.result.request, 'request should be null').to.be.null;
+    });
+  });
+
+  describe('getRequestsByTopics', () => {
+    it('can getRequestsByTopics', async () => {
+      const actionCreate: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.CURRENCY.ETH,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionCreate2: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.CURRENCY.BTC,
+            expectedAmount: '10',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544411111,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionCancel2: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: '0xf1572eeacdb055c60673d1ca22ab0952d5254e0c70000b222c11333abc70362a',
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const actionCreate3: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.CURRENCY.BTC,
+            expectedAmount: '666',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544433333,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = {};
+      const listActions1: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
+        {
+          meta,
+          result: {
+            transactions: [
+              {
+                data: JSON.stringify(actionCreate),
+                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              },
+              {
+                data: JSON.stringify(actionAccept),
+                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              },
+              {
+                data: JSON.stringify(rxReduce),
+                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              },
+            ],
+          },
+        },
+      );
+      const listActions2: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
+        {
+          meta,
+          result: {
+            transactions: [
+              {
+                data: JSON.stringify(actionCreate2),
+                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              },
+              {
+                data: JSON.stringify(actionCancel2),
+                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              },
+            ],
+          },
+        },
+      );
+      const listActions3: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
+        {
+          meta,
+          result: {
+            transactions: [
+              {
+                data: JSON.stringify(actionCreate3),
+                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              },
+            ],
+          },
+        },
+      );
+      const listAllActions: Promise<
+        TransactionTypes.IReturnGetTransactionsByTopic
+      > = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionAccept),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(rxReduce),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionCreate2),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionCancel2),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionCreate3),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByTopic: (
+          topic: string,
+        ): Promise<TransactionTypes.IReturnGetTransactionsByTopic> => {
+          return {
+            fakeTopicForAll: listAllActions,
+            [requestId as string]: listActions1,
+            ['0xf1572eeacdb055c60673d1ca22ab0952d5254e0c70000b222c11333abc70362a']: listActions2,
+            ['0x7d9456333f2aace2d6f1fb66d2cd1db894bc5ca2a09e5ead2d4a456ad3be1a1e']: listActions3,
+          }[topic];
+        },
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProviderArbitrary,
+      );
+
+      const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
+
+      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+    });
+
+    it('should ignore the none parsable', async () => {
+      const actionCreate: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.CURRENCY.ETH,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = {};
+      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: 'Not a json',
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByTopic: (
+          topic: string,
+        ): Promise<TransactionTypes.IReturnGetTransactionsByTopic> => {
+          return {
+            fakeTopicForAll: listActions,
+            [requestId as string]: listActions,
+          }[topic];
+        },
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProviderArbitrary,
+      );
+
+      const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
+
+      expect(requests.result.requests.length, 'requests result is wrong').to.equal(1);
     });
   });
 });

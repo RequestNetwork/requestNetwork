@@ -1,8 +1,13 @@
-<img src="https://github.com/RequestNetwork/Request/raw/master/Hubs/Marketing%20and%20design/logo-horizontal.png" width="400px" >
+<img src="https://raw.githubusercontent.com/RequestNetwork/Request/master/Hubs/Request%20Logos/OnLight/png/Request_onlight_reg_green.png" width="400px" >
 
 ---
 
-[Request Network][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].
+[![CircleCI](https://img.shields.io/circleci/project/github/RequestNetwork/requestNetwork/development.svg)](https://circleci.com/gh/RequestNetwork/requestNetwork)
+[![Codecov](https://codecov.io/gh/RequestNetwork/requestNetwork/branch/master/graph/badge.svg)](https://codecov.io/gh/RequestNetwork/requestNetwork)
+[![Commit Activity](https://img.shields.io/github/commit-activity/m/RequestNetwork/requestNetwork.svg?color=green)](https://github.com/RequestNetwork/requestNetwork/pulse/monthly)
+[![pullreminders](https://pullreminders.com/badge.svg)](https://pullreminders.com?ref=badge)
+
+[Request][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].
 
 This repository contains all the Request Network developer tools written in TypeScript.
 
@@ -27,6 +32,7 @@ Join the [Request Hub][requesthub-slack-url] to get in touch with us.
 | [`@requestnetwork/transaction-manager`](/packages/transaction-manager) | [![npm](https://img.shields.io/npm/v/@requestnetwork/transaction-manager.svg)](https://www.npmjs.com/package/@requestnetwork/transaction-manager) | Creates transactions to be sent to Data Access                  |
 | [`@requestnetwork/types`](/packages/types)                             | [![npm](https://img.shields.io/npm/v/@requestnetwork/types.svg)](https://www.npmjs.com/package/@requestnetwork/types)                             | Typescript types shared across @requestnetwork packages         |
 | [`@requestnetwork/utils`](/packages/utils)                             | [![npm](https://img.shields.io/npm/v/@requestnetwork/utils.svg)](https://www.npmjs.com/package/@requestnetwork/utils)                             | Collection of tools shared between the @requestnetwork packages |
+| [`@requestnetwork/web3-signature`](/packages/web3-signature)           | [![npm](https://img.shields.io/npm/v/@requestnetwork/web3-signature.svg)](https://www.npmjs.com/package/@requestnetwork/web3-signature)           | Sign requests using web3 tools (like Metamask)                  |
 
 ### Private Packages
 

@@ -23,6 +23,7 @@
           "btc",
           "bitcoin",
           "chai",
+          "checksum",
           "cors",
           "ecdsa",
           "enum",

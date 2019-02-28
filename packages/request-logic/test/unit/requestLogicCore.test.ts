@@ -103,7 +103,7 @@ describe('requestLogicCore', () => {
       );
     });
 
-    it('cannot apply accept with wrong state', () => {
+    it('cannot apply accept with wrong state', async () => {
       const regularRequestContextWithErrors: Types.IRequest = {
         creator: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -119,7 +119,7 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      const actionAccept = RequestLogicCore.formatAccept(
+      const actionAccept = await RequestLogicCore.formatAccept(
         {
           requestId: TestData.requestIdMock,
         },
@@ -156,7 +156,7 @@ describe('requestLogicCore', () => {
       );
     });
 
-    it('cannot cancel with wrong state', () => {
+    it('cannot cancel with wrong state', async () => {
       const regularRequestContextWithErrors = {
         creator: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -172,7 +172,7 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      const actionCancel = RequestLogicCore.formatCancel(
+      const actionCancel = await RequestLogicCore.formatCancel(
         {
           requestId: TestData.requestIdMock,
         },
@@ -210,7 +210,7 @@ describe('requestLogicCore', () => {
       );
     });
 
-    it('cannot increase expected amount with wrong state', () => {
+    it('cannot increase expected amount with wrong state', async () => {
       const regularRequestContextWithErrors = {
         creator: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -226,7 +226,7 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      const actionIncreaseAmount = RequestLogicCore.formatIncreaseExpectedAmount(
+      const actionIncreaseAmount = await RequestLogicCore.formatIncreaseExpectedAmount(
         {
           deltaAmount: TestData.arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -262,7 +262,7 @@ describe('requestLogicCore', () => {
         'request is expected',
       );
     });
-    it('cannot reduce expected amount with wrong state', () => {
+    it('cannot reduce expected amount with wrong state', async () => {
       const regularRequestContextWithErrors = {
         creator: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -278,7 +278,7 @@ describe('requestLogicCore', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      const actionReduceAmount = RequestLogicCore.formatReduceExpectedAmount(
+      const actionReduceAmount = await RequestLogicCore.formatReduceExpectedAmount(
         {
           deltaAmount: TestData.arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -294,8 +294,8 @@ describe('requestLogicCore', () => {
         ),
       ).to.throw('request.payee and request.payer are missing');
     });
-    it('it cannot apply creation with a state', () => {
-      const actionCreation = RequestLogicCore.formatCreate(
+    it('it cannot apply creation with a state', async () => {
+      const actionCreation = await RequestLogicCore.formatCreate(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -335,7 +335,7 @@ describe('requestLogicCore', () => {
       ).to.throw('no request is expected at the creation');
     });
 
-    it('can apply creaion with only the payee', () => {
+    it('can apply creation with only the payee', async () => {
       const paramsCreate = {
         currency: Types.CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -351,7 +351,7 @@ describe('requestLogicCore', () => {
           value: TestData.payeeRaw.address,
         },
       };
-      const actionCreation = RequestLogicCore.formatCreate(
+      const actionCreation = await RequestLogicCore.formatCreate(
         paramsCreate,
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
@@ -395,8 +395,8 @@ describe('requestLogicCore', () => {
       }
       expect(request.payer, 'payer is wrong').to.be.undefined;
     });
-    it('can apply accept by payer', () => {
-      const actionAccept = RequestLogicCore.formatAccept(
+    it('can apply accept by payer', async () => {
+      const actionAccept = await RequestLogicCore.formatAccept(
         { requestId: TestData.requestIdMock },
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
@@ -444,8 +444,8 @@ describe('requestLogicCore', () => {
       }
     });
 
-    it('can cancel by payer with state === created', () => {
-      const actionCancel = RequestLogicCore.formatCancel(
+    it('can cancel by payer with state === created', async () => {
+      const actionCancel = await RequestLogicCore.formatCancel(
         {
           requestId: TestData.requestIdMock,
         },
@@ -494,10 +494,10 @@ describe('requestLogicCore', () => {
       }
     });
 
-    it('can increase expected amount by payer', () => {
+    it('can increase expected amount by payer', async () => {
       const arbitraryDeltaAmount = '100000000000000000';
       const arbitraryExpectedAmountAfterDelta = '223400000000000000';
-      const actionIncreaseAmount = RequestLogicCore.formatIncreaseExpectedAmount(
+      const actionIncreaseAmount = await RequestLogicCore.formatIncreaseExpectedAmount(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -548,10 +548,10 @@ describe('requestLogicCore', () => {
       }
     });
 
-    it('can reduce expected amount by payee', () => {
+    it('can reduce expected amount by payee', async () => {
       const arbitraryDeltaAmount = '100000000000000000';
       const arbitraryExpectedAmountAfterDelta = '23400000000000000';
-      const actionReduceAmount = RequestLogicCore.formatReduceExpectedAmount(
+      const actionReduceAmount = await RequestLogicCore.formatReduceExpectedAmount(
         {
           deltaAmount: arbitraryDeltaAmount,
           requestId: TestData.requestIdMock,
@@ -602,8 +602,8 @@ describe('requestLogicCore', () => {
       }
     });
 
-    it('can apply add extensions data to a request', () => {
-      const actionAddExtensionsData = RequestLogicCore.formatAddExtensionsData(
+    it('can apply add extensions data to a request', async () => {
+      const actionAddExtensionsData = await RequestLogicCore.formatAddExtensionsData(
         { requestId: TestData.requestIdMock, extensionsData: TestData.oneExtension },
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,

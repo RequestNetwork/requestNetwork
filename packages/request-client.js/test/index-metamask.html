@@ -3,10 +3,38 @@
   <head>
     <title>@requestnetwork/request-client.js Test Page</title>
     <script src="..\dist\requestnetwork.min.js"></script>
-    <script src="..\..\epk-signature\dist\epk-signature.min.js"></script>
+    <script src="..\..\web3-signature\dist\web3-signature.min.js"></script>
   </head>
   <body>
     <script>
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      // IMPORTANT: THIS HTML PAGE MUST BE SERVED ON HTTP (not file) TO BE ABLE TO COMMUNICATE WITH METAMASK
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      window.addEventListener('load', async () => {
+        // Modern dapp browsers...
+        if (window.ethereum) {
+          window.web3 = new Web3(window.ethereum);
+          try {
+            await window.ethereum.enable();
+            startTestSignatureWithMetamask(window.web3);
+          } catch (error) {
+            // User denied account access...
+            console.log(error);
+          }
+        }
+        // Legacy dapp browsers...
+        else if (window.web3) {
+          window.web3 = new Web3(web3.currentProvider);
+
+          startTestSignatureWithMetamask(window.web3);
+        }
+        // Non-dapp browsers...
+        else {
+          console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+        }
+      });
+
       function getMockData() {
         return {
           signatureInfo: {
@@ -40,7 +68,7 @@
         };
       }
 
-      (async () => {
+      async function startTestSignatureWithMetamask(web3) {
         const {
           contentData,
           paymentNetwork,
@@ -50,13 +78,12 @@
         } = getMockData();
 
         // Initialize the signature provider
-        const signatureProvider = new EthereumPrivateKeySignatureProvider.EthereumPrivateKeySignatureProvider(
-          signatureInfo,
-        );
+        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3);
 
         // Initialize the library in local test mode
         const requestNetwork = new RequestNetwork.RequestNetwork({
           signatureProvider,
+          // this is a test using the mock storage instead of a real request node
           useMockStorage: true,
         });
 
@@ -68,6 +95,8 @@
           signer: requestCreationHash.payee,
         });
 
+        console.log('request: ', request);
+
         // Retrieve the previously created request from its ID
         const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
@@ -77,10 +106,10 @@
         // Get the data of the request
         const { request: requestData, balance, meta } = await requestFromId.getData();
 
-        console.log('request: ', requestData);
+        console.log('requestData: ', requestData);
         console.log('balance: ', balance);
         console.log('meta: ', meta);
-      })();
+      }
     </script>
   </body>
 </html>

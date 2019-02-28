@@ -4,6 +4,7 @@ import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogic as AdvancedLogicTypes,
   DataAccess as DataAccessTypes,
+  Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
   SignatureProvider as SignatureProviderTypes,
   Transaction as TransactionTypes,
@@ -111,34 +112,66 @@ export default class RequestNetwork {
    * @returns the Request
    */
   public async fromRequestId(requestId: RequestLogicTypes.RequestId): Promise<Request> {
-    try {
-      const requestAndMeta: RequestLogicTypes.IReturnGetRequestById = await this.requestLogic.getRequestById(
-        requestId,
+    const requestAndMeta: RequestLogicTypes.IReturnGetRequestById = await this.requestLogic.getFirstRequestFromTopic(
+      requestId,
+    );
+
+    let paymentNetwork: Types.IPaymentNetwork | null = null;
+    if (requestAndMeta.result.request) {
+      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+        this.advancedLogic,
+        requestAndMeta.result.request,
       );
-
-      let paymentNetwork: Types.IPaymentNetwork | null = null;
-      if (requestAndMeta.result.request) {
-        paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          this.advancedLogic,
-          requestAndMeta.result.request,
-        );
-      }
-
-      // create the request object
-      const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
-
-      // refresh the local request data
-      await request.refresh();
-
-      return request;
-    } catch (e) {
-      // create a better message until we have a better error system
-      if (e.message === 'no request is expected at the creation') {
-        throw Error(
-          'More than one request creation has been found - you may have given a wrong requestId',
-        );
-      }
-      throw e;
     }
+
+    // create the request object
+    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+
+    // refresh the local request data
+    await request.refresh();
+
+    return request;
+  }
+
+  /**
+   * Create an array of Request instances from an identity
+   *
+   * @param identity
+   * @returns the Requests
+   */
+  public async fromIdentity(identity: IdentityTypes.IIdentity): Promise<Request[]> {
+    if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+      throw new Error(`${identity.type} is not supported`);
+    }
+
+    // Gets all the requests indexed by the value of the identity
+    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
+      identity.value,
+    );
+
+    // From the requests of the Request-logic creates the request objects and gets the payment networks
+    const requests = requestsAndMeta.result.requests.map(
+      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
+        const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+          this.advancedLogic,
+          requestFromLogic,
+        );
+
+        // create the request object
+        const request = new Request(
+          this.requestLogic,
+          requestFromLogic.requestId,
+          paymentNetwork,
+          this.contentData,
+        );
+
+        // refresh the local request data
+        await request.refresh();
+
+        return request;
+      },
+    );
+
+    return Promise.all(requests);
   }
 }

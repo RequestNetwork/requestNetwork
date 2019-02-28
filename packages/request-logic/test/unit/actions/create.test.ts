@@ -20,8 +20,8 @@ import * as TestData from '../utils/test-data-generator';
 /* tslint:disable:no-unused-expression */
 describe('CreateAction', () => {
   describe('format', () => {
-    it('can create with only the payee', () => {
-      const actionCreation = CreateAction.format(
+    it('can create with only the payee', async () => {
+      const actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -34,9 +34,7 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CREATE,
-      );
+      expect(actionCreation.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CREATE);
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -69,8 +67,8 @@ describe('CreateAction', () => {
       ).to.equal(TestData.payeeRaw.address);
     });
 
-    it('can create with nonce', () => {
-      const actionCreation = CreateAction.format(
+    it('can create with nonce', async () => {
+      const actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -84,9 +82,7 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CREATE,
-      );
+      expect(actionCreation.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CREATE);
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -119,8 +115,8 @@ describe('CreateAction', () => {
       ).to.equal(TestData.payeeRaw.address);
     });
 
-    it('can generate timestamp if not given', () => {
-      const actionCreation = CreateAction.format(
+    it('can generate timestamp if not given', async () => {
+      const actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -132,9 +128,7 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CREATE,
-      );
+      expect(actionCreation.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CREATE);
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -165,8 +159,8 @@ describe('CreateAction', () => {
       expect(actionCreation.data.parameters.timestamp, 'timestamp is wrong').to.not.be.undefined;
     });
 
-    it('can create with only the payer', () => {
-      const actionCreation = CreateAction.format(
+    it('can create with only the payer', async () => {
+      const actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -180,9 +174,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CREATE,
-      );
+      expect(actionCreation.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CREATE);
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -210,8 +202,8 @@ describe('CreateAction', () => {
       ).to.equal(TestData.payerRaw.address);
     });
 
-    it('can create with the payee and the payer', () => {
-      const actionCreation = CreateAction.format(
+    it('can create with the payee and the payer', async () => {
+      const actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -229,9 +221,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CREATE,
-      );
+      expect(actionCreation.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CREATE);
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -319,9 +309,9 @@ describe('CreateAction', () => {
       ).to.throw('expectedAmount must be a positive integer');
     });
 
-    it('can format create with extensionsData', () => {
+    it('can format create with extensionsData', async () => {
       const extensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionCreation = CreateAction.format(
+      const actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: TestData.arbitraryExpectedAmount,
@@ -340,9 +330,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.CREATE,
-      );
+      expect(actionCreation.data.name, 'action is wrong').to.equal(Types.ACTION_NAME.CREATE);
       expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
         Types.CURRENCY.ETH,
       );
@@ -435,8 +423,8 @@ describe('CreateAction', () => {
       ).to.throw('Signer must be the payee or the payer');
     });
 
-    it('can create with amount as integer, bigNumber or zero', () => {
-      let actionCreation = CreateAction.format(
+    it('can create with amount as integer, bigNumber or zero', async () => {
+      let actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: 10000,
@@ -452,7 +440,7 @@ describe('CreateAction', () => {
         '10000',
       );
 
-      actionCreation = CreateAction.format(
+      actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: new bigNumber(TestData.arbitraryExpectedAmount),
@@ -468,7 +456,7 @@ describe('CreateAction', () => {
         TestData.arbitraryExpectedAmount,
       );
 
-      actionCreation = CreateAction.format(
+      actionCreation = await CreateAction.format(
         {
           currency: Types.CURRENCY.ETH,
           expectedAmount: 0,
@@ -530,7 +518,7 @@ describe('CreateAction', () => {
   });
 
   describe('createRequest', () => {
-    it('can create with only the payee', () => {
+    it('can create with only the payee', async () => {
       const createParams = {
         currency: Types.CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -540,7 +528,7 @@ describe('CreateAction', () => {
         },
         timestamp: TestData.arbitraryTimestamp,
       };
-      const actionCreation = CreateAction.format(
+      const actionCreation = await CreateAction.format(
         createParams,
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
@@ -594,7 +582,7 @@ describe('CreateAction', () => {
       expect(request.timestamp, 'timestamp is wrong').to.equal(TestData.arbitraryTimestamp);
     });
 
-    it('can create with nonce', () => {
+    it('can create with nonce', async () => {
       const createParams = {
         currency: Types.CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -605,7 +593,7 @@ describe('CreateAction', () => {
         },
         timestamp: TestData.arbitraryTimestamp,
       };
-      const actionCreation = CreateAction.format(
+      const actionCreation = await CreateAction.format(
         createParams,
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
@@ -660,7 +648,7 @@ describe('CreateAction', () => {
       expect(request.nonce, 'nonce is wrong').to.equal(3);
     });
 
-    it('can create with only the payer', () => {
+    it('can create with only the payer', async () => {
       const createParams = {
         currency: Types.CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -669,7 +657,7 @@ describe('CreateAction', () => {
           value: TestData.payerRaw.address,
         },
       };
-      const actionCreation = CreateAction.format(
+      const actionCreation = await CreateAction.format(
         createParams,
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
@@ -720,7 +708,7 @@ describe('CreateAction', () => {
       });
     });
 
-    it('can create with the payee and the payer', () => {
+    it('can create with the payee and the payer', async () => {
       const createParams = {
         currency: Types.CURRENCY.ETH,
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -734,7 +722,7 @@ describe('CreateAction', () => {
         },
         timestamp: TestData.arbitraryTimestamp,
       };
-      const actionCreation = CreateAction.format(
+      const actionCreation = await CreateAction.format(
         createParams,
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
@@ -880,7 +868,7 @@ describe('CreateAction', () => {
       );
     });
 
-    it('can create with extensionsData', () => {
+    it('can create with extensionsData', async () => {
       const extensionsData = [{ id: 'extension1', value: 'whatever' }];
       const createParams = {
         currency: Types.CURRENCY.ETH,
@@ -895,7 +883,7 @@ describe('CreateAction', () => {
           value: TestData.payerRaw.address,
         },
       };
-      const actionCreation = CreateAction.format(
+      const actionCreation = await CreateAction.format(
         createParams,
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,

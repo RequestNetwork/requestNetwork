@@ -1,10 +1,10 @@
 {
-  "name": "@requestnetwork/epk-signature",
-  "version": "0.1.1-alpha.4",
+  "name": "@requestnetwork/web3-signature",
+  "version": "0.1.1-alpha.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Signature provider using ethereum private keys.",
+  "description": "Signature provider using web3 ethereum library.",
   "keywords": [
     "requestnetwork",
     "signature-provider"
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/signature-provider#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/web3-signature#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
@@ -42,7 +42,8 @@
   },
   "dependencies": {
     "@requestnetwork/types": "0.1.1-alpha.3",
-    "@requestnetwork/utils": "0.1.1-alpha.4"
+    "@requestnetwork/utils": "0.1.1-alpha.4",
+    "web3-eth": "1.0.0-beta.37"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
@@ -51,7 +52,6 @@
     "amd-loader": "0.0.8",
     "awesome-typescript-loader": "5.2.1",
     "chai": "4.2.0",
-    "chai-as-promised": "7.1.1",
     "duplicate-package-checker-webpack-plugin": "3.0.0",
     "eslint": "5.13.0",
     "eslint-plugin-spellcheck": "0.0.11",
@@ -71,6 +71,5 @@
     "webpack": "4.29.1",
     "webpack-bundle-analyzer": "3.0.3",
     "webpack-cli": "3.2.3"
-  },
-  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
+  }
 }

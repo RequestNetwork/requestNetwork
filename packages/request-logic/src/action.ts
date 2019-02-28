@@ -35,7 +35,7 @@ function createAction(
   unsignedAction: Types.IUnsignedAction,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
+): Promise<Types.IAction> {
   return signatureProvider.sign(unsignedAction, signerIdentity);
 }
 

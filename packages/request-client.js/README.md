@@ -133,10 +133,23 @@ const request = await requestNetwork.createRequest({
 ### Get a request from its ID
 
 ```javascript
-const requestFromId = requestNetwork.fromRequestId(requestId);
+const requestFromId = await requestNetwork.fromRequestId(requestId);
 ```
 
 `requestId`: string
+
+### Get all requests linked to an identity
+
+```javascript
+const identity = {
+  type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
+  value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+};
+
+const requestsFromIdentity = await requestNetwork.fromIdentity(identity);
+```
+
+`identity`: IIdentity
 
 ### Accept a request
 

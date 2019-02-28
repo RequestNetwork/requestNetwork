@@ -78,4 +78,12 @@ describe('Utils.crypto utils', () => {
       'normalizeKeccak256Hash(arbitraryObjectSame) error',
     ).to.be.equal('0x7c36b5b8c7c5e787838a8ad5b083f3c9326bf364aa9e35691140f15c9a94f786');
   });
+
+  it('can normalize integer, null, string, undefined', () => {
+    expect(crypto.normalize('TesT')).to.be.equal('"test"');
+    // tslint:disable-next-line:no-magic-numbers
+    expect(crypto.normalize(12345)).to.be.equal('12345');
+    expect(crypto.normalize(null)).to.be.equal('null');
+    expect(crypto.normalize(undefined)).to.be.equal('undefined');
+  });
 });

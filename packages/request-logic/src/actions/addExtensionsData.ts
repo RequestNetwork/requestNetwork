@@ -30,7 +30,7 @@ function format(
   addExtensionsDataParameters: Types.IAddExtensionsDataParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Types.IAction {
+): Promise<Types.IAction> {
   if (
     !addExtensionsDataParameters.extensionsData ||
     addExtensionsDataParameters.extensionsData.length === 0

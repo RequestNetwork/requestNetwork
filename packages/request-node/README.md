@@ -1,4 +1,4 @@
-# `@requestnetwork/request-node`
+# @requestnetwork/request-node
 
 `@requestnetwork/request-node` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 This package allows you to run a full Request Node.
@@ -157,7 +157,7 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--networkId` Id of the Ethereum network used
   - Default value: `0`
   - Environment variable name: `$ETHEREUM_NETWORK_ID`
-- `--providerHost` URL of the web3 provider for Ethereum
+- `--providerUrl` URL of the web3 provider for Ethereum
   - Default value: `http://localhost:8545`
   - Environment variable name: `$WEB3_PROVIDER_URL`
 - `--ipfsHost` Host of the IPFS gateway
