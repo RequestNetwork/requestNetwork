@@ -30,8 +30,8 @@ const payeeIdentity = {
 // Signature providers
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
-const requestInfo: RequestNetwork.Types.RequestLogic.IRequestLogicCreateParameters = {
-  currency: RequestNetwork.Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
+const requestInfo: RequestNetwork.Types.RequestLogic.ICreateParameters = {
+  currency: RequestNetwork.Types.RequestLogic.CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: {
