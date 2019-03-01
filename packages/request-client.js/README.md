@@ -130,6 +130,8 @@ const request = await requestNetwork.createRequest({
 `topics`: string[]
 `paymentNetwork`: IPaymentNetworkCreateParameters
 
+`topics` are optional strings used to index the request.
+
 ### Get a request from its ID
 
 ```javascript
