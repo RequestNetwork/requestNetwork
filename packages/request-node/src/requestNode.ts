@@ -1,9 +1,10 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 
+import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
-import { getMnemonic } from './config';
+import { getCustomHeaders, getMnemonic } from './config';
 import getTransactionsByTopic from './request/getTransactionsByTopic';
 import persistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
@@ -85,6 +86,20 @@ class RequestNode {
   // Defines handlers for necessary routes
   private mountRoutes(): void {
     const router = express.Router();
+
+    // Enable all CORS requests
+    this.express.use(cors());
+
+    // Middleware to send custom header on every response
+    const customHeaders = getCustomHeaders();
+    if (customHeaders) {
+      this.express.use((_: any, res: any, next: any) => {
+        Object.entries(customHeaders).forEach(([key, value]: [string, string]) =>
+          res.header(key, value),
+        );
+        next();
+      });
+    }
 
     // Supported encodings
     this.express.use(express.json());

@@ -58,4 +58,15 @@ describe('requestNode server', () => {
 
     expect(requestNodeInstance.initialize()).to.be.rejectedWith(Error);
   });
+
+  it('serves custom headers', async () => {
+    // Import directly requestNode to create a server
+    process.env.HEADERS = '{"x-custom-test-header": "test-passed"}';
+    requestNodeInstance = new requestNode();
+    server = requestNodeInstance.listen(3002, () => 0);
+
+    await request(server)
+      .post('/')
+      .expect('x-custom-test-header', 'test-passed');
+  });
 });
