@@ -321,9 +321,9 @@ jobs:
       - run:
           name: 'Coverage epk-signature'
           command: 'yarn workspace @requestnetwork/epk-signature run coverage'
-      - run:
-          name: 'Coverage request-node'
-          command: 'yarn workspace @requestnetwork/request-node run coverage'
+      # - run:
+      #     name: 'Coverage request-node'
+      #     command: 'yarn workspace @requestnetwork/request-node run coverage'
       - run:
           name: 'Coverage utils'
           command: 'yarn workspace @requestnetwork/utils run coverage'
