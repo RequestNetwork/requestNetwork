@@ -69,7 +69,7 @@ describe('requestLogicCore', () => {
               value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
           },
-          version: '2.0.0',
+          version: '99.99.99',
         },
         signature: {
           method: SignatureTypes.METHOD.ECDSA,

@@ -28,7 +28,14 @@ const createParams = {
   payer: TestData.payerRaw.identity,
   timestamp: 1544426030,
 };
-const requestId = '0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905';
+const unsignedAction: Types.IUnsignedAction = {
+  name: Types.ACTION_NAME.CREATE,
+  parameters: createParams,
+  version: CURRENT_VERSION,
+};
+const requestId = Utils.crypto.normalizeKeccak256Hash(unsignedAction);
+const action = Utils.signature.sign(unsignedAction, TestData.payeeRaw.signatureParams);
+
 const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const fakeMetaTransactionManager = {
@@ -57,10 +64,7 @@ describe('index', () => {
     });
 
     it('can createRequest', async () => {
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProviderArbitrary,
-      );
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
 
       expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
@@ -69,7 +73,7 @@ describe('index', () => {
       });
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"create","parameters":{"currency":"ETH","expectedAmount":"123400000000000000","payee":{"type":"ethereumAddress","value":"0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce"},"payer":{"type":"ethereumAddress","value":"0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6"},"timestamp":1544426030},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        JSON.stringify(action),
         [requestId],
       );
     });
@@ -93,10 +97,7 @@ describe('index', () => {
       const acceptParams = {
         requestId,
       };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProviderArbitrary,
-      );
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.acceptRequest(acceptParams, TestData.payerRaw.identity);
 
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
@@ -104,8 +105,15 @@ describe('index', () => {
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
+      const data = {
+        name: Types.ACTION_NAME.ACCEPT,
+        parameters: acceptParams,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payerRaw.identity);
+
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"accept","parameters":{"requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        JSON.stringify(actionExpected),
         [requestId],
       );
     });
@@ -131,18 +139,22 @@ describe('index', () => {
       const cancelRequest = {
         requestId,
       };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProviderArbitrary,
-      );
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.cancelRequest(cancelRequest, TestData.payeeRaw.identity);
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
+      const data = {
+        name: Types.ACTION_NAME.CANCEL,
+        parameters: cancelRequest,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
+
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"cancel","parameters":{"requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        JSON.stringify(actionExpected),
         [requestId],
       );
     });
@@ -169,10 +181,7 @@ describe('index', () => {
         deltaAmount: '1000',
         requestId,
       };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProviderArbitrary,
-      );
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
 
       const ret = await requestLogic.increaseExpectedAmountRequest(
         increaseRequest,
@@ -183,8 +192,15 @@ describe('index', () => {
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
+      const data = {
+        name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+        parameters: increaseRequest,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payerRaw.identity);
+
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"increaseExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        JSON.stringify(actionExpected),
         [requestId],
       );
     });
@@ -215,10 +231,7 @@ describe('index', () => {
         deltaAmount: '1000',
         requestId,
       };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProviderArbitrary,
-      );
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
 
       const ret = await requestLogic.reduceExpectedAmountRequest(
         reduceRequest,
@@ -228,8 +241,16 @@ describe('index', () => {
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
+
+      const data = {
+        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        parameters: reduceRequest,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
+
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"reduceExpectedAmount","parameters":{"deltaAmount":"1000","requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        JSON.stringify(actionExpected),
         [requestId],
       );
     });
@@ -257,10 +278,7 @@ describe('index', () => {
         extensionsData: TestData.oneExtension,
         requestId,
       };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProviderArbitrary,
-      );
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
 
       const ret = await requestLogic.addExtensionsDataRequest(
         addExtRequest,
@@ -270,8 +288,16 @@ describe('index', () => {
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
+
+      const data = {
+        name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+        parameters: addExtRequest,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
+
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
-        '{"data":{"name":"addExtensionsData","parameters":{"extensionsData":[{"id":"extension1","value":"whatever1"}],"requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"},"version":"0.1.0"},"signature":{"method":"ecdsa","value":"0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c"}}',
+        JSON.stringify(actionExpected),
         [requestId],
       );
     });
@@ -361,7 +387,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const request = await requestLogic.getFirstRequestFromTopic(requestId);
@@ -497,7 +523,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const request = await requestLogic.getFirstRequestFromTopic(requestId);
@@ -634,7 +660,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const request = await requestLogic.getFirstRequestFromTopic(requestId);
@@ -715,7 +741,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const request = await requestLogic.getFirstRequestFromTopic(requestId);
@@ -757,7 +783,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const request = await requestLogic.getFirstRequestFromTopic(requestId);
@@ -773,26 +799,28 @@ describe('index', () => {
 
   describe('getRequestsByTopics', () => {
     it('can getRequestsByTopics', async () => {
-      const actionCreate: Types.IAction = Utils.signature.sign(
-        {
-          name: Types.ACTION_NAME.CREATE,
-          parameters: {
-            currency: Types.CURRENCY.ETH,
-            expectedAmount: '123400000000000000',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544426030,
-          },
-          version: CURRENT_VERSION,
+      const unsignedActionCreation = {
+        name: Types.ACTION_NAME.CREATE,
+        parameters: {
+          currency: Types.CURRENCY.ETH,
+          expectedAmount: '123400000000000000',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
         },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate: Types.IAction = Utils.signature.sign(
+        unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
+      const newRequestId = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation);
 
       const actionAccept: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.ACCEPT,
           parameters: {
-            requestId,
+            requestId: newRequestId,
           },
           version: CURRENT_VERSION,
         },
@@ -804,53 +832,57 @@ describe('index', () => {
           name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '1000',
-            requestId,
+            requestId: newRequestId,
           },
           version: CURRENT_VERSION,
         },
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionCreate2: Types.IAction = Utils.signature.sign(
-        {
-          name: Types.ACTION_NAME.CREATE,
-          parameters: {
-            currency: Types.CURRENCY.BTC,
-            expectedAmount: '10',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544411111,
-          },
-          version: CURRENT_VERSION,
+      const unsignedActionCreation2 = {
+        name: Types.ACTION_NAME.CREATE,
+        parameters: {
+          currency: Types.CURRENCY.BTC,
+          expectedAmount: '10',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544411111,
         },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate2: Types.IAction = Utils.signature.sign(
+        unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
+      const newRequestId2 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2);
 
       const actionCancel2: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CANCEL,
           parameters: {
-            requestId: '0xf1572eeacdb055c60673d1ca22ab0952d5254e0c70000b222c11333abc70362a',
+            requestId: newRequestId2,
           },
           version: CURRENT_VERSION,
         },
         TestData.payerRaw.signatureParams,
       );
 
-      const actionCreate3: Types.IAction = Utils.signature.sign(
-        {
-          name: Types.ACTION_NAME.CREATE,
-          parameters: {
-            currency: Types.CURRENCY.BTC,
-            expectedAmount: '666',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544433333,
-          },
-          version: CURRENT_VERSION,
+      const unsignedActionCreation3 = {
+        name: Types.ACTION_NAME.CREATE,
+        parameters: {
+          currency: Types.CURRENCY.BTC,
+          expectedAmount: '666',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544433333,
         },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate3: Types.IAction = Utils.signature.sign(
+        unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
+      const newRequestId3 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3);
 
       const meta = {};
       const listActions1: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
@@ -945,15 +977,15 @@ describe('index', () => {
           return {
             fakeTopicForAll: listAllActions,
             [requestId as string]: listActions1,
-            ['0xf1572eeacdb055c60673d1ca22ab0952d5254e0c70000b222c11333abc70362a']: listActions2,
-            ['0x7d9456333f2aace2d6f1fb66d2cd1db894bc5ca2a09e5ead2d4a456ad3be1a1e']: listActions3,
+            [newRequestId2]: listActions2,
+            [newRequestId3]: listActions3,
           }[topic];
         },
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
@@ -1007,7 +1039,7 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
-        TestData.fakeSignatureProviderArbitrary,
+        TestData.fakeSignatureProvider,
       );
 
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
