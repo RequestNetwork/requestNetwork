@@ -44,7 +44,7 @@ const listOfAvailableIdentity = signatureProvider.getAllRegisteredIdentities(); 
 
 // can sign data with identity
 const dataToSign = { ... };
-const signedData = signatureProvider.sign(dataToSign, identityExample); // { data: { ... }, signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x...' }}
+const signedData = await signatureProvider.sign(dataToSign, identityExample); // { data: { ... }, signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x...' }}
 
 // can add a new signature parameters
 signatureProvider.addSignatureParameters({method: ..., privateKey: ...});
