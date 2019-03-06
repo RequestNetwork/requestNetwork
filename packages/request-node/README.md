@@ -117,8 +117,8 @@ request-node start
 The Request Node source must be downloaded from Github and executed with Node.js.
 
 ```bash
-git clone https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node/request-node.git
-cd request-node
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd packages/request-node
 npm install
 npm run build
 ```
@@ -186,6 +186,41 @@ candy maple cake sugar pudding cream honey rich smooth crumble sweet treat
 ```
 
 This mnemonic should only be used for testing.
+
+### Docker
+
+The Request Node can be deployed with Docker.
+For now, the user has to clone the repository to build the Docker and run it.
+
+```bash
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd packages/request-node
+docker build -t "request-node" .
+docker run request-node
+```
+
+The environment variables used to configure the Node can be defined in the `docker run` command.
+
+For example, the user can define custom parameters for IPFS connection with the following command:
+
+```
+docker run -e IPFS_HOST=<custom_ipfs_host> IPFS_PORT=<custom_ipfs_port>
+``` 
+
+If the user want the server to listen on a specific port, he has to expose that port as well:
+
+```
+docker run -e PORT=80 --expose 80
+```
+
+The user can use the docker-compose tool to run an environment containing the Request Node and an instance of IPFS with the following command:
+
+```bash
+docker-compose up
+```
+
+The environment variables must be defined in the `docker-compose.yml` file in the `environment` section. `$ETHEREUM_NETWORK_ID` and `$WEB3_PROVIDER_URL` must be defined.
+
 
 ## Contributing
 
