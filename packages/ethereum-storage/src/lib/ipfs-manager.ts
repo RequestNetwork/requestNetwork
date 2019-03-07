@@ -88,6 +88,8 @@ export default class IpfsManager {
 
         // Throw error on timeout
         addRequest.on('timeout', () => {
+          // explicitly abort the request
+          addRequest.abort();
           reject(Error('Ipfs add request timeout'));
         });
         addRequest.on('abort', () => {
@@ -136,6 +138,8 @@ export default class IpfsManager {
             });
           })
           .on('timeout', () => {
+            // explicitly abort the request
+            getRequest.abort();
             reject(Error('Ipfs read request timeout'));
           })
           .on('abort', () => {
@@ -200,6 +204,8 @@ export default class IpfsManager {
             });
           })
           .on('timeout', () => {
+            // explicitly abort the request
+            getRequest.abort();
             reject(Error('Ipfs stat request timeout'));
           })
           .on('abort', () => {

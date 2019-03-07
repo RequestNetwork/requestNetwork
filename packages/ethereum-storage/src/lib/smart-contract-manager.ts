@@ -146,14 +146,11 @@ export default class SmartContractManager {
           .on('receipt', (receiptInCallback: string) => {
             // TODO(PROT-181): Implement a log manager for the library
             /* tslint:disable:no-console */
-            console.log(`receipt :  ${receiptInCallback}`);
+            console.log(`receipt :  ${JSON.stringify(receiptInCallback)}`);
           })
           .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
             // TODO(PROT-181): Implement a log manager for the library
             // TODO(PROT-252): return after X confirmation instead of 0
-            /* tslint:disable:no-console */
-            console.log(`confirmation :  ${confirmationNumber}`);
-            console.log(`receipt :  ${receiptAfterConfirmation}`);
 
             // We have to wait at least one confirmation to get Ethereum metadata
             if (confirmationNumber > 0) {
@@ -312,7 +309,7 @@ export default class SmartContractManager {
     try {
       return (await this.getLastBlockNumber()) - blockNumber;
     } catch (e) {
-      throw Error('Error getting the confirmation number: $(e)');
+      throw Error(`Error getting the confirmation number: ${e}`);
     }
   }
 
