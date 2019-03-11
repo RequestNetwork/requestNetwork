@@ -262,12 +262,12 @@ ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey 
 #### 5. Deploy the smart contracts on ganache
 ```bash
 cd packages/ethereum-storage
-npm run deploy
+yarn deploy
 ```
 #### 6. Run the Request Node
 ```bash
 cd ../packages/request-node
-npm run start
+yarn start
 ```
 
 ## Contributing
