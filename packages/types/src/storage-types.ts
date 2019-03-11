@@ -136,6 +136,12 @@ export interface IIpfsGatewayConnection {
   timeout: number;
 }
 
+/** two blocks number */
+export interface IBlockNumbersInterval {
+  blockAfter: number;
+  blockBefore: number;
+}
+
 /** Protocol to connect to ipfs */
 export enum IpfsGatewayProtocol {
   HTTP = 'http',

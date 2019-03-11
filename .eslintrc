@@ -25,6 +25,7 @@
           "chai",
           "checksum",
           "cors",
+          "dichotomic",
           "ecdsa",
           "enum",
           "epk",

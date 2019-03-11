@@ -1,15 +1,11 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as artifactsUtils from './artifacts-utils';
 import * as config from './config';
+import EthereumBlocks from './ethereum-blocks';
 
 const web3Eth = require('web3-eth');
 
 const bigNumber: any = require('bn.js');
-
-// Interface for the cache of block timestamp (see below)
-interface IBlockTimestampDictionary {
-  [key: number]: number;
-}
 
 /**
  * Manages the smart contract used by the storage layer
@@ -20,11 +16,9 @@ export default class SmartContractManager {
   public requestHashStorage: any;
 
   /**
-   * cache of the blocks timestamp
-   * to ask only once the timestamp of a block
-   * Dictionary of timestamp index by blockNumber
+   * Handles the block numbers and blockTimestamp
    */
-  protected blockTimestamp: IBlockTimestampDictionary = {};
+  protected ethereumBlocks: EthereumBlocks;
   protected networkName: string = '';
   protected smartContractAddress: string;
 
@@ -81,6 +75,8 @@ export default class SmartContractManager {
 
     this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
     this.lastSyncedBlockNumber = this.creationBlockNumber;
+
+    this.ethereumBlocks = new EthereumBlocks(this.eth, this.creationBlockNumber);
   }
 
   /**
@@ -214,7 +210,7 @@ export default class SmartContractManager {
     let hashesAndSizesFromLastSyncedBlock: StorageTypes.IGetAllHashesAndSizes[] = [];
 
     // Empty array is returned if we are already synced to the last block number
-    const lastBlock = await this.getLastBlockNumber();
+    const lastBlock = await this.ethereumBlocks.getLastBlockNumber();
     if (this.lastSyncedBlockNumber < lastBlock) {
       hashesAndSizesFromLastSyncedBlock = await this.getHashesAndSizesFromEthereum(
         this.lastSyncedBlockNumber,
@@ -252,7 +248,7 @@ export default class SmartContractManager {
 
     // Set lastSyncedBlockNumber to the last block number of Ethereum
     // since we read all the blocks
-    this.lastSyncedBlockNumber = await this.getLastBlockNumber();
+    this.lastSyncedBlockNumber = await this.ethereumBlocks.getLastBlockNumber();
 
     return eventsWithMetaData;
   }
@@ -282,43 +278,6 @@ export default class SmartContractManager {
       meta,
       size: +event.returnValues.size,
     };
-  }
-
-  /**
-   * get timestamp of a block
-   * @param    blockNumber    number of the block
-   * @return   timestamp of a blocks
-   */
-  private async getBlockTimestamp(blockNumber: number): Promise<any> {
-    if (!this.blockTimestamp[blockNumber]) {
-      // if we don't know the information, let's get it
-      const block = await this.eth.getBlock(blockNumber);
-      if (!block) {
-        throw Error(`block ${blockNumber} not found`);
-      }
-      this.blockTimestamp[blockNumber] = block.timestamp;
-    }
-    return this.blockTimestamp[blockNumber];
-  }
-
-  /**
-   * get last block number
-   * @return   blockNumber of the last block
-   */
-  private async getConfirmationNumber(blockNumber: number): Promise<number> {
-    try {
-      return (await this.getLastBlockNumber()) - blockNumber;
-    } catch (e) {
-      throw Error(`Error getting the confirmation number: ${e}`);
-    }
-  }
-
-  /**
-   * get last block number
-   * @return   blockNumber of the last block
-   */
-  private getLastBlockNumber(): Promise<number> {
-    return this.eth.getBlockNumber();
   }
 
   /** Get the name of the Ethereum network from its id
@@ -370,7 +329,7 @@ export default class SmartContractManager {
     // Get the number confirmations of the block hosting the transaction
     let blockConfirmation;
     try {
-      blockConfirmation = await this.getConfirmationNumber(blockNumber);
+      blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
     } catch (error) {
       throw Error(`Error getting block confirmation number: ${error}`);
     }
@@ -378,7 +337,7 @@ export default class SmartContractManager {
     // Get timestamp of the block hosting the transaction
     let blockTimestamp;
     try {
-      blockTimestamp = await this.getBlockTimestamp(blockNumber);
+      blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
     } catch (error) {
       throw Error(`Error getting block timestamp: ${error}`);
     }
