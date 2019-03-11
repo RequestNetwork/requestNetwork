@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { Storage as Types } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
 import BadDataInSmartContractError from './bad-data-in-smart-contract-error';
 import IpfsManager from './ipfs-manager';
@@ -8,7 +8,7 @@ import SmartContractManager from './smart-contract-manager';
  * EthereumStorage
  * @notice Manages storage layer of the Request Network Protocol v2
  */
-export default class EthereumStorage implements StorageTypes.IStorage {
+export default class EthereumStorage implements Types.IStorage {
   /**
    * Manager for the storage smart contract
    * This attribute is left public for mocking purpose to facilitate tests on the module
@@ -26,8 +26,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param web3Connection Information structure to connect to the Ethereum network
    */
   public constructor(
-    ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection,
-    web3Connection?: StorageTypes.IWeb3Connection,
+    ipfsGatewayConnection?: Types.IIpfsGatewayConnection,
+    web3Connection?: Types.IWeb3Connection,
   ) {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
     this.smartContractManager = new SmartContractManager(web3Connection);
@@ -38,7 +38,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Missing value are filled with default config value
    * @param ipfsConnection Information structure to connect to the ipfs gateway
    */
-  public updateIpfsGateway(ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection): void {
+  public updateIpfsGateway(ipfsGatewayConnection: Types.IIpfsGatewayConnection): void {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
   }
 
@@ -47,7 +47,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Missing value are filled with default config value
    * @param web3Connection Information structure to connect to the Ethereum network
    */
-  public updateEthereumNetwork(web3Connection: StorageTypes.IWeb3Connection): void {
+  public updateEthereumNetwork(web3Connection: Types.IWeb3Connection): void {
     this.smartContractManager = new SmartContractManager(web3Connection);
   }
 
@@ -56,7 +56,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
    */
-  public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
+  public async append(content: string): Promise<Types.IOneDataIdAndMeta> {
     if (!content) {
       throw Error('No content provided');
     }
@@ -92,7 +92,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       meta: {
         ethereum: ethereumMetadata,
         ipfs: { size: contentLength },
-        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+        storageType: Types.StorageSystemType.ETHEREUM_IPFS,
+        timestamp: ethereumMetadata.blockTimestamp,
       },
       result: { dataId },
     };
@@ -103,7 +104,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param Id Id used to retrieve content
    * @returns Promise resolving content from id
    */
-  public async read(id: string): Promise<StorageTypes.IOneContentAndMeta> {
+  public async read(id: string): Promise<Types.IOneContentAndMeta> {
     if (!id) {
       throw Error('No id provided');
     }
@@ -136,7 +137,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       meta: {
         ethereum: ethereumMetadata,
         ipfs: { size: contentLength },
-        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+        storageType: Types.StorageSystemType.ETHEREUM_IPFS,
+        timestamp: ethereumMetadata.blockTimestamp,
       },
       result: { content },
     };
@@ -144,22 +146,24 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
   /**
    * Get all data stored on the storage
+   *
+   * @param options timestamp boundaries for the data retrieval
    * @returns Promise resolving stored data
    */
-  public async getAllData(): Promise<StorageTypes.IGetAllDataReturn> {
-    const allDataIds = await this.getAllDataId();
+  public async getData(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataReturn> {
+    const dataIds = await this.getDataId(options);
 
     // Read content for each id
-    const dataPromises = allDataIds.result.dataIds.map(
-      async (id: string): Promise<StorageTypes.IOneContentAndMeta> => {
+    const dataPromises = dataIds.result.dataIds.map(
+      async (id: string): Promise<Types.IOneContentAndMeta> => {
         return this.read(id);
       },
     );
 
     // Get value of all promises
-    const allContentsAndMeta = await Promise.all(dataPromises);
-    const metaData = allContentsAndMeta.map(obj => obj.meta);
-    const data = allContentsAndMeta.map(obj => obj.result.content);
+    const contentsAndMeta = await Promise.all(dataPromises);
+    const metaData = contentsAndMeta.map(obj => obj.meta);
+    const data = contentsAndMeta.map(obj => obj.result.content);
 
     return {
       meta: {
@@ -171,10 +175,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
   /**
    * Get all id from data stored on the storage
+   *
+   * @param options timestamp boundaries for the data id retrieval
    * @returns Promise resolving id of stored data
    */
-  public async getAllDataId(): Promise<StorageTypes.IGetAllDataIdReturn> {
-    const hashesAndSizes = await this.smartContractManager.getAllHashesAndSizesFromEthereum();
+  public async getDataId(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataIdReturn> {
+    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
     return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
   }
@@ -183,7 +189,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Get new id from data stored on the storage
    * @returns Promise resolving id of stored data
    */
-  public async getNewDataId(): Promise<StorageTypes.IGetAllDataIdReturn> {
+  public async getNewDataId(): Promise<Types.IGetDataIdReturn> {
     const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
 
     return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
@@ -196,15 +202,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Filtered list of dataId with metadata
    */
   private async hashesAndSizesToFilteredDataIdAndMeta(
-    hashesAndSizes: StorageTypes.IGetAllHashesAndSizes[],
-  ): Promise<StorageTypes.IGetAllDataIdReturn | StorageTypes.IGetNewDataIdReturn> {
+    hashesAndSizes: Types.IGetAllHashesAndSizes[],
+  ): Promise<Types.IGetDataIdReturn | Types.IGetNewDataIdReturn> {
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
     // or when the size doesn't correspond to the size of the content stored on ipfs
     const parsedDataIdAndMetaPromises = hashesAndSizes.map(
-      async (
-        hashAndSizePromise: StorageTypes.IGetAllHashesAndSizes,
-      ): Promise<StorageTypes.IOneDataIdAndMeta> => {
+      async (hashAndSizePromise: Types.IGetAllHashesAndSizes): Promise<Types.IOneDataIdAndMeta> => {
         const hashAndSize = await hashAndSizePromise;
 
         if (typeof hashAndSize.hash === 'undefined' || typeof hashAndSize.size === 'undefined') {
@@ -237,7 +241,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           meta: {
             ethereum: ethereumMetadata,
             ipfs: { size: hashContentSize },
-            storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+            storageType: Types.StorageSystemType.ETHEREUM_IPFS,
+            timestamp: ethereumMetadata.blockTimestamp,
           },
           result: {
             dataId: hashAndSize.hash,
@@ -280,12 +285,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Filtered promises
    */
   private async filterDataIdAndMetaPromises(
-    dataIdAndMetaPromises: Array<Promise<StorageTypes.IOneDataIdAndMeta>>,
-  ): Promise<StorageTypes.IOneDataIdAndMeta[]> {
+    dataIdAndMetaPromises: Array<Promise<Types.IOneDataIdAndMeta>>,
+  ): Promise<Types.IOneDataIdAndMeta[]> {
     // Convert the promises into bluebird promises
     // to be able to inspect the status of the promise with reflect
     const dataIdAndMetaInspections: any = Bluebird.all(
-      dataIdAndMetaPromises.map((dataIdAndMetaPromise: Promise<StorageTypes.IOneDataIdAndMeta>) =>
+      dataIdAndMetaPromises.map((dataIdAndMetaPromise: Promise<Types.IOneDataIdAndMeta>) =>
         Bluebird.resolve(dataIdAndMetaPromise).reflect(),
       ),
     );
@@ -303,7 +308,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           // We ignore the error
           return false;
         }
-        throw Error(`getAllDataId error: ${inspection.reason()}`);
+        throw Error(`getDataId error: ${inspection.reason()}`);
       })
       .map((inspection: any) => inspection.value());
 

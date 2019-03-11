@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { Storage as Types } from '@requestnetwork/types';
 import * as artifactsUtils from './artifacts-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
@@ -14,11 +14,11 @@ const bigNumber: any = require('bn.js');
 export default class SmartContractManager {
   public eth: any;
   public requestHashStorage: any;
-
   /**
    * Handles the block numbers and blockTimestamp
    */
-  protected ethereumBlocks: EthereumBlocks;
+  public ethereumBlocks: EthereumBlocks;
+
   protected networkName: string = '';
   protected smartContractAddress: string;
 
@@ -39,7 +39,7 @@ export default class SmartContractManager {
    * @param web3Connection Object to connect to the Ethereum network
    * If values are missing, private network is used as http://localhost:8545
    */
-  public constructor(web3Connection?: StorageTypes.IWeb3Connection) {
+  public constructor(web3Connection?: Types.IWeb3Connection) {
     web3Connection = web3Connection || {};
 
     try {
@@ -101,13 +101,14 @@ export default class SmartContractManager {
    * Adds hash to smart contract from content hash and content size
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
    * @param contentSize Size of the content stored used to compute storage fee
+   * @param gasPrice Replace the default gas price
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
   public async addHashAndSizeToEthereum(
     contentHash: string,
     contentSize: number,
     gasPrice?: number,
-  ): Promise<StorageTypes.IEthereumMetadata> {
+  ): Promise<Types.IEthereumMetadata> {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
@@ -175,7 +176,7 @@ export default class SmartContractManager {
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
-  public async getMetaFromEthereum(contentHash: string): Promise<StorageTypes.IEthereumMetadata> {
+  public async getMetaFromEthereum(contentHash: string): Promise<Types.IEthereumMetadata> {
     // Reading all event logs
     const events = await this.requestHashStorage.getPastEvents({
       event: 'NewHash',
@@ -193,10 +194,33 @@ export default class SmartContractManager {
 
   /**
    * Get all hashes and sizes with metadata inside storage smart contract past events
-   * @return All hashes and sizes with metadata
+   *
+   * @param options timestamp boundaries for the hash retrieval
+   * @return hashes and sizes with metadata
    */
-  public async getAllHashesAndSizesFromEthereum(): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
-    return this.getHashesAndSizesFromEthereum(this.creationBlockNumber);
+  public async getHashesAndSizesFromEthereum(
+    options?: Types.ITimestampBoundaries,
+  ): Promise<Types.IGetAllHashesAndSizes[]> {
+    let fromBlock = this.creationBlockNumber;
+    let toBlock: number | undefined;
+
+    // get fromBlock from the timestamp given in options
+    if (options && options.from) {
+      const optionFromBlockNumbers = await this.ethereumBlocks.getBlockNumbersFromTimestamp(
+        options.from,
+      );
+      fromBlock = optionFromBlockNumbers.blockAfter;
+    }
+
+    // get toBlock from the timestamp given in options
+    if (options && options.to) {
+      const optionToBlockNumbers = await this.ethereumBlocks.getBlockNumbersFromTimestamp(
+        options.to,
+      );
+      toBlock = optionToBlockNumbers.blockBefore;
+    }
+
+    return this.getHashesAndSizesFromEvents(fromBlock, toBlock);
   }
 
   /**
@@ -205,14 +229,14 @@ export default class SmartContractManager {
    * @return Hashes and sizes with metadata from the number of the last synced block
    */
   public async getHashesAndSizesFromLastSyncedBlockFromEthereum(): Promise<
-    StorageTypes.IGetAllHashesAndSizes[]
+    Types.IGetAllHashesAndSizes[]
   > {
-    let hashesAndSizesFromLastSyncedBlock: StorageTypes.IGetAllHashesAndSizes[] = [];
+    let hashesAndSizesFromLastSyncedBlock: Types.IGetAllHashesAndSizes[] = [];
 
     // Empty array is returned if we are already synced to the last block number
     const lastBlock = await this.ethereumBlocks.getLastBlockNumber();
     if (this.lastSyncedBlockNumber < lastBlock) {
-      hashesAndSizesFromLastSyncedBlock = await this.getHashesAndSizesFromEthereum(
+      hashesAndSizesFromLastSyncedBlock = await this.getHashesAndSizesFromEvents(
         this.lastSyncedBlockNumber,
       );
     }
@@ -222,20 +246,25 @@ export default class SmartContractManager {
 
   /**
    * Get hashes and sizes with metadata inside storage smart contract past events
-   * from the specified block number
+   *
    * @param fromBlock number of the block to start to get events
-   * @return Hashes and sizes with metadata from the specified block number
+   * @param toBlock number of the block to stop to get events
+   * @return Hashes and sizes with metadata
    */
-  private async getHashesAndSizesFromEthereum(
+  private async getHashesAndSizesFromEvents(
     fromBlock: number,
-  ): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
+    toBlock?: number | string,
+  ): Promise<Types.IGetAllHashesAndSizes[]> {
+    fromBlock = fromBlock < this.creationBlockNumber ? this.creationBlockNumber : fromBlock;
+    toBlock = toBlock || 'latest';
+
     // Reading all event logs
     let events = await Promise.race([
       this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
       this.requestHashStorage.getPastEvents({
         event: 'NewHash',
         fromBlock,
-        toBlock: 'latest',
+        toBlock,
       }),
     ]);
 
@@ -271,7 +300,7 @@ export default class SmartContractManager {
       throw Error(`event is incorrect: doesn't have a hash or size`);
     }
 
-    const meta = this.createEthereumMetaData(event.blockNumber, event.transactionHash);
+    const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
 
     return {
       hash: event.returnValues.hash,
@@ -284,12 +313,12 @@ export default class SmartContractManager {
    * @param networkId Id of the network
    * @return name of the network
    */
-  private getNetworkNameFromId(networkId: StorageTypes.EthereumNetwork): string {
+  private getNetworkNameFromId(networkId: Types.EthereumNetwork): string {
     return {
-      [StorageTypes.EthereumNetwork.PRIVATE as StorageTypes.EthereumNetwork]: 'private',
-      [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'main',
-      [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
-      [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
+      [Types.EthereumNetwork.PRIVATE as Types.EthereumNetwork]: 'private',
+      [Types.EthereumNetwork.MAINNET as Types.EthereumNetwork]: 'main',
+      [Types.EthereumNetwork.KOVAN as Types.EthereumNetwork]: 'kovan',
+      [Types.EthereumNetwork.RINKEBY as Types.EthereumNetwork]: 'rinkeby',
     }[networkId];
   }
 
@@ -325,7 +354,7 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
-  ): Promise<StorageTypes.IEthereumMetadata> {
+  ): Promise<Types.IEthereumMetadata> {
     // Get the number confirmations of the block hosting the transaction
     let blockConfirmation;
     try {

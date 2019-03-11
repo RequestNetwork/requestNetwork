@@ -5,7 +5,7 @@ import Utils from '@requestnetwork/utils';
  * Storage layer implemented with in-memory hashmap, to be used for testing.
  */
 export default class MockStorage implements StorageTypes.IStorage {
-  private data: { [key: string]: string } = {};
+  private data: { [key: string]: { content: string; timestamp: number } } = {};
 
   public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
     if (!content) {
@@ -13,11 +13,14 @@ export default class MockStorage implements StorageTypes.IStorage {
     }
     const hash = Utils.crypto.normalizeKeccak256Hash(content);
 
-    this.data[hash] = content;
+    const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
+
+    this.data[hash] = { content, timestamp: nowTimestampInSec };
 
     return {
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
+        timestamp: nowTimestampInSec,
       },
       result: {
         dataId: hash,
@@ -32,18 +35,24 @@ export default class MockStorage implements StorageTypes.IStorage {
     return {
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
+        timestamp: this.data[id].timestamp,
       },
-      result: { content: this.data[id] },
+      result: { content: this.data[id].content },
     };
   }
 
-  public async getAllDataId(): Promise<StorageTypes.IGetAllDataIdReturn> {
+  public async getDataId(): Promise<StorageTypes.IGetDataIdReturn> {
     const results = Object.keys(this.data);
+    const metaDataIds = Object.values(this.data).map(elem => {
+      return {
+        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
+        timestamp: elem.timestamp,
+      };
+    });
+
     return {
       meta: {
-        metaDataIds: new Array(results.length).fill({
-          storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        }),
+        metaDataIds,
       },
       result: {
         dataIds: results,
@@ -62,14 +71,18 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getAllData(): Promise<StorageTypes.IGetAllDataReturn> {
-    const results = Object.values(this.data).map(String);
+  public async getData(): Promise<StorageTypes.IGetDataReturn> {
+    const results = Object.values(this.data).map(elem => elem.content);
+    const metaData = Object.values(this.data).map(elem => {
+      return {
+        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
+        timestamp: elem.timestamp,
+      };
+    });
 
     return {
       meta: {
-        metaData: new Array(results.length).fill({
-          storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        }),
+        metaData,
       },
       result: {
         data: results,

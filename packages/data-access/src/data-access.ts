@@ -50,9 +50,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     }
 
     // initialize the dataId topic with the previous block
-    const allDataIdsWithMeta = await this.storage.getAllDataId();
+    const allDataIdsWithMeta = await this.storage.getDataId();
 
-    // check if the data returned by getAllDataId are correct
+    // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
     await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta, this.locationByTopic);
   }
@@ -208,11 +208,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Check the format of the dataIds, extract the topics from it and push location indexed with the topics
    *
    * @private
-   * @param dataIdsWithMeta dataIds from getAllDataId and getNewDataId from storage functions
+   * @param dataIdsWithMeta dataIds from getDataId and getNewDataId from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
   private async pushLocationsWithTopicsFromDataIds(
-    dataIdsWithMeta: StorageTypes.IGetAllDataIdReturn | StorageTypes.IGetNewDataIdReturn,
+    dataIdsWithMeta: StorageTypes.IGetDataIdReturn | StorageTypes.IGetNewDataIdReturn,
     locationByTopic: LocationByTopic,
   ): Promise<void> {
     if (!dataIdsWithMeta.result) {

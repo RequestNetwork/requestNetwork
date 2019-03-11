@@ -1,3 +1,5 @@
+import 'mocha';
+
 import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
@@ -17,6 +19,8 @@ const otherTransactionData = {
 let requestNodeInstance;
 let server: any;
 
+// tslint:disable:no-magic-numbers
+// tslint:disable:no-unused-expression
 describe('getTransactionsByTopic', () => {
   before(async () => {
     requestNodeInstance = new requestNode();

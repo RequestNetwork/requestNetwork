@@ -12,6 +12,8 @@ import IntervalTimer from '../src/interval-timer';
 let intervalTimer: IntervalTimer;
 let clock: sinon.SinonFakeTimers;
 
+// tslint:disable:no-magic-numbers
+// tslint:disable:no-empty
 describe('interval-timer', () => {
   beforeEach(async () => {
     intervalTimer = new IntervalTimer(() => {}, 1000);
@@ -46,19 +48,19 @@ describe('interval-timer', () => {
     clock.tick(500);
     expect(callback.callCount).to.equal(0);
 
-    clock.tick(600);  // 1100
+    clock.tick(600); // 1100
     expect(callback.callCount).to.equal(1);
 
-    clock.tick(1000);  // 2100
+    clock.tick(1000); // 2100
     expect(callback.callCount).to.equal(2);
 
-    clock.tick(3000);  // 5100
+    clock.tick(3000); // 5100
     expect(callback.callCount).to.equal(5);
 
-    clock.tick(100);  // 5200
+    clock.tick(100); // 5200
     expect(callback.callCount).to.equal(5);
 
-    clock.tick(5000);  // 10200
+    clock.tick(5000); // 10200
     expect(callback.callCount).to.equal(10);
   });
 

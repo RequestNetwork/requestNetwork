@@ -15,6 +15,8 @@ const dataAccessInitializeFailureMock = async () => {
 let requestNodeInstance;
 let server: any;
 
+// tslint:disable:no-magic-numbers
+// tslint:disable:no-unused-expression
 describe('requestNode server', () => {
   before(async () => {
     requestNodeInstance = new requestNode();
