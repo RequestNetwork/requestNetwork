@@ -979,7 +979,10 @@ describe('index', () => {
             [requestId as string]: listActions1,
             [newRequestId2]: listActions2,
             [newRequestId3]: listActions3,
-          }[topic];
+          }[topic] || {
+            meta: {},
+            result: { transactions: [] },
+          };
         },
         persistTransaction: chai.spy(),
       };

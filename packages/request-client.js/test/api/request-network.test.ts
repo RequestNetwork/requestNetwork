@@ -1,4 +1,5 @@
-import { DataAccess as DataAccessTypes, Identity as IdentityTypes } from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+
 import { assert, expect } from 'chai';
 
 import 'mocha';
@@ -80,9 +81,7 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
-      const request = await requestnetwork.fromRequestId(
-        '0x4b97a5816a7a86d11aaec93e8ec3b253d916f7152935b97c85c7dc760ea1857a',
-      );
+      const request = await requestnetwork.fromRequestId('0x01');
 
       expect(request).to.instanceOf(Request);
     });
@@ -99,10 +98,10 @@ describe('api/request-network', () => {
               { data: JSON.stringify(TestData.actionCreationSecondRequest) },
             ];
           }
-          if (topic === '0x955a6b23cf91ea6f683b018f6be509888fb857230d776e6b628f94f6fdd1aa3a') {
+          if (topic === TestData.actionRequestId) {
             transactions = [{ data: JSON.stringify(TestData.action) }];
           }
-          if (topic === '0x8d7daef669d7e01888c7bd977361b94ac9b59edaff02659c4499a1a94d581ccb') {
+          if (topic === TestData.actionRequestIdSecondRequest) {
             transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
           }
           return {
@@ -120,10 +119,7 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
-      const requests: Request[] = await requestnetwork.fromIdentity({
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-      });
+      const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
 
       expect(requests.length).to.be.equal(2);
     });

@@ -148,7 +148,6 @@ export default class RequestNetwork {
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
       identity.value,
     );
-
     // From the requests of the Request-logic creates the request objects and gets the payment networks
     const requests = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
