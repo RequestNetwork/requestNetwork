@@ -14,9 +14,10 @@ npm install @requestnetwork/request-client.js
 
 ### Usage as commonjs module
 
-```javascript
+```typescript
 import * as RequestNetwork from '@requestnetwork/request-client.js';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+
 // payee information
 const payeeSignatureInfo = {
   method: RequestNetwork.Types.Signature.METHOD.ECDSA,
@@ -40,11 +41,6 @@ const requestInfo: RequestNetwork.Types.RequestLogic.ICreateParameters = {
   },
 };
 
-const topics = [
-  '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-];
-
 const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
@@ -61,7 +57,6 @@ const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
     paymentNetwork,
     requestInfo,
     signer: payeeIdentity,
-    topics,
   });
 
   console.log(request);
@@ -82,7 +77,6 @@ A global `RequestNetwork` is exposed:
     requestInfo,
     signer,
     paymentNetwork,
-    topics,
   });
 </script>
 ```
@@ -125,10 +119,10 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-`requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
-`signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
-`topics`: string[]
-`paymentNetwork`: IPaymentNetworkCreateParameters
+* `requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
+* `signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
+* `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/request-client.js/src/types.ts#L37)
+* `topics`: string[]
 
 `topics` are optional strings used to index the request.
 
@@ -151,7 +145,7 @@ const identity = {
 const requestsFromIdentity = await requestNetwork.fromIdentity(identity);
 ```
 
-`identity`: IIdentity
+`identity`: [IIdentity](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/types/src/identity-types.ts#L2)
 
 ### Accept a request
 
