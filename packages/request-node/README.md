@@ -94,6 +94,12 @@ curl -i "http://localhost:3000/getTransactionsByTopic?topic=topicExample"
 | 422  | The input fields of the request are incorrect              |
 | 500  | The getTransactionsByTopic operation from DataAccess fails |
 
+##### Note
+
+Since the Node doesn't implement a cache yet, all transactions have to be retrieved directly on IPFS.
+As a consequence, this request can take a long time if the topic requested indexes many transactions.
+This delay will be optimized with the implementation of a cache.
+
 ## Deployment
 
 A Node can be deployed by anyone. Users interested by running their own node can do it with the following instructions:

@@ -1,6 +1,8 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import * as httpStatus from 'http-status-codes';
 
+const REQUEST_TIMEOUT: number = 600000;
+
 /**
  * Action to handle getTransactionsByTopic of data-access layer.
  */
@@ -12,6 +14,11 @@ export default {
   ): Promise<void> {
     // Retrieves data access layer
     let transactions;
+
+    // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
+    // This operation can take a long time and then the timeout of the request should be increase
+    // PROT-187: Decrease or remove this value
+    clientRequest.setTimeout(REQUEST_TIMEOUT);
 
     // Server accept json message
     clientRequest.accepts('json');
