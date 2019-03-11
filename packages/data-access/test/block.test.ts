@@ -195,6 +195,11 @@ describe('block', () => {
         transactionMock2,
       ]);
     });
+    it('cannot pushTransaction without property data', () => {
+      expect(() => {
+        RequestDataAccessBlock.pushTransaction(emptyblock, { noData: 'here' } as any, []);
+      }, 'must throw').to.throw('The transaction is missing the data property');
+    });
   });
 
   describe('getAllTransactions', () => {

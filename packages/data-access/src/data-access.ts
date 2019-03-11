@@ -23,6 +23,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // This object allows to handle the periodical call of the function
   private synchronizationTimer: IntervalTimer;
 
+  // Timestamp of the last synchronization
+  // This the last timestamp we got the data
+  private lastSyncedTimeStamp: number;
+
   /**
    * Constructor DataAccess interface
    *
@@ -34,6 +38,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     synchronizationIntervalTime: number = DEFAULT_INTERVAL_TIME,
   ) {
     this.storage = storage;
+    this.lastSyncedTimeStamp = 0;
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
       synchronizationIntervalTime,
@@ -163,13 +168,21 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
+    const synchronizationFrom = this.lastSyncedTimeStamp;
+    const synchronizationTo = Utils.getCurrentTimestampInSecond();
 
     // Read new dataIds from storage
-    const newDataIdsWithMeta = await this.storage.getNewDataId();
+    const newDataIdsWithMeta = await this.storage.getDataId({
+      from: synchronizationFrom,
+      to: synchronizationTo,
+    });
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
     await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta, this.locationByTopic);
+
+    // update the last synced Timestamp
+    this.lastSyncedTimeStamp = synchronizationTo;
   }
 
   /**

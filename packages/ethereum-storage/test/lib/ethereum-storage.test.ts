@@ -250,57 +250,6 @@ describe('EthereumStorage', () => {
     assert.deepEqual(result.result, { dataIds: [hash1, hash2] });
   });
 
-  it('allows to retrieve new data id', async () => {
-    // To test this function, we call it without calling getDataId()
-    // In this case, getNewDataId() should have the same behavior as getDataId()
-
-    // 4 blocks in pastEventsMock
-    ethereumStorage.smartContractManager.eth.getBlockNumber = () => 4;
-
-    await ethereumStorage.append(content1);
-    await ethereumStorage.append(content2);
-    const result = await ethereumStorage.getNewDataId();
-
-    if (!result.meta.metaDataIds[0].ethereum) {
-      assert.fail('result.meta.metaDataIds[0].ethereum does not exist');
-      return;
-    }
-    assert.deepEqual(result.meta.metaDataIds[0].ipfs, {
-      size: realSize1,
-    });
-    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-    assert.equal(result.meta.metaDataIds[0].ethereum.networkName, 'private');
-    assert.equal(
-      result.meta.metaDataIds[0].ethereum.smartContractAddress,
-      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-    );
-    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-    assert.isAtLeast(result.meta.metaDataIds[0].ethereum.blockConfirmation, 1);
-    assert.exists(result.meta.metaDataIds[0].ethereum.blockTimestamp);
-
-    if (!result.meta.metaDataIds[1].ethereum) {
-      assert.fail('result.meta.metaDataIds[2].ethereum does not exist');
-      return;
-    }
-
-    // We compare with the third value of pastEventsMock because the second one is ignored
-    // Since the size is fake
-    assert.deepEqual(result.meta.metaDataIds[1].ipfs, {
-      size: realSize2,
-    });
-    assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-    assert.equal(result.meta.metaDataIds[1].ethereum.networkName, 'private');
-    assert.equal(
-      result.meta.metaDataIds[1].ethereum.smartContractAddress,
-      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-    );
-    assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-    assert.isAtLeast(result.meta.metaDataIds[1].ethereum.blockConfirmation, 1);
-    assert.exists(result.meta.metaDataIds[1].ethereum.blockTimestamp);
-
-    assert.deepEqual(result.result, { dataIds: [hash1, hash2] });
-  });
-
   it('allows to retrieve all data', async () => {
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);

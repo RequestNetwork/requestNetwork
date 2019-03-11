@@ -186,16 +186,6 @@ export default class EthereumStorage implements Types.IStorage {
   }
 
   /**
-   * Get new id from data stored on the storage
-   * @returns Promise resolving id of stored data
-   */
-  public async getNewDataId(): Promise<Types.IGetDataIdReturn> {
-    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
-
-    return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
-  }
-
-  /**
    * Verify the hashes are present on IPFS with the corresponding size and add metadata
    * Filtered incorrect hashes
    * @param hashesAndSizes Promises of hash and size from the smart contract

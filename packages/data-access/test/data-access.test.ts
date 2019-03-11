@@ -62,7 +62,7 @@ const appendResult: StorageTypes.IOneDataIdAndMeta = {
   },
 };
 
-const emptyDataIdresult: StorageTypes.IGetNewDataIdReturn = {
+const emptyDataIdResult: StorageTypes.IGetNewDataIdReturn = {
   meta: {
     metaDataIds: [],
   },
@@ -92,7 +92,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -122,7 +121,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -148,7 +146,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -175,7 +172,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -200,7 +196,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 1 },
@@ -248,7 +243,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 1 },
@@ -274,7 +268,6 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 1 },
@@ -301,7 +294,6 @@ describe('data-access', () => {
         append: chai.spy.returns(appendResult),
         getData: (): any => chai.spy(),
         getDataId: chai.spy.returns({ result: { dataIds: [] } }),
-        getNewDataId: (): any => emptyDataIdresult,
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -345,7 +337,6 @@ describe('data-access', () => {
         append: chai.spy.returns('fakeDataId'),
         getData: (): any => chai.spy(),
         getDataId: chai.spy.returns([]),
-        getNewDataId: (): any => emptyDataIdresult,
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -361,7 +352,6 @@ describe('data-access', () => {
       append: chai.spy.returns(appendResult),
       getData: (): any => chai.spy(),
       getDataId: chai.spy.returns({ result: { dataIds: [] } }),
-      getNewDataId: (): any => emptyDataIdresult,
       read: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
@@ -379,8 +369,12 @@ describe('data-access', () => {
     const fakeStorage: StorageTypes.IStorage = {
       append: chai.spy(),
       getData: (): any => chai.spy(),
-      getDataId: (): any => emptyDataIdresult,
-      getNewDataId: (): any => testTopics,
+      getDataId: (options: any): any => {
+        if (!options) {
+          return emptyDataIdResult;
+        }
+        return testTopics;
+      },
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
           meta: { timestamp: 1 },
@@ -405,19 +399,6 @@ describe('data-access', () => {
         transactionsStorageLocation: [],
       },
       result: { transactions: [] },
-    });
-
-    expect(
-      await dataAccess.getTransactionsByTopic(arbitraryTopic2),
-      'result with arbitraryTopic2 not empty',
-    ).to.deep.equal({
-      meta: {
-        storageMeta: [],
-        transactionsStorageLocation: [],
-      },
-      result: {
-        transactions: [],
-      },
     });
 
     // Transactions should be available avec synchronization
@@ -453,7 +434,6 @@ describe('data-access', () => {
       append: chai.spy.returns(appendResult),
       getData: (): any => chai.spy(),
       getDataId: chai.spy.returns({ result: { dataIds: [] } }),
-      getNewDataId: (): any => emptyDataIdresult,
       read: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
@@ -465,8 +445,7 @@ describe('data-access', () => {
     const fakeStorage: StorageTypes.IStorage = {
       append: chai.spy(),
       getData: (): any => chai.spy(),
-      getDataId: (): any => emptyDataIdresult,
-      getNewDataId: (): any => emptyDataIdresult,
+      getDataId: (): any => emptyDataIdResult,
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
           meta: { timestamp: 1 },

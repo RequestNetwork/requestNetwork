@@ -30,10 +30,6 @@ export default class SmartContractManager {
   // Timeout threshold when connecting to Web3 provider
   private timeout: number;
 
-  // Number of the last synchronized block
-  // This the last block we read event logs from
-  private lastSyncedBlockNumber: number;
-
   /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
@@ -74,7 +70,6 @@ export default class SmartContractManager {
     this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
 
     this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
-    this.lastSyncedBlockNumber = this.creationBlockNumber;
 
     this.ethereumBlocks = new EthereumBlocks(this.eth, this.creationBlockNumber);
   }
@@ -225,27 +220,6 @@ export default class SmartContractManager {
 
   /**
    * Get hashes and sizes with metadata inside storage smart contract past events
-   * from the number of the last synced block
-   * @return Hashes and sizes with metadata from the number of the last synced block
-   */
-  public async getHashesAndSizesFromLastSyncedBlockFromEthereum(): Promise<
-    Types.IGetAllHashesAndSizes[]
-  > {
-    let hashesAndSizesFromLastSyncedBlock: Types.IGetAllHashesAndSizes[] = [];
-
-    // Empty array is returned if we are already synced to the last block number
-    const lastBlock = await this.ethereumBlocks.getLastBlockNumber();
-    if (this.lastSyncedBlockNumber < lastBlock) {
-      hashesAndSizesFromLastSyncedBlock = await this.getHashesAndSizesFromEvents(
-        this.lastSyncedBlockNumber,
-      );
-    }
-
-    return hashesAndSizesFromLastSyncedBlock;
-  }
-
-  /**
-   * Get hashes and sizes with metadata inside storage smart contract past events
    *
    * @param fromBlock number of the block to start to get events
    * @param toBlock number of the block to stop to get events
@@ -274,10 +248,6 @@ export default class SmartContractManager {
     const eventsWithMetaData = events.map((eventItem: any) =>
       this.checkAndAddMetaDataToEvent(eventItem),
     );
-
-    // Set lastSyncedBlockNumber to the last block number of Ethereum
-    // since we read all the blocks
-    this.lastSyncedBlockNumber = await this.ethereumBlocks.getLastBlockNumber();
 
     return eventsWithMetaData;
   }

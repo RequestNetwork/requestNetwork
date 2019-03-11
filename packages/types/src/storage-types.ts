@@ -4,7 +4,12 @@ export interface IStorage {
   read: (dataId: string) => Promise<IOneContentAndMeta>;
   getData: (options?: ITimestampBoundaries) => Promise<IGetDataReturn>;
   getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
-  getNewDataId: () => Promise<IGetNewDataIdReturn>;
+}
+
+/** Restrict the get data research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** Restrict the get data research to two timestamp */
