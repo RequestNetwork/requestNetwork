@@ -5,7 +5,16 @@ export interface IDataAccess {
     transactionData: ITransaction,
     topics?: string[],
   ) => Promise<IReturnPersistTransaction>;
-  getTransactionsByTopic: (topic: string) => Promise<IReturnGetTransactionsByTopic>;
+  getTransactionsByTopic: (
+    topic: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactionsByTopic>;
+}
+
+/** Restrict the get data research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** return interface for PersistTransaction  */

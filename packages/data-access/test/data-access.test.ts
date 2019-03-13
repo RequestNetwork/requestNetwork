@@ -288,6 +288,59 @@ describe('data-access', () => {
     });
   });
 
+  describe('getTransactionsByTopic', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+            meta: { timestamp: 10 },
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can getTransactionsByTopic() with boundaries', async () => {
+      expect(
+        await dataAccess.getTransactionsByTopic(arbitraryTopic1, { from: 9, to: 100 }),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [{ timestamp: 10 }],
+          transactionsStorageLocation: ['dataIdBlock2tx'],
+        },
+        result: { transactions: [transactionMock1] },
+      });
+    });
+
+    it('can getTransactionsByTopic() with boundaries too restrictive', async () => {
+      expect(
+        await dataAccess.getTransactionsByTopic(arbitraryTopic1, { from: 11, to: 100 }),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [],
+          transactionsStorageLocation: [],
+        },
+        result: { transactions: [] },
+      });
+    });
+  });
+
   describe('persistTransaction', () => {
     it('can persistTransaction()', async () => {
       const fakeStorageSpied: StorageTypes.IStorage = {

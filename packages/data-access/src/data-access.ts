@@ -4,6 +4,7 @@ import Utils from '@requestnetwork/utils';
 import Block from './block';
 import IntervalTimer from './interval-timer';
 import LocationByTopic from './location-by-topic';
+import TimestampByLocation from './timestamp-by-location';
 
 // Default interval time for auto synchronization
 const DEFAULT_INTERVAL_TIME: number = 10000;
@@ -15,6 +16,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // DataId (Id of data on storage layer) indexed by transaction topic
   // Will be used to get the data from storage with the transaction topic
   private locationByTopic?: LocationByTopic;
+
+  // Timestamp of the dataIds
+  // Will be used to get the data from timestamp boundaries
+  private timestampByLocation: TimestampByLocation;
 
   // Storage layer
   private storage: StorageTypes.IStorage;
@@ -43,6 +48,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       (): Promise<void> => this.synchronizeNewDataIds(),
       synchronizationIntervalTime,
     );
+    this.timestampByLocation = new TimestampByLocation();
   }
 
   /**
@@ -59,7 +65,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta, this.locationByTopic);
+    await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta);
   }
 
   /**
@@ -90,6 +96,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       updatedBlock.header.topics,
     );
 
+    // add the timestamp in the index
+    this.timestampByLocation.pushTimestampByLocation(
+      resultAppend.result.dataId,
+      resultAppend.meta.timestamp,
+    );
+
     return {
       meta: {
         storageMeta: resultAppend.meta,
@@ -103,18 +115,23 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Function to get a list of transactions indexed by topic
    *
-   * @param string topic topic to retrieve the transaction from
+   * @param topic topic to retrieve the transaction from
+   * @param timestampBoundaries timestamp boundaries of the transactions search
    *
-   * @returns ITransaction list of transactions indexed by topic
+   * @returns list of transactions indexed by topic
    */
   public async getTransactionsByTopic(
     topic: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactionsByTopic> {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
-    const locationStorageList = this.locationByTopic.getLocationFromTopic(topic);
+    const locationStorageList = this.locationByTopic
+      .getLocationFromTopic(topic)
+      .filter(dataId => this.timestampByLocation.isDataInBoundaries(dataId, timestampBoundaries));
+
     const blockWithMetaList: any[] = [];
 
     // get blocks indexed by topic
@@ -179,7 +196,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta, this.locationByTopic);
+    await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta);
 
     // update the last synced Timestamp
     this.lastSyncedTimeStamp = synchronizationTo;
@@ -226,8 +243,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   private async pushLocationsWithTopicsFromDataIds(
     dataIdsWithMeta: StorageTypes.IGetDataIdReturn | StorageTypes.IGetNewDataIdReturn,
-    locationByTopic: LocationByTopic,
   ): Promise<void> {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
     if (!dataIdsWithMeta.result) {
       throw Error(`data from storage do not follow the standard, result is missing`);
     }
@@ -250,7 +269,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       }
 
       // topic the previous dataId with their block topic
-      locationByTopic.pushLocationIndexedWithBlockTopics(dataId, block.header.topics);
+      this.locationByTopic.pushLocationIndexedWithBlockTopics(dataId, block.header.topics);
+
+      // add the timestamp in the index
+      this.timestampByLocation.pushTimestampByLocation(dataId, resultRead.meta.timestamp);
     }
   }
 }
