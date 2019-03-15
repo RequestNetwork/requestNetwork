@@ -10,6 +10,9 @@ import Request from '../../src/api/request';
 import * as TestData from '../data-test';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
+  async getTransactionsByChannelId(): Promise<any> {
+    return;
+  },
   async getTransactionsByTopic(): Promise<any> {
     return;
   },
@@ -34,6 +37,9 @@ describe('api/request-network', () => {
   describe('createRequest', () => {
     it('cannot createRequest() with extensionsData', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getTransactionsByChannelId(): Promise<any> {
+          return;
+        },
         async getTransactionsByTopic(): Promise<any> {
           return {
             result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
@@ -67,10 +73,13 @@ describe('api/request-network', () => {
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async getTransactionsByTopic(): Promise<any> {
+        async getTransactionsByChannelId(): Promise<any> {
           return {
             result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
           };
+        },
+        async getTransactionsByTopic(): Promise<any> {
+          return;
         },
         async initialize(): Promise<any> {
           return;
@@ -90,6 +99,20 @@ describe('api/request-network', () => {
   describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getTransactionsByChannelId(channelId: string): Promise<any> {
+          let transactions: any[] = [];
+          if (channelId === TestData.actionRequestId) {
+            transactions = [{ data: JSON.stringify(TestData.action) }];
+          }
+          if (channelId === TestData.actionRequestIdSecondRequest) {
+            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
+          }
+          return {
+            result: {
+              transactions,
+            },
+          };
+        },
         async getTransactionsByTopic(topic: string): Promise<any> {
           let transactions: any[] = [];
           if (topic === '0x627306090abab3a6e1400e9345bc60c78a8bef57') {
@@ -97,12 +120,6 @@ describe('api/request-network', () => {
               { data: JSON.stringify(TestData.action) },
               { data: JSON.stringify(TestData.actionCreationSecondRequest) },
             ];
-          }
-          if (topic === TestData.actionRequestId) {
-            transactions = [{ data: JSON.stringify(TestData.action) }];
-          }
-          if (topic === TestData.actionRequestIdSecondRequest) {
-            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
           }
           return {
             result: {

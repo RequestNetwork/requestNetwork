@@ -23,12 +23,13 @@ const dataAccess: DataAccessTypes.IDataAccess; // A Data Access implementation, 
 const transactionManager = new TransactionManager(dataAccess);
 
 const data = '{ what: "ever", it: "is,", this: "must", work: true }';
-const transactionTopic = 'myRequest';
+const channelId = 'myRequest';
+const channelTopics = ['stakeholder1','stakeholder2'];
 
-const { result } = await transactionManager.persistTransaction(data, transactionTopic);
+const { result } = await transactionManager.persistTransaction(data, channelId, channelTopics);
 ```
 
-### Get a Transaction
+### Get Transactions from channel id
 
 ```javascript
 import { DataAccess as DataAccessTypes, Signature as SignatureTypes } from '@requestnetwork/types';
@@ -38,9 +39,26 @@ const dataAccess: DataAccessTypes.IDataAccess; // A Data Access implementation, 
 
 const transactionManager = new TransactionManager(dataAccess);
 
-const transactionTopic = 'myRequest';
+const channelId = 'myRequest';
 
-const { result } = await transactionManager.getTransactionsByTopic(transactionTopic);
+const { result: {transactions} } = await transactionManager.getTransactionsByChannelId(channelId);
+```
+
+### Get Transactions from topic
+
+```typescript
+import { DataAccess as DataAccessTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { TransactionManager } from '@requestnetwork/transaction-manager';
+
+const dataAccess: DataAccessTypes.IDataAccess; // A Data Access implementation, for example @requestnetwork/data-access
+
+const transactionManager = new TransactionManager(dataAccess);
+
+const channelTopic = 'stakeholder1';
+
+const {
+  result: { transactions },
+} = await transactionManager.getTransactionsByTopic(channelTopic);
 ```
 
 ## Contributing

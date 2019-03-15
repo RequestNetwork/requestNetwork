@@ -10,6 +10,7 @@ import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
 import { TransactionManager } from '../src/index';
 import TransactionCore from '../src/transaction';
 
+const channelId = 'channelId';
 const extraTopics = ['topic1', 'topic2'];
 const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
@@ -24,12 +25,13 @@ const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction
   result: { topics: [fakeTxHash] },
 };
 
-const fakeMetaDataAccessGetReturn: DataAccessTypes.IReturnGetTransactionsByTopic = {
+const fakeMetaDataAccessGetReturn: DataAccessTypes.IReturnGetTransactions = {
   meta: { transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'] },
   result: { transactions: [tx, tx2] },
 };
 
 const fakeDataAccess: DataAccessTypes.IDataAccess = {
+  getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturn),
   getTransactionsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturn),
   initialize: chai.spy(),
   persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
@@ -40,7 +42,7 @@ describe('index', () => {
   it('can persist a transaction', async () => {
     const transactionManager = new TransactionManager(fakeDataAccess);
 
-    const ret = await transactionManager.persistTransaction(data, extraTopics);
+    const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
 
     expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
     expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
@@ -50,6 +52,18 @@ describe('index', () => {
       TransactionCore.createTransaction(data),
       extraTopics,
     );
+  });
+
+  it('can get transactions by channel id', async () => {
+    const transactionManager = new TransactionManager(fakeDataAccess);
+
+    const ret = await transactionManager.getTransactionsByChannelId(channelId);
+
+    expect(ret.result, 'ret.result is wrong').to.be.deep.equal(fakeMetaDataAccessGetReturn.result);
+    expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      dataAccessMeta: fakeMetaDataAccessGetReturn.meta,
+    });
+    expect(fakeDataAccess.getTransactionsByChannelId).to.have.been.called.with(channelId);
   });
 
   it('can get transactions indexed by topics', async () => {

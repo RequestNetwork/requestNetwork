@@ -42,11 +42,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    */
   public async persistTransaction(
     transactionData: DataAccessTypes.ITransaction,
+    channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     const { data } = await axios.post(
       '/persistTransaction',
       {
+        channelId,
         topics,
         transactionData,
       },
@@ -62,11 +64,28 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    */
   public async getTransactionsByTopic(
     topic: string,
-  ): Promise<DataAccessTypes.IReturnGetTransactionsByTopic> {
+  ): Promise<DataAccessTypes.IReturnGetTransactions> {
     const { data } = await axios.get(
       '/getTransactionsByTopic',
       Object.assign(this.axiosConfig, {
         params: { topic },
+      }),
+    );
+    return data;
+  }
+
+  /**
+   * Gets the transactions for a channel from the node through HTTP.
+   *
+   * @param channelId The channel id to search for
+   */
+  public async getTransactionsByChannelId(
+    channelId: string,
+  ): Promise<DataAccessTypes.IReturnGetTransactions> {
+    const { data } = await axios.get(
+      '/getTransactionsByChannelId',
+      Object.assign(this.axiosConfig, {
+        params: { channelId },
       }),
     );
     return data;

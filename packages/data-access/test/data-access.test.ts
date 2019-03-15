@@ -30,17 +30,25 @@ const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 
+const arbitraryId1 = '0x111111111111111';
+const arbitraryId2 = '0x222222222222222';
+
 const arbitraryTopic1 = '0xaaaaaa';
 const arbitraryTopic2 = '0xccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
-const blockWith1tx = RequestDataAccessBlock.pushTransaction(emptyblock, transactionMock1, [
-  arbitraryTopic1,
-  arbitraryTopic2,
-]);
-const blockWith2tx = RequestDataAccessBlock.pushTransaction(blockWith1tx, transactionMock2, [
-  arbitraryTopic2,
-]);
+const blockWith1tx = RequestDataAccessBlock.pushTransaction(
+  emptyblock,
+  transactionMock1,
+  arbitraryId1,
+  [arbitraryTopic1, arbitraryTopic2],
+);
+const blockWith2tx = RequestDataAccessBlock.pushTransaction(
+  blockWith1tx,
+  transactionMock2,
+  arbitraryId2,
+  [arbitraryTopic2],
+);
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
@@ -288,6 +296,59 @@ describe('data-access', () => {
     });
   });
 
+  describe('getTransactionsByChannelId', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+            meta: { timestamp: 10 },
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can getTransactionsByChannelId() with boundaries', async () => {
+      expect(
+        await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 9, to: 100 }),
+        'result with arbitraryId1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [{ timestamp: 10 }],
+          transactionsStorageLocation: ['dataIdBlock2tx'],
+        },
+        result: { transactions: [transactionMock1] },
+      });
+    });
+
+    it('can getTransactionsByTopic() with boundaries too restrictive', async () => {
+      expect(
+        await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
+        'result with arbitraryId1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [],
+          transactionsStorageLocation: [],
+        },
+        result: { transactions: [] },
+      });
+    });
+  });
+
   describe('getTransactionsByTopic', () => {
     let dataAccess: any;
 
@@ -352,16 +413,23 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(fakeStorageSpied);
       await dataAccess.initialize();
 
-      const result = await dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]);
+      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+        arbitraryTopic1,
+      ]);
 
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
       expect(fakeStorageSpied.append).to.have.been.called.with(
         JSON.stringify({
           header: {
+            channelIds: {
+              [arbitraryId1]: [0],
+            },
             topics: {
-              '0xaaaaaa': [0],
-              '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca': [0],
+              [arbitraryId1]: [
+                '0xaaaaaa',
+                '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
+              ],
             },
             version: '0.1.0',
           },
@@ -395,7 +463,7 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(fakeStorageSpied);
 
       await expect(
-        dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]),
+        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [arbitraryTopic1]),
       ).to.be.rejectedWith('DataAccess must be initialized');
     });
   });

@@ -8,6 +8,25 @@ It is the default implementation of the Data Access layer. The Data Access layer
 - Accessing transactions through a local cache
 - Synchronizing with the storage
 
+## Transactions indexing (Channel & Topics)
+
+The indexing of the transactions is made by two mechanisms:
+
+- Channel
+- Topics
+
+The channel in data-access allows to group several transactions under one string: the `channel id`.
+This channel is indexed by several strings called `topics`.
+
+There are two ways of getting transactions:
+
+- by channel id: this gets all the transactions of the channel
+- by topic: this gets all the transactions of the channels indexed by this topic
+
+In the context of requests, all the transactions of a channel are the actions of a request.
+The channel id is the request id. It is possible to get a request from the request id thanks to this.
+The topics are for example, the identities of the stakeholders of the request. So, you can retrieve all the requests (channels) of an identity.
+
 ## Installation
 
 ```bash
@@ -18,7 +37,7 @@ npm install @requestnetwork/data-access
 
 ### Persist a Transaction
 
-```javascript
+```typescript
 import DataAccess from '@requestnetwork/data-access';
 import {
   DataAccess as DataAccessTypes,
@@ -26,7 +45,8 @@ import {
   Storage as StorageTypes,
 } from '@requestnetwork/types';
 
-const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
+// Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
+const storage: StorageTypes.IStorage;
 
 const dataAccess = new DataAccess(storage);
 await dataAccess.initialize();
@@ -47,14 +67,18 @@ const transaction: DataAccessTypes.ITransaction = {
   signature: transactionDataSignature,
 };
 
-const transactionTopic = 'myRequest';
+// Channel id is an identifer to group a list of transactions
+const channelId = 'myRequest';
 
-const result = await dataAccess.persistTransaction(transaction, [transactionTopic]);
+// Topics to index the channel
+const channelTopics = ['stakeholder1', 'stakeholder2'];
+
+const result = await dataAccess.persistTransaction(transaction, channelId, channelTopics);
 ```
 
-### Get a Transaction
+### Get Transactions by topics
 
-```javascript
+```typescript
 import DataAccess from '@requestnetwork/data-access';
 import {
   DataAccess as DataAccessTypes,
@@ -67,9 +91,33 @@ const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @r
 const dataAccess = new DataAccess(storage);
 await dataAccess.initialize();
 
-const transactionTopic = 'myRequest';
+const transactionTopic = 'stakeholder1';
 
-const { result } = await dataAccess.getTransactionsByTopic(transactionTopic);
+const {
+  result: { transactions },
+} = await dataAccess.getTransactionsByTopic(transactionTopic);
+```
+
+### Get Transactions by channelId
+
+```typescript
+import DataAccess from '@requestnetwork/data-access';
+import {
+  DataAccess as DataAccessTypes,
+  Signature as SignatureTypes,
+  Storage as StorageTypes,
+} from '@requestnetwork/types';
+
+const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
+
+const dataAccess = new DataAccess(storage);
+await dataAccess.initialize();
+
+const channelId = 'myRequest';
+
+const {
+  result: { transactions },
+} = await dataAccess.getTransactionsByChannelId(channelId);
 ```
 
 ## Features

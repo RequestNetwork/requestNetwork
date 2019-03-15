@@ -112,7 +112,7 @@ export default class RequestNetwork {
    * @returns the Request
    */
   public async fromRequestId(requestId: RequestLogicTypes.RequestId): Promise<Request> {
-    const requestAndMeta: RequestLogicTypes.IReturnGetRequestById = await this.requestLogic.getFirstRequestFromTopic(
+    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
       requestId,
     );
 

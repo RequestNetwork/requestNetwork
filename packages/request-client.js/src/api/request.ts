@@ -276,7 +276,7 @@ export default class Request {
    * @returns Refreshed request data
    */
   public async refresh(): Promise<Types.IRequestData> {
-    const requestAndMeta: RequestLogicTypes.IReturnGetRequestById = await this.requestLogic.getFirstRequestFromTopic(
+    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
       this.requestId,
     );
 

@@ -3,12 +3,17 @@ export interface IDataAccess {
   initialize: () => Promise<void>;
   persistTransaction: (
     transactionData: ITransaction,
+    channelId: string,
     topics?: string[],
   ) => Promise<IReturnPersistTransaction>;
+  getTransactionsByChannelId: (
+    channelId: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactions>;
   getTransactionsByTopic: (
     topic: string,
     timestampBoundaries?: ITimestampBoundaries,
-  ) => Promise<IReturnGetTransactionsByTopic>;
+  ) => Promise<IReturnGetTransactions>;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -32,8 +37,8 @@ export interface IReturnPersistTransaction {
   result: {};
 }
 
-/** return interface for getTransactionsByTopic  */
-export interface IReturnGetTransactionsByTopic {
+/** return interface for getTransactionsByTopic and getTransactionsByChannelId */
+export interface IReturnGetTransactions {
   /** meta information */
   meta: {
     /** location of the transactions (follow the position of the result.transactions) */
@@ -53,13 +58,19 @@ export interface IBlock {
 
 /** Block Header */
 export interface IBlockHeader {
+  channelIds: IChannelIds;
   topics: ITopics;
   version: string;
 }
 
-/** Topics, to index the transactions */
-export interface ITopics {
+/** Channel ids, to connect the transactions to a channel */
+export interface IChannelIds {
   [key: string]: number[];
+}
+
+/** Topics indexed by channel id to index the transactions */
+export interface ITopics {
+  [key: string]: string[];
 }
 
 /** Transaction */

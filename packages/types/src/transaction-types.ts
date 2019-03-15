@@ -2,9 +2,23 @@
 export interface ITransactionManager {
   persistTransaction: (
     transactionData: string,
+    channelId: string,
     topics?: string[],
   ) => Promise<IReturnPersistTransaction>;
-  getTransactionsByTopic: (topic: string) => Promise<IReturnGetTransactionsByTopic>;
+  getTransactionsByTopic: (
+    topic: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactions>;
+  getTransactionsByChannelId: (
+    channelId: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactions>;
+}
+
+/** Restrict the get data research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** return interface for PersistTransaction  */
@@ -18,8 +32,8 @@ export interface IReturnPersistTransaction {
   result: {};
 }
 
-/** return interface for getTransactionsByTopic  */
-export interface IReturnGetTransactionsByTopic {
+/** return interface for getTransactionsByTopic and getTransactionsByChannelId  */
+export interface IReturnGetTransactions {
   /** meta information */
   meta: {
     /** meta-data from the layer below */

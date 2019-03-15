@@ -43,6 +43,7 @@ const fakeMetaTransactionManager = {
   result: { topics: [fakeTxHash] },
 };
 const fakeTransactionManager: TransactionTypes.ITransactionManager = {
+  getTransactionsByChannelId: chai.spy(),
   getTransactionsByTopic: chai.spy(),
   persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
 };
@@ -74,7 +75,7 @@ describe('index', () => {
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(action),
-        [requestId],
+        requestId,
       );
     });
 
@@ -114,7 +115,7 @@ describe('index', () => {
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(actionExpected),
-        [requestId],
+        requestId,
       );
     });
     it('cannot acceptRequest without signature provider', async () => {
@@ -155,7 +156,7 @@ describe('index', () => {
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(actionExpected),
-        [requestId],
+        requestId,
       );
     });
     it('cannot cancelRequest without signature provider', async () => {
@@ -201,7 +202,7 @@ describe('index', () => {
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(actionExpected),
-        [requestId],
+        requestId,
       );
     });
     it('cannot increaseExpectedAmountRequest without signature provider', async () => {
@@ -251,7 +252,7 @@ describe('index', () => {
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(actionExpected),
-        [requestId],
+        requestId,
       );
     });
     it('cannot reduceExpectedAmountRequest without signature provider', async () => {
@@ -298,7 +299,7 @@ describe('index', () => {
 
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(actionExpected),
-        [requestId],
+        requestId,
       );
     });
     it('cannot addExtensionsDataRequest without signature provider', async () => {
@@ -319,8 +320,8 @@ describe('index', () => {
     });
   });
 
-  describe('getFirstRequestFromTopic', () => {
-    it('can getFirstRequestFromTopic', async () => {
+  describe('getRequestFromId', () => {
+    it('can getRequestFromId', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -360,7 +361,7 @@ describe('index', () => {
       );
 
       const meta = {};
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
           transactions: [
@@ -381,8 +382,9 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getTransactionsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByTopic> =>
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -390,7 +392,7 @@ describe('index', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      const request = await requestLogic.getRequestFromId(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
@@ -440,7 +442,7 @@ describe('index', () => {
       });
     });
 
-    it('can getFirstRequestFromTopic ignore the same transactions even with different case', async () => {
+    it('can getRequestFromId ignore the same transactions even with different case', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -492,7 +494,7 @@ describe('index', () => {
       );
 
       const meta = {};
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
           transactions: [
@@ -517,8 +519,9 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getTransactionsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByTopic> =>
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -526,7 +529,7 @@ describe('index', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      const request = await requestLogic.getRequestFromId(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
@@ -576,7 +579,7 @@ describe('index', () => {
       });
     });
 
-    it('can getFirstRequestFromTopic do not ignore the same transactions if different nonces', async () => {
+    it('can getRequestFromId do not ignore the same transactions if different nonces', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -629,7 +632,7 @@ describe('index', () => {
       );
 
       const meta = {};
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
           transactions: [
@@ -654,8 +657,9 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getTransactionsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByTopic> =>
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -663,7 +667,7 @@ describe('index', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      const request = await requestLogic.getRequestFromId(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
@@ -722,7 +726,7 @@ describe('index', () => {
     });
 
     it('should ignored the corrupted data (not parsable JSON)', async () => {
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta: {},
         result: {
           transactions: [
@@ -735,8 +739,9 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getTransactionsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByTopic> =>
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -744,7 +749,7 @@ describe('index', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      const request = await requestLogic.getRequestFromId(requestId);
       expect(request.result.request, 'request should be null').to.be.null;
     });
 
@@ -764,7 +769,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta: {},
         result: {
           transactions: [
@@ -777,8 +782,9 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getTransactionsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByTopic> =>
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -786,7 +792,7 @@ describe('index', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = await requestLogic.getFirstRequestFromTopic(requestId);
+      const request = await requestLogic.getRequestFromId(requestId);
       expect(
         request.meta.ignoredTransactions && request.meta.ignoredTransactions.length,
       ).to.be.equal(1);
@@ -885,60 +891,52 @@ describe('index', () => {
       const newRequestId3 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3);
 
       const meta = {};
-      const listActions1: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
-        {
-          meta,
-          result: {
-            transactions: [
-              {
-                data: JSON.stringify(actionCreate),
-                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-              },
-              {
-                data: JSON.stringify(actionAccept),
-                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-              },
-              {
-                data: JSON.stringify(rxReduce),
-                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-              },
-            ],
-          },
+      const listActions1: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionAccept),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(rxReduce),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+          ],
         },
-      );
-      const listActions2: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
-        {
-          meta,
-          result: {
-            transactions: [
-              {
-                data: JSON.stringify(actionCreate2),
-                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-              },
-              {
-                data: JSON.stringify(actionCancel2),
-                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-              },
-            ],
-          },
+      });
+      const listActions2: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate2),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+            {
+              data: JSON.stringify(actionCancel2),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+          ],
         },
-      );
-      const listActions3: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve(
-        {
-          meta,
-          result: {
-            transactions: [
-              {
-                data: JSON.stringify(actionCreate3),
-                signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-              },
-            ],
-          },
+      });
+      const listActions3: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              data: JSON.stringify(actionCreate3),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
+          ],
         },
-      );
-      const listAllActions: Promise<
-        TransactionTypes.IReturnGetTransactionsByTopic
-      > = Promise.resolve({
+      });
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
           transactions: [
@@ -971,18 +969,30 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByChannelId: (
+          topic: string,
+        ): Promise<TransactionTypes.IReturnGetTransactions> => {
+          return (
+            {
+              [requestId]: listActions1,
+              [newRequestId2]: listActions2,
+              [newRequestId3]: listActions3,
+            }[topic] ||
+            ({
+              meta: {},
+              result: { transactions: [] },
+            } as any)
+          );
+        },
         getTransactionsByTopic: (
           topic: string,
-        ): Promise<TransactionTypes.IReturnGetTransactionsByTopic> => {
-          return {
-            fakeTopicForAll: listAllActions,
-            [requestId as string]: listActions1,
-            [newRequestId2]: listActions2,
-            [newRequestId3]: listActions3,
-          }[topic] || {
-            meta: {},
-            result: { transactions: [] },
-          };
+        ): Promise<TransactionTypes.IReturnGetTransactions> => {
+          return topic === 'fakeTopicForAll'
+            ? listAllActions
+            : ({
+                meta: {},
+                result: { transactions: [] },
+              } as any);
         },
         persistTransaction: chai.spy(),
       };
@@ -996,7 +1006,7 @@ describe('index', () => {
       expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
     });
 
-    it('should ignore the none parsable', async () => {
+    it('should ignore the transaction none parsable and the rejected action', async () => {
       const actionCreate: Types.IAction = Utils.signature.sign(
         {
           name: Types.ACTION_NAME.CREATE,
@@ -1012,8 +1022,19 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
+      const acceptNotValid: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
       const meta = {};
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByTopic> = Promise.resolve({
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
           transactions: [
@@ -1025,18 +1046,31 @@ describe('index', () => {
               data: 'Not a json',
               signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
             },
+            {
+              data: JSON.stringify(acceptNotValid),
+              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+            },
           ],
         },
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getTransactionsByChannelId: (
+          topic: string,
+        ): Promise<TransactionTypes.IReturnGetTransactions> => {
+          return {
+            [requestId]: listActions,
+          }[topic];
+        },
         getTransactionsByTopic: (
           topic: string,
-        ): Promise<TransactionTypes.IReturnGetTransactionsByTopic> => {
-          return {
-            fakeTopicForAll: listActions,
-            [requestId as string]: listActions,
-          }[topic];
+        ): Promise<TransactionTypes.IReturnGetTransactions> => {
+          return topic === 'fakeTopicForAll'
+            ? listActions
+            : ({
+                meta: {},
+                result: { transactions: [] },
+              } as any);
         },
         persistTransaction: chai.spy(),
       };

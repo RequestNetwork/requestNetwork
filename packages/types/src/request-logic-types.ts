@@ -31,7 +31,7 @@ export interface IRequestLogic {
     requestParameters: IAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
-  getFirstRequestFromTopic: (topic: string) => Promise<IReturnGetRequestById>;
+  getRequestFromId: (topic: string) => Promise<IReturnGetRequestFromId>;
   getRequestsByTopic: (topic: string) => Promise<IReturnGetRequestsByTopic>;
 }
 
@@ -55,7 +55,7 @@ export interface IReturnCreateRequest extends IRequestLogicReturn {
 }
 
 /** return of the function getFirstRequestFromTopic */
-export interface IReturnGetRequestById extends IRequestLogicReturn {
+export interface IReturnGetRequestFromId extends IRequestLogicReturn {
   result: { request: IRequest | null };
 }
 

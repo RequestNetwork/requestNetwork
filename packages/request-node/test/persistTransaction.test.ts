@@ -5,6 +5,8 @@ import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
 
+const channelId = '0xchannelId';
+const anotherChannelId = '0xanotherChannelId';
 const topics = ['ThisIsOneTopic', 'ThisIsOneAnotherTopic'];
 const transactionData = { data: 'this is sample data for a transaction' };
 const anotherTransactionData = { data: 'you can put any data' };
@@ -31,10 +33,7 @@ describe('persistTransaction', () => {
   it('responds with status 200 to requests with correct values', async () => {
     let serverResponse = await request(server)
       .post('/persistTransaction')
-      .send({
-        topics,
-        transactionData,
-      })
+      .send({ channelId, topics, transactionData })
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
@@ -44,9 +43,7 @@ describe('persistTransaction', () => {
     // topics parameter should be optional
     serverResponse = await request(server)
       .post('/persistTransaction')
-      .send({
-        transactionData: anotherTransactionData,
-      })
+      .send({ channelId: anotherChannelId, transactionData: anotherTransactionData })
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
@@ -66,6 +63,7 @@ describe('persistTransaction', () => {
     await request(server)
       .post('/persistTransaction')
       .send({
+        channelId,
         transactionData: badlyFormattedTransactionData,
       })
       .set('Accept', 'application/json')

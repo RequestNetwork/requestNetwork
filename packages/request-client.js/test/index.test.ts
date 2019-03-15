@@ -54,6 +54,9 @@ function mockAxios(): any {
   mock
     .onGet('/getTransactionsByTopic')
     .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
+  mock
+    .onGet('/getTransactionsByChannelId')
+    .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
   return mock;
 }
 
@@ -74,7 +77,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
+      .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -104,7 +107,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
+      .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [{ data: JSON.stringify(TestDataRealBTC.action) }] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -134,7 +137,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
+      .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -157,7 +160,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
+      .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
 
     const requestNetwork = new RequestNetwork({
@@ -211,7 +214,7 @@ describe('index', () => {
     const mock = new mockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
     mock
-      .onGet('/getTransactionsByTopic')
+      .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });

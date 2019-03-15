@@ -5,6 +5,7 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
 import { getCustomHeaders, getMnemonic } from './config';
+import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import getTransactionsByTopic from './request/getTransactionsByTopic';
 import persistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
@@ -110,11 +111,7 @@ class RequestNode {
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return persistTransaction.actionPersistTransaction(
-          clientRequest,
-          serverResponse,
-          this.dataAccess,
-        );
+        return persistTransaction(clientRequest, serverResponse, this.dataAccess);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
@@ -124,16 +121,22 @@ class RequestNode {
     // Route for getTransactionsByTopic request
     router.get('/getTransactionsByTopic', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getTransactionsByTopic.actionGetTransactionsByTopic(
-          clientRequest,
-          serverResponse,
-          this.dataAccess,
-        );
+        return getTransactionsByTopic(clientRequest, serverResponse, this.dataAccess);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
     });
     this.express.use('/getTransactionsByTopic', router);
+
+    // Route for getTransactionsByChannelId request
+    router.get('/getTransactionsByChannelId', (clientRequest: any, serverResponse: any) => {
+      if (this.initialized) {
+        return getTransactionsByChannelId(clientRequest, serverResponse, this.dataAccess);
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
+    this.express.use('/getTransactionsByChannelId', router);
 
     // Any other route returns error 404
     this.express.use((_clientRequest: any, serverResponse: any) => {
