@@ -109,7 +109,20 @@ describe('api/request-network', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByTopic(): Promise<any> {
-          return;
+          return {
+            meta: {
+              [TestData.actionRequestId]: [],
+              [TestData.actionRequestIdSecondRequest]: [],
+            },
+            result: {
+              transactions: {
+                [TestData.actionRequestId]: [{ data: JSON.stringify(TestData.action) }],
+                [TestData.actionRequestIdSecondRequest]: [
+                  { data: JSON.stringify(TestData.actionCreationSecondRequest) },
+                ],
+              },
+            },
+          };
         },
         async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
@@ -125,19 +138,8 @@ describe('api/request-network', () => {
             },
           };
         },
-        async getTransactionsByTopic(topic: string): Promise<any> {
-          let transactions: any[] = [];
-          if (topic === '0x627306090abab3a6e1400e9345bc60c78a8bef57') {
-            transactions = [
-              { data: JSON.stringify(TestData.action) },
-              { data: JSON.stringify(TestData.actionCreationSecondRequest) },
-            ];
-          }
-          return {
-            result: {
-              transactions,
-            },
-          };
+        async getTransactionsByTopic(): Promise<any> {
+          return;
         },
         async initialize(): Promise<any> {
           return;

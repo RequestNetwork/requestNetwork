@@ -809,8 +809,8 @@ describe('index', () => {
     });
   });
 
-  describe('getRequestsByTopics', () => {
-    it('can getRequestsByTopics', async () => {
+  describe('getRequestsByTopic', () => {
+    it('can getRequestsByTopic', async () => {
       const unsignedActionCreation = {
         name: Types.ACTION_NAME.CREATE,
         parameters: {
@@ -896,111 +896,49 @@ describe('index', () => {
       );
       const newRequestId3 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3);
 
-      const meta = {};
-      const listActions1: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+      const meta = {
+        dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
+      };
+      const listAllActions: Promise<
+        TransactionTypes.IReturnGetTransactionsByChannels
+      > = Promise.resolve({
         meta,
         result: {
-          transactions: [
-            {
-              data: JSON.stringify(actionCreate),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(actionAccept),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(rxReduce),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-          ],
-        },
-      });
-      const listActions2: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta,
-        result: {
-          transactions: [
-            {
-              data: JSON.stringify(actionCreate2),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(actionCancel2),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-          ],
-        },
-      });
-      const listActions3: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta,
-        result: {
-          transactions: [
-            {
-              data: JSON.stringify(actionCreate3),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-          ],
-        },
-      });
-      const listAllActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta,
-        result: {
-          transactions: [
-            {
-              data: JSON.stringify(actionCreate),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(actionAccept),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(rxReduce),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(actionCreate2),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(actionCancel2),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(actionCreate3),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-          ],
+          transactions: {
+            [requestId]: [
+              {
+                data: JSON.stringify(actionCreate),
+              },
+              {
+                data: JSON.stringify(actionAccept),
+              },
+              {
+                data: JSON.stringify(rxReduce),
+              },
+            ],
+            [newRequestId2]: [
+              {
+                data: JSON.stringify(actionCreate2),
+              },
+              {
+                data: JSON.stringify(actionCancel2),
+              },
+            ],
+            [newRequestId3]: [
+              {
+                data: JSON.stringify(actionCreate3),
+              },
+            ],
+          },
         },
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: (
-          topic: string,
-        ): Promise<TransactionTypes.IReturnGetTransactions> => {
-          return (
-            {
-              [requestId]: listActions1,
-              [newRequestId2]: listActions2,
-              [newRequestId3]: listActions3,
-            }[topic] ||
-            ({
-              meta: {},
-              result: { transactions: [] },
-            } as any)
-          );
+        getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+          return listAllActions;
         },
-        getTransactionsByTopic: (
-          topic: string,
-        ): Promise<TransactionTypes.IReturnGetTransactions> => {
-          return topic === 'fakeTopicForAll'
-            ? listAllActions
-            : ({
-                meta: {},
-                result: { transactions: [] },
-              } as any);
-        },
+        getTransactionsByChannelId: chai.spy(),
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -1040,46 +978,36 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const meta = {};
-      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+      const meta = {
+        dataAccessMeta: { [requestId]: [] },
+      };
+      const listActions: Promise<
+        TransactionTypes.IReturnGetTransactionsByChannels
+      > = Promise.resolve({
         meta,
         result: {
-          transactions: [
-            {
-              data: JSON.stringify(actionCreate),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: 'Not a json',
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-            {
-              data: JSON.stringify(acceptNotValid),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
-            },
-          ],
+          transactions: {
+            [requestId]: [
+              {
+                data: JSON.stringify(actionCreate),
+              },
+              {
+                data: 'Not a json',
+              },
+              {
+                data: JSON.stringify(acceptNotValid),
+              },
+            ],
+          },
         },
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: (
-          topic: string,
-        ): Promise<TransactionTypes.IReturnGetTransactions> => {
-          return {
-            [requestId]: listActions,
-          }[topic];
+        getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+          return listActions;
         },
-        getTransactionsByTopic: (
-          topic: string,
-        ): Promise<TransactionTypes.IReturnGetTransactions> => {
-          return topic === 'fakeTopicForAll'
-            ? listActions
-            : ({
-                meta: {},
-                result: { transactions: [] },
-              } as any);
-        },
+        getTransactionsByChannelId: chai.spy(),
+        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(

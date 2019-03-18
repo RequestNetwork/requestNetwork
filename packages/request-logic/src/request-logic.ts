@@ -8,15 +8,6 @@ import {
 import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
 
-import Action from './action';
-
-// Temporary object to compute requests from transactions
-interface IActionRequestIdTransactionPosition {
-  action: Types.IAction;
-  requestId: Types.RequestId;
-  position: number;
-}
-
 /**
  * Implementation of Request Logic
  */
@@ -285,75 +276,62 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns all the requests indexed by topic
    */
   public async getRequestsByTopic(topic: string): Promise<Types.IReturnGetRequestsByTopic> {
-    const getTxResult = await this.transactionManager.getTransactionsByTopic(topic);
-    const transactions = getTxResult.result.transactions;
-    const transactionManagerMeta = getTxResult.meta.dataAccessMeta;
+    const getChannelsResult = await this.transactionManager.getChannelsByTopic(topic);
+    const transactionsByChannel = getChannelsResult.result.transactions;
+    const transactionManagerMeta = getChannelsResult.meta.dataAccessMeta;
 
-    // Parses all the actions from the transactions but keep the transaction position to get the meta later
-    const actionsAndTxPositions: IActionRequestIdTransactionPosition[] = Utils.unique(transactions)
-      .uniqueItems.map((transaction: TransactionTypes.ITransaction, position: number) => {
-        // We ignore the transaction.data that cannot be parsed
-        try {
-          const action = JSON.parse(transaction.data);
-          return { action, requestId: Action.getRequestId(action), position };
-        } catch (e) {
-          return { action: null, requestId: '', position };
-        }
-      })
-      .filter((elem: any) => elem.action !== null);
-
-    // Group the actions by requestId
-    const actionsAndTxPositionsGroupByRequestId: {
-      [key: string]: IActionRequestIdTransactionPosition[];
-    } = actionsAndTxPositions.reduce(
-      (
-        result: {
-          [key: string]: IActionRequestIdTransactionPosition[];
-        },
-        actionAndTxPosition: IActionRequestIdTransactionPosition,
-      ) => {
-        result[actionAndTxPosition.requestId] = (
-          result[actionAndTxPosition.requestId] || []
-        ).concat([actionAndTxPosition]);
-        return result;
-      },
-      {},
-    );
-
-    // For every group of actions...
-    const allRequestAndMeta = Object.values(actionsAndTxPositionsGroupByRequestId).map(
-      actionsAndTxPositionsOfARequest => {
-        // ...creates the request from these actions and registers the ignored transactions
-        return actionsAndTxPositionsOfARequest.reduce(
-          (requestStateAndMeta: any, actionAndPosition: any) => {
+    // Gets all the requests from the transactions
+    const allRequestAndMeta = Object.keys(getChannelsResult.result.transactions).map(channelId => {
+      // Parses and removes corrupted or duplicated transactions
+      const transactionsWithoutDuplicates = Utils.unique(
+        transactionsByChannel[channelId]
+          .map((t: any) => {
+            // We ignore the transaction.data that cannot be parsed
             try {
-              // apply the current action to the request
-              requestStateAndMeta.request = RequestLogicCore.applyActionToRequest(
-                requestStateAndMeta.request,
-                actionAndPosition.action,
-                this.advancedLogic,
-              );
+              return JSON.parse(t.data);
             } catch (e) {
-              // if an error occurs during the apply we ignore the action and declare the ignored transaction
-              requestStateAndMeta.ignoredTransactions.push(
-                transactions[actionAndPosition.position],
-              );
+              return;
             }
-            return requestStateAndMeta;
-          },
-          // request is null, because the first action must be a creation (no state expected)
-          { request: null, ignoredTransactions: [] },
-        );
-      },
-    );
+          })
+          .filter((elem: any) => elem !== undefined),
+      );
+      // Keeps the transaction ignored
+      const ignoredTransactions = transactionsWithoutDuplicates.duplicates;
+
+      // second parameter is null, because the first action must be a creation (no state expected)
+      const request = transactionsWithoutDuplicates.uniqueItems.reduce(
+        (requestState: any, action: any) => {
+          try {
+            return RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic);
+          } catch (e) {
+            // if an error occurs during the apply we ignore the action
+            ignoredTransactions.push(action);
+            return requestState;
+          }
+        },
+        null,
+      );
+
+      return {
+        ignoredTransactions,
+        request,
+        transactionManagerMeta: transactionManagerMeta[channelId],
+      };
+    });
 
     // Merge all the requests and meta in one object
     return allRequestAndMeta.reduce(
       (finalResult: Types.IReturnGetRequestsByTopic, requestAndMeta: any) => {
         if (requestAndMeta.request) {
           finalResult.result.requests.push(requestAndMeta.request);
+
           // workaround to quiet the error "finalResult.meta.ignoredTransactions can be undefined" (but defined in the initialization value of the accumulator)
           (finalResult.meta.ignoredTransactions || []).push(requestAndMeta.ignoredTransactions);
+
+          // add the transactionManagerMeta
+          (finalResult.meta.transactionManagerMeta || []).push(
+            requestAndMeta.transactionManagerMeta,
+          );
         }
 
         return finalResult;
@@ -361,7 +339,7 @@ export default class RequestLogic implements Types.IRequestLogic {
       {
         meta: {
           ignoredTransactions: [],
-          transactionManagerMeta,
+          transactionManagerMeta: [],
         },
         result: { requests: [] },
       },
