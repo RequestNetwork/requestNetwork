@@ -10,6 +10,9 @@ import Request from '../../src/api/request';
 import * as TestData from '../data-test';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
+  async getChannelsByTopic(): Promise<any> {
+    return;
+  },
   async getTransactionsByChannelId(): Promise<any> {
     return;
   },
@@ -37,6 +40,9 @@ describe('api/request-network', () => {
   describe('createRequest', () => {
     it('cannot createRequest() with extensionsData', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
         async getTransactionsByChannelId(): Promise<any> {
           return;
         },
@@ -73,6 +79,9 @@ describe('api/request-network', () => {
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
         async getTransactionsByChannelId(): Promise<any> {
           return {
             result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
@@ -99,6 +108,9 @@ describe('api/request-network', () => {
   describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
         async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
           if (channelId === TestData.actionRequestId) {

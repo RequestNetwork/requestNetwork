@@ -61,14 +61,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * Gets the transactions for a topic from the node through HTTP.
    *
    * @param topic The topic to search for
+   * @param timestampBoundaries filter timestamp boundaries
    */
   public async getTransactionsByTopic(
     topic: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
     const { data } = await axios.get(
       '/getTransactionsByTopic',
       Object.assign(this.axiosConfig, {
-        params: { topic },
+        params: { topic, timestampBoundaries },
       }),
     );
     return data;
@@ -78,14 +80,35 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * Gets the transactions for a channel from the node through HTTP.
    *
    * @param channelId The channel id to search for
+   * @param timestampBoundaries filter timestamp boundaries
    */
   public async getTransactionsByChannelId(
     channelId: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
     const { data } = await axios.get(
       '/getTransactionsByChannelId',
       Object.assign(this.axiosConfig, {
-        params: { channelId },
+        params: { channelId, timestampBoundaries },
+      }),
+    );
+    return data;
+  }
+
+  /**
+   * Gets all the transactions of channel indexed by topic from the node through HTTP.
+   *
+   * @param topic topic to search for
+   * @param updatedBetween filter timestamp boundaries
+   */
+  public async getChannelsByTopic(
+    topic: string,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    const { data } = await axios.get(
+      '/getChannelsByTopic',
+      Object.assign(this.axiosConfig, {
+        params: { topic, updatedBetween },
       }),
     );
     return data;

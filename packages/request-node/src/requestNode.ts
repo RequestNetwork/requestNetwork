@@ -5,6 +5,7 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
 import { getCustomHeaders, getMnemonic } from './config';
+import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import getTransactionsByTopic from './request/getTransactionsByTopic';
 import persistTransaction from './request/persistTransaction';
@@ -137,6 +138,16 @@ class RequestNode {
       }
     });
     this.express.use('/getTransactionsByChannelId', router);
+
+    // Route for getChannelsByTopic request
+    router.get('/getChannelsByTopic', (clientRequest: any, serverResponse: any) => {
+      if (this.initialized) {
+        return getChannelsByTopic(clientRequest, serverResponse, this.dataAccess);
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
+    this.express.use('/getChannelsByTopic', router);
 
     // Any other route returns error 404
     this.express.use((_clientRequest: any, serverResponse: any) => {

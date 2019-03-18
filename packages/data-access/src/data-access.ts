@@ -272,6 +272,77 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
+   * Function to get a list of channels indexed by topic
+   *
+   * @param topic topic to retrieve the transaction from
+   * @param updatedBetween filter the channels that have received new data within the time boundaries
+   *
+   * @returns list of channels indexed by topic
+   */
+  public async getChannelsByTopic(
+    topic: string,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
+
+    // Gets the list of locationStorage grouped by channel id for the topic given
+    const storageLocationByChannelId = this.locationByTopic.getStorageLocationFromTopicGroupedByChannelId(
+      topic,
+    );
+
+    let channelIds = Object.keys(storageLocationByChannelId);
+
+    // Filters the channels to only keep the modified ones during the time boundaries
+    if (updatedBetween) {
+      channelIds = channelIds.filter(channelId => {
+        return storageLocationByChannelId[channelId].find(dataId =>
+          this.timestampByLocation.isDataInBoundaries(dataId, updatedBetween),
+        );
+      });
+    }
+
+    // Gets the transactions per channel id
+    const transactionsAndMeta = await Promise.all(
+      channelIds.map(channelId =>
+        this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
+          channelId,
+          transactionsWithMeta,
+        })),
+      ),
+    );
+
+    // Gather all the transaction in one object
+    return transactionsAndMeta.reduce(
+      (finalResult: DataAccessTypes.IReturnGetChannelsByTopic, channelIdAndTransactions: any) => {
+        const id = channelIdAndTransactions.channelId;
+
+        // Adds the storage location of the channel's data
+        finalResult.meta.transactionsStorageLocation[id] =
+          channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
+
+        // Adds the meta of the channel
+        finalResult.meta.storageMeta[id] =
+          channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
+
+        // Adds the transaction of the channel
+        finalResult.result.transactions[id] =
+          channelIdAndTransactions.transactionsWithMeta.result.transactions;
+
+        return finalResult;
+      },
+      {
+        meta: {
+          storageMeta: {},
+          transactionsStorageLocation: {},
+        },
+        result: { transactions: {} },
+      },
+    );
+  }
+
+  /**
    * Function to synchronize with the new dataIds on the storage
    */
   public async synchronizeNewDataIds(): Promise<void> {

@@ -13,6 +13,10 @@ export interface ITransactionManager {
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,
   ) => Promise<IReturnGetTransactions>;
+  getChannelsByTopic: (
+    topic: string,
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactionsByChannels>;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -41,6 +45,17 @@ export interface IReturnGetTransactions {
   };
   /** result of the execution */
   result: { transactions: ITransaction[] };
+}
+
+/** return interface for getTransactionsByTopic and getTransactionsByChannelId  */
+export interface IReturnGetTransactionsByChannels {
+  /** meta information */
+  meta: {
+    /** meta-data from the layer below */
+    dataAccessMeta?: any;
+  };
+  /** result of the execution */
+  result: { transactions: { [key: string]: ITransaction[] } };
 }
 
 /** Transaction */

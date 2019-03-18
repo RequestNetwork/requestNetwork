@@ -29,7 +29,10 @@ export default async function getTransactionsByTopic(
     serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
-      transactions = await dataAccess.getTransactionsByTopic(clientRequest.query.topic);
+      transactions = await dataAccess.getTransactionsByTopic(
+        clientRequest.query.topic,
+        clientRequest.query.timestampBoundaries,
+      );
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {

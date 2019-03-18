@@ -4,13 +4,13 @@ import * as httpStatus from 'http-status-codes';
 const REQUEST_TIMEOUT: number = 600000;
 
 /**
- * Handles getTransactionsByChannelId of data-access layer.
+ * Handles getChannelsByTopic of data-access layer.
  *
  * @param clientRequest http client request object
  * @param serverResponse http server response object
  * @param dataAccess data access layer
  */
-export default async function getTransactionsByChannelId(
+export default async function getChannelsByTopic(
   clientRequest: any,
   serverResponse: any,
   dataAccess: DataAccess,
@@ -24,14 +24,14 @@ export default async function getTransactionsByChannelId(
   clientRequest.setTimeout(REQUEST_TIMEOUT);
 
   // Verifies if data sent from get request are correct
-  // clientRequest.query is expected to contain the channelId of the transactions to search for
-  if (!clientRequest.query || !clientRequest.query.channelId) {
+  // clientRequest.query is expected to contain the topic of the transactions to search for
+  if (!clientRequest.query || !clientRequest.query.topic) {
     serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
-      transactions = await dataAccess.getTransactionsByChannelId(
-        clientRequest.query.channelId,
-        clientRequest.query.timestampBoundaries,
+      transactions = await dataAccess.getChannelsByTopic(
+        clientRequest.query.topic,
+        clientRequest.query.updatedBetween,
       );
 
       serverResponse.status(httpStatus.OK).send(transactions);

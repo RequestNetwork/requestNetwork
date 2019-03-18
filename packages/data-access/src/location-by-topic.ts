@@ -1,12 +1,6 @@
 import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-// Interface of the object to store the storageLocation indexed by channel id
-// We use a Set data structure because dataIds are unique
-interface IStorageLocationByChannelId {
-  [key: string]: Set<string>;
-}
-
 // Interface of the object to store the channel ids indexed by topic
 interface IChannelIdByTopics {
   [key: string]: Set<string>;
@@ -20,7 +14,7 @@ export default class LocalLocationIndex {
    * Storage location by channel id
    * maps channelId => [storageLocation]
    */
-  private storageLocationByChannelId: IStorageLocationByChannelId = {};
+  private storageLocationByChannelId: DataAccessTypes.IStorageLocationByChannelId = {};
 
   /**
    * Channel Ids by topic
@@ -58,11 +52,11 @@ export default class LocalLocationIndex {
   }
 
   /**
-   * Function to get location from a topic
+   * Get locations from a topic
    *
    * @param topic topic to retrieve the dataId
    *
-   * @return list of the location connected to the topic
+   * @return list of the locations connected to the topic
    */
   public getStorageLocationFromTopic(topic: string): string[] {
     return Utils.unique(
@@ -70,6 +64,23 @@ export default class LocalLocationIndex {
         this.getChannelIdsFromTopic(topic).map(id => this.getStorageLocationsFromChannelId(id)),
       ),
     ).uniqueItems;
+  }
+
+  /**
+   * Get locations from a topic grouped by channel id
+   *
+   * @param topic topic to retrieve the storage location from
+   *
+   * @return list of the locations connected to the topic
+   */
+  public getStorageLocationFromTopicGroupedByChannelId(topic: string): { [key: string]: string[] } {
+    return this.getChannelIdsFromTopic(topic).reduce(
+      (result: { [key: string]: string[] }, channelId: string) => {
+        result[channelId] = Array.from(this.getStorageLocationsFromChannelId(channelId));
+        return result;
+      },
+      {},
+    );
   }
 
   /**

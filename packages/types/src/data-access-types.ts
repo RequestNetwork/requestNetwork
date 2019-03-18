@@ -14,6 +14,10 @@ export interface IDataAccess {
     topic: string,
     timestampBoundaries?: ITimestampBoundaries,
   ) => Promise<IReturnGetTransactions>;
+  getChannelsByTopic: (
+    topic: string,
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetChannelsByTopic>;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -50,6 +54,21 @@ export interface IReturnGetTransactions {
   result: { transactions: ITransaction[] };
 }
 
+/** return interface for getChannelsByTopic */
+export interface IReturnGetChannelsByTopic {
+  /** meta information */
+  meta: {
+    /** location of the transactions (follow the position of the result.transactions) */
+    transactionsStorageLocation: {
+      [key: string]: string[];
+    };
+    /** meta-data from the layer below */
+    storageMeta?: any;
+  };
+  /** result of the execution: the transactions grouped by channel id */
+  result: { transactions: ITransactionsByChannelIds };
+}
+
 /** Block: main data structure of data-access, contains transactions */
 export interface IBlock {
   header: IBlockHeader;
@@ -61,6 +80,16 @@ export interface IBlockHeader {
   channelIds: IChannelIds;
   topics: ITopics;
   version: string;
+}
+
+/** Transactions group by channel ids */
+export interface ITransactionsByChannelIds {
+  [key: string]: ITransaction[];
+}
+
+/** Transactions Storage location group by channel ids */
+export interface IStorageLocationByChannelId {
+  [key: string]: Set<string>;
 }
 
 /** Channel ids, to connect the transactions to a channel */

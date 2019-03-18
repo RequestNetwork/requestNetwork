@@ -43,6 +43,7 @@ const fakeMetaTransactionManager = {
   result: { topics: [fakeTxHash] },
 };
 const fakeTransactionManager: TransactionTypes.ITransactionManager = {
+  getChannelsByTopic: chai.spy(),
   getTransactionsByChannelId: chai.spy(),
   getTransactionsByTopic: chai.spy(),
   persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
@@ -382,6 +383,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
         getTransactionsByTopic: chai.spy(),
@@ -519,6 +521,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
         getTransactionsByTopic: chai.spy(),
@@ -657,6 +660,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
         getTransactionsByTopic: chai.spy(),
@@ -739,6 +743,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
         getTransactionsByTopic: chai.spy(),
@@ -782,6 +787,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
         getTransactionsByTopic: chai.spy(),
@@ -969,6 +975,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (
           topic: string,
         ): Promise<TransactionTypes.IReturnGetTransactions> => {
@@ -1055,6 +1062,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (
           topic: string,
         ): Promise<TransactionTypes.IReturnGetTransactions> => {
