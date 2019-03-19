@@ -15,6 +15,7 @@ import {
   Signature as SignatureTypes,
   Storage as StorageTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
@@ -148,5 +149,79 @@ describe('Request system', () => {
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
     assert.exists(request);
+  });
+
+  it('can create requests and get them fromIdentity and with time boundaries', async () => {
+    // create request
+    const request1CreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.BTC,
+      expectedAmount: '100000000000',
+      payee: signerIdentity,
+      payer: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+      },
+      timestamp: Utils.getCurrentTimestampInSecond(),
+    };
+    // create a unique topic just to not have collisions in tests
+    const topics1 = [Utils.crypto.normalizeKeccak256Hash(request1CreationHash)];
+    const resultCreation1 = await requestLogic.createRequest(
+      request1CreationHash,
+      signerIdentity,
+      topics1,
+    );
+    const requestId1 = resultCreation1.result.requestId;
+
+    // create request 2 must be ignored
+    const request2CreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.BTC,
+      expectedAmount: '10',
+      payee: signerIdentity,
+      payer: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+      },
+      timestamp: Utils.getCurrentTimestampInSecond(),
+    };
+    const resultCreation2 = await requestLogic.createRequest(
+      request2CreationHash,
+      signerIdentity,
+      topics1,
+    );
+    const requestId2 = resultCreation2.result.requestId;
+
+    // reduce request
+    const request1ReduceHash: RequestLogicTypes.IReduceExpectedAmountParameters = {
+      deltaAmount: '10000000000',
+      requestId: requestId1,
+    };
+    const resultReduce1 = await requestLogic.reduceExpectedAmountRequest(
+      request1ReduceHash,
+      signerIdentity,
+    );
+    const timestampReduce1 =
+      resultReduce1.meta.transactionManagerMeta.dataAccessMeta.storageMeta.timestamp;
+
+    // cancel request
+    const request1CancelHash: RequestLogicTypes.ICancelParameters = {
+      requestId: requestId1,
+    };
+    await requestLogic.cancelRequest(request1CancelHash, signerIdentity);
+
+    const fromTopic = await requestLogic.getRequestsByTopic(topics1[0]);
+    assert.equal(fromTopic.result.requests.length, 2);
+    let request1 = fromTopic.result.requests[0];
+    const request2 = fromTopic.result.requests[1];
+    assert.equal(request1.requestId, requestId1);
+    assert.equal(request2.requestId, requestId2);
+
+    const fromTopicSecondSearch = await requestLogic.getRequestsByTopic(topics1[0], {
+      from: timestampReduce1,
+    });
+    assert.equal(fromTopicSecondSearch.result.requests.length, 1);
+    request1 = fromTopicSecondSearch.result.requests[0];
+    assert.equal(request1.requestId, requestId1);
+    assert.equal(request1.state, RequestLogicTypes.STATE.CANCELED);
+    assert.equal(request1.expectedAmount, '90000000000');
   });
 });

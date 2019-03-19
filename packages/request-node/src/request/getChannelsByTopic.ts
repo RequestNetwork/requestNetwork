@@ -29,10 +29,12 @@ export default async function getChannelsByTopic(
     serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
-      transactions = await dataAccess.getChannelsByTopic(
-        clientRequest.query.topic,
-        clientRequest.query.updatedBetween,
-      );
+      // parse updatedBetween because in query everything is string
+      let updatedBetween: { from: number; to: number } | undefined;
+      if (clientRequest.query.updatedBetween) {
+        updatedBetween = JSON.parse(clientRequest.query.updatedBetween);
+      }
+      transactions = await dataAccess.getChannelsByTopic(clientRequest.query.topic, updatedBetween);
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {

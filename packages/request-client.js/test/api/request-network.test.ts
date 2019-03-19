@@ -153,6 +153,68 @@ describe('api/request-network', () => {
       const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
 
       expect(requests.length).to.be.equal(2);
+      expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
+      expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
+    });
+    it('cannot get request with identity type not supported', async () => {
+      const requestnetwork = new RequestNetwork(mockDataAccess);
+
+      await expect(
+        requestnetwork.fromIdentity({ type: 'not supported', value: 'whatever' } as any),
+      ).to.eventually.be.rejectedWith('not supported is not supported');
+    });
+  });
+
+  describe('fromTopic', () => {
+    it('can get requests with payment network fromTopic', async () => {
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return {
+            meta: {
+              [TestData.actionRequestId]: [],
+              [TestData.actionRequestIdSecondRequest]: [],
+            },
+            result: {
+              transactions: {
+                [TestData.actionRequestId]: [{ data: JSON.stringify(TestData.action) }],
+                [TestData.actionRequestIdSecondRequest]: [
+                  { data: JSON.stringify(TestData.actionCreationSecondRequest) },
+                ],
+              },
+            },
+          };
+        },
+        async getTransactionsByChannelId(channelId: string): Promise<any> {
+          let transactions: any[] = [];
+          if (channelId === TestData.actionRequestId) {
+            transactions = [{ data: JSON.stringify(TestData.action) }];
+          }
+          if (channelId === TestData.actionRequestIdSecondRequest) {
+            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
+          }
+          return {
+            result: {
+              transactions,
+            },
+          };
+        },
+        async getTransactionsByTopic(): Promise<any> {
+          return;
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
+
+      expect(requests.length).to.be.equal(2);
+      expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
+      expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
     });
   });
 });

@@ -139,14 +139,30 @@ export default class RequestNetwork {
    * @param identity
    * @returns the Requests
    */
-  public async fromIdentity(identity: IdentityTypes.IIdentity): Promise<Request[]> {
+  public async fromIdentity(
+    identity: IdentityTypes.IIdentity,
+    updatedBetween?: Types.ITimestampBoundaries,
+  ): Promise<Request[]> {
     if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
       throw new Error(`${identity.type} is not supported`);
     }
+    return this.fromTopic(identity.value, updatedBetween);
+  }
 
+  /**
+   * Create an array of Request instances from a topic
+   *
+   * @param topic
+   * @returns the Requests
+   */
+  public async fromTopic(
+    topic: string,
+    updatedBetween?: Types.ITimestampBoundaries,
+  ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
-      identity.value,
+      topic,
+      updatedBetween,
     );
     // From the requests of the Request-logic creates the request objects and gets the payment networks
     const requests = requestsAndMeta.result.requests.map(

@@ -7,6 +7,12 @@ import {
 // Export all the types to avoid the users to import them beside the present module
 export * from '@requestnetwork/types';
 
+/** Restrict research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
+}
+
 /** Interface request data */
 export interface IRequestData extends RequestLogicTypes.IRequest {
   meta: RequestLogicTypes.IReturnMeta | null;
@@ -68,6 +74,5 @@ export enum EVENTS_NAMES {
 /** List of payment networks available (abstract the extensions type) */
 export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-  TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID
-    .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+  TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
 }

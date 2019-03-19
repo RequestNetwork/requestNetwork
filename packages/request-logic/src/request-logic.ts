@@ -275,8 +275,14 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @param topic
    * @returns all the requests indexed by topic
    */
-  public async getRequestsByTopic(topic: string): Promise<Types.IReturnGetRequestsByTopic> {
-    const getChannelsResult = await this.transactionManager.getChannelsByTopic(topic);
+  public async getRequestsByTopic(
+    topic: string,
+    updatedBetween?: Types.ITimestampBoundaries,
+  ): Promise<Types.IReturnGetRequestsByTopic> {
+    const getChannelsResult = await this.transactionManager.getChannelsByTopic(
+      topic,
+      updatedBetween,
+    );
     const transactionsByChannel = getChannelsResult.result.transactions;
     const transactionManagerMeta = getChannelsResult.meta.dataAccessMeta;
 

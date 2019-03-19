@@ -32,7 +32,16 @@ export interface IRequestLogic {
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
   getRequestFromId: (topic: string) => Promise<IReturnGetRequestFromId>;
-  getRequestsByTopic: (topic: string) => Promise<IReturnGetRequestsByTopic>;
+  getRequestsByTopic: (
+    topic: string,
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetRequestsByTopic>;
+}
+
+/** Restrict research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** return of IRequestLogic functions */

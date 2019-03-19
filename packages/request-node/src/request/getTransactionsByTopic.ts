@@ -29,9 +29,15 @@ export default async function getTransactionsByTopic(
     serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
+      // parse updatedBetween because in query everything is string
+      let timestampBoundaries: { from: number; to: number } | undefined;
+      if (clientRequest.query.timestampBoundaries) {
+        timestampBoundaries = JSON.parse(clientRequest.query.timestampBoundaries);
+      }
+
       transactions = await dataAccess.getTransactionsByTopic(
         clientRequest.query.topic,
-        clientRequest.query.timestampBoundaries,
+        timestampBoundaries,
       );
 
       serverResponse.status(httpStatus.OK).send(transactions);

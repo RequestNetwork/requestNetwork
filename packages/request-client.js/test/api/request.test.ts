@@ -8,10 +8,12 @@ import 'mocha';
 import Request from '../../src/api/request';
 import * as Types from '../../src/types';
 
+const chaiAsPromised = require('chai-as-promised');
 const chai = require('chai');
 const spies = require('chai-spies');
 const expect = chai.expect;
 chai.use(spies);
+chai.use(chaiAsPromised);
 const sandbox = chai.spy.sandbox();
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
