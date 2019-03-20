@@ -17,8 +17,8 @@ const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 const data = '{ what: "ever", it: "is,", this: "must", work: true }';
 const data2 = '{or: "can", be:false}';
 
-const tx = { data };
-const tx2 = { data: data2 };
+const tx: DataAccessTypes.IConfirmedTransaction = { transaction: { data }, timestamp: 1 };
+const tx2: DataAccessTypes.IConfirmedTransaction = { transaction: { data: data2 }, timestamp: 1 };
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = {
   meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },

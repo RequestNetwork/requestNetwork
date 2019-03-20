@@ -51,7 +51,7 @@ export interface IReturnGetTransactions {
     storageMeta?: any;
   };
   /** result of the execution */
-  result: { transactions: ITransaction[] };
+  result: { transactions: IConfirmedTransaction[] };
 }
 
 /** return interface for getChannelsByTopic */
@@ -84,7 +84,7 @@ export interface IBlockHeader {
 
 /** Transactions group by channel ids */
 export interface ITransactionsByChannelIds {
-  [key: string]: ITransaction[];
+  [key: string]: IConfirmedTransaction[];
 }
 
 /** Transactions Storage location group by channel ids */
@@ -105,6 +105,12 @@ export interface ITopics {
 /** Transaction */
 export interface ITransaction {
   data: ITransactionData;
+}
+
+/** Transaction confirmed */
+export interface IConfirmedTransaction {
+  transaction: ITransaction;
+  timestamp: number;
 }
 
 /** Transaction data */

@@ -16,4 +16,5 @@ export default {
   isString: utils.isString,
   signature,
   unique: utils.unique,
+  uniqueByProperty: utils.uniqueByProperty,
 };

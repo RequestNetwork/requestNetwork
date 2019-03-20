@@ -110,12 +110,14 @@ function applyActionToExtension(
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
+  timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
   return BitcoinAddressBased.applyActionToExtension(
     extensionsState,
     extensionAction,
     requestState,
     actionSigner,
+    timestamp,
   );
 }
 

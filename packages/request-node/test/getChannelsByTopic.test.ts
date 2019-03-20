@@ -54,7 +54,9 @@ describe('getChannelsByTopic', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions[channelId]).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[channelId][0]).to.deep.equal(transactionData);
+    expect(serverResponse.body.result.transactions[channelId][0].transaction).to.deep.equal(
+      transactionData,
+    );
 
     await request(server)
       .post('/persistTransaction')
@@ -72,7 +74,7 @@ describe('getChannelsByTopic', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
     expect(serverResponse.body.result.transactions[anotherChannelId]).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[anotherChannelId][0]).to.deep.equal(
+    expect(serverResponse.body.result.transactions[anotherChannelId][0].transaction).to.deep.equal(
       otherTransactionData,
     );
 

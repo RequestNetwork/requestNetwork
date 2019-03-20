@@ -79,6 +79,12 @@ export interface IAction {
   signature: Signature.ISignature;
 }
 
+/** Interface of a request logic action confirmed */
+export interface IConfirmedAction {
+  action: IAction;
+  timestamp: number;
+}
+
 /** Interface of a request logic unsigned action */
 export interface IUnsignedAction {
   name: ACTION_NAME;
@@ -196,6 +202,7 @@ export interface IEvent {
   /** the information given in the event */
   parameters?: any;
   actionSigner: Identity.IIdentity;
+  timestamp: number;
 }
 
 /** Enum of name possible in a action */

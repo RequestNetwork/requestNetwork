@@ -6,6 +6,8 @@ import {
   RequestLogic as Types,
 } from '@requestnetwork/types';
 
+export const arbitraryTimestamp = 1544426030;
+
 // ---------------------------------------------------------------------
 // BTC address
 export const paymentBTCAddress = '16uyvigo8mMAfE3Ctr5Rwgab1aWNDPDMZD';
@@ -58,6 +60,7 @@ export const extensionStateWithPaymentAndRefund = {
           paymentAddress: paymentBTCAddress,
           refundAddress: refundBTCAddress,
         },
+        timestamp: arbitraryTimestamp,
       },
     ],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
@@ -75,6 +78,7 @@ export const extensionStateCreatedEmpty = {
       {
         name: 'create',
         parameters: {},
+        timestamp: arbitraryTimestamp,
       },
     ],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
@@ -104,6 +108,7 @@ export const requestStateNoExtensions: Types.IRequest = {
         extensionsDataLength: 0,
         isSignedRequest: false,
       },
+      timestamp: arbitraryTimestamp,
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
@@ -141,6 +146,7 @@ export const requestStateCreatedWithPaymentAndRefund: Types.IRequest = {
         extensionsDataLength: 1,
         isSignedRequest: false,
       },
+      timestamp: arbitraryTimestamp,
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
@@ -178,6 +184,7 @@ export const requestStateCreatedEmpty: Types.IRequest = {
         extensionsDataLength: 1,
         isSignedRequest: false,
       },
+      timestamp: arbitraryTimestamp,
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,

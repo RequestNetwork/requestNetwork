@@ -50,7 +50,7 @@ describe('getTransactionsByChannelId', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0]).to.deep.equal(transactionData);
+    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(transactionData);
 
     await request(server)
       .post('/persistTransaction')
@@ -68,7 +68,9 @@ describe('getTransactionsByChannelId', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0]).to.deep.equal(otherTransactionData);
+    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(
+      otherTransactionData,
+    );
   });
 
   it('responds with no transaction to requests with a non-existent channel id', async () => {

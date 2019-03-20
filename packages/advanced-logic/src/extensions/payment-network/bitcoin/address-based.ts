@@ -101,6 +101,7 @@ function applyActionToExtension(
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
+  timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
   if (requestState.currency !== RequestLogicTypes.CURRENCY.BTC) {
     throw Error(`This extension can be used only on BTC request`);
@@ -124,7 +125,7 @@ function applyActionToExtension(
       throw Error(`This extension have already been created`);
     }
 
-    copiedExtensionState[extensionAction.id] = applyCreation(btc, extensionAction);
+    copiedExtensionState[extensionAction.id] = applyCreation(btc, extensionAction, timestamp);
 
     return copiedExtensionState;
   }
@@ -141,6 +142,7 @@ function applyActionToExtension(
       extensionAction,
       requestState,
       actionSigner,
+      timestamp,
     );
 
     return copiedExtensionState;
@@ -153,6 +155,7 @@ function applyActionToExtension(
       extensionAction,
       requestState,
       actionSigner,
+      timestamp,
     );
 
     return copiedExtensionState;
@@ -170,6 +173,7 @@ function applyActionToExtension(
 function applyCreation(
   btc: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased,
   extensionAction: ExtensionTypes.IAction,
+  timestamp: number,
 ): ExtensionTypes.IState {
   if (
     extensionAction.parameters.paymentAddress &&
@@ -191,6 +195,7 @@ function applyCreation(
           paymentAddress: extensionAction.parameters.paymentAddress,
           refundAddress: extensionAction.parameters.refundAddress,
         },
+        timestamp,
       },
     ],
     id: extensionAction.id,
@@ -218,6 +223,7 @@ function applyAddPaymentAddress(
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
+  timestamp: number,
 ): ExtensionTypes.IState {
   if (
     extensionAction.parameters.paymentAddress &&
@@ -243,6 +249,7 @@ function applyAddPaymentAddress(
   copiedExtensionState.events.push({
     name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
     parameters: { paymentAddress: extensionAction.parameters.paymentAddress },
+    timestamp,
   });
 
   return copiedExtensionState;
@@ -263,6 +270,7 @@ function applyAddRefundAddress(
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
+  timestamp: number,
 ): ExtensionTypes.IState {
   if (
     extensionAction.parameters.refundAddress &&
@@ -288,6 +296,7 @@ function applyAddRefundAddress(
   copiedExtensionState.events.push({
     name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
     parameters: { refundAddress: extensionAction.parameters.refundAddress },
+    timestamp,
   });
 
   return copiedExtensionState;

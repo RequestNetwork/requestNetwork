@@ -129,6 +129,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
         actionReduceAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -170,6 +171,7 @@ describe('actions/reduceExpectedAmount', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -186,6 +188,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('signer must be the payee');
@@ -203,6 +206,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('signer must be the payee');
@@ -226,6 +230,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('requestId must be given');
@@ -249,6 +254,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('deltaAmount must be given');
@@ -273,6 +279,7 @@ describe('actions/reduceExpectedAmount', () => {
               extensionsDataLength: 0,
               isSignedRequest: false,
             },
+            timestamp: 1,
           },
         ],
         expectedAmount: arbitraryExpectedAmount,
@@ -303,7 +310,7 @@ describe('actions/reduceExpectedAmount', () => {
         },
       };
       expect(() => {
-        ReduceExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer);
+        ReduceExpectedAmountAction.applyActionToRequest(action, 2, requestContextNoPayer);
       }).to.throw('the request must have a payee');
     });
 
@@ -320,6 +327,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
+          2,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         );
       }).to.throw('the request must not be canceled');
@@ -337,6 +345,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
         actionReduceAmount,
+        2,
         Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
@@ -378,6 +387,7 @@ describe('actions/reduceExpectedAmount', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -395,6 +405,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
         actionReduceAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -438,6 +449,7 @@ describe('actions/reduceExpectedAmount', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -455,6 +467,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
         actionReduceAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -498,6 +511,7 @@ describe('actions/reduceExpectedAmount', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
     it('can reduce expected amount without extensionsData and extensionsData before', async () => {
@@ -512,6 +526,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
         actionReduceAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -555,6 +570,7 @@ describe('actions/reduceExpectedAmount', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -578,6 +594,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('deltaAmount must be a string representing a positive integer');
@@ -603,6 +620,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('deltaAmount must be a string representing a positive integer');
@@ -627,6 +645,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('deltaAmount must be a string representing a positive integer');
@@ -644,6 +663,7 @@ describe('actions/reduceExpectedAmount', () => {
 
       const request = ReduceExpectedAmountAction.applyActionToRequest(
         actionReduceAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -683,6 +703,7 @@ describe('actions/reduceExpectedAmount', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: TestData.arbitraryExpectedAmount },
+        timestamp: 2,
       });
     });
 
@@ -698,6 +719,7 @@ describe('actions/reduceExpectedAmount', () => {
       expect(() => {
         ReduceExpectedAmountAction.applyActionToRequest(
           actionReduceAmount,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }).to.throw('result of reduce is not valid');

@@ -10,6 +10,7 @@ export default {
   getCurrentTimestampInSecond,
   isString,
   unique,
+  uniqueByProperty,
 };
 
 const MILLISECOND_IN_SECOND = 1000;
@@ -61,7 +62,7 @@ function deepSort(nestedObject: any): any {
 }
 
 /**
- * Function to separate the duplicated object from an array
+ * Separates the duplicated object from an array
  * Two object are assumed identical if their normalized Keccak256 hashes are equal
  * Normalize here is a lowed case JSON stringify of the properties alphabetical sorted
  *
@@ -77,7 +78,39 @@ function unique(array: any[]): { uniqueItems: any[]; duplicates: any[] } {
       const hash = crypto.normalizeKeccak256Hash(element);
 
       if (accumulator.uniqueItemsHashes.includes(hash)) {
-        // if already included, adds it to the duplicates array
+        // if already included, adds it to the array of duplicates
+        accumulator.duplicates.push(element);
+      } else {
+        // if not already included, includes it and reports the hash
+        accumulator.uniqueItems.push(element);
+        accumulator.uniqueItemsHashes.push(hash);
+      }
+      return accumulator;
+    },
+    { uniqueItems: [], duplicates: [], uniqueItemsHashes: [] },
+  );
+
+  return { uniqueItems: result.uniqueItems, duplicates: result.duplicates };
+}
+
+/**
+ * Separates the duplicated object from an array from a property
+ * Two object are assumed identical if the value of the properties whose name is given in parameter have their normalized Keccak256 hashes equals
+ * Normalize here is a lowed case JSON stringify of the properties alphabetical sorted
+ *
+ * @param array the array to curate
+ * @returns an object containing the array with only unique element and an object with the duplication
+ */
+function uniqueByProperty(array: any[], property: string): { uniqueItems: any[]; duplicates: any[] } {
+  const result = array.reduce(
+    (
+      accumulator: { uniqueItems: any[]; duplicates: any[]; uniqueItemsHashes: string[] },
+      element: any,
+    ) => {
+      const hash = crypto.normalizeKeccak256Hash(element[property]);
+
+      if (accumulator.uniqueItemsHashes.includes(hash)) {
+        // if already included, adds it to the array of duplicates
         accumulator.duplicates.push(element);
       } else {
         // if not already included, includes it and reports the hash

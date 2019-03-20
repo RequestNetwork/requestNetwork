@@ -44,7 +44,7 @@ export interface IReturnGetTransactions {
     dataAccessMeta?: any;
   };
   /** result of the execution */
-  result: { transactions: ITransaction[] };
+  result: { transactions: IConfirmedTransaction[] };
 }
 
 /** return interface for getTransactionsByTopic and getTransactionsByChannelId  */
@@ -55,12 +55,18 @@ export interface IReturnGetTransactionsByChannels {
     dataAccessMeta?: any;
   };
   /** result of the execution */
-  result: { transactions: { [key: string]: ITransaction[] } };
+  result: { transactions: { [key: string]: IConfirmedTransaction[] } };
 }
 
 /** Transaction */
 export interface ITransaction {
   data: ITransactionData;
+}
+
+/** Transaction confirmed */
+export interface IConfirmedTransaction {
+  transaction: ITransaction;
+  timestamp: number;
 }
 
 /** Transaction data */

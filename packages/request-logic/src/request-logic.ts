@@ -231,29 +231,35 @@ export default class RequestLogic implements Types.IRequestLogic {
     const actions = resultGetTx.result.transactions;
 
     // array of transaction without duplicates to avoid replay attack
-    const transactionsWithoutDuplicates = Utils.unique(
+    const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
       actions
         .map((t: any) => {
           // We ignore the transaction.data that cannot be parsed
           try {
-            return JSON.parse(t.data);
+            return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
           } catch (e) {
             return;
           }
         })
         .filter((elem: any) => elem !== undefined),
+      'action',
     );
-
-    const ignoredTransactions = transactionsWithoutDuplicates.duplicates;
+    // Keeps the transaction ignored
+    const ignoredTransactions = actionsConfirmedWithoutDuplicates.duplicates;
 
     // second parameter is null, because the first action must be a creation (no state expected)
-    const request = transactionsWithoutDuplicates.uniqueItems.reduce(
-      (requestState: any, action: any) => {
+    const request = actionsConfirmedWithoutDuplicates.uniqueItems.reduce(
+      (requestState: any, actionConfirmed: any) => {
         try {
-          return RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic);
+          return RequestLogicCore.applyActionToRequest(
+            requestState,
+            actionConfirmed.action,
+            actionConfirmed.timestamp,
+            this.advancedLogic,
+          );
         } catch (e) {
           // if an error occurs during the apply we ignore the action
-          ignoredTransactions.push(action);
+          ignoredTransactions.push(actionConfirmed.action);
           return requestState;
         }
       },
@@ -289,29 +295,36 @@ export default class RequestLogic implements Types.IRequestLogic {
     // Gets all the requests from the transactions
     const allRequestAndMeta = Object.keys(getChannelsResult.result.transactions).map(channelId => {
       // Parses and removes corrupted or duplicated transactions
-      const transactionsWithoutDuplicates = Utils.unique(
+
+      const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
         transactionsByChannel[channelId]
           .map((t: any) => {
             // We ignore the transaction.data that cannot be parsed
             try {
-              return JSON.parse(t.data);
+              return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
             } catch (e) {
               return;
             }
           })
           .filter((elem: any) => elem !== undefined),
+        'action',
       );
       // Keeps the transaction ignored
-      const ignoredTransactions = transactionsWithoutDuplicates.duplicates;
+      const ignoredTransactions = actionsConfirmedWithoutDuplicates.duplicates;
 
       // second parameter is null, because the first action must be a creation (no state expected)
-      const request = transactionsWithoutDuplicates.uniqueItems.reduce(
-        (requestState: any, action: any) => {
+      const request = actionsConfirmedWithoutDuplicates.uniqueItems.reduce(
+        (requestState: any, actionConfirmed: any) => {
           try {
-            return RequestLogicCore.applyActionToRequest(requestState, action, this.advancedLogic);
+            return RequestLogicCore.applyActionToRequest(
+              requestState,
+              actionConfirmed.action,
+              actionConfirmed.timestamp,
+              this.advancedLogic,
+            );
           } catch (e) {
             // if an error occurs during the apply we ignore the action
-            ignoredTransactions.push(action);
+            ignoredTransactions.push(actionConfirmed);
             return requestState;
           }
         },

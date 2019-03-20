@@ -52,6 +52,7 @@ describe('requestLogicCore', () => {
         RequestLogicCore.applyActionToRequest(
           Utils.deepCopy(TestData.requestCreatedNoExtension),
           action,
+          2,
           fakeAdvancedLogic,
         ),
       ).to.throw('Unknown action actionUnknown');
@@ -78,9 +79,9 @@ describe('requestLogicCore', () => {
         },
       };
 
-      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
-        'action version not supported',
-      );
+      expect(() =>
+        RequestLogicCore.applyActionToRequest(null, action, 2, fakeAdvancedLogic),
+      ).to.throw('action version not supported');
     });
 
     it('cannot apply accept with no state', () => {
@@ -98,9 +99,9 @@ describe('requestLogicCore', () => {
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
       };
-      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
-        'request is expected',
-      );
+      expect(() =>
+        RequestLogicCore.applyActionToRequest(null, action, 2, fakeAdvancedLogic),
+      ).to.throw('request is expected');
     });
 
     it('cannot apply accept with wrong state', async () => {
@@ -130,6 +131,7 @@ describe('requestLogicCore', () => {
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionAccept,
+          2,
           fakeAdvancedLogic,
         ),
       ).to.throw('request.payee and request.payer are missing');
@@ -151,9 +153,9 @@ describe('requestLogicCore', () => {
         },
       };
 
-      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
-        'request is expected',
-      );
+      expect(() =>
+        RequestLogicCore.applyActionToRequest(null, action, 2, fakeAdvancedLogic),
+      ).to.throw('request is expected');
     });
 
     it('cannot cancel with wrong state', async () => {
@@ -183,6 +185,7 @@ describe('requestLogicCore', () => {
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionCancel,
+          2,
           fakeAdvancedLogic,
         ),
       ).to.throw('request.payee and request.payer are missing');
@@ -205,9 +208,9 @@ describe('requestLogicCore', () => {
         },
       };
 
-      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
-        'request is expected',
-      );
+      expect(() =>
+        RequestLogicCore.applyActionToRequest(null, action, 2, fakeAdvancedLogic),
+      ).to.throw('request is expected');
     });
 
     it('cannot increase expected amount with wrong state', async () => {
@@ -238,6 +241,7 @@ describe('requestLogicCore', () => {
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionIncreaseAmount,
+          2,
           fakeAdvancedLogic,
         ),
       ).to.throw('request.payee and request.payer are missing');
@@ -258,9 +262,9 @@ describe('requestLogicCore', () => {
             '0xdd44c2d34cba689921c60043a78e189b4aa35d5940723bf98b9bb9083385de316333204ce3bbeced32afe2ea203b76153d523d924c4dca4a1d9fc466e0160f071c',
         },
       };
-      expect(() => RequestLogicCore.applyActionToRequest(null, action, fakeAdvancedLogic)).to.throw(
-        'request is expected',
-      );
+      expect(() =>
+        RequestLogicCore.applyActionToRequest(null, action, 2, fakeAdvancedLogic),
+      ).to.throw('request is expected');
     });
     it('cannot reduce expected amount with wrong state', async () => {
       const regularRequestContextWithErrors = {
@@ -290,6 +294,7 @@ describe('requestLogicCore', () => {
         RequestLogicCore.applyActionToRequest(
           regularRequestContextWithErrors,
           actionReduceAmount,
+          2,
           fakeAdvancedLogic,
         ),
       ).to.throw('request.payee and request.payer are missing');
@@ -331,7 +336,7 @@ describe('requestLogicCore', () => {
         version: CURRENT_VERSION,
       };
       expect(() =>
-        RequestLogicCore.applyActionToRequest(requestState, actionCreation, fakeAdvancedLogic),
+        RequestLogicCore.applyActionToRequest(requestState, actionCreation, 2, fakeAdvancedLogic),
       ).to.throw('no request is expected at the creation');
     });
 
@@ -360,6 +365,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogicCore.applyActionToRequest(
         null,
         actionCreation,
+        2,
         fakeAdvancedLogic,
       );
 
@@ -405,6 +411,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionAccept,
+        2,
         fakeAdvancedLogic,
       );
 
@@ -455,6 +462,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionCancel,
+        2,
         fakeAdvancedLogic,
       );
 
@@ -509,6 +517,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionIncreaseAmount,
+        2,
         fakeAdvancedLogic,
       );
 
@@ -563,6 +572,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionReduceAmount,
+        2,
         fakeAdvancedLogic,
       );
 
@@ -612,6 +622,7 @@ describe('requestLogicCore', () => {
       const request = RequestLogicCore.applyActionToRequest(
         Utils.deepCopy(TestData.requestCreatedNoExtension),
         actionAddExtensionsData,
+        2,
         fakeAdvancedLogic,
       );
 

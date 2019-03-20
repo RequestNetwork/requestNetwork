@@ -37,6 +37,7 @@ export default {
 function applyActionToRequest(
   request: Types.IRequest | null,
   action: Types.IAction,
+  timestamp: number,
   advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
 ): Types.IRequest {
   if (!Action.isActionVersionSupported(action)) {
@@ -53,7 +54,7 @@ function applyActionToRequest(
     if (requestCopied) {
       throw new Error('no request is expected at the creation');
     }
-    requestAfterApply = CreateAction.createRequest(action);
+    requestAfterApply = CreateAction.createRequest(action, timestamp);
   } else {
     // Update request
     if (!requestCopied) {
@@ -64,23 +65,31 @@ function applyActionToRequest(
     Request.checkRequest(requestCopied);
 
     if (action.data.name === Types.ACTION_NAME.ACCEPT) {
-      requestAfterApply = AcceptAction.applyActionToRequest(action, requestCopied);
+      requestAfterApply = AcceptAction.applyActionToRequest(action, timestamp, requestCopied);
     }
 
     if (action.data.name === Types.ACTION_NAME.CANCEL) {
-      requestAfterApply = CancelAction.applyActionToRequest(action, requestCopied);
+      requestAfterApply = CancelAction.applyActionToRequest(action, timestamp, requestCopied);
     }
 
     if (action.data.name === Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
-      requestAfterApply = IncreaseExpectedAmountAction.applyActionToRequest(action, requestCopied);
+      requestAfterApply = IncreaseExpectedAmountAction.applyActionToRequest(
+        action,
+        timestamp,
+        requestCopied,
+      );
     }
 
     if (action.data.name === Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
-      requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(action, requestCopied);
+      requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(
+        action,
+        timestamp,
+        requestCopied,
+      );
     }
 
     if (action.data.name === Types.ACTION_NAME.ADD_EXTENSIONS_DATA) {
-      requestAfterApply = AddExtensionsData.applyActionToRequest(action, requestCopied);
+      requestAfterApply = AddExtensionsData.applyActionToRequest(action, timestamp, requestCopied);
     }
   }
 
@@ -98,6 +107,7 @@ function applyActionToRequest(
           extensionAction,
           requestAfterApply as Types.IRequest,
           Action.getSignerIdentityFromAction(action),
+          timestamp,
         );
       },
       requestAfterApply.extensions,

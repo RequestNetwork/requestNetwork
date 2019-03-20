@@ -64,6 +64,7 @@ describe('actions/accept', () => {
 
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -105,6 +106,7 @@ describe('actions/accept', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 0 },
+        timestamp: 2,
       });
     });
 
@@ -118,6 +120,7 @@ describe('actions/accept', () => {
       expect(() => {
         AcceptAction.applyActionToRequest(
           actionAccept,
+          1,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
       }, 'should throw').to.throw('Signer must be the payer');
@@ -132,6 +135,7 @@ describe('actions/accept', () => {
       expect(() =>
         AcceptAction.applyActionToRequest(
           actionAccept,
+          1,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('Signer must be the payer');
@@ -153,6 +157,7 @@ describe('actions/accept', () => {
       expect(() =>
         AcceptAction.applyActionToRequest(
           action,
+          1,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('requestId must be given');
@@ -177,6 +182,7 @@ describe('actions/accept', () => {
               extensionsDataLength: 0,
               isSignedRequest: false,
             },
+            timestamp: 1,
           },
         ],
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -207,7 +213,7 @@ describe('actions/accept', () => {
         },
       };
 
-      expect(() => AcceptAction.applyActionToRequest(action, requestContextNoPayer)).to.throw(
+      expect(() => AcceptAction.applyActionToRequest(action, 2, requestContextNoPayer)).to.throw(
         'the request must have a payer',
       );
     });
@@ -230,6 +236,7 @@ describe('actions/accept', () => {
       expect(() =>
         AcceptAction.applyActionToRequest(
           action,
+          1,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('the request state must be created');
@@ -254,6 +261,7 @@ describe('actions/accept', () => {
       expect(() =>
         AcceptAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('the request state must be created');
@@ -272,6 +280,7 @@ describe('actions/accept', () => {
 
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -316,6 +325,7 @@ describe('actions/accept', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
 
@@ -331,6 +341,7 @@ describe('actions/accept', () => {
       );
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -356,6 +367,7 @@ describe('actions/accept', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
       expect(request, 'request should have property payee').to.have.property('payee');
       if (request.payee) {
@@ -379,6 +391,7 @@ describe('actions/accept', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ACCEPT,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
     it('can apply accept without extensionsData and extensionsData before', async () => {
@@ -392,6 +405,7 @@ describe('actions/accept', () => {
 
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 

@@ -128,6 +128,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -169,6 +170,7 @@ describe('actions/increaseExpectedAmount', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -185,6 +187,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('signer must be the payer');
@@ -202,6 +205,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('signer must be the payer');
@@ -226,6 +230,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('requestId must be given');
@@ -250,6 +255,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('deltaAmount must be given');
@@ -274,6 +280,7 @@ describe('actions/increaseExpectedAmount', () => {
               extensionsDataLength: 0,
               isSignedRequest: false,
             },
+            timestamp: 1,
           },
         ],
         expectedAmount: arbitraryExpectedAmount,
@@ -304,7 +311,7 @@ describe('actions/increaseExpectedAmount', () => {
         },
       };
       expect(() =>
-        IncreaseExpectedAmountAction.applyActionToRequest(action, requestContextNoPayer),
+        IncreaseExpectedAmountAction.applyActionToRequest(action, 2, requestContextNoPayer),
       ).to.throw('the request must have a payer');
     });
 
@@ -321,6 +328,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
+          2,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('the request must not be canceled');
@@ -338,6 +346,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
+        2,
         Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
@@ -379,6 +388,7 @@ describe('actions/increaseExpectedAmount', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -396,6 +406,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -439,6 +450,7 @@ describe('actions/increaseExpectedAmount', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -456,6 +468,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -499,6 +512,7 @@ describe('actions/increaseExpectedAmount', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
     it('can increase expected amount without extensionsData and extensionsData before', async () => {
@@ -513,6 +527,7 @@ describe('actions/increaseExpectedAmount', () => {
 
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -556,6 +571,7 @@ describe('actions/increaseExpectedAmount', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
       });
     });
 
@@ -579,6 +595,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('deltaAmount must be a string representing a positive integer');
@@ -605,6 +622,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('deltaAmount must be a string representing a positive integer');
@@ -630,6 +648,7 @@ describe('actions/increaseExpectedAmount', () => {
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('deltaAmount must be a string representing a positive integer');

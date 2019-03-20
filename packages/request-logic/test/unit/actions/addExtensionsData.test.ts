@@ -83,6 +83,7 @@ describe('actions/addExtensionsData', () => {
 
       const request = AddExtensionsDataAction.applyActionToRequest(
         actionAddExtensionsData,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -124,6 +125,7 @@ describe('actions/addExtensionsData', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
 
@@ -143,6 +145,7 @@ describe('actions/addExtensionsData', () => {
       expect(() =>
         AddExtensionsDataAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('requestId must be given');
@@ -164,6 +167,7 @@ describe('actions/addExtensionsData', () => {
       expect(() =>
         AddExtensionsDataAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('extensionsData must be given');
@@ -185,6 +189,7 @@ describe('actions/addExtensionsData', () => {
       expect(() =>
         AddExtensionsDataAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('extensionsData must be given');
@@ -203,6 +208,7 @@ describe('actions/addExtensionsData', () => {
 
       const request = AddExtensionsDataAction.applyActionToRequest(
         actionAddExtensionsData,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -247,6 +253,7 @@ describe('actions/addExtensionsData', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
 
@@ -262,6 +269,7 @@ describe('actions/addExtensionsData', () => {
       );
       const request = AddExtensionsDataAction.applyActionToRequest(
         actionAddExtensionsData,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -305,6 +313,7 @@ describe('actions/addExtensionsData', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
   });

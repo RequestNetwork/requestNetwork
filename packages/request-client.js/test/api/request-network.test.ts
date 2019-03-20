@@ -48,7 +48,7 @@ describe('api/request-network', () => {
         },
         async getTransactionsByTopic(): Promise<any> {
           return {
-            result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
+            result: { transactions: [TestData.transactionConfirmed] },
           };
         },
         async initialize(): Promise<any> {
@@ -84,7 +84,9 @@ describe('api/request-network', () => {
         },
         async getTransactionsByChannelId(): Promise<any> {
           return {
-            result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
+            result: {
+              transactions: [TestData.transactionConfirmed],
+            },
           };
         },
         async getTransactionsByTopic(): Promise<any> {
@@ -116,9 +118,9 @@ describe('api/request-network', () => {
             },
             result: {
               transactions: {
-                [TestData.actionRequestId]: [{ data: JSON.stringify(TestData.action) }],
+                [TestData.actionRequestId]: [TestData.transactionConfirmed],
                 [TestData.actionRequestIdSecondRequest]: [
-                  { data: JSON.stringify(TestData.actionCreationSecondRequest) },
+                  TestData.transactionConfirmedSecondRequest,
                 ],
               },
             },
@@ -127,10 +129,17 @@ describe('api/request-network', () => {
         async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
           if (channelId === TestData.actionRequestId) {
-            transactions = [{ data: JSON.stringify(TestData.action) }];
+            transactions = [
+              {
+                timestamp: TestData.arbitraryTimestamp,
+                transaction: {
+                  data: JSON.stringify(TestData.action),
+                },
+              },
+            ];
           }
           if (channelId === TestData.actionRequestIdSecondRequest) {
-            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
+            transactions = [TestData.transactionConfirmedSecondRequest];
           }
           return {
             result: {
@@ -176,9 +185,9 @@ describe('api/request-network', () => {
             },
             result: {
               transactions: {
-                [TestData.actionRequestId]: [{ data: JSON.stringify(TestData.action) }],
+                [TestData.actionRequestId]: [TestData.transactionConfirmed],
                 [TestData.actionRequestIdSecondRequest]: [
-                  { data: JSON.stringify(TestData.actionCreationSecondRequest) },
+                  TestData.transactionConfirmedSecondRequest,
                 ],
               },
             },
@@ -187,10 +196,10 @@ describe('api/request-network', () => {
         async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
           if (channelId === TestData.actionRequestId) {
-            transactions = [{ data: JSON.stringify(TestData.action) }];
+            transactions = [TestData.transactionConfirmed];
           }
           if (channelId === TestData.actionRequestIdSecondRequest) {
-            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
+            transactions = [TestData.transactionConfirmedSecondRequest];
           }
           return {
             result: {
@@ -215,6 +224,13 @@ describe('api/request-network', () => {
       expect(requests.length).to.be.equal(2);
       expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
       expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
+    });
+    it('cannot get request with identity type not supported', async () => {
+      const requestnetwork = new RequestNetwork(mockDataAccess);
+
+      await expect(
+        requestnetwork.fromIdentity({ type: 'not supported', value: 'whatever' } as any),
+      ).to.eventually.be.rejectedWith('not supported is not supported');
     });
   });
 });

@@ -227,7 +227,7 @@ describe('data-access', () => {
           storageMeta: [{ timestamp: 1 }],
           transactionsStorageLocation: ['dataIdBlock2tx'],
         },
-        result: { transactions: [transactionMock1] },
+        result: { transactions: [{ transaction: transactionMock1, timestamp: 1 }] },
       });
 
       expect(
@@ -239,7 +239,10 @@ describe('data-access', () => {
           transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
         },
         result: {
-          transactions: [transactionMock1, transactionMock2],
+          transactions: [
+            { transaction: transactionMock1, timestamp: 1 },
+            { transaction: transactionMock2, timestamp: 1 },
+          ],
         },
       });
     });
@@ -331,7 +334,7 @@ describe('data-access', () => {
           storageMeta: [{ timestamp: 10 }],
           transactionsStorageLocation: ['dataIdBlock2tx'],
         },
-        result: { transactions: [transactionMock1] },
+        result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
       });
     });
 
@@ -384,7 +387,7 @@ describe('data-access', () => {
           storageMeta: [{ timestamp: 10 }],
           transactionsStorageLocation: ['dataIdBlock2tx'],
         },
-        result: { transactions: [transactionMock1] },
+        result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
       });
     });
 
@@ -437,7 +440,9 @@ describe('data-access', () => {
           storageMeta: { [arbitraryId1]: [{ timestamp: 10 }] },
           transactionsStorageLocation: { [arbitraryId1]: ['dataIdBlock2tx'] },
         },
-        result: { transactions: { [arbitraryId1]: [transactionMock1] } },
+        result: {
+          transactions: { [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 10 }] },
+        },
       });
     });
 
@@ -586,7 +591,7 @@ describe('data-access', () => {
         storageMeta: [{ timestamp: 1 }],
         transactionsStorageLocation: ['dataIdBlock2tx'],
       },
-      result: { transactions: [transactionMock1] },
+      result: { transactions: [{ transaction: transactionMock1, timestamp: 1 }] },
     });
 
     expect(
@@ -598,7 +603,10 @@ describe('data-access', () => {
         transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
       },
       result: {
-        transactions: [transactionMock1, transactionMock2],
+        transactions: [
+          { transaction: transactionMock1, timestamp: 1 },
+          { transaction: transactionMock2, timestamp: 1 },
+        ],
       },
     });
   });

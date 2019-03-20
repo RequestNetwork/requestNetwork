@@ -9,6 +9,7 @@ export interface IAdvancedLogic {
     extensionAction: Extension.IAction,
     requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
+    timestamp: number,
   ) => RequestLogic.IExtensionStates;
   extensions: any;
 }

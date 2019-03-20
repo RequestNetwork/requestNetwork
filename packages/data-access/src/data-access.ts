@@ -148,7 +148,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // Get the transactions (and the meta) indexed by channelIds in the blocks found
     const transactionsAndMetaPerBlocks: Array<{
-      transactions: DataAccessTypes.ITransaction[];
+      transactions: DataAccessTypes.IConfirmedTransaction[];
       transactionsStorageLocation: string[];
       storageMeta: string[];
     }> =
@@ -216,7 +216,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // Get the transactions (and the meta) indexed by channelIds in the blocks found
     const transactionsAndMetaPerBlocks: Array<{
-      transactions: DataAccessTypes.ITransaction[];
+      transactions: DataAccessTypes.IConfirmedTransaction[];
       transactionsStorageLocation: string[];
       storageMeta: string[];
     }> =
@@ -234,11 +234,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         );
 
         // Gets the transaction from the positions
-        const transactions: DataAccessTypes.ITransaction[] =
+        const transactions: DataAccessTypes.IConfirmedTransaction[] =
           // first remove the duplicates
           Utils.unique(transactionPositions).uniqueItems.map(
             // Get the transaction from their position
-            (position: number) => blockAndMeta.block.transactions[position],
+            (position: number) => ({
+              timestamp: blockAndMeta.meta.timestamp,
+              transaction: blockAndMeta.block.transactions[position],
+            }),
           );
 
         // Gets the list of storage location of the transactions found
@@ -480,16 +483,19 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     location: string,
     meta: StorageTypes.IMetaOneData,
   ): {
-    transactions: DataAccessTypes.ITransaction[];
+    transactions: DataAccessTypes.IConfirmedTransaction[];
     transactionsStorageLocation: string[];
     storageMeta: string[];
   } {
     // Gets the transaction from the positions
-    const transactions: DataAccessTypes.ITransaction[] =
+    const transactions: DataAccessTypes.IConfirmedTransaction[] =
       // first remove de duplicates
       Utils.unique(transactionPositions).uniqueItems.map(
-        // Get the transaction from their position
-        (position: number) => block.transactions[position],
+        // Get the transaction from their position and add the timestamp
+        (position: number) => ({
+          timestamp: meta.timestamp,
+          transaction: block.transactions[position],
+        }),
       );
 
     // Gets the list of storage location of the transactions found

@@ -109,6 +109,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             unknownAction,
             DataBTCCreate.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw('Unknown action: unknown action');
       });
@@ -121,6 +122,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             unknownAction,
             DataBTCCreate.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(
           'This extension is not recognized by the BTC payment network address based',
@@ -136,6 +138,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCCreate.actionCreationWithPaymentAndRefund,
             DataBTCCreate.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
           ),
           'new extension state wrong',
         ).to.deep.equal(DataBTCCreate.extensionStateWithPaymentAndRefund);
@@ -148,6 +151,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCCreate.actionCreationWithPaymentAndRefund,
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund,
             TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw('This extension have already been created');
       });
@@ -158,6 +162,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCCreate.actionCreationWithPaymentAndRefund,
             TestData.requestCreatedNoExtension,
             TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw('This extension can be used only on BTC request');
       });
@@ -171,6 +176,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             DataBTCCreate.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           ),
           'new extension state wrong',
         ).to.deep.equal(DataBTCAddPaymentAddress.extensionStateWithPaymentAfterCreation);
@@ -182,6 +188,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             DataBTCCreate.requestStateNoExtensions,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`This extension must have been already created`);
       });
@@ -194,6 +201,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             previousState,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`The request must have a payee`);
       });
@@ -205,6 +213,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             previousState,
             TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`The signer must be the payee`);
       });
@@ -215,6 +224,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddPaymentAddress,
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`Payment address already given`);
       });
@@ -228,6 +238,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             DataBTCCreate.requestStateCreatedEmpty,
             TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
           ),
           'new extension state wrong',
         ).to.deep.equal(DataBTCAddPaymentAddress.extensionStateWithRefundAfterCreation);
@@ -239,6 +250,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             DataBTCCreate.requestStateNoExtensions,
             TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`This extension must have been already created`);
       });
@@ -251,6 +263,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             previousState,
             TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`The request must have a payer`);
       });
@@ -262,6 +275,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             previousState,
             TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`The signer must be the payer`);
       });
@@ -272,6 +286,7 @@ describe('extensions/payment-network/bitcoin/address-based', () => {
             DataBTCAddPaymentAddress.actionAddRefundAddress,
             DataBTCCreate.requestStateCreatedWithPaymentAndRefund,
             TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`Refund address already given`);
       });

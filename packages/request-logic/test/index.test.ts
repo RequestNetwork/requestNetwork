@@ -1,10 +1,6 @@
 import 'mocha';
 
-import {
-  RequestLogic as Types,
-  Signature as SignatureTypes,
-  Transaction as TransactionTypes,
-} from '@requestnetwork/types';
+import { RequestLogic as Types, Transaction as TransactionTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
 
@@ -367,16 +363,16 @@ describe('index', () => {
         result: {
           transactions: [
             {
-              data: JSON.stringify(actionCreate),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
             },
             {
-              data: JSON.stringify(actionAccept),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
             },
             {
-              data: JSON.stringify(rxReduce),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 3,
+              transaction: { data: JSON.stringify(rxReduce) },
             },
           ],
         },
@@ -414,6 +410,7 @@ describe('index', () => {
                   extensionsDataLength: 0,
                   isSignedRequest: false,
                 },
+                timestamp: 1,
               },
               {
                 actionSigner: TestData.payerRaw.identity,
@@ -421,6 +418,7 @@ describe('index', () => {
                 parameters: {
                   extensionsDataLength: 0,
                 },
+                timestamp: 2,
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -429,6 +427,7 @@ describe('index', () => {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
                 },
+                timestamp: 3,
               },
             ],
             expectedAmount: '123399999999999000',
@@ -501,20 +500,20 @@ describe('index', () => {
         result: {
           transactions: [
             {
-              data: JSON.stringify(actionCreate),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
             },
             {
-              data: JSON.stringify(actionAccept),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
             },
             {
-              data: JSON.stringify(actionReduce),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 3,
+              transaction: { data: JSON.stringify(actionReduce) },
             },
             {
-              data: JSON.stringify(actionReduce2),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 4,
+              transaction: { data: JSON.stringify(actionReduce2) },
             },
           ],
         },
@@ -536,7 +535,7 @@ describe('index', () => {
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
-          ignoredTransactions: [actionReduce2],
+          ignoredTransactions: [{ action: actionReduce2, timestamp: 4 }],
           transactionManagerMeta: meta,
         },
         result: {
@@ -552,6 +551,7 @@ describe('index', () => {
                   extensionsDataLength: 0,
                   isSignedRequest: false,
                 },
+                timestamp: 1,
               },
               {
                 actionSigner: TestData.payerRaw.identity,
@@ -559,6 +559,7 @@ describe('index', () => {
                 parameters: {
                   extensionsDataLength: 0,
                 },
+                timestamp: 2,
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -567,6 +568,7 @@ describe('index', () => {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
                 },
+                timestamp: 3,
               },
             ],
             expectedAmount: '123399999999999000',
@@ -640,20 +642,20 @@ describe('index', () => {
         result: {
           transactions: [
             {
-              data: JSON.stringify(actionCreate),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
             },
             {
-              data: JSON.stringify(actionAccept),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
             },
             {
-              data: JSON.stringify(actionReduce),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 3,
+              transaction: { data: JSON.stringify(actionReduce) },
             },
             {
-              data: JSON.stringify(actionReduce2),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 4,
+              transaction: { data: JSON.stringify(actionReduce2) },
             },
           ],
         },
@@ -691,6 +693,7 @@ describe('index', () => {
                   extensionsDataLength: 0,
                   isSignedRequest: false,
                 },
+                timestamp: 1,
               },
               {
                 actionSigner: TestData.payerRaw.identity,
@@ -698,6 +701,7 @@ describe('index', () => {
                 parameters: {
                   extensionsDataLength: 0,
                 },
+                timestamp: 2,
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -706,6 +710,7 @@ describe('index', () => {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
                 },
+                timestamp: 3,
               },
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -714,6 +719,7 @@ describe('index', () => {
                   deltaAmount: '1000',
                   extensionsDataLength: 0,
                 },
+                timestamp: 4,
               },
             ],
             expectedAmount: '123399999999998000',
@@ -735,8 +741,8 @@ describe('index', () => {
         result: {
           transactions: [
             {
-              data: '{NOT parsable}',
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 2,
+              transaction: { data: '{NOT parsable}' },
             },
           ],
         },
@@ -779,8 +785,8 @@ describe('index', () => {
         result: {
           transactions: [
             {
-              data: JSON.stringify(actionCreateCorrupted),
-              signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x0' },
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionCreateCorrupted) },
             },
           ],
         },
@@ -907,26 +913,32 @@ describe('index', () => {
           transactions: {
             [requestId]: [
               {
-                data: JSON.stringify(actionCreate),
+                timestamp: 0,
+                transaction: { data: JSON.stringify(actionCreate) },
               },
               {
-                data: JSON.stringify(actionAccept),
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionAccept) },
               },
               {
-                data: JSON.stringify(rxReduce),
+                timestamp: 3,
+                transaction: { data: JSON.stringify(rxReduce) },
               },
             ],
             [newRequestId2]: [
               {
-                data: JSON.stringify(actionCreate2),
+                timestamp: 1,
+                transaction: { data: JSON.stringify(actionCreate2) },
               },
               {
-                data: JSON.stringify(actionCancel2),
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionCancel2) },
               },
             ],
             [newRequestId3]: [
               {
-                data: JSON.stringify(actionCreate3),
+                timestamp: 4,
+                transaction: { data: JSON.stringify(actionCreate3) },
               },
             ],
           },
@@ -989,13 +1001,16 @@ describe('index', () => {
           transactions: {
             [requestId]: [
               {
-                data: JSON.stringify(actionCreate),
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionCreate) },
               },
               {
-                data: 'Not a json',
+                timestamp: 2,
+                transaction: { data: 'Not a json' },
               },
               {
-                data: JSON.stringify(acceptNotValid),
+                timestamp: 2,
+                transaction: { data: JSON.stringify(acceptNotValid) },
               },
             ],
           },

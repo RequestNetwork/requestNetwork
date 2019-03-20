@@ -54,7 +54,7 @@ describe('getTransactionsByTopic', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0]).to.deep.equal(transactionData);
+    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(transactionData);
 
     await request(server)
       .post('/persistTransaction')
@@ -73,7 +73,9 @@ describe('getTransactionsByTopic', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0]).to.deep.equal(otherTransactionData);
+    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(
+      otherTransactionData,
+    );
 
     // If we search for the common topic, there should be two transaction
     serverResponse = await request(server)

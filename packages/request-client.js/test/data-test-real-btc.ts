@@ -2,6 +2,7 @@ import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
+  Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -15,6 +16,8 @@ const payee = {
     privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
   },
 };
+
+export const arbitraryTimestamp = 1549953337;
 
 export const parameters: RequestLogicTypes.ICreateParameters = {
   currency: RequestLogicTypes.CURRENCY.BTC,
@@ -44,3 +47,8 @@ export const data = {
 };
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
+
+export const transactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(action) },
+};

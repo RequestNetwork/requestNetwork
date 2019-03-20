@@ -2,8 +2,11 @@ import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
+  Transaction as TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+
+export const arbitraryTimestamp = 1549953337;
 
 export const payee = {
   identity: {
@@ -42,7 +45,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
   ],
   payee: payee.identity,
   payer: payer.identity,
-  timestamp: 1549953337,
+  timestamp: arbitraryTimestamp,
 };
 
 export const data = {
@@ -53,12 +56,22 @@ export const data = {
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
 
+export const transactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(action) },
+};
+
 export const actionRequestId = Utils.crypto.normalizeKeccak256Hash(data);
 
 export const anotherCreationAction: RequestLogicTypes.IAction = Utils.signature.sign(
   data,
   payer.signatureParams,
 );
+
+export const anotherCreationTransactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(anotherCreationAction) },
+};
 
 const dataSecondRequest = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -75,5 +88,10 @@ export const actionCreationSecondRequest: RequestLogicTypes.IAction = Utils.sign
   dataSecondRequest,
   payee.signatureParams,
 );
+
+export const transactionConfirmedSecondRequest: TransactionTypes.IConfirmedTransaction = {
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(actionCreationSecondRequest) },
+};
 
 export const actionRequestIdSecondRequest = Utils.crypto.normalizeKeccak256Hash(dataSecondRequest);
