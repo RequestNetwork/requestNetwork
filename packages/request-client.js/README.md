@@ -119,10 +119,10 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-* `requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
-* `signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
-* `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/request-client.js/src/types.ts#L37)
-* `topics`: string[]
+- `requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/request-client.js/src/types.ts#L37)
+- `topics`: string[]
 
 `topics` are optional strings used to index the request.
 
@@ -142,10 +142,30 @@ const identity = {
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 
-const requestsFromIdentity = await requestNetwork.fromIdentity(identity);
+// Keep only the request updated in this timestamp boundaries (in second)
+const updatedBetween = {
+  from: 1546300800,
+  to: 1548979200,
+};
+
+const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updatedBetween);
 ```
 
 `identity`: [IIdentity](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/types/src/identity-types.ts#L2)
+
+### Get all requests linked to a topic
+
+```javascript
+const identity = 'any_topic';
+
+// Keep only the request updated in this timestamp boundaries (in second)
+const updatedBetween = {
+  from: 1546300800,
+  to: 1548979200,
+};
+
+const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBetween);
+```
 
 ### Accept a request
 
