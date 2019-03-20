@@ -14,9 +14,10 @@ npm install @requestnetwork/request-client.js
 
 ### Usage as commonjs module
 
-```javascript
+```typescript
 import * as RequestNetwork from '@requestnetwork/request-client.js';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+
 // payee information
 const payeeSignatureInfo = {
   method: RequestNetwork.Types.Signature.METHOD.ECDSA,
@@ -30,8 +31,8 @@ const payeeIdentity = {
 // Signature providers
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
-const requestInfo: RequestNetwork.Types.RequestLogic.IRequestLogicCreateParameters = {
-  currency: RequestNetwork.Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
+const requestInfo: RequestNetwork.Types.RequestLogic.ICreateParameters = {
+  currency: RequestNetwork.Types.RequestLogic.CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: {
@@ -39,11 +40,6 @@ const requestInfo: RequestNetwork.Types.RequestLogic.IRequestLogicCreateParamete
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };
-
-const topics = [
-  '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-];
 
 const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
@@ -61,7 +57,6 @@ const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
     paymentNetwork,
     requestInfo,
     signer: payeeIdentity,
-    topics,
   });
 
   console.log(request);
@@ -82,7 +77,6 @@ A global `RequestNetwork` is exposed:
     requestInfo,
     signer,
     paymentNetwork,
-    topics,
   });
 </script>
 ```
@@ -125,10 +119,12 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-`requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
-`signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
-`topics`: string[]
-`paymentNetwork`: IPaymentNetworkCreateParameters
+- `requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/request-client.js/src/types.ts#L37)
+- `topics`: string[]
+
+`topics` are optional strings used to index the request.
 
 ### Get a request from its ID
 
@@ -146,10 +142,30 @@ const identity = {
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 
-const requestsFromIdentity = await requestNetwork.fromIdentity(identity);
+// Keep only the request updated in this timestamp boundaries (in second)
+const updatedBetween = {
+  from: 1546300800,
+  to: 1548979200,
+};
+
+const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updatedBetween);
 ```
 
-`identity`: IIdentity
+`identity`: [IIdentity](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/types/src/identity-types.ts#L2)
+
+### Get all requests linked to a topic
+
+```javascript
+const identity = 'any_topic';
+
+// Keep only the request updated in this timestamp boundaries (in second)
+const updatedBetween = {
+  from: 1546300800,
+  to: 1548979200,
+};
+
+const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBetween);
+```
 
 ### Accept a request
 

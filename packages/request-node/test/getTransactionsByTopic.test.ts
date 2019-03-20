@@ -1,8 +1,12 @@
+import 'mocha';
+
 import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
 
+const channelId = '0xchannelId';
+const anotherChannelId = '0xanotherChannelId';
 const commonTopic = ['0xbbbbbb'];
 const topics = ['0xaaaaaa'].concat(commonTopic);
 const otherTopics = ['0xcccccc'].concat(commonTopic);
@@ -17,6 +21,8 @@ const otherTransactionData = {
 let requestNodeInstance;
 let server: any;
 
+// tslint:disable:no-magic-numbers
+// tslint:disable:no-unused-expression
 describe('getTransactionsByTopic', () => {
   before(async () => {
     requestNodeInstance = new requestNode();
@@ -34,6 +40,7 @@ describe('getTransactionsByTopic', () => {
     await request(server)
       .post('/persistTransaction')
       .send({
+        channelId,
         topics,
         transactionData,
       })
@@ -47,11 +54,12 @@ describe('getTransactionsByTopic', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0]).to.deep.equal(transactionData);
+    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(transactionData);
 
     await request(server)
       .post('/persistTransaction')
       .send({
+        channelId: anotherChannelId,
         topics: otherTopics,
         transactionData: otherTransactionData,
       })
@@ -65,7 +73,9 @@ describe('getTransactionsByTopic', () => {
       .expect(httpStatus.OK);
 
     expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0]).to.deep.equal(otherTransactionData);
+    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(
+      otherTransactionData,
+    );
 
     // If we search for the common topic, there should be two transaction
     serverResponse = await request(server)

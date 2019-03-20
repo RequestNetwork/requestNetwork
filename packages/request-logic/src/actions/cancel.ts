@@ -47,7 +47,11 @@ function format(
  *
  * @returns Types.IRequest the new request
  */
-function applyActionToRequest(action: Types.IAction, request: Types.IRequest): Types.IRequest {
+function applyActionToRequest(
+  action: Types.IAction,
+  timestamp: number,
+  request: Types.IRequest,
+): Types.IRequest {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -58,7 +62,7 @@ function applyActionToRequest(action: Types.IAction, request: Types.IRequest): T
   // avoid to mutate the request
   let requestCopied: Types.IRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
-  requestCopied.events.push(generateEvent(action, signer));
+  requestCopied.events.push(generateEvent(action, timestamp, signer));
 
   if (signerRole === Types.ROLE.PAYER) {
     if (request.state !== Types.STATE.CREATED) {
@@ -87,7 +91,11 @@ function applyActionToRequest(action: Types.IAction, request: Types.IRequest): T
  *
  * @returns Types.IEvent the event generated
  */
-function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdentity): Types.IEvent {
+function generateEvent(
+  action: Types.IAction,
+  timestamp: number,
+  actionSigner: IdentityTypes.IIdentity,
+): Types.IEvent {
   const params = action.data.parameters;
 
   const event: Types.IEvent = {
@@ -96,6 +104,7 @@ function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdent
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },
+    timestamp,
   };
   return event;
 }

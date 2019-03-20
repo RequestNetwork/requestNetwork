@@ -1,7 +1,10 @@
+import 'mocha';
+
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as artifactsUtils from '../../src/lib/artifacts-utils';
+import EthereumBlocks from '../../src/lib/ethereum-blocks';
 import SmartContractManager from '../../src/lib/smart-contract-manager';
 
 // Extends chai for promises
@@ -106,13 +109,16 @@ const pastEventsMock = [
 ];
 
 // Return past event from pastEventsMock from fromBlock
-const getPastEventsMock = (info: { event: string; fromBlock: number; toBlock: string }): any => {
-  const returnedPastEvents = pastEventsMock.slice();
-  // Removes event while blockNumber < fromBlock
-  while (returnedPastEvents.length > 0 && returnedPastEvents[0].blockNumber < info.fromBlock) {
-    returnedPastEvents.shift();
-  }
-  return returnedPastEvents;
+const getPastEventsMock = (info: {
+  event: string;
+  fromBlock: number;
+  toBlock: number | string;
+}): any => {
+  const toBlock = info.toBlock === 'latest' ? Infinity : info.toBlock;
+
+  return pastEventsMock.filter(
+    block => block.blockNumber >= info.fromBlock && block.blockNumber <= toBlock,
+  );
 };
 
 // Mock to test case whare events are badly formatted
@@ -126,8 +132,10 @@ const badEventsMock = [
     transactionHash: '0xb',
   },
 ];
+// tslint:disable-next-line:typedef
 const getBadEventsMock = () => badEventsMock;
 
+// tslint:disable:no-magic-numbers
 describe('SmartContractManager', () => {
   beforeEach(() => {
     smartContractManager = new SmartContractManager(web3Connection);
@@ -173,8 +181,8 @@ describe('SmartContractManager', () => {
   });
 
   it('allows to get all hashes', async () => {
-    const allHashesAndSizesPromise = await smartContractManager.getAllHashesAndSizesFromEthereum();
-    const allHashesAndSizes = await Promise.all(allHashesAndSizesPromise);
+    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
+    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
@@ -187,74 +195,72 @@ describe('SmartContractManager', () => {
     assert.equal(allHashesAndSizes[3].size, otherSize);
   });
 
-  // Additionnal event logs
-  const additionalPastEvents = [
-    {
-      blockNumber: 4,
-      event: 'NewHash',
-      returnValues: {
-        hash: otherContent,
-        size: otherSize,
+  it('allows to get all hashes with options from', async () => {
+    const mockBlocksEthereum = [7, 100, 209, 306];
+    const mockEth = {
+      getBlock: (i: number): any => {
+        return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      transactionHash: '0xd',
-    },
-    {
-      blockNumber: 5,
-      event: 'NewHash',
-      returnValues: {
-        hash: hashStr,
-        size: fakeSize,
-      },
-      transactionHash: '0xe',
-    },
-  ];
-
-  it('allows to get new hashes added to event logs', async () => {
-    // We create a copy of pastEventsMock because this array will be modified with new events
-    // We create another getPastEvents function for this new array
-    let temporaryPastEvents = pastEventsMock.slice();
-    smartContractManager.requestHashStorage.getPastEvents = (info: {
-      event: string;
-      fromBlock: number;
-      toBlock: string;
-    }): any => {
-      const returnedPastEvents = temporaryPastEvents.slice();
-      // Removes event while blockNumber < fromBlock
-      while (returnedPastEvents.length > 0 && returnedPastEvents[0].blockNumber < info.fromBlock) {
-        returnedPastEvents.shift();
-      }
-
-      return returnedPastEvents;
+      // tslint:disable-next-line:typedef
+      getBlockNumber: () => 3,
     };
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
 
-    // The last event of temporaryPastEvents has a block number of 3
-    // Therefore the value returned by eth.getBlockNumber should be 4
-    // when getAllHashesAndSizesFromEthereum is called
-    smartContractManager.eth.getBlockNumber = () => 4;
+    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
+      from: 299,
+    });
+    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
 
-    // Get the hashes
-    const allHashesAndSizesPromise = await smartContractManager.getAllHashesAndSizesFromEthereum();
-    await Promise.all(allHashesAndSizesPromise);
+    assert.equal(allHashesAndSizes.length, 1);
+    assert.equal(allHashesAndSizes[0].hash, otherContent);
+    assert.equal(allHashesAndSizes[0].size, otherSize);
+  });
 
-    // Add the new hashes
-    temporaryPastEvents = temporaryPastEvents.concat(additionalPastEvents);
+  it('allows to get all hashes with options to', async () => {
+    const mockBlocksEthereum = [7, 100, 209, 306];
+    const mockEth = {
+      getBlock: (i: number): any => {
+        return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
+      },
+      // tslint:disable-next-line:typedef
+      getBlockNumber: () => 3,
+    };
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
 
-    // 2 new blocks has been added therefore the value returned by eth.getBlockNumber
-    // should be 6
-    smartContractManager.eth.getBlockNumber = () => 6;
+    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
+      to: 299,
+    });
+    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    assert.equal(allHashesAndSizes.length, 3);
+    assert.equal(allHashesAndSizes[0].hash, hashStr);
+    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.equal(allHashesAndSizes[1].hash, hashStr);
+    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.equal(allHashesAndSizes[2].hash, otherContent);
+    assert.equal(allHashesAndSizes[2].size, otherSize);
+  });
 
-    let newHashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
-    const newHashesAndSizes = await Promise.all(newHashesAndSizesPromise);
+  it('allows to get all hashes with options from and to', async () => {
+    const mockBlocksEthereum = [7, 100, 209, 306];
+    const mockEth = {
+      getBlock: (i: number): any => {
+        return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
+      },
+      // tslint:disable-next-line:typedef
+      getBlockNumber: () => 3,
+    };
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
 
-    assert.equal(newHashesAndSizes.length, 2);
-    assert.equal(newHashesAndSizes[0].hash, otherContent);
-    assert.equal(newHashesAndSizes[0].size, otherSize);
-    assert.equal(newHashesAndSizes[1].hash, hashStr);
-    assert.equal(newHashesAndSizes[1].size, fakeSize);
-
-    // New call should return no new hash
-    newHashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromLastSyncedBlockFromEthereum();
-    assert.equal(newHashesAndSizesPromise.length, 0);
+    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
+      from: 10,
+      to: 299,
+    });
+    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    assert.equal(allHashesAndSizes.length, 2);
+    assert.equal(allHashesAndSizes[0].hash, hashStr);
+    assert.equal(allHashesAndSizes[0].size, fakeSize);
+    assert.equal(allHashesAndSizes[1].hash, otherContent);
+    assert.equal(allHashesAndSizes[1].size, otherSize);
   });
 
   it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
@@ -275,9 +281,9 @@ describe('SmartContractManager', () => {
     );
   });
 
-  it('getAllHashesAndSizesFromEthereum with a invalid host provider should throw a timeout error', async () => {
+  it('getHashesAndSizesFromEthereum with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
-    await assert.isRejected(smartContractManager.getAllHashesAndSizesFromEthereum(), Error);
+    await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum(), Error);
   });
 
   it('initializes smartcontract-manager with default values should not throw an error', async () => {
@@ -330,7 +336,7 @@ describe('SmartContractManager', () => {
   it('badly formatted events from web3 should throw an error', async () => {
     smartContractManager.requestHashStorage.getPastEvents = getBadEventsMock;
 
-    const allHashesPromises = await smartContractManager.getAllHashesAndSizesFromEthereum();
+    const allHashesPromises = await smartContractManager.getHashesAndSizesFromEthereum();
 
     await assert.isRejected(
       Promise.all(allHashesPromises),

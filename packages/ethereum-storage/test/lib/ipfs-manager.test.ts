@@ -1,3 +1,5 @@
+import 'mocha';
+
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -45,6 +47,7 @@ const notAddedHash = 'QmXnnyufdzAWL5CqZ2RnSNgPbvCc1ALT73sNonExisting';
 const contentLengthOnIpfs = 29;
 const contentLengthOnIpfs2 = 38;
 
+// tslint:disable:no-magic-numbers
 describe('Ipfs manager', () => {
   beforeEach(() => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection);

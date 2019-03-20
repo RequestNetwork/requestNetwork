@@ -1,5 +1,6 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
+import Utils from '@requestnetwork/utils';
 
 import { assert } from 'chai';
 import 'mocha';
@@ -87,5 +88,71 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.expectedAmount, '100000000000');
     assert.exists(requestData.balance);
     assert.exists(requestData.meta);
+  });
+
+  it('can create requests and get them fromIdentity and with time boundaries', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider });
+
+    // create request 1
+    const requestCreationHash1: Types.RequestLogic.ICreateParameters = {
+      currency: Types.RequestLogic.CURRENCY.BTC,
+      expectedAmount: '100000000',
+      payee: payeeIdentity,
+      payer: payerIdentity,
+      timestamp: Utils.getCurrentTimestampInSecond(),
+    };
+    const topicsRequest1and2 = [Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)];
+
+    const request1: Request = await requestNetwork.createRequest({
+      requestInfo: requestCreationHash1,
+      signer: payeeIdentity,
+      topics: topicsRequest1and2,
+    });
+
+    // create request 2
+    const requestCreationHash2: Types.RequestLogic.ICreateParameters = {
+      currency: Types.RequestLogic.CURRENCY.ETH,
+      expectedAmount: '1000',
+      payee: payeeIdentity,
+      payer: payerIdentity,
+    };
+
+    const request2: Request = await requestNetwork.createRequest({
+      requestInfo: requestCreationHash2,
+      signer: payeeIdentity,
+      topics: topicsRequest1and2,
+    });
+
+    // reduce request 1
+    const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+
+    await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
+
+    // cancel request 1
+    await request1.cancel(payeeIdentity);
+
+    // get requests without boundaries
+    let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
+    assert.equal(requests.length, 2);
+    assert.equal(requests[0].requestId, request1.requestId);
+    assert.equal(requests[1].requestId, request2.requestId);
+
+    let requestData1 = requests[0].getData();
+    assert.equal(requestData1.state, Types.RequestLogic.STATE.CANCELED);
+    assert.equal(requestData1.expectedAmount, '90000000');
+
+    const requestData2 = requests[1].getData();
+    assert.equal(requestData2.state, Types.RequestLogic.STATE.CREATED);
+
+    // get requests with boundaries
+    requests = await requestNetwork.fromTopic(topicsRequest1and2[0], {
+      from: timestampBeforeReduce,
+    });
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].requestId, request1.requestId);
+
+    requestData1 = requests[0].getData();
+    assert.equal(requestData1.state, Types.RequestLogic.STATE.CANCELED);
+    assert.equal(requestData1.expectedAmount, '90000000');
   });
 });

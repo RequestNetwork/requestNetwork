@@ -1,3 +1,5 @@
+import 'mocha';
+
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -97,6 +99,7 @@ const pastEventsMock = [
     transactionHash: '0xc',
   },
 ];
+// tslint:disable:typedef
 const getPastEventsMock = () => pastEventsMock;
 
 describe('EthereumStorage', () => {
@@ -154,6 +157,7 @@ describe('EthereumStorage', () => {
           size: realSize1,
         },
         storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+        timestamp: 1545816416,
       },
       result: { dataId: hash1 },
     };
@@ -204,58 +208,7 @@ describe('EthereumStorage', () => {
     // These contents have to be appended in order to check their size
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
-    const result = await ethereumStorage.getAllDataId();
-
-    if (!result.meta.metaDataIds[0].ethereum) {
-      assert.fail('result.meta.metaDataIds[0].ethereum does not exist');
-      return;
-    }
-    assert.deepEqual(result.meta.metaDataIds[0].ipfs, {
-      size: realSize1,
-    });
-    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-    assert.equal(result.meta.metaDataIds[0].ethereum.networkName, 'private');
-    assert.equal(
-      result.meta.metaDataIds[0].ethereum.smartContractAddress,
-      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-    );
-    assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-    assert.isAtLeast(result.meta.metaDataIds[0].ethereum.blockConfirmation, 1);
-    assert.exists(result.meta.metaDataIds[0].ethereum.blockTimestamp);
-
-    if (!result.meta.metaDataIds[1].ethereum) {
-      assert.fail('result.meta.metaDataIds[2].ethereum does not exist');
-      return;
-    }
-
-    // We compare with the third value of pastEventsMock because the second one is ignored
-    // Since the size is fake
-    assert.deepEqual(result.meta.metaDataIds[1].ipfs, {
-      size: realSize2,
-    });
-    assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-    assert.equal(result.meta.metaDataIds[1].ethereum.networkName, 'private');
-    assert.equal(
-      result.meta.metaDataIds[1].ethereum.smartContractAddress,
-      '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-    );
-    assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-    assert.isAtLeast(result.meta.metaDataIds[1].ethereum.blockConfirmation, 1);
-    assert.exists(result.meta.metaDataIds[1].ethereum.blockTimestamp);
-
-    assert.deepEqual(result.result, { dataIds: [hash1, hash2] });
-  });
-
-  it('allows to retrieve new data id', async () => {
-    // To test this function, we call it without calling getAllDataId()
-    // In this case, getNewDataId() should have the same behavior as getAllDataId()
-
-    // 4 blocks in pastEventsMock
-    ethereumStorage.smartContractManager.eth.getBlockNumber = () => 4;
-
-    await ethereumStorage.append(content1);
-    await ethereumStorage.append(content2);
-    const result = await ethereumStorage.getNewDataId();
+    const result = await ethereumStorage.getDataId();
 
     if (!result.meta.metaDataIds[0].ethereum) {
       assert.fail('result.meta.metaDataIds[0].ethereum does not exist');
@@ -300,7 +253,7 @@ describe('EthereumStorage', () => {
   it('allows to retrieve all data', async () => {
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
-    const result = await ethereumStorage.getAllData();
+    const result = await ethereumStorage.getData();
 
     if (!result.meta.metaData[0].ethereum) {
       assert.fail('result.meta.metaData[0].ethereum does not exist');
@@ -372,9 +325,9 @@ describe('EthereumStorage', () => {
     await assert.isRejected(ethereumStorage.append(content1), Error, 'Smart contract error');
   });
 
-  it('getAllDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
+  it('getDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
     // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
-    ethereumStorage.smartContractManager.getAllHashesAndSizesFromEthereum = (): Promise<
+    ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<
       StorageTypes.IGetAllHashesAndSizes[]
     > => {
       return Promise.resolve([
@@ -386,7 +339,7 @@ describe('EthereumStorage', () => {
     };
 
     await assert.isRejected(
-      ethereumStorage.getAllDataId(),
+      ethereumStorage.getDataId(),
       Error,
       'The event log has no hash or size',
     );

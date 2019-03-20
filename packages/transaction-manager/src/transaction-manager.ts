@@ -13,23 +13,24 @@ export default class TransactionManager implements Types.ITransactionManager {
   }
 
   /**
-   * Function to persist transaction and topic in storage
+   * Persists transaction and topic in storage
    *
    * later it will handle encryption
    *
-   * @param string transaction transaction to persist
-   * @param IIdentity signerIdentity Identity of the signer
-   * @param string[] topics list of string to topic the transaction
+   * @param transactionData transaction to persist
+   * @param channelId string to identify a bunch of transaction
+   * @param topics list of string to topic the transaction
    *
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
     transactionData: Types.ITransactionData,
+    channelId: string,
     topics: string[] = [],
   ): Promise<Types.IReturnPersistTransaction> {
     const transaction: Types.ITransaction = TransactionCore.createTransaction(transactionData);
 
-    const resultPersist = await this.dataAccess.persistTransaction(transaction, topics);
+    const resultPersist = await this.dataAccess.persistTransaction(transaction, channelId, topics);
 
     return {
       meta: {
@@ -40,16 +41,66 @@ export default class TransactionManager implements Types.ITransactionManager {
   }
 
   /**
-   * Function to get a list of transactions indexed by topic
+   * Gets a list of transactions from a channel
    *
    * later it will handle decryption
    *
-   * @param string topic topic to retrieve the transaction from
-   *
-   * @returns IAccessTransaction list of transactions indexed by topic
+   * @param channelId channel id to retrieve the transaction from
+   * @param timestampBoundaries timestamp boundaries of the transactions search
+   * @returns list of transactions of the channel
    */
-  public async getTransactionsByTopic(topic: string): Promise<Types.IReturnGetTransactionsByTopic> {
-    const resultGetTx = await this.dataAccess.getTransactionsByTopic(topic);
+  public async getTransactionsByChannelId(
+    channelId: string,
+    timestampBoundaries?: Types.ITimestampBoundaries,
+  ): Promise<Types.IReturnGetTransactions> {
+    const resultGetTx = await this.dataAccess.getTransactionsByChannelId(
+      channelId,
+      timestampBoundaries,
+    );
+
+    return {
+      meta: {
+        dataAccessMeta: resultGetTx.meta,
+      },
+      result: resultGetTx.result,
+    };
+  }
+
+  /**
+   * Gets a list of transactions indexed by topic
+   *
+   * later it will handle decryption
+   *
+   * @param topic topic to retrieve the transaction from
+   * @param timestampBoundaries timestamp boundaries of the transactions search
+   * @returns list of transactions indexed by topic
+   */
+  public async getTransactionsByTopic(
+    topic: string,
+    timestampBoundaries?: Types.ITimestampBoundaries,
+  ): Promise<Types.IReturnGetTransactions> {
+    const resultGetTx = await this.dataAccess.getTransactionsByTopic(topic, timestampBoundaries);
+
+    return {
+      meta: {
+        dataAccessMeta: resultGetTx.meta,
+      },
+      result: resultGetTx.result,
+    };
+  }
+
+  /**
+   * Gets a list of channels indexed by topic
+   *
+   * @param topic topic to retrieve the transaction from
+   * @param updatedBetween filter the channel whose received new data in the boundaries
+   * @returns list of channels indexed by topic
+   */
+  public async getChannelsByTopic(
+    topic: string,
+    updatedBetween?: Types.ITimestampBoundaries,
+  ): Promise<Types.IReturnGetTransactionsByChannels> {
+    const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
 
     return {
       meta: {

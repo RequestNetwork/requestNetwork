@@ -4,6 +4,7 @@ import Utils from '@requestnetwork/utils';
 import Block from './block';
 import IntervalTimer from './interval-timer';
 import LocationByTopic from './location-by-topic';
+import TimestampByLocation from './timestamp-by-location';
 
 // Default interval time for auto synchronization
 const DEFAULT_INTERVAL_TIME: number = 10000;
@@ -16,12 +17,20 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // Will be used to get the data from storage with the transaction topic
   private locationByTopic?: LocationByTopic;
 
+  // Timestamp of the dataIds
+  // Will be used to get the data from timestamp boundaries
+  private timestampByLocation: TimestampByLocation;
+
   // Storage layer
   private storage: StorageTypes.IStorage;
 
   // The function used to synchronize with the storage should be called periodically
   // This object allows to handle the periodical call of the function
   private synchronizationTimer: IntervalTimer;
+
+  // Timestamp of the last synchronization
+  // This the last timestamp we got the data
+  private lastSyncedTimeStamp: number;
 
   /**
    * Constructor DataAccess interface
@@ -34,10 +43,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     synchronizationIntervalTime: number = DEFAULT_INTERVAL_TIME,
   ) {
     this.storage = storage;
+    this.lastSyncedTimeStamp = 0;
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
       synchronizationIntervalTime,
     );
+    this.timestampByLocation = new TimestampByLocation();
   }
 
   /**
@@ -50,24 +61,26 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     }
 
     // initialize the dataId topic with the previous block
-    const allDataIdsWithMeta = await this.storage.getAllDataId();
+    const allDataIdsWithMeta = await this.storage.getDataId();
 
-    // check if the data returned by getAllDataId are correct
+    // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta, this.locationByTopic);
+    await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta);
   }
 
   /**
    * Function to persist transaction and topic in storage
    * For now, we create a block for each transaction
    *
-   * @param string transaction transaction to persist
-   * @param string[] topics list of string to topic the transaction
+   * @param transaction transaction to persist
+   * @param channelId string to identify a bunch of transaction
+   * @param topics list of string to topic the transaction
    *
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
     transaction: DataAccessTypes.ITransaction,
+    channelId: string,
     topics: string[] = [],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     if (!this.locationByTopic) {
@@ -75,14 +88,25 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     }
 
     // create a block and add the transaction in it
-    const updatedBlock = Block.pushTransaction(Block.createEmptyBlock(), transaction, topics);
+    const updatedBlock = Block.pushTransaction(
+      Block.createEmptyBlock(),
+      transaction,
+      channelId,
+      topics,
+    );
     // get the topic of the data in storage
     const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
 
     // topic the dataId with block topic
-    this.locationByTopic.pushLocationIndexedWithBlockTopics(
+    this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(
       resultAppend.result.dataId,
-      updatedBlock.header.topics,
+      updatedBlock.header,
+    );
+
+    // add the timestamp in the index
+    this.timestampByLocation.pushTimestampByLocation(
+      resultAppend.result.dataId,
+      resultAppend.meta.timestamp,
     );
 
     return {
@@ -96,64 +120,229 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * Function to get a list of transactions indexed by topic
+   * Function to get a list of transactions indexed by channel id
+   * if timestampBoundaries is given, the search will be restrict from timestamp 'from' to the timestamp 'to'.
+   * if timestampBoundaries.from is not given, the search will be start from the very start
+   * if timestampBoundaries.to is not given, the search will be stop at the current timestamp
    *
-   * @param string topic topic to retrieve the transaction from
+   * @param channelId channel id to retrieve the transaction from
+   * @param timestampBoundaries timestamp boundaries of the transactions search
    *
-   * @returns ITransaction list of transactions indexed by topic
+   * @returns list of transactions in the channel
    */
-  public async getTransactionsByTopic(
-    topic: string,
-  ): Promise<DataAccessTypes.IReturnGetTransactionsByTopic> {
+  public async getTransactionsByChannelId(
+    channelId: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetTransactions> {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
 
-    const locationStorageList = this.locationByTopic.getLocationFromTopic(topic);
-    const blockWithMetaList: any[] = [];
+    // Gets the list of locationStorage indexed by the channel id that are within the boundaries
+    const storageLocationList = this.locationByTopic
+      .getStorageLocationsFromChannelId(channelId)
+      .filter(dataId => this.timestampByLocation.isDataInBoundaries(dataId, timestampBoundaries));
 
-    // get blocks indexed by topic
-    for (const location of locationStorageList) {
-      const resultRead = await this.storage.read(location);
+    // Gets the block and meta from the storage location
+    const blockWithMetaList = await this.getBlockAndMetaFromStorageLocation(storageLocationList);
 
-      blockWithMetaList.push({
-        block: JSON.parse(resultRead.result.content),
-        location,
-        meta: resultRead.meta,
+    // Get the transactions (and the meta) indexed by channelIds in the blocks found
+    const transactionsAndMetaPerBlocks: Array<{
+      transactions: DataAccessTypes.IConfirmedTransaction[];
+      transactionsStorageLocation: string[];
+      storageMeta: string[];
+    }> =
+      // for all the blocks found
+      blockWithMetaList.map(blockAndMeta => {
+        // Gets the list of positions of the transaction needed from the block
+        const transactionPositions: number[] = Block.getTransactionPositionFromChannelId(
+          blockAndMeta.block,
+          channelId,
+        );
+
+        return this.getTransactionAndMetaFromPosition(
+          transactionPositions,
+          blockAndMeta.block,
+          blockAndMeta.location,
+          blockAndMeta.meta,
+        );
+      });
+
+    // Creates the result by concatenating the transactions and meta of every blocks
+    return transactionsAndMetaPerBlocks.reduce(
+      (accumulator: DataAccessTypes.IReturnGetTransactions, elem) => ({
+        meta: {
+          storageMeta: accumulator.meta.storageMeta.concat(elem.storageMeta),
+          transactionsStorageLocation: accumulator.meta.transactionsStorageLocation.concat(
+            elem.transactionsStorageLocation,
+          ),
+        },
+        result: {
+          transactions: accumulator.result.transactions.concat(elem.transactions),
+        },
+      }),
+      // initial value is full of empty arrays
+      {
+        meta: { storageMeta: [], transactionsStorageLocation: [] },
+        result: { transactions: [] },
+      },
+    );
+  }
+
+  /**
+   * Function to get a list of transactions indexed by topic
+   *
+   * @param topic topic to retrieve the transaction from
+   * @param timestampBoundaries timestamp boundaries of the transactions search
+   *
+   * @returns list of transactions indexed by topic
+   */
+  public async getTransactionsByTopic(
+    topic: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetTransactions> {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
+
+    // Gets the list of channelIds indexed by the topic
+    const channelIdsList = this.locationByTopic.getChannelIdsFromTopic(topic);
+    // Gets the list of locationStorage indexed by the topic
+    const storageLocationList = this.locationByTopic
+      .getStorageLocationFromTopic(topic)
+      .filter(dataId => this.timestampByLocation.isDataInBoundaries(dataId, timestampBoundaries));
+
+    const blockWithMetaList = await this.getBlockAndMetaFromStorageLocation(storageLocationList);
+
+    // Get the transactions (and the meta) indexed by channelIds in the blocks found
+    const transactionsAndMetaPerBlocks: Array<{
+      transactions: DataAccessTypes.IConfirmedTransaction[];
+      transactionsStorageLocation: string[];
+      storageMeta: string[];
+    }> =
+      // for all the blocks found
+      blockWithMetaList.map(blockAndMeta => {
+        // Gets the list of positions of the transaction needed from the block
+        const transactionPositions: number[] = Utils.flatten2DimensionsArray(
+          channelIdsList
+            // Gets the transactions positions connected to the channelIds
+            .map(channelId =>
+              Block.getTransactionPositionFromChannelId(blockAndMeta.block, channelId),
+            )
+            // remove undefined
+            .filter(e => e !== undefined),
+        );
+
+        // Gets the transaction from the positions
+        const transactions: DataAccessTypes.IConfirmedTransaction[] =
+          // first remove the duplicates
+          Utils.unique(transactionPositions).uniqueItems.map(
+            // Get the transaction from their position
+            (position: number) => ({
+              timestamp: blockAndMeta.meta.timestamp,
+              transaction: blockAndMeta.block.transactions[position],
+            }),
+          );
+
+        // Gets the list of storage location of the transactions found
+        const transactionsStorageLocation = Array(transactions.length).fill(blockAndMeta.location);
+
+        // Gets the list of storage meta of the transactions found
+        const storageMeta = Array(transactions.length).fill(blockAndMeta.meta);
+
+        return { transactions, transactionsStorageLocation, storageMeta };
+      });
+
+    // Creates the result by concatenating the transactions and meta of every blocks
+    return transactionsAndMetaPerBlocks.reduce(
+      (accumulator: DataAccessTypes.IReturnGetTransactions, elem) => ({
+        meta: {
+          storageMeta: accumulator.meta.storageMeta.concat(elem.storageMeta),
+          transactionsStorageLocation: accumulator.meta.transactionsStorageLocation.concat(
+            elem.transactionsStorageLocation,
+          ),
+        },
+        result: {
+          transactions: accumulator.result.transactions.concat(elem.transactions),
+        },
+      }),
+      // initial value is full of empty arrays
+      {
+        meta: { storageMeta: [], transactionsStorageLocation: [] },
+        result: { transactions: [] },
+      },
+    );
+  }
+
+  /**
+   * Function to get a list of channels indexed by topic
+   *
+   * @param topic topic to retrieve the transaction from
+   * @param updatedBetween filter the channels that have received new data within the time boundaries
+   *
+   * @returns list of channels indexed by topic
+   */
+  public async getChannelsByTopic(
+    topic: string,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
+
+    // Gets the list of locationStorage grouped by channel id for the topic given
+    const storageLocationByChannelId = this.locationByTopic.getStorageLocationFromTopicGroupedByChannelId(
+      topic,
+    );
+
+    let channelIds = Object.keys(storageLocationByChannelId);
+
+    // Filters the channels to only keep the modified ones during the time boundaries
+    if (updatedBetween) {
+      channelIds = channelIds.filter(channelId => {
+        return storageLocationByChannelId[channelId].find(dataId =>
+          this.timestampByLocation.isDataInBoundaries(dataId, updatedBetween),
+        );
       });
     }
-    // get transactions indexed by topic in the blocks
-    // 1. get the transactions wanted in each block
-    // 2. merge all the transactions array in the same array
-    const transactions: DataAccessTypes.ITransaction[] = Utils.flatten2DimensionsArray(
-      blockWithMetaList.map(blockAndMeta =>
-        blockAndMeta.block.header.topics[topic].map(
-          (position: number) => blockAndMeta.block.transactions[position],
-        ),
+
+    // Gets the transactions per channel id
+    const transactionsAndMeta = await Promise.all(
+      channelIds.map(channelId =>
+        this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
+          channelId,
+          transactionsWithMeta,
+        })),
       ),
     );
 
-    // Generate the list of storage location of the transactions listed in result
-    const transactionsStorageLocation: string[] = Utils.flatten2DimensionsArray(
-      blockWithMetaList.map(blockAndMeta =>
-        Array(blockAndMeta.block.header.topics[topic].length).fill(blockAndMeta.location),
-      ),
-    );
+    // Gather all the transaction in one object
+    return transactionsAndMeta.reduce(
+      (finalResult: DataAccessTypes.IReturnGetChannelsByTopic, channelIdAndTransactions: any) => {
+        const id = channelIdAndTransactions.channelId;
 
-    // Generate the list of storage meta of the transactions listed in result
-    const storageMeta: string[] = Utils.flatten2DimensionsArray(
-      blockWithMetaList.map(blockAndMeta =>
-        Array(blockAndMeta.block.header.topics[topic].length).fill(blockAndMeta.meta),
-      ),
-    );
+        // Adds the storage location of the channel's data
+        finalResult.meta.transactionsStorageLocation[id] =
+          channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
-    return {
-      meta: {
-        storageMeta,
-        transactionsStorageLocation,
+        // Adds the meta of the channel
+        finalResult.meta.storageMeta[id] =
+          channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
+
+        // Adds the transaction of the channel
+        finalResult.result.transactions[id] =
+          channelIdAndTransactions.transactionsWithMeta.result.transactions;
+
+        return finalResult;
       },
-      result: { transactions },
-    };
+      {
+        meta: {
+          storageMeta: {},
+          transactionsStorageLocation: {},
+        },
+        result: { transactions: {} },
+      },
+    );
   }
 
   /**
@@ -163,13 +352,21 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     if (!this.locationByTopic) {
       throw new Error('DataAccess must be initialized');
     }
+    const synchronizationFrom = this.lastSyncedTimeStamp;
+    const synchronizationTo = Utils.getCurrentTimestampInSecond();
 
     // Read new dataIds from storage
-    const newDataIdsWithMeta = await this.storage.getNewDataId();
+    const newDataIdsWithMeta = await this.storage.getDataId({
+      from: synchronizationFrom,
+      to: synchronizationTo,
+    });
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta, this.locationByTopic);
+    await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta);
+
+    // update the last synced Timestamp
+    this.lastSyncedTimeStamp = synchronizationTo;
   }
 
   /**
@@ -208,13 +405,15 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Check the format of the dataIds, extract the topics from it and push location indexed with the topics
    *
    * @private
-   * @param dataIdsWithMeta dataIds from getAllDataId and getNewDataId from storage functions
+   * @param dataIdsWithMeta dataIds from getDataId and getNewDataId from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
   private async pushLocationsWithTopicsFromDataIds(
-    dataIdsWithMeta: StorageTypes.IGetAllDataIdReturn | StorageTypes.IGetNewDataIdReturn,
-    locationByTopic: LocationByTopic,
+    dataIdsWithMeta: StorageTypes.IGetDataIdReturn | StorageTypes.IGetNewDataIdReturn,
   ): Promise<void> {
+    if (!this.locationByTopic) {
+      throw new Error('DataAccess must be initialized');
+    }
     if (!dataIdsWithMeta.result) {
       throw Error(`data from storage do not follow the standard, result is missing`);
     }
@@ -237,7 +436,74 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       }
 
       // topic the previous dataId with their block topic
-      locationByTopic.pushLocationIndexedWithBlockTopics(dataId, block.header.topics);
+      this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(dataId, block.header);
+
+      // add the timestamp in the index
+      this.timestampByLocation.pushTimestampByLocation(dataId, resultRead.meta.timestamp);
     }
+  }
+
+  /**
+   * Gets the blocks and their metadata from an array of storage location
+   *
+   * @param storageLocationList array of storage location
+   * @returns the blocks and their metadata
+   */
+  private async getBlockAndMetaFromStorageLocation(
+    storageLocationList: string[],
+  ): Promise<
+    Array<{ block: DataAccessTypes.IBlock; meta: StorageTypes.IMetaOneData; location: string }>
+  > {
+    // Gets blocks indexed by topic
+    return Promise.all(
+      storageLocationList.map(async location => {
+        const resultRead = await this.storage.read(location);
+
+        return {
+          block: JSON.parse(resultRead.result.content),
+          location,
+          meta: resultRead.meta,
+        };
+      }),
+    );
+  }
+
+  /**
+   * Gets the transactions and their metadata from a block and an array of transaction positions
+   *
+   * @param transactionPositions transaction positions to retrieve
+   * @param block the block
+   * @param location location of the block
+   * @param meta metadata of the block
+   * @returns the transactions and their metadata
+   */
+  private getTransactionAndMetaFromPosition(
+    transactionPositions: number[],
+    block: DataAccessTypes.IBlock,
+    location: string,
+    meta: StorageTypes.IMetaOneData,
+  ): {
+    transactions: DataAccessTypes.IConfirmedTransaction[];
+    transactionsStorageLocation: string[];
+    storageMeta: string[];
+  } {
+    // Gets the transaction from the positions
+    const transactions: DataAccessTypes.IConfirmedTransaction[] =
+      // first remove de duplicates
+      Utils.unique(transactionPositions).uniqueItems.map(
+        // Get the transaction from their position and add the timestamp
+        (position: number) => ({
+          timestamp: meta.timestamp,
+          transaction: block.transactions[position],
+        }),
+      );
+
+    // Gets the list of storage location of the transactions found
+    const transactionsStorageLocation = Array(transactions.length).fill(location);
+
+    // Gets the list of storage meta of the transactions found
+    const storageMeta = Array(transactions.length).fill(meta);
+
+    return { transactions, transactionsStorageLocation, storageMeta };
   }
 }

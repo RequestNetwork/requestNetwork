@@ -8,10 +8,12 @@ import 'mocha';
 import Request from '../../src/api/request';
 import * as Types from '../../src/types';
 
+const chaiAsPromised = require('chai-as-promised');
 const chai = require('chai');
 const spies = require('chai-spies');
 const expect = chai.expect;
 chai.use(spies);
+chai.use(chaiAsPromised);
 const sandbox = chai.spy.sandbox();
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
@@ -33,7 +35,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async addExtensionsDataRequest(): Promise<any> {
     return { meta: {}, result: {} };
   },
-  async getFirstRequestFromTopic(): Promise<any> {
+  async getRequestFromId(): Promise<any> {
     return { meta: {}, result: { request: { requestId: '1' } } };
   },
   async getRequestsByTopic(): Promise<any> {
@@ -307,7 +309,7 @@ describe('api/request', () => {
         async addExtensionsDataRequest(): Promise<any> {
           return { meta: {}, result: {} };
         },
-        async getFirstRequestFromTopic(): Promise<any> {
+        async getRequestFromId(): Promise<any> {
           return {
             meta: {},
             result: {
@@ -324,7 +326,7 @@ describe('api/request', () => {
           };
         },
       };
-      const spy = sandbox.on(mockRequestLogicWithRequest, 'getFirstRequestFromTopic');
+      const spy = sandbox.on(mockRequestLogicWithRequest, 'getRequestFromId');
 
       const request = new Request(mockRequestLogicWithRequest, '1');
       await request.refresh();

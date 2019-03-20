@@ -19,6 +19,7 @@ const defaultValues: any = {
     },
   },
   server: {
+    headers: '{}',
     port: 3000,
   },
   wallet: {
@@ -36,6 +37,20 @@ export function getServerPort(): number {
     (process.env.PORT && Number(process.env.PORT)) ||
     defaultValues.server.port
   );
+}
+
+/**
+ * Get custom headers as a JSON stringified object from command line argument, environment variables or default values
+ * @returns an object with the custom headers to be set
+ */
+export function getCustomHeaders(): object {
+  const headersString = argv.headers || (process.env.HEADERS || defaultValues.server.headers);
+
+  try {
+    return JSON.parse(headersString);
+  } catch (e) {
+    throw new Error('Custom headers must be a valid JSON object');
+  }
 }
 
 /**
@@ -128,8 +143,11 @@ export function getHelpMessage(): string {
     yarn start <options>
 
     OPTIONS
-      SERVER OPTION
+      SERVER OPTIONS
         port (${defaultValues.server.port})\t\t\t\tPort for the server to listen for API requests
+        headers (${
+          defaultValues.server.headers
+        })\t\t\t\tCustom headers to send with the API responses
 
       ETHEREUM OPTIONS
         networkId (${

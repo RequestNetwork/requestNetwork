@@ -47,14 +47,12 @@ describe('mock-storage', () => {
     const { result: resultAppend1 } = await storage.append('stuff1');
     const { result: resultAppend2 } = await storage.append('stuff2');
 
-    const { result, meta } = await storage.getAllDataId();
+    const { result, meta } = await storage.getDataId();
 
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
     assert.deepEqual(result.dataIds, [resultAppend1.dataId, resultAppend2.dataId]);
-    assert.deepEqual(meta.metaDataIds, [
-      { storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK },
-      { storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK },
-    ]);
+
+    assert.equal(meta.metaDataIds.length, 2);
   });
 
   it('can get all data', async () => {
@@ -62,14 +60,11 @@ describe('mock-storage', () => {
     const { result: resultAppend1 } = await storage.append('stuff1');
     const { result: resultAppend2 } = await storage.append('stuff2');
 
-    const { result, meta } = await storage.getAllData();
+    const { result, meta } = await storage.getData();
 
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
     assert.deepEqual(result.data, ['stuff1', 'stuff2']);
-    assert.deepEqual(meta.metaData, [
-      { storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK },
-      { storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK },
-    ]);
+    assert.equal(meta.metaData.length, 2);
   });
 
   it('can append the same data twice', async () => {
@@ -79,11 +74,11 @@ describe('mock-storage', () => {
 
     assert.equal(resultAppend1.dataId, resultAppend2.dataId);
 
-    const { result: resultAllData } = await storage.getAllData();
-    assert.equal(resultAllData.data.length, 1);
+    const { result: resultData } = await storage.getData();
+    assert.equal(resultData.data.length, 1);
 
-    const { result: resultAllDataId } = await storage.getAllDataId();
-    assert.equal(resultAllDataId.dataIds.length, 1);
+    const { result: resultDataId } = await storage.getDataId();
+    assert.equal(resultDataId.dataIds.length, 1);
   });
 
   it('can get all data Ids', async () => {

@@ -2,9 +2,20 @@
 export interface IStorage {
   append: (data: string) => Promise<IOneDataIdAndMeta>;
   read: (dataId: string) => Promise<IOneContentAndMeta>;
-  getAllData: () => Promise<IGetAllDataReturn>;
-  getAllDataId: () => Promise<IGetAllDataIdReturn>;
-  getNewDataId: () => Promise<IGetNewDataIdReturn>;
+  getData: (options?: ITimestampBoundaries) => Promise<IGetDataReturn>;
+  getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
+}
+
+/** Restrict the get data research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
+}
+
+/** Restrict the get data research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** return interface for append  */
@@ -30,7 +41,7 @@ export interface IOneContentAndMeta {
 }
 
 /** return interface for array return */
-export interface IGetAllDataIdReturn {
+export interface IGetDataIdReturn {
   /** meta information */
   meta: {
     /** meta of the dataIds (follow the position of the result.dataIds) */
@@ -56,7 +67,7 @@ export interface IGetNewDataIdReturn {
 }
 
 /** return interface for array return */
-export interface IGetAllDataReturn {
+export interface IGetDataReturn {
   /** meta information */
   meta: {
     /** meta of the data (follow the position of the result.contents) */
@@ -79,6 +90,8 @@ export interface IMetaOneData {
     /** Size in bytes of the file on ipfs */
     size: number;
   };
+  /** timestamp of the data */
+  timestamp: number;
 }
 
 /** return interface for getAllHashesAndSizes() */
@@ -89,6 +102,8 @@ export interface IGetAllHashesAndSizes {
   hash: string;
   /** data size of the persisted data */
   size: number;
+  /** timestamp of the data */
+  timestamp: number;
 }
 
 /** Ethereum storage meta data */
@@ -134,6 +149,12 @@ export interface IIpfsGatewayConnection {
   port: number;
   protocol: IpfsGatewayProtocol;
   timeout: number;
+}
+
+/** two blocks number */
+export interface IBlockNumbersInterval {
+  blockAfter: number;
+  blockBefore: number;
 }
 
 /** Protocol to connect to ipfs */

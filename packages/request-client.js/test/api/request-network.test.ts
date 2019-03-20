@@ -1,4 +1,5 @@
-import { DataAccess as DataAccessTypes, Identity as IdentityTypes } from '@requestnetwork/types';
+import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+
 import { assert, expect } from 'chai';
 
 import 'mocha';
@@ -9,6 +10,12 @@ import Request from '../../src/api/request';
 import * as TestData from '../data-test';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
+  async getChannelsByTopic(): Promise<any> {
+    return;
+  },
+  async getTransactionsByChannelId(): Promise<any> {
+    return;
+  },
   async getTransactionsByTopic(): Promise<any> {
     return;
   },
@@ -33,9 +40,15 @@ describe('api/request-network', () => {
   describe('createRequest', () => {
     it('cannot createRequest() with extensionsData', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
+        async getTransactionsByChannelId(): Promise<any> {
+          return;
+        },
         async getTransactionsByTopic(): Promise<any> {
           return {
-            result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
+            result: { transactions: [TestData.transactionConfirmed] },
           };
         },
         async initialize(): Promise<any> {
@@ -66,10 +79,18 @@ describe('api/request-network', () => {
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async getTransactionsByTopic(): Promise<any> {
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
+        async getTransactionsByChannelId(): Promise<any> {
           return {
-            result: { transactions: [{ data: JSON.stringify(TestData.action) }] },
+            result: {
+              transactions: [TestData.transactionConfirmed],
+            },
           };
+        },
+        async getTransactionsByTopic(): Promise<any> {
+          return;
         },
         async initialize(): Promise<any> {
           return;
@@ -80,9 +101,7 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
-      const request = await requestnetwork.fromRequestId(
-        '0x4b97a5816a7a86d11aaec93e8ec3b253d916f7152935b97c85c7dc760ea1857a',
-      );
+      const request = await requestnetwork.fromRequestId('0x01');
 
       expect(request).to.instanceOf(Request);
     });
@@ -91,25 +110,45 @@ describe('api/request-network', () => {
   describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async getTransactionsByTopic(topic: string): Promise<any> {
+        async getChannelsByTopic(): Promise<any> {
+          return {
+            meta: {
+              [TestData.actionRequestId]: [],
+              [TestData.actionRequestIdSecondRequest]: [],
+            },
+            result: {
+              transactions: {
+                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestIdSecondRequest]: [
+                  TestData.transactionConfirmedSecondRequest,
+                ],
+              },
+            },
+          };
+        },
+        async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
-          if (topic === '0x627306090abab3a6e1400e9345bc60c78a8bef57') {
+          if (channelId === TestData.actionRequestId) {
             transactions = [
-              { data: JSON.stringify(TestData.action) },
-              { data: JSON.stringify(TestData.actionCreationSecondRequest) },
+              {
+                timestamp: TestData.arbitraryTimestamp,
+                transaction: {
+                  data: JSON.stringify(TestData.action),
+                },
+              },
             ];
           }
-          if (topic === '0x955a6b23cf91ea6f683b018f6be509888fb857230d776e6b628f94f6fdd1aa3a') {
-            transactions = [{ data: JSON.stringify(TestData.action) }];
-          }
-          if (topic === '0x8d7daef669d7e01888c7bd977361b94ac9b59edaff02659c4499a1a94d581ccb') {
-            transactions = [{ data: JSON.stringify(TestData.actionCreationSecondRequest) }];
+          if (channelId === TestData.actionRequestIdSecondRequest) {
+            transactions = [TestData.transactionConfirmedSecondRequest];
           }
           return {
             result: {
               transactions,
             },
           };
+        },
+        async getTransactionsByTopic(): Promise<any> {
+          return;
         },
         async initialize(): Promise<any> {
           return;
@@ -120,12 +159,78 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
-      const requests: Request[] = await requestnetwork.fromIdentity({
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-      });
+      const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
 
       expect(requests.length).to.be.equal(2);
+      expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
+      expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
+    });
+    it('cannot get request with identity type not supported', async () => {
+      const requestnetwork = new RequestNetwork(mockDataAccess);
+
+      await expect(
+        requestnetwork.fromIdentity({ type: 'not supported', value: 'whatever' } as any),
+      ).to.eventually.be.rejectedWith('not supported is not supported');
+    });
+  });
+
+  describe('fromTopic', () => {
+    it('can get requests with payment network fromTopic', async () => {
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return {
+            meta: {
+              [TestData.actionRequestId]: [],
+              [TestData.actionRequestIdSecondRequest]: [],
+            },
+            result: {
+              transactions: {
+                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestIdSecondRequest]: [
+                  TestData.transactionConfirmedSecondRequest,
+                ],
+              },
+            },
+          };
+        },
+        async getTransactionsByChannelId(channelId: string): Promise<any> {
+          let transactions: any[] = [];
+          if (channelId === TestData.actionRequestId) {
+            transactions = [TestData.transactionConfirmed];
+          }
+          if (channelId === TestData.actionRequestIdSecondRequest) {
+            transactions = [TestData.transactionConfirmedSecondRequest];
+          }
+          return {
+            result: {
+              transactions,
+            },
+          };
+        },
+        async getTransactionsByTopic(): Promise<any> {
+          return;
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
+
+      expect(requests.length).to.be.equal(2);
+      expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
+      expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
+    });
+    it('cannot get request with identity type not supported', async () => {
+      const requestnetwork = new RequestNetwork(mockDataAccess);
+
+      await expect(
+        requestnetwork.fromIdentity({ type: 'not supported', value: 'whatever' } as any),
+      ).to.eventually.be.rejectedWith('not supported is not supported');
     });
   });
 });

@@ -67,6 +67,7 @@ describe('actions/cancel', () => {
       );
       const request = CancelAction.applyActionToRequest(
         actionCancel,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -109,6 +110,7 @@ describe('actions/cancel', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
+        timestamp: 2,
       });
     });
     it('cannot cancel by payer with state === accepted', async () => {
@@ -123,6 +125,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
+          2,
           Utils.deepCopy(TestData.requestAcceptedNoExtension),
         ),
       ).to.throw('A payer cancel need to be done on a request with the state created');
@@ -139,6 +142,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
+          2,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('A payer cancel need to be done on a request with the state created');
@@ -154,6 +158,7 @@ describe('actions/cancel', () => {
       );
       const request = CancelAction.applyActionToRequest(
         actionCancel,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -195,6 +200,7 @@ describe('actions/cancel', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
+        timestamp: 2,
       });
     });
     it('can cancel by payee with state === accepted', async () => {
@@ -208,6 +214,7 @@ describe('actions/cancel', () => {
 
       const request = CancelAction.applyActionToRequest(
         actionCancel,
+        2,
         Utils.deepCopy(TestData.requestAcceptedNoExtension),
       );
 
@@ -249,6 +256,7 @@ describe('actions/cancel', () => {
         actionSigner: TestData.payeeRaw.identity,
         name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
+        timestamp: 2,
       });
     });
     it('cannot cancel by payee with state === canceled', async () => {
@@ -263,6 +271,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
+          2,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).to.throw('Cannot cancel an already canceled request');
@@ -280,6 +289,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           actionCancel,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('Signer must be the payer or the payee');
@@ -302,6 +312,7 @@ describe('actions/cancel', () => {
       expect(() =>
         CancelAction.applyActionToRequest(
           action,
+          2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).to.throw('requestId must be given');
@@ -325,6 +336,7 @@ describe('actions/cancel', () => {
               extensionsDataLength: 0,
               isSignedRequest: false,
             },
+            timestamp: 1,
           },
         ],
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -354,7 +366,7 @@ describe('actions/cancel', () => {
         },
       };
 
-      expect(() => CancelAction.applyActionToRequest(action, requestContextNoPayer)).to.throw(
+      expect(() => CancelAction.applyActionToRequest(action, 2, requestContextNoPayer)).to.throw(
         'Signer must be the payer or the payee',
       );
     });
@@ -377,6 +389,7 @@ describe('actions/cancel', () => {
               extensionsDataLength: 0,
               isSignedRequest: false,
             },
+            timestamp: 1,
           },
         ],
         expectedAmount: TestData.arbitraryExpectedAmount,
@@ -406,7 +419,7 @@ describe('actions/cancel', () => {
         },
       };
 
-      expect(() => CancelAction.applyActionToRequest(action, requestContextNoPayee)).to.throw(
+      expect(() => CancelAction.applyActionToRequest(action, 2, requestContextNoPayee)).to.throw(
         'Signer must be the payer or the payee',
       );
     });
@@ -423,6 +436,7 @@ describe('actions/cancel', () => {
 
       const request = CancelAction.applyActionToRequest(
         actionCancel,
+        2,
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
@@ -466,6 +480,7 @@ describe('actions/cancel', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
 
@@ -482,6 +497,7 @@ describe('actions/cancel', () => {
 
       const request = CancelAction.applyActionToRequest(
         actionCancel,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -525,6 +541,7 @@ describe('actions/cancel', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 1 },
+        timestamp: 2,
       });
     });
     it('can cancel without extensionsData and extensionsData before', async () => {
@@ -538,6 +555,7 @@ describe('actions/cancel', () => {
 
       const request = CancelAction.applyActionToRequest(
         actionCancel,
+        2,
         Utils.deepCopy(TestData.requestCreatedWithExtensions),
       );
 
@@ -581,6 +599,7 @@ describe('actions/cancel', () => {
         actionSigner: TestData.payerRaw.identity,
         name: Types.ACTION_NAME.CANCEL,
         parameters: { extensionsDataLength: 0 },
+        timestamp: 2,
       });
     });
   });

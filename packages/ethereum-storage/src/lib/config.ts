@@ -17,7 +17,7 @@ const config: any = {
         url: 'http://localhost:8545',
       },
       rinkeby: {
-        timeout: 10000,
+        timeout: 30000,
         url:
           'https://rinkeby.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
       },

@@ -14,6 +14,7 @@ import { expect } from 'chai';
 import * as TestData from './utils/test-data-generator';
 
 let advancedLogic: Types.IAdvancedLogic;
+
 /* tslint:disable:no-unused-expression */
 describe('advanced-logic.ts', () => {
   beforeEach(() => {
@@ -29,6 +30,7 @@ describe('advanced-logic.ts', () => {
         TestData.createContentDataExtensionData,
         requestCreatedNoExtensionBefore,
         TestData.payeeRaw.identity,
+        TestData.arbitraryTimestamp,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
@@ -51,6 +53,7 @@ describe('advanced-logic.ts', () => {
         DataBTCCreate.actionCreationWithPaymentAndRefund,
         requestCreatedNoExtensionBefore,
         TestData.payeeRaw.identity,
+        TestData.arbitraryTimestamp,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
@@ -72,6 +75,7 @@ describe('advanced-logic.ts', () => {
         DataTestnetBTCCreate.actionCreationWithPaymentAndRefund,
         requestCreatedNoExtensionBefore,
         TestData.payeeRaw.identity,
+        TestData.arbitraryTimestamp,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
@@ -95,6 +99,7 @@ describe('advanced-logic.ts', () => {
           } as any,
           TestData.requestCreatedNoExtension,
           TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
         ),
       ).to.throw('extension not recognized, id: unknownExtension');
     });

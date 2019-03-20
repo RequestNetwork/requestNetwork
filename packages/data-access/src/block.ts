@@ -7,11 +7,12 @@ import Utils from '@requestnetwork/utils';
  */
 export default {
   createEmptyBlock,
+  getAllChannelIds,
   getAllTopics,
   getAllTransactions,
   getTransactionFromPosition,
-  getTransactionPositionFromTopic,
-  getTransactionPositionsByTopics,
+  getTransactionPositionFromChannelId,
+  getTransactionPositionsByChannelIds,
   getTransactionsByPositions,
   pushTransaction,
 };
@@ -24,6 +25,7 @@ export default {
 function createEmptyBlock(): Types.IBlock {
   return {
     header: {
+      channelIds: {},
       topics: {},
       version: '0.1.0',
     },
@@ -34,15 +36,17 @@ function createEmptyBlock(): Types.IBlock {
 /**
  * Function to add a transaction and topics in the block
  *
- * @param IBlock block previous state will not be modified
- * @param ITransaction transaction transaction to push
- * @param string[] topics strings to topic the transaction
+ * @param block previous state will not be modified
+ * @param transaction transaction to push
+ * @param channelId id of the channel to add the transaction in
+ * @param topics strings to topic the channel
  *
- * @returns IBlock the new state
+ * @returns the new state
  */
 function pushTransaction(
   block: Types.IBlock,
   transaction: Types.ITransaction,
+  channelId: string,
   topics: string[] = [],
 ): Types.IBlock {
   if (transaction.data === undefined) {
@@ -56,13 +60,18 @@ function pushTransaction(
 
   const txHash = Utils.crypto.normalizeKeccak256Hash(transaction.data);
 
+  // index the transaction with the channel id
+  copiedBlock.header.channelIds[channelId] = (
+    copiedBlock.header.channelIds[channelId] || []
+  ).concat([newTransactionPosition]);
+
   // concat topic given and the default topic (hash)
   topics.push(txHash);
 
   // add topics in the header
   for (const topic of topics) {
-    copiedBlock.header.topics[topic] = (copiedBlock.header.topics[topic] || []).concat([
-      newTransactionPosition,
+    copiedBlock.header.topics[channelId] = (copiedBlock.header.topics[channelId] || []).concat([
+      topic,
     ]);
   }
 
@@ -72,10 +81,10 @@ function pushTransaction(
 /**
  * Returns a transaction from its position
  *
- * @param IBlock block current block state
- * @param number position position of the transaction
+ * @param block current block state
+ * @param position position of the transaction in the block
  *
- * @returns ITransaction the transaction
+ * @returns the transaction
  */
 function getTransactionFromPosition(block: Types.IBlock, position: number): Types.ITransaction {
   return block.transactions[position];
@@ -84,10 +93,10 @@ function getTransactionFromPosition(block: Types.IBlock, position: number): Type
 /**
  * Returns several transactions from their positions
  *
- * @param IBlock block current block state
- * @param number[] positions list of positions of the transactions
+ * @param block current block state
+ * @param positions list of positions of the transactions
  *
- * @returns ITransaction[] the transactions
+ * @returns the transactions
  */
 function getTransactionsByPositions(
   block: Types.IBlock,
@@ -104,37 +113,37 @@ function getTransactionsByPositions(
 /**
  * Returns all transactions of a block
  *
- * @param IBlock block current block state
+ * @param block current block state
  *
- * @returns ITransaction[] all the transactions with topics
+ * @returns all the transactions with topics
  */
 function getAllTransactions(block: Types.IBlock): Types.ITransaction[] {
   return block.transactions;
 }
 
 /**
- * Returns a list of the positions of the transactions with given topics
+ * Returns a list of the positions of the transactions with given channel id
  *
- * @param IBlock block current block state
- * @param string topic the topic value
+ * @param block current block state
+ * @param channelId the channel id
  *
- * @returns number[] list of transaction position
+ * @returns list of transaction positions
  */
-function getTransactionPositionFromTopic(block: Types.IBlock, topic: string): number[] {
-  return block.header.topics[topic] || [];
+function getTransactionPositionFromChannelId(block: Types.IBlock, channelId: string): number[] {
+  return block.header.channelIds[channelId] || [];
 }
 
 /**
- * Returns a list of transactions position from a list of topics
+ * Returns a list of transactions position from a list of channel ids
  *
- * @param IBlock block current block state
- * @param string[] topics the topics value
+ * @param block current block state
+ * @param ids the channel ids
  *
- * @returns number[] list of transaction positions
+ * @returns list of transaction positions
  */
-function getTransactionPositionsByTopics(block: Types.IBlock, topics: string[]): number[] {
-  const result: number[] = topics
-    .map(i => block.header.topics[i])
+function getTransactionPositionsByChannelIds(block: Types.IBlock, channelIds: string[]): number[] {
+  const result: number[] = channelIds
+    .map(id => block.header.channelIds[id])
     .filter(value => value !== undefined)
     .reduce((accumulator, current) => accumulator.concat(current), []);
 
@@ -145,10 +154,21 @@ function getTransactionPositionsByTopics(block: Types.IBlock, topics: string[]):
 /**
  * Returns all the topics of the block
  *
- * @param IBlock block current block state
+ * @param block current block state
  *
- * @returns ITopics all the topics
+ * @returns all the topics
  */
 function getAllTopics(block: Types.IBlock): Types.ITopics {
   return block.header.topics;
+}
+
+/**
+ * Returns all the channel ids of the block
+ *
+ * @param block current block state
+ *
+ * @returns all the channel ids
+ */
+function getAllChannelIds(block: Types.IBlock): Types.IChannelIds {
+  return block.header.channelIds;
 }

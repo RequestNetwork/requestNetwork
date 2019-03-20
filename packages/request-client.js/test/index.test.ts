@@ -53,7 +53,10 @@ function mockAxios(): any {
   mock.onPost('/persistTransaction').reply(200, { result: {} });
   mock
     .onGet('/getTransactionsByTopic')
-    .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
+    .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
+  mock
+    .onGet('/getTransactionsByChannelId')
+    .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
   return mock;
 }
 
@@ -74,8 +77,8 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
-      .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
+      .onGet('/getTransactionsByChannelId')
+      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -103,9 +106,9 @@ describe('index', () => {
     };
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
-    mock
-      .onGet('/getTransactionsByTopic')
-      .reply(200, { result: { transactions: [{ data: JSON.stringify(TestDataRealBTC.action) }] } });
+    mock.onGet('/getTransactionsByChannelId').reply(200, {
+      result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+    });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -134,8 +137,8 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
-      .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
+      .onGet('/getTransactionsByChannelId')
+      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -157,8 +160,8 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock
-      .onGet('/getTransactionsByTopic')
-      .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
+      .onGet('/getTransactionsByChannelId')
+      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
 
     const requestNetwork = new RequestNetwork({
       nodeConnectionConfig: { baseURL },
@@ -211,8 +214,8 @@ describe('index', () => {
     const mock = new mockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
     mock
-      .onGet('/getTransactionsByTopic')
-      .reply(200, { result: { transactions: [{ data: JSON.stringify(TestData.action) }] } });
+      .onGet('/getTransactionsByChannelId')
+      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({

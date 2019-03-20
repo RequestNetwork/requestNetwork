@@ -20,6 +20,7 @@ describe('content-data', () => {
         TestData.createContentDataExtensionData,
         requestCreatedNoExtensionBefore,
         TestData.otherIdRaw.identity,
+        TestData.arbitraryTimestamp,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
@@ -44,6 +45,7 @@ describe('content-data', () => {
           },
           TestData.requestCreatedWithContentData,
           TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
         ),
       ).to.throw('This extension have already been created');
     });
@@ -60,6 +62,7 @@ describe('content-data', () => {
           },
           TestData.requestCreatedNoExtension,
           TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
         ),
       ).to.throw('No content has been given for the extension content-data');
     });
@@ -76,6 +79,7 @@ describe('content-data', () => {
           },
           TestData.requestCreatedNoExtension,
           TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
         );
       }, 'must throw').to.throw('Unknown action: unknown action');
     });

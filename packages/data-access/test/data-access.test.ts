@@ -30,21 +30,29 @@ const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 
+const arbitraryId1 = '0x111111111111111';
+const arbitraryId2 = '0x222222222222222';
+
 const arbitraryTopic1 = '0xaaaaaa';
 const arbitraryTopic2 = '0xccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
-const blockWith1tx = RequestDataAccessBlock.pushTransaction(emptyblock, transactionMock1, [
-  arbitraryTopic1,
-  arbitraryTopic2,
-]);
-const blockWith2tx = RequestDataAccessBlock.pushTransaction(blockWith1tx, transactionMock2, [
-  arbitraryTopic2,
-]);
+const blockWith1tx = RequestDataAccessBlock.pushTransaction(
+  emptyblock,
+  transactionMock1,
+  arbitraryId1,
+  [arbitraryTopic1, arbitraryTopic2],
+);
+const blockWith2tx = RequestDataAccessBlock.pushTransaction(
+  blockWith1tx,
+  transactionMock2,
+  arbitraryId2,
+  [arbitraryTopic2],
+);
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
-const getAllDataIdResult: StorageTypes.IGetAllDataIdReturn = {
+const getDataIdResult: StorageTypes.IGetDataIdReturn = {
   meta: {
     metaDataIds: [],
   },
@@ -54,13 +62,15 @@ const getAllDataIdResult: StorageTypes.IGetAllDataIdReturn = {
 };
 
 const appendResult: StorageTypes.IOneDataIdAndMeta = {
-  meta: {},
+  meta: {
+    timestamp: 1,
+  },
   result: {
     dataId: dataIdBlock2tx,
   },
 };
 
-const emptyDataIdresult: StorageTypes.IGetNewDataIdReturn = {
+const emptyDataIdResult: StorageTypes.IGetNewDataIdReturn = {
   meta: {
     metaDataIds: [],
   },
@@ -71,6 +81,7 @@ const emptyDataIdresult: StorageTypes.IGetNewDataIdReturn = {
 
 let clock: sinon.SinonFakeTimers;
 
+// tslint:disable:no-magic-numbers
 /* tslint:disable:no-unused-expression */
 describe('data-access', () => {
   beforeEach(async () => {
@@ -83,15 +94,12 @@ describe('data-access', () => {
 
   describe('constructor and getTransactionsByTopic', () => {
     it('cannot initialize with data from read without result', async () => {
-      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-        getAllDataIdResult,
-      );
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -119,9 +127,8 @@ describe('data-access', () => {
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -141,15 +148,12 @@ describe('data-access', () => {
     });
 
     it('cannot initialize with content from read not following the standard', async () => {
-      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-        getAllDataIdResult,
-      );
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -170,15 +174,12 @@ describe('data-access', () => {
     });
 
     it('cannot initialize with content from read not being JSON parsable', async () => {
-      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-        getAllDataIdResult,
-      );
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -197,18 +198,15 @@ describe('data-access', () => {
     });
 
     it('can construct and getTransactionsByTopic', async () => {
-      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-        getAllDataIdResult,
-      );
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-            meta: {},
+            meta: { timestamp: 1 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
@@ -226,10 +224,10 @@ describe('data-access', () => {
         'result with arbitraryTopic1 wrong',
       ).to.deep.equal({
         meta: {
-          storageMeta: [{}],
+          storageMeta: [{ timestamp: 1 }],
           transactionsStorageLocation: ['dataIdBlock2tx'],
         },
-        result: { transactions: [transactionMock1] },
+        result: { transactions: [{ transaction: transactionMock1, timestamp: 1 }] },
       });
 
       expect(
@@ -237,28 +235,28 @@ describe('data-access', () => {
         'result with arbitraryTopic2 wrong',
       ).to.deep.equal({
         meta: {
-          storageMeta: [{}, {}],
+          storageMeta: [{ timestamp: 1 }, { timestamp: 1 }],
           transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
         },
         result: {
-          transactions: [transactionMock1, transactionMock2],
+          transactions: [
+            { transaction: transactionMock1, timestamp: 1 },
+            { transaction: transactionMock2, timestamp: 1 },
+          ],
         },
       });
     });
 
     it('cannot initialize twice', async () => {
-      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-        getAllDataIdResult,
-      );
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-            meta: {},
+            meta: { timestamp: 1 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
@@ -275,18 +273,15 @@ describe('data-access', () => {
     });
 
     it('cannot getTransactionsByTopic if not initialized', async () => {
-      const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-        getAllDataIdResult,
-      );
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
         append: chai.spy(),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: (): any => testTopics,
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-            meta: {},
+            meta: { timestamp: 1 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
@@ -304,28 +299,195 @@ describe('data-access', () => {
     });
   });
 
+  describe('getTransactionsByChannelId', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+            meta: { timestamp: 10 },
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can getTransactionsByChannelId() with boundaries', async () => {
+      expect(
+        await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 9, to: 100 }),
+        'result with arbitraryId1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [{ timestamp: 10 }],
+          transactionsStorageLocation: ['dataIdBlock2tx'],
+        },
+        result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
+      });
+    });
+
+    it('can getTransactionsByTopic() with boundaries too restrictive', async () => {
+      expect(
+        await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
+        'result with arbitraryId1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [],
+          transactionsStorageLocation: [],
+        },
+        result: { transactions: [] },
+      });
+    });
+  });
+
+  describe('getTransactionsByTopic', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+            meta: { timestamp: 10 },
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can getTransactionsByTopic() with boundaries', async () => {
+      expect(
+        await dataAccess.getTransactionsByTopic(arbitraryTopic1, { from: 9, to: 100 }),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [{ timestamp: 10 }],
+          transactionsStorageLocation: ['dataIdBlock2tx'],
+        },
+        result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
+      });
+    });
+
+    it('can getTransactionsByTopic() with boundaries too restrictive', async () => {
+      expect(
+        await dataAccess.getTransactionsByTopic(arbitraryTopic1, { from: 11, to: 100 }),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: [],
+          transactionsStorageLocation: [],
+        },
+        result: { transactions: [] },
+      });
+    });
+  });
+
+  describe('getChannelByTopic', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+
+      const fakeStorage: StorageTypes.IStorage = {
+        append: chai.spy(),
+        getData: (): any => chai.spy(),
+        getDataId: (): any => testTopics,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+            meta: { timestamp: 10 },
+            result: { content: JSON.stringify(blockWith2tx) },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can getChannelByTopic() with boundaries', async () => {
+      expect(
+        await dataAccess.getChannelsByTopic(arbitraryTopic1, { from: 9, to: 100 }),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: { [arbitraryId1]: [{ timestamp: 10 }] },
+          transactionsStorageLocation: { [arbitraryId1]: ['dataIdBlock2tx'] },
+        },
+        result: {
+          transactions: { [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 10 }] },
+        },
+      });
+    });
+
+    it('can getChannelByTopic() with boundaries too restrictive', async () => {
+      expect(
+        await dataAccess.getChannelsByTopic(arbitraryTopic1, { from: 11, to: 100 }),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: {},
+          transactionsStorageLocation: {},
+        },
+        result: { transactions: {} },
+      });
+    });
+  });
+
   describe('persistTransaction', () => {
     it('can persistTransaction()', async () => {
       const fakeStorageSpied: StorageTypes.IStorage = {
         append: chai.spy.returns(appendResult),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: chai.spy.returns({ result: { dataIds: [] } }),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
       await dataAccess.initialize();
 
-      const result = await dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]);
+      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+        arbitraryTopic1,
+      ]);
 
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
       expect(fakeStorageSpied.append).to.have.been.called.with(
         JSON.stringify({
           header: {
+            channelIds: {
+              [arbitraryId1]: [0],
+            },
             topics: {
-              '0xaaaaaa': [0],
-              '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca': [0],
+              [arbitraryId1]: [
+                '0xaaaaaa',
+                '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
+              ],
             },
             version: '0.1.0',
           },
@@ -338,7 +500,7 @@ describe('data-access', () => {
       );
       expect(result, 'result wrong').to.deep.equal({
         meta: {
-          storageMeta: {},
+          storageMeta: { timestamp: 1 },
           topics: [
             arbitraryTopic1,
             '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
@@ -352,15 +514,14 @@ describe('data-access', () => {
     it('cannot persistTransaction() if not initialized', async () => {
       const fakeStorageSpied: StorageTypes.IStorage = {
         append: chai.spy.returns('fakeDataId'),
-        getAllData: (): any => chai.spy(),
-        getAllDataId: chai.spy.returns([]),
-        getNewDataId: (): any => emptyDataIdresult,
+        getData: (): any => chai.spy(),
+        getDataId: chai.spy.returns([]),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
 
       await expect(
-        dataAccess.persistTransaction(transactionMock1, [arbitraryTopic1]),
+        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [arbitraryTopic1]),
       ).to.be.rejectedWith('DataAccess must be initialized');
     });
   });
@@ -368,9 +529,8 @@ describe('data-access', () => {
   it('synchronizeNewDataId() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       append: chai.spy.returns(appendResult),
-      getAllData: (): any => chai.spy(),
-      getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
-      getNewDataId: (): any => emptyDataIdresult,
+      getData: (): any => chai.spy(),
+      getDataId: chai.spy.returns({ result: { dataIds: [] } }),
       read: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
@@ -381,20 +541,22 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testTopics: Promise<StorageTypes.IGetAllDataIdReturn> = Promise.resolve(
-      getAllDataIdResult,
-    );
+    const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
-    // We create a fakeStorage where getAllDataId() called at initialization returns empty structure
+    // We create a fakeStorage where getDataId() called at initialization returns empty structure
     // and getNewDataId() returns testTopics
     const fakeStorage: StorageTypes.IStorage = {
       append: chai.spy(),
-      getAllData: (): any => chai.spy(),
-      getAllDataId: (): any => emptyDataIdresult,
-      getNewDataId: (): any => testTopics,
+      getData: (): any => chai.spy(),
+      getDataId: (options: any): any => {
+        if (!options) {
+          return emptyDataIdResult;
+        }
+        return testTopics;
+      },
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-          meta: {},
+          meta: { timestamp: 1 },
           result: { content: JSON.stringify(blockWith2tx) },
         };
         const result: any = {
@@ -418,19 +580,6 @@ describe('data-access', () => {
       result: { transactions: [] },
     });
 
-    expect(
-      await dataAccess.getTransactionsByTopic(arbitraryTopic2),
-      'result with arbitraryTopic2 not empty',
-    ).to.deep.equal({
-      meta: {
-        storageMeta: [],
-        transactionsStorageLocation: [],
-      },
-      result: {
-        transactions: [],
-      },
-    });
-
     // Transactions should be available avec synchronization
     await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
 
@@ -439,10 +588,10 @@ describe('data-access', () => {
       'result with arbitraryTopic1 wrong',
     ).to.deep.equal({
       meta: {
-        storageMeta: [{}],
+        storageMeta: [{ timestamp: 1 }],
         transactionsStorageLocation: ['dataIdBlock2tx'],
       },
-      result: { transactions: [transactionMock1] },
+      result: { transactions: [{ transaction: transactionMock1, timestamp: 1 }] },
     });
 
     expect(
@@ -450,11 +599,14 @@ describe('data-access', () => {
       'result with arbitraryTopic2 wrong',
     ).to.deep.equal({
       meta: {
-        storageMeta: [{}, {}],
+        storageMeta: [{ timestamp: 1 }, { timestamp: 1 }],
         transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
       },
       result: {
-        transactions: [transactionMock1, transactionMock2],
+        transactions: [
+          { transaction: transactionMock1, timestamp: 1 },
+          { transaction: transactionMock2, timestamp: 1 },
+        ],
       },
     });
   });
@@ -462,9 +614,8 @@ describe('data-access', () => {
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       append: chai.spy.returns(appendResult),
-      getAllData: (): any => chai.spy(),
-      getAllDataId: chai.spy.returns({ result: { dataIds: [] } }),
-      getNewDataId: (): any => emptyDataIdresult,
+      getData: (): any => chai.spy(),
+      getDataId: chai.spy.returns({ result: { dataIds: [] } }),
       read: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
@@ -475,12 +626,11 @@ describe('data-access', () => {
   it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
     const fakeStorage: StorageTypes.IStorage = {
       append: chai.spy(),
-      getAllData: (): any => chai.spy(),
-      getAllDataId: (): any => emptyDataIdresult,
-      getNewDataId: (): any => emptyDataIdresult,
+      getData: (): any => chai.spy(),
+      getDataId: (): any => emptyDataIdResult,
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-          meta: {},
+          meta: { timestamp: 1 },
           result: { content: JSON.stringify(blockWith2tx) },
         };
         const result: any = {

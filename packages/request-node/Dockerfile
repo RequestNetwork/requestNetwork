@@ -1,23 +1,23 @@
-FROM node:latest as builder
-WORKDIR /
+# Install necessary modules for the nodes
+FROM node:10.14.2 as installer
+
+WORKDIR /app
 ADD package.json .
 RUN npm install
 
-# ADD src src
-# ADD tsconfig.json tsconfig.json
-# RUN npm install typescript
-# RUN npm run build
+# Build request-node
+ADD src src
+RUN npm install -g typescript
+ADD docker/docker-tsconfig.json tsconfig.json
+RUN tsc -b
 
-
-FROM alpine:latest as main
-
-RUN apk add --update nodejs
+# Launch the server
+FROM node:10.14.2-alpine
 
 WORKDIR /request-node
-COPY --from=builder /node_modules node_modules
+COPY --from=installer /app/node_modules node_modules
+COPY --from=installer /app/dist dist
 ADD package.json .
-# WORKDIR /dist
-ADD dist dist
 
 # Port configuration
 ENV PORT 3000

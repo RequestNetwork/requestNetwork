@@ -534,7 +534,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = CreateAction.createRequest(actionCreation);
+      const request = CreateAction.createRequest(actionCreation, 2);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
@@ -577,6 +577,7 @@ describe('CreateAction', () => {
           extensionsDataLength: 0,
           isSignedRequest: false,
         },
+        timestamp: 2,
       });
 
       expect(request.timestamp, 'timestamp is wrong').to.equal(TestData.arbitraryTimestamp);
@@ -599,7 +600,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = CreateAction.createRequest(actionCreation);
+      const request = CreateAction.createRequest(actionCreation, 2);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
@@ -642,6 +643,7 @@ describe('CreateAction', () => {
           extensionsDataLength: 0,
           isSignedRequest: false,
         },
+        timestamp: 2,
       });
 
       expect(request.timestamp, 'timestamp is wrong').to.equal(TestData.arbitraryTimestamp);
@@ -663,7 +665,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = CreateAction.createRequest(actionCreation);
+      const request = CreateAction.createRequest(actionCreation, 2);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
@@ -705,6 +707,7 @@ describe('CreateAction', () => {
           extensionsDataLength: 0,
           isSignedRequest: false,
         },
+        timestamp: 2,
       });
     });
 
@@ -728,7 +731,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = CreateAction.createRequest(actionCreation);
+      const request = CreateAction.createRequest(actionCreation, 2);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
@@ -779,6 +782,7 @@ describe('CreateAction', () => {
           extensionsDataLength: 0,
           isSignedRequest: false,
         },
+        timestamp: 2,
       });
     });
 
@@ -796,7 +800,7 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
 
-      expect(() => CreateAction.createRequest(action)).to.throw(
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
         'action.parameters.payee or action.parameters.payer must be given',
       );
     });
@@ -819,7 +823,7 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
 
-      expect(() => CreateAction.createRequest(action)).to.throw(
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
         'action.parameters.expectedAmount must be a string representing a positive integer',
       );
     });
@@ -841,7 +845,7 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action)).to.throw(
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
         'action.parameters.expectedAmount must be a string representing a positive integer',
       );
     });
@@ -863,7 +867,7 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action)).to.throw(
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
         'action.parameters.expectedAmount must be a string representing a positive integer',
       );
     });
@@ -889,7 +893,7 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      const request = CreateAction.createRequest(actionCreation);
+      const request = CreateAction.createRequest(actionCreation, 2);
 
       expect(request.requestId, 'requestId is wrong').to.equal(
         Utils.crypto.normalizeKeccak256Hash({
@@ -941,6 +945,7 @@ describe('CreateAction', () => {
           extensionsDataLength: 1,
           isSignedRequest: false,
         },
+        timestamp: 2,
       });
     });
 
@@ -961,7 +966,7 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action)).to.throw(
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
         'Signer must be the payee or the payer',
       );
     });
@@ -983,7 +988,7 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action)).to.throw(
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
         'Signer must be the payee or the payer',
       );
     });

@@ -2,7 +2,22 @@ import {
   Identity as IdentityTypes,
   RequestLogic as RequestLogicTypes,
   Signature as SignatureTypes,
+  Transaction as TransactionTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
+
+const payee = {
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  },
+  signatureParams: {
+    method: SignatureTypes.METHOD.ECDSA,
+    privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+  },
+};
+
+export const arbitraryTimestamp = 1549953337;
 
 export const parameters: RequestLogicTypes.ICreateParameters = {
   currency: RequestLogicTypes.CURRENCY.BTC,
@@ -17,10 +32,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
       version: '0.1.0',
     },
   ],
-  payee: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  },
+  payee: payee.identity,
   payer: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
@@ -31,15 +43,12 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
 export const data = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters,
-  version: '0.1.0',
+  version: '2.0.0',
 };
 
-export const signature: SignatureTypes.ISignature = {
-  method: SignatureTypes.METHOD.ECDSA,
-  value:
-    '0x3f2b20a14eedd019ae4094793be5290c40125af372fc7e3939f0a8c146db32d570c5a304987f0db6e75eede6a65bb2522c39d7696b8013cb8b0f933870bd2a741c',
-};
-export const action: RequestLogicTypes.IAction = {
-  data,
-  signature,
+export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
+
+export const transactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(action) },
 };

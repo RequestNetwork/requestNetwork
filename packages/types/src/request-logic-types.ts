@@ -31,8 +31,17 @@ export interface IRequestLogic {
     requestParameters: IAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
   ) => Promise<IRequestLogicReturn>;
-  getFirstRequestFromTopic: (topic: string) => Promise<IReturnGetRequestById>;
-  getRequestsByTopic: (topic: string) => Promise<IReturnGetRequestsByTopic>;
+  getRequestFromId: (topic: string) => Promise<IReturnGetRequestFromId>;
+  getRequestsByTopic: (
+    topic: string,
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetRequestsByTopic>;
+}
+
+/** Restrict research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** return of IRequestLogic functions */
@@ -55,7 +64,7 @@ export interface IReturnCreateRequest extends IRequestLogicReturn {
 }
 
 /** return of the function getFirstRequestFromTopic */
-export interface IReturnGetRequestById extends IRequestLogicReturn {
+export interface IReturnGetRequestFromId extends IRequestLogicReturn {
   result: { request: IRequest | null };
 }
 
@@ -68,6 +77,12 @@ export interface IReturnGetRequestsByTopic extends IRequestLogicReturn {
 export interface IAction {
   data: IUnsignedAction;
   signature: Signature.ISignature;
+}
+
+/** Interface of a request logic action confirmed */
+export interface IConfirmedAction {
+  action: IAction;
+  timestamp: number;
 }
 
 /** Interface of a request logic unsigned action */
@@ -187,6 +202,7 @@ export interface IEvent {
   /** the information given in the event */
   parameters?: any;
   actionSigner: Identity.IIdentity;
+  timestamp: number;
 }
 
 /** Enum of name possible in a action */

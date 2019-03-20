@@ -90,6 +90,7 @@ export const requestCreatedNoExtension: Types.IRequest = {
         extensionsDataLength: 0,
         isSignedRequest: false,
       },
+      timestamp: 1,
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
@@ -128,6 +129,7 @@ export const requestCreatedWithExtensions: Types.IRequest = {
         extensionsDataLength: 1,
         isSignedRequest: false,
       },
+      timestamp: 1,
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
@@ -165,6 +167,7 @@ export const requestCanceledNoExtension: Types.IRequest = {
         extensionsDataLength: 0,
         isSignedRequest: false,
       },
+      timestamp: 1,
     },
     {
       actionSigner: {
@@ -172,6 +175,7 @@ export const requestCanceledNoExtension: Types.IRequest = {
         value: payeeRaw.address,
       },
       name: Types.ACTION_NAME.CANCEL,
+      timestamp: 2,
     },
   ],
   expectedAmount: arbitraryExpectedAmount,
@@ -209,6 +213,7 @@ export const requestAcceptedNoExtension: Types.IRequest = {
         extensionsDataLength: 0,
         isSignedRequest: false,
       },
+      timestamp: 1,
     },
     {
       actionSigner: {
@@ -216,6 +221,7 @@ export const requestAcceptedNoExtension: Types.IRequest = {
         value: payerRaw.address,
       },
       name: Types.ACTION_NAME.ACCEPT,
+      timestamp: 2,
     },
   ],
   expectedAmount: arbitraryExpectedAmount,

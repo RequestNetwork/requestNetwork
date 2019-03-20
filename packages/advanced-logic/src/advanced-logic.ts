@@ -28,6 +28,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
    * @param extensionAction IAction action to apply
    * @param requestState IRequest request state read-only
    * @param actionSigner IIdentity identity of the signer
+   * @param timestamp timestamp of the action
    *
    * @returns state of the extension
    */
@@ -36,6 +37,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
     actionSigner: IdentityTypes.IIdentity,
+    timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
     const id: ExtensionTypes.ID = extensionAction.id;
 
@@ -45,6 +47,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
         extensionAction,
         requestState,
         actionSigner,
+        timestamp,
       );
     }
     if (id === ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
@@ -53,6 +56,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
         extensionAction,
         requestState,
         actionSigner,
+        timestamp,
       );
     }
     if (id === ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
@@ -61,6 +65,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
         extensionAction,
         requestState,
         actionSigner,
+        timestamp,
       );
     }
 

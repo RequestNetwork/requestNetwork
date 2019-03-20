@@ -12,6 +12,7 @@ export interface IExtension {
     extensionAction: IAction,
     requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
+    timestamp: number,
   ) => RequestLogic.IExtensionStates;
 }
 
@@ -36,6 +37,7 @@ export interface IAction {
 export interface IEvent {
   name: string;
   parameters: any;
+  timestamp: number;
 }
 
 /** Identification of extensions handled by this implementation */

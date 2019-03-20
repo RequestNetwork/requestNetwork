@@ -20,3 +20,6 @@ coverage.lcov
 # logs
 lerna-debug.log
 yarn-error.log
+
+# OS specific files
+.DS_Store

@@ -1,9 +1,12 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 
+import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
-import { getMnemonic } from './config';
+import { getCustomHeaders, getMnemonic } from './config';
+import getChannelsByTopic from './request/getChannelsByTopic';
+import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import getTransactionsByTopic from './request/getTransactionsByTopic';
 import persistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
@@ -86,6 +89,20 @@ class RequestNode {
   private mountRoutes(): void {
     const router = express.Router();
 
+    // Enable all CORS requests
+    this.express.use(cors());
+
+    // Middleware to send custom header on every response
+    const customHeaders = getCustomHeaders();
+    if (customHeaders) {
+      this.express.use((_: any, res: any, next: any) => {
+        Object.entries(customHeaders).forEach(([key, value]: [string, string]) =>
+          res.header(key, value),
+        );
+        next();
+      });
+    }
+
     // Supported encodings
     this.express.use(express.json());
     this.express.use(express.urlencoded());
@@ -95,11 +112,7 @@ class RequestNode {
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return persistTransaction.actionPersistTransaction(
-          clientRequest,
-          serverResponse,
-          this.dataAccess,
-        );
+        return persistTransaction(clientRequest, serverResponse, this.dataAccess);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
@@ -109,16 +122,32 @@ class RequestNode {
     // Route for getTransactionsByTopic request
     router.get('/getTransactionsByTopic', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getTransactionsByTopic.actionGetTransactionsByTopic(
-          clientRequest,
-          serverResponse,
-          this.dataAccess,
-        );
+        return getTransactionsByTopic(clientRequest, serverResponse, this.dataAccess);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
     });
     this.express.use('/getTransactionsByTopic', router);
+
+    // Route for getTransactionsByChannelId request
+    router.get('/getTransactionsByChannelId', (clientRequest: any, serverResponse: any) => {
+      if (this.initialized) {
+        return getTransactionsByChannelId(clientRequest, serverResponse, this.dataAccess);
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
+    this.express.use('/getTransactionsByChannelId', router);
+
+    // Route for getChannelsByTopic request
+    router.get('/getChannelsByTopic', (clientRequest: any, serverResponse: any) => {
+      if (this.initialized) {
+        return getChannelsByTopic(clientRequest, serverResponse, this.dataAccess);
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
+    this.express.use('/getChannelsByTopic', router);
 
     // Any other route returns error 404
     this.express.use((_clientRequest: any, serverResponse: any) => {

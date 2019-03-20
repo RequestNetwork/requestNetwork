@@ -1,4 +1,4 @@
-# Request logic Specification v0.1.0
+# Request logic Specification v2.0.0
 
 You can be interested in this document if:
 
@@ -11,7 +11,7 @@ You don't need to read this document if:
 
 ## Content table
 
-- [Request logic Specification v0.1.0](#request-logic-specification-v010)
+- [Request logic Specification v2.0.0](#request-logic-specification-v200)
   - [Content table](#content-table)
   - [Request](#request)
     - [Properties](#properties)
@@ -80,7 +80,7 @@ A request is the JSON object which`properties` returned from a list of `actions`
 | **state**          | Enum('created', 'accepted', 'canceled') | State of the request                                                                                                                                                                              |
 | **events**         | Array                                   | List of the actions performed                                                                                                                                                                     |
 | **extensionsData** | Array                                   | List of data used by the above layer                                                                                                                                                              |
-| **version**        | String                                  | Specification version by the request _(0.1.0' here)_                                                                                                                                              |
+| **version**        | String                                  | Specification version by the request _(2.0.0' here)_                                                                                                                                              |
 |  **timestamp**     | Number                                  | - Timestamp of the request creation in seconds <br> - this timestamp is given by the creator. It is not trustless. <br> - This timestamp is also used to differentiate between identical requests |
 |  **nonce**         | Number                                  | Number to differentiate several identical requests with the same timestamp                                                                                                                        |
 
@@ -125,7 +125,7 @@ Example
    "requestId":"0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8",
    "state":"created",
    "timestamp": 1545224094,
-   "version":"0.1.0"
+   "version":"2.0.0"
 }
 ```
 
@@ -226,7 +226,7 @@ Example of creation action:
       },
       "timestamp": 1545224094,
   },
-  "version":"0.1.0",
+  "version":"2.0.0",
   "signature":{
     "method":"ecdsa",
     "value":"0x143f0965cb8628c93e6f59f39a7c86163a7de01df42c923e65e109bab336710d7b534615025ed0c285e8dcbba2f4e136afa497af792a63519c486b16f3ccabb41c"
@@ -857,7 +857,7 @@ The action to create the request from Bob to Alice from Bob (signed by Bob):
          },
          "timestamp":1544426030
       },
-      "version":"0.1.0"
+      "version":"2.0.0"
    },
    "signature":{
       "method":"ecdsa",
@@ -882,7 +882,7 @@ The request state after interpreting the action above:
    },
    "timestamp":1544426030,
    "requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905",
-   "version":"0.1.0",
+   "version":"2.0.0",
    "events":[
       {
          "actionSigner":{
@@ -917,7 +917,7 @@ The action to make a discount (signed by Bob);
          "deltaAmount":"100000000000000000",
          "requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"
       },
-      "version":"0.1.0"
+      "version":"2.0.0"
    },
    "signature":{
       "method":"ecdsa",
@@ -942,7 +942,7 @@ The request state after interpreting the new action with the previous state:
    },
    "timestamp":1544426030,
    "requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905",
-   "version":"0.1.0",
+   "version":"2.0.0",
    "events":[
       {
          "actionSigner":{
@@ -987,7 +987,7 @@ The action to accept the request (signed by Alice):
       "parameters":{
          "requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"
       },
-      "version":"0.1.0"
+      "version":"2.0.0"
    },
    "signature":{
       "method":"ecdsa",
@@ -1012,7 +1012,7 @@ The request state after interpreting the new action with the previous state:
    },
    "timestamp":1544426030,
    "requestId":"0xd251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905",
-   "version":"0.1.0",
+   "version":"2.0.0",
    "events":[
       {
          "actionSigner":{

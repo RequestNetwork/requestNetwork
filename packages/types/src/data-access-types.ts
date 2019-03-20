@@ -3,9 +3,27 @@ export interface IDataAccess {
   initialize: () => Promise<void>;
   persistTransaction: (
     transactionData: ITransaction,
+    channelId: string,
     topics?: string[],
   ) => Promise<IReturnPersistTransaction>;
-  getTransactionsByTopic: (topic: string) => Promise<IReturnGetTransactionsByTopic>;
+  getTransactionsByChannelId: (
+    channelId: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactions>;
+  getTransactionsByTopic: (
+    topic: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactions>;
+  getChannelsByTopic: (
+    topic: string,
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetChannelsByTopic>;
+}
+
+/** Restrict the get data research to two timestamp */
+export interface ITimestampBoundaries {
+  from?: number;
+  to?: number;
 }
 
 /** return interface for PersistTransaction  */
@@ -23,8 +41,8 @@ export interface IReturnPersistTransaction {
   result: {};
 }
 
-/** return interface for getTransactionsByTopic  */
-export interface IReturnGetTransactionsByTopic {
+/** return interface for getTransactionsByTopic and getTransactionsByChannelId */
+export interface IReturnGetTransactions {
   /** meta information */
   meta: {
     /** location of the transactions (follow the position of the result.transactions) */
@@ -33,7 +51,22 @@ export interface IReturnGetTransactionsByTopic {
     storageMeta?: any;
   };
   /** result of the execution */
-  result: { transactions: ITransaction[] };
+  result: { transactions: IConfirmedTransaction[] };
+}
+
+/** return interface for getChannelsByTopic */
+export interface IReturnGetChannelsByTopic {
+  /** meta information */
+  meta: {
+    /** location of the transactions (follow the position of the result.transactions) */
+    transactionsStorageLocation: {
+      [key: string]: string[];
+    };
+    /** meta-data from the layer below */
+    storageMeta?: any;
+  };
+  /** result of the execution: the transactions grouped by channel id */
+  result: { transactions: ITransactionsByChannelIds };
 }
 
 /** Block: main data structure of data-access, contains transactions */
@@ -44,18 +77,40 @@ export interface IBlock {
 
 /** Block Header */
 export interface IBlockHeader {
+  channelIds: IChannelIds;
   topics: ITopics;
   version: string;
 }
 
-/** Topics, to index the transactions */
-export interface ITopics {
+/** Transactions group by channel ids */
+export interface ITransactionsByChannelIds {
+  [key: string]: IConfirmedTransaction[];
+}
+
+/** Transactions Storage location group by channel ids */
+export interface IStorageLocationByChannelId {
+  [key: string]: Set<string>;
+}
+
+/** Channel ids, to connect the transactions to a channel */
+export interface IChannelIds {
   [key: string]: number[];
+}
+
+/** Topics indexed by channel id to index the transactions */
+export interface ITopics {
+  [key: string]: string[];
 }
 
 /** Transaction */
 export interface ITransaction {
   data: ITransactionData;
+}
+
+/** Transaction confirmed */
+export interface IConfirmedTransaction {
+  transaction: ITransaction;
+  timestamp: number;
 }
 
 /** Transaction data */

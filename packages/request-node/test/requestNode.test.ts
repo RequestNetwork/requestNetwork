@@ -1,3 +1,5 @@
+import 'mocha';
+
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as httpStatus from 'http-status-codes';
@@ -15,6 +17,8 @@ const dataAccessInitializeFailureMock = async () => {
 let requestNodeInstance;
 let server: any;
 
+// tslint:disable:no-magic-numbers
+// tslint:disable:no-unused-expression
 describe('requestNode server', () => {
   before(async () => {
     requestNodeInstance = new requestNode();
@@ -57,5 +61,16 @@ describe('requestNode server', () => {
     requestNodeInstance.dataAccess.initialize = dataAccessInitializeFailureMock;
 
     expect(requestNodeInstance.initialize()).to.be.rejectedWith(Error);
+  });
+
+  it('serves custom headers', async () => {
+    // Import directly requestNode to create a server
+    process.env.HEADERS = '{"x-custom-test-header": "test-passed"}';
+    requestNodeInstance = new requestNode();
+    server = requestNodeInstance.listen(3002, () => 0);
+
+    await request(server)
+      .post('/')
+      .expect('x-custom-test-header', 'test-passed');
   });
 });

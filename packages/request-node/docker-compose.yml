@@ -1,0 +1,21 @@
+version: "3.0"
+
+services:
+  request-node:
+    image: request-node
+    ports:
+      - "3000:3000"
+    links:
+      - ipfs
+    environment:
+      - IPFS_HOST=ipfs
+
+  ipfs:
+    image: ipfs/go-ipfs
+    volumes:
+      - ipfs_staging:/export
+      - ipfs_data:/data/ipfs
+
+volumes:
+  ipfs_staging:
+  ipfs_data:

@@ -94,6 +94,12 @@ curl -i "http://localhost:3000/getTransactionsByTopic?topic=topicExample"
 | 422  | The input fields of the request are incorrect              |
 | 500  | The getTransactionsByTopic operation from DataAccess fails |
 
+##### Note
+
+Since the Node doesn't implement a cache yet, all transactions have to be retrieved directly on IPFS.
+As a consequence, this request can take a long time if the topic requested indexes many transactions.
+This delay will be optimized with the implementation of a cache.
+
 ## Deployment
 
 A Node can be deployed by anyone. Users interested by running their own node can do it with the following instructions:
@@ -117,8 +123,8 @@ request-node start
 The Request Node source must be downloaded from Github and executed with Node.js.
 
 ```bash
-git clone https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node/request-node.git
-cd request-node
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd packages/request-node
 npm install
 npm run build
 ```
@@ -172,6 +178,9 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--ipfsTimeout` Timeout threshold to connect to the IPFS gateway
   - Default value: `10000`
   - Environment variable name: `$IPFS_TIMEOUT`
+- `--headers` Custom headers to send with the API responses (as a stringified JSON object)
+  - Default value: `'{}'`
+  - Environment variable name: `$HEADERS`
 
 #### Mnemonic
 
@@ -186,6 +195,80 @@ candy maple cake sugar pudding cream honey rich smooth crumble sweet treat
 ```
 
 This mnemonic should only be used for testing.
+
+### Docker
+
+The Request Node can be deployed with Docker.
+For now, the user has to clone the repository to build the Docker and run it.
+
+```bash
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd packages/request-node
+docker build -t "request-node" .
+docker run request-node
+```
+
+The environment variables used to configure the Node can be defined in the `docker run` command.
+
+For example, the user can define custom parameters for IPFS connection with the following command:
+
+```
+docker run -e IPFS_HOST=<custom_ipfs_host> IPFS_PORT=<custom_ipfs_port>
+``` 
+
+If the user want the server to listen on a specific port, he has to expose that port as well:
+
+```
+docker run -e PORT=80 --expose 80
+```
+
+The user can connect to an IPFS node and Ethereum node (like ganache) on the local machine, using the following: 
+
+```bash
+docker run -e IPFS_HOST=host.docker.internal -e WEB3_PROVIDER_URL=http://host.docker.internal:8545
+```
+
+The user can use the docker-compose tool to run an environment containing the Request Node and an instance of IPFS with the following command:
+
+```bash
+docker-compose up
+```
+
+The environment variables must be defined in the `docker-compose.yml` file in the `environment` section. `$ETHEREUM_NETWORK_ID` and `$WEB3_PROVIDER_URL` must be defined.
+
+### Running fully locally
+
+To run a Request Node locally for tests, make sure you have the necessary IPFS and Ethereum nodes available.
+
+You can run the following steps to launch a fully local test Request Node:
+#### 1. Clone the repository 
+```bash
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd requestNetwork
+```
+#### 2. Install and build all the dependencies.
+```bash
+yarn install
+yarn build
+```
+#### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/introduction/install/)
+```bash
+ipfs daemon --offline
+```
+#### 4. On a new terminal, launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
+```bash
+ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"
+```
+#### 5. Deploy the smart contracts on ganache
+```bash
+cd packages/ethereum-storage
+yarn deploy
+```
+#### 6. Run the Request Node
+```bash
+cd ../packages/request-node
+yarn start
+```
 
 ## Contributing
 

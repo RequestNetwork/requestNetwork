@@ -84,7 +84,7 @@ function format(
  *
  * @returns Types.IRequest the new request
  */
-function createRequest(action: Types.IAction): Types.IRequest {
+function createRequest(action: Types.IAction, timestamp: number): Types.IRequest {
   if (!action.data.parameters.payee && !action.data.parameters.payer) {
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
@@ -105,7 +105,7 @@ function createRequest(action: Types.IAction): Types.IRequest {
   request.extensions = {};
   request.requestId = Action.getRequestId(action);
   request.version = Action.getVersionFromAction(action);
-  request.events = [generateEvent(action, signer)];
+  request.events = [generateEvent(action, timestamp, signer)];
 
   const signerRole = Action.getRoleInAction(signer, action);
   if (signerRole === Types.ROLE.PAYEE) {
@@ -130,7 +130,11 @@ function createRequest(action: Types.IAction): Types.IRequest {
  *
  * @returns Types.IEvent the event generated
  */
-function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdentity): Types.IEvent {
+function generateEvent(
+  action: Types.IAction,
+  timestamp: number,
+  actionSigner: IdentityTypes.IIdentity,
+): Types.IEvent {
   const params = action.data.parameters;
 
   const event: Types.IEvent = {
@@ -141,6 +145,7 @@ function generateEvent(action: Types.IAction, actionSigner: IdentityTypes.IIdent
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
       isSignedRequest: false,
     },
+    timestamp,
   };
   return event;
 }
