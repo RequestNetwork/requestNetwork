@@ -201,9 +201,12 @@ export default class EthereumStorage implements Types.IStorage {
       async (hashAndSizePromise: Types.IGetAllHashesAndSizes): Promise<Types.IOneDataIdAndMeta> => {
         const hashAndSize = await hashAndSizePromise;
 
+        // Check if the event log is incorrect
         if (typeof hashAndSize.hash === 'undefined' || typeof hashAndSize.size === 'undefined') {
-          // The event log is incorrect
           throw Error('The event log has no hash or size');
+        }
+        if (typeof hashAndSize.meta === 'undefined') {
+          throw Error('The event log has no metadata');
         }
 
         // Get content from ipfs and verify provided size is correct
@@ -219,13 +222,8 @@ export default class EthereumStorage implements Types.IStorage {
           );
         }
 
-        // get meta data from ethereum
-        let ethereumMetadata;
-        try {
-          ethereumMetadata = await this.smartContractManager.getMetaFromEthereum(hashAndSize.hash);
-        } catch (error) {
-          throw Error(`Ethereum meta read request error: ${error}`);
-        }
+        // Get meta data from ethereum
+        const ethereumMetadata = hashAndSize.meta;
 
         return {
           meta: {
