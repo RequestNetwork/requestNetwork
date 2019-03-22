@@ -150,7 +150,7 @@ The interpretation explains to the users on how to use the `state` and `actions`
 
 Example:
 
-- When a bitcoin transaction reaches the address given in `payeeAdress`, consider this transaction as payment for this request
+- When a bitcoin transaction reaches the address given in `payeeAddress`, consider this transaction as payment for this request
 
 ### Actions implementation
 
