@@ -6,7 +6,6 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import Action from '../action';
-import Amount from '../amount';
 import Request from '../request';
 import Version from '../version';
 
@@ -32,7 +31,7 @@ function format(
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<Types.IAction> {
-  if (!Amount.isValid(increaseAmountParameters.deltaAmount)) {
+  if (!Utils.amount.isValid(increaseAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -66,7 +65,7 @@ function applyActionToRequest(
   if (!action.data.parameters.deltaAmount) {
     throw new Error('deltaAmount must be given');
   }
-  if (!Amount.isValid(action.data.parameters.deltaAmount)) {
+  if (!Utils.amount.isValid(action.data.parameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -83,7 +82,7 @@ function applyActionToRequest(
       throw new Error('the request must not be canceled');
     }
     // increase the expected amount and store it as string
-    requestCopied.expectedAmount = Amount.add(
+    requestCopied.expectedAmount = Utils.amount.add(
       request.expectedAmount,
       action.data.parameters.deltaAmount,
     );

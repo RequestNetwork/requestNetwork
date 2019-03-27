@@ -5,7 +5,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Action from '../action';
-import Amount from '../amount';
 import Version from '../version';
 
 /**
@@ -36,7 +35,7 @@ function format(
     throw new Error('payee or PayerId must be given');
   }
 
-  if (!Amount.isValid(requestParameters.expectedAmount)) {
+  if (!Utils.amount.isValid(requestParameters.expectedAmount)) {
     throw new Error('expectedAmount must be a positive integer');
   }
 
@@ -91,7 +90,7 @@ function createRequest(action: Types.IAction, timestamp: number): Types.IRequest
 
   if (
     !Utils.isString(action.data.parameters.expectedAmount) ||
-    !Amount.isValid(action.data.parameters.expectedAmount)
+    !Utils.amount.isValid(action.data.parameters.expectedAmount)
   ) {
     throw new Error(
       'action.parameters.expectedAmount must be a string representing a positive integer',
