@@ -31,7 +31,11 @@ export default async function persistTransaction(
       );
 
       serverResponse.status(httpStatus.OK).send(dataAccessResponse);
+
     } catch (e) {
+      // tslint:disable-next-line:no-console
+      console.error(`persistTransaction error: ${e}`);
+
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }
   }

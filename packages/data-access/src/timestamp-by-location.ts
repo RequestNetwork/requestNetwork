@@ -22,10 +22,9 @@ export default class LocationTimestamp {
    * @param timestamp timestamp of the block
    */
   public pushTimestampByLocation(dataId: string, timestamp: number): void {
-    if (this.timestampLocations[dataId]) {
-      throw Error(`Timestamp already know for the dataId ${dataId}`);
+    if (!this.timestampLocations[dataId]) {
+      this.timestampLocations[dataId] = timestamp;
     }
-    this.timestampLocations[dataId] = timestamp;
   }
 
   /**

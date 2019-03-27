@@ -42,6 +42,9 @@ export default async function getTransactionsByTopic(
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {
+      // tslint:disable-next-line:no-console
+      console.error(`getTransactionsByTopic error: ${e}`);
+
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }
   }

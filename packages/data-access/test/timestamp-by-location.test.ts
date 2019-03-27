@@ -16,14 +16,6 @@ describe('LocationTimestamp', () => {
     const result = timestampLocation.getTimestampFromLocation(arbitraryDataId1);
     expect(result, 'timestampLocation is wrong').to.equal(arbitraryTimestamp);
   });
-  it('cannot pushTimestampByLocation() a dataId already pushed', () => {
-    const timestampLocation = new TimestampLocation();
-    timestampLocation.pushTimestampByLocation(arbitraryDataId1, arbitraryTimestamp);
-
-    expect(() => {
-      timestampLocation.pushTimestampByLocation(arbitraryDataId1, arbitraryTimestamp);
-    }, 'must throw').to.throw(`Timestamp already know for the dataId ${arbitraryDataId1}`);
-  });
 
   describe('isDataInBoundaries', () => {
     it('can isDataInBoundaries()', () => {
