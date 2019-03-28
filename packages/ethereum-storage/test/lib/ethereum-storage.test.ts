@@ -343,5 +343,19 @@ describe('EthereumStorage', () => {
       Error,
       'The event log has no hash or size',
     );
+
+    // Test with no meta
+    ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<
+      StorageTypes.IGetAllHashesAndSizes[]
+    > => {
+      return Promise.resolve([
+        {
+          hash: '0xad',
+          size: 10,
+        } as StorageTypes.IGetAllHashesAndSizes,
+      ]);
+    };
+
+    await assert.isRejected(ethereumStorage.getDataId(), Error, 'The event log has no metadata');
   });
 });

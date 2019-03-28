@@ -2,14 +2,20 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
-import Amount from '../../src/amount';
-import * as TestData from './utils/test-data-generator';
+import Amount from '../src/amount';
+// import * as TestData from '../../request-logic/test/unit/utils/test-data-generator';
 
 const magicIntegerSmall = 10000;
 const magicIntegerBig = 1000000000000000000000000000000;
 
 const magicFloatSmall = 100.01;
 const magicFloatBig = 1000000000000000000000000000000.00000000001;
+
+const arbitraryExpectedAmount = '123400000000000000';
+const arbitraryDeltaAmount = '100000000000000000';
+
+const arbitraryExpectedAmountMinusDelta = '23400000000000000';
+const arbitraryExpectedAmountPlusDelta = '223400000000000000';
 
 /* tslint:disable:no-unused-expression */
 describe('Amount', () => {
@@ -68,9 +74,9 @@ describe('Amount', () => {
     });
     it('can add two amounts', () => {
       expect(
-        Amount.add(TestData.arbitraryExpectedAmount, TestData.arbitraryDeltaAmount),
+        Amount.add(arbitraryExpectedAmount, arbitraryDeltaAmount),
         'add() result is wrong',
-      ).to.equal(TestData.arbitraryExpectedAmountPlusDelta);
+      ).to.equal(arbitraryExpectedAmountPlusDelta);
     });
   });
 
@@ -86,14 +92,14 @@ describe('Amount', () => {
     });
     it('can reduce two amounts', () => {
       expect(
-        Amount.reduce(TestData.arbitraryExpectedAmount, TestData.arbitraryDeltaAmount),
+        Amount.reduce(arbitraryExpectedAmount, arbitraryDeltaAmount),
         'reduce() result is wrong',
-      ).to.equal(TestData.arbitraryExpectedAmountMinusDelta);
+      ).to.equal(arbitraryExpectedAmountMinusDelta);
     });
     it('cannot reduce lower zero', () => {
-      expect(() =>
-        Amount.reduce(TestData.arbitraryDeltaAmount, TestData.arbitraryExpectedAmount),
-      ).to.throw('result of reduce is not valid');
+      expect(() => Amount.reduce(arbitraryDeltaAmount, arbitraryExpectedAmount)).to.throw(
+        'result of reduce is not valid',
+      );
     });
   });
 });

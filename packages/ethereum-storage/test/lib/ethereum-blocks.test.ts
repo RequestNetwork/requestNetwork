@@ -245,10 +245,11 @@ describe('EthereumBlocks', () => {
         blockBefore: 99,
       });
 
-      // after last block
-      await expect(ethereumBlocks.getBlockNumbersFromTimestamp(99999)).to.eventually.rejectedWith(
-        'Timestamp is bigger than the last block of ethereum',
-      );
+      // with timestamp over last block
+      expect(await ethereumBlocks.getBlockNumbersFromTimestamp(99999)).to.be.deep.equal({
+        blockAfter: 99,
+        blockBefore: 99,
+      });
     });
   });
 });

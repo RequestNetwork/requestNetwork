@@ -7,6 +7,10 @@ const web3Eth = require('web3-eth');
 
 const bigNumber: any = require('bn.js');
 
+// Confirmation to wait in order to create metadata of the new added hash
+// TODO(PROT-252): Find the optimal value or fix to use 1
+const CONFIRMATION_TO_WAIT = 2;
+
 /**
  * Manages the smart contract used by the storage layer
  * to store the hashes of the data on Ethereum
@@ -82,7 +86,7 @@ export default class SmartContractManager {
     // Get the accounts on the provider
     // Throws an error if timeout is reached
     const accounts = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
       this.eth.getAccounts(),
     ]);
 
@@ -110,13 +114,15 @@ export default class SmartContractManager {
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
     const fee = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
       this.requestHashStorage.methods.getFeesAmount(contentSize).call(),
     ]);
 
     const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
 
     // Send transaction to contract
+    // TODO(PROT-181): Implement a log manager for the library
+    // use it for the different events (error, transactionHash, receipt and confirmation)
     return new Promise(
       (resolve, reject): any => {
         this.requestHashStorage.methods
@@ -130,22 +136,9 @@ export default class SmartContractManager {
           .on('error', (transactionError: string) => {
             reject(Error(`Ethereum transaction error:  ${transactionError}`));
           })
-          .on('transactionHash', (transactionHash: string) => {
-            // TODO(PROT-181): Implement a log manager for the library
-            /* tslint:disable:no-console */
-            console.log(`transactionHash :  ${transactionHash}`);
-          })
-          .on('receipt', (receiptInCallback: string) => {
-            // TODO(PROT-181): Implement a log manager for the library
-            /* tslint:disable:no-console */
-            console.log(`receipt :  ${JSON.stringify(receiptInCallback)}`);
-          })
           .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-            // TODO(PROT-181): Implement a log manager for the library
-            // TODO(PROT-252): return after X confirmation instead of 0
-
-            // We have to wait at least one confirmation to get Ethereum metadata
-            if (confirmationNumber > 0) {
+            // TODO(PROT-252): search for the best number of confirmation to wait for
+            if (confirmationNumber >= CONFIRMATION_TO_WAIT) {
               const gasFee = new bigNumber(receiptAfterConfirmation.gasUsed).mul(
                 new bigNumber(gasPriceToUse),
               );
@@ -234,7 +227,7 @@ export default class SmartContractManager {
 
     // Reading all event logs
     let events = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 provider connection timeout'),
+      this.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
       this.requestHashStorage.getPastEvents({
         event: 'NewHash',
         fromBlock,
@@ -338,7 +331,8 @@ export default class SmartContractManager {
     try {
       blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
     } catch (error) {
-      throw Error(`Error getting block timestamp: ${error}`);
+
+      throw Error(`Error getting block ${blockNumber} timestamp: ${error}`);
     }
 
     return {

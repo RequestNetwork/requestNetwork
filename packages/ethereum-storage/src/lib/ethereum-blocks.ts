@@ -61,13 +61,21 @@ export default class EthereumBlocks {
   public async getBlockNumbersFromTimestamp(
     timestamp: number,
   ): Promise<Types.IBlockNumbersInterval> {
+
     // check if we have the blockTimestamp of the first significant block number
     if (!this.blockTimestamp[this.firstSignificantBlockNumber]) {
       // update the blockTimestamp cache with the first significant block
       await this.getBlockTimestamp(this.firstSignificantBlockNumber);
     }
+
     // update the last block number in memory
     const lastBlockNumber: number = await this.getLastBlockNumber();
+
+    // check if we have the blockTimestamp of the last number
+    if (!this.blockTimestamp[lastBlockNumber]) {
+      // update the blockTimestamp cache with the last block
+      await this.getBlockTimestamp(lastBlockNumber);
+    }
 
     // if timestamp before first significant block, return the significant block
     if (timestamp <= this.blockTimestamp[this.firstSignificantBlockNumber]) {
@@ -77,9 +85,12 @@ export default class EthereumBlocks {
       };
     }
 
-    // if timestamp after last block, return null
+    // if timestamp after last block, return lastBlockNumber
     if (timestamp > this.blockTimestamp[lastBlockNumber]) {
-      throw Error('Timestamp is bigger than the last block of ethereum');
+      return {
+        blockAfter: lastBlockNumber,
+        blockBefore: lastBlockNumber,
+      };
     }
 
     // Before doing the dichotomic search, we restrict the search to the two closest block we already know
@@ -101,12 +112,7 @@ export default class EthereumBlocks {
    * @return   blockNumber of the last block
    */
   public async getLastBlockNumber(): Promise<number> {
-    const lastBlockNumber = await this.eth.getBlockNumber();
-
-    // Store the timestamp of the block
-    await this.getBlockTimestamp(lastBlockNumber);
-
-    return lastBlockNumber;
+    return this.eth.getBlockNumber();
   }
 
   /**

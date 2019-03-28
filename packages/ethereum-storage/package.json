@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.1.1-alpha.7",
+  "version": "0.1.1-alpha.8",
   "publishConfig": {
     "access": "public"
   },
@@ -44,13 +44,13 @@
     "lint-staged": "lint-staged",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "truffle --contracts_directory=./src deploy",
-    "test:lib": "nyc mocha --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
+    "test:lib": "nyc mocha --timeout=5000 --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
     "test:sol": "truffle test --contracts_directory=./src test/contracts/requestHashStorage.js",
     "test": "yarn run test:lib && yarn run test:sol",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.6",
+    "@requestnetwork/types": "0.1.1-alpha.7",
     "bluebird": "3.5.3",
     "bn.js": "4.11.8",
     "form-data": "2.3.3",

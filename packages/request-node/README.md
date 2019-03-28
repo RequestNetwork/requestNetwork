@@ -32,16 +32,17 @@ POST /persistTransaction {BODY}
 
 ##### Body
 
-| Field           | Type           | Description                                                                                                                                             |
-| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| transactionData | {data: string} | Data of the request transaction from the [transaction layer](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction-manager) |
-| topics          | string[]       | Topics to attach to the transaction to allows its retrieval                                                                                             |
+| Field           | Type           | Description | Requirement                                                                                                                                             |
+| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| transactionData | {data: string} | Data of the request transaction from the [transaction layer](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction-manager) | **Mandatory** |
+| channelId          | string       | Channel used to group the transactions, a channel is used to represent a request                                                                                         | **Mandatory** |
+| topics          | string[]       | Topics to attach to the channel to allows the retrieval of the channel's transactions                                                                                            | Optional |
 
 ##### Example
 
 ```
 curl \
-	-d '{"topics":["topicExample"], "transactionData":{"data": "someData"}}' \
+	-d '{"channelId": "channelExample", "topics":["topicExample"], "transactionData":{"data": "someData"}}' \
 	-H "Content-Type: application/json" \
 	-X POST http://localhost:3000/persistTransaction
 ```
@@ -60,24 +61,26 @@ curl \
 | 422  | The input fields of the request are incorrect          |
 | 500  | The persistTransaction operation from DataAccess fails |
 
-#### getTransactionsByTopic
 
-Get request transactions corresponding to a specified topic.
+#### 	getTransactionsByChannelId
+
+Get list of transactions corresponding to a specified channel id.
 
 ```
-GET /getTransactionsByTopic?{PARAMETER}
+GET /getTransactionsByChannelId?{PARAMETER}
 ```
 
 ##### Parameter
 
-| Field | Type   | Description                           |
-| ----- | ------ | ------------------------------------- |
-| topic | string | Topic used to search for transactions |
+| Field | Type   | Description                           | Requirement |
+| ----- | ------ | ------------------------------------- | --- |
+| channelId | string | Channel used to search for transactions | **Mandatory**
+| timestampBoundaries | {from: number, to: number} | Timestamps to search for transations in a specific temporal boundaries | Optional
 
 ##### Example
 
 ```
-curl -i "http://localhost:3000/getTransactionsByTopic?topic=topicExample"
+curl -i "http://localhost:3000/getTransactionsByChannelId?channelId=channelExample"
 ```
 
 ##### Success 200
@@ -92,13 +95,49 @@ curl -i "http://localhost:3000/getTransactionsByTopic?topic=topicExample"
 | Code | Description                                                |
 | ---- | ---------------------------------------------------------- |
 | 422  | The input fields of the request are incorrect              |
-| 500  | The getTransactionsByTopic operation from DataAccess fails |
+| 500  | The getTransactionsByChannelId operation from DataAccess fails |
 
 ##### Note
 
 Since the Node doesn't implement a cache yet, all transactions have to be retrieved directly on IPFS.
 As a consequence, this request can take a long time if the topic requested indexes many transactions.
 This delay will be optimized with the implementation of a cache.
+
+#### getChannelsByTopic
+
+Get transactions from channels indexed by a specified topic.
+
+```
+GET /getChannelsByTopic?{PARAMETER}
+```
+
+##### Parameter
+
+| Field | Type   | Description                           | Requirement |
+| ----- | ------ | ------------------------------------- | --- |
+| topic | string | Topic used to search for channels | **Mandatory** |
+| updatedBetween | {from: number, to: number} | Temporal boundaries when the channel has been lately updated | Optional |
+
+##### Example
+
+```
+curl -i "http://localhost:3000/getChannelsByTopic?topic=topicExample"
+```
+
+##### Success 200
+
+| Field  | Type                     | Description              |
+| ------ | ------------------------ | ------------------------ |
+| meta   | Object                   | Metadata of the response |
+| result | {transactions: {[channelId]: string[]}} | List of transaction indexed by channel ids     |
+
+##### Error
+
+| Code | Description                                                |
+| ---- | ---------------------------------------------------------- |
+| 422  | The input fields of the request are incorrect              |
+| 500  | The getChannelsByTopic operation from DataAccess fails |
+
 
 ## Deployment
 

@@ -1,5 +1,6 @@
 import { Identity as IdentityTypes, RequestLogic as Types } from '@requestnetwork/types';
-import Amount from './amount';
+import Utils from '@requestnetwork/utils';
+
 import Role from './role';
 
 /**
@@ -59,7 +60,7 @@ function checkRequest(request: Types.IRequest): boolean {
   if (request.payer && request.payer.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
     throw Error('request.payer.type not supported');
   }
-  if (!Amount.isValid(request.expectedAmount)) {
+  if (!Utils.amount.isValid(request.expectedAmount)) {
     throw Error('expectedAmount must be a positive integer');
   }
   return true;

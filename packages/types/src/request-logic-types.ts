@@ -220,6 +220,8 @@ export enum ACTION_NAME {
 export enum CURRENCY {
   ETH = 'ETH',
   BTC = 'BTC',
+  EUR = 'EUR',
+  USD = 'USD',
 }
 
 /** States of a request */

@@ -1,6 +1,7 @@
 import { RequestLogic as Types } from '@requestnetwork/types';
+import Utils from './utils';
+
 const bigNumber: any = require('bn.js');
-import Utils from '@requestnetwork/utils';
 
 /**
  * Function to manage amounts
