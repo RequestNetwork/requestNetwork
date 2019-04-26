@@ -52,9 +52,6 @@ function mockAxios(): any {
   const mock = new mockAdapter(axios);
   mock.onPost('/persistTransaction').reply(200, { result: {} });
   mock
-    .onGet('/getTransactionsByTopic')
-    .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
-  mock
     .onGet('/getTransactionsByChannelId')
     .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
   return mock;

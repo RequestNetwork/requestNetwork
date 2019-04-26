@@ -38,7 +38,6 @@ const fakeMetaDataAccessGetChannelsReturn: DataAccessTypes.IReturnGetChannelsByT
 const fakeDataAccess: DataAccessTypes.IDataAccess = {
   getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
   getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturn),
-  getTransactionsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturn),
   initialize: chai.spy(),
   persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
 };
@@ -72,19 +71,7 @@ describe('index', () => {
     expect(fakeDataAccess.getTransactionsByChannelId).to.have.been.called.with(channelId);
   });
 
-  it('can get transactions indexed by topics', async () => {
-    const transactionManager = new TransactionManager(fakeDataAccess);
-
-    const ret = await transactionManager.getTransactionsByTopic(extraTopics[0]);
-
-    expect(ret.result, 'ret.result is wrong').to.be.deep.equal(fakeMetaDataAccessGetReturn.result);
-    expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
-      dataAccessMeta: fakeMetaDataAccessGetReturn.meta,
-    });
-    expect(fakeDataAccess.getTransactionsByTopic).to.have.been.called.with(extraTopics[0]);
-  });
-
-  it('can get chennels indexed by topics', async () => {
+  it('can get channels indexed by topics', async () => {
     const transactionManager = new TransactionManager(fakeDataAccess);
 
     const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
@@ -95,6 +82,6 @@ describe('index', () => {
     expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
       dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
     });
-    expect(fakeDataAccess.getTransactionsByTopic).to.have.been.called.with(extraTopics[0]);
+    expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
   });
 });

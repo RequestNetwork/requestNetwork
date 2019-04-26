@@ -16,9 +16,6 @@ const mockDataAccess: DataAccessTypes.IDataAccess = {
   async getTransactionsByChannelId(): Promise<any> {
     return;
   },
-  async getTransactionsByTopic(): Promise<any> {
-    return;
-  },
   async initialize(): Promise<any> {
     return;
   },
@@ -45,11 +42,6 @@ describe('api/request-network', () => {
         },
         async getTransactionsByChannelId(): Promise<any> {
           return;
-        },
-        async getTransactionsByTopic(): Promise<any> {
-          return {
-            result: { transactions: [TestData.transactionConfirmed] },
-          };
         },
         async initialize(): Promise<any> {
           return;
@@ -88,9 +80,6 @@ describe('api/request-network', () => {
               transactions: [TestData.transactionConfirmed],
             },
           };
-        },
-        async getTransactionsByTopic(): Promise<any> {
-          return;
         },
         async initialize(): Promise<any> {
           return;
@@ -146,9 +135,6 @@ describe('api/request-network', () => {
               transactions,
             },
           };
-        },
-        async getTransactionsByTopic(): Promise<any> {
-          return;
         },
         async initialize(): Promise<any> {
           return;
@@ -206,9 +192,6 @@ describe('api/request-network', () => {
               transactions,
             },
           };
-        },
-        async getTransactionsByTopic(): Promise<any> {
-          return;
         },
         async initialize(): Promise<any> {
           return;
