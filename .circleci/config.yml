@@ -346,6 +346,21 @@ jobs:
       - run:
           name: 'Publish Coverage'
           command: 'yarn publish-coverage'
+  publish-prerelease:
+    docker: 
+     - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run: 
+          name: "Login to NPM registry"
+          command: |
+            npm set registry http://npm.request.network
+            echo "//npm.request.network/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: Publish packages
+          command: yarn publish-prerelease
 workflows:
   version: 2
   build-and-test:
@@ -391,9 +406,6 @@ workflows:
       - test-integration-test:
           requires:
             - build
-      - test-usage-examples:
-          requires:
-            - build
       # Publish the code coverage
       - publish-coverage:
           requires:
@@ -407,3 +419,20 @@ workflows:
             - test-epk-signature
             - test-request-node
             - test-utils
+      - publish-prerelease:
+          requires:
+            - test-request-client.js
+            - test-data-access
+            - test-data-format
+            - test-transaction-manager
+            - test-ethereum-storage
+            - test-request-logic
+            - test-advanced-logic
+            - test-epk-signature
+            - test-request-node
+            - test-utils
+          filters:
+            branches:
+              only:
+                 - development
+
