@@ -14,6 +14,9 @@ Therefore, the Node receives request transactions from users, batches them into 
 
 Once received by the Node, other request actors connecting to this Node can directly read the request transaction before it is persisted into the storage layer.
 
+To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
+use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
+
 ## Usage
 
 The users can interact with a Request Node either by using the official [Client-side Library](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-client.js) or by sending manual HTTP requests to the API exposed by the server.
@@ -32,11 +35,11 @@ POST /persistTransaction {BODY}
 
 ##### Body
 
-| Field           | Type           | Description | Requirement                                                                                                                                             |
-| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| Field           | Type           | Description                                                                                                                                             | Requirement   |
+| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | transactionData | {data: string} | Data of the request transaction from the [transaction layer](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction-manager) | **Mandatory** |
-| channelId          | string       | Channel used to group the transactions, a channel is used to represent a request                                                                                         | **Mandatory** |
-| topics          | string[]       | Topics to attach to the channel to allows the retrieval of the channel's transactions                                                                                            | Optional |
+| channelId       | string         | Channel used to group the transactions, a channel is used to represent a request                                                                        | **Mandatory** |
+| topics          | string[]       | Topics to attach to the channel to allows the retrieval of the channel's transactions                                                                   | Optional      |
 
 ##### Example
 
@@ -61,8 +64,7 @@ curl \
 | 422  | The input fields of the request are incorrect          |
 | 500  | The persistTransaction operation from DataAccess fails |
 
-
-#### 	getTransactionsByChannelId
+#### getTransactionsByChannelId
 
 Get list of transactions corresponding to a specified channel id.
 
@@ -72,10 +74,10 @@ GET /getTransactionsByChannelId?{PARAMETER}
 
 ##### Parameter
 
-| Field | Type   | Description                           | Requirement |
-| ----- | ------ | ------------------------------------- | --- |
-| channelId | string | Channel used to search for transactions | **Mandatory**
-| timestampBoundaries | {from: number, to: number} | Timestamps to search for transations in a specific temporal boundaries | Optional
+| Field               | Type                       | Description                                                            | Requirement   |
+| ------------------- | -------------------------- | ---------------------------------------------------------------------- | ------------- |
+| channelId           | string                     | Channel used to search for transactions                                | **Mandatory** |
+| timestampBoundaries | {from: number, to: number} | Timestamps to search for transations in a specific temporal boundaries | Optional      |
 
 ##### Example
 
@@ -92,9 +94,9 @@ curl -i "http://localhost:3000/getTransactionsByChannelId?channelId=channelExamp
 
 ##### Error
 
-| Code | Description                                                |
-| ---- | ---------------------------------------------------------- |
-| 422  | The input fields of the request are incorrect              |
+| Code | Description                                                    |
+| ---- | -------------------------------------------------------------- |
+| 422  | The input fields of the request are incorrect                  |
 | 500  | The getTransactionsByChannelId operation from DataAccess fails |
 
 ##### Note
@@ -113,10 +115,10 @@ GET /getChannelsByTopic?{PARAMETER}
 
 ##### Parameter
 
-| Field | Type   | Description                           | Requirement |
-| ----- | ------ | ------------------------------------- | --- |
-| topic | string | Topic used to search for channels | **Mandatory** |
-| updatedBetween | {from: number, to: number} | Temporal boundaries when the channel has been lately updated | Optional |
+| Field          | Type                       | Description                                                  | Requirement   |
+| -------------- | -------------------------- | ------------------------------------------------------------ | ------------- |
+| topic          | string                     | Topic used to search for channels                            | **Mandatory** |
+| updatedBetween | {from: number, to: number} | Temporal boundaries when the channel has been lately updated | Optional      |
 
 ##### Example
 
@@ -126,18 +128,17 @@ curl -i "http://localhost:3000/getChannelsByTopic?topic=topicExample"
 
 ##### Success 200
 
-| Field  | Type                     | Description              |
-| ------ | ------------------------ | ------------------------ |
-| meta   | Object                   | Metadata of the response |
-| result | {transactions: {[channelId]: string[]}} | List of transaction indexed by channel ids     |
+| Field  | Type                                    | Description                                |
+| ------ | --------------------------------------- | ------------------------------------------ |
+| meta   | Object                                  | Metadata of the response                   |
+| result | {transactions: {[channelId]: string[]}} | List of transaction indexed by channel ids |
 
 ##### Error
 
-| Code | Description                                                |
-| ---- | ---------------------------------------------------------- |
-| 422  | The input fields of the request are incorrect              |
+| Code | Description                                            |
+| ---- | ------------------------------------------------------ |
+| 422  | The input fields of the request are incorrect          |
 | 500  | The getChannelsByTopic operation from DataAccess fails |
-
 
 ## Deployment
 
@@ -253,7 +254,7 @@ For example, the user can define custom parameters for IPFS connection with the 
 
 ```
 docker run -e IPFS_HOST=<custom_ipfs_host> IPFS_PORT=<custom_ipfs_port>
-``` 
+```
 
 If the user want the server to listen on a specific port, he has to expose that port as well:
 
@@ -261,7 +262,7 @@ If the user want the server to listen on a specific port, he has to expose that 
 docker run -e PORT=80 --expose 80
 ```
 
-The user can connect to an IPFS node and Ethereum node (like ganache) on the local machine, using the following: 
+The user can connect to an IPFS node and Ethereum node (like ganache) on the local machine, using the following:
 
 ```bash
 docker run -e IPFS_HOST=host.docker.internal -e WEB3_PROVIDER_URL=http://host.docker.internal:8545
@@ -280,30 +281,42 @@ The environment variables must be defined in the `docker-compose.yml` file in th
 To run a Request Node locally for tests, make sure you have the necessary IPFS and Ethereum nodes available.
 
 You can run the following steps to launch a fully local test Request Node:
-#### 1. Clone the repository 
+
+#### 1. Clone the repository
+
 ```bash
 git clone https://github.com/RequestNetwork/requestNetwork.git
 cd requestNetwork
 ```
+
 #### 2. Install and build all the dependencies.
+
 ```bash
 yarn install
 yarn build
 ```
+
 #### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/introduction/install/)
+
 ```bash
 ipfs daemon --offline
 ```
+
 #### 4. On a new terminal, launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
+
 ```bash
 ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"
 ```
+
 #### 5. Deploy the smart contracts on ganache
+
 ```bash
 cd packages/ethereum-storage
 yarn deploy
 ```
+
 #### 6. Run the Request Node
+
 ```bash
 cd ../packages/request-node
 yarn start

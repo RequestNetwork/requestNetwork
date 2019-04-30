@@ -27,13 +27,6 @@ const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   web3Provider: invalidHostProvider,
 };
 
-const mainnetProvider = new web3HttpProvider(
-  'https://mainnet.infura.io/v3/336bb135413f4f5f92138d4539ae4300',
-);
-const mainnetWeb3Connection: StorageTypes.IWeb3Connection = {
-  web3Provider: mainnetProvider,
-};
-
 const invalidProvider = 'invalidProvider';
 const invalidWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
@@ -266,11 +259,6 @@ describe('SmartContractManager', () => {
   it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
     await assert.isRejected(smartContractManager.getMainAccount(), Error);
-  });
-
-  it('getMainAccount when web3 provider is initialized with no account should throw an error', async () => {
-    smartContractManager = new SmartContractManager(mainnetWeb3Connection);
-    await assert.isRejected(smartContractManager.getMainAccount(), Error, 'No account found');
   });
 
   it('addHashAndSizeToEthereum with a invalid host provider should throw a timeout error', async () => {
