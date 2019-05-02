@@ -5,9 +5,9 @@ Ethereum Private Key Signature Provider.
 `@requestnetwork/epk-signature` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 
 Implementation of the signature provider from the private keys.
-The signature provider is used to make signature in the Request Network Protocol (e.g.: see [Request Logic](https://github.com/RequestNetwork/requestNetwork/packages/request-logic).
+The signature provider is used to make signature in the Request Network Protocol (e.g.: see [Request Logic](/packages/request-logic)).
 
-It uses the Request Network Protocol concepts of `Identity` and `Signature` described in the [request logic specification](https://github.com/RequestNetwork/requestNetwork/packages/request-logic/specs).
+It uses the Request Network Protocol concepts of `Identity` and `Signature` described in the [request logic specification](/packages/request-logic/specs/request-logic-specification-v2.0.0.md).
 
 ## Installation
 
@@ -59,8 +59,8 @@ signatureProvider.clearAllRegisteredIdentities();
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)
+[MIT](/LICENSE)

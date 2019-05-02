@@ -5,10 +5,10 @@ Web3 Signature Provider.
 `@requestnetwork/web3-signature` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 
 Implementation of the signature provider from the web3 tools.
-The signature provider is used to make signature in the Request Network Protocol (e.g.: see [Request Logic](https://github.com/RequestNetwork/requestNetwork/packages/request-logic).
+The signature provider is used to make signature in the Request Network Protocol (e.g.: see [Request Logic](/packages/request-logic)).
 This provider allows users to use Metamask to sign data.
 
-It uses the Request Network Protocol concepts of `Identity` and `Signature` described in the [request logic specification](https://github.com/RequestNetwork/requestNetwork/packages/request-logic/specs).
+It uses the Request Network Protocol concepts of `Identity` and `Signature` described in the [request logic specification](/packages/request-logic/specs/request-logic-specification-v2.0.0.md).
 
 ## Installation
 
@@ -37,14 +37,23 @@ const signatureProvider = new Web3SignatureProvider(web3.currentProvider);
 
 // can sign data with identity
 const dataToSign = { ... };
-const signedData = signatureProvider.sign(dataToSign, identityExample); // { data: { ... }, signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x...' }}
+const signedData = signatureProvider.sign(dataToSign, identityExample);
+/*
+{
+  data: { ... },
+  signature: {
+    method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+    value: '0x...'
+  }
+}
+*/
 ```
 
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)
+[MIT](/LICENSE)

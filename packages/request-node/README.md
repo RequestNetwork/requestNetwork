@@ -19,7 +19,7 @@ use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
 
 ## Usage
 
-The users can interact with a Request Node either by using the official [Client-side Library](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-client.js) or by sending manual HTTP requests to the API exposed by the server.
+The users can interact with a Request Node either by using the official [Client-side Library](/packages/request-client.js) or by sending manual HTTP requests to the API exposed by the server.
 
 ### API
 
@@ -35,11 +35,11 @@ POST /persistTransaction {BODY}
 
 ##### Body
 
-| Field           | Type           | Description                                                                                                                                             | Requirement   |
-| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| transactionData | {data: string} | Data of the request transaction from the [transaction layer](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction-manager) | **Mandatory** |
-| channelId       | string         | Channel used to group the transactions, a channel is used to represent a request                                                                        | **Mandatory** |
-| topics          | string[]       | Topics to attach to the channel to allows the retrieval of the channel's transactions                                                                   | Optional      |
+| Field           | Type           | Description                                                                                 | Requirement   |
+| --------------- | -------------- | ------------------------------------------------------------------------------------------- | ------------- |
+| transactionData | {data: string} | Data of the request transaction from the [transaction layer](/packages/transaction-manager) | **Mandatory** |
+| channelId       | string         | Channel used to group the transactions, a channel is used to represent a request            | **Mandatory** |
+| topics          | string[]       | Topics to attach to the channel to allows the retrieval of the channel's transactions       | Optional      |
 
 ##### Example
 
@@ -325,8 +325,8 @@ yarn start
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)
+[MIT](/LICENSE)

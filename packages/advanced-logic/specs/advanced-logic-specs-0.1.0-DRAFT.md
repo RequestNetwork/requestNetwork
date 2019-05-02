@@ -8,9 +8,9 @@ You can be interested in this document if:
 
 You don't need to read this document if:
 
-- you want to develop an app using the request protocol (see the API library instead [here TODO](#))
+- you want to develop an app using the request protocol (see the API library instead [here](/packages/request-client.js))
 
-Prerequisite: Having read the request logic specification (see [TODO](#))
+Prerequisite: Having read the request logic specification (see [here](/packages/request-logic/specs/request-logic-specification-v2.0.0.md))
 
 The advanced logic is made of `extensions` that add features to simple requests from the request logic.
 
@@ -20,7 +20,7 @@ This list of possible extension types:
 
 | Extension type  | type code        | Description                        | Note                                                                                                                                                                                                         |
 | --------------- | ---------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Content data    | `contentData`    | Extra data to document the request | see [request data format](https://docs.request.network/development/guides/using-request-network-data-format)                                                                                                 |
+| Content data    | `contentData`    | Extra data to document the request | see [request data format](https://docs.request.network/development/v1/guides/using-request-network-data-format)                                                                                              |
 | Payment Network | `paymentNetwork` | Payment detection                  | 3 types: <br> - Declarative (Bilateral consensus) <br> - Read (Proof of payment offchain) <br> - Write (Proof written by third party on chain) <br> Linked to currencies: <br> - BTC <br> - ETH <br> - [...] |
 
 Other features (e.g. Escrow, Payment conditions...) are not handled in this first version but maybe develop later.

@@ -26,3 +26,12 @@ if (!result.valid) {
 | Name                                                    | Last version | Last version | Description                 |
 | ------------------------------------------------------- | ------------ | ------------ | --------------------------- |
 | [Invoice](/packages/data-format/src/format/rnf_invoice) | rnf_invoice  | 0.0.2        | Format to create an invoice |
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+[Read the contributing guide](/CONTRIBUTING.md)
+
+## License
+
+[MIT](/LICENSE)

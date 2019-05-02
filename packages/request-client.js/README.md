@@ -1,7 +1,7 @@
 # @requestnetwork/request-client.js
 
 `@requestnetwork/request-client.js` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
-This package allows you to interact with the Request blockchain through [Request nodes](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node). This client side library uses Request nodes as servers, connected in HTTP. See the Request node documentation for more details on their API.
+This package allows you to interact with the Request blockchain through [Request nodes](/packages/request-node). This client side library uses Request nodes as servers, connected in HTTP. See the Request node documentation for more details on their API.
 It ships both as a commonjs and a UMD module. This means you can use it in node application and in web pages.
 
 ## Installation
@@ -81,7 +81,7 @@ A global `RequestNetwork` is exposed:
 </script>
 ```
 
-A full example is available in `packages\request-client.js\test\index.html`
+A full example is available in `packages\request-client.js\test\index.html` (see [here](/packages/request-client.js/test/index.html))
 
 ### Configure which Request node to use
 
@@ -115,16 +115,16 @@ const request = await requestNetwork.createRequest({
   requestInfo,
   signer,
   paymentNetwork,
+  contentData,
   topics,
 });
 ```
 
-- `requestInfo`: [RequestLogicTypes.IRequestLogicCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L119)
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
-- `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/request-client.js/src/types.ts#L37)
-- `topics`: string[]
-
-`topics` are optional strings used to index the request.
+- `requestInfo`: [RequestLogicTypes.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `contentData`: any - optional data content of the request.
+- `topics`: string[] - optional strings used to index the request.
 
 ### Get a request from its ID
 
@@ -132,7 +132,7 @@ const request = await requestNetwork.createRequest({
 const requestFromId = await requestNetwork.fromRequestId(requestId);
 ```
 
-`requestId`: string
+- `requestId`: string
 
 ### Get all requests linked to an identity
 
@@ -142,7 +142,7 @@ const identity = {
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 
-// Keep only the request updated in this timestamp boundaries (in second)
+// Get only the request updated in this timestamp boundaries (in second)
 const updatedBetween = {
   from: 1546300800,
   to: 1548979200,
@@ -151,14 +151,17 @@ const updatedBetween = {
 const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updatedBetween);
 ```
 
-`identity`: [IIdentity](https://github.com/RequestNetwork/requestNetwork-private/blob/master/packages/types/src/identity-types.ts#L2)
+- `identity`: [IIdentity](/packages/types/src/identity-types.ts#L2)
+- `updatedBetween`
+  - `from`: number - get requests updated from this timestamp on
+  - `to`: number - get requests updated before this timestamp
 
 ### Get all requests linked to a topic
 
 ```javascript
 const identity = 'any_topic';
 
-// Keep only the request updated in this timestamp boundaries (in second)
+// Get only the request updated in this timestamp boundaries (in second)
 const updatedBetween = {
   from: 1546300800,
   to: 1548979200,
@@ -167,13 +170,18 @@ const updatedBetween = {
 const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBetween);
 ```
 
+- `identity`: [IIdentity](/packages/types/src/identity-types.ts#L2)
+- `updatedBetween`
+  - `from`: number - get requests updated from this timestamp on
+  - `to`: number - get requests updated before this timestamp
+
 ### Accept a request
 
 ```javascript
 await request.accept(signatureInfo);
 ```
 
-`signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
 
 ### Cancel a request
 
@@ -181,7 +189,7 @@ await request.accept(signatureInfo);
 await request.cancel(signatureInfo);
 ```
 
-`signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
 
 ### Increase the expected amount of a request
 
@@ -189,8 +197,8 @@ await request.cancel(signatureInfo);
 await request.increaseExpectedAmountRequest(amount, signatureInfo);
 ```
 
-`signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
-`amount`: string
+- `amount`: string
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
 
 ### Reduce the expected amount of a request
 
@@ -198,8 +206,8 @@ await request.increaseExpectedAmountRequest(amount, signatureInfo);
 await request.reduceExpectedAmountRequest(amount, signatureInfo);
 ```
 
-`signatureInfo`: [SignatureTypes.ISignatureParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-types.ts#L2)
-`amount`: string
+- `amount`: string
+- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
 
 ### Get a request data
 
@@ -225,7 +233,7 @@ const requestData = await request.getData();
 */
 ```
 
-`result.request`: [IRequestLogicRequest](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/request-logic-types.ts#L70)
+`requestData.request`: [IRequestData](/packages/request-client.js/src/types.ts#L17)
 
 ### Payment and Refund detections
 
@@ -238,14 +246,14 @@ From the information provided in payment network, the library will feed the prop
 
 The payment networks available are:
 
-- `Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED` ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request, every transaction hitting this address will be consider as a payment. Eventually, the payer can provide a BTC address for the refunds. Note that **the addresses must be used only for one and only one request** otherwise one transaction will be considered as a payment for more than one request. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/development/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md))
+- `Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED` ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request, every transaction hitting this address will be consider as a payment. Eventually, the payer can provide a BTC address for the refunds. Note that **the addresses must be used only for one and only one request** otherwise one transaction will be considered as a payment for more than one request. (see [the specification](/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md))
 - `Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED` ('pn-testnet-bitcoin-address-based'): Same as previous but for the bitcoin testnet (for test purpose)
 
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/master/LICENSE)
+[MIT](/LICENSE)

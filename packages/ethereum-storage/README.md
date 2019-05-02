@@ -77,8 +77,8 @@ Local IPFS listening on port 5001 is used by default by the `ethereum-storage` p
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)
+[MIT](/LICENSE)
