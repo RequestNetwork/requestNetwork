@@ -1,4 +1,5 @@
 import { Storage as Types } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import * as artifactsUtils from './artifacts-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
@@ -10,6 +11,8 @@ const bigNumber: any = require('bn.js');
 // Confirmation to wait in order to create metadata of the new added hash
 // TODO(PROT-252): Find the optimal value or fix to use 1
 const CONFIRMATION_TO_WAIT = 2;
+
+const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 results';
 
 /**
  * Manages the smart contract used by the storage layer
@@ -86,7 +89,7 @@ export default class SmartContractManager {
     // Get the accounts on the provider
     // Throws an error if timeout is reached
     const accounts = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
+      Utils.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
       this.eth.getAccounts(),
     ]);
 
@@ -114,7 +117,7 @@ export default class SmartContractManager {
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
     const fee = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
+      Utils.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
       this.requestHashStorage.methods.getFeesAmount(contentSize).call(),
     ]);
 
@@ -165,12 +168,8 @@ export default class SmartContractManager {
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
   public async getMetaFromEthereum(contentHash: string): Promise<Types.IEthereumMetadata> {
-    // Reading all event logs
-    const events = await this.requestHashStorage.getPastEvents({
-      event: 'NewHash',
-      fromBlock: this.creationBlockNumber,
-      toBlock: 'latest',
-    });
+    // Read all event logs
+    const events = await this.recursiveGetPastEvents(this.creationBlockNumber, 'latest');
 
     const event = events.find((element: any) => element.returnValues.hash === contentHash);
     if (!event) {
@@ -218,22 +217,15 @@ export default class SmartContractManager {
    * @param toBlock number of the block to stop to get events
    * @return Hashes and sizes with metadata
    */
-  private async getHashesAndSizesFromEvents(
+  public async getHashesAndSizesFromEvents(
     fromBlock: number,
     toBlock?: number | string,
-  ): Promise<Types.IGetAllHashesAndSizes[]> {
+  ): Promise<any[]> {
     fromBlock = fromBlock < this.creationBlockNumber ? this.creationBlockNumber : fromBlock;
     toBlock = toBlock || 'latest';
 
-    // Reading all event logs
-    let events = await Promise.race([
-      this.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
-      this.requestHashStorage.getPastEvents({
-        event: 'NewHash',
-        fromBlock,
-        toBlock,
-      }),
-    ]);
+    // Read all event logs
+    let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
 
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
@@ -246,12 +238,60 @@ export default class SmartContractManager {
   }
 
   /**
+   * Get events inside storage smart contract for a specified block range
+   * Some web3 providers, including Infura, send error if the past event number for a specific range is over 1000
+   * In this case we divide the range and call the function recursively
+   *
+   * @param fromBlock number of the block to start to get events
+   * @param toBlock number of the block to stop to get events
+   * @return Past events of requestHashStorage of the specified range
+   */
+  private async recursiveGetPastEvents(
+    fromBlock: number,
+    toBlock: number | string,
+  ): Promise<any[]> {
+    const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(toBlock);
+
+    let events;
+    try {
+      // Reading event logs
+      // If getPastEvents doesn't throw, we can return the returned events from the function
+      events = await Promise.race([
+        Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
+        this.requestHashStorage.getPastEvents({
+          event: 'NewHash',
+          fromBlock,
+          toBlock: toBlockNumber,
+        }),
+      ]);
+
+      return events;
+    } catch (e) {
+
+      if (e.toString().includes(WEB3_API_ERROR_MORE_THAN_1000_RESULTS)) {
+        const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
+        const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
+        const eventsSecondHalfPromise = this.recursiveGetPastEvents(
+          intervalHalf + 1,
+          toBlockNumber,
+        );
+
+        return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise]).then(halves => Utils.flatten2DimensionsArray(halves)).catch(err => { throw(err); });
+      } else {
+        throw(e);
+      }
+    }
+  }
+
+  /**
    * Throws an error if the event is not correctly formatted (missing field)
    * Attaches to the event the corresponding metadata
    * @param event event of type NewHash
    * @returns processed event
    */
-  private async checkAndAddMetaDataToEvent(event: any): Promise<any> {
+  private async checkAndAddMetaDataToEvent(
+    event: any,
+  ): Promise<{ hash: string; meta: Types.IEthereumMetadata; size: number }> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
     // because you can add empty string as hash or 0 as size in the storage smart contract
@@ -272,7 +312,8 @@ export default class SmartContractManager {
     };
   }
 
-  /** Get the name of the Ethereum network from its id
+  /**
+   * Get the name of the Ethereum network from its id
    * @param networkId Id of the network
    * @return name of the network
    */
@@ -286,24 +327,7 @@ export default class SmartContractManager {
   }
 
   /**
-   * Promise that rejects when the specified timeout is reached
-   * This promise is used concurrently with Web3 functions to throw
-   * when the Web3 provider is not responding
-   * @param timeout Timeout threshold to throw the error
-   * @param message Timeout error message
-   */
-  private async timeoutPromise(timeout: number, message: string): Promise<any> {
-    return new Promise(
-      (_resolve, reject): any => {
-        const timeoutId = setTimeout(() => {
-          clearTimeout(timeoutId);
-          reject(new Error(message));
-        }, timeout);
-      },
-    );
-  }
-
-  /** Create the ethereum metadata
+   * Create the ethereum metadata
    * @param blockNumber block number of the ethereum transaction
    * @param transactionHash transactionHash of the ethereum transaction
    * @param cost total cost of the transaction (gas fee + request network fee)
@@ -331,7 +355,6 @@ export default class SmartContractManager {
     try {
       blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
     } catch (error) {
-
       throw Error(`Error getting block ${blockNumber} timestamp: ${error}`);
     }
 
@@ -346,5 +369,36 @@ export default class SmartContractManager {
       smartContractAddress: this.smartContractAddress,
       transactionHash,
     };
+  }
+
+  /**
+   * Get the number of a block given its number or string describing it
+   * We need this function because recursive calls of getPastEvents need to use variable of type number
+   *
+   * @param block block number or string describing the block (latest, genesis, pending)
+   * @return number of the block
+   */
+  private async getBlockNumberFromNumberOrString(block: number | string): Promise<number> {
+    if (typeof block === 'number') {
+      // If the block number is already of type number, we return it
+      return block;
+    } else {
+      let blockObject;
+      try {
+        // Otherwise, we get the number of the block with getBlock web3 function
+        blockObject = await this.eth.getBlock(block);
+      } catch (e) {
+        // getBlock can throw in certain case
+        // For example, if the block describer is "pending", we're not able to get the number of the block
+        // Therefore, this function should throw
+        throw Error(`Cannot get the number of the block: ${e}`);
+      }
+
+      if (!blockObject || !blockObject.number) {
+        throw Error(`Block ${block} has no number`);
+      }
+
+      return blockObject.number;
+    }
   }
 }

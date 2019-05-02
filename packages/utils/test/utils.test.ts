@@ -1,7 +1,13 @@
-import { expect } from 'chai';
+import * as chai from 'chai';
 import 'mocha';
+import * as sinon from 'sinon';
 
 import Utils from '../src/utils';
+
+const chaiAsPromised = require('chai-as-promised');
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 
 /* tslint:disable:no-unused-expression */
 describe('Utils', () => {
@@ -229,6 +235,39 @@ describe('Utils', () => {
         4,
         5,
       ]);
+    });
+  });
+
+  describe('timeoutPromise', () => {
+    let clock: sinon.SinonFakeTimers;
+
+    beforeEach(async () => {
+      clock = sinon.useFakeTimers();
+    });
+
+    afterEach(async () => {
+      sinon.restore();
+    });
+
+    it('rejects with specified message if timeout is reached', (done) => {
+      const errorMessage = 'An error occured !';
+      let rejected = false;
+
+      Utils.timeoutPromise(1000, errorMessage).then(() => {
+        expect.fail('timeoutPromise should not be fulfilled');
+      }).catch((err) => {
+        rejected = true;
+        expect(err.toString()).to.contains(errorMessage);
+        done();
+      });
+
+      expect(rejected).to.be.false;
+
+      clock.tick(999);
+
+      expect(rejected).to.be.false;
+
+      clock.tick(1);
     });
   });
 });

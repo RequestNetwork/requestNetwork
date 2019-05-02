@@ -6,6 +6,6 @@
     "resolveJsonModule": true
   },
   "include": ["./src/lib/**/*", "./artifacts/**/*"],
-  "references": [{ "path": "../types" }],
+  "references": [{ "path": "../types" }, { "path": "../utils" }],
   "files": ["./artifacts/0.1.0.json", "./artifacts/artifacts.json"]
 }

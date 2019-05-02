@@ -9,6 +9,7 @@ export default {
   flatten2DimensionsArray,
   getCurrentTimestampInSecond,
   isString,
+  timeoutPromise,
   unique,
   uniqueByProperty,
 };
@@ -141,4 +142,19 @@ function getCurrentTimestampInSecond(): number {
  */
 function flatten2DimensionsArray(twoDimensionsArray: any[]): any[] {
   return twoDimensionsArray.reduce((accumulator, current) => accumulator.concat(current), []);
+}
+
+/**
+ * Function that returns a promise that rejects when the specified timeout is reached
+ * @param timeout Timeout threshold to throw the error
+ * @param message Timeout error message
+ */
+function timeoutPromise(timeout: number, message: string): Promise<any> {
+  return new Promise(
+    (_resolve, reject): void => {
+      setTimeout(() => {
+        reject(new Error(message));
+      }, timeout);
+    },
+  );
 }
