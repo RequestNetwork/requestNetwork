@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-client.js",
-  "version": "0.1.1-alpha.8",
+  "version": "0.1.1-alpha.9",
   "publishConfig": {
     "access": "public"
   },
@@ -43,14 +43,14 @@
     "test": "nyc mocha --require ts-node/register --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.1.1-alpha.8",
-    "@requestnetwork/data-access": "0.1.1-alpha.8",
-    "@requestnetwork/data-format": "0.1.1-alpha.7",
-    "@requestnetwork/epk-signature": "0.1.1-alpha.8",
-    "@requestnetwork/request-logic": "0.1.1-alpha.8",
-    "@requestnetwork/transaction-manager": "0.1.1-alpha.8",
-    "@requestnetwork/types": "0.1.1-alpha.7",
-    "@requestnetwork/utils": "0.1.1-alpha.8",
+    "@requestnetwork/advanced-logic": "0.1.1-alpha.9",
+    "@requestnetwork/data-access": "0.1.1-alpha.9",
+    "@requestnetwork/data-format": "0.1.1-alpha.8",
+    "@requestnetwork/epk-signature": "0.1.1-alpha.9",
+    "@requestnetwork/request-logic": "0.1.1-alpha.9",
+    "@requestnetwork/transaction-manager": "0.1.1-alpha.9",
+    "@requestnetwork/types": "0.1.1-alpha.8",
+    "@requestnetwork/utils": "0.1.1-alpha.9",
     "axios": "0.18.0",
     "bn.js": "4.11.8",
     "node-fetch": "2.3.0"

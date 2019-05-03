@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/prototype-estimator",
-  "version": "1.0.1-alpha.8",
+  "version": "1.0.1-alpha.9",
   "private": true,
   "description": "Tool to estimate size and throughput of v2 system.",
   "keywords": [
@@ -24,16 +24,16 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.1.1-alpha.8",
-    "@requestnetwork/data-access": "0.1.1-alpha.8",
-    "@requestnetwork/epk-signature": "0.1.1-alpha.8",
-    "@requestnetwork/ethereum-storage": "0.1.1-alpha.8",
-    "@requestnetwork/request-client.js": "0.1.1-alpha.8",
-    "@requestnetwork/request-logic": "0.1.1-alpha.8",
-    "@requestnetwork/request-node": "0.1.1-alpha.8",
-    "@requestnetwork/transaction-manager": "0.1.1-alpha.8",
-    "@requestnetwork/types": "0.1.1-alpha.7",
-    "@requestnetwork/utils": "0.1.1-alpha.8",
+    "@requestnetwork/advanced-logic": "0.1.1-alpha.9",
+    "@requestnetwork/data-access": "0.1.1-alpha.9",
+    "@requestnetwork/epk-signature": "0.1.1-alpha.9",
+    "@requestnetwork/ethereum-storage": "0.1.1-alpha.9",
+    "@requestnetwork/request-client.js": "0.1.1-alpha.9",
+    "@requestnetwork/request-logic": "0.1.1-alpha.9",
+    "@requestnetwork/request-node": "0.1.1-alpha.9",
+    "@requestnetwork/transaction-manager": "0.1.1-alpha.9",
+    "@requestnetwork/types": "0.1.1-alpha.8",
+    "@requestnetwork/utils": "0.1.1-alpha.9",
     "benchmark": "2.1.4"
   },
   "devDependencies": {

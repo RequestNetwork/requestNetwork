@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/web3-signature",
-  "version": "0.1.1-alpha.4",
+  "version": "0.1.1-alpha.5",
   "publishConfig": {
     "access": "public"
   },
@@ -41,8 +41,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.7",
-    "@requestnetwork/utils": "0.1.1-alpha.8",
+    "@requestnetwork/types": "0.1.1-alpha.8",
+    "@requestnetwork/utils": "0.1.1-alpha.9",
     "web3-eth": "1.0.0-beta.37"
   },
   "devDependencies": {
