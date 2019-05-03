@@ -41,7 +41,6 @@ const fakeMetaTransactionManager = {
 const fakeTransactionManager: TransactionTypes.ITransactionManager = {
   getChannelsByTopic: chai.spy(),
   getTransactionsByChannelId: chai.spy(),
-  getTransactionsByTopic: chai.spy(),
   persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
 };
 
@@ -382,7 +381,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -523,7 +521,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -665,7 +662,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -752,7 +748,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -796,7 +791,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -950,7 +944,6 @@ describe('index', () => {
           return listAllActions;
         },
         getTransactionsByChannelId: chai.spy(),
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -1022,7 +1015,6 @@ describe('index', () => {
           return listActions;
         },
         getTransactionsByChannelId: chai.spy(),
-        getTransactionsByTopic: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(

@@ -67,29 +67,6 @@ export default class TransactionManager implements Types.ITransactionManager {
   }
 
   /**
-   * Gets a list of transactions indexed by topic
-   *
-   * later it will handle decryption
-   *
-   * @param topic topic to retrieve the transaction from
-   * @param timestampBoundaries timestamp boundaries of the transactions search
-   * @returns list of transactions indexed by topic
-   */
-  public async getTransactionsByTopic(
-    topic: string,
-    timestampBoundaries?: Types.ITimestampBoundaries,
-  ): Promise<Types.IReturnGetTransactions> {
-    const resultGetTx = await this.dataAccess.getTransactionsByTopic(topic, timestampBoundaries);
-
-    return {
-      meta: {
-        dataAccessMeta: resultGetTx.meta,
-      },
-      result: resultGetTx.result,
-    };
-  }
-
-  /**
    * Gets a list of channels indexed by topic
    *
    * @param topic topic to retrieve the transaction from

@@ -58,25 +58,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * Gets the transactions for a topic from the node through HTTP.
-   *
-   * @param topic The topic to search for
-   * @param timestampBoundaries filter timestamp boundaries
-   */
-  public async getTransactionsByTopic(
-    topic: string,
-    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
-  ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const { data } = await axios.get(
-      '/getTransactionsByTopic',
-      Object.assign(this.axiosConfig, {
-        params: { topic, timestampBoundaries },
-      }),
-    );
-    return data;
-  }
-
-  /**
    * Gets the transactions for a channel from the node through HTTP.
    *
    * @param channelId The channel id to search for

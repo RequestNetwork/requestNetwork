@@ -17,6 +17,7 @@ export default {
   identity,
   isString: utils.isString,
   signature,
+  timeoutPromise: utils.timeoutPromise,
   unique: utils.unique,
   uniqueByProperty: utils.uniqueByProperty,
 };

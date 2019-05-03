@@ -5,10 +5,6 @@ export interface ITransactionManager {
     channelId: string,
     topics?: string[],
   ) => Promise<IReturnPersistTransaction>;
-  getTransactionsByTopic: (
-    topic: string,
-    timestampBoundaries?: ITimestampBoundaries,
-  ) => Promise<IReturnGetTransactions>;
   getTransactionsByChannelId: (
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,
@@ -36,7 +32,7 @@ export interface IReturnPersistTransaction {
   result: {};
 }
 
-/** return interface for getTransactionsByTopic and getTransactionsByChannelId  */
+/** return interface for getTransactionsByChannelId  */
 export interface IReturnGetTransactions {
   /** meta information */
   meta: {
@@ -47,7 +43,7 @@ export interface IReturnGetTransactions {
   result: { transactions: IConfirmedTransaction[] };
 }
 
-/** return interface for getTransactionsByTopic and getTransactionsByChannelId  */
+/** return interface for getTransactionsByChannelId  */
 export interface IReturnGetTransactionsByChannels {
   /** meta information */
   meta: {

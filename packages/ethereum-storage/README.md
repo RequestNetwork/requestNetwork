@@ -5,6 +5,9 @@ It is an implementation of the Storage layer of Request Network protocol that us
 
 The package also stores the source and artifacts of the smart contract deployed on Ethereum.
 
+To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
+use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
+
 ## Installation
 
 ```bash
@@ -20,6 +23,7 @@ import { Storage as StorageTypes } from '@requestnetwork/types';
 const web3HttpProvider = require('web3-providers-http');
 
 const provider = new web3HttpProvider('http://localhost:8545');
+
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
@@ -73,8 +77,8 @@ Local IPFS listening on port 5001 is used by default by the `ethereum-storage` p
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)
+[MIT](/LICENSE)

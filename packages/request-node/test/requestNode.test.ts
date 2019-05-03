@@ -51,7 +51,7 @@ describe('requestNode server', () => {
       .expect(httpStatus.SERVICE_UNAVAILABLE);
 
     await request(notInitializedServer)
-      .get('/getTransactionsByTopic')
+      .get('/getTransactionsByChannelId')
       .set('Accept', 'application/json')
       .expect(httpStatus.SERVICE_UNAVAILABLE);
   });

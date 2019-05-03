@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/transaction-manager",
-  "version": "0.1.1-alpha.8",
+  "version": "0.1.1-alpha.9",
   "publishConfig": {
     "access": "public"
   },
@@ -39,8 +39,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.7",
-    "@requestnetwork/utils": "0.1.1-alpha.8"
+    "@requestnetwork/types": "0.1.1-alpha.8",
+    "@requestnetwork/utils": "0.1.1-alpha.9"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

@@ -1,6 +1,7 @@
 import { Storage as Types } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
 import BadDataInSmartContractError from './bad-data-in-smart-contract-error';
+import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
 
@@ -14,11 +15,17 @@ export default class EthereumStorage implements Types.IStorage {
    * This attribute is left public for mocking purpose to facilitate tests on the module
    */
   public smartContractManager: SmartContractManager;
+
   /**
    * Manager for IPFS
    * This attribute is left public for mocking purpose to facilitate tests on the module
    */
   public ipfsManager: IpfsManager;
+
+  /**
+   * Cache to store Ethereum metadata
+   */
+  public ethereumMetadataCache: EthereumMetadataCache;
 
   /**
    * Constructor
@@ -31,6 +38,7 @@ export default class EthereumStorage implements Types.IStorage {
   ) {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
     this.smartContractManager = new SmartContractManager(web3Connection);
+    this.ethereumMetadataCache = new EthereumMetadataCache(this.smartContractManager);
   }
 
   /**
@@ -109,10 +117,10 @@ export default class EthereumStorage implements Types.IStorage {
       throw Error('No id provided');
     }
 
-    // get meta data from ethereum
+    // Get Ethereum metadata
     let ethereumMetadata;
     try {
-      ethereumMetadata = await this.smartContractManager.getMetaFromEthereum(id);
+      ethereumMetadata = await this.ethereumMetadataCache.getDataIdMeta(id);
     } catch (error) {
       throw Error(`Ethereum meta read request error: ${error}`);
     }
@@ -182,7 +190,21 @@ export default class EthereumStorage implements Types.IStorage {
   public async getDataId(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataIdReturn> {
     const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
-    return this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
+    const filteredDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
+
+    // Save existing ethereum metadata to the ethereum metadata cache
+    for (let i = 0; i < filteredDataIdAndMeta.result.dataIds.length; i++) {
+      const ethereumMetadata = filteredDataIdAndMeta.meta.metaDataIds[i].ethereum;
+      if (ethereumMetadata) {
+        // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
+        this.ethereumMetadataCache.saveDataIdMeta(
+          filteredDataIdAndMeta.result.dataIds[i],
+          ethereumMetadata,
+        );
+      }
+    }
+
+    return filteredDataIdAndMeta;
   }
 
   /**

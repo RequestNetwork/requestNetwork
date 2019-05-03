@@ -7,19 +7,9 @@ const config: any = {
     default: 'private',
     gasPriceDefault: '4000000000',
     nodeUrlDefault: {
-      main: {
-        timeout: 10000,
-        url:
-          'https://mainnet.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
-      },
       private: {
-        timeout: 10000,
-        url: 'http://localhost:8545',
-      },
-      rinkeby: {
         timeout: 30000,
-        url:
-          'https://rinkeby.infura.io/v3/336bb135413f4f5f92138d4539ae4300' /* eslint-disable-line spellcheck/spell-checker */,
+        url: 'http://localhost:8545',
       },
     },
   },

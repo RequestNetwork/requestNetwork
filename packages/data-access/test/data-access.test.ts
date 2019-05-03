@@ -92,7 +92,7 @@ describe('data-access', () => {
     sinon.restore();
   });
 
-  describe('constructor and getTransactionsByTopic', () => {
+  describe('constructor', () => {
     it('cannot initialize with data from read without result', async () => {
       const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
@@ -197,56 +197,6 @@ describe('data-access', () => {
       await expect(dataAccess.initialize()).to.be.rejectedWith(`can't parse content of the dataId`);
     });
 
-    it('can construct and getTransactionsByTopic', async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-            meta: { timestamp: 1 },
-            result: { content: JSON.stringify(blockWith2tx) },
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
-        },
-      };
-
-      const dataAccess = new DataAccess(fakeStorage);
-      await dataAccess.initialize();
-
-      expect(
-        await dataAccess.getTransactionsByTopic(arbitraryTopic1),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: [{ timestamp: 1 }],
-          transactionsStorageLocation: ['dataIdBlock2tx'],
-        },
-        result: { transactions: [{ transaction: transactionMock1, timestamp: 1 }] },
-      });
-
-      expect(
-        await dataAccess.getTransactionsByTopic(arbitraryTopic2),
-        'result with arbitraryTopic2 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: [{ timestamp: 1 }, { timestamp: 1 }],
-          transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
-        },
-        result: {
-          transactions: [
-            { transaction: transactionMock1, timestamp: 1 },
-            { transaction: transactionMock2, timestamp: 1 },
-          ],
-        },
-      });
-    });
-
     it('cannot initialize twice', async () => {
       const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
@@ -272,7 +222,7 @@ describe('data-access', () => {
       await expect(dataAccess.initialize()).to.be.rejectedWith('already initialized');
     });
 
-    it('cannot getTransactionsByTopic if not initialized', async () => {
+    it('cannot getChannelsByTopic if not initialized', async () => {
       const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 
       const fakeStorage: StorageTypes.IStorage = {
@@ -293,7 +243,7 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(fakeStorage);
 
-      await expect(dataAccess.getTransactionsByTopic(arbitraryTopic1)).to.be.rejectedWith(
+      await expect(dataAccess.getChannelsByTopic(arbitraryTopic1)).to.be.rejectedWith(
         'DataAccess must be initialized',
       );
     });
@@ -338,63 +288,10 @@ describe('data-access', () => {
       });
     });
 
-    it('can getTransactionsByTopic() with boundaries too restrictive', async () => {
+    it('can getTransactionsByChannelId() with boundaries too restrictive', async () => {
       expect(
         await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
         'result with arbitraryId1 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: [],
-          transactionsStorageLocation: [],
-        },
-        result: { transactions: [] },
-      });
-    });
-  });
-
-  describe('getTransactionsByTopic', () => {
-    let dataAccess: any;
-
-    beforeEach(async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-            meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
-        },
-      };
-
-      dataAccess = new DataAccess(fakeStorage);
-      await dataAccess.initialize();
-    });
-
-    it('can getTransactionsByTopic() with boundaries', async () => {
-      expect(
-        await dataAccess.getTransactionsByTopic(arbitraryTopic1, { from: 9, to: 100 }),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: [{ timestamp: 10 }],
-          transactionsStorageLocation: ['dataIdBlock2tx'],
-        },
-        result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
-      });
-    });
-
-    it('can getTransactionsByTopic() with boundaries too restrictive', async () => {
-      expect(
-        await dataAccess.getTransactionsByTopic(arbitraryTopic1, { from: 11, to: 100 }),
-        'result with arbitraryTopic1 wrong',
       ).to.deep.equal({
         meta: {
           storageMeta: [],
@@ -570,43 +467,51 @@ describe('data-access', () => {
     await dataAccess.initialize();
 
     expect(
-      await dataAccess.getTransactionsByTopic(arbitraryTopic1),
+      await dataAccess.getChannelsByTopic(arbitraryTopic1),
       'result with arbitraryTopic1 not empty',
     ).to.deep.equal({
       meta: {
-        storageMeta: [],
-        transactionsStorageLocation: [],
+        storageMeta: {},
+        transactionsStorageLocation: {},
       },
-      result: { transactions: [] },
+      result: { transactions: {} },
     });
 
     // Transactions should be available avec synchronization
     await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
 
     expect(
-      await dataAccess.getTransactionsByTopic(arbitraryTopic1),
+      await dataAccess.getChannelsByTopic(arbitraryTopic1),
       'result with arbitraryTopic1 wrong',
     ).to.deep.equal({
       meta: {
-        storageMeta: [{ timestamp: 1 }],
-        transactionsStorageLocation: ['dataIdBlock2tx'],
+        storageMeta: { '0x111111111111111': [{ timestamp: 1 }] },
+        transactionsStorageLocation: { '0x111111111111111': ['dataIdBlock2tx'] },
       },
-      result: { transactions: [{ transaction: transactionMock1, timestamp: 1 }] },
+      result: {
+        transactions: { '0x111111111111111': [{ transaction: transactionMock1, timestamp: 1 }] },
+      },
     });
 
     expect(
-      await dataAccess.getTransactionsByTopic(arbitraryTopic2),
+      await dataAccess.getChannelsByTopic(arbitraryTopic2),
       'result with arbitraryTopic2 wrong',
     ).to.deep.equal({
       meta: {
-        storageMeta: [{ timestamp: 1 }, { timestamp: 1 }],
-        transactionsStorageLocation: ['dataIdBlock2tx', 'dataIdBlock2tx'],
+        storageMeta: {
+          '0x111111111111111': [{ timestamp: 1 }],
+          '0x222222222222222': [{ timestamp: 1 }],
+        },
+        transactionsStorageLocation: {
+          '0x111111111111111': ['dataIdBlock2tx'],
+          '0x222222222222222': ['dataIdBlock2tx'],
+        },
       },
       result: {
-        transactions: [
-          { transaction: transactionMock1, timestamp: 1 },
-          { transaction: transactionMock2, timestamp: 1 },
-        ],
+        transactions: {
+          '0x111111111111111': [{ transaction: transactionMock1, timestamp: 1 }],
+          '0x222222222222222': [{ transaction: transactionMock2, timestamp: 1 }],
+        },
       },
     });
   });

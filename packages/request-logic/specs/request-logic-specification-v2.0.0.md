@@ -7,7 +7,7 @@ You can be interested in this document if:
 
 You don't need to read this document if:
 
-- You want to develop an app using the request protocol (see the API library instead [here TODO](#))
+- You want to develop an app using the request protocol (see the API library instead [here](/packages/request-client.js))
 
 ## Content table
 

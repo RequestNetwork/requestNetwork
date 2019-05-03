@@ -10,10 +10,6 @@ export interface IDataAccess {
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,
   ) => Promise<IReturnGetTransactions>;
-  getTransactionsByTopic: (
-    topic: string,
-    timestampBoundaries?: ITimestampBoundaries,
-  ) => Promise<IReturnGetTransactions>;
   getChannelsByTopic: (
     topic: string,
     updatedBetween?: ITimestampBoundaries,
@@ -41,7 +37,7 @@ export interface IReturnPersistTransaction {
   result: {};
 }
 
-/** return interface for getTransactionsByTopic and getTransactionsByChannelId */
+/** return interface for getTransactionsByChannelId */
 export interface IReturnGetTransactions {
   /** meta information */
   meta: {

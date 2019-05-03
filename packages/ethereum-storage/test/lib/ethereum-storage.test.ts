@@ -180,6 +180,10 @@ describe('EthereumStorage', () => {
   });
 
   it('allows to read a file', async () => {
+    // For this test, we don't want to use the ethereum metadata cache
+    // We want to force the retrieval of metadata with getPastEvents function
+    ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+
     await ethereumStorage.append(content1);
     const result = await ethereumStorage.read(hash1);
 

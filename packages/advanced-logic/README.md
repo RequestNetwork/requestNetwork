@@ -11,16 +11,15 @@ npm install @requestnetwork/advanced-logic
 
 ## Specifications
 
-Specifications of Advanced Logic can be found [here](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/packages/advanced-logic/specs/advanced-logic-specs-0.1.0-DRAFT.md)
+Specifications of Advanced Logic can be found [here](/packages/advanced-logic/specs/advanced-logic-specs-0.1.0-DRAFT.md)
 
 ## Implemented Extensions
 
 ### Content Data
 
-This extension allows linking content data to the request. The content data can be used to give extra information about the request. You can find examples of content data format [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/data-format).
+This extension allows linking content data to the request. The content data can be used to give extra information about the request. You can find examples of content data format [here](/packages/data-format).
 
-Specifications of Content Data can be found [here](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/packages/advanced-logic/specs/content-data-0.1.0-DRAFT.md)
-todo
+Specifications of Content Data can be found [here](/packages/advanced-logic/specs/content-data-0.1.0-DRAFT.md)
 
 ### Address based bitcoin payments
 
@@ -28,13 +27,13 @@ This extension allows the payments and the refunds to be made on the Bitcoin blo
 
 Note: this extension can be used with the bitcoin mainnet and testnet.
 
-Specifications of Address based bitcoin payments can be found [here](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md)
+Specifications of Address based bitcoin payments can be found [here](/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md)
 
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-[Read the contributing guide](https://github.com/RequestNetwork/requestNetwork/blob/master/CONTRIBUTING.md)
+[Read the contributing guide](/CONTRIBUTING.md)
 
 ## License
 
-[MIT](https://github.com/RequestNetwork/requestNetwork/blob/develop-v2/LICENSE)
+[MIT](/LICENSE)
