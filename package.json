@@ -9,6 +9,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
   "scripts": {
     "build": "lerna run build",
     "clean": "lerna run clean",

@@ -776,6 +776,93 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@requestnetwork/advanced-logic@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/advanced-logic/-/advanced-logic-0.1.1-alpha.8.tgz#a9edb177f72bea63bec210cfebfca83521c0c99f"
+  integrity sha512-iORN4riOdw9LeSJlU0kZFDC5YS9nha0dk6QLDPImUbHam1NF5XrQG5cNo8kzxm0bwdUW7VghtFoX3+X38MtaiQ==
+  dependencies:
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    "@requestnetwork/utils" "0.1.1-alpha.8"
+    "@types/node" "11.9.0"
+    lodash "4.17.11"
+    wallet-address-validator "0.2.4"
+
+"@requestnetwork/data-access@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/data-access/-/data-access-0.1.1-alpha.8.tgz#2db5d89d1e3093f13bd4b791a705e32f420127c5"
+  integrity sha512-6iAmnVSmPchAa+IoXMJlENtg77Mq4aaBDCeAa1Mg9r46LU+QdR1sKDoVzrhqb4KTiXRGEKlUMWZANgxVjeAD6A==
+  dependencies:
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    "@requestnetwork/utils" "0.1.1-alpha.8"
+
+"@requestnetwork/data-format@0.1.1-alpha.7":
+  version "0.1.1-alpha.7"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/data-format/-/data-format-0.1.1-alpha.7.tgz#bf72512f9d851099c08242192e9880626e2ca57e"
+  integrity sha512-mXVaWpr+j9HEkbbpJGJpNI1AjoVS/TulWKvJ+lRiT3mRD3ako7GH541QPypj5fHah5+1JycPkvaSgMozj3xoig==
+  dependencies:
+    ajv "6.8.1"
+    tslib "1.9.3"
+    typescript "3.3.1"
+
+"@requestnetwork/epk-signature@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/epk-signature/-/epk-signature-0.1.1-alpha.8.tgz#9243169cc42036610f0b323bf8c5724b69cea2dc"
+  integrity sha512-INVytFKpknGVy/ny1FZfDzxNoJ/GNJRFQFXUwzfxv/GEgNhKJ2nVF6v9lGmYaZgYARfy0r1VaLhw343y5zJ4Yw==
+  dependencies:
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    "@requestnetwork/utils" "0.1.1-alpha.8"
+
+"@requestnetwork/request-client.js@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/request-client.js/-/request-client.js-0.1.1-alpha.8.tgz#26f1eecbc76bae25e7ee4e6f99c64689e2154f54"
+  integrity sha512-plO+D6ZatjzGJoUn7CBA1t87rdAcun1sHn1z7DktmXzhSLbhmYb6wW34M3EdVzHA5hJ/z3AHXVb4VgVBAWKeLg==
+  dependencies:
+    "@requestnetwork/advanced-logic" "0.1.1-alpha.8"
+    "@requestnetwork/data-access" "0.1.1-alpha.8"
+    "@requestnetwork/data-format" "0.1.1-alpha.7"
+    "@requestnetwork/epk-signature" "0.1.1-alpha.8"
+    "@requestnetwork/request-logic" "0.1.1-alpha.8"
+    "@requestnetwork/transaction-manager" "0.1.1-alpha.8"
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    "@requestnetwork/utils" "0.1.1-alpha.8"
+    axios "0.18.0"
+    bn.js "4.11.8"
+    node-fetch "2.3.0"
+
+"@requestnetwork/request-logic@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/request-logic/-/request-logic-0.1.1-alpha.8.tgz#95c427ef6add61a6952ccff101407f6850398a3b"
+  integrity sha512-4XkAHph/5X36ph8Eap7pCLOVrfDwKcO/QAVRTzuLY2+e/csKQw/KrwZsCD7/qNei2hL0W1WsAwaguq68hpgwHg==
+  dependencies:
+    "@requestnetwork/advanced-logic" "0.1.1-alpha.8"
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    "@requestnetwork/utils" "0.1.1-alpha.8"
+    semver "5.6.0"
+
+"@requestnetwork/transaction-manager@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/transaction-manager/-/transaction-manager-0.1.1-alpha.8.tgz#565f6ed0b74351c0824f6bdf64cf5f6224149072"
+  integrity sha512-KZSzmTK6ZqdqHW2PZfJQVAHTWO8PvIsRTFVym/b2ec5PpyNmGYy2QDu1eIx/5IZ0JoHnyiXbdO/HOn67g7Jf+Q==
+  dependencies:
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    "@requestnetwork/utils" "0.1.1-alpha.8"
+
+"@requestnetwork/types@0.1.1-alpha.7":
+  version "0.1.1-alpha.7"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/types/-/types-0.1.1-alpha.7.tgz#09198af88a949021e31fa9bbd3d6a521255da5ca"
+  integrity sha512-eCyeoNDp06iYjmRLsKPWQVYVnNez2MHu8lxRwewKZEsWrEuawsAj8VEYxzpI0I/r4nmAuA/DS4TScK8IPP7Qkw==
+  dependencies:
+    bn.js "4.11.8"
+
+"@requestnetwork/utils@0.1.1-alpha.8":
+  version "0.1.1-alpha.8"
+  resolved "https://registry.yarnpkg.com/@requestnetwork/utils/-/utils-0.1.1-alpha.8.tgz#aee9b6797d9d87c2bf3678a293ae149c69e20d55"
+  integrity sha512-nHvhCiQqhamcu0OHt8WXq71u29VwMKf3UivGhGrw73CNeqNpiUjnLOUSSM5xDQWCdwo55ivMAP7aha7GjxcFbQ==
+  dependencies:
+    "@requestnetwork/types" "0.1.1-alpha.7"
+    bn.js "4.11.8"
+    eth-crypto "1.3.2"
+
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@samverschueren/stream-to-observable/-/stream-to-observable-0.3.0.tgz#ecdf48d532c58ea477acfcab80348424f8d0662f"
