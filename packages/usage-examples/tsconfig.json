@@ -6,8 +6,12 @@
   },
   "include": ["./src/**/*"],
   "references": [
-    // { "path": "../ethereum-storage" },
+    { "path": "../data-access" },
+    { "path": "../epk-signature" },
+    { "path": "../transaction-manager" },
+    { "path": "../request-logic" },
     { "path": "../request-client.js" },
-    { "path": "../epk-signature" }
+    { "path": "../types" },
+    { "path": "../utils" }
   ]
 }
