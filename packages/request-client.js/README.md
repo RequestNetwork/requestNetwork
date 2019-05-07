@@ -165,7 +165,7 @@ await request.reduceExpectedAmountRequest(amount, signatureInfo);
 ### Get a request data
 
 ```javascript
-const requestData = await request.getData();
+const requestData = request.getData();
 /*
 { 
   requestId,

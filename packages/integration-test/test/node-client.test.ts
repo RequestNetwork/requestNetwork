@@ -42,14 +42,14 @@ describe('Request client using a request node', () => {
     assert.exists(request.requestId);
 
     // Get the data
-    let requestData = await request.getData();
+    let requestData = request.getData();
     assert.equal(requestData.expectedAmount, '100000000000');
     assert.equal(requestData.balance, null);
     assert.exists(requestData.meta);
 
     // Reduce the amount and get the data
     await request.reduceExpectedAmountRequest('20000000000', payeeIdentity);
-    requestData = await request.getData();
+    requestData = request.getData();
     assert.equal(requestData.expectedAmount, '80000000000');
     assert.equal(requestData.balance, null);
     assert.exists(requestData.meta);
@@ -84,7 +84,7 @@ describe('Request client using a request node', () => {
     assert.exists(request.requestId);
 
     // Get the data
-    const requestData = await request.getData();
+    const requestData = request.getData();
     assert.equal(requestData.expectedAmount, '100000000000');
     assert.exists(requestData.balance);
     assert.exists(requestData.meta);

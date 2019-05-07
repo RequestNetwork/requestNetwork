@@ -242,7 +242,7 @@ describe('index', () => {
       signer: signerIdentity,
     });
 
-    const data = await request.getData();
+    const data = request.getData();
 
     expect(data).to.exist;
     expect(data.balance).to.be.null;
@@ -269,7 +269,7 @@ describe('index', () => {
       signer: signerIdentity,
     });
 
-    const data = await request.getData();
+    const data = request.getData();
 
     expect(data).to.exist;
     expect(data.balance).to.exist;
@@ -294,7 +294,7 @@ describe('index', () => {
       signer: signerIdentity,
     });
 
-    const data = await request.getData();
+    const data = request.getData();
     expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
