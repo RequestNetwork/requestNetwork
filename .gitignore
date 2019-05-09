@@ -23,3 +23,6 @@ yarn-error.log
 
 # OS specific files
 .DS_Store
+
+# local environment variables
+.env

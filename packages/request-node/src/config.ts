@@ -1,6 +1,9 @@
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 
+// Load environment variables from .env file (without overriding variables already set)
+require('dotenv').config();
+
 /**
  * This contains default values used for the server and storage initialization
  * when environment variable is not specified
