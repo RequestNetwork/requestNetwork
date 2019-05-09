@@ -127,7 +127,15 @@ export function getIpfsTimeout(): number {
  * @returns the mnemonic for HDWallet
  */
 export function getMnemonic(): string {
-  return process.env.MNEMONIC || defaultValues.wallet.mnemonic;
+  if (!process.env.MNEMONIC) {
+    if (getStorageNetworkId() !== 0) {
+      throw new Error(
+        'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
+      );
+    }
+    return defaultValues.wallet.mnemonic;
+  }
+  return process.env.MNEMONIC;
 }
 
 /**
