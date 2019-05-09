@@ -104,7 +104,7 @@ class RequestNode {
 
     // Supported encodings
     this.express.use(express.json());
-    this.express.use(express.urlencoded());
+    this.express.use(express.urlencoded({ extended: true }));
 
     this.express.use('/', router);
 

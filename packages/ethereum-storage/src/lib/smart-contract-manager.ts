@@ -267,7 +267,6 @@ export default class SmartContractManager {
 
       return events;
     } catch (e) {
-
       if (e.toString().includes(WEB3_API_ERROR_MORE_THAN_1000_RESULTS)) {
         const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
         const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
@@ -276,9 +275,13 @@ export default class SmartContractManager {
           toBlockNumber,
         );
 
-        return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise]).then(halves => Utils.flatten2DimensionsArray(halves)).catch(err => { throw(err); });
+        return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise])
+          .then(halves => Utils.flatten2DimensionsArray(halves))
+          .catch(err => {
+            throw err;
+          });
       } else {
-        throw(e);
+        throw e;
       }
     }
   }

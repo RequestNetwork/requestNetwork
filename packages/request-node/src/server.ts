@@ -32,6 +32,7 @@ if (argv.h) {
   console.log(config.getHelpMessage());
 } else {
   startNode().catch(error => {
-    throw error;
+    console.error(error);
+    process.exit(1);
   });
 }

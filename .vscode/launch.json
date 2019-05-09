@@ -5,6 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Start Request Node",
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/packages/request-node/src/server.ts"],
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}/packages/request-node",
+      "protocol": "inspector"
+    },
+    {
       "name": "Client side test",
       "type": "node",
       "request": "launch",
