@@ -207,7 +207,7 @@ export default class SmartContractManager {
       toBlock = optionToBlockNumbers.blockBefore;
     }
 
-    if (toBlock && toBlock <= fromBlock) {
+    if (toBlock && toBlock < fromBlock) {
       throw Error(`toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`);
     }
 

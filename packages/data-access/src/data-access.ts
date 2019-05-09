@@ -63,6 +63,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // initialize the dataId topic with the previous block
     const allDataIdsWithMeta = await this.storage.getDataId();
 
+    // The last synced timestamp is the current timestamp
+    this.lastSyncedTimeStamp = Utils.getCurrentTimestampInSecond();
+
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
     await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta);

@@ -16,7 +16,7 @@ let clock: sinon.SinonFakeTimers;
 // tslint:disable:no-empty
 describe('interval-timer', () => {
   beforeEach(async () => {
-    intervalTimer = new IntervalTimer(() => {}, 1000);
+    intervalTimer = new IntervalTimer(async (): Promise<void> => {}, 1000);
     clock = sinon.useFakeTimers();
   });
 
@@ -38,7 +38,18 @@ describe('interval-timer', () => {
   });
 
   it('should periodically call the interval function provided when start() is called', async () => {
-    const callback = sinon.spy();
+    // We use this function to flush the call stack
+    // If we don't use this function, the fake timer will be increased before the interval function being called
+    const flushCallStack = (): Promise<any> => {
+      return new Promise(
+        (resolve): any => {
+          setTimeout(resolve, 0);
+          clock.tick(1);
+        },
+      );
+    };
+
+    const callback = sinon.spy(async () => 0);
 
     intervalTimer = new IntervalTimer(callback, 1000);
     intervalTimer.start();
@@ -51,17 +62,25 @@ describe('interval-timer', () => {
     clock.tick(600); // 1100
     expect(callback.callCount).to.equal(1);
 
+    await flushCallStack();
+
     clock.tick(1000); // 2100
     expect(callback.callCount).to.equal(2);
 
-    clock.tick(3000); // 5100
-    expect(callback.callCount).to.equal(5);
+    await flushCallStack();
 
-    clock.tick(100); // 5200
-    expect(callback.callCount).to.equal(5);
+    clock.tick(1000); // 3100
+    expect(callback.callCount).to.equal(3);
 
-    clock.tick(5000); // 10200
-    expect(callback.callCount).to.equal(10);
+    await flushCallStack();
+
+    clock.tick(1000); // 4100
+    expect(callback.callCount).to.equal(4);
+
+    await flushCallStack();
+
+    clock.tick(1000); // 5100
+    expect(callback.callCount).to.equal(5);
   });
 
   it('should stop calling the interval function when stop() is called', async () => {
@@ -99,5 +118,57 @@ describe('interval-timer', () => {
 
     clock.tick(1000); // 3100
     expect(callback.callCount).to.equal(2);
+  });
+
+  it('should not stop if the interval function fail', async () => {
+    // We use this function to flush the call stack
+    // If we don't use this function, the fake timer will be increased before the interval function being called
+    const flushCallStack = (): Promise<any> => {
+      return new Promise(
+        (resolve): any => {
+          setTimeout(resolve, 0);
+          clock.tick(1);
+        },
+      );
+    };
+
+    // Trigger the rejection of the interval function
+    let makeReject = false;
+
+    // This value is used to check if the interval function has been rejected
+    let hasBeenRejected = false;
+
+    const callback = sinon.spy(async () => {
+      if (makeReject) {
+        hasBeenRejected = true;
+        throw Error('makeReject set');
+      }
+      return 0;
+    });
+
+    intervalTimer = new IntervalTimer(callback, 1000);
+    intervalTimer.start();
+
+    expect(callback.callCount).to.equal(0);
+
+    clock.tick(1100);
+    expect(callback.callCount).to.equal(1);
+
+    // Force the rejection of the interval function for the next call
+    makeReject = true;
+    await flushCallStack();
+
+    clock.tick(1000);
+    expect(callback.callCount).to.equal(2);
+
+    makeReject = false;
+    await flushCallStack();
+
+    // The interval function should have been rejected
+    await expect(hasBeenRejected).to.be.true;
+
+    // The interval function should continue to be called
+    clock.tick(1000);
+    expect(callback.callCount).to.equal(3);
   });
 });
