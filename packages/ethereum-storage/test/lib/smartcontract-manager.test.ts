@@ -328,6 +328,23 @@ describe('SmartContractManager', () => {
     await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum(), Error);
   });
 
+  it('getHashesAndSizesFromEthereum rejects if fromBlock is larger than toBlock', async () => {
+    const mockBlocksEthereum = [7, 30, 45, 87, 100, 150, 209, 234, 290, 306];
+    const mockEth = {
+      getBlock: (i: number): any => {
+        return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
+      },
+      // tslint:disable-next-line:typedef
+      getBlockNumber: () => 9,
+    };
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+
+    await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum({
+      from: 200,
+      to: 10,
+    }), Error, 'toBlock must be larger than fromBlock');
+  });
+
   it('initializes smartcontract-manager with default values should not throw an error', async () => {
     assert.doesNotThrow(() => new SmartContractManager(), Error);
   });

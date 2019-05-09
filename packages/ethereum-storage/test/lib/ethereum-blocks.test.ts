@@ -140,6 +140,14 @@ describe('EthereumBlocks', () => {
     });
   });
 
+  describe('getSecondLastBlockNumber', () => {
+    it('getSecondLastBlockNumber', async () => {
+      sandbox.on(mockEth, ['getBlock', 'getBlockNumber']);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      expect(await ethereumBlocks.getSecondLastBlockNumber()).to.be.equal(98);
+    });
+  });
+
   describe('getBlockTimestamp', () => {
     it('can getBlockTimestamp', async () => {
       const ethereumBlocks = new EthereumBlocks(mockEth, 10);
@@ -240,15 +248,17 @@ describe('EthereumBlocks', () => {
       });
 
       // at last block
+      // getBlockNumbersFromTimestamp should return the second last block number
       expect(await ethereumBlocks.getBlockNumbersFromTimestamp(9906)).to.be.deep.equal({
-        blockAfter: 99,
-        blockBefore: 99,
+        blockAfter: 98,
+        blockBefore: 98,
       });
 
       // with timestamp over last block
+      // getBlockNumbersFromTimestamp should return the second last block number
       expect(await ethereumBlocks.getBlockNumbersFromTimestamp(99999)).to.be.deep.equal({
-        blockAfter: 99,
-        blockBefore: 99,
+        blockAfter: 98,
+        blockBefore: 98,
       });
     });
   });

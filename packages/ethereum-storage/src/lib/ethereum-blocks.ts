@@ -68,13 +68,15 @@ export default class EthereumBlocks {
       await this.getBlockTimestamp(this.firstSignificantBlockNumber);
     }
 
-    // update the last block number in memory
-    const lastBlockNumber: number = await this.getLastBlockNumber();
+    // update the second last block number in memory
+    // we get the number of the second last block instead of the last block
+    // because the information of the last block may not be retrieved by the web3 provider
+    const secondLastBlockNumber: number = await this.getSecondLastBlockNumber();
 
-    // check if we have the blockTimestamp of the last number
-    if (!this.blockTimestamp[lastBlockNumber]) {
-      // update the blockTimestamp cache with the last block
-      await this.getBlockTimestamp(lastBlockNumber);
+    // check if we have the blockTimestamp of the number of the second last block
+    if (!this.blockTimestamp[secondLastBlockNumber]) {
+      // update the blockTimestamp cache with the second last block
+      await this.getBlockTimestamp(secondLastBlockNumber);
     }
 
     // if timestamp before first significant block, return the significant block
@@ -85,11 +87,11 @@ export default class EthereumBlocks {
       };
     }
 
-    // if timestamp after last block, return lastBlockNumber
-    if (timestamp > this.blockTimestamp[lastBlockNumber]) {
+    // if timestamp after second last block, return secondLastBlockNumber
+    if (timestamp > this.blockTimestamp[secondLastBlockNumber]) {
       return {
-        blockAfter: lastBlockNumber,
-        blockBefore: lastBlockNumber,
+        blockAfter: secondLastBlockNumber,
+        blockBefore: secondLastBlockNumber,
       };
     }
 
@@ -97,7 +99,7 @@ export default class EthereumBlocks {
     // the boundaries start with the first significant block and the last block
     const { result, lowBlockNumber, highBlockNumber } = this.getKnownBlockNumbersFromTimestamp(
       timestamp,
-      lastBlockNumber,
+      secondLastBlockNumber,
     );
 
     // if the result is not found on the known blocks, we search by dichotomy between the two closest known blocks
@@ -113,6 +115,14 @@ export default class EthereumBlocks {
    */
   public async getLastBlockNumber(): Promise<number> {
     return this.eth.getBlockNumber();
+  }
+
+  /**
+   * Gets second last block number
+   * @return   blockNumber of the second last block
+   */
+  public async getSecondLastBlockNumber(): Promise<number> {
+    return (await this.eth.getBlockNumber()) - 1;
   }
 
   /**
