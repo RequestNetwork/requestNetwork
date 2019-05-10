@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-signature",
-  "version": "0.1.1-alpha.9",
+  "version": "0.1.1-alpha.10",
   "publishConfig": {
     "access": "public"
   },
@@ -41,8 +41,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.8",
-    "@requestnetwork/utils": "0.1.1-alpha.9"
+    "@requestnetwork/types": "0.1.1-alpha.9",
+    "@requestnetwork/utils": "0.1.1-alpha.10"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

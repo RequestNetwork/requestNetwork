@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.1.1-alpha.9",
+  "version": "0.1.1-alpha.10",
   "publishConfig": {
     "access": "public"
   },
@@ -38,9 +38,9 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.1.1-alpha.9",
-    "@requestnetwork/ethereum-storage": "0.1.1-alpha.9",
-    "@requestnetwork/types": "0.1.1-alpha.8",
+    "@requestnetwork/data-access": "0.1.1-alpha.10",
+    "@requestnetwork/ethereum-storage": "0.1.1-alpha.10",
+    "@requestnetwork/types": "0.1.1-alpha.9",
     "cors": "2.8.5",
     "dotenv": "8.0.0",
     "express": "4.16.4",

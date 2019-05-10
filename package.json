@@ -21,11 +21,14 @@
     "lerna": "lerna",
     "packageJsonLint": "npmPkgJsonLint ./packages",
     "publish-coverage": "codecov --disable=gcov",
+    "publish": "lerna publish --conventional-commits --exact",
+    "publish-manual-prerelease": "lerna publish prerelease --conventional-commits --exact",
+    "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
     "test": "lerna run test"
   },
   "devDependencies": {
-    "codecov": "3.1.0",
-    "lerna": "3.10.8",
+    "codecov": "3.4.0",
+    "lerna": "3.13.4",
     "npm-package-json-lint": "3.5.0",
     "typescript": "3.3.1"
   }
