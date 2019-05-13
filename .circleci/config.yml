@@ -347,14 +347,14 @@ jobs:
           name: 'Publish Coverage'
           command: 'yarn publish-coverage'
   publish-prerelease:
-    docker: 
-     - *node_image
+    docker:
+      - *node_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
           at: *working_directory
-      - run: 
-          name: "Login to NPM registry"
+      - run:
+          name: 'Login to NPM registry'
           command: |
             npm set registry http://npm.request.network
             echo "//npm.request.network/:_authToken=$NPM_TOKEN" >> ~/.npmrc
@@ -403,6 +403,9 @@ workflows:
       - test-epk-signature:
           requires:
             - build
+      - test-usage-examples:
+          requires:
+            - build
       - test-integration-test:
           requires:
             - build
@@ -434,5 +437,4 @@ workflows:
           filters:
             branches:
               only:
-                 - development
-
+                - development
