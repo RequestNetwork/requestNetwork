@@ -63,4 +63,22 @@ describe('LocationTimestamp', () => {
       }, 'must throw').to.throw(`Timestamp not know for the dataId ${arbitraryDataId1}`);
     });
   });
+
+  describe('getLatestTimestamp', () => {
+    it('return null if empty', () => {
+      const timestampLocation = new TimestampLocation();
+      const latest = timestampLocation.getLastTransactionTimestamp();
+      expect(latest).to.be.null;
+    });
+
+    it('return correct data', () => {
+      const timestampLocation = new TimestampLocation();
+      timestampLocation.pushTimestampByLocation('a', 2);
+      timestampLocation.pushTimestampByLocation('b', 3);
+      timestampLocation.pushTimestampByLocation('c', 1);
+
+      const latest = timestampLocation.getLastTransactionTimestamp();
+      expect(latest).to.be.eq(3);
+    });
+  });
 });

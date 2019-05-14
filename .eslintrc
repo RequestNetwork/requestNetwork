@@ -54,6 +54,7 @@
           "rinkeby",
           "semver",
           "timestamp",
+          "timestamps",
           "testnet",
           "tslint",
           "tx",

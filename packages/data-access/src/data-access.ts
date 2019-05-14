@@ -3,24 +3,34 @@ import Utils from '@requestnetwork/utils';
 
 import Block from './block';
 import IntervalTimer from './interval-timer';
-import LocationByTopic from './location-by-topic';
-import TimestampByLocation from './timestamp-by-location';
+import InMemoryTransactionIndex from './transaction-index/in-memory';
 
 // Default interval time for auto synchronization
 const DEFAULT_INTERVAL_TIME: number = 10000;
 
 /**
+ * Options for the DataAccess initialization
+ */
+export interface IDataAccessOptions {
+  /**
+   *  the transaction index, defaults to InMemoryTransactionIndex if not set.
+   */
+  transactionIndex?: DataAccessTypes.ITransactionIndex;
+
+  /**
+   * synchronizationIntervalTime Interval time between each synchronization
+   * Defaults to DEFAULT_INTERVAL_TIME.
+   */
+  synchronizationIntervalTime?: number;
+}
+
+/**
  * Implementation of Data-Access layer without encryption
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
-  // DataId (Id of data on storage layer) indexed by transaction topic
-  // Will be used to get the data from storage with the transaction topic
-  private locationByTopic?: LocationByTopic;
 
-  // Timestamp of the dataIds
-  // Will be used to get the data from timestamp boundaries
-  private timestampByLocation: TimestampByLocation;
-
+  // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
+  private transactionIndex: DataAccessTypes.ITransactionIndex;
   // Storage layer
   private storage: StorageTypes.IStorage;
 
@@ -36,19 +46,27 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
-   * @param number synchronizationIntervalTime Interval time between each synchronization
+   * @param options
    */
   public constructor(
     storage: StorageTypes.IStorage,
-    synchronizationIntervalTime: number = DEFAULT_INTERVAL_TIME,
+    options?: IDataAccessOptions,
   ) {
+    const defaultOptions: IDataAccessOptions = {
+      synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
+      transactionIndex: new InMemoryTransactionIndex(),
+    };
+    options = {
+      ...defaultOptions,
+      ...options,
+    };
     this.storage = storage;
     this.lastSyncedTimeStamp = 0;
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
-      synchronizationIntervalTime,
+      options.synchronizationIntervalTime!,
     );
-    this.timestampByLocation = new TimestampByLocation();
+    this.transactionIndex = options.transactionIndex!;
   }
 
   /**
@@ -56,15 +74,19 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async initialize(): Promise<void> {
     this.initializeEmpty();
-    if (!this.locationByTopic) {
-      throw new Error('locationByTopic should be created');
-    }
+
+    // if transaction index already has data, then sync from the last available timestamp
+    const lastSynced = await this.transactionIndex.getLastTransactionTimestamp();
+    const now = Utils.getCurrentTimestampInSecond();
 
     // initialize the dataId topic with the previous block
-    const allDataIdsWithMeta = await this.storage.getDataId();
+    const allDataIdsWithMeta = await this.storage.getDataId(lastSynced ? {
+      from: lastSynced,
+      to: now,
+    } : undefined);
 
     // The last synced timestamp is the current timestamp
-    this.lastSyncedTimeStamp = Utils.getCurrentTimestampInSecond();
+    this.lastSyncedTimeStamp = now;
 
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
@@ -86,10 +108,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics: string[] = [],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    if (!this.locationByTopic) {
-      throw new Error('DataAccess must be initialized');
-    }
-
+    this.checkInitialized();
     // create a block and add the transaction in it
     const updatedBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
@@ -100,17 +119,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // get the topic of the data in storage
     const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
 
-    // topic the dataId with block topic
-    this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(
-      resultAppend.result.dataId,
-      updatedBlock.header,
-    );
-
-    // add the timestamp in the index
-    this.timestampByLocation.pushTimestampByLocation(
-      resultAppend.result.dataId,
-      resultAppend.meta.timestamp,
-    );
+    // adds this transaction to the index, to enable retrieving it later.
+    await this.transactionIndex.addTransaction(resultAppend.result.dataId, updatedBlock.header, resultAppend.meta.timestamp);
 
     return {
       meta: {
@@ -137,15 +147,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    if (!this.locationByTopic) {
-      throw new Error('DataAccess must be initialized');
-    }
-
+    this.checkInitialized();
     // Gets the list of locationStorage indexed by the channel id that are within the boundaries
-    const storageLocationList = this.locationByTopic
-      .getStorageLocationsFromChannelId(channelId)
-      .filter(dataId => this.timestampByLocation.isDataInBoundaries(dataId, timestampBoundaries));
-
+    const storageLocationList = await this.transactionIndex.getStorageLocationList(channelId, timestampBoundaries);
     // Gets the block and meta from the storage location
     const blockWithMetaList = await this.getBlockAndMetaFromStorageLocation(storageLocationList);
 
@@ -204,25 +208,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    if (!this.locationByTopic) {
-      throw new Error('DataAccess must be initialized');
-    }
-
-    // Gets the list of locationStorage grouped by channel id for the topic given
-    const storageLocationByChannelId = this.locationByTopic.getStorageLocationFromTopicGroupedByChannelId(
-      topic,
-    );
-
-    let channelIds = Object.keys(storageLocationByChannelId);
-
-    // Filters the channels to only keep the modified ones during the time boundaries
-    if (updatedBetween) {
-      channelIds = channelIds.filter(channelId => {
-        return storageLocationByChannelId[channelId].find(dataId =>
-          this.timestampByLocation.isDataInBoundaries(dataId, updatedBetween),
-        );
-      });
-    }
+    this.checkInitialized();
+    const channelIds = await this.transactionIndex.getChannelIdsForTopic(topic, updatedBetween);
 
     // Gets the transactions per channel id
     const transactionsAndMeta = await Promise.all(
@@ -267,9 +254,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Function to synchronize with the new dataIds on the storage
    */
   public async synchronizeNewDataIds(): Promise<void> {
-    if (!this.locationByTopic) {
-      throw new Error('DataAccess must be initialized');
-    }
+    this.checkInitialized();
     const synchronizationFrom = this.lastSyncedTimeStamp;
     const synchronizationTo = Utils.getCurrentTimestampInSecond();
 
@@ -292,10 +277,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Once called, synchronizeNewDataId function is called periodically
    */
   public startAutoSynchronization(): void {
-    if (!this.locationByTopic) {
-      throw new Error('DataAccess must be initialized');
-    }
-
+    this.checkInitialized();
     this.synchronizationTimer.start();
   }
 
@@ -307,16 +289,16 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * Creates an empty LocationByTopic
+   * Creates an empty TransactionIndex
    *
    * @protected
    * @memberof DataAccess
    */
   protected initializeEmpty(): void {
-    if (this.locationByTopic) {
+    if (this.transactionIndex.isInitialized()) {
       throw new Error('already initialized');
     }
-    this.locationByTopic = new LocationByTopic();
+    this.transactionIndex.initializeEmpty();
   }
 
   /**
@@ -329,9 +311,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private async pushLocationsWithTopicsFromDataIds(
     dataIdsWithMeta: StorageTypes.IGetDataIdReturn | StorageTypes.IGetNewDataIdReturn,
   ): Promise<void> {
-    if (!this.locationByTopic) {
-      throw new Error('DataAccess must be initialized');
-    }
+    this.checkInitialized();
     if (!dataIdsWithMeta.result) {
       throw Error(`data from storage do not follow the standard, result is missing`);
     }
@@ -353,11 +333,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         throw Error(`data from storage do not follow the standard, storage location: "${dataId}"`);
       }
 
-      // topic the previous dataId with their block topic
-      this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(dataId, block.header);
-
-      // add the timestamp in the index
-      this.timestampByLocation.pushTimestampByLocation(dataId, resultRead.meta.timestamp);
+      // adds this transaction to the index, to enable retrieving it later.
+      await this.transactionIndex.addTransaction(dataId, block.header, resultRead.meta.timestamp);
     }
   }
 
@@ -423,5 +400,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const storageMeta = Array(transactions.length).fill(meta);
 
     return { transactions, transactionsStorageLocation, storageMeta };
+  }
+
+  /**
+   * Throws an error if the data access isn't initialized
+   */
+  private checkInitialized(): void {
+    if (!this.transactionIndex.isInitialized()) {
+      throw new Error('DataAccess must be initialized');
+    }
   }
 }

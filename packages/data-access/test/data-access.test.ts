@@ -545,7 +545,9 @@ describe('data-access', () => {
       },
     };
 
-    const dataAccess = new DataAccess(fakeStorage, 1000);
+    const dataAccess = new DataAccess(fakeStorage, {
+      synchronizationIntervalTime: 1000,
+    });
     dataAccess.synchronizeNewDataIds = chai.spy();
     await dataAccess.initialize();
 

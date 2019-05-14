@@ -111,3 +111,15 @@ export interface IConfirmedTransaction {
 
 /** Transaction data */
 export type ITransactionData = string;
+
+/**
+ * An index to store locations and timestamps of transactions in IPFS.
+ */
+export interface ITransactionIndex {
+  initializeEmpty(): void;
+  isInitialized(): boolean;
+  getLastTransactionTimestamp(): Promise<number | null>;
+  addTransaction(dataId: string, header: any, timestamp: number): Promise<void>;
+  getChannelIdsForTopic(topic: string, timestampBoundaries?: ITimestampBoundaries): Promise<string[]>;
+  getStorageLocationList(channelId: string, timestampBoundaries?: ITimestampBoundaries): Promise<string[]>;
+}

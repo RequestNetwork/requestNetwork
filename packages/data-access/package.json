@@ -50,6 +50,7 @@
     "@typescript-eslint/parser": "1.2.0",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
+    "chai-spies": "1.0.0",
     "eslint": "5.13.0",
     "eslint-plugin-spellcheck": "0.0.11",
     "eslint-plugin-typescript": "0.14.0",
