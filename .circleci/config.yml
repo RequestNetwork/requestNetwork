@@ -1,8 +1,9 @@
-version: 2
+version: 2.1
 
 references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
+  image_name: &image_name "circleci/python:3.7"
   node_image: &node_image
     image: circleci/node:10
   ipfs_image: &ipfs_image
@@ -14,6 +15,10 @@ references:
       - '90000000'
       - '-m'
       - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.4
+  aws-ecr: circleci/aws-ecr@4.0.1
 
 jobs:
   build:
@@ -38,7 +43,7 @@ jobs:
       - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
-  test-request-client.js:
+  test-request-client:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -361,8 +366,33 @@ jobs:
       - run:
           name: Publish packages
           command: yarn publish-prerelease
+  push-request-network-image:
+    docker:
+      - image: *image_name
+    working_directory: *working_directory
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: "Build"
+          command: docker build -f Dockerfile -t request-network .
+      - aws-cli/install
+      - aws-cli/configure
+      - aws-ecr/ecr-login
+      - run:
+          name: "Push"
+          command: |
+            export SHORT_SHA1=$(echo $CIRCLE_SHA1 | cut -c -7)
+            docker tag request-network 519161485873.dkr.ecr.eu-west-1.amazonaws.com/request-network:${SHORT_SHA1}
+            docker tag request-network 519161485873.dkr.ecr.eu-west-1.amazonaws.com/request-network:${CIRCLE_BRANCH}
+            docker push 519161485873.dkr.ecr.eu-west-1.amazonaws.com/request-network:${SHORT_SHA1}
+            docker push 519161485873.dkr.ecr.eu-west-1.amazonaws.com/request-network:${CIRCLE_BRANCH}
+
 workflows:
   version: 2
+  push-request-network-image:
+    jobs:
+      - push-request-network-image
   build-and-test:
     jobs:
       - build
@@ -370,7 +400,7 @@ workflows:
           requires:
             - build
       # Test
-      - test-request-client.js:
+      - test-request-client:
           requires:
             - build
       - test-transaction-manager:
@@ -412,7 +442,7 @@ workflows:
       # Publish the code coverage
       - publish-coverage:
           requires:
-            - test-request-client.js
+            - test-request-client
             - test-data-access
             - test-data-format
             - test-transaction-manager
@@ -424,7 +454,7 @@ workflows:
             - test-utils
       - publish-prerelease:
           requires:
-            - test-request-client.js
+            - test-request-client
             - test-data-access
             - test-data-format
             - test-transaction-manager
