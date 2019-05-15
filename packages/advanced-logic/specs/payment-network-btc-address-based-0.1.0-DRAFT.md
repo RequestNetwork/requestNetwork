@@ -12,6 +12,9 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 This extension allows the payments and the refunds to be made on the Bitcoin blockchain.
 One address for the payment and one for the refund must be created and used exclusively for **one and only one** request.
 
+As a payment network, this extension allows to deduce a payment `balance` for the request. (see
+[Interpretation](#Interpretation))
+
 ## Properties
 
 | Property                  | Type   | Description                                    | Requirement   |
@@ -173,4 +176,4 @@ The 'addRefundAddress' event:
 
 The `balance` starts from `0`.
 Any bitcoin transaction reaching the address `addPaymentAddress` is considered as payment. The `balance` is increased by the amount of the transaction.
-Any bitcoin transaction reaching the address `addRefundAddress` is considered as a refund. The `balance` is decreased by the amount of the transaction.
+Any bitcoin transaction reaching the address `addRefundAddress` is considered as a refund. The `balance` is reduced by the amount of the transaction.
