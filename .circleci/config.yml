@@ -365,7 +365,7 @@ jobs:
             echo "//npm.request.network/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
           name: Publish packages
-          command: yarn publish-prerelease
+          command: yarn publish-prerelease --registry http://npm.request.network
   push-request-network-image:
     docker:
       - image: *image_name
