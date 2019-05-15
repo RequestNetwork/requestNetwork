@@ -1,3 +1,4 @@
+import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 
@@ -21,6 +22,7 @@ const defaultValues: any = {
       timeout: 10000,
     },
   },
+  logLevel: CommonTypes.LogLevel.ERROR,
   server: {
     headers: '{}',
     port: 3000,
@@ -139,6 +141,16 @@ export function getMnemonic(): string {
     return defaultValues.wallet.mnemonic;
   }
   return process.env.MNEMONIC;
+}
+
+/**
+ * Get log level from command line argument, environment variables or default values.
+ * Note: not documented until PROT-501 is done.
+ *
+ * @returns the log level
+ */
+export function getLogLevel(): CommonTypes.LogLevel {
+  return argv.logLevel || process.env.LOG_LEVEL || defaultValues.ethereumStorage.logLevel;
 }
 
 /**

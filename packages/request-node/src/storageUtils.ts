@@ -26,5 +26,5 @@ export function getEthereumStorage(mnemonic: string): EthereumStorage {
     web3Provider: provider,
   };
 
-  return new EthereumStorage(ipfsGatewayConnection, web3Connection);
+  return new EthereumStorage(ipfsGatewayConnection, web3Connection, config.getLogLevel());
 }

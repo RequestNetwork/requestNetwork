@@ -1,3 +1,4 @@
+import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as artifactsUtils from './artifacts-utils';
@@ -38,11 +39,21 @@ export default class SmartContractManager {
   private timeout: number;
 
   /**
+   * Log level
+   */
+  private logLevel: CommonTypes.LogLevel;
+
+  /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
    * If values are missing, private network is used as http://localhost:8545
    */
-  public constructor(web3Connection?: Types.IWeb3Connection) {
+  public constructor(
+    web3Connection?: Types.IWeb3Connection,
+    logLevel: CommonTypes.LogLevel = CommonTypes.LogLevel.ERROR,
+  ) {
+    this.logLevel = logLevel;
+
     web3Connection = web3Connection || {};
 
     try {
@@ -268,6 +279,11 @@ export default class SmartContractManager {
           toBlock: toBlockNumber,
         }),
       ]);
+
+      if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+        // tslint:disable:no-console
+        console.info(`Events from ${fromBlock} to ${toBlock} fetched`);
+      }
 
       return events;
     } catch (e) {

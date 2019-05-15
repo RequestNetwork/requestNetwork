@@ -1,3 +1,4 @@
+import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as Types } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
 import BadDataInSmartContractError from './bad-data-in-smart-contract-error';
@@ -28,6 +29,11 @@ export default class EthereumStorage implements Types.IStorage {
   public ethereumMetadataCache: EthereumMetadataCache;
 
   /**
+   * Log level
+   */
+  public logLevel: CommonTypes.LogLevel;
+
+  /**
    * Constructor
    * @param ipfsGatewayConnection Information structure to connect to the ipfs gateway
    * @param web3Connection Information structure to connect to the Ethereum network
@@ -35,9 +41,11 @@ export default class EthereumStorage implements Types.IStorage {
   public constructor(
     ipfsGatewayConnection?: Types.IIpfsGatewayConnection,
     web3Connection?: Types.IWeb3Connection,
+    logLevel: CommonTypes.LogLevel = CommonTypes.LogLevel.ERROR,
   ) {
+    this.logLevel = logLevel;
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
-    this.smartContractManager = new SmartContractManager(web3Connection);
+    this.smartContractManager = new SmartContractManager(web3Connection, this.logLevel);
     this.ethereumMetadataCache = new EthereumMetadataCache(this.smartContractManager);
   }
 
@@ -188,8 +196,16 @@ export default class EthereumStorage implements Types.IStorage {
    * @returns Promise resolving id of stored data
    */
   public async getDataId(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataIdReturn> {
+    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+      // tslint:disable:no-console
+      console.info('Fetching dataIds from Ethereum');
+    }
     const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
+    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+      // tslint:disable:no-console
+      console.info('Fetching data size from IPFS and checking correctness');
+    }
     const filteredDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
 
     // Save existing ethereum metadata to the ethereum metadata cache
@@ -216,6 +232,9 @@ export default class EthereumStorage implements Types.IStorage {
   private async hashesAndSizesToFilteredDataIdAndMeta(
     hashesAndSizes: Types.IGetAllHashesAndSizes[],
   ): Promise<Types.IGetDataIdReturn | Types.IGetNewDataIdReturn> {
+    const totalCount = hashesAndSizes.length;
+    let currentIndex = 0;
+
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
     // or when the size doesn't correspond to the size of the content stored on ipfs
@@ -234,7 +253,16 @@ export default class EthereumStorage implements Types.IStorage {
         // Get content from ipfs and verify provided size is correct
         let hashContentSize;
         try {
+          const startTime = Date.now();
+
           hashContentSize = await this.ipfsManager.getContentLength(hashAndSize.hash);
+          if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+            console.info(
+              `[${currentIndex}/${totalCount}] Fetched ${hashAndSize.hash}. Took ${Date.now() -
+                startTime} ms`,
+            );
+          }
+          currentIndex++;
         } catch (error) {
           throw new BadDataInSmartContractError(`IPFS getContentLength error: ${error}`);
         }

@@ -1,4 +1,5 @@
 import * as AdvancedLogic from './advanced-logic-types';
+import * as Common from './common-types';
 import * as DataAccess from './data-access-types';
 import * as Extension from './extension-types';
 import * as Identity from './identity-types';
@@ -10,6 +11,7 @@ import * as Transaction from './transaction-types';
 
 export {
   AdvancedLogic,
+  Common,
   Extension,
   RequestLogic,
   DataAccess,
