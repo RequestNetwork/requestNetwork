@@ -393,7 +393,8 @@ export default class SmartContractManager {
       let blockObject;
       try {
         // Otherwise, we get the number of the block with getBlock web3 function
-        blockObject = await this.eth.getBlock(block);
+        // Use Utils.retry to rerun if getBlock fails
+        blockObject = await Utils.retry(this.eth.getBlock)(block);
       } catch (e) {
         // getBlock can throw in certain case
         // For example, if the block describer is "pending", we're not able to get the number of the block

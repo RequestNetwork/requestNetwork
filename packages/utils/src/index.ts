@@ -1,6 +1,7 @@
 import amount from './amount';
 import crypto from './crypto';
 import identity from './identity';
+import retry from './retry';
 import signature from './signature';
 import utils from './utils';
 
@@ -16,6 +17,7 @@ export default {
   getCurrentTimestampInSecond: utils.getCurrentTimestampInSecond,
   identity,
   isString: utils.isString,
+  retry,
   signature,
   timeoutPromise: utils.timeoutPromise,
   unique: utils.unique,

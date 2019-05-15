@@ -1,5 +1,5 @@
 import { Storage as Types } from '@requestnetwork/types';
-
+import Utils from '@requestnetwork/utils';
 /**
  * Manages every info linked to the ethereum blocks (blockNumber, blockTimestamp, confirmations ... )
  */
@@ -41,7 +41,8 @@ export default class EthereumBlocks {
     }
 
     // if we don't know the information, let's get it
-    const block = await this.eth.getBlock(blockNumber);
+    // Use Utils.retry to rerun if getBlock fails
+    const block = await Utils.retry(this.eth.getBlock)(blockNumber);
     if (!block) {
       throw Error(`block ${blockNumber} not found`);
     }
@@ -61,7 +62,6 @@ export default class EthereumBlocks {
   public async getBlockNumbersFromTimestamp(
     timestamp: number,
   ): Promise<Types.IBlockNumbersInterval> {
-
     // check if we have the blockTimestamp of the first significant block number
     if (!this.blockTimestamp[this.firstSignificantBlockNumber]) {
       // update the blockTimestamp cache with the first significant block
@@ -114,7 +114,8 @@ export default class EthereumBlocks {
    * @return   blockNumber of the last block
    */
   public async getLastBlockNumber(): Promise<number> {
-    return this.eth.getBlockNumber();
+    // Use Utils.retry to rerun if getBlockNumber fails
+    return Utils.retry(this.eth.getBlockNumber)();
   }
 
   /**
@@ -122,7 +123,7 @@ export default class EthereumBlocks {
    * @return   blockNumber of the second last block
    */
   public async getSecondLastBlockNumber(): Promise<number> {
-    return (await this.eth.getBlockNumber()) - 1;
+    return (await this.getLastBlockNumber()) - 1;
   }
 
   /**
