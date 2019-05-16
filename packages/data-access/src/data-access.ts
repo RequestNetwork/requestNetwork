@@ -1,3 +1,4 @@
+import { Common as CommonTypes } from '@requestnetwork/types';
 import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -22,13 +23,15 @@ export interface IDataAccessOptions {
    * Defaults to DEFAULT_INTERVAL_TIME.
    */
   synchronizationIntervalTime?: number;
+
+  /** Log level */
+  logLevel?: CommonTypes.LogLevel;
 }
 
 /**
  * Implementation of Data-Access layer without encryption
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
-
   // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
   private transactionIndex: DataAccessTypes.ITransactionIndex;
   // Storage layer
@@ -43,16 +46,19 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private lastSyncedTimeStamp: number;
 
   /**
+   * Log level
+   */
+  private logLevel: CommonTypes.LogLevel;
+
+  /**
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
    * @param options
    */
-  public constructor(
-    storage: StorageTypes.IStorage,
-    options?: IDataAccessOptions,
-  ) {
+  public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
     const defaultOptions: IDataAccessOptions = {
+      logLevel: CommonTypes.LogLevel.ERROR,
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new InMemoryTransactionIndex(),
     };
@@ -67,6 +73,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       options.synchronizationIntervalTime!,
     );
     this.transactionIndex = options.transactionIndex!;
+    this.logLevel = options.logLevel!;
   }
 
   /**
@@ -80,10 +87,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const now = Utils.getCurrentTimestampInSecond();
 
     // initialize the dataId topic with the previous block
-    const allDataIdsWithMeta = await this.storage.getDataId(lastSynced ? {
-      from: lastSynced,
-      to: now,
-    } : undefined);
+    const allDataIdsWithMeta = await this.storage.getDataId(
+      lastSynced
+        ? {
+            from: lastSynced,
+            to: now,
+          }
+        : undefined,
+    );
 
     // The last synced timestamp is the current timestamp
     this.lastSyncedTimeStamp = now;
@@ -120,7 +131,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
 
     // adds this transaction to the index, to enable retrieving it later.
-    await this.transactionIndex.addTransaction(resultAppend.result.dataId, updatedBlock.header, resultAppend.meta.timestamp);
+    await this.transactionIndex.addTransaction(
+      resultAppend.result.dataId,
+      updatedBlock.header,
+      resultAppend.meta.timestamp,
+    );
 
     return {
       meta: {
@@ -149,7 +164,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
     this.checkInitialized();
     // Gets the list of locationStorage indexed by the channel id that are within the boundaries
-    const storageLocationList = await this.transactionIndex.getStorageLocationList(channelId, timestampBoundaries);
+    const storageLocationList = await this.transactionIndex.getStorageLocationList(
+      channelId,
+      timestampBoundaries,
+    );
     // Gets the block and meta from the storage location
     const blockWithMetaList = await this.getBlockAndMetaFromStorageLocation(storageLocationList);
 
@@ -316,8 +334,19 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       throw Error(`data from storage do not follow the standard, result is missing`);
     }
 
+    let currentIndex = 1;
+    const totalCount = dataIdsWithMeta.result.dataIds.length;
     for (const dataId of dataIdsWithMeta.result.dataIds) {
+      const startTime = Date.now();
+
       const resultRead = await this.storage.read(dataId);
+      if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+        // tslint:disable:no-console
+        console.info(
+          `[${currentIndex}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
+        );
+      }
+      currentIndex++;
 
       if (!resultRead.result) {
         throw Error(`data from storage do not follow the standard, result is missing`);

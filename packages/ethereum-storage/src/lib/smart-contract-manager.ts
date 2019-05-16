@@ -195,6 +195,11 @@ export default class SmartContractManager {
     // Read all event logs
     const events = await this.recursiveGetPastEvents(this.creationBlockNumber, 'latest');
 
+    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+      // tslint:disable:no-console
+      console.info(`${events.length} events fetched in getMetaFromEthereum`);
+    }
+
     const event = events.find((element: any) => element.returnValues.hash === contentHash);
     if (!event) {
       throw Error(`contentHash not indexed on ethereum`);
@@ -256,6 +261,11 @@ export default class SmartContractManager {
 
     // Read all event logs
     let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
+
+    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+      // tslint:disable:no-console
+      console.info(`${events.length} events fetched in getHashesAndSizesFromEvents`);
+    }
 
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');

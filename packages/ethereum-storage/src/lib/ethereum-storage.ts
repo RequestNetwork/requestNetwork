@@ -31,7 +31,7 @@ export default class EthereumStorage implements Types.IStorage {
   /**
    * Log level
    */
-  public logLevel: CommonTypes.LogLevel;
+  private logLevel: CommonTypes.LogLevel;
 
   /**
    * Constructor
@@ -245,7 +245,7 @@ export default class EthereumStorage implements Types.IStorage {
     hashesAndSizes: Types.IGetAllHashesAndSizes[],
   ): Promise<Types.IGetDataIdReturn | Types.IGetNewDataIdReturn> {
     const totalCount = hashesAndSizes.length;
-    let currentIndex = 0;
+    let currentIndex = 1;
 
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
@@ -269,13 +269,16 @@ export default class EthereumStorage implements Types.IStorage {
 
           hashContentSize = await this.ipfsManager.getContentLength(hashAndSize.hash);
           if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+            // tslint:disable:no-console
             console.info(
-              `[${currentIndex}/${totalCount}] Fetched ${hashAndSize.hash}. Took ${Date.now() -
-                startTime} ms`,
+              `[${currentIndex}/${totalCount}] getContentLength ${
+                hashAndSize.hash
+              }. Took ${Date.now() - startTime} ms`,
             );
           }
           currentIndex++;
         } catch (error) {
+          console.error(`IPFS getContentLength: ${error.message || error} ${hashAndSize.hash}`);
           throw new BadDataInSmartContractError(`IPFS getContentLength error: ${error}`);
         }
         if (hashContentSize !== hashAndSize.size) {
