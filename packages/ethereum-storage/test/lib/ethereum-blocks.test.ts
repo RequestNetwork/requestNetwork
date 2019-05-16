@@ -1,6 +1,7 @@
 import 'mocha';
 
 import * as chaiAsPromised from 'chai-as-promised';
+import * as sinon from 'sinon';
 
 import EthereumBlocks from '../../src/lib/ethereum-blocks';
 
@@ -134,9 +135,47 @@ describe('EthereumBlocks', () => {
 
   describe('getLastBlockNumber', () => {
     it('getLastBlockNumber', async () => {
-      sandbox.on(mockEth, ['getBlock', 'getBlockNumber']);
       const ethereumBlocks = new EthereumBlocks(mockEth, 10);
       expect(await ethereumBlocks.getLastBlockNumber()).to.be.equal(99);
+    });
+
+    it('respects the delay', async () => {
+      // Generates a random block number
+      const randEth = {
+        getBlockNumber: (): number => Math.floor(Math.random() * 10e7),
+      };
+      const ethereumBlocks = new EthereumBlocks(randEth, 10, 10000);
+
+      const clock = sinon.useFakeTimers();
+
+      const block1 = await ethereumBlocks.getLastBlockNumber();
+      const block2 = await ethereumBlocks.getLastBlockNumber();
+      expect(block1).to.be.equal(block2);
+
+      clock.tick(10000);
+
+      const block3 = await ethereumBlocks.getLastBlockNumber();
+      expect(block3).to.not.be.equal(block1);
+      sinon.restore();
+    });
+
+    it('always fetches new with 0 as delay', async () => {
+      // Generates a random block number
+      const randEth = {
+        getBlockNumber: (): number => Math.floor(Math.random() * 10e7),
+      };
+      const ethereumBlocks = new EthereumBlocks(randEth, 10, 0);
+
+      const clock = sinon.useFakeTimers();
+
+      const block1 = await ethereumBlocks.getLastBlockNumber();
+      const block2 = await ethereumBlocks.getLastBlockNumber();
+      expect(block1).to.not.be.equal(block2);
+      clock.tick(10000);
+
+      const block3 = await ethereumBlocks.getLastBlockNumber();
+      expect(block3).to.not.be.equal(block1);
+      sinon.restore();
     });
   });
 

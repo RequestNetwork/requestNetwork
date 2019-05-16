@@ -1,4 +1,5 @@
 import amount from './amount';
+import cachedThrottle from './cached-throttle';
 import crypto from './crypto';
 import identity from './identity';
 import retry from './retry';
@@ -10,6 +11,7 @@ import utils from './utils';
  */
 export default {
   amount,
+  cachedThrottle,
   crypto,
   deepCopy: utils.deepCopy,
   deepSort: utils.deepSort,

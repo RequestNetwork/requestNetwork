@@ -37,15 +37,27 @@ export default class EthereumStorage implements Types.IStorage {
    * Constructor
    * @param ipfsGatewayConnection Information structure to connect to the ipfs gateway
    * @param web3Connection Information structure to connect to the Ethereum network
+   * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
    */
   public constructor(
     ipfsGatewayConnection?: Types.IIpfsGatewayConnection,
     web3Connection?: Types.IWeb3Connection,
-    logLevel: CommonTypes.LogLevel = CommonTypes.LogLevel.ERROR,
+    {
+      logLevel,
+      getLastBlockNumberDelay,
+    }: {
+      logLevel: CommonTypes.LogLevel;
+      getLastBlockNumberDelay?: number;
+    } = {
+      logLevel: CommonTypes.LogLevel.ERROR,
+    },
   ) {
     this.logLevel = logLevel;
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
-    this.smartContractManager = new SmartContractManager(web3Connection, this.logLevel);
+    this.smartContractManager = new SmartContractManager(web3Connection, {
+      getLastBlockNumberDelay,
+      logLevel,
+    });
     this.ethereumMetadataCache = new EthereumMetadataCache(this.smartContractManager);
   }
 

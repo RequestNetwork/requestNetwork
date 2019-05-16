@@ -8,6 +8,14 @@ export default class EthereumBlocks {
   public eth: any;
 
   /**
+   * Gets last block number
+   * The return value of this function will be cached for `lastBlockNumberDelay` milliseconds
+   *
+   * @return   blockNumber of the last block
+   */
+  public getLastBlockNumber: () => Promise<number>;
+
+  /**
    * Cache of the blockTimestamp indexed by blockNumber
    * to ask only once the timestamp of a block from a node
    *
@@ -18,15 +26,30 @@ export default class EthereumBlocks {
   // Basically, the block where the contract has been created
   private firstSignificantBlockNumber: number;
 
+  // The minimum amount of time to wait between fetches of lastBlockNumber
+  private getLastBlockNumberMinDelay: number;
+
   /**
    * Constructor
    * @param eth eth object from web3
    * @param firstSignificantBlockNumber all the block before this one will be ignored
+   * @param getLastBlockNumberMinDelay the minimum delay to wait between fetches of lastBlockNumber
    */
-  public constructor(eth: any, firstSignificantBlockNumber: number) {
+  public constructor(
+    eth: any,
+    firstSignificantBlockNumber: number,
+    getLastBlockNumberMinDelay: number = 0,
+  ) {
     this.eth = eth;
 
     this.firstSignificantBlockNumber = firstSignificantBlockNumber;
+
+    this.getLastBlockNumberMinDelay = getLastBlockNumberMinDelay;
+    // Setup the throttled and retriable getLastBlockNumber function
+    this.getLastBlockNumber = Utils.cachedThrottle(
+      () => Utils.retry(this.eth.getBlockNumber)(),
+      this.getLastBlockNumberMinDelay,
+    );
   }
 
   /**
@@ -107,15 +130,6 @@ export default class EthereumBlocks {
       result ||
       this.getBlockNumbersFromTimestampByDichotomy(timestamp, lowBlockNumber, highBlockNumber)
     );
-  }
-
-  /**
-   * Gets last block number
-   * @return   blockNumber of the last block
-   */
-  public async getLastBlockNumber(): Promise<number> {
-    // Use Utils.retry to rerun if getBlockNumber fails
-    return Utils.retry(this.eth.getBlockNumber)();
   }
 
   /**

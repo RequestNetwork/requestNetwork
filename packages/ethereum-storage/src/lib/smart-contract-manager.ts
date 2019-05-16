@@ -46,11 +46,20 @@ export default class SmartContractManager {
   /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
+   * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
    * If values are missing, private network is used as http://localhost:8545
    */
   public constructor(
     web3Connection?: Types.IWeb3Connection,
-    logLevel: CommonTypes.LogLevel = CommonTypes.LogLevel.ERROR,
+    {
+      getLastBlockNumberDelay,
+      logLevel,
+    }: {
+      getLastBlockNumberDelay?: number;
+      logLevel: CommonTypes.LogLevel;
+    } = {
+      logLevel: CommonTypes.LogLevel.ERROR,
+    },
   ) {
     this.logLevel = logLevel;
 
@@ -89,7 +98,11 @@ export default class SmartContractManager {
 
     this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
 
-    this.ethereumBlocks = new EthereumBlocks(this.eth, this.creationBlockNumber);
+    this.ethereumBlocks = new EthereumBlocks(
+      this.eth,
+      this.creationBlockNumber,
+      getLastBlockNumberDelay,
+    );
   }
 
   /**
@@ -219,7 +232,9 @@ export default class SmartContractManager {
     }
 
     if (toBlock && toBlock < fromBlock) {
-      throw Error(`toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`);
+      throw Error(
+        `toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`,
+      );
     }
 
     return this.getHashesAndSizesFromEvents(fromBlock, toBlock);

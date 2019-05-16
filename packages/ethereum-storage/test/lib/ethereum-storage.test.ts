@@ -106,6 +106,8 @@ describe('EthereumStorage', () => {
   beforeEach(() => {
     ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
     ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
+    ethereumStorage.smartContractManager.ethereumBlocks.getLastBlockNumber = () =>
+      Promise.resolve(Date.now());
     ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
       StorageTypes.IEthereumMetadata
     > => {

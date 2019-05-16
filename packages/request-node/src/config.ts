@@ -22,6 +22,7 @@ const defaultValues: any = {
       timeout: 10000,
     },
   },
+  lastBlockNumberDelay: 10000,
   logLevel: CommonTypes.LogLevel.ERROR,
   server: {
     headers: '{}',
@@ -154,6 +155,19 @@ export function getLogLevel(): CommonTypes.LogLevel {
 }
 
 /**
+ * Get the minimum delay between getLastBlockNumber calls
+ *
+ * @returns the minimum delay between last block number fetches
+ */
+export function getLastBlockNumberDelay(): number {
+  return (
+    argv.lastBlockNumberDelay ||
+    process.env.LAST_BLOCK_NUMBER_DELAY ||
+    defaultValues.ethereumStorage.lastBlockNumberDelay
+  );
+}
+
+/**
  * Get the mnemonic from command line argument, environment variables or default values to generate the private key for the wallet
  * The default value must only be used for test purposes
  * For production, mnemonic should always be provided as environment variable
@@ -179,6 +193,9 @@ export function getHelpMessage(): string {
         providerUrl (${
           defaultValues.ethereumStorage.ethereum.web3ProviderUrl
         })\tUrl of the web3 provider for Ethereum
+        LastBlockNumberDelay (${
+          defaultValues.ethereumStorage.lastBlockNumberDelay
+        } milliseconds)\t\t\tThe minimum delay between getLastBlockNumber calls
 
       IPFS OPTIONS
         ipfsHost (${defaultValues.ethereumStorage.ipfs.host})\t\t\tHost of the IPFS gateway
