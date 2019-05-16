@@ -12,7 +12,7 @@ const PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED =
 const MAINNET_BITCOIN_NETWORK_ID = 0;
 
 /**
- * Entry point to handle payment networks with BTC based address
+ * Handle payment networks with mainnet BTC based address extension
  *
  * @class PaymentNetworkBTCAddressBased
  */

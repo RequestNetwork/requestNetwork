@@ -11,12 +11,19 @@ const payeeIdentity: Types.Identity.IIdentity = {
 };
 const payerIdentity: Types.Identity.IIdentity = {
   type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
-  value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+  value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
 };
 
-const requestCreationHash: Types.RequestLogic.ICreateParameters = {
+const requestCreationHashBTC: Types.RequestLogic.ICreateParameters = {
   currency: Types.RequestLogic.CURRENCY.BTC,
-  expectedAmount: '100000000000',
+  expectedAmount: '1000',
+  payee: payeeIdentity,
+  payer: payerIdentity,
+};
+
+const requestCreationHashUSD: Types.RequestLogic.ICreateParameters = {
+  currency: Types.RequestLogic.CURRENCY.BTC,
+  expectedAmount: '1000',
   payee: payeeIdentity,
   payer: payerIdentity,
 };
@@ -27,6 +34,10 @@ const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 });
+signatureProvider.addSignatureParameters({
+  method: Types.Signature.METHOD.ECDSA,
+  privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
+});
 
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
@@ -34,7 +45,7 @@ describe('Request client using a request node', () => {
 
     // Create a request
     const request = await requestNetwork.createRequest({
-      requestInfo: requestCreationHash,
+      requestInfo: requestCreationHashBTC,
       signer: payeeIdentity,
       topics,
     });
@@ -43,26 +54,25 @@ describe('Request client using a request node', () => {
 
     // Get the data
     let requestData = request.getData();
-    assert.equal(requestData.expectedAmount, '100000000000');
+    assert.equal(requestData.expectedAmount, '1000');
     assert.equal(requestData.balance, null);
     assert.exists(requestData.meta);
 
     // Reduce the amount and get the data
-    await request.reduceExpectedAmountRequest('20000000000', payeeIdentity);
+    await request.reduceExpectedAmountRequest('200', payeeIdentity);
     requestData = request.getData();
-    assert.equal(requestData.expectedAmount, '80000000000');
+    assert.equal(requestData.expectedAmount, '800');
     assert.equal(requestData.balance, null);
     assert.exists(requestData.meta);
   });
 
-  it('can create a request with payment network and content data', async () => {
+  it('can create a request with declarative payment network and content data', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {
-        // eslint-disable-next-line spellcheck/spell-checker
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+        paymentInstruction: 'Arbitrary payment instruction',
       },
     };
 
@@ -76,7 +86,7 @@ describe('Request client using a request node', () => {
     const request = await requestNetwork.createRequest({
       contentData,
       paymentNetwork,
-      requestInfo: requestCreationHash,
+      requestInfo: requestCreationHashUSD,
       signer: payeeIdentity,
       topics,
     });
@@ -84,10 +94,30 @@ describe('Request client using a request node', () => {
     assert.exists(request.requestId);
 
     // Get the data
-    const requestData = request.getData();
-    assert.equal(requestData.expectedAmount, '100000000000');
+    let requestData = request.getData();
+    assert.equal(requestData.expectedAmount, '1000');
     assert.exists(requestData.balance);
+
+    // @ts-ignore
+    assert.equal(requestData.balance.balance, '0');
+
     assert.exists(requestData.meta);
+
+    requestData = await request.declareSentPayment('100', 'bank transfer initiated', payerIdentity);
+    assert.exists(requestData.balance);
+
+    // @ts-ignore
+    assert.equal(requestData.balance.balance, '0');
+
+    requestData = await request.declareReceivedPayment(
+      '100',
+      'bank transfer received',
+      payeeIdentity,
+    );
+    assert.exists(requestData.balance);
+
+    // @ts-ignore
+    assert.equal(requestData.balance.balance, '100');
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {

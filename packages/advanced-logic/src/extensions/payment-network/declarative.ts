@@ -8,7 +8,7 @@ import Utils from '@requestnetwork/utils';
 /**
  * Core of the declarative payment network
  */
-const pnDeclarative: Types.PnAnyDeclarativeBased.IAnyDeclarative = {
+const pnDeclarative: Types.PnAnyDeclarative.IAnyDeclarative = {
   applyActionToExtension,
   createAddPaymentInstructionAction,
   createAddRefundInstructionAction,
@@ -30,10 +30,10 @@ const CURRENT_VERSION = '0.1.0';
  * @returns the extensionsData to be stored in the request
  */
 function createCreationAction(
-  parameters?: Types.PnAnyDeclarativeBased.ICreationParameters,
+  parameters?: Types.PnAnyDeclarative.ICreationParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.CREATE,
+    action: Types.PnAnyDeclarative.ACTION.CREATE,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       paymentInfo: parameters && parameters.paymentInfo,
@@ -51,10 +51,10 @@ function createCreationAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareSentPaymentAction(
-  parameters: Types.PnAnyDeclarativeBased.ISentParameters,
+  parameters: Types.PnAnyDeclarative.ISentParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_PAYMENT,
+    action: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
@@ -71,10 +71,10 @@ function createDeclareSentPaymentAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareSentRefundAction(
-  parameters: Types.PnAnyDeclarativeBased.ISentParameters,
+  parameters: Types.PnAnyDeclarative.ISentParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_REFUND,
+    action: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
@@ -91,10 +91,10 @@ function createDeclareSentRefundAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareReceivedPaymentAction(
-  parameters: Types.PnAnyDeclarativeBased.IReceivedParameters,
+  parameters: Types.PnAnyDeclarative.IReceivedParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_PAYMENT,
+    action: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
@@ -111,10 +111,10 @@ function createDeclareReceivedPaymentAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareReceivedRefundAction(
-  parameters: Types.PnAnyDeclarativeBased.IReceivedParameters,
+  parameters: Types.PnAnyDeclarative.IReceivedParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_REFUND,
+    action: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
@@ -131,10 +131,10 @@ function createDeclareReceivedRefundAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentInstructionAction(
-  parameters: Types.PnAnyDeclarativeBased.IAddPaymentInstructionParameters,
+  parameters: Types.PnAnyDeclarative.IAddPaymentInstructionParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.ADD_PAYMENT_INSTRUCTION,
+    action: Types.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       paymentInfo: parameters.paymentInfo,
@@ -150,10 +150,10 @@ function createAddPaymentInstructionAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundInstructionAction(
-  parameters: Types.PnAnyDeclarativeBased.IAddRefundInstructionParameters,
+  parameters: Types.PnAnyDeclarative.IAddRefundInstructionParameters,
 ): Types.IAction {
   return {
-    action: Types.PnAnyDeclarativeBased.ACTION.ADD_REFUND_INSTRUCTION,
+    action: Types.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
     id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       refundInfo: parameters.refundInfo,
@@ -182,7 +182,7 @@ function applyActionToExtension(
 ): RequestLogicTypes.IExtensionStates {
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.CREATE) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
       throw Error(`This extension have already been created`);
     }
@@ -197,7 +197,7 @@ function applyActionToExtension(
     throw Error(`This extension must have been already created`);
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_PAYMENT) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT) {
     copiedExtensionState[extensionAction.id] = applyDeclareSentPayment(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -208,7 +208,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_REFUND) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND) {
     copiedExtensionState[extensionAction.id] = applyDeclareSentRefund(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -219,7 +219,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_PAYMENT) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
     copiedExtensionState[extensionAction.id] = applyDeclareReceivedPayment(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -230,7 +230,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_REFUND) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
     copiedExtensionState[extensionAction.id] = applyDeclareReceivedRefund(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -241,7 +241,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.ADD_PAYMENT_INSTRUCTION) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION) {
     copiedExtensionState[extensionAction.id] = applyAddPaymentInstruction(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -251,7 +251,7 @@ function applyActionToExtension(
     );
     return copiedExtensionState;
   }
-  if (extensionAction.action === Types.PnAnyDeclarativeBased.ACTION.ADD_REFUND_INSTRUCTION) {
+  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION) {
     copiedExtensionState[extensionAction.id] = applyAddRefundInstruction(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -334,7 +334,7 @@ function applyDeclareSentPayment(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_PAYMENT,
+    name: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -382,7 +382,7 @@ function applyDeclareSentRefund(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_REFUND,
+    name: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -430,7 +430,7 @@ function applyDeclareReceivedPayment(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_PAYMENT,
+    name: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -478,7 +478,7 @@ function applyDeclareReceivedRefund(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_REFUND,
+    name: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -523,7 +523,7 @@ function applyAddPaymentInstruction(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarativeBased.ACTION.ADD_PAYMENT_INSTRUCTION,
+    name: Types.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
     parameters: {
       paymentInfo: extensionAction.parameters.paymentInfo,
     },
@@ -567,7 +567,7 @@ function applyAddRefundInstruction(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarativeBased.ACTION.ADD_REFUND_INSTRUCTION,
+    name: Types.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
     parameters: {
       refundInfo: extensionAction.parameters.refundInfo,
     },

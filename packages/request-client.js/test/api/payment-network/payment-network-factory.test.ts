@@ -5,6 +5,7 @@ import {
 } from '@requestnetwork/types';
 
 import BTCAddressedBased from '../../../src/api/payment-network/btc/mainnet-address-based';
+import Declarative from '../../../src/api/payment-network/declarative';
 
 import { expect } from 'chai';
 
@@ -42,20 +43,21 @@ describe('api/payment-network/payment-network-factory', () => {
       ).to.instanceOf(BTCAddressedBased);
     });
 
-    it('cannot createPaymentNetwork with currency not handled', async () => {
+    it('can createPaymentNetwork with any currency', async () => {
       const paymentNetworkParameters: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {
           paymentAddress: 'bitcoin address here',
         },
       };
-      expect(() => {
+      expect(
         PaymentNetworkFactory.createPaymentNetwork(
           mockAdvancedLogic,
-          RequestLogicTypes.CURRENCY.ETH,
+          RequestLogicTypes.CURRENCY.BTC,
           paymentNetworkParameters,
-        );
-      }, 'should throw wrong').to.throw('No payment network support the currency: ETH');
+        ),
+        'createPayment createPaymentNetwork',
+      ).to.instanceOf(Declarative);
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {
@@ -128,19 +130,21 @@ describe('api/payment-network/payment-network-factory', () => {
       );
     });
 
-    it('cannot getPaymentNetworkFromRequest with currency not handled', async () => {
+    it('can getPaymentNetworkFromRequest with any currency', async () => {
       const request: any = {
         currency: RequestLogicTypes.CURRENCY.ETH,
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+          [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           },
         },
       };
-      expect(() => {
-        PaymentNetworkFactory.getPaymentNetworkFromRequest(mockAdvancedLogic, request);
-      }, 'should throw wrong').to.throw('No payment network support the currency: ETH');
+
+      expect(
+        PaymentNetworkFactory.getPaymentNetworkFromRequest(mockAdvancedLogic, request),
+        'createPayment getPaymentNetworkFromRequest',
+      ).to.instanceOf(Declarative);
     });
   });
 });

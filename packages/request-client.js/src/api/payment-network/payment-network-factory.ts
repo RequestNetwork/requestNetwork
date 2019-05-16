@@ -6,14 +6,18 @@ import {
 import * as Types from '../../types';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
+import Declarative from './declarative';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
-    [ExtensionTypes.ID
-      .PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
+    [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
     [ExtensionTypes.ID
       .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
+    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+  },
+  any: {
+    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
   },
 };
 
@@ -33,9 +37,9 @@ export default class PaymentNetworkFactory {
     currency: RequestLogicTypes.CURRENCY,
     paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
   ): Types.IPaymentNetwork {
-    const paymentNetworkForCurrency = supportedPaymentNetwork[currency];
+    let paymentNetworkForCurrency = supportedPaymentNetwork[currency];
     if (!paymentNetworkForCurrency) {
-      throw new Error(`No payment network support the currency: ${currency}`);
+      paymentNetworkForCurrency = supportedPaymentNetwork.any;
     }
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
@@ -70,9 +74,9 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    const paymentNetworkForCurrency = supportedPaymentNetwork[currency];
+    let paymentNetworkForCurrency = supportedPaymentNetwork[currency];
     if (!paymentNetworkForCurrency) {
-      throw new Error(`No payment network support the currency: ${currency}`);
+      paymentNetworkForCurrency = supportedPaymentNetwork.any;
     }
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(

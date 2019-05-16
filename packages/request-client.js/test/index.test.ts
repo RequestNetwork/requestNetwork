@@ -16,20 +16,37 @@ import * as TestDataRealBTC from './data-test-real-btc';
 
 const chai = require('chai');
 const spies = require('chai-spies');
+const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
+chai.use(chaiAsPromised);
 chai.use(spies);
 const sandbox = chai.spy.sandbox();
 
-const signatureParameters: SignatureTypes.ISignatureParameters = {
+const signatureParametersPayee: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
-const signerIdentity: IdentityTypes.IIdentity = {
+const signatureParametersPayer: SignatureTypes.ISignatureParameters = {
+  method: SignatureTypes.METHOD.ECDSA,
+  privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
+};
+const payeeIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
+const payerIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+  value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
+};
+
 const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
-  sign: (data: any): any => Utils.signature.sign(data, signatureParameters),
+  sign: (data: any, signer: IdentityTypes.IIdentity): any => {
+    if (signer.value === payeeIdentity.value) {
+      return Utils.signature.sign(data, signatureParametersPayee);
+    } else {
+      return Utils.signature.sign(data, signatureParametersPayer);
+    }
+  },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
@@ -37,14 +54,8 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
 const requestParameters: RequestLogicTypes.ICreateParameters = {
   currency: RequestLogicTypes.CURRENCY.BTC,
   expectedAmount: '100000000000',
-  payee: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  },
-  payer: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-  },
+  payee: payeeIdentity,
+  payer: payerIdentity,
 };
 
 /* tslint:disable:no-magic-numbers */
@@ -89,7 +100,7 @@ describe('index', () => {
     await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -119,7 +130,7 @@ describe('index', () => {
     await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -141,7 +152,7 @@ describe('index', () => {
 
     await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -166,7 +177,7 @@ describe('index', () => {
     });
     await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
   });
@@ -180,7 +191,7 @@ describe('index', () => {
 
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     expect(request).to.be.instanceOf(Request);
@@ -199,7 +210,7 @@ describe('index', () => {
 
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const requestFromId = await requestNetwork.fromRequestId(request.requestId);
@@ -217,7 +228,7 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
@@ -239,7 +250,7 @@ describe('index', () => {
     });
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const data = request.getData();
@@ -266,7 +277,7 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const data = request.getData();
@@ -291,7 +302,7 @@ describe('index', () => {
     const request = await requestNetwork.createRequest({
       contentData,
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const data = request.getData();
@@ -305,13 +316,13 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.accept(signerIdentity);
+    await request.accept(payeeIdentity);
 
     expect(axiosSpyGet).to.have.been.called.once;
     expect(axiosSpyPost).to.have.been.called.once;
@@ -321,13 +332,13 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.cancel(signerIdentity);
+    await request.cancel(payeeIdentity);
 
     expect(axiosSpyGet).to.have.been.called.once;
     expect(axiosSpyPost).to.have.been.called.once;
@@ -337,13 +348,13 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.increaseExpectedAmountRequest(3, signerIdentity);
+    await request.increaseExpectedAmountRequest(3, payeeIdentity);
 
     expect(axiosSpyGet).to.have.been.called.once;
     expect(axiosSpyPost).to.have.been.called.once;
@@ -353,15 +364,190 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
       requestInfo: requestParameters,
-      signer: signerIdentity,
+      signer: payeeIdentity,
     });
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.reduceExpectedAmountRequest(3, signerIdentity);
+    await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
     expect(axiosSpyGet).to.have.been.called.once;
     expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to declare a sent payment', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParameters,
+      signer: payeeIdentity,
+    });
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.declareSentPayment('10', 'sent payment', payeeIdentity);
+
+    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to declare a received payment', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParameters,
+      signer: payeeIdentity,
+    });
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
+
+    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to declare a sent refund', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParameters,
+      signer: payeeIdentity,
+    });
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.declareSentRefund('10', 'sent refund', payeeIdentity);
+
+    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to declare a received refund', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParameters,
+      signer: payeeIdentity,
+    });
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    await request.declareReceivedRefund('10', 'received refund', payeeIdentity);
+
+    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('allows to get the right balance', async () => {
+    const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.USD,
+      expectedAmount: '100000000000',
+      payee: payeeIdentity,
+      payer: payerIdentity,
+    };
+
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParametersUSD,
+      signer: payeeIdentity,
+    });
+
+    await request.declareSentPayment('1', 'sent payment', payerIdentity);
+    await request.declareReceivedRefund('10', 'received refund', payerIdentity);
+
+    await request.declareSentRefund('100', 'sent refund', payeeIdentity);
+    await request.declareReceivedPayment('1000', 'received payment', payeeIdentity);
+
+    const requestData = await request.getData();
+    // @ts-ignore
+    expect(requestData.balance.balance).to.equal('990');
+    // @ts-ignore
+    expect(requestData.balance.events[0]).to.deep.equal({
+      name: 'refund',
+      parameters: { amount: '10', note: 'received refund' },
+    });
+    // @ts-ignore
+    expect(requestData.balance.events[1]).to.deep.equal({
+      name: 'payment',
+      parameters: { amount: '1000', note: 'received payment' },
+    });
+  });
+
+  it('cannot use declarative function if payment network is not declarative', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestParameters,
+      signer: payeeIdentity,
+    });
+
+    await expect(
+      request.declareReceivedRefund('10', 'received refund', payeeIdentity),
+    ).to.eventually.be.rejectedWith(
+      'Cannot declare received refund without declarative payment network',
+    );
+
+    await expect(
+      request.declareReceivedPayment('10', 'received payment', payeeIdentity),
+    ).to.eventually.be.rejectedWith(
+      'Cannot declare received payment without declarative payment network',
+    );
+
+    await expect(
+      request.declareSentRefund('10', 'sent refund', payeeIdentity),
+    ).to.eventually.be.rejectedWith(
+      'Cannot declare sent refund without declarative payment network',
+    );
+
+    await expect(
+      request.declareSentPayment('10', 'sent payment', payeeIdentity),
+    ).to.eventually.be.rejectedWith(
+      'Cannot declare sent payment without declarative payment network',
+    );
   });
 });

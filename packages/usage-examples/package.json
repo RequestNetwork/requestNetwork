@@ -24,7 +24,7 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "start": "ts-node src/request-client-js.ts && ts-node src/request-logic.ts",
+    "start": "ts-node src/request-client-js.ts && ts-node src/request-client-js-declarative-request.ts && ts-node src/request-logic.ts",
     "prepare": "yarn run build"
   },
   "dependencies": {
