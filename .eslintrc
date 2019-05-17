@@ -33,6 +33,7 @@
           "eslint",
           "eth",
           "ethereum",
+          "fetchable",
           "filename",
           "http",
           "https",

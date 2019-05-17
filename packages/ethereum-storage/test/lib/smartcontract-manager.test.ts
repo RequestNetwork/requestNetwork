@@ -213,6 +213,19 @@ describe('SmartContractManager', () => {
     assert.equal(events[0].returnValues.size, otherSize);
   });
 
+  it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
+    // This mock is used to ensure any block is never fetchable
+    smartContractManager.eth.getBlock = (_block: any): any => {
+      return null;
+    };
+
+    await assert.isRejected(
+      smartContractManager.addHashAndSizeToEthereum(hashStr, realSize),
+      Error,
+      'Maximum number of confirmation reached',
+    );
+  }).timeout(30000);
+
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 9
@@ -339,10 +352,14 @@ describe('SmartContractManager', () => {
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
 
-    await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum({
-      from: 200,
-      to: 10,
-    }), Error, 'toBlock must be larger than fromBlock');
+    await assert.isRejected(
+      smartContractManager.getHashesAndSizesFromEthereum({
+        from: 200,
+        to: 10,
+      }),
+      Error,
+      'toBlock must be larger than fromBlock',
+    );
   });
 
   it('initializes smartcontract-manager with default values should not throw an error', async () => {

@@ -41,6 +41,9 @@ export default async function getTransactionsByChannelId(
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {
+      // tslint:disable-next-line:no-console
+      console.error(`getTransactionsByChannelId error: ${e}`);
+
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }
   }

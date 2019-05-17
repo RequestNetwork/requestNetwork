@@ -9,9 +9,10 @@ const web3Eth = require('web3-eth');
 
 const bigNumber: any = require('bn.js');
 
-// Confirmation to wait in order to create metadata of the new added hash
-// TODO(PROT-252): Find the optimal value or fix to use 1
-const CONFIRMATION_TO_WAIT = 2;
+// Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
+// 23 is the number of call of the transaction's confirmation event function
+// if higher the promise may block since the confirmation event function will not be called anymore
+const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
 const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 results';
 
@@ -152,6 +153,10 @@ export default class SmartContractManager {
     // use it for the different events (error, transactionHash, receipt and confirmation)
     return new Promise(
       (resolve, reject): any => {
+        // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
+        // When set to true, we use it to ignore next confirmation event function call
+        let ethereumMetadataCreated: boolean = false;
+
         this.requestHashStorage.methods
           .submitHash(contentHash, contentSize)
           .send({
@@ -164,22 +169,31 @@ export default class SmartContractManager {
             reject(Error(`Ethereum transaction error:  ${transactionError}`));
           })
           .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-            // TODO(PROT-252): search for the best number of confirmation to wait for
-            if (confirmationNumber >= CONFIRMATION_TO_WAIT) {
+            if (!ethereumMetadataCreated) {
               const gasFee = new bigNumber(receiptAfterConfirmation.gasUsed).mul(
                 new bigNumber(gasPriceToUse),
               );
               const cost = gasFee.add(new bigNumber(fee));
 
-              resolve(
-                this.createEthereumMetaData(
-                  receiptAfterConfirmation.blockNumber,
-                  receiptAfterConfirmation.transactionHash,
-                  cost.toString(),
-                  fee,
-                  gasFee.toString(),
-                ),
-              );
+              // Try to create ethereum metadata
+              // If the promise rejects, which is likely to happen because the last block is not fetchable
+              // we retry the next event function call
+              this.createEthereumMetaData(
+                receiptAfterConfirmation.blockNumber,
+                receiptAfterConfirmation.transactionHash,
+                cost.toString(),
+                fee,
+                gasFee.toString(),
+              )
+                .then((ethereumMetadata: Types.IEthereumMetadata) => {
+                  ethereumMetadataCreated = true;
+                  resolve(ethereumMetadata);
+                })
+                .catch(e => {
+                  if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
+                    reject(Error(`Maximum number of confirmation reached: ${e}`));
+                  }
+                });
             }
           });
       },

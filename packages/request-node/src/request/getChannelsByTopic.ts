@@ -38,6 +38,9 @@ export default async function getChannelsByTopic(
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {
+      // tslint:disable-next-line:no-console
+      console.error(`getChannelsByTopic error: ${e}`);
+
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }
   }
