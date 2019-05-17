@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/usage-examples",
-  "version": "0.1.1-alpha.0",
+  "version": "0.1.1-alpha.1",
   "private": true,
   "description": "Usage examples of Request Network.",
   "keywords": [
@@ -28,13 +28,13 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.1.1-alpha.10",
-    "@requestnetwork/epk-signature": "0.1.1-alpha.10",
-    "@requestnetwork/request-client.js": "0.1.1-alpha.10",
-    "@requestnetwork/request-logic": "0.1.1-alpha.10",
-    "@requestnetwork/transaction-manager": "0.1.1-alpha.10",
-    "@requestnetwork/types": "0.1.1-alpha.9",
-    "@requestnetwork/utils": "0.1.1-alpha.10"
+    "@requestnetwork/data-access": "0.1.1-alpha.11",
+    "@requestnetwork/epk-signature": "0.1.1-alpha.11",
+    "@requestnetwork/request-client.js": "0.1.1-alpha.11",
+    "@requestnetwork/request-logic": "0.1.1-alpha.11",
+    "@requestnetwork/transaction-manager": "0.1.1-alpha.11",
+    "@requestnetwork/types": "0.1.1-alpha.10",
+    "@requestnetwork/utils": "0.1.1-alpha.11"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "1.2.0",

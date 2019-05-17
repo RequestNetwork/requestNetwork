@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "codecov": "3.4.0",
-    "lerna": "3.13.4",
+    "lerna": "3.14.1",
     "npm-package-json-lint": "3.5.0",
     "typescript": "3.3.1"
   }
