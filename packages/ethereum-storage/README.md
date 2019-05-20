@@ -62,6 +62,12 @@ And in another terminal:
 yarn run deploy
 ```
 
+You can define the host and port via arguments. For example:
+
+```bash
+HOST="localhost" PORT=1010 yarn run deploy
+```
+
 ## IPFS
 
 In order to use the package in a test environment, IPFS can be installed locally and started with the following commands:

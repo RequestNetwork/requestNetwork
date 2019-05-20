@@ -1,8 +1,8 @@
 module.exports = {
   networks: {
     development: {
-      host: 'localhost',
-      port: 8545,
+      host: process.env.HOST || 'localhost',
+      port: process.env.PORT || 8545,
       network_id: '*', // Match any network id
     },
     rinkeby: {
