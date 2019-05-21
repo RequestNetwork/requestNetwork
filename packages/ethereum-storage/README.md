@@ -68,6 +68,14 @@ There are 3 smart contracts:
 - `RequestOpenHashSubmitter` entry point to add hashes in `RequestHashStorage`. It gives the rules to get the right to submit hashes and collect the fees. This contract must be whitelisted in `RequestHashStorage`. The only condition for adding hash is to pay the fees.
 - `StorageFeeCollector` parent contract (not deployed) of `RequestOpenHashSubmitter`, computes the fees and send them to the burner.
 
+## Configuring the provider using Truffle and the development network
+
+When deploying the smart contracts for development you can manually set the provider host and port via env variables:
+
+```bash
+TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy 
+```
+
 ## IPFS
 
 In order to use the package in a test environment, IPFS can be installed locally and started with the following commands:

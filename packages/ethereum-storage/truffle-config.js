@@ -1,8 +1,8 @@
 module.exports = {
   networks: {
     development: {
-      host: 'localhost',
-      port: 8545,
+      host: process.env.TRUFFLE_GANACHE_HOST || 'localhost',
+      port: process.env.TRUFFLE_GANACHE_PORT || 8545,
       network_id: '*', // Match any network id
     },
     rinkeby: {
