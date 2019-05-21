@@ -119,6 +119,20 @@ export default class SmartContractManager {
   }
 
   /**
+   * Check if the ethereum node is accessible
+   * @return Promise resolving if the node is accessible, throw otherwise
+   */
+  public async checkEthereumNodeConnection(): Promise<void> {
+    try {
+      if (!(await this.eth.net.isListening())) {
+        throw Error('Node not listening');
+      }
+    } catch (error) {
+      throw Error(`Ethereum node is not reachable: ${error})`);
+    }
+  }
+
+  /**
    * Get the account used for transaction (account[0] of the wallet)
    * @return Promise resolving the default account
    */

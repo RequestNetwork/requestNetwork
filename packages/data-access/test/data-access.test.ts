@@ -100,6 +100,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -129,6 +130,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -154,6 +156,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -180,6 +183,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
             meta: {},
@@ -204,6 +208,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 1 },
@@ -229,6 +234,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 1 },
@@ -259,6 +265,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 10 },
@@ -312,6 +319,7 @@ describe('data-access', () => {
         append: chai.spy(),
         getData: (): any => chai.spy(),
         getDataId: (): any => testTopics,
+        initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 10 },
@@ -363,6 +371,7 @@ describe('data-access', () => {
         append: chai.spy.returns(appendResult),
         getData: (): any => chai.spy(),
         getDataId: chai.spy.returns({ result: { dataIds: [] } }),
+        initialize: chai.spy(),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -413,6 +422,7 @@ describe('data-access', () => {
         append: chai.spy.returns('fakeDataId'),
         getData: (): any => chai.spy(),
         getDataId: chai.spy.returns([]),
+        initialize: chai.spy(),
         read: chai.spy(),
       };
       const dataAccess = new DataAccess(fakeStorageSpied);
@@ -428,6 +438,7 @@ describe('data-access', () => {
       append: chai.spy.returns(appendResult),
       getData: (): any => chai.spy(),
       getDataId: chai.spy.returns({ result: { dataIds: [] } }),
+      initialize: chai.spy(),
       read: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
@@ -451,6 +462,7 @@ describe('data-access', () => {
         }
         return testTopics;
       },
+      initialize: chai.spy(),
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
           meta: { timestamp: 1 },
@@ -521,6 +533,7 @@ describe('data-access', () => {
       append: chai.spy.returns(appendResult),
       getData: (): any => chai.spy(),
       getDataId: chai.spy.returns({ result: { dataIds: [] } }),
+      initialize: chai.spy(),
       read: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
@@ -533,6 +546,7 @@ describe('data-access', () => {
       append: chai.spy(),
       getData: (): any => chai.spy(),
       getDataId: (): any => emptyDataIdResult,
+      initialize: chai.spy(),
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
           meta: { timestamp: 1 },

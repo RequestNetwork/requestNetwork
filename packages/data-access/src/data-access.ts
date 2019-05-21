@@ -82,6 +82,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   public async initialize(): Promise<void> {
     this.initializeEmpty();
 
+    // initialize storage
+    await this.storage.initialize();
+
     // if transaction index already has data, then sync from the last available timestamp
     const lastSynced = await this.transactionIndex.getLastTransactionTimestamp();
     const now = Utils.getCurrentTimestampInSecond();

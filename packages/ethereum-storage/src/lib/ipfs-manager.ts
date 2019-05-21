@@ -19,6 +19,9 @@ export default class IpfsManager {
   public readonly IPFS_API_ADD: string = '/api/v0/add';
   public readonly IPFS_API_CAT: string = '/api/v0/cat';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
+  public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
+  // eslint-disable-next-line spellcheck/spell-checker
+  public readonly IPFS_API_REPOSITORY_VERIFY: string = '/api/v0/repo/verify';
 
   /**
    * Constructor
@@ -30,6 +33,103 @@ export default class IpfsManager {
     this.ipfsConnection = _ipfsConnection;
 
     this.ipfsConnectionModule = this.getIpfsConnectionModuleModule(this.ipfsConnection.protocol);
+  }
+
+  /**
+   * Verify ipfs node repository
+   * @returns Promise resolving the verify message
+   */
+  public verifyRepository(): Promise<string> {
+    // Promise to wait for response from server
+    return new Promise<string>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_REPOSITORY_VERIFY}`;
+
+        this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+            // All data has been received
+            res.on('end', () => {
+              return resolve(data);
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs verification response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs verification response has been aborted'));
+            });
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs verification has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs verification error: ${e}`));
+          });
+      },
+    );
+  }
+
+  /**
+   * Connect the ipfs node to a new peer
+   * @param multiAddresses address of the ipfs node to connect with
+   * @returns Promise resolving the peer address
+   */
+  public connectSwarmPeer(multiAddress: string): Promise<string> {
+    // Promise to wait for response from server
+    return new Promise<string>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_CONNECT_SWARM}?arg=${multiAddress}`;
+
+        this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+            // All data has been received
+            res.on('end', () => {
+              try {
+                const parsedData = JSON.parse(data);
+                if (parsedData.Type === 'error') {
+                  throw Error(parsedData.Message);
+                }
+                return resolve(multiAddress);
+              } catch (e) {
+                return reject(Error(`Ipfs connecting peer response error: ${e}`));
+              }
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs connecting peer response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs connecting peer response has been aborted'));
+            });
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs connecting peer has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs connecting peer error: ${e}`));
+          });
+      },
+    );
   }
 
   /**

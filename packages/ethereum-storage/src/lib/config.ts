@@ -29,6 +29,8 @@ const config: any = {
         timeout: 10000,
       },
     },
+    // ipfs nodes that already have the request files (allow to get the request data faster)
+    requestKnownIpfsNode: [],
   },
 };
 
@@ -70,4 +72,12 @@ export function getDefaultEthereumNetwork(): string {
  */
 export function getDefaultEthereumGasPrice(): string {
   return config.ethereum.gasPriceDefault;
+}
+
+/**
+ * Retrieve from config the default swarm peers for ipfs
+ * @returns array of the swarm addresses
+ */
+export function getDefaultIpfsSwarmPeers(): string[] {
+  return config.ipfs.requestKnownIpfsNode;
 }

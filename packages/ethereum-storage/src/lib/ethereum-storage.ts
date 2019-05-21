@@ -2,6 +2,7 @@ import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as Types } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
 import BadDataInSmartContractError from './bad-data-in-smart-contract-error';
+import { getDefaultIpfsSwarmPeers } from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
@@ -33,6 +34,8 @@ export default class EthereumStorage implements Types.IStorage {
    */
   private logLevel: CommonTypes.LogLevel;
 
+  private isInitialized: boolean = false;
+
   /**
    * Constructor
    * @param ipfsGatewayConnection Information structure to connect to the ipfs gateway
@@ -62,12 +65,68 @@ export default class EthereumStorage implements Types.IStorage {
   }
 
   /**
+   * Function to initialize the storage
+   * Checks the connection with ipfs
+   * Checks the connection with Ethereum
+   * Adds the known IPFS node (ipfs swarm connect)
+   */
+  public async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      throw new Error('ethereum-storage is already initialized');
+    }
+
+    // check ethereum node connection - will throw if the ethereum node is not reachable
+    try {
+      await this.smartContractManager.checkEthereumNodeConnection();
+    } catch (error) {
+      throw Error(`Ethereum node is not accessible: ${error}`);
+    }
+
+    // check ipfs connection - will throw in case of error
+    try {
+      await this.ipfsManager.verifyRepository();
+    } catch (error) {
+      throw Error(`IPFS node is not accessible or corrupted: ${error}`);
+    }
+
+    // add request IPFS swarm peers (allows faster request data access)
+    const swarmPeers = getDefaultIpfsSwarmPeers();
+    await Promise.all(
+      swarmPeers.map(
+        async (swarmPeer: string): Promise<void> => {
+          try {
+            const swarmPeersAddress = await this.ipfsManager.connectSwarmPeer(swarmPeer);
+            if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+              // tslint:disable:no-console
+              console.info(`IPFS swarm peer added: (${swarmPeersAddress})`);
+            }
+          } catch (error) {
+            // tslint:disable:no-console
+            console.warn(`Warning: IPFS cannot add the swarm peer (${swarmPeer}): ${error}`);
+          }
+        },
+      ),
+    );
+
+    this.isInitialized = true;
+  }
+
+  /**
    * Update gateway connection information and connect to the new gateway
    * Missing value are filled with default config value
    * @param ipfsConnection Information structure to connect to the ipfs gateway
    */
-  public updateIpfsGateway(ipfsGatewayConnection: Types.IIpfsGatewayConnection): void {
+  public async updateIpfsGateway(
+    ipfsGatewayConnection: Types.IIpfsGatewayConnection,
+  ): Promise<void> {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
+
+    // check ipfs connection - will throw in case of error
+    try {
+      await this.ipfsManager.verifyRepository();
+    } catch (error) {
+      throw Error(`IPFS node is not accessible or corrupted: ${error}`);
+    }
   }
 
   /**
@@ -75,8 +134,15 @@ export default class EthereumStorage implements Types.IStorage {
    * Missing value are filled with default config value
    * @param web3Connection Information structure to connect to the Ethereum network
    */
-  public updateEthereumNetwork(web3Connection: Types.IWeb3Connection): void {
+  public async updateEthereumNetwork(web3Connection: Types.IWeb3Connection): Promise<void> {
     this.smartContractManager = new SmartContractManager(web3Connection);
+    // check ethereum node connection - will throw if the ethereum node is not reachable
+
+    try {
+      await this.smartContractManager.checkEthereumNodeConnection();
+    } catch (error) {
+      throw Error(`Ethereum node is not accessible: ${error}`);
+    }
   }
 
   /**
@@ -85,6 +151,10 @@ export default class EthereumStorage implements Types.IStorage {
    * @returns Promise resolving id used to retrieve the content
    */
   public async append(content: string): Promise<Types.IOneDataIdAndMeta> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
+
     if (!content) {
       throw Error('No content provided');
     }
@@ -141,6 +211,9 @@ export default class EthereumStorage implements Types.IStorage {
    * @returns Promise resolving content from id
    */
   public async read(id: string): Promise<Types.IOneContentAndMeta> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
     if (!id) {
       throw Error('No id provided');
     }
@@ -187,6 +260,9 @@ export default class EthereumStorage implements Types.IStorage {
    * @returns Promise resolving stored data
    */
   public async getData(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataReturn> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
     const dataIds = await this.getDataId(options);
 
     // Read content for each id
@@ -216,6 +292,9 @@ export default class EthereumStorage implements Types.IStorage {
    * @returns Promise resolving id of stored data
    */
   public async getDataId(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataIdReturn> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
     if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
       // tslint:disable:no-console
       console.info('Fetching dataIds from Ethereum');

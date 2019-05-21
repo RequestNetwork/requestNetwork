@@ -53,6 +53,22 @@ describe('Ipfs manager', () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection);
   });
 
+  it('allows to verify repository', async () => {
+    await ipfsManager.verifyRepository();
+
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    await assert.isRejected(ipfsManager.verifyRepository(), Error, 'getaddrinfo ENOTFOUND');
+  });
+
+  it('allows to connectSwarmPeer repository', async () => {
+    const peer = '/ip4/54.194.102.26/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
+    const swarmPeerAdded = await ipfsManager.connectSwarmPeer(peer);
+    assert.equal(peer, swarmPeerAdded);
+
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    await assert.isRejected(ipfsManager.connectSwarmPeer(peer), Error, 'getaddrinfo ENOTFOUND');
+  });
+
   it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     assert.equal(hash, hashReturned);

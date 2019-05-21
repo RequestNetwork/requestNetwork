@@ -10,6 +10,10 @@ import Utils from '@requestnetwork/utils';
 export default class MockStorage implements StorageTypes.IStorage {
   private data: { [key: string]: { content: string; timestamp: number } } = {};
 
+  public async initialize(): Promise<void> {
+    return;
+  }
+
   public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
     if (!content) {
       throw Error('Error: no content provided');
