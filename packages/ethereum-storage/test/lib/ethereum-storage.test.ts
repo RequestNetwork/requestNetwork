@@ -6,11 +6,16 @@ import * as chaiAsPromised from 'chai-as-promised';
 
 import EthereumStorage from '../../src/lib/ethereum-storage';
 
+import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+
+// tslint:disable:no-magic-numbers
+
 // Extends chai for promises
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 const web3HttpProvider = require('web3-providers-http');
+const web3Utils = require('web3-utils');
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
@@ -40,17 +45,30 @@ const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   web3Provider: invalidHostNetworkProvider,
 };
 
+const web3Eth = require('web3-eth');
+const eth = new web3Eth(provider);
+
+const contractHashSubmitter = new eth.Contract(
+  artifactsRequestHashSubmitterUtils.getContractAbi(),
+  artifactsRequestHashSubmitterUtils.getAddress('private'),
+);
+const addressRequestHashSubmitter = contractHashSubmitter._address;
+
 let ethereumStorage: EthereumStorage;
 
 const content1 = 'this is a little test !';
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize1 = 29;
+const realSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize1), 64);
 const fakeSize1 = 50;
+const fakeSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize1), 64);
 
 const content2 = 'content\nwith\nspecial\ncharacters\n';
 const hash2 = 'QmQj8fQ9T16Ddrxfij5eyRnxXKTVxRXyQuazYnezt9iZpy';
 const realSize2 = 38;
+const realSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize2), 64);
 const fakeSize2 = 0;
+const fakeSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize2), 64);
 
 // Define a mock for getPastEvents to be independant of the state of ganache instance
 const pastEventsMock = [
@@ -58,8 +76,9 @@ const pastEventsMock = [
     blockNumber: 1,
     event: 'NewHash',
     returnValues: {
+      feesParameters: realSize1Bytes32Hex,
       hash: hash1,
-      size: realSize1,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xa',
   },
@@ -67,8 +86,9 @@ const pastEventsMock = [
     blockNumber: 1,
     event: 'NewHash',
     returnValues: {
+      feesParameters: fakeSize1Bytes32Hex,
       hash: hash1,
-      size: fakeSize1,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xa',
   },
@@ -76,8 +96,9 @@ const pastEventsMock = [
     blockNumber: 2,
     event: 'NewHash',
     returnValues: {
+      feesParameters: realSize2Bytes32Hex,
       hash: hash2,
-      size: realSize2,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xb',
   },
@@ -85,8 +106,9 @@ const pastEventsMock = [
     blockNumber: 3,
     event: 'NewHash',
     returnValues: {
+      feesParameters: fakeSize2Bytes32Hex,
       hash: hash2,
-      size: fakeSize2,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xc',
   },
@@ -94,8 +116,9 @@ const pastEventsMock = [
     blockNumber: 3,
     event: 'NewHash',
     returnValues: {
+      feesParameters: fakeSize2Bytes32Hex,
       hash: 'notAHash',
-      size: fakeSize2,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xc',
   },
@@ -263,6 +286,7 @@ describe('EthereumStorage', () => {
     // These contents have to be appended in order to check their size
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
+
     const result = await ethereumStorage.getDataId();
 
     if (!result.meta.metaDataIds[0].ethereum) {
@@ -391,8 +415,8 @@ describe('EthereumStorage', () => {
     > => {
       return Promise.resolve([
         {
+          feesParameters: { contentSize: 10 },
           meta: {} as StorageTypes.IEthereumMetadata,
-          size: 10,
         } as StorageTypes.IGetAllHashesAndSizes,
       ]);
     };
@@ -400,7 +424,7 @@ describe('EthereumStorage', () => {
     await assert.isRejected(
       ethereumStorage.getDataId(),
       Error,
-      'The event log has no hash or size',
+      'The event log has no hash or feesParameters',
     );
 
     // Test with no meta
@@ -409,8 +433,8 @@ describe('EthereumStorage', () => {
     > => {
       return Promise.resolve([
         {
+          feesParameters: { contentSize: 10 },
           hash: '0xad',
-          size: 10,
         } as StorageTypes.IGetAllHashesAndSizes,
       ]);
     };

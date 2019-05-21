@@ -1,0 +1,16 @@
+{
+  "lastVersion": "0.1.0",
+  "0.1.0": {
+    "artifact": "0.1.0.json",
+    "deployment": {
+      "private": {
+        "address": "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf",
+        "creationBlockNumber": 1
+      },
+      "rinkeby": {
+        "address": "0x3b31cffabed031bab9489ea64bc84fa5afec851a",
+        "creationBlockNumber": 4356759
+      }
+    }
+  }
+}

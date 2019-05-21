@@ -29,17 +29,12 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [],
-      "name": "threshold",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "name": "renounceWhitelistAdmin",
+      "outputs": [],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -58,8 +53,13 @@
     },
     {
       "constant": false,
-      "inputs": [],
-      "name": "renounceOwnership",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "addWhitelistAdmin",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -81,37 +81,9 @@
     },
     {
       "constant": true,
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "isOwner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
       "inputs": [
         {
-          "name": "_dataSize",
+          "name": "_contentSize",
           "type": "uint256"
         }
       ],
@@ -127,17 +99,22 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "_threshold",
-          "type": "uint256"
+          "name": "account",
+          "type": "address"
         }
       ],
-      "name": "setMinimumFeeThreshold",
-      "outputs": [],
+      "name": "isWhitelistAdmin",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -177,21 +154,25 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
+      "constant": true,
+      "inputs": [],
+      "name": "requestHashStorage",
+      "outputs": [
         {
-          "name": "newOwner",
+          "name": "",
           "type": "address"
         }
       ],
-      "name": "transferOwnership",
-      "outputs": [],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [
+        {
+          "name": "_addressRequestHashStorage",
+          "type": "address"
+        },
         {
           "name": "_addressBurner",
           "type": "address"
@@ -205,23 +186,6 @@
       "payable": true,
       "stateMutability": "payable",
       "type": "fallback"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "name": "hash",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "size",
-          "type": "uint256"
-        }
-      ],
-      "name": "NewHash",
-      "type": "event"
     },
     {
       "anonymous": false,
@@ -274,16 +238,23 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "newOwner",
+          "name": "account",
           "type": "address"
         }
       ],
-      "name": "OwnershipTransferred",
+      "name": "WhitelistAdminAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "WhitelistAdminRemoved",
       "type": "event"
     },
     {
@@ -294,8 +265,8 @@
           "type": "string"
         },
         {
-          "name": "_size",
-          "type": "uint256"
+          "name": "_feesParameters",
+          "type": "bytes"
         }
       ],
       "name": "submitHash",

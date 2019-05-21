@@ -98,19 +98,21 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     // Get content length from ipfs
-    let contentLength;
+    let contentSize;
     try {
-      contentLength = await this.ipfsManager.getContentLength(dataId);
+      contentSize = await this.ipfsManager.getContentLength(dataId);
     } catch (error) {
       throw Error(`Ipfs get length request error: ${error}`);
     }
+
+    const feesParameters: Types.IFeesParameters = { contentSize };
 
     // Add content hash to ethereum
     let ethereumMetadata;
     try {
       ethereumMetadata = await this.smartContractManager.addHashAndSizeToEthereum(
         dataId,
-        contentLength,
+        feesParameters,
       );
     } catch (error) {
       throw Error(`Smart contract error: ${error}`);
@@ -125,7 +127,7 @@ export default class EthereumStorage implements Types.IStorage {
     return {
       meta: {
         ethereum: ethereumMetadata,
-        ipfs: { size: contentLength },
+        ipfs: { size: contentSize },
         storageType: Types.StorageSystemType.ETHEREUM_IPFS,
         timestamp: ethereumMetadata.blockTimestamp,
       },
@@ -261,8 +263,11 @@ export default class EthereumStorage implements Types.IStorage {
         const hashAndSize = await hashAndSizePromise;
 
         // Check if the event log is incorrect
-        if (typeof hashAndSize.hash === 'undefined' || typeof hashAndSize.size === 'undefined') {
-          throw Error('The event log has no hash or size');
+        if (
+          typeof hashAndSize.hash === 'undefined' ||
+          typeof hashAndSize.feesParameters === 'undefined'
+        ) {
+          throw Error('The event log has no hash or feesParameters');
         }
         if (typeof hashAndSize.meta === 'undefined') {
           throw Error('The event log has no metadata');
@@ -287,7 +292,9 @@ export default class EthereumStorage implements Types.IStorage {
           console.error(`IPFS getContentLength: ${error.message || error} ${hashAndSize.hash}`);
           throw new BadDataInSmartContractError(`IPFS getContentLength error: ${error}`);
         }
-        if (hashContentSize !== hashAndSize.size) {
+
+        const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
+        if (hashContentSize !== contentSizeDeclared) {
           throw new BadDataInSmartContractError(
             'The size of the content is not the size stored on ethereum',
           );

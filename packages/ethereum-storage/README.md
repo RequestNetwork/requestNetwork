@@ -62,6 +62,12 @@ And in another terminal:
 yarn run deploy
 ```
 
+There are 3 smart contracts:
+
+- `RequestHashStorage` allows to declare a hash `NewHash(hash, submitter, feesParameters)`. Only a whitelisted contract can declare hashes.
+- `RequestOpenHashSubmitter` entry point to add hashes in `RequestHashStorage`. It gives the rules to get the right to submit hashes and collect the fees. This contract must be whitelisted in `RequestHashStorage`. The only condition for adding hash is to pay the fees.
+- `StorageFeeCollector` parent contract (not deployed) of `RequestOpenHashSubmitter`, computes the fees and send them to the burner.
+
 ## IPFS
 
 In order to use the package in a test environment, IPFS can be installed locally and started with the following commands:

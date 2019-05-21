@@ -100,10 +100,15 @@ export interface IGetAllHashesAndSizes {
   meta: IEthereumMetadata;
   /** data id of the persisted data */
   hash: string;
-  /** data size of the persisted data */
-  size: number;
+  /** parameters used to compute fees */
+  feesParameters: IFeesParameters;
   /** timestamp of the data */
   timestamp: number;
+}
+
+/** Parameters used to compute the fees */
+export interface IFeesParameters {
+  contentSize: number;
 }
 
 /** Ethereum storage meta data */

@@ -1,11 +1,13 @@
 import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as artifactsUtils from './artifacts-utils';
+import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
+import * as artifactsRequestHashSubmitterUtils from './artifacts-request-hash-submitter-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 
 const web3Eth = require('web3-eth');
+const web3Utils = require('web3-utils');
 
 const bigNumber: any = require('bn.js');
 
@@ -15,6 +17,7 @@ const bigNumber: any = require('bn.js');
 const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
 const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 results';
+const LENGTH_BYTES32_STRING = 64;
 
 /**
  * Manages the smart contract used by the storage layer
@@ -23,18 +26,21 @@ const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 res
 export default class SmartContractManager {
   public eth: any;
   public requestHashStorage: any;
+  public requestHashSubmitter: any;
+
   /**
    * Handles the block numbers and blockTimestamp
    */
   public ethereumBlocks: EthereumBlocks;
 
   protected networkName: string = '';
-  protected smartContractAddress: string;
+  protected hashStorageAddress: string;
+  protected hashSubmitterAddress: string;
 
   // Block where the contract has been created
   // This value is stored in config file for each network
   // This value is used to optimize past event retrieval
-  private creationBlockNumber: number;
+  private creationBlockNumberHashStorage: number;
 
   // Timeout threshold when connecting to Web3 provider
   private timeout: number;
@@ -87,21 +93,27 @@ export default class SmartContractManager {
       throw Error(`The network id ${web3Connection.networkId} doesn't exist`);
     }
 
-    this.smartContractAddress = artifactsUtils.getAddress(this.networkName);
+    this.hashStorageAddress = artifactsRequestHashStorageUtils.getAddress(this.networkName);
+    this.hashSubmitterAddress = artifactsRequestHashSubmitterUtils.getAddress(this.networkName);
 
     // Initialize smart contract instance
     this.requestHashStorage = new this.eth.Contract(
-      artifactsUtils.getContractAbi(),
-      this.smartContractAddress,
+      artifactsRequestHashStorageUtils.getContractAbi(),
+      this.hashStorageAddress,
+    );
+    this.requestHashSubmitter = new this.eth.Contract(
+      artifactsRequestHashSubmitterUtils.getContractAbi(),
+      this.hashSubmitterAddress,
     );
 
     this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
 
-    this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
+    this.creationBlockNumberHashStorage =
+      artifactsRequestHashStorageUtils.getCreationBlockNumber(this.networkName) || 0;
 
     this.ethereumBlocks = new EthereumBlocks(
       this.eth,
-      this.creationBlockNumber,
+      this.creationBlockNumberHashStorage,
       getLastBlockNumberDelay,
     );
   }
@@ -125,15 +137,15 @@ export default class SmartContractManager {
   }
 
   /**
-   * Adds hash to smart contract from content hash and content size
+   * Adds hash to smart contract from content hash and content feesParameters
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
-   * @param contentSize Size of the content stored used to compute storage fee
+   * @param feesParameters parameters used to compute storage fee
    * @param gasPrice Replace the default gas price
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
   public async addHashAndSizeToEthereum(
     contentHash: string,
-    contentSize: number,
+    feesParameters: Types.IFeesParameters,
     gasPrice?: number,
   ): Promise<Types.IEthereumMetadata> {
     // Get the account for the transaction
@@ -143,10 +155,16 @@ export default class SmartContractManager {
     // Throws an error if timeout is reached
     const fee = await Promise.race([
       Utils.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
-      this.requestHashStorage.methods.getFeesAmount(contentSize).call(),
+      this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
     ]);
 
     const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
+
+    // parse the fees parameters to hex bytes
+    const feesParametersAsBytes = web3Utils.padLeft(
+      web3Utils.toHex(feesParameters.contentSize),
+      LENGTH_BYTES32_STRING,
+    );
 
     // Send transaction to contract
     // TODO(PROT-181): Implement a log manager for the library
@@ -157,8 +175,8 @@ export default class SmartContractManager {
         // When set to true, we use it to ignore next confirmation event function call
         let ethereumMetadataCreated: boolean = false;
 
-        this.requestHashStorage.methods
-          .submitHash(contentHash, contentSize)
+        this.requestHashSubmitter.methods
+          .submitHash(contentHash, feesParametersAsBytes)
           .send({
             from: account,
             gas: '100000',
@@ -207,7 +225,7 @@ export default class SmartContractManager {
    */
   public async getMetaFromEthereum(contentHash: string): Promise<Types.IEthereumMetadata> {
     // Read all event logs
-    const events = await this.recursiveGetPastEvents(this.creationBlockNumber, 'latest');
+    const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
 
     if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
       // tslint:disable:no-console
@@ -231,7 +249,7 @@ export default class SmartContractManager {
   public async getHashesAndSizesFromEthereum(
     options?: Types.ITimestampBoundaries,
   ): Promise<Types.IGetAllHashesAndSizes[]> {
-    let fromBlock = this.creationBlockNumber;
+    let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
 
     // get fromBlock from the timestamp given in options
@@ -270,7 +288,10 @@ export default class SmartContractManager {
     fromBlock: number,
     toBlock?: number | string,
   ): Promise<any[]> {
-    fromBlock = fromBlock < this.creationBlockNumber ? this.creationBlockNumber : fromBlock;
+    fromBlock =
+      fromBlock < this.creationBlockNumberHashStorage
+        ? this.creationBlockNumberHashStorage
+        : fromBlock;
     toBlock = toBlock || 'latest';
 
     // Read all event logs
@@ -353,24 +374,29 @@ export default class SmartContractManager {
    */
   private async checkAndAddMetaDataToEvent(
     event: any,
-  ): Promise<{ hash: string; meta: Types.IEthereumMetadata; size: number }> {
+  ): Promise<{
+    hash: string;
+    meta: Types.IEthereumMetadata;
+    feesParameters: Types.IFeesParameters;
+  }> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
     // because you can add empty string as hash or 0 as size in the storage smart contract
     if (
       typeof event.returnValues === 'undefined' ||
       typeof event.returnValues.hash === 'undefined' ||
-      typeof event.returnValues.size === 'undefined'
+      typeof event.returnValues.feesParameters === 'undefined'
     ) {
-      throw Error(`event is incorrect: doesn't have a hash or size`);
+      throw Error(`event is incorrect: doesn't have a hash or feesParameters`);
     }
 
+    const contentSize = web3Utils.hexToNumber(event.returnValues.feesParameters);
     const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
 
     return {
+      feesParameters: { contentSize },
       hash: event.returnValues.hash,
       meta,
-      size: +event.returnValues.size,
     };
   }
 
@@ -428,7 +454,7 @@ export default class SmartContractManager {
       fee,
       gasFee,
       networkName: this.networkName,
-      smartContractAddress: this.smartContractAddress,
+      smartContractAddress: this.hashStorageAddress,
       transactionHash,
     };
   }
