@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/integration-test",
-  "version": "0.1.1-alpha.11",
+  "version": "0.1.1-alpha.12",
   "private": true,
   "description": "Integration tests for the request system.",
   "keywords": [
@@ -35,15 +35,15 @@
     "test:node": "mocha --timeout=10000 --require ts-node/register \"test/node-client.test.ts\""
   },
   "devDependencies": {
-    "@requestnetwork/advanced-logic": "0.1.1-alpha.11",
-    "@requestnetwork/data-access": "0.1.1-alpha.11",
-    "@requestnetwork/epk-signature": "0.1.1-alpha.11",
-    "@requestnetwork/ethereum-storage": "0.1.1-alpha.11",
-    "@requestnetwork/request-client.js": "0.1.1-alpha.11",
-    "@requestnetwork/request-logic": "0.1.1-alpha.11",
-    "@requestnetwork/transaction-manager": "0.1.1-alpha.11",
-    "@requestnetwork/types": "0.1.1-alpha.10",
-    "@requestnetwork/utils": "0.1.1-alpha.11",
+    "@requestnetwork/advanced-logic": "0.1.1-alpha.12",
+    "@requestnetwork/data-access": "0.1.1-alpha.12",
+    "@requestnetwork/epk-signature": "0.1.1-alpha.12",
+    "@requestnetwork/ethereum-storage": "0.1.1-alpha.12",
+    "@requestnetwork/request-client.js": "0.1.1-alpha.12",
+    "@requestnetwork/request-logic": "0.1.1-alpha.12",
+    "@requestnetwork/transaction-manager": "0.1.1-alpha.12",
+    "@requestnetwork/types": "0.1.1-alpha.11",
+    "@requestnetwork/utils": "0.1.1-alpha.12",
     "@types/chai": "4.1.7",
     "@types/mocha": "5.2.5",
     "chai": "4.2.0",
