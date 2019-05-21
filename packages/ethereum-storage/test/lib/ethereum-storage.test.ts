@@ -3,6 +3,7 @@ import 'mocha';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+
 import EthereumStorage from '../../src/lib/ethereum-storage';
 
 // Extends chai for promises
@@ -181,6 +182,50 @@ describe('EthereumStorage', () => {
     }
   });
 
+  it(`allows to save dataId's Ethereum metadata into the metadata cache when append is called`, async () => {
+    await assert.isUndefined(ethereumStorage.ethereumMetadataCache.metadataCache[hash1]);
+
+    const result = await ethereumStorage.append(content1);
+    await assert.deepEqual(
+      result.meta.ethereum,
+      ethereumStorage.ethereumMetadataCache.metadataCache[hash1],
+    );
+  });
+
+  it(`prevents already saved dataId's Ethereum metadata to be erased in the metadata cache when append is called`, async () => {
+    await assert.isUndefined(ethereumStorage.ethereumMetadataCache.metadataCache[hash1]);
+
+    const result1 = await ethereumStorage.append(content1);
+
+    // Ethereum metadata is determined by the return data of addHashAndSizeToEthereum
+    // We change the return data of this function to ensure the second call of append contain different metadata
+    ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
+      StorageTypes.IEthereumMetadata
+    > => {
+      return {
+        blockConfirmation: 20,
+        blockNumber: 11,
+        blockTimestamp: 1545816416,
+        cost: '110',
+        fee: '1',
+        gasFee: '100',
+        networkName: 'private',
+        smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+        transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+      };
+    };
+
+    const result2 = await ethereumStorage.append(content1);
+
+    await assert.notDeepEqual(result1, result2);
+
+    await assert.deepEqual(
+      result1.meta.ethereum,
+      ethereumStorage.ethereumMetadataCache.metadataCache[hash1],
+    );
+
+  });
+
   it('allows to read a file', async () => {
     // For this test, we don't want to use the ethereum metadata cache
     // We want to force the retrieval of metadata with getPastEvents function
@@ -211,6 +256,10 @@ describe('EthereumStorage', () => {
   });
 
   it('allows to retrieve all data id', async () => {
+    // For this test, we don't want to use the ethereum metadata cache
+    // We want to force the retrieval of metadata with getPastEvents function
+    ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+
     // These contents have to be appended in order to check their size
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
@@ -257,6 +306,10 @@ describe('EthereumStorage', () => {
   });
 
   it('allows to retrieve all data', async () => {
+    // For this test, we don't want to use the ethereum metadata cache
+    // We want to force the retrieval of metadata with getPastEvents function
+    ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+
     await ethereumStorage.append(content1);
     await ethereumStorage.append(content2);
     const result = await ethereumStorage.getData();

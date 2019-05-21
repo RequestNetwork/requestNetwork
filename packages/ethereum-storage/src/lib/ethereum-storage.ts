@@ -116,6 +116,12 @@ export default class EthereumStorage implements Types.IStorage {
       throw Error(`Smart contract error: ${error}`);
     }
 
+    // Save the metadata of the new dataId into the Ethereum metadata cache
+    this.ethereumMetadataCache.saveDataIdMeta(
+      dataId,
+      ethereumMetadata,
+    );
+
     return {
       meta: {
         ethereum: ethereumMetadata,
