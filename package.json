@@ -21,7 +21,7 @@
     "lerna": "lerna",
     "packageJsonLint": "npmPkgJsonLint ./packages",
     "publish-coverage": "codecov --disable=gcov",
-    "publish": "lerna publish --conventional-commits --exact",
+    "publish-npm": "lerna publish --conventional-commits --exact",
     "publish-manual-prerelease": "lerna publish prerelease --conventional-commits --exact",
     "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
     "test": "lerna run test"
