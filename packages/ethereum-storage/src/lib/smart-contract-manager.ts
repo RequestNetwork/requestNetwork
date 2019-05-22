@@ -150,6 +150,27 @@ export default class SmartContractManager {
   }
 
   /**
+   * Check if the contracts are deployed and configured on ethereum
+   * @return Promise resolving if the contracts are deployed and configured, throws otherwise
+   */
+  public async checkContracts(): Promise<void> {
+    try {
+      const isSubmitterWhitelisted = await this.requestHashStorage.methods
+        .isWhitelisted(this.hashSubmitterAddress)
+        .call();
+
+      if (!isSubmitterWhitelisted) {
+        throw Error('The hash submitter not whitelisted in request Hash Storage contract');
+      }
+
+      // throw if requestHashSubmitter is not deployed
+      await this.requestHashSubmitter.methods.getFeesAmount(0).call();
+    } catch (error) {
+      throw Error(`Contracts are not deployed or not well configured: ${error}`);
+    }
+  }
+
+  /**
    * Get the account used for transaction (account[0] of the wallet)
    * @return Promise resolving the default account
    */

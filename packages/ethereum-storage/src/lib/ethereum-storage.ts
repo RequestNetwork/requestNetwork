@@ -96,6 +96,13 @@ export default class EthereumStorage implements Types.IStorage {
       throw Error(`Ethereum node is not accessible: ${error}`);
     }
 
+    // check if contracts are deployed on ethereum
+    try {
+      await this.smartContractManager.checkContracts();
+    } catch (error) {
+      throw Error(error);
+    }
+
     // check ipfs connection - will throw in case of error
     try {
       await this.ipfsManager.verifyRepository();

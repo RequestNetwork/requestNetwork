@@ -6,6 +6,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 
 import EthereumStorage from '../../src/lib/ethereum-storage';
 
+import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
 import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
 
 // tslint:disable:no-magic-numbers
@@ -164,6 +165,29 @@ describe('EthereumStorage', () => {
       );
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
         'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: "")',
+      );
+    });
+    it('cannot initialize if contracts are not deployed', async () => {
+      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        ipfsGatewayConnection,
+        web3Connection,
+      );
+
+      const invalidHashStorageAddress = '0x0000000000000000000000000000000000000000';
+      const invalidHashSubmitterAddress = '0x0000000000000000000000000000000000000000';
+
+      // Initialize smart contract instance
+      ethereumStorageNotInitialized.smartContractManager.requestHashStorage = new eth.Contract(
+        artifactsRequestHashStorageUtils.getContractAbi(),
+        invalidHashStorageAddress,
+      );
+      ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = new eth.Contract(
+        artifactsRequestHashSubmitterUtils.getContractAbi(),
+        invalidHashSubmitterAddress,
+      );
+
+      await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
+        'Contracts are not deployed or not well configured:',
       );
     });
   });

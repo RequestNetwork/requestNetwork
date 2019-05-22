@@ -70,7 +70,8 @@
           "validator",
           "versioning",
           "webpack",
-          "wei"
+          "wei",
+          "whitelisted"
         ],
         "minLength": 3,
         "skipIfMatch": [
