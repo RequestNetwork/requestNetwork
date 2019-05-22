@@ -1,6 +1,7 @@
 import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as Bluebird from 'bluebird';
 import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
 import * as artifactsRequestHashSubmitterUtils from './artifacts-request-hash-submitter-utils';
 import * as config from './config';
@@ -33,6 +34,11 @@ export default class SmartContractManager {
    */
   public ethereumBlocks: EthereumBlocks;
 
+  /**
+   * Maximum number of concurrent calls
+   */
+  public maxConcurrency: number;
+
   protected networkName: string = '';
   protected hashStorageAddress: string;
   protected hashSubmitterAddress: string;
@@ -59,15 +65,23 @@ export default class SmartContractManager {
   public constructor(
     web3Connection?: Types.IWeb3Connection,
     {
+      maxConcurrency,
       getLastBlockNumberDelay,
       logLevel,
+      maxRetries,
+      retryDelay,
     }: {
+      maxConcurrency: number;
       getLastBlockNumberDelay?: number;
       logLevel: CommonTypes.LogLevel;
+      maxRetries?: number;
+      retryDelay?: number;
     } = {
       logLevel: CommonTypes.LogLevel.ERROR,
+      maxConcurrency: Number.MAX_SAFE_INTEGER,
     },
   ) {
+    this.maxConcurrency = maxConcurrency;
     this.logLevel = logLevel;
 
     web3Connection = web3Connection || {};
@@ -114,7 +128,10 @@ export default class SmartContractManager {
     this.ethereumBlocks = new EthereumBlocks(
       this.eth,
       this.creationBlockNumberHashStorage,
+      retryDelay || config.getEthereumRetryDelay(),
+      maxRetries || config.getEthereumMaxRetries(),
       getLastBlockNumberDelay,
+      logLevel,
     );
   }
 
@@ -319,8 +336,12 @@ export default class SmartContractManager {
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
 
-    const eventsWithMetaData = events.map((eventItem: any) =>
-      this.checkAndAddMetaDataToEvent(eventItem),
+    const eventsWithMetaData = await Bluebird.map(
+      events,
+      (eventItem: any) => this.checkAndAddMetaDataToEvent(eventItem),
+      {
+        concurrency: this.maxConcurrency,
+      },
     );
 
     return eventsWithMetaData;
@@ -489,7 +510,7 @@ export default class SmartContractManager {
       try {
         // Otherwise, we get the number of the block with getBlock web3 function
         // Use Utils.retry to rerun if getBlock fails
-        blockObject = await Utils.retry(this.eth.getBlock)(block);
+        blockObject = await this.ethereumBlocks.getBlock(block);
       } catch (e) {
         // getBlock can throw in certain case
         // For example, if the block describer is "pending", we're not able to get the number of the block

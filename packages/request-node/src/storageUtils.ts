@@ -29,5 +29,7 @@ export function getEthereumStorage(mnemonic: string): EthereumStorage {
   return new EthereumStorage(ipfsGatewayConnection, web3Connection, {
     getLastBlockNumberDelay: config.getLastBlockNumberDelay(),
     logLevel: config.getLogLevel(),
+    maxConcurrency: config.getStorageConcurrency(),
+    retryDelay: config.getEthereumRetryDelay(),
   });
 }

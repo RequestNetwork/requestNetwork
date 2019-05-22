@@ -6,12 +6,14 @@ const config: any = {
   ethereum: {
     default: 'private',
     gasPriceDefault: '4000000000',
+    maxRetries: 5,
     nodeUrlDefault: {
       private: {
         timeout: 30000,
         url: 'http://localhost:8545',
       },
     },
+    retryDelay: 0,
   },
   ipfs: {
     default: 'private',
@@ -32,6 +34,7 @@ const config: any = {
     // ipfs nodes that already have the request files (allow to get the request data faster)
     requestKnownIpfsNode: [],
   },
+  maxConcurrency: Number.MAX_SAFE_INTEGER,
 };
 
 /**
@@ -72,6 +75,30 @@ export function getDefaultEthereumNetwork(): string {
  */
 export function getDefaultEthereumGasPrice(): string {
   return config.ethereum.gasPriceDefault;
+}
+
+/**
+ * Retrieve from config the time to wait between query retries
+ * @returns the query retry delay
+ */
+export function getEthereumRetryDelay(): number {
+  return config.ethereum.retryDelay;
+}
+
+/**
+ * Retrieve from config the maximum number of query retries
+ * @returns the maximum amount of query retries
+ */
+export function getEthereumMaxRetries(): number {
+  return config.ethereum.maxRetries;
+}
+
+/**
+ * Retrieve from config the maximum number of concurrent calls made from the ethereum-storage
+ * @returns the maximum amount concurrent calls
+ */
+export function getMaxConcurrency(): number {
+  return config.maxConcurrency;
 }
 
 /**

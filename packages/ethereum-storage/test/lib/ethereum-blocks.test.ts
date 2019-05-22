@@ -135,7 +135,7 @@ describe('EthereumBlocks', () => {
 
   describe('getLastBlockNumber', () => {
     it('getLastBlockNumber', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       expect(await ethereumBlocks.getLastBlockNumber()).to.be.equal(99);
     });
 
@@ -144,7 +144,7 @@ describe('EthereumBlocks', () => {
       const randEth = {
         getBlockNumber: (): number => Math.floor(Math.random() * 10e7),
       };
-      const ethereumBlocks = new EthereumBlocks(randEth, 10, 10000);
+      const ethereumBlocks = new EthereumBlocks(randEth, 10, 0, 0, 10000);
 
       const clock = sinon.useFakeTimers();
 
@@ -164,7 +164,7 @@ describe('EthereumBlocks', () => {
       const randEth = {
         getBlockNumber: (): number => Math.floor(Math.random() * 10e7),
       };
-      const ethereumBlocks = new EthereumBlocks(randEth, 10, 0);
+      const ethereumBlocks = new EthereumBlocks(randEth, 10, 0, 0, 0);
 
       const clock = sinon.useFakeTimers();
 
@@ -182,27 +182,27 @@ describe('EthereumBlocks', () => {
   describe('getSecondLastBlockNumber', () => {
     it('getSecondLastBlockNumber', async () => {
       sandbox.on(mockEth, ['getBlock', 'getBlockNumber']);
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       expect(await ethereumBlocks.getSecondLastBlockNumber()).to.be.equal(98);
     });
   });
 
   describe('getBlockTimestamp', () => {
     it('can getBlockTimestamp', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
     });
 
     it('can getBlockTimestamp without asking twice the same block number', async () => {
       sandbox.on(mockEth, ['getBlock']);
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
       expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
       expect(mockEth.getBlock).to.have.been.called.once;
     });
 
     it('cannot getBlockTimestamp of a block that doest not exist', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       await expect(
         ethereumBlocks.getBlockTimestamp(101),
         'should throw',
@@ -212,7 +212,7 @@ describe('EthereumBlocks', () => {
 
   describe('getConfirmationNumber', () => {
     it('can getConfirmationNumber', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       expect(await ethereumBlocks.getConfirmationNumber(30)).to.be.equal(69);
     });
 
@@ -224,7 +224,7 @@ describe('EthereumBlocks', () => {
         },
       };
 
-      const ethereumBlocks = new EthereumBlocks(mockEthThrower, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEthThrower, 10, 0, 0);
       await expect(
         ethereumBlocks.getConfirmationNumber(11),
         'should throw',
@@ -236,7 +236,7 @@ describe('EthereumBlocks', () => {
 
   describe('getBlockNumbersFromTimestamp', () => {
     it('getBlockNumbersFromTimestamp', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       expect(await ethereumBlocks.getBlockNumbersFromTimestamp(3190)).to.be.deep.equal({
         blockBefore: 31,
         blockAfter: 32,
@@ -244,7 +244,7 @@ describe('EthereumBlocks', () => {
     });
 
     it('getBlockNumbersFromTimestamp some already known block', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
       await ethereumBlocks.getBlockTimestamp(15);
       await ethereumBlocks.getBlockTimestamp(20);
       await ethereumBlocks.getBlockTimestamp(60);
@@ -260,7 +260,7 @@ describe('EthereumBlocks', () => {
     });
 
     it('getBlockNumbersFromTimestamp of edge case', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10);
+      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
 
       // first dichotomy research
       expect(await ethereumBlocks.getBlockNumbersFromTimestamp(4401)).to.be.deep.equal({

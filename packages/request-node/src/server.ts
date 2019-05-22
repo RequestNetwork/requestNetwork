@@ -13,6 +13,7 @@ const startNode = async (): Promise<void> => {
   IPFS port: ${config.getIpfsPort()}
   IPFS protocol: ${config.getIpfsProtocol()}
   IPFS timeout: ${config.getIpfsTimeout()}
+  Storage concurrency: ${config.getStorageConcurrency()}
 `;
 
   // tslint:disable:no-console

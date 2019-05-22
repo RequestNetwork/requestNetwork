@@ -191,6 +191,8 @@ describe('SmartContractManager', () => {
   beforeEach(() => {
     smartContractManager = new SmartContractManager(web3Connection);
     smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
+    smartContractManager.ethereumBlocks.retryDelay = 0;
+    smartContractManager.ethereumBlocks.maxRetries = 0;
   });
 
   it('getMainAccount should return the main account', async () => {
@@ -271,11 +273,6 @@ describe('SmartContractManager', () => {
   it('allows to get all hashes with options from', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 9
-    smartContractManager.eth.getBlock = (_block: any): any => {
-      return {
-        number: 9,
-      };
-    };
     const mockBlocksEthereum = [7, 30, 45, 87, 100, 150, 209, 234, 290, 306];
     const mockEth = {
       getBlock: (i: number): any => {
@@ -284,7 +281,12 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+    smartContractManager.ethereumBlocks.getBlock = (_block: any): any => {
+      return {
+        number: 9,
+      };
+    };
 
     const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
       from: 299,
@@ -305,7 +307,7 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
       to: 299,
@@ -329,7 +331,7 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
       from: 10,
@@ -358,6 +360,8 @@ describe('SmartContractManager', () => {
 
   it('getHashesAndSizesFromEthereum with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
+    smartContractManager.ethereumBlocks.retryDelay = 0;
+    smartContractManager.ethereumBlocks.maxRetries = 0;
     await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum(), Error);
   });
 
@@ -370,7 +374,7 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     await assert.isRejected(
       smartContractManager.getHashesAndSizesFromEthereum({
@@ -451,10 +455,10 @@ describe('SmartContractManager', () => {
   it('badly formatted events from web3 should throw an error', async () => {
     smartContractManager.requestHashStorage.getPastEvents = getBadEventsMock;
 
-    const allHashesPromises = await smartContractManager.getHashesAndSizesFromEthereum();
+    const allHashesPromise = smartContractManager.getHashesAndSizesFromEthereum();
 
     await assert.isRejected(
-      Promise.all(allHashesPromises),
+      allHashesPromise,
       Error,
       `event is incorrect: doesn't have a hash or feesParameters`,
     );

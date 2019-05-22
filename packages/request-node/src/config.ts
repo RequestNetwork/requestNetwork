@@ -21,8 +21,11 @@ const defaultValues: any = {
       protocol: 'http',
       timeout: 10000,
     },
+
+    lastBlockNumberDelay: 10000,
+    maxConcurrency: 500,
+    retryDelay: 1000,
   },
-  lastBlockNumberDelay: 10000,
   logLevel: CommonTypes.LogLevel.ERROR,
   server: {
     headers: '{}',
@@ -151,7 +154,7 @@ export function getMnemonic(): string {
  * @returns the log level
  */
 export function getLogLevel(): CommonTypes.LogLevel {
-  return argv.logLevel || process.env.LOG_LEVEL || defaultValues.ethereumStorage.logLevel;
+  return argv.logLevel || process.env.LOG_LEVEL || defaultValues.logLevel;
 }
 
 /**
@@ -164,6 +167,32 @@ export function getLastBlockNumberDelay(): number {
     argv.lastBlockNumberDelay ||
     process.env.LAST_BLOCK_NUMBER_DELAY ||
     defaultValues.ethereumStorage.lastBlockNumberDelay
+  );
+}
+
+/**
+ * Get the number of concurrent calls the ethereum storage can make
+ *
+ * @returns the maximum concurrency number
+ */
+export function getStorageConcurrency(): number {
+  return (
+    argv.storageMaxConcurrency ||
+    process.env.STORAGE_MAX_CONCURRENCY ||
+    defaultValues.ethereumStorage.maxConcurrency
+  );
+}
+
+/**
+ * Get the delay between subsequent Ethereum call retries
+ *
+ * @returns the delay between call retries
+ */
+export function getEthereumRetryDelay(): number {
+  return (
+    argv.ethereumRetryDelay ||
+    process.env.ETHEREUM_RETRY_DELAY ||
+    defaultValues.ethereumStorage.retryDelay
   );
 }
 
@@ -195,7 +224,10 @@ export function getHelpMessage(): string {
         })\tUrl of the web3 provider for Ethereum
         LastBlockNumberDelay (${
           defaultValues.ethereumStorage.lastBlockNumberDelay
-        } milliseconds)\t\t\tThe minimum delay between getLastBlockNumber calls
+        } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
+        EthereumRetryDelay (${
+          defaultValues.ethereumStorage.retryDelay
+        })\t\t\tThe delay between subsequent call retries
 
       IPFS OPTIONS
         ipfsHost (${defaultValues.ethereumStorage.ipfs.host})\t\t\tHost of the IPFS gateway
@@ -206,6 +238,11 @@ export function getHelpMessage(): string {
         ipfsTimeout (${
           defaultValues.ethereumStorage.ipfs.timeout
         })\t\t\tTimeout threshold to connect to the IPFS gateway
+
+      OTHER OPTIONS
+        storageMaxConcurrency (${
+          defaultValues.ethereumStorage.concurrency
+        })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
 
     EXAMPLE
       yarn start --port 5000 --networkId 1 --ipfsPort 6000

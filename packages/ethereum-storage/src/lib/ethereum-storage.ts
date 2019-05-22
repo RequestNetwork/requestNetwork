@@ -1,8 +1,7 @@
 import { Common as CommonTypes } from '@requestnetwork/types';
 import { Storage as Types } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
-import BadDataInSmartContractError from './bad-data-in-smart-contract-error';
-import { getDefaultIpfsSwarmPeers } from './config';
+import { getDefaultIpfsSwarmPeers, getMaxConcurrency } from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
@@ -30,6 +29,11 @@ export default class EthereumStorage implements Types.IStorage {
   public ethereumMetadataCache: EthereumMetadataCache;
 
   /**
+   * Maximum number of concurrent calls
+   */
+  public maxConcurrency: number;
+
+  /**
    * Log level
    */
   private logLevel: CommonTypes.LogLevel;
@@ -46,20 +50,30 @@ export default class EthereumStorage implements Types.IStorage {
     ipfsGatewayConnection?: Types.IIpfsGatewayConnection,
     web3Connection?: Types.IWeb3Connection,
     {
-      logLevel,
       getLastBlockNumberDelay,
+      logLevel,
+      maxConcurrency,
+      maxRetries,
+      retryDelay,
     }: {
-      logLevel: CommonTypes.LogLevel;
       getLastBlockNumberDelay?: number;
+      logLevel: CommonTypes.LogLevel;
+      maxConcurrency?: number;
+      maxRetries?: number;
+      retryDelay?: number;
     } = {
       logLevel: CommonTypes.LogLevel.ERROR,
     },
   ) {
+    this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logLevel = logLevel;
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
     this.smartContractManager = new SmartContractManager(web3Connection, {
       getLastBlockNumberDelay,
       logLevel,
+      maxConcurrency: this.maxConcurrency,
+      maxRetries,
+      retryDelay,
     });
     this.ethereumMetadataCache = new EthereumMetadataCache(this.smartContractManager);
   }
@@ -189,10 +203,7 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     // Save the metadata of the new dataId into the Ethereum metadata cache
-    this.ethereumMetadataCache.saveDataIdMeta(
-      dataId,
-      ethereumMetadata,
-    );
+    this.ethereumMetadataCache.saveDataIdMeta(dataId, ethereumMetadata);
 
     return {
       meta: {
@@ -332,15 +343,17 @@ export default class EthereumStorage implements Types.IStorage {
     hashesAndSizes: Types.IGetAllHashesAndSizes[],
   ): Promise<Types.IGetDataIdReturn | Types.IGetNewDataIdReturn> {
     const totalCount = hashesAndSizes.length;
-    let currentIndex = 1;
 
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
     // or when the size doesn't correspond to the size of the content stored on ipfs
-    const parsedDataIdAndMetaPromises = hashesAndSizes.map(
-      async (hashAndSizePromise: Types.IGetAllHashesAndSizes): Promise<Types.IOneDataIdAndMeta> => {
+    const parsedDataIdAndMeta = await Bluebird.map(
+      hashesAndSizes,
+      async (
+        hashAndSizePromise: Types.IGetAllHashesAndSizes,
+        currentIndex: number,
+      ): Promise<Types.IOneDataIdAndMeta | null> => {
         const hashAndSize = await hashAndSizePromise;
-
         // Check if the event log is incorrect
         if (
           typeof hashAndSize.hash === 'undefined' ||
@@ -354,6 +367,7 @@ export default class EthereumStorage implements Types.IStorage {
 
         // Get content from ipfs and verify provided size is correct
         let hashContentSize;
+        let badDataInSmartContractError;
         try {
           const startTime = Date.now();
 
@@ -366,17 +380,30 @@ export default class EthereumStorage implements Types.IStorage {
               }. Took ${Date.now() - startTime} ms`,
             );
           }
-          currentIndex++;
         } catch (error) {
-          console.error(`IPFS getContentLength: ${error.message || error} ${hashAndSize.hash}`);
-          throw new BadDataInSmartContractError(`IPFS getContentLength error: ${error}`);
+          badDataInSmartContractError = `IPFS getContentLength: ${error.message || error} ${
+            hashAndSize.hash
+          }`;
         }
 
         const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
-        if (hashContentSize !== contentSizeDeclared) {
-          throw new BadDataInSmartContractError(
-            'The size of the content is not the size stored on ethereum',
-          );
+
+        /* Anybody can add any data into the storage smart contract
+         * Therefore we can find in the storage smart contract:
+         * - Hash that doesn't match to any file in IPFS
+         * - Size value that doesn't match to the real size of the file stored on IPFS
+         * In these cases, we simply ignore the values instead of throwing an error
+         */
+        if (badDataInSmartContractError || hashContentSize !== contentSizeDeclared) {
+          if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+            console.error(`Ignored invalid hash: ${hashAndSize.hash}`);
+            if (badDataInSmartContractError) {
+              console.error(badDataInSmartContractError);
+            } else {
+              console.info('The size of the content is not the size stored on ethereum');
+            }
+          }
+          return null;
         }
 
         // Get meta data from ethereum
@@ -394,15 +421,15 @@ export default class EthereumStorage implements Types.IStorage {
           },
         };
       },
+      {
+        concurrency: this.maxConcurrency,
+      },
     );
 
-    // Filter the rejected parsed promises
-    let arrayOfDataIdAndMeta;
-    try {
-      arrayOfDataIdAndMeta = await this.filterDataIdAndMetaPromises(parsedDataIdAndMetaPromises);
-    } catch (e) {
-      throw e;
-    }
+    // Filter the rejected parsedDataIdAndMeta
+    const arrayOfDataIdAndMeta = parsedDataIdAndMeta.filter(
+      dataIdAndMeta => dataIdAndMeta,
+    ) as Types.IOneDataIdAndMeta[];
 
     // Create the array of data ids
     const dataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.dataId);
@@ -415,48 +442,5 @@ export default class EthereumStorage implements Types.IStorage {
       },
       result: { dataIds },
     };
-  }
-
-  /**
-   * Filter the parsed promises
-   * Anybody can add any data into the storage smart contract
-   * Therefore we can find in the storage smart contract:
-   * - Hash that doesn't match to any file in IPFS
-   * - Size value that doesn't match to the real size of the file stored on IPFS
-   * In these cases, we simply ignore the values instead of throwing an error
-   * For other errors, we throw an Error
-   *
-   * @param dataIdAndMetaPromises Promises containing data id and meta
-   * @returns Filtered promises
-   */
-  private async filterDataIdAndMetaPromises(
-    dataIdAndMetaPromises: Array<Promise<Types.IOneDataIdAndMeta>>,
-  ): Promise<Types.IOneDataIdAndMeta[]> {
-    // Convert the promises into bluebird promises
-    // to be able to inspect the status of the promise with reflect
-    const dataIdAndMetaInspections: any = Bluebird.all(
-      dataIdAndMetaPromises.map((dataIdAndMetaPromise: Promise<Types.IOneDataIdAndMeta>) =>
-        Bluebird.resolve(dataIdAndMetaPromise).reflect(),
-      ),
-    );
-
-    const filteredDataIdAndMeta: any[] = await dataIdAndMetaInspections
-      .filter((inspection: any) => {
-        if (inspection.isFulfilled()) {
-          // The parsing has been fulfilled
-          return true;
-        }
-        if (inspection.reason() instanceof BadDataInSmartContractError) {
-          // If the error concerns bad data in the smart contract:
-          // Hash that doesn't correspond to any file in IPFS or
-          // size value that doesn't correspond to the real size of the file stored on IPFS
-          // We ignore the error
-          return false;
-        }
-        throw Error(`getDataId error: ${inspection.reason()}`);
-      })
-      .map((inspection: any) => inspection.value());
-
-    return filteredDataIdAndMeta;
   }
 }
