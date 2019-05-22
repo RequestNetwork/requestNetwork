@@ -74,7 +74,7 @@ const request = await requestNetwork.createRequest({
 ```
 
 - `requestInfo`: [RequestLogicTypes.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signer`: [IdentityTypes.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional data content of the request.
 - `topics`: string[] - optional strings used to index the request.
