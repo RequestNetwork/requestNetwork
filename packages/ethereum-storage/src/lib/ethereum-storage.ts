@@ -272,6 +272,33 @@ export default class EthereumStorage implements Types.IStorage {
   }
 
   /**
+   * Read a list of content from the storage
+   *
+   * @param dataIds A list of dataIds used to retrieve the content
+   * @returns Promise resolving the list of contents
+   */
+  public async readMany(dataIds: string[]): Promise<Types.IOneContentAndMeta[]> {
+    const totalCount = dataIds.length;
+    // Concurrently get all the content from the id's in the parameters
+    return Bluebird.map(
+      dataIds,
+      async (dataId, currentIndex) => {
+        const startTime = Date.now();
+        const data = await this.read(dataId);
+        if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
+          console.info(
+            `[${currentIndex}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
+          );
+        }
+        return data;
+      },
+      {
+        concurrency: this.maxConcurrency,
+      },
+    );
+  }
+
+  /**
    * Get all data stored on the storage
    *
    * @param options timestamp boundaries for the data retrieval

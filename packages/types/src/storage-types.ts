@@ -3,6 +3,7 @@ export interface IStorage {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IOneDataIdAndMeta>;
   read: (dataId: string) => Promise<IOneContentAndMeta>;
+  readMany: (dataIds: string[]) => Promise<IOneContentAndMeta[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IGetDataReturn>;
   getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
 }

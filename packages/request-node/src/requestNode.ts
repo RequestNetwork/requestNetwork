@@ -4,7 +4,7 @@ import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
-import { getCustomHeaders, getLogLevel, getMnemonic } from './config';
+import { getCustomHeaders, getMnemonic } from './config';
 import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import persistTransaction from './request/persistTransaction';
@@ -35,7 +35,7 @@ class RequestNode {
     // Use ethereum storage for the storage layer
     const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic());
 
-    this.dataAccess = new DataAccess(ethereumStorage, { logLevel: getLogLevel() });
+    this.dataAccess = new DataAccess(ethereumStorage);
 
     this.express = express();
     this.mountRoutes();

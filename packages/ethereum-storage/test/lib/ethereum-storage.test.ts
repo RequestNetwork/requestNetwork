@@ -499,5 +499,37 @@ describe('EthereumStorage', () => {
 
       await assert.isRejected(ethereumStorage.getDataId(), Error, 'The event log has no metadata');
     });
+
+    it('allows to read a file', async () => {
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+
+      const content = [content1, content2];
+      const realSizes = [realSize1, realSize2];
+
+      await ethereumStorage.append(content1);
+      await ethereumStorage.append(content2);
+      const results = await ethereumStorage.readMany([hash1, hash2]);
+
+      results.forEach((result, index) => {
+        if (!result.meta.ethereum) {
+          assert.fail('result.meta.ethereum does not exist');
+          return;
+        }
+        assert.deepEqual(result.result, { content: content[index] });
+        assert.deepEqual(result.meta.ipfs, {
+          size: realSizes[index],
+        });
+
+        assert.equal(result.meta.ethereum.blockNumber, pastEventsMock[index + 1].blockNumber);
+        assert.equal(result.meta.ethereum.networkName, 'private');
+        assert.equal(
+          result.meta.ethereum.smartContractAddress,
+          '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+        );
+        assert.equal(result.meta.ethereum.blockNumber, pastEventsMock[index + 1].blockNumber);
+        assert.isAtLeast(result.meta.ethereum.blockConfirmation, 1);
+        assert.exists(result.meta.ethereum.blockTimestamp);
+      });
+    });
   });
 });

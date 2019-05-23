@@ -1,4 +1,3 @@
-import { Common as CommonTypes } from '@requestnetwork/types';
 import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -23,9 +22,6 @@ export interface IDataAccessOptions {
    * Defaults to DEFAULT_INTERVAL_TIME.
    */
   synchronizationIntervalTime?: number;
-
-  /** Log level */
-  logLevel?: CommonTypes.LogLevel;
 }
 
 /**
@@ -46,11 +42,6 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private lastSyncedTimeStamp: number;
 
   /**
-   * Log level
-   */
-  private logLevel: CommonTypes.LogLevel;
-
-  /**
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
@@ -58,7 +49,6 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
     const defaultOptions: IDataAccessOptions = {
-      logLevel: CommonTypes.LogLevel.ERROR,
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new InMemoryTransactionIndex(),
     };
@@ -73,7 +63,6 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       options.synchronizationIntervalTime!,
     );
     this.transactionIndex = options.transactionIndex!;
-    this.logLevel = options.logLevel!;
   }
 
   /**
@@ -331,43 +320,53 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   private async pushLocationsWithTopicsFromDataIds(
     dataIdsWithMeta: StorageTypes.IGetDataIdReturn | StorageTypes.IGetNewDataIdReturn,
-  ): Promise<void> {
+  ): Promise<void[]> {
     this.checkInitialized();
     if (!dataIdsWithMeta.result) {
       throw Error(`data from storage do not follow the standard, result is missing`);
     }
 
-    let currentIndex = 1;
-    const totalCount = dataIdsWithMeta.result.dataIds.length;
-    for (const dataId of dataIdsWithMeta.result.dataIds) {
-      const startTime = Date.now();
+    const dataIds = dataIdsWithMeta.result.dataIds;
+    // Get all the results
+    const resultReadMany = await this.storage.readMany(dataIds);
 
-      const resultRead = await this.storage.read(dataId);
-      if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-        // tslint:disable:no-console
-        console.info(
-          `[${currentIndex}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
-        );
-      }
-      currentIndex++;
-
-      if (!resultRead.result) {
-        throw Error(`data from storage do not follow the standard, result is missing`);
-      }
-
-      let block;
-      try {
-        block = JSON.parse(resultRead.result.content);
-      } catch (e) {
-        throw Error(`can't parse content of the dataId: ${e}`);
-      }
-      if (!block.header || !block.header.topics) {
-        throw Error(`data from storage do not follow the standard, storage location: "${dataId}"`);
-      }
-
-      // adds this transaction to the index, to enable retrieving it later.
-      await this.transactionIndex.addTransaction(dataId, block.header, resultRead.meta.timestamp);
+    if (!resultReadMany) {
+      throw Error(`data from storage do not follow the standard, result is missing`);
     }
+    if (resultReadMany.length !== dataIds.length) {
+      throw new Error(
+        `Wrong amount of data read from storage. Expected ${dataIds.length}, got ${
+          resultReadMany.length
+        }.`,
+      );
+    }
+
+    return Promise.all(
+      resultReadMany.map((resultRead, index) => {
+        if (!resultRead.result) {
+          throw Error(`data from storage do not follow the standard, result is missing`);
+        }
+
+        let block;
+        try {
+          block = JSON.parse(resultRead.result.content);
+        } catch (e) {
+          throw Error(`can't parse content of the dataId: ${e}`);
+        }
+        if (!block.header || !block.header.topics) {
+          throw Error(
+            `data from storage do not follow the standard, storage location: "${dataIds[index]}"`,
+          );
+        }
+
+        // adds this transaction to the index, to enable retrieving it later.
+        return this.transactionIndex.addTransaction(
+          dataIds[index],
+          block.header,
+          resultRead.meta.timestamp,
+        );
+      }),
+    );
   }
 
   /**
