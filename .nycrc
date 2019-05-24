@@ -1,18 +1,20 @@
 {
-  "extension": [
-    ".ts"
-  ],
   "include": [
     "src/*.ts",
     "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/*.d.ts"
+  ],
+  "extension": [
+    ".ts"
   ],
   "require": [
     "ts-node/register"
   ],
   "reporter": [
-    "text-summary",
     "json"
   ],
-  "sourceMap":true,
+  "sourceMap": true,
   "all": true
 }

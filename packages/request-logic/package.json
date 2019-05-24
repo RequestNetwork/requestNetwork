@@ -36,7 +36,6 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "example": "ts-node specs/example/example.ts"
   },
   "dependencies": {

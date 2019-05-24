@@ -46,8 +46,7 @@
     "deploy": "truffle --contracts_directory=./src deploy",
     "test:lib": "nyc mocha --timeout=5000 --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
     "test:sol": "truffle test --contracts_directory=./src test/contracts/*.js",
-    "test": "yarn run test:lib && yarn run test:sol",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
+    "test": "yarn run test:lib && yarn run test:sol"
   },
   "dependencies": {
     "@requestnetwork/types": "0.1.1-alpha.11",

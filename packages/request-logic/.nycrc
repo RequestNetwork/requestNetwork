@@ -3,10 +3,16 @@
     ".ts"
   ],
   "include": [
+    "src/*.ts",
     "src/**/*.ts"
   ],
-  "reporter": [
-    "text-summary"
+  "require": [
+    "ts-node/register"
   ],
+  "reporter": [
+    "text-summary",
+    "json"
+  ],
+  "sourceMap":true,
   "all": true
 }

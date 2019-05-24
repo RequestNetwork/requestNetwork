@@ -36,8 +36,7 @@
     "start:watch": "ts-node-dev src/server.ts",
     "clean": "shx rm -rf dist",
     "lint-staged": "lint-staged",
-    "lint": "tslint --project .",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
+    "lint": "tslint --project ."
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.1.1-alpha.12",

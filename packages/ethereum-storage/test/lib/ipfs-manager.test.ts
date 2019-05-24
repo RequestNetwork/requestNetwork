@@ -60,7 +60,7 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.verifyRepository(), Error, 'getaddrinfo ENOTFOUND');
   });
 
-  it('allows to connectSwarmPeer repository', async () => {
+  it.skip('allows to connectSwarmPeer repository', async () => {
     const peer = '/ip4/54.194.102.26/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
     const swarmPeerAdded = await ipfsManager.connectSwarmPeer(peer);
     assert.equal(peer, swarmPeerAdded);
