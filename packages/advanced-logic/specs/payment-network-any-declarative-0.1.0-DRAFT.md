@@ -12,7 +12,7 @@ Prerequisite: Having read the advanced logic specification (see [here](/packages
 This extension allows to declare payments and the refunds in any currency.
 The payments and refunds are documented by the payer and the payee of the request.
 
-This extension do not ensure payment detection, only a consensus is made between these the payer and the payee.
+This extension do not ensure payment detection, only a consensus is made between the payer and the payee.
 
 As a payment network, this extension allows to deduce a payment `balance` for the request. (see
 [Interpretation](#Interpretation))

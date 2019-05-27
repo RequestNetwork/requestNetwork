@@ -21,6 +21,15 @@ This extension allows linking content data to the request. The content data can 
 
 Specifications of Content Data can be found [here](/packages/advanced-logic/specs/content-data-0.1.0-DRAFT.md)
 
+### Declarative payments
+
+This extension allows the payments and the refunds to be made in any currency.
+The payments and refunds are documented by the payer and the payee of the request.
+
+This extension do not ensure payment detection, only a consensus is made between the payer and the payee.
+
+Specifications of Declarative payments can be found [here](/packages/advanced-logic/specs/payment-network-any-declarative-0.1.0-DRAFT.md)
+
 ### Address based bitcoin payments
 
 This extension allows the payments and the refunds to be made on the Bitcoin blockchain.
