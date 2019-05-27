@@ -11,7 +11,8 @@
   ],
   "reporter": [
     "text-summary",
-    "json"
+    "json",
+    "html"
   ],
   "sourceMap":true,
   "all": true
