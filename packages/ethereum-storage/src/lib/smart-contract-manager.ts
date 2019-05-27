@@ -145,7 +145,7 @@ export default class SmartContractManager {
         throw Error('Node not listening');
       }
     } catch (error) {
-      throw Error(`Ethereum node is not reachable: ${error})`);
+      throw Error(`Ethereum node is not reachable: ${error}`);
     }
   }
 

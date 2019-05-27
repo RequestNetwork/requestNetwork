@@ -81,6 +81,11 @@ describe('Ipfs manager', () => {
     assert.equal(hash2, hashReturned);
   });
 
+  it('allows to pin files to ipfs', async () => {
+    const pinnedHash = await ipfsManager.pin(hash);
+    assert.equal(hash, pinnedHash);
+  });
+
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
     let contentReturned = await ipfsManager.read(hash);

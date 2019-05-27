@@ -164,7 +164,20 @@ describe('EthereumStorage', () => {
         invalidHostWeb3Connection,
       );
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: "")',
+        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: ""',
+      );
+    });
+
+    it('cannot initialize if ethereum node not listening', async () => {
+      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        ipfsGatewayConnection,
+        web3Connection,
+      );
+
+      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = () => false;
+
+      await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
+        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Node not listening',
       );
     });
     it('cannot initialize if contracts are not deployed', async () => {
@@ -253,6 +266,15 @@ describe('EthereumStorage', () => {
       assert.deepEqual(result, resultExpected);
     });
 
+    it('cannot append if ipfs add fail', async () => {
+      ethereumStorage.ipfsManager.add = () => {
+        throw Error('expected error');
+      };
+      await expect(ethereumStorage.append(content1)).to.eventually.rejectedWith(
+        `Ipfs add request error: Error: expected error`,
+      );
+    });
+
     it('throws when append and addHashAndSizeToEthereum throws', async () => {
       ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
         StorageTypes.IEthereumMetadata
@@ -338,7 +360,30 @@ describe('EthereumStorage', () => {
       assert.exists(result.meta.ethereum.blockTimestamp);
     });
 
-    it('allows to retrieve all data id', async () => {
+    it('cannot read if ipfs read fail', async () => {
+      ethereumStorage.ipfsManager.read = () => {
+        throw Error('expected error');
+      };
+      await ethereumStorage.append(content1);
+      await expect(ethereumStorage.read(hash1)).to.eventually.rejectedWith(
+        `Ipfs read request error: Error: expected error`,
+      );
+    });
+
+    it('cannot read if ethereumMetadataCache.getDataIdMeta fail', async () => {
+      ethereumStorage.ethereumMetadataCache.getDataIdMeta = () => {
+        throw Error('expected error');
+      };
+      await expect(ethereumStorage.read(content1)).to.eventually.rejectedWith(
+        `Ethereum meta read request error: Error: expected error`,
+      );
+    });
+
+    it('allows to retrieve all data id (even if pin fail)', async () => {
+      ethereumStorage.ipfsManager.pin = () => {
+        throw Error('expected error');
+      };
+
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
       await ethereumStorage.append(content2);
@@ -462,7 +507,7 @@ describe('EthereumStorage', () => {
       await expect(
         ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection),
       ).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: "")',
+        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: ""',
       );
     });
 

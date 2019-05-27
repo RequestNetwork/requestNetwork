@@ -22,6 +22,7 @@ export default class IpfsManager {
   public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
   // eslint-disable-next-line spellcheck/spell-checker
   public readonly IPFS_API_REPOSITORY_VERIFY: string = '/api/v0/repo/verify';
+  public readonly IPFS_API_PIN: string = '/api/v0/pin/add';
 
   /**
    * Constructor
@@ -247,6 +248,72 @@ export default class IpfsManager {
           })
           .on('error', (e: string) => {
             reject(Error(`Ipfs read request error: ${e}`));
+          });
+
+        if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
+          getRequest.setTimeout(this.ipfsConnection.timeout);
+        }
+      },
+    );
+  }
+
+  /**
+   * Pin content on ipfs node from its hash
+   * @param hash Hash of the content
+   * @returns Promise resolving the hash pinned after pinning the content
+   */
+  public pin(hash: string): Promise<string> {
+    // Promise to wait for response from server
+    return new Promise<string>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_PIN}?arg=${hash}`;
+
+        const getRequest = this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+
+            // Response data
+            res.on('end', () => {
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
+              }
+              if (!jsonData || !jsonData.Pins) {
+                reject(Error('Ipfs pin request response has no Pins field'));
+              }
+
+              // Return the hash of the response
+              resolve(jsonData.Pins);
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs pin request response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs pin request response has been aborted'));
+            });
+          })
+          .on('timeout', () => {
+            // explicitly abort the request
+            getRequest.abort();
+            reject(Error('Ipfs pin request timeout'));
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs pin request has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs pin request error: ${e}`));
           });
 
         if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {

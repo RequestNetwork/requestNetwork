@@ -440,6 +440,15 @@ export default class EthereumStorage implements Types.IStorage {
           return null;
         }
 
+        // if the data looks right, we pin it in the IPFS node
+        try {
+          await this.ipfsManager.pin(hashAndSize.hash);
+        } catch (error) {
+          console.warn(
+            `Impossible to pin in the IPFS node the hash (${hashAndSize.hash}): ${error}`,
+          );
+        }
+
         // Get meta data from ethereum
         const ethereumMetadata = hashAndSize.meta;
 
