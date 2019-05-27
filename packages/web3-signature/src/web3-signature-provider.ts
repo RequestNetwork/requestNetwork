@@ -19,7 +19,8 @@ export default class EthereumPrivateKeySignatureProvider
   /** list of supported identity types */
   public supportedIdentityTypes: IdentityTypes.TYPE[] = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
 
-  private eth: any;
+  /** public for test purpose */
+  public eth: any;
 
   public constructor(web3Provider: any) {
     try {

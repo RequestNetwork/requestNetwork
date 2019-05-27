@@ -6,7 +6,13 @@ import Web3SignatureProvider from '../src/web3-signature-provider';
 
 import Utils from '@requestnetwork/utils';
 
-import { expect } from 'chai';
+const chaiAsPromised = require('chai-as-promised');
+const chai = require('chai');
+const spies = require('chai-spies');
+chai.use(spies);
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+const sandbox = chai.spy.sandbox();
 
 const id1Raw = {
   identity: {
@@ -20,23 +26,39 @@ const id1Raw = {
 };
 
 const data = { What: 'ever', the: 'data', are: true };
+const normalizedData = Utils.crypto.normalize(data);
 
-const nativeSignature = Utils.signature.sign(data, id1Raw.signatureParams);
+const mockEth: any = {
+  personal: {
+    async sign(): Promise<any> {
+      return;
+    },
+  },
+};
 
 /* tslint:disable:no-unused-expression */
 describe('web3-signature-provider', () => {
   describe('sign', () => {
     it('can sign', async () => {
+      const spy = sandbox.on(mockEth.personal, 'sign');
       const signProvider = new Web3SignatureProvider('http://localhost:8545');
 
-      const signedData: SignatureTypes.ISignedData = await signProvider.sign(data, id1Raw.identity);
+      // we mock eth as ganache don't support personal.sign anymore
+      signProvider.eth = mockEth;
 
-      expect(Utils.signature.recover(nativeSignature), 'signedData is wrong').to.be.deep.equal(
-        id1Raw.identity,
-      );
-      expect(Utils.signature.recover(signedData), 'signedData is wrong').to.be.deep.equal(
-        id1Raw.identity,
-      );
+      await signProvider.sign(data, id1Raw.identity);
+
+      expect(spy).to.have.been.called.once;
+      expect(spy).to.have.been.called.with(normalizedData, id1Raw.identity.value);
+    });
+
+    it('cannot sign with different identity than ethereum address', async () => {
+      const signProvider = new Web3SignatureProvider('http://localhost:8545');
+
+      await expect(
+        signProvider.sign(data, { type: 'otherType', value: '0x' } as any),
+        'should throw',
+      ).to.eventually.rejectedWith('Identity type not supported otherType');
     });
   });
 });

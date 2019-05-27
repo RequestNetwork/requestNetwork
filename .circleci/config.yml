@@ -3,7 +3,7 @@ version: 2.1
 references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
-  image_name: &image_name "circleci/python:3.7"
+  image_name: &image_name 'circleci/python:3.7'
   node_image: &node_image
     image: circleci/node:10
   ipfs_image: &ipfs_image
@@ -275,6 +275,26 @@ jobs:
           root: *working_directory
           paths:
             - packages/epk-signature/coverage/
+  test-web3-signature:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build web3-signature'
+          command: 'yarn workspace @requestnetwork/web3-signature run build'
+      - run:
+          name: 'Lint web3-signature'
+          command: 'yarn workspace @requestnetwork/web3-signature run lint'
+      - run:
+          name: 'Test web3-signature'
+          command: 'yarn workspace @requestnetwork/web3-signature run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/web3-signature/coverage/
   test-integration-test:
     docker:
       - *node_image
@@ -350,13 +370,13 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: "Build"
+          name: 'Build'
           command: docker build -f Dockerfile -t request-network .
       - aws-cli/install
       - aws-cli/configure
       - aws-ecr/ecr-login
       - run:
-          name: "Push"
+          name: 'Push'
           command: |
             export SHORT_SHA1=$(echo $CIRCLE_SHA1 | cut -c -7)
             docker tag request-network 519161485873.dkr.ecr.eu-west-1.amazonaws.com/request-network:${SHORT_SHA1}
@@ -409,6 +429,9 @@ workflows:
       - test-epk-signature:
           requires:
             - build
+      - test-web3-signature:
+          requires:
+            - build
       - test-usage-examples:
           requires:
             - build
@@ -426,6 +449,7 @@ workflows:
             - test-request-logic
             - test-advanced-logic
             - test-epk-signature
+            - test-web3-signature
             - test-request-node
             - test-utils
       - publish-prerelease:
@@ -438,6 +462,7 @@ workflows:
             - test-request-logic
             - test-advanced-logic
             - test-epk-signature
+            - test-web3-signature
             - test-request-node
             - test-utils
           filters:

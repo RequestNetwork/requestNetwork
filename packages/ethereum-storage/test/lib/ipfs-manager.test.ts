@@ -60,11 +60,15 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.verifyRepository(), Error, 'getaddrinfo ENOTFOUND');
   });
 
+  // PROT-547: skip as we don't have a DNS for our ipfs yet
   it.skip('allows to connectSwarmPeer repository', async () => {
     const peer = '/ip4/54.194.102.26/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
     const swarmPeerAdded = await ipfsManager.connectSwarmPeer(peer);
     assert.equal(peer, swarmPeerAdded);
+  });
 
+  it('cannot connectSwarmPeer if ipfs is not reachable', async () => {
+    const peer = '/ip4/54.194.102.26/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
     ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
     await assert.isRejected(ipfsManager.connectSwarmPeer(peer), Error, 'getaddrinfo ENOTFOUND');
   });
