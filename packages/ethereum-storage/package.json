@@ -59,7 +59,7 @@
     "web3-utils": "1.0.0-beta.37"
   },
   "devDependencies": {
-    "@types/bluebird": "3.5.25",
+    "@types/bluebird": "3.5.27",
     "@types/chai": "4.1.7",
     "@types/chai-as-promised": "7.1.0",
     "@types/chai-spies": "1.0.0",
