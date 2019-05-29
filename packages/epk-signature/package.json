@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.5",
+    "@types/mocha": "5.2.6",
     "@typescript-eslint/parser": "1.2.0",
     "amd-loader": "0.0.8",
     "awesome-typescript-loader": "5.2.1",

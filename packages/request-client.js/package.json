@@ -59,7 +59,7 @@
     "@types/bn.js": "4.11.4",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
-    "@types/mocha": "5.2.5",
+    "@types/mocha": "5.2.6",
     "@types/node-fetch": "2.1.4",
     "@typescript-eslint/parser": "1.2.0",
     "amd-loader": "0.0.8",
