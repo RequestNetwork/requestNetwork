@@ -76,7 +76,7 @@ const request = await requestNetwork.createRequest({
 - `requestInfo`: [RequestLogicTypes.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
 - `signer`: [IdentityTypes.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
-- `contentData`: any - optional data content of the request.
+- `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
 
 ### Get a request from its ID
@@ -187,6 +187,15 @@ const requestData = request.getData();
 ```
 
 `requestData.request`: [IRequestData](/packages/request-client.js/src/types.ts#L17)
+
+### Content Data
+
+A Request can have an optional Content Data.
+Content Data can be any type of data that can safely be JSON stringified (check the [JSON.stringify() documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#Description) for more details).
+
+This Content Data will be stored with the request, allowing relevant information about the request to be shared.
+
+Examples of standardized data formats that can be used in the request Content Data can be found at the [data-format](/packages/data-format/README.md) package.
 
 ### Payment and Refund detections
 
