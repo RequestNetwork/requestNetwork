@@ -1,5 +1,4 @@
-import { Common as CommonTypes } from '@requestnetwork/types';
-import { Storage as Types } from '@requestnetwork/types';
+import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
@@ -52,9 +51,9 @@ export default class SmartContractManager {
   private timeout: number;
 
   /**
-   * Log level
+   * Logger instance
    */
-  private logLevel: CommonTypes.LogLevel;
+  private logger: LogTypes.ILogger;
 
   /**
    * Constructor
@@ -67,22 +66,21 @@ export default class SmartContractManager {
     {
       maxConcurrency,
       getLastBlockNumberDelay,
-      logLevel,
+      logger,
       maxRetries,
       retryDelay,
     }: {
       maxConcurrency: number;
+      logger?: LogTypes.ILogger;
       getLastBlockNumberDelay?: number;
-      logLevel: CommonTypes.LogLevel;
       maxRetries?: number;
       retryDelay?: number;
     } = {
-      logLevel: CommonTypes.LogLevel.ERROR,
       maxConcurrency: Number.MAX_SAFE_INTEGER,
     },
   ) {
     this.maxConcurrency = maxConcurrency;
-    this.logLevel = logLevel;
+    this.logger = logger || new Utils.SimpleLogger();
 
     web3Connection = web3Connection || {};
 
@@ -131,7 +129,7 @@ export default class SmartContractManager {
       retryDelay || config.getEthereumRetryDelay(),
       maxRetries || config.getEthereumMaxRetries(),
       getLastBlockNumberDelay,
-      logLevel,
+      this.logger,
     );
   }
 
@@ -279,10 +277,7 @@ export default class SmartContractManager {
     // Read all event logs
     const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
 
-    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-      // tslint:disable:no-console
-      console.info(`${events.length} events fetched in getMetaFromEthereum`);
-    }
+    this.logger.debug(`${events.length} events fetched in getMetaFromEthereum`, ['ethereum']);
 
     const event = events.find((element: any) => element.returnValues.hash === contentHash);
     if (!event) {
@@ -349,10 +344,9 @@ export default class SmartContractManager {
     // Read all event logs
     let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
 
-    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-      // tslint:disable:no-console
-      console.info(`${events.length} events fetched in getHashesAndSizesFromEvents`);
-    }
+    this.logger.debug(`${events.length} events fetched in getHashesAndSizesFromEvents`, [
+      'ethereum',
+    ]);
 
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
@@ -396,10 +390,7 @@ export default class SmartContractManager {
         }),
       ]);
 
-      if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-        // tslint:disable:no-console
-        console.info(`Events from ${fromBlock} to ${toBlock} fetched`);
-      }
+      this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
 
       return events;
     } catch (e) {

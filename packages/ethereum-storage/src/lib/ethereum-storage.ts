@@ -1,5 +1,5 @@
-import { Common as CommonTypes } from '@requestnetwork/types';
-import { Storage as Types } from '@requestnetwork/types';
+import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import { getDefaultIpfsSwarmPeers, getMaxConcurrency } from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
@@ -34,9 +34,9 @@ export default class EthereumStorage implements Types.IStorage {
   public maxConcurrency: number;
 
   /**
-   * Log level
+   * Logger instance
    */
-  private logLevel: CommonTypes.LogLevel;
+  private logger: LogTypes.ILogger;
 
   private isInitialized: boolean = false;
 
@@ -51,26 +51,24 @@ export default class EthereumStorage implements Types.IStorage {
     web3Connection?: Types.IWeb3Connection,
     {
       getLastBlockNumberDelay,
-      logLevel,
+      logger,
       maxConcurrency,
       maxRetries,
       retryDelay,
     }: {
       getLastBlockNumberDelay?: number;
-      logLevel: CommonTypes.LogLevel;
+      logger?: LogTypes.ILogger;
       maxConcurrency?: number;
       maxRetries?: number;
       retryDelay?: number;
-    } = {
-      logLevel: CommonTypes.LogLevel.ERROR,
-    },
+    } = {},
   ) {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
-    this.logLevel = logLevel;
+    this.logger = logger || new Utils.SimpleLogger();
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
     this.smartContractManager = new SmartContractManager(web3Connection, {
       getLastBlockNumberDelay,
-      logLevel,
+      logger: this.logger,
       maxConcurrency: this.maxConcurrency,
       maxRetries,
       retryDelay,
@@ -90,6 +88,7 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     // check ethereum node connection - will throw if the ethereum node is not reachable
+    this.logger.info('Checking ethereum node connection', ['ethereum', 'sanity']);
     try {
       await this.smartContractManager.checkEthereumNodeConnection();
     } catch (error) {
@@ -97,6 +96,7 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     // check if contracts are deployed on ethereum
+    this.logger.info('Checking ethereum node contract deployment', ['ethereum', 'sanity']);
     try {
       await this.smartContractManager.checkContracts();
     } catch (error) {
@@ -104,6 +104,7 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     // check ipfs connection - will throw in case of error
+    this.logger.info('Checking ipfs connection', ['ipfs', 'sanity']);
     try {
       await this.ipfsManager.verifyRepository();
     } catch (error) {
@@ -112,18 +113,21 @@ export default class EthereumStorage implements Types.IStorage {
 
     // add request IPFS swarm peers (allows faster request data access)
     const swarmPeers = getDefaultIpfsSwarmPeers();
+    this.logger.info('Adding IPFS swarm peers', ['ipfs', 'sanity']);
+
+    // Log if swarm peers list is empty
+    if (!swarmPeers.length) {
+      this.logger.warn(`IPFS swarm peers list is empty`, ['ipfs']);
+    }
+
     await Promise.all(
       swarmPeers.map(
         async (swarmPeer: string): Promise<void> => {
           try {
             const swarmPeersAddress = await this.ipfsManager.connectSwarmPeer(swarmPeer);
-            if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-              // tslint:disable:no-console
-              console.info(`IPFS swarm peer added: (${swarmPeersAddress})`);
-            }
+            this.logger.debug(`IPFS swarm peer added: (${swarmPeersAddress})`, ['ipfs']);
           } catch (error) {
-            // tslint:disable:no-console
-            console.warn(`Warning: IPFS cannot add the swarm peer (${swarmPeer}): ${error}`);
+            this.logger.warn(`IPFS cannot add the swarm peer (${swarmPeer}): ${error}`, ['ipfs']);
           }
         },
       ),
@@ -285,11 +289,10 @@ export default class EthereumStorage implements Types.IStorage {
       async (dataId, currentIndex) => {
         const startTime = Date.now();
         const data = await this.read(dataId);
-        if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-          console.info(
-            `[${currentIndex}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
-          );
-        }
+        this.logger.debug(
+          `[${currentIndex}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
+          ['read'],
+        );
         return data;
       },
       {
@@ -340,16 +343,11 @@ export default class EthereumStorage implements Types.IStorage {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
-    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-      // tslint:disable:no-console
-      console.info('Fetching dataIds from Ethereum');
-    }
+    this.logger.debug('Fetching dataIds from Ethereum', ['ethereum']);
     const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
-    if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-      // tslint:disable:no-console
-      console.info('Fetching data size from IPFS and checking correctness');
-    }
+    this.logger.debug('Fetching data size from IPFS and checking correctness', ['ipfs']);
+
     const filteredDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
 
     // Save existing ethereum metadata to the ethereum metadata cache
@@ -406,14 +404,12 @@ export default class EthereumStorage implements Types.IStorage {
           const startTime = Date.now();
 
           hashContentSize = await this.ipfsManager.getContentLength(hashAndSize.hash);
-          if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-            // tslint:disable:no-console
-            console.info(
-              `[${currentIndex}/${totalCount}] getContentLength ${
-                hashAndSize.hash
-              }. Took ${Date.now() - startTime} ms`,
-            );
-          }
+          this.logger.debug(
+            `[${currentIndex}/${totalCount}] getContentLength ${
+              hashAndSize.hash
+            }. Took ${Date.now() - startTime} ms`,
+            ['ipfs'],
+          );
         } catch (error) {
           badDataInSmartContractError = `IPFS getContentLength: ${error.message || error} ${
             hashAndSize.hash
@@ -429,13 +425,13 @@ export default class EthereumStorage implements Types.IStorage {
          * In these cases, we simply ignore the values instead of throwing an error
          */
         if (badDataInSmartContractError || hashContentSize !== contentSizeDeclared) {
-          if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-            console.error(`Ignored invalid hash: ${hashAndSize.hash}`);
-            if (badDataInSmartContractError) {
-              console.error(badDataInSmartContractError);
-            } else {
-              console.info('The size of the content is not the size stored on ethereum');
-            }
+          this.logger.error(`Ignored invalid hash: ${hashAndSize.hash}`, ['ipfs']);
+          if (badDataInSmartContractError) {
+            this.logger.error(badDataInSmartContractError, ['ipfs']);
+          } else {
+            this.logger.warn('The size of the content is not the size stored on ethereum', [
+              'ipfs',
+            ]);
           }
           return null;
         }
@@ -444,8 +440,9 @@ export default class EthereumStorage implements Types.IStorage {
         try {
           await this.ipfsManager.pin(hashAndSize.hash);
         } catch (error) {
-          console.warn(
+          this.logger.warn(
             `Impossible to pin in the IPFS node the hash (${hashAndSize.hash}): ${error}`,
+            ['ipfs'],
           );
         }
 

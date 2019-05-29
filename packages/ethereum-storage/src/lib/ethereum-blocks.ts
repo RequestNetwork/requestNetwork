@@ -1,5 +1,4 @@
-import { Common as CommonTypes } from '@requestnetwork/types';
-import { Storage as Types } from '@requestnetwork/types';
+import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -38,9 +37,9 @@ export default class EthereumBlocks {
   private getLastBlockNumberMinDelay: number;
 
   /**
-   * Log level
+   * Logger instance
    */
-  private logLevel: CommonTypes.LogLevel;
+  private logger: LogTypes.ILogger;
 
   /**
    * Constructor
@@ -54,7 +53,7 @@ export default class EthereumBlocks {
     retryDelay: number,
     maxRetries: number,
     getLastBlockNumberMinDelay: number = 0,
-    logLevel: CommonTypes.LogLevel = CommonTypes.LogLevel.ERROR,
+    logger?: LogTypes.ILogger,
   ) {
     this.eth = eth;
 
@@ -62,7 +61,7 @@ export default class EthereumBlocks {
 
     this.getLastBlockNumberMinDelay = getLastBlockNumberMinDelay;
 
-    this.logLevel = logLevel;
+    this.logger = logger || new Utils.SimpleLogger();
 
     // Get retry parameter values from config
     this.retryDelay = retryDelay;
@@ -73,10 +72,7 @@ export default class EthereumBlocks {
       () =>
         Utils.retry(
           () => {
-            if (this.logLevel === CommonTypes.LogLevel.DEBUG) {
-              // tslint:disable:no-console
-              console.info(`Getting last block number`);
-            }
+            this.logger.debug(`Getting last block number`, ['ethereum', 'ethereum-blocks']);
             return this.eth.getBlockNumber();
           },
           {

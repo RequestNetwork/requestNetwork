@@ -1,4 +1,4 @@
-import { Common as CommonTypes } from '@requestnetwork/types';
+import { Log as LogTypes } from '@requestnetwork/types';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 
@@ -26,7 +26,7 @@ const defaultValues: any = {
     maxConcurrency: 500,
     retryDelay: 1000,
   },
-  logLevel: CommonTypes.LogLevel.ERROR,
+  logLevel: LogTypes.LogLevel.ERROR,
   server: {
     headers: '{}',
     port: 3000,
@@ -153,7 +153,7 @@ export function getMnemonic(): string {
  *
  * @returns the log level
  */
-export function getLogLevel(): CommonTypes.LogLevel {
+export function getLogLevel(): LogTypes.LogLevel {
   return argv.logLevel || process.env.LOG_LEVEL || defaultValues.logLevel;
 }
 
