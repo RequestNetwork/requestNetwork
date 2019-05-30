@@ -32,7 +32,10 @@ const config: any = {
       },
     },
     // ipfs nodes that already have the request files (allow to get the request data faster)
-    requestKnownIpfsNode: [],
+    requestKnownIpfsNode: [
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/ip4/108.129.54.77/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC',
+    ],
   },
   maxConcurrency: Number.MAX_SAFE_INTEGER,
 };
