@@ -343,7 +343,7 @@ export default class EthereumStorage implements Types.IStorage {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
-    this.logger.debug('Fetching dataIds from Ethereum', ['ethereum']);
+    this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
     const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
     this.logger.debug('Fetching data size from IPFS and checking correctness', ['ipfs']);
@@ -425,11 +425,11 @@ export default class EthereumStorage implements Types.IStorage {
          * In these cases, we simply ignore the values instead of throwing an error
          */
         if (badDataInSmartContractError || hashContentSize !== contentSizeDeclared) {
-          this.logger.error(`Ignored invalid hash: ${hashAndSize.hash}`, ['ipfs']);
+          this.logger.info(`Ignoring missing hash: ${hashAndSize.hash}`, ['ipfs']);
           if (badDataInSmartContractError) {
-            this.logger.error(badDataInSmartContractError, ['ipfs']);
+            this.logger.debug(badDataInSmartContractError, ['ipfs']);
           } else {
-            this.logger.warn('The size of the content is not the size stored on ethereum', [
+            this.logger.debug('The size of the content is not the size stored on ethereum', [
               'ipfs',
             ]);
           }

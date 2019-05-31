@@ -176,10 +176,10 @@ export function getLastBlockNumberDelay(): number {
  * @returns the maximum concurrency number
  */
 export function getStorageConcurrency(): number {
-  return (
+  return Number(
     argv.storageMaxConcurrency ||
-    process.env.STORAGE_MAX_CONCURRENCY ||
-    defaultValues.ethereumStorage.maxConcurrency
+      process.env.STORAGE_MAX_CONCURRENCY ||
+      defaultValues.ethereumStorage.maxConcurrency,
   );
 }
 
