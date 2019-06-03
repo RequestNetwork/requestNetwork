@@ -80,9 +80,14 @@ describe('Ipfs manager', () => {
     assert.equal(hash2, hashReturned);
   });
 
-  it('allows to pin files to ipfs', async () => {
-    const pinnedHash = await ipfsManager.pin(hash);
-    assert.equal(hash, pinnedHash);
+  it('allows to pin one file ipfs', async () => {
+    const pinnedHash = await ipfsManager.pin([hash]);
+    assert.equal(hash, pinnedHash[0]);
+  });
+
+  it('allows to pin multiple files to ipfs', async () => {
+    const pinnedHashes = await ipfsManager.pin([hash, hash2]);
+    assert.deepEqual([hash, hash2], pinnedHashes);
   });
 
   it('allows to read files from ipfs', async () => {

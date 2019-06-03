@@ -16,6 +16,9 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 const expect = chai.expect;
 
+const spies = require('chai-spies');
+chai.use(spies);
+
 const web3HttpProvider = require('web3-providers-http');
 const web3Utils = require('web3-utils');
 
@@ -575,6 +578,30 @@ describe('EthereumStorage', () => {
         assert.isAtLeast(result.meta.ethereum.blockConfirmation, 1);
         assert.exists(result.meta.ethereum.blockTimestamp);
       });
+    });
+
+    it('allows to IPFS pin a list of hashes', async () => {
+      const spy = chai.spy.returns(Promise.resolve(['']));
+      ethereumStorage.ipfsManager.pin = spy as (
+        hashes: string[],
+        overrideTimeout?: number | undefined,
+      ) => Promise<string[]>;
+
+      const pinConfig = {
+        delayBetweenCalls: 0,
+        maxSize: 100,
+        timeout: 1000,
+      };
+
+      let hashes = new Array(100).fill(hash1);
+
+      await ethereumStorage.pinDataToIPFS(hashes, pinConfig);
+
+      await expect(spy).to.have.been.called.once;
+
+      hashes = new Array(200).fill(hash1);
+      await ethereumStorage.pinDataToIPFS(hashes, pinConfig);
+      await expect(spy).to.have.been.called.exactly(3);
     });
   });
 });

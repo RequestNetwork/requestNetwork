@@ -31,6 +31,11 @@ const config: any = {
         timeout: 10000,
       },
     },
+    pinRequest: {
+      delayBetweenCalls: 1000,
+      maxSize: 500,
+      timeout: 30000,
+    },
     // ipfs nodes that already have the request files (allow to get the request data faster)
     requestKnownIpfsNode: [
       // eslint-disable-next-line spellcheck/spell-checker
@@ -110,4 +115,16 @@ export function getMaxConcurrency(): number {
  */
 export function getDefaultIpfsSwarmPeers(): string[] {
   return config.ipfs.requestKnownIpfsNode;
+}
+
+/**
+ * Retrieve from config the default pin request maximum size, timeout and wait time between calls
+ * @returns array of the swarm addresses
+ */
+export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
+  return {
+    delayBetweenCalls: config.ipfs.delayBetweenCalls,
+    maxSize: config.ipfs.maxSize,
+    timeout: config.ipfs.timeout,
+  };
 }

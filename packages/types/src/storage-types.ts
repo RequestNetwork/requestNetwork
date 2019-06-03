@@ -178,3 +178,10 @@ export enum StorageSystemType {
   /** Mock storage, in memory. Used for local development. Should not be used in production */
   IN_MEMORY_MOCK = 'inMemoryMock',
 }
+
+/** Configuration for the pinRequest method */
+export interface IPinRequestConfiguration {
+  delayBetweenCalls: number;
+  maxSize: number;
+  timeout: number;
+}

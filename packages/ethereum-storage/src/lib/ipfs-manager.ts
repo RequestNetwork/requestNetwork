@@ -259,17 +259,18 @@ export default class IpfsManager {
 
   /**
    * Pin content on ipfs node from its hash
-   * @param hash Hash of the content
+   * @param hashes Array of hashes of the content
+   * @param [timeout] An optional timeout for the IPFS pin request
    * @returns Promise resolving the hash pinned after pinning the content
    */
-  public pin(hash: string): Promise<string> {
+  public pin(hashes: string[], timeout?: number): Promise<string[]> {
     // Promise to wait for response from server
-    return new Promise<string>(
+    return new Promise<string[]>(
       (resolve, reject): void => {
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
-        }${this.IPFS_API_PIN}?arg=${hash}`;
+        }${this.IPFS_API_PIN}?arg=${hashes.join('&arg=')}`;
 
         const getRequest = this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
@@ -316,8 +317,8 @@ export default class IpfsManager {
             reject(Error(`Ipfs pin request error: ${e}`));
           });
 
-        if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
-          getRequest.setTimeout(this.ipfsConnection.timeout);
+        if (timeout || (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0)) {
+          getRequest.setTimeout(timeout || this.ipfsConnection.timeout);
         }
       },
     );

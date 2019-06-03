@@ -2,7 +2,7 @@
 import { Log as LogTypes } from '@requestnetwork/types';
 
 // The default log level to use if none is used at the constructor.
-const DEFAULT_LOG_LEVEL = LogTypes.LogLevel.INFO;
+const DEFAULT_LOG_LEVEL = LogTypes.LogLevel.DEBUG;
 
 /**
  * Simple logger that outputs content to the console.

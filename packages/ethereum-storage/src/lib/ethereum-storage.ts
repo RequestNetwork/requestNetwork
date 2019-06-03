@@ -1,7 +1,7 @@
 import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
-import { getDefaultIpfsSwarmPeers, getMaxConcurrency } from './config';
+import { getDefaultIpfsSwarmPeers, getMaxConcurrency, getPinRequestConfig } from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
@@ -350,6 +350,10 @@ export default class EthereumStorage implements Types.IStorage {
 
     const filteredDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
 
+    // Pin data asynchronously
+    // tslint:disable-next-line:no-floating-promises
+    this.pinDataToIPFS(filteredDataIdAndMeta.result.dataIds);
+
     // Save existing ethereum metadata to the ethereum metadata cache
     for (let i = 0; i < filteredDataIdAndMeta.result.dataIds.length; i++) {
       const ethereumMetadata = filteredDataIdAndMeta.meta.metaDataIds[i].ethereum;
@@ -363,6 +367,31 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     return filteredDataIdAndMeta;
+  }
+
+  /**
+   * Pin an array of IPFS hashes
+   *
+   * @param hashes An array of IPFS hashes to pin
+   */
+  public async pinDataToIPFS(
+    hashes: string[],
+    { delayBetweenCalls, maxSize, timeout }: Types.IPinRequestConfiguration = getPinRequestConfig(),
+  ): Promise<void> {
+    // How many slices we need from the total list of hashes to be under pinRequestMaxSize
+    const slices = Math.ceil(hashes.length / maxSize);
+
+    // Iterate over the hashes list, slicing it at pinRequestMaxSize sizes and pinning it
+    for (let i = 0; i < slices; i++) {
+      await new Promise((res): NodeJS.Timeout => setTimeout(() => res(), delayBetweenCalls));
+      const slice = hashes.slice(i * maxSize, (i + 1) * maxSize);
+      try {
+        await this.ipfsManager.pin(slice, timeout);
+        this.logger.debug(`Pinned ${slice.length} hashes to IPFS node.`);
+      } catch (error) {
+        this.logger.warn(`Failed pinning some hashes the IPFS node: ${error}`, ['ipfs']);
+      }
+    }
   }
 
   /**
@@ -434,16 +463,6 @@ export default class EthereumStorage implements Types.IStorage {
             ]);
           }
           return null;
-        }
-
-        // if the data looks right, we pin it in the IPFS node
-        try {
-          await this.ipfsManager.pin(hashAndSize.hash);
-        } catch (error) {
-          this.logger.warn(
-            `Impossible to pin in the IPFS node the hash (${hashAndSize.hash}): ${error}`,
-            ['ipfs'],
-          );
         }
 
         // Get meta data from ethereum
