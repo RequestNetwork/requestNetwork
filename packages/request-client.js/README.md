@@ -73,8 +73,8 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-- `requestInfo`: [RequestLogicTypes.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
-- `signer`: [IdentityTypes.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
@@ -104,7 +104,7 @@ const updatedBetween = {
 const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updatedBetween);
 ```
 
-- `identity`: [IIdentity](/packages/types/src/identity-types.ts#L2)
+- `identity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `updatedBetween`
   - `from`: number - get requests updated from this timestamp on
   - `to`: number - get requests updated before this timestamp
@@ -112,7 +112,7 @@ const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updated
 ### Get all requests linked to a topic
 
 ```javascript
-const identity = 'any_topic';
+const topic = 'any_topic';
 
 // Get only the request updated in this timestamp boundaries (in second)
 const updatedBetween = {
@@ -120,10 +120,10 @@ const updatedBetween = {
   to: 1548979200,
 };
 
-const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBetween);
+const requestsFromIdentity = await requestNetwork.fromTopic(topic, updatedBetween);
 ```
 
-- `identity`: [IIdentity](/packages/types/src/identity-types.ts#L2)
+- `topic`: string
 - `updatedBetween`
   - `from`: number - get requests updated from this timestamp on
   - `to`: number - get requests updated before this timestamp
@@ -131,36 +131,40 @@ const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBet
 ### Accept a request
 
 ```javascript
-await request.accept(signatureInfo);
+await request.accept(signerIdentity, refundInformation);
 ```
 
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `refundInformation`: any - Optional refund information to add
 
 ### Cancel a request
 
 ```javascript
-await request.cancel(signatureInfo);
+await request.cancel(signatureInfo, refundInformation);
 ```
 
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `refundInformation`: any - Optional refund information to add
 
 ### Increase the expected amount of a request
 
 ```javascript
-await request.increaseExpectedAmountRequest(amount, signatureInfo);
+await request.increaseExpectedAmountRequest(amount, signatureInfo, refundInformation);
 ```
 
 - `amount`: string
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `refundInformation`: any - Optional refund information to add
 
 ### Reduce the expected amount of a request
 
 ```javascript
-await request.reduceExpectedAmountRequest(amount, signatureInfo);
+await request.reduceExpectedAmountRequest(amount, signatureInfo, paymentInformation);
 ```
 
 - `amount`: string
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentit](/packages/types/src/identity-types.ts#L2)
+- `paymentInformation`: any - Optional payment information to add
 
 ### Get a request data
 
