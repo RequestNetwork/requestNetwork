@@ -229,15 +229,20 @@ export default class RequestLogic implements Types.IRequestLogic {
   public async getRequestFromId(requestId: string): Promise<Types.IReturnGetRequestFromId> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions;
+    let ignoredTransactions: any[] = [];
 
     // array of transaction without duplicates to avoid replay attack
     const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
       actions
         .map((t: any) => {
-          // We ignore the transaction.data that cannot be parsed
           try {
             return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
           } catch (e) {
+            // We ignore the transaction.data that cannot be parsed
+            ignoredTransactions.push({
+              reason: 'JSON parsing error',
+              transaction: t,
+            });
             return;
           }
         })
@@ -245,7 +250,14 @@ export default class RequestLogic implements Types.IRequestLogic {
       'action',
     );
     // Keeps the transaction ignored
-    const ignoredTransactions = actionsConfirmedWithoutDuplicates.duplicates;
+    ignoredTransactions = ignoredTransactions.concat(
+      actionsConfirmedWithoutDuplicates.duplicates.map(tx => {
+        return {
+          reason: 'Duplicated transaction',
+          transaction: tx,
+        };
+      }),
+    );
 
     // second parameter is null, because the first action must be a creation (no state expected)
     const request = actionsConfirmedWithoutDuplicates.uniqueItems.reduce(
@@ -259,7 +271,7 @@ export default class RequestLogic implements Types.IRequestLogic {
           );
         } catch (e) {
           // if an error occurs during the apply we ignore the action
-          ignoredTransactions.push(actionConfirmed.action);
+          ignoredTransactions.push({ reason: e.message, transaction: actionConfirmed });
           return requestState;
         }
       },
@@ -296,21 +308,33 @@ export default class RequestLogic implements Types.IRequestLogic {
     const allRequestAndMeta = Object.keys(getChannelsResult.result.transactions).map(channelId => {
       // Parses and removes corrupted or duplicated transactions
 
+      let ignoredTransactions: any[] = [];
+
       const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
         transactionsByChannel[channelId]
           .map((t: any) => {
-            // We ignore the transaction.data that cannot be parsed
             try {
               return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
             } catch (e) {
+              // We ignore the transaction.data that cannot be parsed
+              ignoredTransactions.push({
+                reason: 'JSON parsing error',
+                transaction: t,
+              });
               return;
             }
           })
           .filter((elem: any) => elem !== undefined),
         'action',
       );
+
       // Keeps the transaction ignored
-      const ignoredTransactions = actionsConfirmedWithoutDuplicates.duplicates;
+      ignoredTransactions = ignoredTransactions.concat(
+        actionsConfirmedWithoutDuplicates.duplicates.map(tx => ({
+          reason: 'Duplicated transaction',
+          transaction: tx,
+        })),
+      );
 
       // second parameter is null, because the first action must be a creation (no state expected)
       const request = actionsConfirmedWithoutDuplicates.uniqueItems.reduce(
@@ -324,7 +348,7 @@ export default class RequestLogic implements Types.IRequestLogic {
             );
           } catch (e) {
             // if an error occurs during the apply we ignore the action
-            ignoredTransactions.push(actionConfirmed);
+            ignoredTransactions.push({ reason: e.message, transaction: actionConfirmed });
             return requestState;
           }
         },
