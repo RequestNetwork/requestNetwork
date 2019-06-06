@@ -38,8 +38,15 @@ const config: any = {
     },
     // ipfs nodes that already have the request files (allow to get the request data faster)
     requestKnownIpfsNode: [
+      // Request IPFS node 1
       // eslint-disable-next-line spellcheck/spell-checker
       '/dns4/ipfs.request.network/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC',
+      // Request IPFS node 2
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
+      // Request API IPFS node
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-3.request.network/tcp/4001/ipfs/QmZSubr9XbQdzFtEnpmPE2KCVHJYSH5soZ987na1oDFjQM',
     ],
   },
   maxConcurrency: Number.MAX_SAFE_INTEGER,

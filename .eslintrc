@@ -43,6 +43,7 @@
           "hashmap",
           "keccak",
           "kovan",
+          "kubernetes",
           "localhost",
           "lodash",
           "lte",
