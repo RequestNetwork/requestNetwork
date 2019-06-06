@@ -16,6 +16,11 @@ export default class LocationTimestamp {
   private timestampLocations: ITimestampByStorageId = {};
 
   /**
+   * the timestamp of the latest transaction
+   */
+  private lastTransactionTimestamp: number | null = null;
+
+  /**
    * Function to push timestamp indexed by location
    *
    * @param dataId dataId of the block
@@ -24,6 +29,9 @@ export default class LocationTimestamp {
   public pushTimestampByLocation(dataId: string, timestamp: number): void {
     if (!this.timestampLocations[dataId]) {
       this.timestampLocations[dataId] = timestamp;
+    }
+    if (!this.lastTransactionTimestamp || timestamp > this.lastTransactionTimestamp) {
+      this.lastTransactionTimestamp = timestamp;
     }
   }
 
@@ -50,11 +58,19 @@ export default class LocationTimestamp {
     if (!timestamp) {
       throw Error(`Timestamp not know for the dataId ${dataId}`);
     }
-
     return (
       !boundaries ||
       ((boundaries.from === undefined || boundaries.from <= timestamp) &&
         (boundaries.to === undefined || boundaries.to >= timestamp))
     );
+  }
+
+  /**
+   * Function to get the most recent transaction timestamp
+   *
+   * @return timestamp of the most recent transaction
+   */
+  public getLastTransactionTimestamp(): number | null {
+    return this.lastTransactionTimestamp;
   }
 }

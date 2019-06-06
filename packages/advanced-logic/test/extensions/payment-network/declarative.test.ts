@@ -1,6 +1,6 @@
 import 'mocha';
 
-import PnAnyDeclarative from '../../../../src/extensions/payment-network/any/declarative';
+import PnAnyDeclarative from '../../../src/extensions/payment-network/declarative';
 
 // import { Extension as ExtensionTypes } from '@requestnetwork/types';
 
@@ -8,8 +8,8 @@ import Utils from '@requestnetwork/utils';
 
 import { expect } from 'chai';
 
-import * as TestDataDeclarative from '../../../utils/payment-network/any/generator-data-create';
-import * as TestData from '../../../utils/test-data-generator';
+import * as TestDataDeclarative from '../../utils/payment-network/any/generator-data-create';
+import * as TestData from '../../utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
 describe('extensions/payment-network/any/declarative', () => {

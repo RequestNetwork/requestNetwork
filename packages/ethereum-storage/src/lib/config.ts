@@ -6,12 +6,14 @@ const config: any = {
   ethereum: {
     default: 'private',
     gasPriceDefault: '4000000000',
+    maxRetries: 5,
     nodeUrlDefault: {
       private: {
         timeout: 30000,
         url: 'http://localhost:8545',
       },
     },
+    retryDelay: 0,
   },
   ipfs: {
     default: 'private',
@@ -29,7 +31,25 @@ const config: any = {
         timeout: 10000,
       },
     },
+    pinRequest: {
+      delayBetweenCalls: 1000,
+      maxSize: 500,
+      timeout: 30000,
+    },
+    // ipfs nodes that already have the request files (allow to get the request data faster)
+    requestKnownIpfsNode: [
+      // Request IPFS node 1
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs.request.network/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC',
+      // Request IPFS node 2
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
+      // Request API IPFS node
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-3.request.network/tcp/4001/ipfs/QmZSubr9XbQdzFtEnpmPE2KCVHJYSH5soZ987na1oDFjQM',
+    ],
   },
+  maxConcurrency: Number.MAX_SAFE_INTEGER,
 };
 
 /**
@@ -70,4 +90,48 @@ export function getDefaultEthereumNetwork(): string {
  */
 export function getDefaultEthereumGasPrice(): string {
   return config.ethereum.gasPriceDefault;
+}
+
+/**
+ * Retrieve from config the time to wait between query retries
+ * @returns the query retry delay
+ */
+export function getEthereumRetryDelay(): number {
+  return config.ethereum.retryDelay;
+}
+
+/**
+ * Retrieve from config the maximum number of query retries
+ * @returns the maximum amount of query retries
+ */
+export function getEthereumMaxRetries(): number {
+  return config.ethereum.maxRetries;
+}
+
+/**
+ * Retrieve from config the maximum number of concurrent calls made from the ethereum-storage
+ * @returns the maximum amount concurrent calls
+ */
+export function getMaxConcurrency(): number {
+  return config.maxConcurrency;
+}
+
+/**
+ * Retrieve from config the default swarm peers for ipfs
+ * @returns array of the swarm addresses
+ */
+export function getDefaultIpfsSwarmPeers(): string[] {
+  return config.ipfs.requestKnownIpfsNode;
+}
+
+/**
+ * Retrieve from config the default pin request maximum size, timeout and wait time between calls
+ * @returns array of the swarm addresses
+ */
+export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
+  return {
+    delayBetweenCalls: config.ipfs.delayBetweenCalls,
+    maxSize: config.ipfs.maxSize,
+    timeout: config.ipfs.timeout,
+  };
 }

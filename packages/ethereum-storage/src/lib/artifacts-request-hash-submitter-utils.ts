@@ -1,14 +1,20 @@
 import * as path from 'path';
-const artifacts = require('../../artifacts/artifacts.json');
-const ARTIFACTS_VERSION: string = artifacts.lastVersion;
+
+const artifactsRequestOpenHashSubmitter = require('../../artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json');
+const ARTIFACTS_OPEN_STORAGE_LAST_VERSION: string = artifactsRequestOpenHashSubmitter.lastVersion;
 
 /**
  * Retrieve the abi from the artifact of the used version
  * @returns the abi of the artifact as a json object
  */
 export function getContractAbi(): any {
-  const artifactFilename: string = artifacts[ARTIFACTS_VERSION].artifact;
-  const artifact = require(path.join('../../artifacts/', artifactFilename));
+  const artifactFilename: string =
+    artifactsRequestOpenHashSubmitter[ARTIFACTS_OPEN_STORAGE_LAST_VERSION].artifact;
+
+  const artifact = require(path.join(
+    '../../artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/',
+    artifactFilename,
+  ));
 
   // Check the abi exists inside the artifact file
   if (!artifact.abi) {
@@ -47,7 +53,8 @@ export function getCreationBlockNumber(networkName: string): number {
 function getDeploymentInformation(
   networkName: string,
 ): { address: string; creationBlockNumber: number } {
-  const deploymentInformation = artifacts[ARTIFACTS_VERSION].deployment[networkName];
+  const deploymentInformation =
+    artifactsRequestOpenHashSubmitter[ARTIFACTS_OPEN_STORAGE_LAST_VERSION].deployment[networkName];
 
   // Check the artifact has been deployed into the specified network
   if (!deploymentInformation) {

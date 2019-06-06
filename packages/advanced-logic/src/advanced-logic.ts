@@ -8,6 +8,7 @@ import {
 import contentData from './extensions/content-data';
 import addressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
 import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
+import declarative from './extensions/payment-network/declarative';
 
 /**
  * Module to manage Advanced logic extensions
@@ -19,6 +20,7 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
     addressBasedBtc,
     addressBasedTestnetBtc,
     contentData,
+    declarative,
   };
 
   /**
@@ -61,6 +63,15 @@ export default class AdvancedLogic implements Types.IAdvancedLogic {
     }
     if (id === ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
       return addressBasedTestnetBtc.applyActionToExtension(
+        extensionsState,
+        extensionAction,
+        requestState,
+        actionSigner,
+        timestamp,
+      );
+    }
+    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE) {
+      return declarative.applyActionToExtension(
         extensionsState,
         extensionAction,
         requestState,

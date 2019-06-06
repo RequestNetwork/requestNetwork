@@ -53,6 +53,25 @@ describe('Ipfs manager', () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection);
   });
 
+  it('allows to verify repository', async () => {
+    await ipfsManager.verifyRepository();
+
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    await assert.isRejected(ipfsManager.verifyRepository(), Error, 'getaddrinfo ENOTFOUND');
+  });
+
+  it('allows to connectSwarmPeer repository', async () => {
+    const peer = '/ip4/108.129.54.77/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
+    const swarmPeerAdded = await ipfsManager.connectSwarmPeer(peer);
+    assert.equal(peer, swarmPeerAdded);
+  });
+
+  it('cannot connectSwarmPeer if ipfs is not reachable', async () => {
+    const peer = '/ip4/108.129.54.77/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    await assert.isRejected(ipfsManager.connectSwarmPeer(peer), Error, 'getaddrinfo ENOTFOUND');
+  });
+
   it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     assert.equal(hash, hashReturned);
@@ -61,14 +80,24 @@ describe('Ipfs manager', () => {
     assert.equal(hash2, hashReturned);
   });
 
+  it('allows to pin one file ipfs', async () => {
+    const pinnedHash = await ipfsManager.pin([hash]);
+    assert.equal(hash, pinnedHash[0]);
+  });
+
+  it('allows to pin multiple files to ipfs', async () => {
+    const pinnedHashes = await ipfsManager.pin([hash, hash2]);
+    assert.deepEqual([hash, hash2], pinnedHashes);
+  });
+
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
     let contentReturned = await ipfsManager.read(hash);
-    assert.equal(content, contentReturned);
+    assert.equal(content, contentReturned.content);
 
     await ipfsManager.add(content2);
     contentReturned = await ipfsManager.read(hash2);
-    assert.equal(content2, contentReturned);
+    assert.equal(content2, contentReturned.content);
   });
 
   it('allows to get file size from ipfs', async () => {

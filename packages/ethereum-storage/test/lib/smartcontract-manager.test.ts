@@ -3,9 +3,13 @@ import 'mocha';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as artifactsUtils from '../../src/lib/artifacts-utils';
 import EthereumBlocks from '../../src/lib/ethereum-blocks';
 import SmartContractManager from '../../src/lib/smart-contract-manager';
+
+import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
+import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+
+// tslint:disable:no-magic-numbers
 
 // Extends chai for promises
 chai.use(chaiAsPromised);
@@ -19,6 +23,11 @@ const web3Connection: StorageTypes.IWeb3Connection = {
   timeout: 1000,
   web3Provider: provider,
 };
+
+// Contract instance necessary to get event logs
+const web3Utils = require('web3-utils');
+const web3Eth = require('web3-eth');
+const eth = new web3Eth(provider);
 
 const invalidHostProvider = new web3HttpProvider('http://nonexistent:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
@@ -45,19 +54,24 @@ let smartContractManager: SmartContractManager;
 
 const hashStr = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize = 29;
+const realSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize), 64);
 const fakeSize = 50;
+const fakeSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize), 64);
 const otherContent =
   'This is not a hash but but we should be able to add any content into Ethereum, the gas cost for the transaction will be higher';
 const otherSize = 100000;
+const otherSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(otherSize), 64);
 
-// Contract instance necessary to get event logs
-const web3Eth = require('web3-eth');
-const eth = new web3Eth(provider);
-
-const contract = new eth.Contract(
-  artifactsUtils.getContractAbi(),
-  artifactsUtils.getAddress('private'),
+const contractHashStorage = new eth.Contract(
+  artifactsRequestHashStorageUtils.getContractAbi(),
+  artifactsRequestHashStorageUtils.getAddress('private'),
 );
+
+const contractHashSubmitter = new eth.Contract(
+  artifactsRequestHashSubmitterUtils.getContractAbi(),
+  artifactsRequestHashSubmitterUtils.getAddress('private'),
+);
+const addressRequestHashSubmitter = contractHashSubmitter._address;
 
 // Define a mock for getPastEvents to be independant of the state of ganache instance
 const pastEventsMock = [
@@ -65,8 +79,9 @@ const pastEventsMock = [
     blockNumber: 0,
     event: 'NewHash',
     returnValues: {
+      feesParameters: realSizeBytes32Hex,
       hash: hashStr,
-      size: realSize,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xa',
   },
@@ -75,8 +90,9 @@ const pastEventsMock = [
     blockNumber: 4,
     event: 'NewHash',
     returnValues: {
+      feesParameters: fakeSizeBytes32Hex,
       hash: hashStr,
-      size: fakeSize,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xb',
   },
@@ -85,8 +101,9 @@ const pastEventsMock = [
     blockNumber: 6,
     event: 'NewHash',
     returnValues: {
+      feesParameters: otherSizeBytes32Hex,
       hash: otherContent,
-      size: otherSize,
+      hashSubmitter: addressRequestHashSubmitter,
     },
     transactionHash: '0xc',
   },
@@ -95,8 +112,9 @@ const pastEventsMock = [
     blockNumber: 9,
     event: 'NewHash',
     returnValues: {
+      feesParameters: otherSizeBytes32Hex,
       hash: otherContent,
-      size: otherSize,
+      hashSubmitter: addressRequestHashSubmitter,
     },
   },
 ];
@@ -120,7 +138,7 @@ const badEventsMock = [
     blockNumber: 2,
     event: 'NewHash',
     returnValues: {
-      size: fakeSize,
+      feesParameters: fakeSizeBytes32Hex,
     },
     transactionHash: '0xb',
   },
@@ -173,6 +191,8 @@ describe('SmartContractManager', () => {
   beforeEach(() => {
     smartContractManager = new SmartContractManager(web3Connection);
     smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
+    smartContractManager.ethereumBlocks.retryDelay = 0;
+    smartContractManager.ethereumBlocks.maxRetries = 0;
   });
 
   it('getMainAccount should return the main account', async () => {
@@ -182,11 +202,11 @@ describe('SmartContractManager', () => {
     assert.equal(mainAccount, accounts[0]);
   });
 
-  it('allows to add hashes to smart contract', async () => {
-    await smartContractManager.addHashAndSizeToEthereum(hashStr, realSize);
+  it('allows to add hashes to contractHashStorage', async () => {
+    await smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: realSize });
 
     // Reading last event log
-    const events = await contract.getPastEvents({
+    const events = await contractHashStorage.getPastEvents({
       event: 'NewHash',
       toBlock: 'latest',
     });
@@ -195,13 +215,14 @@ describe('SmartContractManager', () => {
     assert.equal(events.length, 1);
 
     assert.equal(events[0].returnValues.hash, hashStr);
-    assert.equal(events[0].returnValues.size, realSize);
+    assert.equal(events[0].returnValues.hashSubmitter, addressRequestHashSubmitter);
+    assert.equal(events[0].returnValues.feesParameters, realSizeBytes32Hex);
   });
 
-  it('allows to add other content than hash to smart contract', async () => {
-    await smartContractManager.addHashAndSizeToEthereum(otherContent, otherSize);
+  it('allows to add other content than hash to contractHashStorage', async () => {
+    await smartContractManager.addHashAndSizeToEthereum(otherContent, { contentSize: otherSize });
     // Reading last event log
-    const events = await contract.getPastEvents({
+    const events = await contractHashStorage.getPastEvents({
       event: 'NewHash',
       toBlock: 'latest',
     });
@@ -210,8 +231,22 @@ describe('SmartContractManager', () => {
     assert.equal(events.length, 1);
 
     assert.equal(events[0].returnValues.hash, otherContent);
-    assert.equal(events[0].returnValues.size, otherSize);
+    assert.equal(events[0].returnValues.hashSubmitter, addressRequestHashSubmitter);
+    assert.equal(events[0].returnValues.feesParameters, otherSizeBytes32Hex);
   });
+
+  it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
+    // This mock is used to ensure any block is never fetchable
+    smartContractManager.eth.getBlock = (_block: any): any => {
+      return null;
+    };
+
+    await assert.isRejected(
+      smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
+      Error,
+      'Maximum number of confirmation reached',
+    );
+  }).timeout(30000);
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
@@ -226,23 +261,18 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
     assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.equal(allHashesAndSizes[3].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
   });
 
   it('allows to get all hashes with options from', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 9
-    smartContractManager.eth.getBlock = (_block: any): any => {
-      return {
-        number: 9,
-      };
-    };
     const mockBlocksEthereum = [7, 30, 45, 87, 100, 150, 209, 234, 290, 306];
     const mockEth = {
       getBlock: (i: number): any => {
@@ -251,7 +281,12 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+    smartContractManager.ethereumBlocks.getBlock = (_block: any): any => {
+      return {
+        number: 9,
+      };
+    };
 
     const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
       from: 299,
@@ -260,7 +295,7 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 1);
     assert.equal(allHashesAndSizes[0].hash, otherContent);
-    assert.equal(allHashesAndSizes[0].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: otherSize });
   });
 
   it('allows to get all hashes with options to', async () => {
@@ -272,7 +307,7 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
       to: 299,
@@ -280,11 +315,11 @@ describe('SmartContractManager', () => {
     const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
     assert.equal(allHashesAndSizes.length, 3);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
   });
 
   it('allows to get all hashes with options from and to', async () => {
@@ -296,7 +331,7 @@ describe('SmartContractManager', () => {
       // tslint:disable-next-line:typedef
       getBlockNumber: () => 9,
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
       from: 10,
@@ -305,9 +340,9 @@ describe('SmartContractManager', () => {
     const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
     assert.equal(allHashesAndSizes.length, 2);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[1].hash, otherContent);
-    assert.equal(allHashesAndSizes[1].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: otherSize });
   });
 
   it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
@@ -318,14 +353,37 @@ describe('SmartContractManager', () => {
   it('addHashAndSizeToEthereum with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
     await assert.isRejected(
-      smartContractManager.addHashAndSizeToEthereum(hashStr, realSize),
+      smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: realSize }),
       Error,
     );
   });
 
   it('getHashesAndSizesFromEthereum with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
+    smartContractManager.ethereumBlocks.retryDelay = 0;
+    smartContractManager.ethereumBlocks.maxRetries = 0;
     await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum(), Error);
+  });
+
+  it('getHashesAndSizesFromEthereum rejects if fromBlock is larger than toBlock', async () => {
+    const mockBlocksEthereum = [7, 30, 45, 87, 100, 150, 209, 234, 290, 306];
+    const mockEth = {
+      getBlock: (i: number): any => {
+        return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
+      },
+      // tslint:disable-next-line:typedef
+      getBlockNumber: () => 9,
+    };
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+
+    await assert.isRejected(
+      smartContractManager.getHashesAndSizesFromEthereum({
+        from: 200,
+        to: 10,
+      }),
+      Error,
+      'toBlock must be larger than fromBlock',
+    );
   });
 
   it('initializes smartcontract-manager with default values should not throw an error', async () => {
@@ -348,12 +406,24 @@ describe('SmartContractManager', () => {
     );
   });
 
-  it('getAddress in artifacts-utils with a invalid host network should throw an error', async () => {
+  it('getAddress in artifactsRequestHashStorageUtils with a invalid host network should throw an error', async () => {
     assert.throws(
-      () => artifactsUtils.getAddress('nonexistent'),
+      () => artifactsRequestHashStorageUtils.getAddress('nonexistent'),
       Error,
       'No deployment for network',
     );
+  });
+
+  it('getAddress in artifactsRequestHashSubmitterUtils with a invalid host network should throw an error', async () => {
+    assert.throws(
+      () => artifactsRequestHashSubmitterUtils.getAddress('nonexistent'),
+      Error,
+      'No deployment for network',
+    );
+  });
+
+  it('getCreationBlockNumber in artifactsRequestHashSubmitterUtils', async () => {
+    assert.equal(artifactsRequestHashSubmitterUtils.getCreationBlockNumber('private'), 1);
   });
 
   it('allows to getMetaFromEthereum() a hash', async () => {
@@ -385,12 +455,12 @@ describe('SmartContractManager', () => {
   it('badly formatted events from web3 should throw an error', async () => {
     smartContractManager.requestHashStorage.getPastEvents = getBadEventsMock;
 
-    const allHashesPromises = await smartContractManager.getHashesAndSizesFromEthereum();
+    const allHashesPromise = smartContractManager.getHashesAndSizesFromEthereum();
 
     await assert.isRejected(
-      Promise.all(allHashesPromises),
+      allHashesPromise,
       Error,
-      `event is incorrect: doesn't have a hash or size`,
+      `event is incorrect: doesn't have a hash or feesParameters`,
     );
   });
 
@@ -412,13 +482,13 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
     assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.equal(allHashesAndSizes[3].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -431,13 +501,13 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
     assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.equal(allHashesAndSizes[3].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -450,13 +520,13 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
     assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.equal(allHashesAndSizes[3].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -469,13 +539,13 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
     assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.equal(allHashesAndSizes[3].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -488,13 +558,13 @@ describe('SmartContractManager', () => {
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.equal(allHashesAndSizes[0].size, realSize);
+    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
     assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.equal(allHashesAndSizes[1].size, fakeSize);
+    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
     assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.equal(allHashesAndSizes[2].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
     assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.equal(allHashesAndSizes[3].size, otherSize);
+    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
   });
 
   it('cannot get hashes and sizes from events with incorrect toBlock option', async () => {

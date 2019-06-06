@@ -1,5 +1,9 @@
+import { Log as LogTypes } from '@requestnetwork/types';
 import { Storage as StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
+
+// Load environment variables from .env file (without overriding variables already set)
+require('dotenv').config();
 
 /**
  * This contains default values used for the server and storage initialization
@@ -17,7 +21,12 @@ const defaultValues: any = {
       protocol: 'http',
       timeout: 10000,
     },
+
+    lastBlockNumberDelay: 10000,
+    maxConcurrency: 500,
+    retryDelay: 1000,
   },
+  logLevel: LogTypes.LogLevel.INFO,
   server: {
     headers: '{}',
     port: 3000,
@@ -127,7 +136,64 @@ export function getIpfsTimeout(): number {
  * @returns the mnemonic for HDWallet
  */
 export function getMnemonic(): string {
-  return process.env.MNEMONIC || defaultValues.wallet.mnemonic;
+  if (!process.env.MNEMONIC) {
+    if (getStorageNetworkId() !== 0) {
+      throw new Error(
+        'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
+      );
+    }
+    return defaultValues.wallet.mnemonic;
+  }
+  return process.env.MNEMONIC;
+}
+
+/**
+ * Get log level from command line argument, environment variables or default values.
+ * Note: not documented until PROT-501 is done.
+ *
+ * @returns the log level
+ */
+export function getLogLevel(): LogTypes.LogLevel {
+  return argv.logLevel || process.env.LOG_LEVEL || defaultValues.logLevel;
+}
+
+/**
+ * Get the minimum delay between getLastBlockNumber calls
+ *
+ * @returns the minimum delay between last block number fetches
+ */
+export function getLastBlockNumberDelay(): number {
+  return (
+    argv.lastBlockNumberDelay ||
+    process.env.LAST_BLOCK_NUMBER_DELAY ||
+    defaultValues.ethereumStorage.lastBlockNumberDelay
+  );
+}
+
+/**
+ * Get the number of concurrent calls the ethereum storage can make
+ *
+ * @returns the maximum concurrency number
+ */
+export function getStorageConcurrency(): number {
+  return Number(
+    argv.storageMaxConcurrency ||
+      process.env.STORAGE_MAX_CONCURRENCY ||
+      defaultValues.ethereumStorage.maxConcurrency,
+  );
+}
+
+/**
+ * Get the delay between subsequent Ethereum call retries
+ *
+ * @returns the delay between call retries
+ */
+export function getEthereumRetryDelay(): number {
+  return (
+    argv.ethereumRetryDelay ||
+    process.env.ETHEREUM_RETRY_DELAY ||
+    defaultValues.ethereumStorage.retryDelay
+  );
 }
 
 /**
@@ -156,6 +222,12 @@ export function getHelpMessage(): string {
         providerUrl (${
           defaultValues.ethereumStorage.ethereum.web3ProviderUrl
         })\tUrl of the web3 provider for Ethereum
+        LastBlockNumberDelay (${
+          defaultValues.ethereumStorage.lastBlockNumberDelay
+        } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
+        EthereumRetryDelay (${
+          defaultValues.ethereumStorage.retryDelay
+        })\t\t\tThe delay between subsequent call retries
 
       IPFS OPTIONS
         ipfsHost (${defaultValues.ethereumStorage.ipfs.host})\t\t\tHost of the IPFS gateway
@@ -166,6 +238,11 @@ export function getHelpMessage(): string {
         ipfsTimeout (${
           defaultValues.ethereumStorage.ipfs.timeout
         })\t\t\tTimeout threshold to connect to the IPFS gateway
+
+      OTHER OPTIONS
+        storageMaxConcurrency (${
+          defaultValues.ethereumStorage.concurrency
+        })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
 
     EXAMPLE
       yarn start --port 5000 --networkId 1 --ipfsPort 6000

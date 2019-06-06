@@ -1,8 +1,10 @@
 /** Interface of the storage */
 export interface IStorage {
+  initialize: () => Promise<void>;
   append: (data: string) => Promise<IOneDataIdAndMeta>;
   read: (dataId: string) => Promise<IOneContentAndMeta>;
-  getData: (options?: ITimestampBoundaries) => Promise<IGetDataReturn>;
+  readMany: (dataIds: string[]) => Promise<IOneContentAndMeta[]>;
+  getData: (options?: ITimestampBoundaries) => Promise<IGetDataIdContentAndMeta>;
   getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
 }
 
@@ -40,12 +42,25 @@ export interface IOneContentAndMeta {
   };
 }
 
+/** return interface for read  */
+export interface IOneDataIdContentAndMeta {
+  /** meta information */
+  meta: IMetaOneData;
+  /** result of the execution */
+  result: {
+    /** data id of the data persisted */
+    dataId: string;
+    /** the data itself */
+    data: string;
+  };
+}
+
 /** return interface for array return */
 export interface IGetDataIdReturn {
   /** meta information */
   meta: {
     /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaDataIds: IMetaOneData[];
+    metaData: IMetaOneData[];
   };
   result: {
     /** array of all data id stored */
@@ -70,10 +85,26 @@ export interface IGetNewDataIdReturn {
 export interface IGetDataReturn {
   /** meta information */
   meta: {
-    /** meta of the data (follow the position of the result.contents) */
+    /** meta of the data (follow the position of the result.data) */
     metaData: IMetaOneData[];
   };
   result: {
+    /** array of all data stored */
+    data: string[];
+  };
+}
+
+/** return interface for read  */
+export interface IGetDataIdContentAndMeta {
+  /** meta information */
+  meta: {
+    /** meta of the data (follow the position of the result.data) */
+    metaData: IMetaOneData[];
+  };
+  /** result of the execution */
+  result: {
+    /** array of all data id stored */
+    dataIds: string[];
     /** array of all data stored */
     data: string[];
   };
@@ -100,10 +131,15 @@ export interface IGetAllHashesAndSizes {
   meta: IEthereumMetadata;
   /** data id of the persisted data */
   hash: string;
-  /** data size of the persisted data */
-  size: number;
+  /** parameters used to compute fees */
+  feesParameters: IFeesParameters;
   /** timestamp of the data */
   timestamp: number;
+}
+
+/** Parameters used to compute the fees */
+export interface IFeesParameters {
+  contentSize: number;
 }
 
 /** Ethereum storage meta data */
@@ -170,4 +206,18 @@ export enum StorageSystemType {
 
   /** Mock storage, in memory. Used for local development. Should not be used in production */
   IN_MEMORY_MOCK = 'inMemoryMock',
+}
+
+/** interface of ipfs object */
+export interface IIpfsObject {
+  ipfsLinks: any[];
+  ipfsSize: number;
+  content: string;
+}
+
+/** Configuration for the pinRequest method */
+export interface IPinRequestConfiguration {
+  delayBetweenCalls: number;
+  maxSize: number;
+  timeout: number;
 }

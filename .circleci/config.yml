@@ -1,8 +1,9 @@
-version: 2
+version: 2.1
 
 references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
+  image_name: &image_name 'circleci/python:3.7'
   node_image: &node_image
     image: circleci/node:10
   ipfs_image: &ipfs_image
@@ -14,6 +15,10 @@ references:
       - '90000000'
       - '-m'
       - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+
+orbs:
+  gcp-gcr: circleci/gcp-gcr@0.3.0
+  gcp: circleci/gcp-cli@1.3.0
 
 jobs:
   build:
@@ -38,7 +43,7 @@ jobs:
       - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
-  test-request-client.js:
+  test-request-client:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -57,7 +62,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/request-client.js/.nyc_output
+            - packages/request-client.js/coverage/
   test-data-access:
     docker:
       - *node_image
@@ -77,7 +82,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/data-access/.nyc_output
+            - packages/data-access/coverage/
   test-data-format:
     docker:
       - *node_image
@@ -97,7 +102,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/data-format/.nyc_output
+            - packages/data-format/coverage/
   test-transaction-manager:
     docker:
       - *node_image
@@ -117,7 +122,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/transaction-manager/.nyc_output
+            - packages/transaction-manager/coverage/
   test-ethereum-storage:
     docker:
       - *node_image
@@ -151,7 +156,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/ethereum-storage/.nyc_output
+            - packages/ethereum-storage/coverage/
   test-request-logic:
     docker:
       - *node_image
@@ -171,7 +176,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/request-logic/.nyc_output
+            - packages/request-logic/coverage/
   test-advanced-logic:
     docker:
       - *node_image
@@ -191,7 +196,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/advanced-logic/.nyc_output
+            - packages/advanced-logic/coverage/
   test-request-node:
     docker:
       - *node_image
@@ -216,7 +221,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/request-node/.nyc_output
+            - packages/request-node/coverage/
   test-types:
     docker:
       - *node_image
@@ -249,7 +254,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/utils/.nyc_output
+            - packages/utils/coverage/
   test-epk-signature:
     docker:
       - *node_image
@@ -269,7 +274,27 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/epk-signature/.nyc_output
+            - packages/epk-signature/coverage/
+  test-web3-signature:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build web3-signature'
+          command: 'yarn workspace @requestnetwork/web3-signature run build'
+      - run:
+          name: 'Lint web3-signature'
+          command: 'yarn workspace @requestnetwork/web3-signature run lint'
+      - run:
+          name: 'Test web3-signature'
+          command: 'yarn workspace @requestnetwork/web3-signature run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/web3-signature/coverage/
   test-integration-test:
     docker:
       - *node_image
@@ -296,6 +321,22 @@ jobs:
       - run:
           name: 'Test integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run test'
+  test-usage-examples:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build usage-examples'
+          command: 'yarn workspace @requestnetwork/usage-examples run build'
+      - run:
+          name: 'Lint usage-examples'
+          command: 'yarn workspace @requestnetwork/usage-examples run lint'
+      - run:
+          name: 'Execute usage-examples'
+          command: 'yarn workspace @requestnetwork/usage-examples run start'
   publish-coverage:
     docker:
       - *node_image
@@ -304,34 +345,55 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Coverage data-access'
-          command: 'yarn workspace @requestnetwork/data-access run coverage'
-      - run:
-          name: 'Coverage data-format'
-          command: 'yarn workspace @requestnetwork/data-format run coverage'
-      - run:
-          name: 'Coverage ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run coverage'
-      - run:
-          name: 'Coverage request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run coverage'
-      - run:
-          name: 'Coverage advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run coverage'
-      - run:
-          name: 'Coverage epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run coverage'
-      # - run:
-      #     name: 'Coverage request-node'
-      #     command: 'yarn workspace @requestnetwork/request-node run coverage'
-      - run:
-          name: 'Coverage utils'
-          command: 'yarn workspace @requestnetwork/utils run coverage'
-      - run:
           name: 'Publish Coverage'
           command: 'yarn publish-coverage'
+  publish-prerelease:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Login to NPM registry'
+          command: |
+            npm set registry http://npm.request.network
+            echo "//npm.request.network/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: Publish packages
+          command: yarn publish-prerelease --registry http://npm.request.network
+  push-request-network-image:
+    executor: gcp/default
+    steps: 
+      - checkout
+      - setup_remote_docker
+      - gcp/install
+      - gcp/initialize
+      - run: 
+          name: "gcloud docker auth"
+          command: gcloud auth configure-docker  --project $GOOGLE_PROJECT_ID --quiet
+      - gcp-gcr/build-image:
+          image: request-network
+          registry-url: eu.gcr.io
+          tag: ${CIRCLE_SHA1:0:7}
+      - gcp-gcr/push-image:
+          image: request-network
+          registry-url: eu.gcr.io
+          tag: ${CIRCLE_SHA1:0:7}
+      - run:
+          name: Add Tag to image
+          command: | 
+            export BRANCH_TAG_NAME=$(echo ${CIRCLE_BRANCH} | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
+            gcloud container images add-tag  \
+              eu.gcr.io/${GOOGLE_PROJECT_ID}/request-network:${CIRCLE_SHA1:0:7} \
+              eu.gcr.io/${GOOGLE_PROJECT_ID}/request-network:${BRANCH_TAG_NAME} \
+              --quiet
+
 workflows:
   version: 2
+  push-request-network-image:
+    jobs:
+      - push-request-network-image
   build-and-test:
     jobs:
       - build
@@ -339,7 +401,7 @@ workflows:
           requires:
             - build
       # Test
-      - test-request-client.js:
+      - test-request-client:
           requires:
             - build
       - test-transaction-manager:
@@ -372,13 +434,19 @@ workflows:
       - test-epk-signature:
           requires:
             - build
+      - test-web3-signature:
+          requires:
+            - build
+      - test-usage-examples:
+          requires:
+            - build
       - test-integration-test:
           requires:
             - build
       # Publish the code coverage
       - publish-coverage:
           requires:
-            - test-request-client.js
+            - test-request-client
             - test-data-access
             - test-data-format
             - test-transaction-manager
@@ -386,5 +454,23 @@ workflows:
             - test-request-logic
             - test-advanced-logic
             - test-epk-signature
+            - test-web3-signature
             - test-request-node
             - test-utils
+      - publish-prerelease:
+          requires:
+            - test-request-client
+            - test-data-access
+            - test-data-format
+            - test-transaction-manager
+            - test-ethereum-storage
+            - test-request-logic
+            - test-advanced-logic
+            - test-epk-signature
+            - test-web3-signature
+            - test-request-node
+            - test-utils
+          filters:
+            branches:
+              only:
+                - development

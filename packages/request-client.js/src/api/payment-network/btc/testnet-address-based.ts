@@ -12,7 +12,7 @@ const PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED =
 const TESTNET_BITCOIN_NETWORK_ID = 3;
 
 /**
- * Entry point to handle payment networks with BTC based address
+ * Handle payment networks with testnet BTC based address extension
  *
  * @class PaymentNetworkBTCAddressBased
  */

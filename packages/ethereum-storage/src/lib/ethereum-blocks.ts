@@ -1,4 +1,5 @@
-import { Storage as Types } from '@requestnetwork/types';
+import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 /**
  * Manages every info linked to the ethereum blocks (blockNumber, blockTimestamp, confirmations ... )
@@ -6,6 +7,20 @@ import { Storage as Types } from '@requestnetwork/types';
 export default class EthereumBlocks {
   // 'web3-eth' object
   public eth: any;
+
+  /**
+   * Gets last block number
+   * The return value of this function will be cached for `lastBlockNumberDelay` milliseconds
+   *
+   * @return   blockNumber of the last block
+   */
+  public getLastBlockNumber: () => Promise<number>;
+
+  // The time to wait between query retries
+  public retryDelay: number;
+
+  // Maximum number of retries for a query
+  public maxRetries: number;
 
   /**
    * Cache of the blockTimestamp indexed by blockNumber
@@ -18,15 +33,55 @@ export default class EthereumBlocks {
   // Basically, the block where the contract has been created
   private firstSignificantBlockNumber: number;
 
+  // The minimum amount of time to wait between fetches of lastBlockNumber
+  private getLastBlockNumberMinDelay: number;
+
+  /**
+   * Logger instance
+   */
+  private logger: LogTypes.ILogger;
+
   /**
    * Constructor
    * @param eth eth object from web3
    * @param firstSignificantBlockNumber all the block before this one will be ignored
+   * @param getLastBlockNumberMinDelay the minimum delay to wait between fetches of lastBlockNumber
    */
-  public constructor(eth: any, firstSignificantBlockNumber: number) {
+  public constructor(
+    eth: any,
+    firstSignificantBlockNumber: number,
+    retryDelay: number,
+    maxRetries: number,
+    getLastBlockNumberMinDelay: number = 0,
+    logger?: LogTypes.ILogger,
+  ) {
     this.eth = eth;
 
     this.firstSignificantBlockNumber = firstSignificantBlockNumber;
+
+    this.getLastBlockNumberMinDelay = getLastBlockNumberMinDelay;
+
+    this.logger = logger || new Utils.SimpleLogger();
+
+    // Get retry parameter values from config
+    this.retryDelay = retryDelay;
+    this.maxRetries = maxRetries;
+
+    // Setup the throttled and retriable getLastBlockNumber function
+    this.getLastBlockNumber = Utils.cachedThrottle(
+      () =>
+        Utils.retry(
+          () => {
+            this.logger.debug(`Getting last block number`, ['ethereum', 'ethereum-blocks']);
+            return this.eth.getBlockNumber();
+          },
+          {
+            maxRetries: this.maxRetries,
+            retryDelay: this.retryDelay,
+          },
+        )(),
+      this.getLastBlockNumberMinDelay,
+    );
   }
 
   /**
@@ -41,7 +96,11 @@ export default class EthereumBlocks {
     }
 
     // if we don't know the information, let's get it
-    const block = await this.eth.getBlock(blockNumber);
+    // Use Utils.retry to rerun if getBlock fails
+    const block = await Utils.retry((bn: number) => this.eth.getBlock(bn), {
+      maxRetries: this.maxRetries,
+      retryDelay: this.retryDelay,
+    })(blockNumber);
     if (!block) {
       throw Error(`block ${blockNumber} not found`);
     }
@@ -61,20 +120,21 @@ export default class EthereumBlocks {
   public async getBlockNumbersFromTimestamp(
     timestamp: number,
   ): Promise<Types.IBlockNumbersInterval> {
-
     // check if we have the blockTimestamp of the first significant block number
     if (!this.blockTimestamp[this.firstSignificantBlockNumber]) {
       // update the blockTimestamp cache with the first significant block
       await this.getBlockTimestamp(this.firstSignificantBlockNumber);
     }
 
-    // update the last block number in memory
-    const lastBlockNumber: number = await this.getLastBlockNumber();
+    // update the second last block number in memory
+    // we get the number of the second last block instead of the last block
+    // because the information of the last block may not be retrieved by the web3 provider
+    const secondLastBlockNumber: number = await this.getSecondLastBlockNumber();
 
-    // check if we have the blockTimestamp of the last number
-    if (!this.blockTimestamp[lastBlockNumber]) {
-      // update the blockTimestamp cache with the last block
-      await this.getBlockTimestamp(lastBlockNumber);
+    // check if we have the blockTimestamp of the number of the second last block
+    if (!this.blockTimestamp[secondLastBlockNumber]) {
+      // update the blockTimestamp cache with the second last block
+      await this.getBlockTimestamp(secondLastBlockNumber);
     }
 
     // if timestamp before first significant block, return the significant block
@@ -85,11 +145,11 @@ export default class EthereumBlocks {
       };
     }
 
-    // if timestamp after last block, return lastBlockNumber
-    if (timestamp > this.blockTimestamp[lastBlockNumber]) {
+    // if timestamp after second last block, return secondLastBlockNumber
+    if (timestamp > this.blockTimestamp[secondLastBlockNumber]) {
       return {
-        blockAfter: lastBlockNumber,
-        blockBefore: lastBlockNumber,
+        blockAfter: secondLastBlockNumber,
+        blockBefore: secondLastBlockNumber,
       };
     }
 
@@ -97,7 +157,7 @@ export default class EthereumBlocks {
     // the boundaries start with the first significant block and the last block
     const { result, lowBlockNumber, highBlockNumber } = this.getKnownBlockNumbersFromTimestamp(
       timestamp,
-      lastBlockNumber,
+      secondLastBlockNumber,
     );
 
     // if the result is not found on the known blocks, we search by dichotomy between the two closest known blocks
@@ -108,11 +168,11 @@ export default class EthereumBlocks {
   }
 
   /**
-   * Gets last block number
-   * @return   blockNumber of the last block
+   * Gets second last block number
+   * @return   blockNumber of the second last block
    */
-  public async getLastBlockNumber(): Promise<number> {
-    return this.eth.getBlockNumber();
+  public async getSecondLastBlockNumber(): Promise<number> {
+    return (await this.getLastBlockNumber()) - 1;
   }
 
   /**
@@ -126,6 +186,20 @@ export default class EthereumBlocks {
       throw Error(`Error getting the confirmation number: ${e}`);
     }
   }
+
+  /**
+   * Get a block from ethereum
+   *
+   * @param blockNumber The block number
+   * @returns An Ethereum block
+   */
+  public async getBlock(blockNumber: number | string): Promise<any> {
+    return Utils.retry(this.eth.getBlock, {
+      maxRetries: this.maxRetries,
+      retryDelay: this.retryDelay,
+    })(blockNumber);
+  }
+
   /**
    * Gets the two known block numbers surrounding a timestamp
    *

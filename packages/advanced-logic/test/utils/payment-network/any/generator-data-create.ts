@@ -17,7 +17,7 @@ export const note = { transactionId: '123456789' };
 // ---------------------------------------------------------------------
 // actions
 export const actionCreationWithPaymentAndRefund = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     paymentInfo,
@@ -26,7 +26,7 @@ export const actionCreationWithPaymentAndRefund = {
   version: '0.1.0',
 };
 export const actionCreationOnlyPayment = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     paymentInfo,
@@ -34,7 +34,7 @@ export const actionCreationOnlyPayment = {
   version: '0.1.0',
 };
 export const actionCreationOnlyRefund = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     refundInfo,
@@ -42,21 +42,21 @@ export const actionCreationOnlyRefund = {
   version: '0.1.0',
 };
 export const actionCreationEmpty = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {},
   version: '0.1.0',
 };
 
 export const actionPaymentInstruction = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.ADD_PAYMENT_INSTRUCTION,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     paymentInfo,
   },
 };
 export const actionRefundInstruction = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.ADD_REFUND_INSTRUCTION,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     refundInfo,
@@ -64,7 +64,7 @@ export const actionRefundInstruction = {
 };
 
 export const actionDeclareSentPayment = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_PAYMENT,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     amount,
@@ -72,7 +72,7 @@ export const actionDeclareSentPayment = {
   },
 };
 export const actionDeclareSentRefund = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_REFUND,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     amount,
@@ -81,7 +81,7 @@ export const actionDeclareSentRefund = {
 };
 
 export const actionDeclareReceivedPayment = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_PAYMENT,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     amount,
@@ -89,7 +89,7 @@ export const actionDeclareReceivedPayment = {
   },
 };
 export const actionDeclareReceivedRefund = {
-  action: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_REFUND,
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {
     amount,
@@ -148,12 +148,12 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.ADD_PAYMENT_INSTRUCTION,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
         parameters: {
           paymentInfo,
         },
@@ -176,12 +176,12 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.ADD_REFUND_INSTRUCTION,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
         parameters: {
           refundInfo,
         },
@@ -205,12 +205,12 @@ export const extensionStateCreatedEmptySentPayment = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_PAYMENT,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
         parameters: {
           amount,
           note,
@@ -233,12 +233,12 @@ export const extensionStateCreatedEmptyReceivedRefund = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_REFUND,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
         parameters: {
           amount,
           note,
@@ -261,12 +261,12 @@ export const extensionStateCreatedEmptySentRefund = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_SENT_REFUND,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
         parameters: {
           amount,
           note,
@@ -289,12 +289,12 @@ export const extensionStateCreatedEmptyReceivedPayment = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAnyDeclarativeBased.ACTION.DECLARE_RECEIVED_PAYMENT,
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
         parameters: {
           amount,
           note,

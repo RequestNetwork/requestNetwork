@@ -7,7 +7,7 @@ import BitcoinInfoRetriever from './bitcoin-info-retriever';
 const bigNumber: any = require('bn.js');
 
 /**
- * Entry point to handle payment networks with BTC based address
+ * Handle payment networks with BTC based address extension
  */
 export default class PaymentNetworkBTCAddressBased {
   private extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased;

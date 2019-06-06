@@ -7,5 +7,10 @@
   },
   "include": ["./src/lib/**/*", "./artifacts/**/*"],
   "references": [{ "path": "../types" }, { "path": "../utils" }],
-  "files": ["./artifacts/0.1.0.json", "./artifacts/artifacts.json"]
+  "files": [
+    "./artifacts/RequestHashStorage/0.1.0.json",
+    "./artifacts/RequestHashStorage/artifacts.json",
+    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",
+    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json"
+  ]
 }

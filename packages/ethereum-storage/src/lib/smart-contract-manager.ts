@@ -1,18 +1,23 @@
-import { Storage as Types } from '@requestnetwork/types';
+import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as artifactsUtils from './artifacts-utils';
+import * as Bluebird from 'bluebird';
+import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
+import * as artifactsRequestHashSubmitterUtils from './artifacts-request-hash-submitter-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 
 const web3Eth = require('web3-eth');
+const web3Utils = require('web3-utils');
 
 const bigNumber: any = require('bn.js');
 
-// Confirmation to wait in order to create metadata of the new added hash
-// TODO(PROT-252): Find the optimal value or fix to use 1
-const CONFIRMATION_TO_WAIT = 2;
+// Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
+// 23 is the number of call of the transaction's confirmation event function
+// if higher the promise may block since the confirmation event function will not be called anymore
+const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
 const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 results';
+const LENGTH_BYTES32_STRING = 64;
 
 /**
  * Manages the smart contract used by the storage layer
@@ -21,28 +26,62 @@ const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 res
 export default class SmartContractManager {
   public eth: any;
   public requestHashStorage: any;
+  public requestHashSubmitter: any;
+
   /**
    * Handles the block numbers and blockTimestamp
    */
   public ethereumBlocks: EthereumBlocks;
 
+  /**
+   * Maximum number of concurrent calls
+   */
+  public maxConcurrency: number;
+
   protected networkName: string = '';
-  protected smartContractAddress: string;
+  protected hashStorageAddress: string;
+  protected hashSubmitterAddress: string;
 
   // Block where the contract has been created
   // This value is stored in config file for each network
   // This value is used to optimize past event retrieval
-  private creationBlockNumber: number;
+  private creationBlockNumberHashStorage: number;
 
   // Timeout threshold when connecting to Web3 provider
   private timeout: number;
 
   /**
+   * Logger instance
+   */
+  private logger: LogTypes.ILogger;
+
+  /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
+   * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
    * If values are missing, private network is used as http://localhost:8545
    */
-  public constructor(web3Connection?: Types.IWeb3Connection) {
+  public constructor(
+    web3Connection?: Types.IWeb3Connection,
+    {
+      maxConcurrency,
+      getLastBlockNumberDelay,
+      logger,
+      maxRetries,
+      retryDelay,
+    }: {
+      maxConcurrency: number;
+      logger?: LogTypes.ILogger;
+      getLastBlockNumberDelay?: number;
+      maxRetries?: number;
+      retryDelay?: number;
+    } = {
+      maxConcurrency: Number.MAX_SAFE_INTEGER,
+    },
+  ) {
+    this.maxConcurrency = maxConcurrency;
+    this.logger = logger || new Utils.SimpleLogger();
+
     web3Connection = web3Connection || {};
 
     try {
@@ -66,19 +105,67 @@ export default class SmartContractManager {
       throw Error(`The network id ${web3Connection.networkId} doesn't exist`);
     }
 
-    this.smartContractAddress = artifactsUtils.getAddress(this.networkName);
+    this.hashStorageAddress = artifactsRequestHashStorageUtils.getAddress(this.networkName);
+    this.hashSubmitterAddress = artifactsRequestHashSubmitterUtils.getAddress(this.networkName);
 
     // Initialize smart contract instance
     this.requestHashStorage = new this.eth.Contract(
-      artifactsUtils.getContractAbi(),
-      this.smartContractAddress,
+      artifactsRequestHashStorageUtils.getContractAbi(),
+      this.hashStorageAddress,
+    );
+    this.requestHashSubmitter = new this.eth.Contract(
+      artifactsRequestHashSubmitterUtils.getContractAbi(),
+      this.hashSubmitterAddress,
     );
 
     this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
 
-    this.creationBlockNumber = artifactsUtils.getCreationBlockNumber(this.networkName) || 0;
+    this.creationBlockNumberHashStorage =
+      artifactsRequestHashStorageUtils.getCreationBlockNumber(this.networkName) || 0;
 
-    this.ethereumBlocks = new EthereumBlocks(this.eth, this.creationBlockNumber);
+    this.ethereumBlocks = new EthereumBlocks(
+      this.eth,
+      this.creationBlockNumberHashStorage,
+      retryDelay || config.getEthereumRetryDelay(),
+      maxRetries || config.getEthereumMaxRetries(),
+      getLastBlockNumberDelay,
+      this.logger,
+    );
+  }
+
+  /**
+   * Check if the ethereum node is accessible
+   * @return Promise resolving if the node is accessible, throw otherwise
+   */
+  public async checkEthereumNodeConnection(): Promise<void> {
+    try {
+      if (!(await this.eth.net.isListening())) {
+        throw Error('Node not listening');
+      }
+    } catch (error) {
+      throw Error(`Ethereum node is not reachable: ${error}`);
+    }
+  }
+
+  /**
+   * Check if the contracts are deployed and configured on ethereum
+   * @return Promise resolving if the contracts are deployed and configured, throws otherwise
+   */
+  public async checkContracts(): Promise<void> {
+    try {
+      const isSubmitterWhitelisted = await this.requestHashStorage.methods
+        .isWhitelisted(this.hashSubmitterAddress)
+        .call();
+
+      if (!isSubmitterWhitelisted) {
+        throw Error('The hash submitter not whitelisted in request Hash Storage contract');
+      }
+
+      // throw if requestHashSubmitter is not deployed
+      await this.requestHashSubmitter.methods.getFeesAmount(0).call();
+    } catch (error) {
+      throw Error(`Contracts are not deployed or not well configured: ${error}`);
+    }
   }
 
   /**
@@ -100,15 +187,15 @@ export default class SmartContractManager {
   }
 
   /**
-   * Adds hash to smart contract from content hash and content size
+   * Adds hash to smart contract from content hash and content feesParameters
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
-   * @param contentSize Size of the content stored used to compute storage fee
+   * @param feesParameters parameters used to compute storage fee
    * @param gasPrice Replace the default gas price
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
   public async addHashAndSizeToEthereum(
     contentHash: string,
-    contentSize: number,
+    feesParameters: Types.IFeesParameters,
     gasPrice?: number,
   ): Promise<Types.IEthereumMetadata> {
     // Get the account for the transaction
@@ -118,18 +205,28 @@ export default class SmartContractManager {
     // Throws an error if timeout is reached
     const fee = await Promise.race([
       Utils.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
-      this.requestHashStorage.methods.getFeesAmount(contentSize).call(),
+      this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
     ]);
 
     const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
+
+    // parse the fees parameters to hex bytes
+    const feesParametersAsBytes = web3Utils.padLeft(
+      web3Utils.toHex(feesParameters.contentSize),
+      LENGTH_BYTES32_STRING,
+    );
 
     // Send transaction to contract
     // TODO(PROT-181): Implement a log manager for the library
     // use it for the different events (error, transactionHash, receipt and confirmation)
     return new Promise(
       (resolve, reject): any => {
-        this.requestHashStorage.methods
-          .submitHash(contentHash, contentSize)
+        // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
+        // When set to true, we use it to ignore next confirmation event function call
+        let ethereumMetadataCreated: boolean = false;
+
+        this.requestHashSubmitter.methods
+          .submitHash(contentHash, feesParametersAsBytes)
           .send({
             from: account,
             gas: '100000',
@@ -140,22 +237,31 @@ export default class SmartContractManager {
             reject(Error(`Ethereum transaction error:  ${transactionError}`));
           })
           .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-            // TODO(PROT-252): search for the best number of confirmation to wait for
-            if (confirmationNumber >= CONFIRMATION_TO_WAIT) {
+            if (!ethereumMetadataCreated) {
               const gasFee = new bigNumber(receiptAfterConfirmation.gasUsed).mul(
                 new bigNumber(gasPriceToUse),
               );
               const cost = gasFee.add(new bigNumber(fee));
 
-              resolve(
-                this.createEthereumMetaData(
-                  receiptAfterConfirmation.blockNumber,
-                  receiptAfterConfirmation.transactionHash,
-                  cost.toString(),
-                  fee,
-                  gasFee.toString(),
-                ),
-              );
+              // Try to create ethereum metadata
+              // If the promise rejects, which is likely to happen because the last block is not fetchable
+              // we retry the next event function call
+              this.createEthereumMetaData(
+                receiptAfterConfirmation.blockNumber,
+                receiptAfterConfirmation.transactionHash,
+                cost.toString(),
+                fee,
+                gasFee.toString(),
+              )
+                .then((ethereumMetadata: Types.IEthereumMetadata) => {
+                  ethereumMetadataCreated = true;
+                  resolve(ethereumMetadata);
+                })
+                .catch(e => {
+                  if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
+                    reject(Error(`Maximum number of confirmation reached: ${e}`));
+                  }
+                });
             }
           });
       },
@@ -169,7 +275,9 @@ export default class SmartContractManager {
    */
   public async getMetaFromEthereum(contentHash: string): Promise<Types.IEthereumMetadata> {
     // Read all event logs
-    const events = await this.recursiveGetPastEvents(this.creationBlockNumber, 'latest');
+    const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
+
+    this.logger.debug(`${events.length} events fetched in getMetaFromEthereum`, ['ethereum']);
 
     const event = events.find((element: any) => element.returnValues.hash === contentHash);
     if (!event) {
@@ -188,7 +296,7 @@ export default class SmartContractManager {
   public async getHashesAndSizesFromEthereum(
     options?: Types.ITimestampBoundaries,
   ): Promise<Types.IGetAllHashesAndSizes[]> {
-    let fromBlock = this.creationBlockNumber;
+    let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
 
     // get fromBlock from the timestamp given in options
@@ -207,6 +315,12 @@ export default class SmartContractManager {
       toBlock = optionToBlockNumbers.blockBefore;
     }
 
+    if (toBlock && toBlock < fromBlock) {
+      throw Error(
+        `toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`,
+      );
+    }
+
     return this.getHashesAndSizesFromEvents(fromBlock, toBlock);
   }
 
@@ -221,17 +335,28 @@ export default class SmartContractManager {
     fromBlock: number,
     toBlock?: number | string,
   ): Promise<any[]> {
-    fromBlock = fromBlock < this.creationBlockNumber ? this.creationBlockNumber : fromBlock;
+    fromBlock =
+      fromBlock < this.creationBlockNumberHashStorage
+        ? this.creationBlockNumberHashStorage
+        : fromBlock;
     toBlock = toBlock || 'latest';
 
     // Read all event logs
     let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
 
+    this.logger.debug(`${events.length} events fetched in getHashesAndSizesFromEvents`, [
+      'ethereum',
+    ]);
+
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
 
-    const eventsWithMetaData = events.map((eventItem: any) =>
-      this.checkAndAddMetaDataToEvent(eventItem),
+    const eventsWithMetaData = await Bluebird.map(
+      events,
+      (eventItem: any) => this.checkAndAddMetaDataToEvent(eventItem),
+      {
+        concurrency: this.maxConcurrency,
+      },
     );
 
     return eventsWithMetaData;
@@ -265,9 +390,10 @@ export default class SmartContractManager {
         }),
       ]);
 
+      this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
+
       return events;
     } catch (e) {
-
       if (e.toString().includes(WEB3_API_ERROR_MORE_THAN_1000_RESULTS)) {
         const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
         const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
@@ -276,9 +402,13 @@ export default class SmartContractManager {
           toBlockNumber,
         );
 
-        return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise]).then(halves => Utils.flatten2DimensionsArray(halves)).catch(err => { throw(err); });
+        return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise])
+          .then(halves => Utils.flatten2DimensionsArray(halves))
+          .catch(err => {
+            throw err;
+          });
       } else {
-        throw(e);
+        throw e;
       }
     }
   }
@@ -291,24 +421,29 @@ export default class SmartContractManager {
    */
   private async checkAndAddMetaDataToEvent(
     event: any,
-  ): Promise<{ hash: string; meta: Types.IEthereumMetadata; size: number }> {
+  ): Promise<{
+    hash: string;
+    meta: Types.IEthereumMetadata;
+    feesParameters: Types.IFeesParameters;
+  }> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
     // because you can add empty string as hash or 0 as size in the storage smart contract
     if (
       typeof event.returnValues === 'undefined' ||
       typeof event.returnValues.hash === 'undefined' ||
-      typeof event.returnValues.size === 'undefined'
+      typeof event.returnValues.feesParameters === 'undefined'
     ) {
-      throw Error(`event is incorrect: doesn't have a hash or size`);
+      throw Error(`event is incorrect: doesn't have a hash or feesParameters`);
     }
 
+    const contentSize = web3Utils.hexToNumber(event.returnValues.feesParameters);
     const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
 
     return {
+      feesParameters: { contentSize },
       hash: event.returnValues.hash,
       meta,
-      size: +event.returnValues.size,
     };
   }
 
@@ -366,7 +501,7 @@ export default class SmartContractManager {
       fee,
       gasFee,
       networkName: this.networkName,
-      smartContractAddress: this.smartContractAddress,
+      smartContractAddress: this.hashStorageAddress,
       transactionHash,
     };
   }
@@ -386,7 +521,8 @@ export default class SmartContractManager {
       let blockObject;
       try {
         // Otherwise, we get the number of the block with getBlock web3 function
-        blockObject = await this.eth.getBlock(block);
+        // Use Utils.retry to rerun if getBlock fails
+        blockObject = await this.ethereumBlocks.getBlock(block);
       } catch (e) {
         // getBlock can throw in certain case
         // For example, if the block describer is "pending", we're not able to get the number of the block

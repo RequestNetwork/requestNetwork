@@ -532,7 +532,12 @@ describe('index', () => {
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
-          ignoredTransactions: [{ action: actionReduce2, timestamp: 4 }],
+          ignoredTransactions: [
+            {
+              reason: 'Duplicated transaction',
+              transaction: { action: actionReduce2, timestamp: 4 },
+            },
+          ],
           transactionManagerMeta: meta,
         },
         result: {
@@ -732,58 +737,14 @@ describe('index', () => {
     });
 
     it('should ignored the corrupted data (not parsable JSON)', async () => {
-      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta: {},
-        result: {
-          transactions: [
-            {
-              timestamp: 2,
-              transaction: { data: '{NOT parsable}' },
-            },
-          ],
-        },
-      });
-
-      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
-          listActions,
-        persistTransaction: chai.spy(),
+      const transactionNotParsable = {
+        timestamp: 2,
+        transaction: { data: '{NOT parsable}' },
       };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManagerGet,
-        TestData.fakeSignatureProvider,
-      );
-
-      const request = await requestLogic.getRequestFromId(requestId);
-      expect(request.result.request, 'request should be null').to.be.null;
-    });
-
-    it('should ignored the corrupted data (e.g: wrong properties)', async () => {
-      const actionCreateCorrupted: any = Utils.signature.sign(
-        {
-          name: Types.ACTION_NAME.CREATE,
-          parameters: {
-            currency: Types.CURRENCY.ETH,
-            expectedAmount: 'NOT A NUMBER',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544426030,
-          },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
-
       const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta: {},
         result: {
-          transactions: [
-            {
-              timestamp: 2,
-              transaction: { data: JSON.stringify(actionCreateCorrupted) },
-            },
-          ],
+          transactions: [transactionNotParsable],
         },
       });
 
@@ -804,7 +765,66 @@ describe('index', () => {
       ).to.be.equal(1);
       expect(
         request.meta.ignoredTransactions && request.meta.ignoredTransactions[0],
-      ).to.be.deep.equal(actionCreateCorrupted);
+      ).to.be.deep.equal({
+        reason: 'JSON parsing error',
+        transaction: transactionNotParsable,
+      });
+      expect(request.result.request, 'request should be null').to.be.null;
+    });
+
+    it('should ignored the corrupted data (e.g: wrong properties)', async () => {
+      const actionCorrupted: Types.IAction = Utils.signature.sign(
+        {
+          name: Types.ACTION_NAME.CREATE,
+          parameters: {
+            currency: Types.CURRENCY.ETH,
+            expectedAmount: 'NOT A NUMBER',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta: {},
+        result: {
+          transactions: [
+            {
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionCorrupted) },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+          listActions,
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const request = await requestLogic.getRequestFromId(requestId);
+
+      expect(
+        request.meta.ignoredTransactions && request.meta.ignoredTransactions.length,
+      ).to.be.equal(1);
+      expect(
+        request.meta.ignoredTransactions && request.meta.ignoredTransactions[0],
+      ).to.be.deep.equal({
+        reason: 'action.parameters.expectedAmount must be a string representing a positive integer',
+        transaction: {
+          action: actionCorrupted,
+          timestamp: 2,
+        },
+      });
       expect(request.result.request, 'request should be null').to.be.null;
     });
   });

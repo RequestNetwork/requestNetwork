@@ -54,9 +54,19 @@ const dataIdBlock2tx = 'dataIdBlock2tx';
 
 const getDataIdResult: StorageTypes.IGetDataIdReturn = {
   meta: {
-    metaDataIds: [],
+    metaData: [{ timestamp: 10 }],
   },
   result: {
+    dataIds: [dataIdBlock2tx],
+  },
+};
+
+const getDataResult: StorageTypes.IGetDataIdContentAndMeta = {
+  meta: {
+    metaData: [{ timestamp: 10 }],
+  },
+  result: {
+    data: [JSON.stringify(blockWith2tx)],
     dataIds: [dataIdBlock2tx],
   },
 };
@@ -79,6 +89,37 @@ const emptyDataIdResult: StorageTypes.IGetNewDataIdReturn = {
   },
 };
 
+const emptyDataResult: StorageTypes.IGetDataIdContentAndMeta = {
+  meta: {
+    metaData: [],
+  },
+  result: {
+    data: [],
+    dataIds: [],
+  },
+};
+
+const defaultTestData: Promise<StorageTypes.IGetDataReturn> = Promise.resolve(getDataResult);
+const defaultTestTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+const defaultFakeStorage: StorageTypes.IStorage = {
+  append: chai.spy.returns(appendResult),
+  getData: (): any => defaultTestData,
+  getDataId: (): any => defaultTestTopics,
+  initialize: chai.spy(),
+  read: (param: string): any => {
+    const dataIdBlock2txFake: any = {
+      meta: {},
+    };
+    const result: any = {
+      dataIdBlock2tx: dataIdBlock2txFake,
+    };
+    return result[param];
+  },
+  readMany(params: string[]): Promise<any[]> {
+    return Promise.all(params.map(this.read));
+  },
+};
+
 let clock: sinon.SinonFakeTimers;
 
 // tslint:disable:no-magic-numbers
@@ -93,80 +134,34 @@ describe('data-access', () => {
   });
 
   describe('constructor', () => {
-    it('cannot initialize with data from read without result', async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: any = {
-            meta: {},
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
-        },
+    it('cannot initialize with getData without result', async () => {
+      const customFakeStorage = {
+        ...defaultFakeStorage,
+        getData: (): any => ({} as any),
       };
 
-      const dataAccess = new DataAccess(fakeStorage);
+      const dataAccess = new DataAccess(customFakeStorage);
 
       await expect(dataAccess.initialize()).to.be.rejectedWith(
-        'data from storage do not follow the standard, result is missing',
+        'data from storage do not follow the standard',
       );
     });
 
-    it('cannot initialize with data from getDataId without result', async () => {
-      const testTopics: Promise<any> = Promise.resolve({
-        meta: {
-          metaDataIds: [],
-        },
-      });
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: any = {
+    it('cannot initialize with content from getData not following the standard', async () => {
+      const customFakeStorage = {
+        ...defaultFakeStorage,
+        getData: (): any => {
+          return {
             meta: {},
+            result: {
+              data: [JSON.stringify({ notFolling: 'the standad' })],
+              dataIds: [dataIdBlock2tx],
+            },
           };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
         },
       };
 
-      const dataAccess = new DataAccess(fakeStorage);
-
-      await expect(dataAccess.initialize()).to.be.rejectedWith(
-        'data from storage do not follow the standard, result is missing',
-      );
-    });
-
-    it('cannot initialize with content from read not following the standard', async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: any = {
-            meta: {},
-            result: { content: JSON.stringify({ notFolling: 'the standad' }) },
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
-        },
-      };
-
-      const dataAccess = new DataAccess(fakeStorage);
+      const dataAccess = new DataAccess(customFakeStorage);
 
       await expect(dataAccess.initialize()).to.be.rejectedWith(
         'data from storage do not follow the standard, storage location: "dataIdBlock2tx"',
@@ -174,21 +169,16 @@ describe('data-access', () => {
     });
 
     it('cannot initialize with content from read not being JSON parsable', async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: any = {
+      const fakeStorage = {
+        ...defaultFakeStorage,
+        getData: (): any => {
+          return {
             meta: {},
-            result: { content: 'This is not JSON parsable' },
+            result: {
+              data: ['Not JSON parsable'],
+              dataIds: [dataIdBlock2tx],
+            },
           };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
         },
       };
 
@@ -198,37 +188,15 @@ describe('data-access', () => {
     });
 
     it('cannot initialize twice', async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
-            meta: { timestamp: 1 },
-            result: { content: JSON.stringify(blockWith2tx) },
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
-        },
-      };
-
-      const dataAccess = new DataAccess(fakeStorage);
+      const dataAccess = new DataAccess(defaultFakeStorage);
       await dataAccess.initialize();
 
       await expect(dataAccess.initialize()).to.be.rejectedWith('already initialized');
     });
 
     it('cannot getChannelsByTopic if not initialized', async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
+      const fakeStorage = {
+        ...defaultFakeStorage,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 1 },
@@ -253,12 +221,8 @@ describe('data-access', () => {
     let dataAccess: any;
 
     beforeEach(async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
+      const fakeStorage = {
+        ...defaultFakeStorage,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 10 },
@@ -306,12 +270,8 @@ describe('data-access', () => {
     let dataAccess: any;
 
     beforeEach(async () => {
-      const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-
-      const fakeStorage: StorageTypes.IStorage = {
-        append: chai.spy(),
-        getData: (): any => chai.spy(),
-        getDataId: (): any => testTopics,
+      const fakeStorage = {
+        ...defaultFakeStorage,
         read: (param: string): any => {
           const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
             meta: { timestamp: 10 },
@@ -359,13 +319,7 @@ describe('data-access', () => {
 
   describe('persistTransaction', () => {
     it('can persistTransaction()', async () => {
-      const fakeStorageSpied: StorageTypes.IStorage = {
-        append: chai.spy.returns(appendResult),
-        getData: (): any => chai.spy(),
-        getDataId: chai.spy.returns({ result: { dataIds: [] } }),
-        read: chai.spy(),
-      };
-      const dataAccess = new DataAccess(fakeStorageSpied);
+      const dataAccess = new DataAccess(defaultFakeStorage);
       await dataAccess.initialize();
 
       const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
@@ -374,7 +328,7 @@ describe('data-access', () => {
 
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
-      expect(fakeStorageSpied.append).to.have.been.called.with(
+      expect(defaultFakeStorage.append).to.have.been.called.with(
         JSON.stringify({
           header: {
             channelIds: {
@@ -409,13 +363,7 @@ describe('data-access', () => {
     });
 
     it('cannot persistTransaction() if not initialized', async () => {
-      const fakeStorageSpied: StorageTypes.IStorage = {
-        append: chai.spy.returns('fakeDataId'),
-        getData: (): any => chai.spy(),
-        getDataId: chai.spy.returns([]),
-        read: chai.spy(),
-      };
-      const dataAccess = new DataAccess(fakeStorageSpied);
+      const dataAccess = new DataAccess(defaultFakeStorage);
 
       await expect(
         dataAccess.persistTransaction(transactionMock1, arbitraryId1, [arbitraryTopic1]),
@@ -424,13 +372,7 @@ describe('data-access', () => {
   });
 
   it('synchronizeNewDataId() should throw an error if not initialized', async () => {
-    const fakeStorageSpied: StorageTypes.IStorage = {
-      append: chai.spy.returns(appendResult),
-      getData: (): any => chai.spy(),
-      getDataId: chai.spy.returns({ result: { dataIds: [] } }),
-      read: chai.spy(),
-    };
-    const dataAccess = new DataAccess(fakeStorageSpied);
+    const dataAccess = new DataAccess(defaultFakeStorage);
 
     await expect(dataAccess.synchronizeNewDataIds()).to.be.rejectedWith(
       'DataAccess must be initialized',
@@ -439,12 +381,18 @@ describe('data-access', () => {
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
     const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+    const testData: Promise<StorageTypes.IGetDataReturn> = Promise.resolve(getDataResult);
 
     // We create a fakeStorage where getDataId() called at initialization returns empty structure
     // and getNewDataId() returns testTopics
-    const fakeStorage: StorageTypes.IStorage = {
-      append: chai.spy(),
-      getData: (): any => chai.spy(),
+    const fakeStorage = {
+      ...defaultFakeStorage,
+      getData: (options: any): any => {
+        if (!options) {
+          return emptyDataResult;
+        }
+        return testData;
+      },
       getDataId: (options: any): any => {
         if (!options) {
           return emptyDataIdResult;
@@ -521,7 +469,9 @@ describe('data-access', () => {
       append: chai.spy.returns(appendResult),
       getData: (): any => chai.spy(),
       getDataId: chai.spy.returns({ result: { dataIds: [] } }),
+      initialize: chai.spy(),
       read: chai.spy(),
+      readMany: chai.spy(),
     };
     const dataAccess = new DataAccess(fakeStorageSpied);
 
@@ -529,9 +479,8 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
-    const fakeStorage: StorageTypes.IStorage = {
-      append: chai.spy(),
-      getData: (): any => chai.spy(),
+    const fakeStorage = {
+      ...defaultFakeStorage,
       getDataId: (): any => emptyDataIdResult,
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
@@ -545,7 +494,9 @@ describe('data-access', () => {
       },
     };
 
-    const dataAccess = new DataAccess(fakeStorage, 1000);
+    const dataAccess = new DataAccess(fakeStorage, {
+      synchronizationIntervalTime: 1000,
+    });
     dataAccess.synchronizeNewDataIds = chai.spy();
     await dataAccess.initialize();
 

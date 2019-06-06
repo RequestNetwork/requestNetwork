@@ -5,6 +5,7 @@ import {
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
+import PaymentNetworkDeclarative from './payment-network/declarative';
 
 /**
  * Class representing a request.
@@ -244,6 +245,179 @@ export default class Request {
 
     extensionsData.push(
       this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+    );
+
+    const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+
+    // refresh the local request data and return it
+    return this.refresh();
+  }
+
+  /**
+   * Declare a payment is sent for the declarative payment network
+   *
+   * @param amount Amount sent
+   * @param note Note from payer about the sent payment
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @returns The updated request
+   */
+  public async declareSentPayment(
+    amount: string,
+    note: string,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<Types.IRequestData> {
+    const extensionsData: any[] = [];
+
+    if (!this.paymentNetwork) {
+      throw new Error('Cannot declare sent payment without payment network');
+    }
+
+    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentPayment
+    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+      .paymentNetwork as PaymentNetworkDeclarative;
+
+    if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment) {
+      throw new Error('Cannot declare sent payment without declarative payment network');
+    }
+
+    extensionsData.push(
+      declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({ amount, note }),
+    );
+
+    const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+
+    // refresh the local request data and return it
+    return this.refresh();
+  }
+
+  /**
+   * Declare a refund is sent for the declarative payment network
+   *
+   * @param amount Amount sent
+   * @param note Note from payee about the sent refund
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @returns The updated request
+   */
+  public async declareSentRefund(
+    amount: string,
+    note: string,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<Types.IRequestData> {
+    const extensionsData: any[] = [];
+
+    if (!this.paymentNetwork) {
+      throw new Error('Cannot declare sent refund without payment network');
+    }
+
+    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentRefund
+    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+      .paymentNetwork as PaymentNetworkDeclarative;
+
+    if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund) {
+      throw new Error('Cannot declare sent refund without declarative payment network');
+    }
+
+    extensionsData.push(
+      declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund({
+        amount,
+        note,
+      }),
+    );
+
+    const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+
+    // refresh the local request data and return it
+    return this.refresh();
+  }
+
+  /**
+   * Declare a payment is received for the declarative payment network
+   *
+   * @param amount Amount received
+   * @param note Note from payee about the received payment
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @returns The updated request
+   */
+  public async declareReceivedPayment(
+    amount: string,
+    note: string,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<Types.IRequestData> {
+    const extensionsData: any[] = [];
+
+    if (!this.paymentNetwork) {
+      throw new Error('Cannot declare received payment without payment network');
+    }
+
+    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedPayment
+    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+      .paymentNetwork as PaymentNetworkDeclarative;
+
+    if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment) {
+      throw new Error('Cannot declare received payment without declarative payment network');
+    }
+
+    extensionsData.push(
+      declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment({
+        amount,
+        note,
+      }),
+    );
+
+    const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+
+    // refresh the local request data and return it
+    return this.refresh();
+  }
+
+  /**
+   * Declare a refund is received for the declarative payment network
+   *
+   * @param amount Amount received
+   * @param note Note from payer about the received refund
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @returns The updated request
+   */
+  public async declareReceivedRefund(
+    amount: string,
+    note: string,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<Types.IRequestData> {
+    const extensionsData: any[] = [];
+
+    if (!this.paymentNetwork) {
+      throw new Error('Cannot declare received refund without payment network');
+    }
+
+    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
+    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+      .paymentNetwork as PaymentNetworkDeclarative;
+
+    if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund) {
+      throw new Error('Cannot declare received refund without declarative payment network');
+    }
+
+    extensionsData.push(
+      declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund({
+        amount,
+        note,
+      }),
     );
 
     const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {

@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-signature",
-  "version": "0.1.1-alpha.9",
+  "version": "0.2.0",
   "publishConfig": {
     "access": "public"
   },
@@ -37,16 +37,15 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.8",
-    "@requestnetwork/utils": "0.1.1-alpha.9"
+    "@requestnetwork/types": "0.2.0",
+    "@requestnetwork/utils": "0.2.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.5",
+    "@types/mocha": "5.2.6",
     "@typescript-eslint/parser": "1.2.0",
     "amd-loader": "0.0.8",
     "awesome-typescript-loader": "5.2.1",
@@ -56,7 +55,7 @@
     "eslint": "5.13.0",
     "eslint-plugin-spellcheck": "0.0.11",
     "eslint-plugin-typescript": "0.14.0",
-    "husky": "1.3.1",
+    "husky": "2.4.0",
     "lint-staged": "8.1.3",
     "mocha": "5.2.0",
     "npm-run-all": "4.1.5",
@@ -64,12 +63,12 @@
     "prettier": "1.16.4",
     "shx": "0.3.2",
     "source-map-support": "0.5.10",
-    "terser-webpack-plugin": "1.2.2",
+    "terser-webpack-plugin": "1.3.0",
     "ts-node": "8.0.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1",
     "webpack": "4.29.1",
-    "webpack-bundle-analyzer": "3.0.3",
+    "webpack-bundle-analyzer": "3.3.2",
     "webpack-cli": "3.2.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"

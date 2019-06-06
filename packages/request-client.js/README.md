@@ -14,54 +14,7 @@ npm install @requestnetwork/request-client.js
 
 ### Usage as commonjs module
 
-```typescript
-import * as RequestNetwork from '@requestnetwork/request-client.js';
-import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-
-// payee information
-const payeeSignatureInfo = {
-  method: RequestNetwork.Types.Signature.METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-};
-const payeeIdentity = {
-  type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
-  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-};
-
-// Signature providers
-const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
-
-const requestInfo: RequestNetwork.Types.RequestLogic.ICreateParameters = {
-  currency: RequestNetwork.Types.RequestLogic.CURRENCY.BTC,
-  expectedAmount: '100000000000',
-  payee: payeeIdentity,
-  payer: {
-    type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
-    value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-  },
-};
-
-const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
-  parameters: {
-    paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
-  },
-};
-
-(async (): Promise<void> => {
-  const requestNetwork = new RequestNetwork.RequestNetwork({
-    signatureProvider,
-  });
-
-  const request = await requestNetwork.createRequest({
-    paymentNetwork,
-    requestInfo,
-    signer: payeeIdentity,
-  });
-
-  console.log(request);
-})();
-```
+See [packages/usage-examples/request-client-js.ts](`packages/usage-examples/request-client-js.ts`).
 
 ### Usage as UMD module
 
@@ -120,10 +73,10 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-- `requestInfo`: [RequestLogicTypes.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
-- `contentData`: any - optional data content of the request.
+- `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
 
 ### Get a request from its ID
@@ -151,7 +104,7 @@ const updatedBetween = {
 const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updatedBetween);
 ```
 
-- `identity`: [IIdentity](/packages/types/src/identity-types.ts#L2)
+- `identity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `updatedBetween`
   - `from`: number - get requests updated from this timestamp on
   - `to`: number - get requests updated before this timestamp
@@ -159,7 +112,7 @@ const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updated
 ### Get all requests linked to a topic
 
 ```javascript
-const identity = 'any_topic';
+const topic = 'any_topic';
 
 // Get only the request updated in this timestamp boundaries (in second)
 const updatedBetween = {
@@ -167,10 +120,10 @@ const updatedBetween = {
   to: 1548979200,
 };
 
-const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBetween);
+const requestsFromIdentity = await requestNetwork.fromTopic(topic, updatedBetween);
 ```
 
-- `identity`: [IIdentity](/packages/types/src/identity-types.ts#L2)
+- `topic`: string
 - `updatedBetween`
   - `from`: number - get requests updated from this timestamp on
   - `to`: number - get requests updated before this timestamp
@@ -178,41 +131,45 @@ const requestsFromIdentity = await requestNetwork.fromTopic(identity, updatedBet
 ### Accept a request
 
 ```javascript
-await request.accept(signatureInfo);
+await request.accept(signerIdentity, refundInformation);
 ```
 
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `refundInformation`: any - Optional refund information to add
 
 ### Cancel a request
 
 ```javascript
-await request.cancel(signatureInfo);
+await request.cancel(signatureInfo, refundInformation);
 ```
 
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `refundInformation`: any - Optional refund information to add
 
 ### Increase the expected amount of a request
 
 ```javascript
-await request.increaseExpectedAmountRequest(amount, signatureInfo);
+await request.increaseExpectedAmountRequest(amount, signatureInfo, refundInformation);
 ```
 
 - `amount`: string
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `refundInformation`: any - Optional refund information to add
 
 ### Reduce the expected amount of a request
 
 ```javascript
-await request.reduceExpectedAmountRequest(amount, signatureInfo);
+await request.reduceExpectedAmountRequest(amount, signatureInfo, paymentInformation);
 ```
 
 - `amount`: string
-- `signatureInfo`: [SignatureTypes.ISignatureParameters](/packages/types/src/signature-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentit](/packages/types/src/identity-types.ts#L2)
+- `paymentInformation`: any - Optional payment information to add
 
 ### Get a request data
 
 ```javascript
-const requestData = await request.getData();
+const requestData = request.getData();
 /*
 { 
   requestId,
@@ -234,6 +191,15 @@ const requestData = await request.getData();
 ```
 
 `requestData.request`: [IRequestData](/packages/request-client.js/src/types.ts#L17)
+
+### Content Data
+
+A Request can have an optional Content Data.
+Content Data can be any type of data that can safely be JSON stringified (check the [JSON.stringify() documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#Description) for more details).
+
+This Content Data will be stored with the request, allowing relevant information about the request to be shared.
+
+Examples of standardized data formats that can be used in the request Content Data can be found at the [data-format](/packages/data-format/README.md) package.
 
 ### Payment and Refund detections
 

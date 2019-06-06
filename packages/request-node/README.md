@@ -221,6 +221,11 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--headers` Custom headers to send with the API responses (as a stringified JSON object)
   - Default value: `'{}'`
   - Environment variable name: `$HEADERS`
+- `--lastBlockNumberDelay` The minimum delay between getLastBlockNumber calls to ethereum network
+  - Default value: `'10000'`
+  - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
+- `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
+  - Default value: `'500'`
 
 #### Mnemonic
 

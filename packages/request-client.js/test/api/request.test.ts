@@ -63,6 +63,33 @@ const mockPaymentNetwork: Types.IPaymentNetwork = {
   },
 };
 
+const mockDeclarativePaymentNetwork: Types.IPaymentNetwork = {
+  async createExtensionsDataForCreation(): Promise<any> {
+    return;
+  },
+  async createExtensionsDataForAddPaymentInformation(): Promise<any> {
+    return { meta: {} };
+  },
+  async createExtensionsDataForAddRefundInformation(): Promise<any> {
+    return { meta: {} };
+  },
+  async createExtensionsDataForDeclareReceivedPayment(): Promise<any> {
+    return;
+  },
+  async createExtensionsDataForDeclareReceivedRefund(): Promise<any> {
+    return;
+  },
+  async createExtensionsDataForDeclareSentPayment(): Promise<any> {
+    return;
+  },
+  async createExtensionsDataForDeclareSentRefund(): Promise<any> {
+    return;
+  },
+  async getBalance(): Promise<any> {
+    return;
+  },
+} as Types.IPaymentNetwork;
+
 const signatureIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
@@ -288,6 +315,151 @@ describe('api/request', () => {
       }
     });
   });
+
+  describe('declareSentPayment', () => {
+    it('calls request-logic and payment network', async () => {
+      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = sandbox.on(
+        mockDeclarativePaymentNetwork,
+        'createExtensionsDataForDeclareSentPayment',
+      );
+
+      const request = new Request(mockRequestLogic, '1', mockDeclarativePaymentNetwork);
+      await request.declareSentPayment('1000', 'sent', signatureIdentity);
+
+      expect(spyPayNet).to.have.been.called.once;
+      expect(spyReqLog).to.have.been.called.once;
+    });
+
+    it('cannot declare sent payment if no payment network', async () => {
+      const request = new Request(mockRequestLogic, '1');
+      try {
+        await request.declareSentPayment('1000', 'sent', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare sent payment without payment network');
+      }
+    });
+
+    it('cannot declare sent payment if payment network is not declarative', async () => {
+      const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
+      try {
+        await request.declareSentPayment('1000', 'sent', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare sent payment without declarative payment network');
+      }
+    });
+  });
+
+  describe('declareSentRefund', () => {
+    it('calls request-logic and payment network', async () => {
+      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = sandbox.on(
+        mockDeclarativePaymentNetwork,
+        'createExtensionsDataForDeclareSentRefund',
+      );
+
+      const request = new Request(mockRequestLogic, '1', mockDeclarativePaymentNetwork);
+      await request.declareSentRefund('1000', 'sent', signatureIdentity);
+
+      expect(spyPayNet).to.have.been.called.once;
+      expect(spyReqLog).to.have.been.called.once;
+    });
+
+    it('cannot declare sent refund if no payment network', async () => {
+      const request = new Request(mockRequestLogic, '1');
+      try {
+        await request.declareSentRefund('1000', 'sent', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare sent refund without payment network');
+      }
+    });
+
+    it('cannot declare sent refund if payment network is not declarative', async () => {
+      const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
+      try {
+        await request.declareSentRefund('1000', 'sent', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare sent refund without declarative payment network');
+      }
+    });
+  });
+
+  describe('declareReceivedPayment', () => {
+    it('calls request-logic and payment network', async () => {
+      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = sandbox.on(
+        mockDeclarativePaymentNetwork,
+        'createExtensionsDataForDeclareReceivedPayment',
+      );
+
+      const request = new Request(mockRequestLogic, '1', mockDeclarativePaymentNetwork);
+      await request.declareReceivedPayment('1000', 'received', signatureIdentity);
+
+      expect(spyPayNet).to.have.been.called.once;
+      expect(spyReqLog).to.have.been.called.once;
+    });
+
+    it('cannot declare received payment if no payment network', async () => {
+      const request = new Request(mockRequestLogic, '1');
+      try {
+        await request.declareReceivedPayment('1000', 'received', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare received payment without payment network');
+      }
+    });
+
+    it('cannot declare received payment if payment network is not declarative', async () => {
+      const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
+      try {
+        await request.declareReceivedPayment('1000', 'received', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare received payment without declarative payment network');
+      }
+    });
+  });
+
+  describe('declareReceivedRefund', () => {
+    it('calls request-logic and payment network', async () => {
+      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = sandbox.on(
+        mockDeclarativePaymentNetwork,
+        'createExtensionsDataForDeclareReceivedRefund',
+      );
+
+      const request = new Request(mockRequestLogic, '1', mockDeclarativePaymentNetwork);
+      await request.declareReceivedRefund('1000', 'received', signatureIdentity);
+
+      expect(spyPayNet).to.have.been.called.once;
+      expect(spyReqLog).to.have.been.called.once;
+    });
+
+    it('cannot declare received refund if no payment network', async () => {
+      const request = new Request(mockRequestLogic, '1');
+      try {
+        await request.declareReceivedRefund('1000', 'received', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare received refund without payment network');
+      }
+    });
+
+    it('cannot declare received refund if payment network is not declarative', async () => {
+      const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
+      try {
+        await request.declareReceivedRefund('1000', 'received', signatureIdentity);
+        expect(false, 'should throw').to.be.true;
+      } catch (e) {
+        expect(e.message).to.equal('Cannot declare received refund without declarative payment network');
+      }
+    });
+  });
+
   describe('refresh', () => {
     it('calls request-logic', async () => {
       const mockRequestLogicWithRequest: RequestLogicTypes.IRequestLogic = {

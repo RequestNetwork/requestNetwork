@@ -1,26 +1,29 @@
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
+const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
 // Deploys, set up the contracts
 module.exports = async function(deployer) {
   try {
-    // Deploy the contract
-    await deployer.deploy(RequestHashStorage, addressContractBurner);
-    console.log('Contract deployed: ' + RequestHashStorage.address);
+    // Deploy the contract RequestHashStorage
+    await deployer.deploy(RequestHashStorage);
+    console.log('RequestHashStorage Contract deployed: ' + RequestHashStorage.address);
 
-    // Initialize basic value
-    const instance = await RequestHashStorage.deployed();
+    // Deploy the contract RequestOpenHashSubmitter
+    await deployer.deploy(
+      RequestOpenHashSubmitter,
+      RequestHashStorage.address,
+      addressContractBurner,
+    );
+    console.log('RequestOpenHashSubmitter Contract deployed: ' + RequestOpenHashSubmitter.address);
 
-    // 450000000000000 wei -> 0.10$
-    // 140000000000000 wei -> 0.03$
-    // 10000 -> 10kB
+    // Whitelist the requestSubmitter in requestHashDeclaration
+    const instanceRequestHashStorage = await RequestHashStorage.deployed();
+    instanceRequestHashStorage.addWhitelisted(RequestOpenHashSubmitter.address);
+    console.log('requestSubmitter Whitelisted in requestHashDeclaration');
 
-    await instance.setFeeParameters('450000000000000', '140000000000000', '10000');
-    await instance.setMinimumFeeThreshold('10000');
-    await instance.setRequestBurnerContract(addressContractBurner);
-
-    console.log('Contract initialized');
+    console.log('Contracts initialized');
   } catch (e) {
     console.error(e);
   }

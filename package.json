@@ -9,6 +9,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
   "scripts": {
     "build": "lerna run build",
     "clean": "lerna run clean",
@@ -16,13 +20,18 @@
     "lint": "lerna run lint",
     "lerna": "lerna",
     "packageJsonLint": "npmPkgJsonLint ./packages",
-    "publish-coverage": "codecov --disable=gcov",
+    "publish-coverage": "mkdir -p ./coverage && node scripts/collect.js && nyc merge ./coverage ./coverage/coverage.json && node scripts/remap.js && cat coverage/lcov.info | coveralls",
+    "publish-npm": "lerna publish --conventional-commits --exact",
+    "publish-manual-prerelease": "lerna publish prerelease --conventional-commits --exact",
+    "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
     "test": "lerna run test"
   },
   "devDependencies": {
-    "codecov": "3.1.0",
-    "lerna": "3.10.8",
+    "coveralls": "3.0.3",
+    "lerna": "3.14.1",
     "npm-package-json-lint": "3.5.0",
+    "nyc": "14.1.1",
+    "remap-istanbul": "0.13.0",
     "typescript": "3.3.1"
   }
 }

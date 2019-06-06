@@ -4,6 +4,9 @@ import * as http from 'http';
 import * as https from 'https';
 import { getDefaultIpfs } from './config';
 
+// eslint-disable-next-line spellcheck/spell-checker
+const unixfs = require('ipfs-unixfs');
+
 /**
  * Manages Ipfs communication used as storage
  */
@@ -17,8 +20,12 @@ export default class IpfsManager {
   public ipfsConnectionModule: any;
 
   public readonly IPFS_API_ADD: string = '/api/v0/add';
-  public readonly IPFS_API_CAT: string = '/api/v0/cat';
+  public readonly IPFS_API_CAT: string = '/api/v0/object/get';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
+  public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
+  // eslint-disable-next-line spellcheck/spell-checker
+  public readonly IPFS_API_REPOSITORY_VERIFY: string = '/api/v0/repo/verify';
+  public readonly IPFS_API_PIN: string = '/api/v0/pin/add';
 
   /**
    * Constructor
@@ -30,6 +37,103 @@ export default class IpfsManager {
     this.ipfsConnection = _ipfsConnection;
 
     this.ipfsConnectionModule = this.getIpfsConnectionModuleModule(this.ipfsConnection.protocol);
+  }
+
+  /**
+   * Verify ipfs node repository
+   * @returns Promise resolving the verify message
+   */
+  public verifyRepository(): Promise<string> {
+    // Promise to wait for response from server
+    return new Promise<string>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_REPOSITORY_VERIFY}`;
+
+        this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+            // All data has been received
+            res.on('end', () => {
+              return resolve(data);
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs verification response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs verification response has been aborted'));
+            });
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs verification has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs verification error: ${e}`));
+          });
+      },
+    );
+  }
+
+  /**
+   * Connect the ipfs node to a new peer
+   * @param multiAddresses address of the ipfs node to connect with
+   * @returns Promise resolving the peer address
+   */
+  public connectSwarmPeer(multiAddress: string): Promise<string> {
+    // Promise to wait for response from server
+    return new Promise<string>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_CONNECT_SWARM}?arg=${multiAddress}`;
+
+        this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+            // All data has been received
+            res.on('end', () => {
+              try {
+                const parsedData = JSON.parse(data);
+                if (parsedData.Type === 'error') {
+                  throw Error(parsedData.Message);
+                }
+                return resolve(multiAddress);
+              } catch (e) {
+                return reject(Error(`Ipfs connecting peer response error: ${e}`));
+              }
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs connecting peer response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs connecting peer response has been aborted'));
+            });
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs connecting peer has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs connecting peer error: ${e}`));
+          });
+      },
+    );
   }
 
   /**
@@ -105,11 +209,11 @@ export default class IpfsManager {
   /**
    * Retrieve content from ipfs from its hash
    * @param hash Hash of the content
-   * @returns Promise resolving retrieved content in UTF8 encoding
+   * @returns Promise resolving retrieved ipfs object
    */
-  public read(hash: string): Promise<string> {
+  public read(hash: string): Promise<StorageTypes.IIpfsObject> {
     // Promise to wait for response from server
-    return new Promise<string>(
+    return new Promise<StorageTypes.IIpfsObject>(
       (resolve, reject): void => {
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
@@ -124,9 +228,24 @@ export default class IpfsManager {
             res.on('data', (chunk: string) => {
               data += chunk;
             });
+
             // All data has been received
             res.on('end', () => {
-              resolve(data);
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                return reject(
+                  Error('Ipfs object get request response cannot be parsed into JSON format'),
+                );
+              }
+              if (jsonData.Type === 'error') {
+                return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
+              }
+              const content = this.getContentFromMarshaledData(jsonData.Data);
+              const ipfsSize = jsonData.Data.length;
+              const ipfsLinks = jsonData.Links;
+              resolve({ content, ipfsSize, ipfsLinks });
             });
 
             // Error handling
@@ -151,6 +270,73 @@ export default class IpfsManager {
 
         if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
           getRequest.setTimeout(this.ipfsConnection.timeout);
+        }
+      },
+    );
+  }
+
+  /**
+   * Pin content on ipfs node from its hash
+   * @param hashes Array of hashes of the content
+   * @param [timeout] An optional timeout for the IPFS pin request
+   * @returns Promise resolving the hash pinned after pinning the content
+   */
+  public pin(hashes: string[], timeout?: number): Promise<string[]> {
+    // Promise to wait for response from server
+    return new Promise<string[]>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_PIN}?arg=${hashes.join('&arg=')}`;
+
+        const getRequest = this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+
+            // Response data
+            res.on('end', () => {
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
+              }
+              if (!jsonData || !jsonData.Pins) {
+                reject(Error('Ipfs pin request response has no Pins field'));
+              }
+
+              // Return the hash of the response
+              resolve(jsonData.Pins);
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs pin request response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs pin request response has been aborted'));
+            });
+          })
+          .on('timeout', () => {
+            // explicitly abort the request
+            getRequest.abort();
+            reject(Error('Ipfs pin request timeout'));
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs pin request has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs pin request error: ${e}`));
+          });
+
+        if (timeout || (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0)) {
+          getRequest.setTimeout(timeout || this.ipfsConnection.timeout);
         }
       },
     );
@@ -186,7 +372,6 @@ export default class IpfsManager {
               } catch (error) {
                 reject(Error('Ipfs stat request response cannot be parsed into JSON format'));
               }
-
               if (!jsonData || !jsonData.DataSize) {
                 reject(Error('Ipfs stat request response has no DataSize field'));
               } else {
@@ -238,5 +423,18 @@ export default class IpfsManager {
     }
 
     return protocolModule;
+  }
+
+  /**
+   * Removes the Unicode special character from a ipfs content
+   * @param marshaledData marshaled data
+   * @returns the content without the padding
+   */
+  private getContentFromMarshaledData(marshaledData: string): string {
+    // eslint-disable-next-line spellcheck/spell-checker
+    const unmarshalData = unixfs.unmarshal(Buffer.from(marshaledData)).data.toString();
+
+    // eslint-disable-next-line spellcheck/spell-checker
+    return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
   }
 }

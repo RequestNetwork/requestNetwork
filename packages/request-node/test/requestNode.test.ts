@@ -73,4 +73,14 @@ describe('requestNode server', () => {
       .post('/')
       .expect('x-custom-test-header', 'test-passed');
   });
+
+  it('must throw if no mnemonic given with rinkeby', async () => {
+    process.env.ETHEREUM_NETWORK_ID = '4';
+
+    expect(() => {
+      new requestNode();
+    }, 'must throw').to.throw(
+      'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
+    );
+  });
 });
