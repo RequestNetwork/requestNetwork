@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.1.1-alpha.12",
+  "version": "0.2.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,9 +39,9 @@
     "lint": "tslint --project ."
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.1.1-alpha.12",
-    "@requestnetwork/ethereum-storage": "0.1.1-alpha.12",
-    "@requestnetwork/types": "0.1.1-alpha.11",
+    "@requestnetwork/data-access": "0.2.0",
+    "@requestnetwork/ethereum-storage": "0.2.0",
+    "@requestnetwork/types": "0.2.0",
     "cors": "2.8.5",
     "dotenv": "8.0.0",
     "express": "4.17.1",

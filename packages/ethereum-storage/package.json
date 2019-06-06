@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.1.1-alpha.12",
+  "version": "0.2.0",
   "publishConfig": {
     "access": "public"
   },
@@ -49,8 +49,8 @@
     "test": "yarn run test:lib && yarn run test:sol"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.1.1-alpha.11",
-    "@requestnetwork/utils": "0.1.1-alpha.12",
+    "@requestnetwork/types": "0.2.0",
+    "@requestnetwork/utils": "0.2.0",
     "bluebird": "3.5.3",
     "bn.js": "4.11.8",
     "form-data": "2.3.3",
