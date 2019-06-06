@@ -130,8 +130,8 @@ export function getDefaultIpfsSwarmPeers(): string[] {
  */
 export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
   return {
-    delayBetweenCalls: config.ipfs.delayBetweenCalls,
-    maxSize: config.ipfs.maxSize,
-    timeout: config.ipfs.timeout,
+    delayBetweenCalls: config.ipfs.pinRequest.delayBetweenCalls,
+    maxSize: config.ipfs.pinRequest.maxSize,
+    timeout: config.ipfs.pinRequest.timeout,
   };
 }
