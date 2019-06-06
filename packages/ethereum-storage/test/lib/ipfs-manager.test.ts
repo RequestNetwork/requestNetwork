@@ -93,11 +93,11 @@ describe('Ipfs manager', () => {
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
     let contentReturned = await ipfsManager.read(hash);
-    assert.equal(content, contentReturned);
+    assert.equal(content, contentReturned.content);
 
     await ipfsManager.add(content2);
     contentReturned = await ipfsManager.read(hash2);
-    assert.equal(content2, contentReturned);
+    assert.equal(content2, contentReturned.content);
   });
 
   it('allows to get file size from ipfs', async () => {

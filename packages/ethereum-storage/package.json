@@ -54,6 +54,7 @@
     "bluebird": "3.5.3",
     "bn.js": "4.11.8",
     "form-data": "2.3.3",
+    "ipfs-unixfs": "0.1.16",
     "sinon": "7.3.2",
     "web3-eth": "1.0.0-beta.37",
     "web3-utils": "1.0.0-beta.37"

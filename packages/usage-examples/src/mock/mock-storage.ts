@@ -54,7 +54,7 @@ export default class MockStorage implements StorageTypes.IStorage {
 
   public async getDataId(): Promise<StorageTypes.IGetDataIdReturn> {
     const results = Object.keys(this.data);
-    const metaDataIds = Object.values(this.data).map(elem => {
+    const metaData = Object.values(this.data).map(elem => {
       return {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: elem.timestamp,
@@ -63,7 +63,7 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     return {
       meta: {
-        metaDataIds,
+        metaData,
       },
       result: {
         dataIds: results,
@@ -82,7 +82,8 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getData(): Promise<StorageTypes.IGetDataReturn> {
+  public async getData(): Promise<StorageTypes.IGetDataIdContentAndMeta> {
+    const dataIds = Object.keys(this.data);
     const results = Object.values(this.data).map(elem => elem.content);
     const metaData = Object.values(this.data).map(elem => {
       return {
@@ -97,6 +98,7 @@ export default class MockStorage implements StorageTypes.IStorage {
       },
       result: {
         data: results,
+        dataIds,
       },
     };
   }

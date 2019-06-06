@@ -249,29 +249,21 @@ export default class EthereumStorage implements Types.IStorage {
     }
 
     // Send ipfs request
-    let content;
+    let ipfsObject;
     try {
-      content = await this.ipfsManager.read(id);
+      ipfsObject = await this.ipfsManager.read(id);
     } catch (error) {
       throw Error(`Ipfs read request error: ${error}`);
-    }
-
-    // Get content length from ipfs
-    let contentLength;
-    try {
-      contentLength = await this.ipfsManager.getContentLength(id);
-    } catch (error) {
-      throw Error(`Ipfs get length request error: ${error}`);
     }
 
     return {
       meta: {
         ethereum: ethereumMetadata,
-        ipfs: { size: contentLength },
+        ipfs: { size: ipfsObject.ipfsSize },
         storageType: Types.StorageSystemType.ETHEREUM_IPFS,
         timestamp: ethereumMetadata.blockTimestamp,
       },
-      result: { content },
+      result: { content: ipfsObject.content },
     };
   }
 
@@ -307,30 +299,12 @@ export default class EthereumStorage implements Types.IStorage {
    * @param options timestamp boundaries for the data retrieval
    * @returns Promise resolving stored data
    */
-  public async getData(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataReturn> {
-    if (!this.isInitialized) {
-      throw new Error('Ethereum storage must be initialized');
-    }
-    const dataIds = await this.getDataId(options);
+  public async getData(
+    options?: Types.ITimestampBoundaries,
+  ): Promise<Types.IGetDataIdContentAndMeta> {
+    const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
-    // Read content for each id
-    const dataPromises = dataIds.result.dataIds.map(
-      async (id: string): Promise<Types.IOneContentAndMeta> => {
-        return this.read(id);
-      },
-    );
-
-    // Get value of all promises
-    const contentsAndMeta = await Promise.all(dataPromises);
-    const metaData = contentsAndMeta.map(obj => obj.meta);
-    const data = contentsAndMeta.map(obj => obj.result.content);
-
-    return {
-      meta: {
-        metaData,
-      },
-      result: { data },
-    };
+    return contentDataIdAndMeta;
   }
 
   /**
@@ -340,33 +314,15 @@ export default class EthereumStorage implements Types.IStorage {
    * @returns Promise resolving id of stored data
    */
   public async getDataId(options?: Types.ITimestampBoundaries): Promise<Types.IGetDataIdReturn> {
-    if (!this.isInitialized) {
-      throw new Error('Ethereum storage must be initialized');
-    }
-    this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
-    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
+    const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
-    this.logger.debug('Fetching data size from IPFS and checking correctness', ['ipfs']);
+    // copy before deleting the key to avoid side effect
+    const contentDataIdAndMetaCopied = Utils.deepCopy(contentDataIdAndMeta);
 
-    const filteredDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdAndMeta(hashesAndSizes);
+    // only keep the dataIds and cast in the right format
+    delete contentDataIdAndMetaCopied.result.data;
 
-    // Pin data asynchronously
-    // tslint:disable-next-line:no-floating-promises
-    this.pinDataToIPFS(filteredDataIdAndMeta.result.dataIds);
-
-    // Save existing ethereum metadata to the ethereum metadata cache
-    for (let i = 0; i < filteredDataIdAndMeta.result.dataIds.length; i++) {
-      const ethereumMetadata = filteredDataIdAndMeta.meta.metaDataIds[i].ethereum;
-      if (ethereumMetadata) {
-        // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
-        this.ethereumMetadataCache.saveDataIdMeta(
-          filteredDataIdAndMeta.result.dataIds[i],
-          ethereumMetadata,
-        );
-      }
-    }
-
-    return filteredDataIdAndMeta;
+    return contentDataIdAndMetaCopied as Types.IGetDataIdReturn;
   }
 
   /**
@@ -395,15 +351,56 @@ export default class EthereumStorage implements Types.IStorage {
   }
 
   /**
+   * Get all dataId and the contents stored on the storage
+   *
+   * @param options timestamp boundaries for the data id retrieval
+   * @returns Promise resolving object with content and dataId of stored data
+   */
+  private async getContentAndDataId(
+    options?: Types.ITimestampBoundaries,
+  ): Promise<Types.IGetDataIdContentAndMeta> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
+    this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
+    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
+
+    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
+
+    const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(
+      hashesAndSizes,
+    );
+
+    const dataIds = contentDataIdAndMeta.result.dataIds || [];
+    // Pin data asynchronously
+    // tslint:disable-next-line:no-floating-promises
+    this.pinDataToIPFS(dataIds);
+
+    // Save existing ethereum metadata to the ethereum metadata cache
+    for (let i = 0; i < dataIds.length; i++) {
+      const ethereumMetadata = contentDataIdAndMeta.meta.metaData[i].ethereum;
+      if (ethereumMetadata) {
+        // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
+        this.ethereumMetadataCache.saveDataIdMeta(dataIds[i], ethereumMetadata);
+      }
+    }
+
+    return contentDataIdAndMeta;
+  }
+
+  /**
    * Verify the hashes are present on IPFS with the corresponding size and add metadata
    * Filtered incorrect hashes
    * @param hashesAndSizes Promises of hash and size from the smart contract
    * @returns Filtered list of dataId with metadata
    */
-  private async hashesAndSizesToFilteredDataIdAndMeta(
+  private async hashesAndSizesToFilteredDataIdContentAndMeta(
     hashesAndSizes: Types.IGetAllHashesAndSizes[],
-  ): Promise<Types.IGetDataIdReturn | Types.IGetNewDataIdReturn> {
+  ): Promise<Types.IGetDataIdContentAndMeta> {
     const totalCount = hashesAndSizes.length;
+    let succeedCount = 0;
+    let timeoutCount = 0;
+    let wrongFeesCount = 0;
 
     // Parse hashes and sizes
     // Reject on error when parsing the hash on ipfs
@@ -413,7 +410,7 @@ export default class EthereumStorage implements Types.IStorage {
       async (
         hashAndSizePromise: Types.IGetAllHashesAndSizes,
         currentIndex: number,
-      ): Promise<Types.IOneDataIdAndMeta | null> => {
+      ): Promise<Types.IOneDataIdContentAndMeta | null> => {
         const hashAndSize = await hashAndSizePromise;
         // Check if the event log is incorrect
         if (
@@ -427,22 +424,21 @@ export default class EthereumStorage implements Types.IStorage {
         }
 
         // Get content from ipfs and verify provided size is correct
-        let hashContentSize;
         let badDataInSmartContractError;
+        let ipfsObject;
         try {
           const startTime = Date.now();
 
-          hashContentSize = await this.ipfsManager.getContentLength(hashAndSize.hash);
+          // Send ipfs request
+          ipfsObject = await this.ipfsManager.read(hashAndSize.hash);
+
           this.logger.debug(
-            `[${currentIndex}/${totalCount}] getContentLength ${
-              hashAndSize.hash
-            }. Took ${Date.now() - startTime} ms`,
+            `[${currentIndex}/${totalCount}] read ${hashAndSize.hash}. Took ${Date.now() -
+              startTime} ms`,
             ['ipfs'],
           );
         } catch (error) {
-          badDataInSmartContractError = `IPFS getContentLength: ${error.message || error} ${
-            hashAndSize.hash
-          }`;
+          badDataInSmartContractError = `IPFS read: ${error.message || error} ${hashAndSize.hash}`;
         }
 
         const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
@@ -453,11 +449,17 @@ export default class EthereumStorage implements Types.IStorage {
          * - Size value that doesn't match to the real size of the file stored on IPFS
          * In these cases, we simply ignore the values instead of throwing an error
          */
-        if (badDataInSmartContractError || hashContentSize !== contentSizeDeclared) {
+        if (
+          badDataInSmartContractError ||
+          !ipfsObject ||
+          ipfsObject.ipfsSize !== contentSizeDeclared
+        ) {
           this.logger.info(`Ignoring missing hash: ${hashAndSize.hash}`, ['ipfs']);
           if (badDataInSmartContractError) {
+            timeoutCount++;
             this.logger.debug(badDataInSmartContractError, ['ipfs']);
           } else {
+            wrongFeesCount++;
             this.logger.debug('The size of the content is not the size stored on ethereum', [
               'ipfs',
             ]);
@@ -465,17 +467,20 @@ export default class EthereumStorage implements Types.IStorage {
           return null;
         }
 
+        succeedCount++;
+
         // Get meta data from ethereum
         const ethereumMetadata = hashAndSize.meta;
 
         return {
           meta: {
             ethereum: ethereumMetadata,
-            ipfs: { size: hashContentSize },
+            ipfs: { size: ipfsObject.ipfsSize },
             storageType: Types.StorageSystemType.ETHEREUM_IPFS,
             timestamp: ethereumMetadata.blockTimestamp,
           },
           result: {
+            data: ipfsObject.content,
             dataId: hashAndSize.hash,
           },
         };
@@ -485,21 +490,27 @@ export default class EthereumStorage implements Types.IStorage {
       },
     );
 
+    this.logger.info(
+      `getData on ${totalCount} events, ${succeedCount} retrieved, ${timeoutCount} not found, ${wrongFeesCount} with wrong fees`,
+    );
+
     // Filter the rejected parsedDataIdAndMeta
     const arrayOfDataIdAndMeta = parsedDataIdAndMeta.filter(
       dataIdAndMeta => dataIdAndMeta,
-    ) as Types.IOneDataIdAndMeta[];
+    ) as Types.IOneDataIdContentAndMeta[];
 
     // Create the array of data ids
     const dataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.dataId);
+    // Create the array of data content
+    const data = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.data);
     // Create the array of metadata
-    const metaDataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.meta);
+    const metaData = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.meta);
 
     return {
       meta: {
-        metaDataIds,
+        metaData,
       },
-      result: { dataIds },
+      result: { dataIds, data },
     };
   }
 }

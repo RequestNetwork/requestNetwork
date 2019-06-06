@@ -52,7 +52,7 @@ describe('mock-storage', () => {
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
     assert.deepEqual(result.dataIds, [resultAppend1.dataId, resultAppend2.dataId]);
 
-    assert.equal(meta.metaDataIds.length, 2);
+    assert.equal(meta.metaData.length, 2);
   });
 
   it('can get all data', async () => {

@@ -7,7 +7,6 @@ import TimestampByLocation from '../timestamp-by-location';
  * An in-memory implementation of the transaction index.
  */
 export default class InMemoryTransactionIndex implements DataAccessTypes.ITransactionIndex {
-
   // DataIds (Id of data on storage layer) indexed by transaction topic
   // Will be used to get the data from storage with the transaction topic
   private locationByTopic?: LocationByTopic;
@@ -57,21 +56,14 @@ export default class InMemoryTransactionIndex implements DataAccessTypes.ITransa
    * @param timestamp the timestamp of the transaction
    */
   public async addTransaction(dataId: string, header: any, timestamp: number): Promise<void> {
-
     if (!this.locationByTopic) {
       throw new Error('TransactionIndex must be initialized');
     }
     // topic the dataId with block topic
-    this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(
-      dataId,
-      header,
-    );
+    this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(dataId, header);
 
     // add the timestamp in the index
-    this.timestampByLocation.pushTimestampByLocation(
-      dataId,
-      timestamp,
-    );
+    this.timestampByLocation.pushTimestampByLocation(dataId, timestamp);
     return Promise.resolve();
   }
 
@@ -80,7 +72,10 @@ export default class InMemoryTransactionIndex implements DataAccessTypes.ITransa
    * @param channelId channel id to retrieve the transaction from
    * @param timestampBoundaries timestamp boundaries of the transactions search
    */
-  public async getStorageLocationList(channelId: string, timestampBoundaries?: DataAccessTypes.ITimestampBoundaries): Promise<string[]> {
+  public async getStorageLocationList(
+    channelId: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<string[]> {
     if (!this.locationByTopic) {
       throw new Error('TransactionIndex must be initialized');
     }
@@ -96,7 +91,10 @@ export default class InMemoryTransactionIndex implements DataAccessTypes.ITransa
    * @param topic topic to retrieve the transaction from
    * @param timestampBoundaries timestamp boundaries of the transactions search
    */
-  public async getChannelIdsForTopic(topic: string, timestampBoundaries?: DataAccessTypes.ITimestampBoundaries | undefined): Promise<string[]> {
+  public async getChannelIdsForTopic(
+    topic: string,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries | undefined,
+  ): Promise<string[]> {
     if (!this.locationByTopic) {
       throw new Error('TransactionIndex must be initialized');
     }

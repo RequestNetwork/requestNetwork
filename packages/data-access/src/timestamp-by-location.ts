@@ -58,7 +58,6 @@ export default class LocationTimestamp {
     if (!timestamp) {
       throw Error(`Timestamp not know for the dataId ${dataId}`);
     }
-
     return (
       !boundaries ||
       ((boundaries.from === undefined || boundaries.from <= timestamp) &&

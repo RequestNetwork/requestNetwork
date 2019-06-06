@@ -392,42 +392,42 @@ describe('EthereumStorage', () => {
       await ethereumStorage.append(content2);
       const result = await ethereumStorage.getDataId();
 
-      if (!result.meta.metaDataIds[0].ethereum) {
-        assert.fail('result.meta.metaDataIds[0].ethereum does not exist');
+      if (!result.meta.metaData[0].ethereum) {
+        assert.fail('result.meta.metaData[0].ethereum does not exist');
         return;
       }
-      assert.deepEqual(result.meta.metaDataIds[0].ipfs, {
+      assert.deepEqual(result.meta.metaData[0].ipfs, {
         size: realSize1,
       });
-      assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.equal(result.meta.metaDataIds[0].ethereum.networkName, 'private');
+      assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.equal(result.meta.metaData[0].ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaDataIds[0].ethereum.smartContractAddress,
+        result.meta.metaData[0].ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaDataIds[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.isAtLeast(result.meta.metaDataIds[0].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaDataIds[0].ethereum.blockTimestamp);
+      assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.isAtLeast(result.meta.metaData[0].ethereum.blockConfirmation, 1);
+      assert.exists(result.meta.metaData[0].ethereum.blockTimestamp);
 
-      if (!result.meta.metaDataIds[1].ethereum) {
-        assert.fail('result.meta.metaDataIds[2].ethereum does not exist');
+      if (!result.meta.metaData[1].ethereum) {
+        assert.fail('result.meta.metaData[2].ethereum does not exist');
         return;
       }
 
       // We compare with the third value of pastEventsMock because the second one is ignored
       // Since the size is fake
-      assert.deepEqual(result.meta.metaDataIds[1].ipfs, {
+      assert.deepEqual(result.meta.metaData[1].ipfs, {
         size: realSize2,
       });
-      assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-      assert.equal(result.meta.metaDataIds[1].ethereum.networkName, 'private');
+      assert.equal(result.meta.metaData[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+      assert.equal(result.meta.metaData[1].ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaDataIds[1].ethereum.smartContractAddress,
+        result.meta.metaData[1].ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaDataIds[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-      assert.isAtLeast(result.meta.metaDataIds[1].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaDataIds[1].ethereum.blockTimestamp);
+      assert.equal(result.meta.metaData[1].ethereum.blockNumber, pastEventsMock[2].blockNumber);
+      assert.isAtLeast(result.meta.metaData[1].ethereum.blockConfirmation, 1);
+      assert.exists(result.meta.metaData[1].ethereum.blockTimestamp);
 
       assert.deepEqual(result.result, { dataIds: [hash1, hash2] });
     });
@@ -476,7 +476,7 @@ describe('EthereumStorage', () => {
       assert.isAtLeast(result.meta.metaData[1].ethereum.blockConfirmation, 1);
       assert.exists(result.meta.metaData[1].ethereum.blockTimestamp);
 
-      assert.deepEqual(result.result, { data: [content1, content2] });
+      assert.deepEqual(result.result, { data: [content1, content2], dataIds: [hash1, hash2] });
     });
 
     it('append and read with no parameter should throw an error', async () => {
@@ -503,7 +503,6 @@ describe('EthereumStorage', () => {
         Error,
         'Ipfs get length request error',
       );
-      await assert.isRejected(ethereumStorage.read(hash1), Error, 'Ipfs get length request error');
     });
 
     it('append content with an invalid web3 connection should throw an error', async () => {

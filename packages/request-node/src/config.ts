@@ -26,7 +26,7 @@ const defaultValues: any = {
     maxConcurrency: 500,
     retryDelay: 1000,
   },
-  logLevel: LogTypes.LogLevel.ERROR,
+  logLevel: LogTypes.LogLevel.INFO,
   server: {
     headers: '{}',
     port: 3000,

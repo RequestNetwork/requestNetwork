@@ -4,6 +4,9 @@ import * as http from 'http';
 import * as https from 'https';
 import { getDefaultIpfs } from './config';
 
+// eslint-disable-next-line spellcheck/spell-checker
+const unixfs = require('ipfs-unixfs');
+
 /**
  * Manages Ipfs communication used as storage
  */
@@ -17,7 +20,7 @@ export default class IpfsManager {
   public ipfsConnectionModule: any;
 
   public readonly IPFS_API_ADD: string = '/api/v0/add';
-  public readonly IPFS_API_CAT: string = '/api/v0/cat';
+  public readonly IPFS_API_CAT: string = '/api/v0/object/get';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
   public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
   // eslint-disable-next-line spellcheck/spell-checker
@@ -206,11 +209,11 @@ export default class IpfsManager {
   /**
    * Retrieve content from ipfs from its hash
    * @param hash Hash of the content
-   * @returns Promise resolving retrieved content in UTF8 encoding
+   * @returns Promise resolving retrieved ipfs object
    */
-  public read(hash: string): Promise<string> {
+  public read(hash: string): Promise<StorageTypes.IIpfsObject> {
     // Promise to wait for response from server
-    return new Promise<string>(
+    return new Promise<StorageTypes.IIpfsObject>(
       (resolve, reject): void => {
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
@@ -225,9 +228,24 @@ export default class IpfsManager {
             res.on('data', (chunk: string) => {
               data += chunk;
             });
+
             // All data has been received
             res.on('end', () => {
-              resolve(data);
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                return reject(
+                  Error('Ipfs object get request response cannot be parsed into JSON format'),
+                );
+              }
+              if (jsonData.Type === 'error') {
+                return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
+              }
+              const content = this.getContentFromMarshaledData(jsonData.Data);
+              const ipfsSize = jsonData.Data.length;
+              const ipfsLinks = jsonData.Links;
+              resolve({ content, ipfsSize, ipfsLinks });
             });
 
             // Error handling
@@ -354,7 +372,6 @@ export default class IpfsManager {
               } catch (error) {
                 reject(Error('Ipfs stat request response cannot be parsed into JSON format'));
               }
-
               if (!jsonData || !jsonData.DataSize) {
                 reject(Error('Ipfs stat request response has no DataSize field'));
               } else {
@@ -406,5 +423,18 @@ export default class IpfsManager {
     }
 
     return protocolModule;
+  }
+
+  /**
+   * Removes the Unicode special character from a ipfs content
+   * @param marshaledData marshaled data
+   * @returns the content without the padding
+   */
+  private getContentFromMarshaledData(marshaledData: string): string {
+    // eslint-disable-next-line spellcheck/spell-checker
+    const unmarshalData = unixfs.unmarshal(Buffer.from(marshaledData)).data.toString();
+
+    // eslint-disable-next-line spellcheck/spell-checker
+    return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
   }
 }

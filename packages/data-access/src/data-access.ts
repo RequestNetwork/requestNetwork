@@ -1,4 +1,8 @@
-import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@requestnetwork/types';
+import {
+  DataAccess as DataAccessTypes,
+  Log as LogTypes,
+  Storage as StorageTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Block from './block';
@@ -42,6 +46,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private lastSyncedTimeStamp: number;
 
   /**
+   * Logger instance
+   */
+  private logger: LogTypes.ILogger;
+
+  /**
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
@@ -63,6 +72,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       options.synchronizationIntervalTime!,
     );
     this.transactionIndex = options.transactionIndex!;
+
+    this.logger = new Utils.SimpleLogger();
   }
 
   /**
@@ -79,7 +90,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const now = Utils.getCurrentTimestampInSecond();
 
     // initialize the dataId topic with the previous block
-    const allDataIdsWithMeta = await this.storage.getDataId(
+    const allDataWithMeta = await this.storage.getData(
       lastSynced
         ? {
             from: lastSynced,
@@ -93,7 +104,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopicsFromDataIds(allDataIdsWithMeta);
+    this.pushLocationsWithTopics(allDataWithMeta);
   }
 
   /**
@@ -268,15 +279,15 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const synchronizationFrom = this.lastSyncedTimeStamp;
     const synchronizationTo = Utils.getCurrentTimestampInSecond();
 
-    // Read new dataIds from storage
-    const newDataIdsWithMeta = await this.storage.getDataId({
+    // Read new data from storage
+    const newDataWithMeta = await this.storage.getData({
       from: synchronizationFrom,
       to: synchronizationTo,
     });
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopicsFromDataIds(newDataIdsWithMeta);
+    this.pushLocationsWithTopics(newDataWithMeta);
 
     // update the last synced Timestamp
     this.lastSyncedTimeStamp = synchronizationTo;
@@ -312,60 +323,52 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * Check the format of the dataIds, extract the topics from it and push location indexed with the topics
+   * Check the format of the data, extract the topics from it and push location indexed with the topics
    *
    * @private
-   * @param dataIdsWithMeta dataIds from getDataId and getNewDataId from storage functions
+   * @param dataWithMeta dataIds from getDataId and getNewDataId from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
-  private async pushLocationsWithTopicsFromDataIds(
-    dataIdsWithMeta: StorageTypes.IGetDataIdReturn | StorageTypes.IGetNewDataIdReturn,
-  ): Promise<void[]> {
+  private pushLocationsWithTopics(dataWithMeta: StorageTypes.IGetDataIdContentAndMeta): void {
     this.checkInitialized();
-    if (!dataIdsWithMeta.result) {
-      throw Error(`data from storage do not follow the standard, result is missing`);
+    if (!dataWithMeta.result || !dataWithMeta.result.data || !dataWithMeta.result.dataIds) {
+      throw Error(`data from storage do not follow the standard`);
     }
 
-    const dataIds = dataIdsWithMeta.result.dataIds;
-    // Get all the results
-    const resultReadMany = await this.storage.readMany(dataIds);
-
-    if (!resultReadMany) {
-      throw Error(`data from storage do not follow the standard, result is missing`);
-    }
-    if (resultReadMany.length !== dataIds.length) {
-      throw new Error(
-        `Wrong amount of data read from storage. Expected ${dataIds.length}, got ${
-          resultReadMany.length
-        }.`,
-      );
-    }
-
-    return Promise.all(
-      resultReadMany.map((resultRead, index) => {
-        if (!resultRead.result) {
-          throw Error(`data from storage do not follow the standard, result is missing`);
-        }
-
-        let block;
-        try {
-          block = JSON.parse(resultRead.result.content);
-        } catch (e) {
-          throw Error(`can't parse content of the dataId: ${e}`);
-        }
-        if (!block.header || !block.header.topics) {
-          throw Error(
-            `data from storage do not follow the standard, storage location: "${dataIds[index]}"`,
-          );
-        }
-
-        // adds this transaction to the index, to enable retrieving it later.
-        return this.transactionIndex.addTransaction(
-          dataIds[index],
-          block.header,
-          resultRead.meta.timestamp,
+    let jsonParsingErrorCount = 0;
+    let requestStandardErrorCount = 0;
+    let proceedCount = 0;
+    dataWithMeta.result.data.forEach((blockString, index) => {
+      let block;
+      try {
+        block = JSON.parse(blockString);
+      } catch (e) {
+        requestStandardErrorCount++;
+        throw Error(
+          `can't parse content of the dataId (${dataWithMeta.result.dataIds[index]}): ${e}`,
         );
-      }),
+      }
+      if (!block.header || !block.header.topics) {
+        jsonParsingErrorCount++;
+        throw Error(
+          `data from storage do not follow the standard, storage location: "${
+            dataWithMeta.result.dataIds[index]
+          }"`,
+        );
+      }
+
+      proceedCount++;
+      // adds this transaction to the index, to enable retrieving it later.
+      this.transactionIndex.addTransaction(
+        dataWithMeta.result.dataIds[index],
+        block.header,
+        dataWithMeta.meta.metaData[index].timestamp,
+      );
+    });
+
+    this.logger.info(
+      `Synchronization: ${proceedCount} blocks synchronized, ${jsonParsingErrorCount} ignored from parsing error, ${requestStandardErrorCount} ignored from standard error.`,
+      ['synchronization'],
     );
   }
 
