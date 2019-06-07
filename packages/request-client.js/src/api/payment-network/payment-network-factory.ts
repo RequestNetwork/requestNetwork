@@ -1,7 +1,7 @@
 import {
-  AdvancedLogic as AdvancedLogicTypes,
-  Extension as ExtensionTypes,
-  RequestLogic as RequestLogicTypes,
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import * as Types from '../../types';
 import BTCAddressedBased from './btc/mainnet-address-based';
@@ -44,7 +44,7 @@ export default class PaymentNetworkFactory {
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
         `the payment network id: ${
-          paymentNetworkCreationParameters.id
+        paymentNetworkCreationParameters.id
         } is not supported for the currency: ${currency}`,
       );
     }

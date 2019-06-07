@@ -1,4 +1,4 @@
-import { Identity as IdentityTypes, RequestLogic as Types } from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -16,13 +16,13 @@ export default {
  *
  * @returns Types.ROLE the role of identity in parameters
  */
-function getRole(identity: IdentityTypes.IIdentity, parameters: any): Types.ROLE {
+function getRole(identity: IdentityTypes.IIdentity, parameters: any): RequestLogicTypes.ROLE {
   if (parameters.payee && Utils.identity.areEqual(parameters.payee, identity)) {
-    return Types.ROLE.PAYEE;
+    return RequestLogicTypes.ROLE.PAYEE;
   }
   if (parameters.payer && Utils.identity.areEqual(parameters.payer, identity)) {
-    return Types.ROLE.PAYER;
+    return RequestLogicTypes.ROLE.PAYER;
   }
 
-  return Types.ROLE.THIRD_PARTY;
+  return RequestLogicTypes.ROLE.THIRD_PARTY;
 }

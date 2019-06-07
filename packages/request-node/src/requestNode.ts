@@ -1,5 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 
 import * as cors from 'cors';
 import * as express from 'express';

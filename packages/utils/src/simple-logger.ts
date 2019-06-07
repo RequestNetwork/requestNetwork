@@ -1,5 +1,5 @@
 // tslint:disable:no-console
-import { Log as LogTypes } from '@requestnetwork/types';
+import { LogTypes } from '@requestnetwork/types';
 
 // The default log level to use if none is used at the constructor.
 const DEFAULT_LOG_LEVEL = LogTypes.LogLevel.INFO;

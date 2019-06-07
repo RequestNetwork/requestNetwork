@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import 'mocha';
 import MockStorage from '../src/mock-storage';

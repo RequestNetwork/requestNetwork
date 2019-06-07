@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**

@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { EventEmitter } from 'events';
@@ -148,7 +148,7 @@ describe('Ipfs manager', () => {
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
       // We filter the response of the request to prevent the promise to resolve
-      hookedRequest = http.get(request, _res => {});
+      hookedRequest = http.get(request, _res => { });
       return hookedRequest;
     };
     const hookedIpfsConnectionModule = { get: requestHook };
@@ -201,7 +201,7 @@ describe('Ipfs manager', () => {
 
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
-      hookedRequest = http.get(request, _res => {});
+      hookedRequest = http.get(request, _res => { });
       return hookedRequest;
     };
     const hookedIpfsConnectionModule = { get: requestHook };

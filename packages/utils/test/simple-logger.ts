@@ -1,9 +1,9 @@
-import { Log } from '@requestnetwork/types';
+import { LogTypes } from '@requestnetwork/types';
 import 'mocha';
 import * as sinon from 'sinon';
 import SimpleLogger from '../src/simple-logger';
 
-const LogLevel = Log.LogLevel;
+const LogLevel = LogTypes.LogLevel;
 
 const chai = require('chai');
 const spies = require('chai-spies');

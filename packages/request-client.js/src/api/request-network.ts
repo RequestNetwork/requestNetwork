@@ -2,12 +2,12 @@ import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
-  AdvancedLogic as AdvancedLogicTypes,
-  DataAccess as DataAccessTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  SignatureProvider as SignatureProviderTypes,
-  Transaction as TransactionTypes,
+  AdvancedLogicTypes,
+  DataAccessTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';

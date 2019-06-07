@@ -18,7 +18,7 @@ npm install @requestnetwork/ethereum-storage
 
 ```js
 import EthereumStorage from '@requestnetwork/ethereum-storage';
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 
 const web3HttpProvider = require('web3-providers-http');
 
@@ -73,7 +73,7 @@ There are 3 smart contracts:
 When deploying the smart contracts for development you can manually set the provider host and port via env variables:
 
 ```bash
-TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy 
+TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy
 ```
 
 ## IPFS

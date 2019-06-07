@@ -39,11 +39,7 @@ npm install @requestnetwork/data-access
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
 
 // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
 const storage: StorageTypes.IStorage;
@@ -80,11 +76,7 @@ const result = await dataAccess.persistTransaction(transaction, channelId, chann
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
 
 const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
 
@@ -102,11 +94,7 @@ const {
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
 
 const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
 

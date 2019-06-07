@@ -2,7 +2,7 @@ import 'mocha';
 
 import * as chai from 'chai';
 
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import EthereumMetadataCache from '../../src/lib/ethereum-metadata-cache';
 import SmartContractManager from '../../src/lib/smart-contract-manager';
 

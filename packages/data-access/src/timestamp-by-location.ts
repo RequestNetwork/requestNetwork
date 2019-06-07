@@ -1,4 +1,4 @@
-import { DataAccess as Types } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 // Interface of the object to store the timestamp indexed by location
 interface ITimestampByStorageId {
@@ -53,7 +53,7 @@ export default class LocationTimestamp {
    *
    * @return timestamp of the location, null if not found
    */
-  public isDataInBoundaries(dataId: string, boundaries?: Types.ITimestampBoundaries): boolean {
+  public isDataInBoundaries(dataId: string, boundaries?: DataAccessTypes.ITimestampBoundaries): boolean {
     const timestamp = this.timestampLocations[dataId];
     if (!timestamp) {
       throw Error(`Timestamp not know for the dataId ${dataId}`);

@@ -1,9 +1,9 @@
 import {
-  AdvancedLogic as AdvancedLogicTypes,
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  SignatureProvider as SignatureProviderTypes,
-  Transaction as TransactionTypes,
+  AdvancedLogicTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
@@ -11,7 +11,7 @@ import RequestLogicCore from './requestLogicCore';
 /**
  * Implementation of Request Logic
  */
-export default class RequestLogic implements Types.IRequestLogic {
+export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
   private transactionManager: TransactionTypes.ITransactionManager;
   private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
@@ -36,10 +36,10 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns Promise<IRequestLogicReturnCreateRequest>  the request id and the meta data
    */
   public async createRequest(
-    requestParameters: Types.ICreateParameters,
+    requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
     indexes: string[] = [],
-  ): Promise<Types.IReturnCreateRequest> {
+  ): Promise<RequestLogicTypes.IReturnCreateRequest> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -71,9 +71,9 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async acceptRequest(
-    requestParameters: Types.IAcceptParameters,
+    requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -103,9 +103,9 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async cancelRequest(
-    requestParameters: Types.ICancelParameters,
+    requestParameters: RequestLogicTypes.ICancelParameters,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -134,9 +134,9 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async increaseExpectedAmountRequest(
-    requestParameters: Types.IIncreaseExpectedAmountParameters,
+    requestParameters: RequestLogicTypes.IIncreaseExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -165,9 +165,9 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async reduceExpectedAmountRequest(
-    requestParameters: Types.IReduceExpectedAmountParameters,
+    requestParameters: RequestLogicTypes.IReduceExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -196,9 +196,9 @@ export default class RequestLogic implements Types.IRequestLogic {
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async addExtensionsDataRequest(
-    requestParameters: Types.IAddExtensionsDataParameters,
+    requestParameters: RequestLogicTypes.IAddExtensionsDataParameters,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -226,7 +226,7 @@ export default class RequestLogic implements Types.IRequestLogic {
    *
    * @returns the request constructed from the actions
    */
-  public async getRequestFromId(requestId: string): Promise<Types.IReturnGetRequestFromId> {
+  public async getRequestFromId(requestId: string): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions;
     let ignoredTransactions: any[] = [];
@@ -295,8 +295,8 @@ export default class RequestLogic implements Types.IRequestLogic {
    */
   public async getRequestsByTopic(
     topic: string,
-    updatedBetween?: Types.ITimestampBoundaries,
-  ): Promise<Types.IReturnGetRequestsByTopic> {
+    updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
+  ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
       topic,
       updatedBetween,
@@ -364,7 +364,7 @@ export default class RequestLogic implements Types.IRequestLogic {
 
     // Merge all the requests and meta in one object
     return allRequestAndMeta.reduce(
-      (finalResult: Types.IReturnGetRequestsByTopic, requestAndMeta: any) => {
+      (finalResult: RequestLogicTypes.IReturnGetRequestsByTopic, requestAndMeta: any) => {
         if (requestAndMeta.request) {
           finalResult.result.requests.push(requestAndMeta.request);
 

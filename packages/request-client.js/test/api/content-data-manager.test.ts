@@ -1,4 +1,4 @@
-import { AdvancedLogic as AdvancedLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes } from '@requestnetwork/types';
 
 import ContentDataExtension from '../../src/api/content-data-extension';
 

@@ -1,4 +1,4 @@
-import { AdvancedLogic as AdvancedLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes } from '@requestnetwork/types';
 
 import AddressBasedTestnetBtc from '../../../../src/api/payment-network/btc/testnet-address-based';
 

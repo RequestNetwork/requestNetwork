@@ -1,4 +1,4 @@
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 import LocationByTopic from '../location-by-topic';
 import TimestampByLocation from '../timestamp-by-location';

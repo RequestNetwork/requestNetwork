@@ -1,4 +1,4 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from './utils';
 
 const bigNumber: any = require('bn.js');
@@ -21,7 +21,7 @@ const regexInteger = RegExp(/^[\d]+$/);
  *
  * @returns boolean true if amount is a valid amount
  */
-function isValid(amount: Types.Amount): boolean {
+function isValid(amount: RequestLogicTypes.Amount): boolean {
   return (
     (bigNumber.isBN(amount) && !amount.isNeg()) ||
     (Utils.isString(amount) && regexInteger.test(amount)) ||
@@ -37,7 +37,7 @@ function isValid(amount: Types.Amount): boolean {
  *
  * @returns string the new amount in a string format
  */
-function add(amount: Types.Amount, delta: Types.Amount): string {
+function add(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount): string {
   if (!isValid(amount)) {
     throw Error('amount must represent a positive integer');
   }
@@ -60,7 +60,7 @@ function add(amount: Types.Amount, delta: Types.Amount): string {
  *
  * @returns string the new amount in a string format
  */
-function reduce(amount: Types.Amount, delta: Types.Amount): string {
+function reduce(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount): string {
   if (!isValid(amount)) {
     throw Error('amount must represent a positive integer');
   }

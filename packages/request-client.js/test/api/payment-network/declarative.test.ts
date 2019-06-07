@@ -1,6 +1,8 @@
-import { AdvancedLogic as AdvancedLogicTypes } from '@requestnetwork/types';
-import { Extension as ExtensionTypes } from '@requestnetwork/types';
-import { RequestLogic as RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import Declarative from '../../../src/api/payment-network/declarative';
 

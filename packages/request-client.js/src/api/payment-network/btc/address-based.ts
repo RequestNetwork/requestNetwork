@@ -1,6 +1,6 @@
 import {
-  Extension as ExtensionTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import * as Types from '../../../types';
 import BitcoinInfoRetriever from './bitcoin-info-retriever';

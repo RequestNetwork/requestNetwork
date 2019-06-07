@@ -1,5 +1,5 @@
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
 const hdWalletProvider = require('truffle-hdwallet-provider');

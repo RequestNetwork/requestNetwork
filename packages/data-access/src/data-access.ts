@@ -1,8 +1,5 @@
-import {
-  DataAccess as DataAccessTypes,
-  Log as LogTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
+
 import Utils from '@requestnetwork/utils';
 
 import Block from './block';
@@ -93,9 +90,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const allDataWithMeta = await this.storage.getData(
       lastSynced
         ? {
-            from: lastSynced,
-            to: now,
-          }
+          from: lastSynced,
+          to: now,
+        }
         : undefined,
     );
 
@@ -352,7 +349,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         jsonParsingErrorCount++;
         throw Error(
           `data from storage do not follow the standard, storage location: "${
-            dataWithMeta.result.dataIds[index]
+          dataWithMeta.result.dataIds[index]
           }"`,
         );
       }

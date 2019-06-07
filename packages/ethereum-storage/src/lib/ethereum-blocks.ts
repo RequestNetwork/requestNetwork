@@ -1,4 +1,4 @@
-import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -119,7 +119,7 @@ export default class EthereumBlocks {
    */
   public async getBlockNumbersFromTimestamp(
     timestamp: number,
-  ): Promise<Types.IBlockNumbersInterval> {
+  ): Promise<StorageTypes.IBlockNumbersInterval> {
     // check if we have the blockTimestamp of the first significant block number
     if (!this.blockTimestamp[this.firstSignificantBlockNumber]) {
       // update the blockTimestamp cache with the first significant block
@@ -211,7 +211,7 @@ export default class EthereumBlocks {
     timestamp: number,
     lastBlockNumber: number,
   ): {
-    result: Types.IBlockNumbersInterval | null;
+    result: StorageTypes.IBlockNumbersInterval | null;
     lowBlockNumber: number;
     highBlockNumber: number;
   } {
@@ -220,7 +220,7 @@ export default class EthereumBlocks {
 
     let currentBlockNumber = this.firstSignificantBlockNumber;
     let currentBlockTimestamp;
-    let result: Types.IBlockNumbersInterval | null = null;
+    let result: StorageTypes.IBlockNumbersInterval | null = null;
 
     let foundKnownBoundaries: boolean = false;
     // We iterate on the known blocks from the first significant block until we found a blockTimestamp bigger than the timestamp
@@ -263,8 +263,8 @@ export default class EthereumBlocks {
     timestamp: number,
     lowBlockNumber: number,
     highBlockNumber: number,
-  ): Promise<Types.IBlockNumbersInterval> {
-    let result: Types.IBlockNumbersInterval | null = null;
+  ): Promise<StorageTypes.IBlockNumbersInterval> {
+    let result: StorageTypes.IBlockNumbersInterval | null = null;
 
     // if blocks not found yet, we do a dichotomic search between the two closest known blocks
     while (!result) {

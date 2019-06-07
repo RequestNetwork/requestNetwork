@@ -1,6 +1,6 @@
 import {
-  Extension as ExtensionTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';

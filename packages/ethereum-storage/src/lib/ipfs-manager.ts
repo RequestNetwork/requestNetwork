@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import * as FormData from 'form-data';
 import * as http from 'http';
 import * as https from 'https';

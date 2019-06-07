@@ -1,7 +1,7 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Role from './role';
@@ -32,10 +32,10 @@ export default {
  * @returns IAction the action with the signature
  */
 function createAction(
-  unsignedAction: Types.IUnsignedAction,
+  unsignedAction: RequestLogicTypes.IUnsignedAction,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Promise<Types.IAction> {
+): Promise<RequestLogicTypes.IAction> {
   return signatureProvider.sign(unsignedAction, signerIdentity);
 }
 
@@ -46,7 +46,7 @@ function createAction(
  *
  * @returns RequestEnum.ROLE the role of the signer (payee, payer or third party)
  */
-function getSignerIdentityFromAction(action: Types.IAction): IdentityTypes.IIdentity {
+function getSignerIdentityFromAction(action: RequestLogicTypes.IAction): IdentityTypes.IIdentity {
   return Utils.signature.recover(action);
 }
 
@@ -58,7 +58,7 @@ function getSignerIdentityFromAction(action: Types.IAction): IdentityTypes.IIden
  *
  * @returns RequestEnum.ROLE the role of the signer
  */
-function getRoleInAction(identity: IdentityTypes.IIdentity, action: Types.IAction): Types.ROLE {
+function getRoleInAction(identity: IdentityTypes.IIdentity, action: RequestLogicTypes.IAction): RequestLogicTypes.ROLE {
   return getRoleInUnsignedAction(identity, action.data);
 }
 
@@ -72,8 +72,8 @@ function getRoleInAction(identity: IdentityTypes.IIdentity, action: Types.IActio
  */
 function getRoleInUnsignedAction(
   identity: IdentityTypes.IIdentity,
-  unsignedAction: Types.IUnsignedAction,
-): Types.ROLE {
+  unsignedAction: RequestLogicTypes.IUnsignedAction,
+): RequestLogicTypes.ROLE {
   return Role.getRole(identity, unsignedAction.parameters);
 }
 
@@ -84,9 +84,9 @@ function getRoleInUnsignedAction(
  *
  * @returns RequestIdType the requestId
  */
-function getRequestId(action: Types.IAction): Types.RequestId {
+function getRequestId(action: RequestLogicTypes.IAction): RequestLogicTypes.RequestId {
   // if a creation we need to compute the hash
-  if (action.data.name === Types.ACTION_NAME.CREATE) {
+  if (action.data.name === RequestLogicTypes.ACTION_NAME.CREATE) {
     return getActionHash(action);
   }
   return action.data.parameters.requestId;
@@ -99,7 +99,7 @@ function getRequestId(action: Types.IAction): Types.RequestId {
  *
  * @returns boolean true, if action is supported false otherwise
  */
-function isActionVersionSupported(action: Types.IAction): boolean {
+function isActionVersionSupported(action: RequestLogicTypes.IAction): boolean {
   return Version.isSupported(action.data.version);
 }
 
@@ -110,7 +110,7 @@ function isActionVersionSupported(action: Types.IAction): boolean {
  *
  * @returns string version
  */
-function getVersionFromAction(action: Types.IAction): string {
+function getVersionFromAction(action: RequestLogicTypes.IAction): string {
   return action.data.version;
 }
 
@@ -121,6 +121,6 @@ function getVersionFromAction(action: Types.IAction): string {
  *
  * @returns string the hash
  */
-function getActionHash(action: Types.IAction): string {
+function getActionHash(action: RequestLogicTypes.IAction): string {
   return Utils.crypto.normalizeKeccak256Hash(action.data);
 }

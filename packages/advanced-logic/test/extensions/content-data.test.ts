@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Extension as ExtensionTypes } from '@requestnetwork/types';
+import { ExtensionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import ContentData from '../../src/extensions/content-data';

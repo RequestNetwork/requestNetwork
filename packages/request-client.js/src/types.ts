@@ -1,11 +1,22 @@
 import {
-  Extension as ExtensionTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 // Export all the types to avoid the users to import them beside the present module
-export * from '@requestnetwork/types';
+export {
+  AdvancedLogicTypes as AdvancedLogic,
+  LogTypes as Log,
+  ExtensionTypes as Extension,
+  RequestLogicTypes as RequestLogic,
+  DataAccessTypes as DataAccess,
+  SignatureTypes as Signature,
+  SignatureProviderTypes as SignatureProvider,
+  IdentityTypes as Identity,
+  StorageTypes as Storage,
+  TransactionTypes as Transaction,
+} from '@requestnetwork/types';
 
 /** Restrict research to two timestamp */
 export interface ITimestampBoundaries {

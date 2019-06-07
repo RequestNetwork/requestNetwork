@@ -1,7 +1,7 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Action from '../action';
@@ -27,10 +27,10 @@ export default {
  * @returns IAction  the action with the signature
  */
 function format(
-  requestParameters: Types.ICreateParameters,
+  requestParameters: RequestLogicTypes.ICreateParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Promise<Types.IAction> {
+): Promise<RequestLogicTypes.IAction> {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
   }
@@ -61,15 +61,15 @@ function format(
   requestParameters.expectedAmount = requestParameters.expectedAmount.toString();
   const version = Version.currentVersion;
 
-  const unsignedAction: Types.IUnsignedAction = {
-    name: Types.ACTION_NAME.CREATE,
+  const unsignedAction: RequestLogicTypes.IUnsignedAction = {
+    name: RequestLogicTypes.ACTION_NAME.CREATE,
     parameters: requestParameters,
     version,
   };
 
-  const signerRole: Types.ROLE = Action.getRoleInUnsignedAction(signerIdentity, unsignedAction);
+  const signerRole: RequestLogicTypes.ROLE = Action.getRoleInUnsignedAction(signerIdentity, unsignedAction);
 
-  if (signerRole !== Types.ROLE.PAYEE && signerRole !== Types.ROLE.PAYER) {
+  if (signerRole !== RequestLogicTypes.ROLE.PAYEE && signerRole !== RequestLogicTypes.ROLE.PAYER) {
     throw new Error('Signer must be the payee or the payer');
   }
 
@@ -83,7 +83,7 @@ function format(
  *
  * @returns Types.IRequest the new request
  */
-function createRequest(action: Types.IAction, timestamp: number): Types.IRequest {
+function createRequest(action: RequestLogicTypes.IAction, timestamp: number): RequestLogicTypes.IRequest {
   if (!action.data.parameters.payee && !action.data.parameters.payer) {
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
@@ -100,20 +100,20 @@ function createRequest(action: Types.IAction, timestamp: number): Types.IRequest
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
   // Copy to not modify the action itself
-  const request: Types.IRequest = Utils.deepCopy(action.data.parameters);
+  const request: RequestLogicTypes.IRequest = Utils.deepCopy(action.data.parameters);
   request.extensions = {};
   request.requestId = Action.getRequestId(action);
   request.version = Action.getVersionFromAction(action);
   request.events = [generateEvent(action, timestamp, signer)];
 
   const signerRole = Action.getRoleInAction(signer, action);
-  if (signerRole === Types.ROLE.PAYEE) {
-    request.state = Types.STATE.CREATED;
+  if (signerRole === RequestLogicTypes.ROLE.PAYEE) {
+    request.state = RequestLogicTypes.STATE.CREATED;
     request.creator = action.data.parameters.payee;
     return request;
   }
-  if (signerRole === Types.ROLE.PAYER) {
-    request.state = Types.STATE.ACCEPTED;
+  if (signerRole === RequestLogicTypes.ROLE.PAYER) {
+    request.state = RequestLogicTypes.STATE.ACCEPTED;
     request.creator = action.data.parameters.payer;
     return request;
   }
@@ -130,15 +130,15 @@ function createRequest(action: Types.IAction, timestamp: number): Types.IRequest
  * @returns Types.IEvent the event generated
  */
 function generateEvent(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
   actionSigner: IdentityTypes.IIdentity,
-): Types.IEvent {
+): RequestLogicTypes.IEvent {
   const params = action.data.parameters;
 
-  const event: Types.IEvent = {
+  const event: RequestLogicTypes.IEvent = {
     actionSigner,
-    name: Types.ACTION_NAME.CREATE,
+    name: RequestLogicTypes.ACTION_NAME.CREATE,
     parameters: {
       expectedAmount: params.expectedAmount,
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,

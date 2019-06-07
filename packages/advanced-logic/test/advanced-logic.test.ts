@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { AdvancedLogic as Types, Extension as ExtensionTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
 import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create';
@@ -13,7 +13,7 @@ import { expect } from 'chai';
 
 import * as TestData from './utils/test-data-generator';
 
-let advancedLogic: Types.IAdvancedLogic;
+let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
 /* tslint:disable:no-unused-expression */
 describe('advanced-logic.ts', () => {

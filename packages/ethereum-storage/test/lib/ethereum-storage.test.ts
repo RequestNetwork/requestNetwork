@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
@@ -337,7 +337,7 @@ describe('EthereumStorage', () => {
     it('allows to read a file', async () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => { };
 
       await ethereumStorage.append(content1);
       const result = await ethereumStorage.read(hash1);
@@ -435,7 +435,7 @@ describe('EthereumStorage', () => {
     it('allows to retrieve all data', async () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => { };
 
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
@@ -548,7 +548,7 @@ describe('EthereumStorage', () => {
     });
 
     it('allows to read a file', async () => {
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => { };
 
       const content = [content1, content2];
       const realSizes = [realSize1, realSize2];

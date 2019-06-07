@@ -1,11 +1,11 @@
-import { DataAccess as DataAccessTypes, Transaction as Types } from '@requestnetwork/types';
+import { DataAccessTypes, TransactionTypes } from '@requestnetwork/types';
 
 import TransactionCore from './transaction';
 
 /**
  * Implementation of TransactionManager layer without encryption
  */
-export default class TransactionManager implements Types.ITransactionManager {
+export default class TransactionManager implements TransactionTypes.ITransactionManager {
   private dataAccess: DataAccessTypes.IDataAccess;
 
   public constructor(dataAccess: DataAccessTypes.IDataAccess) {
@@ -24,11 +24,11 @@ export default class TransactionManager implements Types.ITransactionManager {
    * @returns string dataId where the transaction is stored
    */
   public async persistTransaction(
-    transactionData: Types.ITransactionData,
+    transactionData: TransactionTypes.ITransactionData,
     channelId: string,
     topics: string[] = [],
-  ): Promise<Types.IReturnPersistTransaction> {
-    const transaction: Types.ITransaction = TransactionCore.createTransaction(transactionData);
+  ): Promise<TransactionTypes.IReturnPersistTransaction> {
+    const transaction: TransactionTypes.ITransaction = TransactionCore.createTransaction(transactionData);
 
     const resultPersist = await this.dataAccess.persistTransaction(transaction, channelId, topics);
 
@@ -51,8 +51,8 @@ export default class TransactionManager implements Types.ITransactionManager {
    */
   public async getTransactionsByChannelId(
     channelId: string,
-    timestampBoundaries?: Types.ITimestampBoundaries,
-  ): Promise<Types.IReturnGetTransactions> {
+    timestampBoundaries?: TransactionTypes.ITimestampBoundaries,
+  ): Promise<TransactionTypes.IReturnGetTransactions> {
     const resultGetTx = await this.dataAccess.getTransactionsByChannelId(
       channelId,
       timestampBoundaries,
@@ -75,8 +75,8 @@ export default class TransactionManager implements Types.ITransactionManager {
    */
   public async getChannelsByTopic(
     topic: string,
-    updatedBetween?: Types.ITimestampBoundaries,
-  ): Promise<Types.IReturnGetTransactionsByChannels> {
+    updatedBetween?: TransactionTypes.ITimestampBoundaries,
+  ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
     const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
 
     return {

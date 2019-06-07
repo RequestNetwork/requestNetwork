@@ -1,4 +1,4 @@
-import { Transaction as Types } from '@requestnetwork/types';
+import { TransactionTypes } from '@requestnetwork/types';
 
 /**
  * Function to manage Request logic transactions
@@ -18,6 +18,6 @@ export default {
  *
  * @returns ITransaction the transaction with the signature
  */
-function createTransaction(data: Types.ITransactionData): Types.ITransaction {
+function createTransaction(data: TransactionTypes.ITransactionData): TransactionTypes.ITransaction {
   return { data };
 }

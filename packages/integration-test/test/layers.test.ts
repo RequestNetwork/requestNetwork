@@ -9,11 +9,11 @@ import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
-  AdvancedLogic as AdvancedLogicTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
+  AdvancedLogicTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureTypes,
+  StorageTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 

@@ -1,4 +1,4 @@
-import { RequestLogic as RequestLogicTypes } from '@requestnetwork/types';
+import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**
  * Collection of utils functions related to the library, meant to simplify its use.

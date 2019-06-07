@@ -1,4 +1,4 @@
-import { Storage as Types } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import SmartContractManager from './smart-contract-manager';
 
 /**
@@ -12,7 +12,7 @@ export default class EthereumMetadataCache {
    * Store the ethereum metadata for a data id in a dictionary
    * This attribute is left public for mocking purpose to facilitate tests on the module
    */
-  public metadataCache: { [dataId: string]: Types.IEthereumMetadata } = {};
+  public metadataCache: { [dataId: string]: StorageTypes.IEthereumMetadata } = {};
 
   /**
    * Manager for the storage smart contract
@@ -33,7 +33,7 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to index ethereum metadata
    * @param meta Ethereum metadata related to the dataId
    */
-  public saveDataIdMeta(dataId: string, meta: Types.IEthereumMetadata): void {
+  public saveDataIdMeta(dataId: string, meta: StorageTypes.IEthereumMetadata): void {
     // We save the metadata only if it doesn't exist yet
     // A user can add the same dataId into the smart contract indefinitely
     // Therefore, only the first occurrence of the dataId has valid metadata
@@ -51,7 +51,7 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to get Ethereum metadata from
    * @returns Ethereum metadata of the dataId
    */
-  public async getDataIdMeta(dataId: string): Promise<Types.IEthereumMetadata> {
+  public async getDataIdMeta(dataId: string): Promise<StorageTypes.IEthereumMetadata> {
     // If the metadata has not been saved in the cache yet
     // we get them with smartContractManager and save them
     if (!this.metadataCache[dataId]) {

@@ -3,11 +3,11 @@ import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signatu
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-  SignatureProvider as SignatureProviderTypes,
-  Transaction as TransactionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  SignatureTypes,
+  TransactionTypes,
 } from '@requestnetwork/types';
 
 import MockStorage from './mock/mock-storage';

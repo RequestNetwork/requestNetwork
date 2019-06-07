@@ -1,4 +1,4 @@
-import { RequestLogic as RequestLogicTypes } from '@requestnetwork/types';
+import { RequestLogicTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import 'mocha';
 import Utils from '../../src/api/utils';

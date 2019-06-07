@@ -1,6 +1,6 @@
 import {
-  DataAccess as DataAccessTypes,
-  SignatureProvider as SignatureProviderTypes,
+  DataAccessTypes,
+  SignatureProviderTypes,
 } from '@requestnetwork/types';
 import { AxiosRequestConfig } from 'axios';
 import RequestNetwork from './api/request-network';
@@ -29,9 +29,9 @@ export default class HttpRequestNetwork extends RequestNetwork {
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
     } = {
-      nodeConnectionConfig: {},
-      useMockStorage: false,
-    },
+        nodeConnectionConfig: {},
+        useMockStorage: false,
+      },
   ) {
     // useMockStorage === true => use mock data-access
     // useMockStorage === false => use http data-access

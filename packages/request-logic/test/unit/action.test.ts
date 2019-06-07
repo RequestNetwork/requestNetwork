@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import 'mocha';
 
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  Signature as SignatureTypes,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -22,9 +22,9 @@ const spies = require('chai-spies');
 chai.use(spies);
 
 const randomUnsignedAction = {
-  name: Types.ACTION_NAME.CREATE,
+  name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: {
-    currency: Types.CURRENCY.ETH,
+    currency: RequestLogicTypes.CURRENCY.ETH,
     expectedAmount: '100000',
     payee: TestData.payeeRaw.identity,
     payer: TestData.payerRaw.identity,
@@ -59,15 +59,15 @@ describe('Action', () => {
     expect(
       Action.getRoleInAction(TestData.payeeRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.ROLE.PAYEE);
+    ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYEE);
     expect(
       Action.getRoleInAction(TestData.payerRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.ROLE.PAYER);
+    ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYER);
     expect(
       Action.getRoleInAction(TestData.otherIdRaw.identity, signedAction),
       'getRoleInAction() error',
-    ).to.be.deep.equal(Types.ROLE.THIRD_PARTY);
+    ).to.be.deep.equal(RequestLogicTypes.ROLE.THIRD_PARTY);
   });
 
   it('can createAction()', () => {

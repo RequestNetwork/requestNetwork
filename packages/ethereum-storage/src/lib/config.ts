@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user

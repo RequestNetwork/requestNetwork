@@ -1,7 +1,7 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -27,10 +27,10 @@ export default {
  * @returns IAction  the action with the signature
  */
 function format(
-  addExtensionsDataParameters: Types.IAddExtensionsDataParameters,
+  addExtensionsDataParameters: RequestLogicTypes.IAddExtensionsDataParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Promise<Types.IAction> {
+): Promise<RequestLogicTypes.IAction> {
   if (
     !addExtensionsDataParameters.extensionsData ||
     addExtensionsDataParameters.extensionsData.length === 0
@@ -38,8 +38,8 @@ function format(
     throw new Error('extensionsData must be given');
   }
 
-  const unsignedAction: Types.IUnsignedAction = {
-    name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+  const unsignedAction: RequestLogicTypes.IUnsignedAction = {
+    name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
     parameters: addExtensionsDataParameters,
     version: Version.currentVersion,
   };
@@ -55,10 +55,10 @@ function format(
  * @returns Types.IRequest the new request
  */
 function applyActionToRequest(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
-  request: Types.IRequest,
-): Types.IRequest {
+  request: RequestLogicTypes.IRequest,
+): RequestLogicTypes.IRequest {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -72,7 +72,7 @@ function applyActionToRequest(
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
   // avoid to mutate the request
-  let requestCopied: Types.IRequest = Utils.deepCopy(request);
+  let requestCopied: RequestLogicTypes.IRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
@@ -88,15 +88,15 @@ function applyActionToRequest(
  * @returns Types.IEvent the event generated
  */
 function generateEvent(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
   actionSigner: IdentityTypes.IIdentity,
-): Types.IEvent {
+): RequestLogicTypes.IEvent {
   const params = action.data.parameters;
 
-  const event: Types.IEvent = {
+  const event: RequestLogicTypes.IEvent = {
     actionSigner,
-    name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+    name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },

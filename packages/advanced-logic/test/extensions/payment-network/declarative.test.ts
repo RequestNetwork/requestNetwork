@@ -2,8 +2,6 @@ import 'mocha';
 
 import PnAnyDeclarative from '../../../src/extensions/payment-network/declarative';
 
-// import { Extension as ExtensionTypes } from '@requestnetwork/types';
-
 import Utils from '@requestnetwork/utils';
 
 import { expect } from 'chai';

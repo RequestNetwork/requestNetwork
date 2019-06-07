@@ -1,4 +1,4 @@
-import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
@@ -62,7 +62,7 @@ export default class SmartContractManager {
    * If values are missing, private network is used as http://localhost:8545
    */
   public constructor(
-    web3Connection?: Types.IWeb3Connection,
+    web3Connection?: StorageTypes.IWeb3Connection,
     {
       maxConcurrency,
       getLastBlockNumberDelay,
@@ -76,8 +76,8 @@ export default class SmartContractManager {
       maxRetries?: number;
       retryDelay?: number;
     } = {
-      maxConcurrency: Number.MAX_SAFE_INTEGER,
-    },
+        maxConcurrency: Number.MAX_SAFE_INTEGER,
+      },
   ) {
     this.maxConcurrency = maxConcurrency;
     this.logger = logger || new Utils.SimpleLogger();
@@ -87,7 +87,7 @@ export default class SmartContractManager {
     try {
       this.eth = new web3Eth(
         web3Connection.web3Provider ||
-          new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
+        new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
       );
     } catch (error) {
       throw Error(`Can't initialize web3-eth ${error}`);
@@ -195,9 +195,9 @@ export default class SmartContractManager {
    */
   public async addHashAndSizeToEthereum(
     contentHash: string,
-    feesParameters: Types.IFeesParameters,
+    feesParameters: StorageTypes.IFeesParameters,
     gasPrice?: number,
-  ): Promise<Types.IEthereumMetadata> {
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
@@ -253,7 +253,7 @@ export default class SmartContractManager {
                 fee,
                 gasFee.toString(),
               )
-                .then((ethereumMetadata: Types.IEthereumMetadata) => {
+                .then((ethereumMetadata: StorageTypes.IEthereumMetadata) => {
                   ethereumMetadataCreated = true;
                   resolve(ethereumMetadata);
                 })
@@ -273,7 +273,7 @@ export default class SmartContractManager {
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
-  public async getMetaFromEthereum(contentHash: string): Promise<Types.IEthereumMetadata> {
+  public async getMetaFromEthereum(contentHash: string): Promise<StorageTypes.IEthereumMetadata> {
     // Read all event logs
     const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
 
@@ -294,8 +294,8 @@ export default class SmartContractManager {
    * @return hashes and sizes with metadata
    */
   public async getHashesAndSizesFromEthereum(
-    options?: Types.ITimestampBoundaries,
-  ): Promise<Types.IGetAllHashesAndSizes[]> {
+    options?: StorageTypes.ITimestampBoundaries,
+  ): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
     let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
 
@@ -423,8 +423,8 @@ export default class SmartContractManager {
     event: any,
   ): Promise<{
     hash: string;
-    meta: Types.IEthereumMetadata;
-    feesParameters: Types.IFeesParameters;
+    meta: StorageTypes.IEthereumMetadata;
+    feesParameters: StorageTypes.IFeesParameters;
   }> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
@@ -452,12 +452,12 @@ export default class SmartContractManager {
    * @param networkId Id of the network
    * @return name of the network
    */
-  private getNetworkNameFromId(networkId: Types.EthereumNetwork): string {
+  private getNetworkNameFromId(networkId: StorageTypes.EthereumNetwork): string {
     return {
-      [Types.EthereumNetwork.PRIVATE as Types.EthereumNetwork]: 'private',
-      [Types.EthereumNetwork.MAINNET as Types.EthereumNetwork]: 'main',
-      [Types.EthereumNetwork.KOVAN as Types.EthereumNetwork]: 'kovan',
-      [Types.EthereumNetwork.RINKEBY as Types.EthereumNetwork]: 'rinkeby',
+      [StorageTypes.EthereumNetwork.PRIVATE as StorageTypes.EthereumNetwork]: 'private',
+      [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'main',
+      [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
+      [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
     }[networkId];
   }
 
@@ -476,7 +476,7 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
-  ): Promise<Types.IEthereumMetadata> {
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the number confirmations of the block hosting the transaction
     let blockConfirmation;
     try {

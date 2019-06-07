@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { DataAccess as Types } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import RequestDataAccessBlock from '../src/block';
 
@@ -18,10 +18,10 @@ const transactionDataMock2String = JSON.stringify({
 });
 const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionDataMock2String);
 
-const transactionMock: Types.ITransaction = {
+const transactionMock: DataAccessTypes.ITransaction = {
   data: transactionDataMock1String,
 };
-const transactionMock2: Types.ITransaction = {
+const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 

@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  Signature as SignatureTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import ReduceExpectedAmountAction from '../../../src/actions/reduceExpectedAmount';
@@ -36,7 +36,7 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(actionReduceAmount.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
       );
 
       expect(actionReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -61,7 +61,7 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(actionReduceAmount.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
       );
 
       expect(actionReduceAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -134,8 +134,8 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -169,7 +169,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         timestamp: 2,
       });
@@ -215,7 +215,7 @@ describe('actions/reduceExpectedAmount', () => {
     it('cannot reduce expected amount if no requestId', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: arbitraryDeltaAmount,
           },
@@ -239,7 +239,7 @@ describe('actions/reduceExpectedAmount', () => {
     it('cannot reduce expected amount if no deltaAmount', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             requestId: requestIdMock,
           },
@@ -266,14 +266,14 @@ describe('actions/reduceExpectedAmount', () => {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [
           {
             actionSigner: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
               value: TestData.payeeRaw.address,
             },
-            name: Types.ACTION_NAME.CREATE,
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
             parameters: {
               expectedAmount: '123400000000000000',
               extensionsDataLength: 0,
@@ -290,13 +290,13 @@ describe('actions/reduceExpectedAmount', () => {
           value: TestData.payeeRaw.address,
         },
         requestId: requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: arbitraryDeltaAmount,
             requestId: requestIdMock,
@@ -350,8 +350,8 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.ACCEPTED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -385,7 +385,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[2], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         timestamp: 2,
       });
@@ -410,8 +410,8 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -447,7 +447,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
         timestamp: 2,
       });
@@ -472,8 +472,8 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -509,7 +509,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
         timestamp: 2,
       });
@@ -531,8 +531,8 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
       );
@@ -568,7 +568,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
         timestamp: 2,
       });
@@ -577,7 +577,7 @@ describe('actions/reduceExpectedAmount', () => {
     it('cannot reduce expected amount with a negative amount', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: arbitraryDeltaAmountNegative,
             requestId: requestIdMock,
@@ -603,7 +603,7 @@ describe('actions/reduceExpectedAmount', () => {
     it('cannot reduce expected amount with not a number', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: 'Not a number',
             requestId: requestIdMock,
@@ -629,7 +629,7 @@ describe('actions/reduceExpectedAmount', () => {
     it('cannot reduce expected amount with decimal', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
             deltaAmount: '0.0234',
             requestId: requestIdMock,
@@ -668,8 +668,8 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal('0');
       expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
 
@@ -701,7 +701,7 @@ describe('actions/reduceExpectedAmount', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payeeRaw.identity,
-        name: Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: TestData.arbitraryExpectedAmount },
         timestamp: 2,
       });

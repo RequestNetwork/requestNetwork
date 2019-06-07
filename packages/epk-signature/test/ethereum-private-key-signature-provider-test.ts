@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Identity as IdentityTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 import EthereumPrivateKeySignatureProvider from '../src/ethereum-private-key-signature-provider';
 

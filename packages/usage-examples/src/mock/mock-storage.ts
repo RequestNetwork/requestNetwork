@@ -1,7 +1,7 @@
 /* eslint-disable spellcheck/spell-checker */
 // Copy from packages/request-client.js/src/mock-storage.ts
 
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**

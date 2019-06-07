@@ -1,23 +1,23 @@
-import * as AdvancedLogic from './advanced-logic-types';
-import * as DataAccess from './data-access-types';
-import * as Extension from './extension-types';
-import * as Identity from './identity-types';
-import * as Log from './logger-types';
-import * as RequestLogic from './request-logic-types';
-import * as SignatureProvider from './signature-provider-types';
-import * as Signature from './signature-types';
-import * as Storage from './storage-types';
-import * as Transaction from './transaction-types';
+import * as AdvancedLogicTypes from './advanced-logic-types';
+import * as DataAccessTypes from './data-access-types';
+import * as ExtensionTypes from './extension-types';
+import * as IdentityTypes from './identity-types';
+import * as LogTypes from './logger-types';
+import * as RequestLogicTypes from './request-logic-types';
+import * as SignatureProviderTypes from './signature-provider-types';
+import * as SignatureTypes from './signature-types';
+import * as StorageTypes from './storage-types';
+import * as TransactionTypes from './transaction-types';
 
 export {
-  AdvancedLogic,
-  Log,
-  Extension,
-  RequestLogic,
-  DataAccess,
-  Signature,
-  SignatureProvider,
-  Identity,
-  Storage,
-  Transaction,
+  AdvancedLogicTypes,
+  LogTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+  DataAccessTypes,
+  SignatureTypes,
+  SignatureProviderTypes,
+  IdentityTypes,
+  StorageTypes,
+  TransactionTypes,
 };

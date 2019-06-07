@@ -1,4 +1,4 @@
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 // Interface of the object to store the channel ids indexed by topic

@@ -1,5 +1,4 @@
-import { Log as LogTypes } from '@requestnetwork/types';
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 
 // Load environment variables from .env file (without overriding variables already set)
@@ -178,8 +177,8 @@ export function getLastBlockNumberDelay(): number {
 export function getStorageConcurrency(): number {
   return Number(
     argv.storageMaxConcurrency ||
-      process.env.STORAGE_MAX_CONCURRENCY ||
-      defaultValues.ethereumStorage.maxConcurrency,
+    process.env.STORAGE_MAX_CONCURRENCY ||
+    defaultValues.ethereumStorage.maxConcurrency,
   );
 }
 
@@ -212,37 +211,37 @@ export function getHelpMessage(): string {
       SERVER OPTIONS
         port (${defaultValues.server.port})\t\t\t\tPort for the server to listen for API requests
         headers (${
-          defaultValues.server.headers
-        })\t\t\t\tCustom headers to send with the API responses
+    defaultValues.server.headers
+    })\t\t\t\tCustom headers to send with the API responses
 
       ETHEREUM OPTIONS
         networkId (${
-          defaultValues.ethereumStorage.ethereum.networkId
-        })\t\t\t\tId of the Ethereum network used
+    defaultValues.ethereumStorage.ethereum.networkId
+    })\t\t\t\tId of the Ethereum network used
         providerUrl (${
-          defaultValues.ethereumStorage.ethereum.web3ProviderUrl
-        })\tUrl of the web3 provider for Ethereum
+    defaultValues.ethereumStorage.ethereum.web3ProviderUrl
+    })\tUrl of the web3 provider for Ethereum
         LastBlockNumberDelay (${
-          defaultValues.ethereumStorage.lastBlockNumberDelay
-        } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
+    defaultValues.ethereumStorage.lastBlockNumberDelay
+    } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
         EthereumRetryDelay (${
-          defaultValues.ethereumStorage.retryDelay
-        })\t\t\tThe delay between subsequent call retries
+    defaultValues.ethereumStorage.retryDelay
+    })\t\t\tThe delay between subsequent call retries
 
       IPFS OPTIONS
         ipfsHost (${defaultValues.ethereumStorage.ipfs.host})\t\t\tHost of the IPFS gateway
         ipfsPort (${defaultValues.ethereumStorage.ipfs.port})\t\t\t\tPort of the IPFS gateway
         ipfsProtocol (${
-          defaultValues.ethereumStorage.ipfs.protocol
-        })\t\t\tProtocol used to connect to the IPFS gateway
+    defaultValues.ethereumStorage.ipfs.protocol
+    })\t\t\tProtocol used to connect to the IPFS gateway
         ipfsTimeout (${
-          defaultValues.ethereumStorage.ipfs.timeout
-        })\t\t\tTimeout threshold to connect to the IPFS gateway
+    defaultValues.ethereumStorage.ipfs.timeout
+    })\t\t\tTimeout threshold to connect to the IPFS gateway
 
       OTHER OPTIONS
         storageMaxConcurrency (${
-          defaultValues.ethereumStorage.concurrency
-        })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
+    defaultValues.ethereumStorage.concurrency
+    })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
 
     EXAMPLE
       yarn start --port 5000 --networkId 1 --ipfsPort 6000

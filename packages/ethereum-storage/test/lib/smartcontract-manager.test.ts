@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import EthereumBlocks from '../../src/lib/ethereum-blocks';

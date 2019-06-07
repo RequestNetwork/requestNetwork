@@ -1,4 +1,4 @@
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 import { assert, expect } from 'chai';
 

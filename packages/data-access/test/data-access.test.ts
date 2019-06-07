@@ -9,7 +9,7 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 chai.use(spies);
 
-import { DataAccess as DataAccessTypes, Storage as StorageTypes } from '@requestnetwork/types';
+import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
