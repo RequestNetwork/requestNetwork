@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import LocationByTopic from '../src/location-by-topic';
+import LocationByTopic from '../src/transaction-index/location-by-topic';
 
 const arbitraryId1 = 'id1';
 const arbitraryId2 = 'id2';
@@ -33,57 +33,39 @@ const arbitraryBlockHeader2 = {
 
 /* tslint:disable:no-unused-expression */
 describe('localIndex', () => {
-  it('can pushStorageLocationIndexedWithBlockTopics(), getStorageLocationsFromChannelId() and  getStorageLocationFromTopic()', () => {
+  it('can pushStorageLocationIndexedWithBlockTopics(), getStorageLocationsFromChannelId() and  getStorageLocationFromTopic()', async () => {
     const localIndex = new LocationByTopic();
-    localIndex.pushStorageLocationIndexedWithBlockTopics(arbitraryDataId1, arbitraryBlockHeader1);
-
-    const result = localIndex.getStorageLocationFromTopic(arbitraryTxTopic1);
-    expect(result, 'localIndex data is wrong').to.deep.equal([arbitraryDataId1]);
-
-    const result2 = localIndex.getStorageLocationFromTopic(arbitraryTxTopic2);
-    expect(result2, 'localIndex data is wrong').to.deep.equal([arbitraryDataId1]);
-
-    const resultEmpty = localIndex.getStorageLocationFromTopic(arbitraryTxTopic3);
-    expect(resultEmpty, 'localIndex data is wrong').to.deep.equal([]);
+    await localIndex.pushStorageLocationIndexedWithBlockTopics(arbitraryDataId1, arbitraryBlockHeader1);
 
     expect(
       localIndex.getStorageLocationsFromChannelId(arbitraryId1),
       'getStorageLocationsFromChannelId is wrong',
-    ).to.deep.equal([arbitraryDataId1]);
+    ).to.eventually.deep.equal([arbitraryDataId1]);
     expect(
       localIndex.getStorageLocationsFromChannelId(arbitraryId2),
       'getStorageLocationsFromChannelId is wrong',
-    ).to.deep.equal([arbitraryDataId1]);
+    ).to.eventually.deep.equal([arbitraryDataId1]);
     expect(
       localIndex.getStorageLocationsFromChannelId(arbitraryId3),
       'getStorageLocationsFromChannelId is wrong',
-    ).to.deep.equal([]);
+    ).to.eventually.deep.equal([]);
   });
-  it('can pushStorageLocationIndexedWithBlockTopics() twice, getStorageLocationsFromChannelId() and getStorageLocationFromTopic()', () => {
+  it('can pushStorageLocationIndexedWithBlockTopics() twice, getStorageLocationsFromChannelId() and getStorageLocationFromTopic()', async () => {
     const localIndex = new LocationByTopic();
-    localIndex.pushStorageLocationIndexedWithBlockTopics(arbitraryDataId1, arbitraryBlockHeader1);
-    localIndex.pushStorageLocationIndexedWithBlockTopics(arbitraryDataId2, arbitraryBlockHeader2);
-
-    const result = localIndex.getStorageLocationFromTopic(arbitraryTxTopic1);
-    expect(result, 'localIndex is wrong').to.deep.equal([arbitraryDataId1, arbitraryDataId2]);
-
-    const result2 = localIndex.getStorageLocationFromTopic(arbitraryTxTopic2);
-    expect(result2, 'localIndex is wrong').to.deep.equal([arbitraryDataId1]);
-
-    const resultEmpty = localIndex.getStorageLocationFromTopic(arbitraryTxTopic3);
-    expect(resultEmpty, 'localIndex is wrong').to.deep.equal([arbitraryDataId2]);
+    await localIndex.pushStorageLocationIndexedWithBlockTopics(arbitraryDataId1, arbitraryBlockHeader1);
+    await localIndex.pushStorageLocationIndexedWithBlockTopics(arbitraryDataId2, arbitraryBlockHeader2);
 
     expect(
       localIndex.getStorageLocationsFromChannelId(arbitraryId1),
       'getStorageLocationsFromChannelId is wrong',
-    ).to.deep.equal([arbitraryDataId1, arbitraryDataId2]);
+    ).to.eventually.deep.equal([arbitraryDataId1, arbitraryDataId2]);
     expect(
       localIndex.getStorageLocationsFromChannelId(arbitraryId2),
       'getStorageLocationsFromChannelId is wrong',
-    ).to.deep.equal([arbitraryDataId1]);
+    ).to.eventually.deep.equal([arbitraryDataId1]);
     expect(
       localIndex.getStorageLocationsFromChannelId(arbitraryId3),
       'getStorageLocationsFromChannelId is wrong',
-    ).to.deep.equal([arbitraryDataId2]);
+    ).to.eventually.deep.equal([arbitraryDataId2]);
   });
 });

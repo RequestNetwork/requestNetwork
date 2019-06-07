@@ -83,11 +83,6 @@ export interface ITransactionsByChannelIds {
   [key: string]: IConfirmedTransaction[];
 }
 
-/** Transactions Storage location group by channel ids */
-export interface IStorageLocationByChannelId {
-  [key: string]: Set<string>;
-}
-
 /** Channel ids, to connect the transactions to a channel */
 export interface IChannelIds {
   [key: string]: number[];
@@ -116,10 +111,9 @@ export type ITransactionData = string;
  * An index to store locations and timestamps of transactions in IPFS.
  */
 export interface ITransactionIndex {
-  initializeEmpty(): void;
-  isInitialized(): boolean;
+  initialize(): Promise<void>;
   getLastTransactionTimestamp(): Promise<number | null>;
-  addTransaction(dataId: string, header: any, timestamp: number): Promise<void>;
+  addTransaction(dataId: string, header: IBlockHeader, timestamp: number): Promise<void>;
   getChannelIdsForTopic(topic: string, timestampBoundaries?: ITimestampBoundaries): Promise<string[]>;
   getStorageLocationList(channelId: string, timestampBoundaries?: ITimestampBoundaries): Promise<string[]>;
 }

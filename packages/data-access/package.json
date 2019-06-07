@@ -39,12 +39,17 @@
   },
   "dependencies": {
     "@requestnetwork/types": "0.2.0",
-    "@requestnetwork/utils": "0.2.0"
+    "@requestnetwork/utils": "0.2.0",
+    "bluebird": "3.5.5",
+    "keyv": "3.1.0"
   },
   "devDependencies": {
+    "@types/bluebird": "3.5.27",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
+    "@types/keyv": "3.1.0",
     "@types/mocha": "5.2.6",
+    "@types/node": "12.0.3",
     "@types/sinon": "7.0.5",
     "@typescript-eslint/parser": "1.2.0",
     "chai": "4.2.0",

@@ -1,10 +1,11 @@
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-
 import Utils from '@requestnetwork/utils';
+
+import * as Bluebird from 'bluebird';
 
 import Block from './block';
 import IntervalTimer from './interval-timer';
-import InMemoryTransactionIndex from './transaction-index/in-memory';
+import TransactionIndex from './transaction-index';
 
 // Default interval time for auto synchronization
 const DEFAULT_INTERVAL_TIME: number = 10000;
@@ -14,7 +15,7 @@ const DEFAULT_INTERVAL_TIME: number = 10000;
  */
 export interface IDataAccessOptions {
   /**
-   *  the transaction index, defaults to InMemoryTransactionIndex if not set.
+   *  the transaction index, defaults to TransactionIndex if not set.
    */
   transactionIndex?: DataAccessTypes.ITransactionIndex;
 
@@ -29,6 +30,8 @@ export interface IDataAccessOptions {
  * Implementation of Data-Access layer without encryption
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
+  // boolean to store the initialization state
+  protected isInitialized: boolean = false;
   // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
   private transactionIndex: DataAccessTypes.ITransactionIndex;
   // Storage layer
@@ -56,7 +59,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
     const defaultOptions: IDataAccessOptions = {
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
-      transactionIndex: new InMemoryTransactionIndex(),
+      transactionIndex: new TransactionIndex(),
     };
     options = {
       ...defaultOptions,
@@ -77,7 +80,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Function to initialize the dataId topic with the previous block
    */
   public async initialize(): Promise<void> {
-    this.initializeEmpty();
+    if (this.isInitialized) {
+      throw new Error('already initialized');
+    }
+    await this.transactionIndex.initialize();
 
     // initialize storage
     await this.storage.initialize();
@@ -88,12 +94,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // initialize the dataId topic with the previous block
     const allDataWithMeta = await this.storage.getData(
-      lastSynced
-        ? {
-          from: lastSynced,
-          to: now,
-        }
-        : undefined,
+      lastSynced ? {
+        from: lastSynced,
+        to: now,
+      } : undefined,
     );
 
     // The last synced timestamp is the current timestamp
@@ -101,7 +105,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    this.pushLocationsWithTopics(allDataWithMeta);
+    await this.pushLocationsWithTopics(allDataWithMeta);
+    this.isInitialized = true;
   }
 
   /**
@@ -230,13 +235,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const channelIds = await this.transactionIndex.getChannelIdsForTopic(topic, updatedBetween);
 
     // Gets the transactions per channel id
-    const transactionsAndMeta = await Promise.all(
-      channelIds.map(channelId =>
-        this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
-          channelId,
-          transactionsWithMeta,
-        })),
-      ),
+    const transactionsAndMeta = await Bluebird.map(channelIds, channelId =>
+      this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
+        channelId,
+        transactionsWithMeta,
+      })),
     );
 
     // Gather all the transaction in one object
@@ -284,7 +287,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    this.pushLocationsWithTopics(newDataWithMeta);
+    await this.pushLocationsWithTopics(newDataWithMeta);
 
     // update the last synced Timestamp
     this.lastSyncedTimeStamp = synchronizationTo;
@@ -307,27 +310,13 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * Creates an empty TransactionIndex
-   *
-   * @protected
-   * @memberof DataAccess
-   */
-  protected initializeEmpty(): void {
-    if (this.transactionIndex.isInitialized()) {
-      throw new Error('already initialized');
-    }
-    this.transactionIndex.initializeEmpty();
-  }
-
-  /**
    * Check the format of the data, extract the topics from it and push location indexed with the topics
    *
    * @private
    * @param dataWithMeta dataIds from getDataId and getNewDataId from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
-  private pushLocationsWithTopics(dataWithMeta: StorageTypes.IGetDataIdContentAndMeta): void {
-    this.checkInitialized();
+  private async pushLocationsWithTopics(dataWithMeta: StorageTypes.IGetDataIdContentAndMeta): Promise<void> {
     if (!dataWithMeta.result || !dataWithMeta.result.data || !dataWithMeta.result.dataIds) {
       throw Error(`data from storage do not follow the standard`);
     }
@@ -335,7 +324,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     let jsonParsingErrorCount = 0;
     let requestStandardErrorCount = 0;
     let proceedCount = 0;
-    dataWithMeta.result.data.forEach((blockString, index) => {
+    await Bluebird.each(dataWithMeta.result.data, async (blockString, index) => {
       let block;
       try {
         block = JSON.parse(blockString);
@@ -356,7 +345,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
       proceedCount++;
       // adds this transaction to the index, to enable retrieving it later.
-      this.transactionIndex.addTransaction(
+      await this.transactionIndex.addTransaction(
         dataWithMeta.result.dataIds[index],
         block.header,
         dataWithMeta.meta.metaData[index].timestamp,
@@ -437,7 +426,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Throws an error if the data access isn't initialized
    */
   private checkInitialized(): void {
-    if (!this.transactionIndex.isInitialized()) {
+    if (!this.isInitialized) {
       throw new Error('DataAccess must be initialized');
     }
   }

@@ -10,66 +10,26 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 chai.use(spies);
 
-import TimestampByLocation from '../src/timestamp-by-location';
-import InMemoryTransactionIndex from '../src/transaction-index/in-memory';
+import { DataAccessTypes } from '@requestnetwork/types';
 
-describe('InMemoryTransactionIndex', () => {
-  describe('initialize', () => {
-    it('can initialize ', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
+import TransactionIndex from '../src/transaction-index/index';
+import TimestampByLocation from '../src/transaction-index/timestamp-by-location';
 
-      expect(() => transactionIndex.initializeEmpty()).not.to.throw();
-    });
+const testBlock: DataAccessTypes.IBlockHeader = {
+  channelIds: { 'request-1': [1] },
+  topics: { 'request-1': ['topic-1'] },
+  version: '2.0',
+};
 
-    it('cannot initialize twice', () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-      transactionIndex.initializeEmpty();
-
-      expect(() => transactionIndex.initializeEmpty()).to.throw('already initialized');
-    });
-
-    it('addTransaction() should throw an error if not initialized', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-
-      await expect(transactionIndex.addTransaction('', {}, 0)).to.be.rejectedWith('TransactionIndex must be initialized');
-    });
-
-    it('addTransaction() should be fullfilled if initialized', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-      await transactionIndex.initializeEmpty();
-      await expect(transactionIndex.addTransaction('', {}, 0)).to.be.fulfilled;
-    });
-
-    it('getChannelIdsForTopic() should throw an error if not initialized', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-
-      await expect(transactionIndex.getChannelIdsForTopic('')).to.be.rejectedWith('TransactionIndex must be initialized');
-    });
-
-    it('getChannelIdsForTopic() should be fullfilled if initialized', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-      await transactionIndex.initializeEmpty();
-      await expect(transactionIndex.getChannelIdsForTopic('')).to.be.fulfilled;
-    });
-
-    it('getStorageLocationList() should throw an error if not initialized', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-
-      await expect(transactionIndex.getStorageLocationList('')).to.be.rejectedWith('TransactionIndex must be initialized');
-    });
-
-    it('getStorageLocationList() should be fullfilled if initialized', async () => {
-      const transactionIndex = new InMemoryTransactionIndex();
-      await transactionIndex.initializeEmpty();
-      await expect(transactionIndex.getStorageLocationList('')).to.be.fulfilled;
-    });
+describe('TransactionIndex', () => {
+  let transactionIndex: TransactionIndex;
+  beforeEach(async () => {
+    transactionIndex = new TransactionIndex();
   });
 
   describe('addTransaction', () => {
-    let transactionIndex: InMemoryTransactionIndex;
-    beforeEach(async () => {
-      transactionIndex = new InMemoryTransactionIndex();
-      await transactionIndex.initializeEmpty();
+    it('addTransaction() should be fullfilled', async () => {
+      await expect(transactionIndex.addTransaction('', testBlock, 0)).to.be.fulfilled;
     });
 
     it('calls locationByTopic and timestampByLocation', async () => {
@@ -79,48 +39,15 @@ describe('InMemoryTransactionIndex', () => {
       const pushTimestampByLocationMock = chai.spy();
       (transactionIndex as any).timestampByLocation.pushTimestampByLocation = pushTimestampByLocationMock;
 
-      await transactionIndex.addTransaction('abcd', {
-        foo: 'bar',
-      }, 2);
+      await transactionIndex.addTransaction('abcd', testBlock, 2);
 
-      expect(pushStorageLocationIndexedWithBlockTopicsMock).to.have.been.called.with('abcd', {
-        foo: 'bar',
-      });
-      expect(pushTimestampByLocationMock).to.have.been.called.with('abcd', 2);
-    });
-  });
-
-  describe('addTransaction', () => {
-    let transactionIndex: InMemoryTransactionIndex;
-    beforeEach(async () => {
-      transactionIndex = new InMemoryTransactionIndex();
-      await transactionIndex.initializeEmpty();
-    });
-
-    it('calls locationByTopic and timestampByLocation', async () => {
-      const pushStorageLocationIndexedWithBlockTopicsMock = chai.spy();
-      (transactionIndex as any).locationByTopic.pushStorageLocationIndexedWithBlockTopics = pushStorageLocationIndexedWithBlockTopicsMock;
-
-      const pushTimestampByLocationMock = chai.spy();
-      (transactionIndex as any).timestampByLocation.pushTimestampByLocation = pushTimestampByLocationMock;
-
-      await transactionIndex.addTransaction('abcd', {
-        foo: 'bar',
-      }, 2);
-
-      expect(pushStorageLocationIndexedWithBlockTopicsMock).to.have.been.called.with('abcd', {
-        foo: 'bar',
-      });
+      expect(pushStorageLocationIndexedWithBlockTopicsMock).to.have.been.called.with('abcd', testBlock);
       expect(pushTimestampByLocationMock).to.have.been.called.with('abcd', 2);
     });
   });
 
   describe('getStorageLocationList', () => {
-    let transactionIndex: InMemoryTransactionIndex;
     beforeEach(async () => {
-      transactionIndex = new InMemoryTransactionIndex();
-      await transactionIndex.initializeEmpty();
-
       // mock location by topic
       (transactionIndex as any)
         .locationByTopic
@@ -128,9 +55,13 @@ describe('InMemoryTransactionIndex', () => {
         chai.spy(() => ['a', 'b', 'c']);
 
       const timestampByLocation: TimestampByLocation = (transactionIndex as any).timestampByLocation;
-      timestampByLocation.pushTimestampByLocation('a', 9);
-      timestampByLocation.pushTimestampByLocation('b', 10);
-      timestampByLocation.pushTimestampByLocation('c', 11);
+      await timestampByLocation.pushTimestampByLocation('a', 9);
+      await timestampByLocation.pushTimestampByLocation('b', 10);
+      await timestampByLocation.pushTimestampByLocation('c', 11);
+    });
+
+    it('getStorageLocationList() should be fullfilled', async () => {
+      await expect(transactionIndex.getStorageLocationList('')).to.be.fulfilled;
     });
 
     it('should return all if timestamp not specified', async () => {
@@ -165,4 +96,32 @@ describe('InMemoryTransactionIndex', () => {
     });
   });
 
+  describe('getChannelIdsForTopic', () => {
+    it('getChannelIdsForTopic() should be fullfilled', async () => {
+      await expect(transactionIndex.getChannelIdsForTopic('')).to.be.fulfilled;
+    });
+
+    it('getChannelIdsForTopic() should support multiple channel ids for topic', async () => {
+      await transactionIndex.addTransaction('dataId1', {
+        channelIds: {
+          'channel-1': [1],
+          'channel-2': [2],
+        },
+        topics: {
+          'channel-1': [
+            'topic-a',
+          ],
+          'channel-2': [
+            'topic-a',
+          ],
+        },
+        version: '2.0',
+      }, 1);
+      const channels = await transactionIndex.getChannelIdsForTopic('topic-a');
+      expect(channels).to.deep.equal([
+        'channel-1',
+        'channel-2',
+      ]);
+    });
+  });
 });

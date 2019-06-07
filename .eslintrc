@@ -5,7 +5,10 @@
     "ecmaVersion": 10,
     "sourceType": "module"
   },
-  "plugins": ["typescript", "spellcheck"],
+  "plugins": [
+    "typescript",
+    "spellcheck"
+  ],
   "rules": {
     "spellcheck/spell-checker": [
       "error",
@@ -19,6 +22,7 @@
           "api",
           "arg",
           "args",
+          "async",
           "axios",
           "blockchain",
           "btc",
@@ -42,6 +46,7 @@
           "javascript",
           "hashmap",
           "keccak",
+          "keyv",
           "kovan",
           "kubernetes",
           "localhost",
@@ -51,6 +56,7 @@
           "memberof",
           "metadata",
           "mul",
+          "namespace",
           "param",
           "params",
           "requestnetwork",

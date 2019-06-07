@@ -1,10 +1,12 @@
-import { DataAccess } from '@requestnetwork/data-access';
+import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
 import { StorageTypes } from '@requestnetwork/types';
 
 import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
-import { getCustomHeaders, getMnemonic } from './config';
+import KeyvFile from 'keyv-file';
+
+import { getCustomHeaders, getMnemonic, getTransactionIndexFilePath } from './config';
 import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import persistTransaction from './request/persistTransaction';
@@ -35,7 +37,18 @@ class RequestNode {
     // Use ethereum storage for the storage layer
     const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic());
 
-    this.dataAccess = new DataAccess(ethereumStorage);
+    const transactionIndexStoragePath = getTransactionIndexFilePath();
+
+    const store = transactionIndexStoragePath ? new KeyvFile({
+      filename: transactionIndexStoragePath,
+    }) : undefined;
+
+    // Use an in-file Transaction index if a path is specified, an in-memory otherwise
+    const transactionIndex = new TransactionIndex(store);
+
+    this.dataAccess = new DataAccess(ethereumStorage, {
+      transactionIndex,
+    });
 
     this.express = express();
     this.mountRoutes();
@@ -60,7 +73,7 @@ class RequestNode {
     }
 
     try {
-      await this.dataAccess.startAutoSynchronization();
+      this.dataAccess.startAutoSynchronization();
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.error(`Node failed to start auto synchronization`);

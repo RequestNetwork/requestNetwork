@@ -120,7 +120,7 @@ To save on costs, transactions are batched together. This is the responsibility 
 
 ### Cache
 
-In order to speed up recovery of transactions, data-access has a local cache of topics=>transaction. This is the reason why this package should be initialized with `dataAccess.initialize()` before being operational.
+In order to speed up recovery of transactions, data-access has a local cache of topics=>transaction. This is the reason why this package should be initialized with `dataAccess.initialize()` before being operational. This cache can be persisted in a file using a [Keyv store](https://github.com/lukechilds/keyv#official-storage-adapters).
 
 ### Synchronization
 

@@ -2,7 +2,7 @@
 
 import { argv } from 'yargs';
 import * as config from './config';
-import requestNode from './requestNode';
+import RequestNode from './requestNode';
 
 const startNode = async (): Promise<void> => {
   const serverMessage = `Using config:
@@ -14,17 +14,18 @@ const startNode = async (): Promise<void> => {
   IPFS protocol: ${config.getIpfsProtocol()}
   IPFS timeout: ${config.getIpfsTimeout()}
   Storage concurrency: ${config.getStorageConcurrency()}
+  Transaction Index path: ${config.getTransactionIndexFilePath()}
 `;
 
   // tslint:disable:no-console
   console.log(serverMessage);
 
   // Initialize request node instance and listen for requests
-  const requestNodeInstance = new requestNode();
-  await requestNodeInstance.initialize();
+  const requestNode = new RequestNode();
+  await requestNode.initialize();
 
   const port = config.getServerPort();
-  requestNodeInstance.listen(port, () => {
+  requestNode.listen(port, () => {
     // tslint:disable:no-console
     console.log(`Listening on port ${port}`);
     return 0;

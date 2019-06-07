@@ -226,6 +226,9 @@ Default values correspond to the basic configuration used to run a server in a t
   - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
 - `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
   - Default value: `'500'`
+  - Environment variable name: `$STORAGE_MAX_CONCURRENCY`
+- `--transactionIndexFilePath` Path to a file to persist the transaction index for faster intialization
+  - Environment variable name: `$TRANSACTION_INDEX_FILE_PATH`
 
 #### Mnemonic
 

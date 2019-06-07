@@ -196,6 +196,16 @@ export function getEthereumRetryDelay(): number {
 }
 
 /**
+ * Get the transaction index storage (a json-like file) path.
+ * @returns the path to the json-like file that stores the transaction index.
+ */
+export function getTransactionIndexFilePath(): string | null {
+  return argv.transactionIndexFilePath as string ||
+    process.env.TRANSACTION_INDEX_FILE_PATH ||
+    null;
+}
+
+/**
  * Get the mnemonic from command line argument, environment variables or default values to generate the private key for the wallet
  * The default value must only be used for test purposes
  * For production, mnemonic should always be provided as environment variable

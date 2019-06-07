@@ -9,6 +9,6 @@ import { StorageTypes } from '@requestnetwork/types';
 export default class MockDataAccess extends DataAccess {
   constructor(storage: StorageTypes.IStorage) {
     super(storage);
-    this.initializeEmpty();
+    this.isInitialized = true;
   }
 }
