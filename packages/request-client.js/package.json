@@ -39,7 +39,7 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register --require amd-loader \"test/**/*.ts\""
+    "test": "nyc mocha --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "dependencies": {
     "@requestnetwork/advanced-logic": "0.2.0",
@@ -52,7 +52,8 @@
     "@requestnetwork/utils": "0.2.0",
     "axios": "0.18.1",
     "bn.js": "4.11.8",
-    "node-fetch": "2.3.0"
+    "node-fetch": "2.3.0",
+    "satoshi-bitcoin": "1.0.4"
   },
   "devDependencies": {
     "@compodoc/compodoc": "1.1.8",
@@ -81,7 +82,7 @@
     "shx": "0.3.2",
     "source-map-support": "0.5.10",
     "terser-webpack-plugin": "1.3.0",
-    "ts-node": "8.0.2",
+    "ts-node": "8.2.0",
     "tslint": "5.12.1",
     "typescript": "3.3.1",
     "webpack": "4.29.1",

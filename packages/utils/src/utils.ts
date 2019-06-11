@@ -102,7 +102,10 @@ function unique(array: any[]): { uniqueItems: any[]; duplicates: any[] } {
  * @param array the array to curate
  * @returns an object containing the array with only unique element and an object with the duplication
  */
-function uniqueByProperty(array: any[], property: string): { uniqueItems: any[]; duplicates: any[] } {
+function uniqueByProperty(
+  array: any[],
+  property: string,
+): { uniqueItems: any[]; duplicates: any[] } {
   const result = array.reduce(
     (
       accumulator: { uniqueItems: any[]; duplicates: any[]; uniqueItemsHashes: string[] },

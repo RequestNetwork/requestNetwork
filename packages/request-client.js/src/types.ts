@@ -64,6 +64,16 @@ export interface IPaymentNetwork {
   getBalance(request: RequestLogicTypes.IRequest): Promise<IBalanceWithEvents>;
 }
 
+/** Interface of the class to manage the bitcoin provider API */
+export interface IBitcoinProvider {
+  getAddressInfo: (
+    bitcoinNetworkId: number,
+    address: string,
+    eventName: EVENTS_NAMES,
+  ) => Promise<IBalanceWithEvents>;
+  parse: (addressInfo: any, eventName: EVENTS_NAMES) => IBalanceWithEvents;
+}
+
 /** Interface for balances and the events link to the payments and refund */
 export interface IBalanceWithEvents {
   balance: string;
