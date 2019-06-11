@@ -15,6 +15,11 @@ const DEFAULT_INTERVAL_TIME: number = 10000;
  */
 export interface IDataAccessOptions {
   /**
+   * Logger instance
+   */
+  logger?: LogTypes.ILogger;
+
+  /**
    *  the transaction index, defaults to TransactionIndex if not set.
    */
   transactionIndex?: DataAccessTypes.ITransactionIndex;
@@ -58,6 +63,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
     const defaultOptions: IDataAccessOptions = {
+      logger: new Utils.SimpleLogger(),
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new TransactionIndex(),
     };
@@ -70,10 +76,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
       options.synchronizationIntervalTime!,
+      options.logger!,
     );
     this.transactionIndex = options.transactionIndex!;
 
-    this.logger = new Utils.SimpleLogger();
+    this.logger = options.logger!;
   }
 
   /**
@@ -94,10 +101,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // initialize the dataId topic with the previous block
     const allDataWithMeta = await this.storage.getData(
-      lastSynced ? {
-        from: lastSynced,
-        to: now,
-      } : undefined,
+      lastSynced
+        ? {
+            from: lastSynced,
+            to: now,
+          }
+        : undefined,
     );
 
     // The last synced timestamp is the current timestamp
@@ -316,7 +325,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @param dataWithMeta dataIds from getDataId and getNewDataId from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
-  private async pushLocationsWithTopics(dataWithMeta: StorageTypes.IGetDataIdContentAndMeta): Promise<void> {
+  private async pushLocationsWithTopics(
+    dataWithMeta: StorageTypes.IGetDataIdContentAndMeta,
+  ): Promise<void> {
     if (!dataWithMeta.result || !dataWithMeta.result.data || !dataWithMeta.result.dataIds) {
       throw Error(`data from storage do not follow the standard`);
     }
@@ -338,7 +349,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         jsonParsingErrorCount++;
         throw Error(
           `data from storage do not follow the standard, storage location: "${
-          dataWithMeta.result.dataIds[index]
+            dataWithMeta.result.dataIds[index]
           }"`,
         );
       }

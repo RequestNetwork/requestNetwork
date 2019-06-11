@@ -1,5 +1,6 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
+import { modeType } from './logger';
 
 // Load environment variables from .env file (without overriding variables already set)
 require('dotenv').config();
@@ -25,7 +26,10 @@ const defaultValues: any = {
     maxConcurrency: 500,
     retryDelay: 1000,
   },
-  logLevel: LogTypes.LogLevel.INFO,
+  log: {
+    level: LogTypes.LogLevel.INFO,
+    mode: modeType.human,
+  },
   server: {
     headers: '{}',
     port: 3000,
@@ -147,13 +151,22 @@ export function getMnemonic(): string {
 }
 
 /**
- * Get log level from command line argument, environment variables or default values.
- * Note: not documented until PROT-501 is done.
+ * Get log configs: level and mode, from command line argument, environment variables or default values.
+ * logLevel is the maximum level of messages we will log
+ * logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing
  *
  * @returns the log level
  */
-export function getLogLevel(): LogTypes.LogLevel {
-  return argv.logLevel || process.env.LOG_LEVEL || defaultValues.logLevel;
+export function getLogConfig(): { logLevel: LogTypes.LogLevel; logMode: modeType } {
+  return {
+    logLevel:
+      LogTypes.LogLevel[
+        (argv.logLevel || process.env.LOG_LEVEL) as keyof typeof LogTypes.LogLevel
+      ] || defaultValues.log.level,
+    logMode:
+      modeType[(argv.logMode || process.env.LOG_MODE) as keyof typeof modeType] ||
+      defaultValues.log.mode,
+  };
 }
 
 /**
@@ -177,8 +190,8 @@ export function getLastBlockNumberDelay(): number {
 export function getStorageConcurrency(): number {
   return Number(
     argv.storageMaxConcurrency ||
-    process.env.STORAGE_MAX_CONCURRENCY ||
-    defaultValues.ethereumStorage.maxConcurrency,
+      process.env.STORAGE_MAX_CONCURRENCY ||
+      defaultValues.ethereumStorage.maxConcurrency,
   );
 }
 
@@ -200,9 +213,9 @@ export function getEthereumRetryDelay(): number {
  * @returns the path to the json-like file that stores the transaction index.
  */
 export function getTransactionIndexFilePath(): string | null {
-  return argv.transactionIndexFilePath as string ||
-    process.env.TRANSACTION_INDEX_FILE_PATH ||
-    null;
+  return (
+    (argv.transactionIndexFilePath as string) || process.env.TRANSACTION_INDEX_FILE_PATH || null
+  );
 }
 
 /**
@@ -221,37 +234,40 @@ export function getHelpMessage(): string {
       SERVER OPTIONS
         port (${defaultValues.server.port})\t\t\t\tPort for the server to listen for API requests
         headers (${
-    defaultValues.server.headers
-    })\t\t\t\tCustom headers to send with the API responses
+          defaultValues.server.headers
+        })\t\t\t\tCustom headers to send with the API responses
 
       ETHEREUM OPTIONS
         networkId (${
-    defaultValues.ethereumStorage.ethereum.networkId
-    })\t\t\t\tId of the Ethereum network used
+          defaultValues.ethereumStorage.ethereum.networkId
+        })\t\t\t\tId of the Ethereum network used
         providerUrl (${
-    defaultValues.ethereumStorage.ethereum.web3ProviderUrl
-    })\tUrl of the web3 provider for Ethereum
+          defaultValues.ethereumStorage.ethereum.web3ProviderUrl
+        })\tUrl of the web3 provider for Ethereum
         LastBlockNumberDelay (${
-    defaultValues.ethereumStorage.lastBlockNumberDelay
-    } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
+          defaultValues.ethereumStorage.lastBlockNumberDelay
+        } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
         EthereumRetryDelay (${
-    defaultValues.ethereumStorage.retryDelay
-    })\t\t\tThe delay between subsequent call retries
+          defaultValues.ethereumStorage.retryDelay
+        })\t\t\tThe delay between subsequent call retries
 
       IPFS OPTIONS
         ipfsHost (${defaultValues.ethereumStorage.ipfs.host})\t\t\tHost of the IPFS gateway
         ipfsPort (${defaultValues.ethereumStorage.ipfs.port})\t\t\t\tPort of the IPFS gateway
         ipfsProtocol (${
-    defaultValues.ethereumStorage.ipfs.protocol
-    })\t\t\tProtocol used to connect to the IPFS gateway
+          defaultValues.ethereumStorage.ipfs.protocol
+        })\t\t\tProtocol used to connect to the IPFS gateway
         ipfsTimeout (${
-    defaultValues.ethereumStorage.ipfs.timeout
-    })\t\t\tTimeout threshold to connect to the IPFS gateway
+          defaultValues.ethereumStorage.ipfs.timeout
+        })\t\t\tTimeout threshold to connect to the IPFS gateway
 
       OTHER OPTIONS
         storageMaxConcurrency (${
-    defaultValues.ethereumStorage.concurrency
-    })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
+          defaultValues.ethereumStorage.concurrency
+        })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
+
+        logLevel (${defaultValues.log.level})\t\t\tThe node log level (ERROR, WARN, INFO or DEBUG)
+        logMode (${defaultValues.log.mode})\t\t\tThe node log mode (human or machine)
 
     EXAMPLE
       yarn start --port 5000 --networkId 1 --ipfsPort 6000

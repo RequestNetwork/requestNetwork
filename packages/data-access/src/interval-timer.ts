@@ -1,3 +1,4 @@
+import { LogTypes } from '@requestnetwork/types';
 /**
  * Module to start and stop a periodical function
  */
@@ -5,16 +6,23 @@ export default class IntervalTimer {
   private intervalFunction: any;
   private intervalTime: number;
   private timeoutObject: any = null;
+  private logger?: LogTypes.ILogger;
 
   /**
    * Constructor IntervalTimer
    *
-   * @param any intervalFunction function to call periodically when timer is started
-   * @param number intervalTime Interval time between interval function call
+   * @param intervalFunction function to call periodically when timer is started
+   * @param intervalTime Interval time between interval function call
+   * @param logger Logger instance
    */
-  public constructor(intervalFunction: () => Promise<void>, intervalTime: number) {
+  public constructor(
+    intervalFunction: () => Promise<void>,
+    intervalTime: number,
+    logger?: LogTypes.ILogger,
+  ) {
     this.intervalFunction = intervalFunction;
     this.intervalTime = intervalTime;
+    this.logger = logger;
   }
 
   /**
@@ -33,12 +41,12 @@ export default class IntervalTimer {
       try {
         // We wait for the internal function to reset the timeout
         await this.intervalFunction();
-      } catch (e) {
+      } catch (e) {
         // An error in the interval function should not stop the interval timer
         // We display the error and continue the interval timer
-        // PROT-181: Implements a log manager
-        // tslint:disable-next-line:no-console
-        console.log(`intervalTimer error: ${e}`);
+        if (this.logger) {
+          this.logger.error(`intervalTimer error: ${e}`);
+        }
       }
 
       this.timeoutObject = setTimeout(recursiveTimeoutFunction, this.intervalTime);

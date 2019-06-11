@@ -1,4 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
+import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 /**
@@ -12,6 +13,7 @@ export default async function persistTransaction(
   clientRequest: any,
   serverResponse: any,
   dataAccess: DataAccess,
+  logger: LogTypes.ILogger,
 ): Promise<void> {
   // Retrieves data access layer
   let dataAccessResponse;
@@ -31,10 +33,8 @@ export default async function persistTransaction(
       );
 
       serverResponse.status(httpStatus.OK).send(dataAccessResponse);
-
     } catch (e) {
-      // tslint:disable-next-line:no-console
-      console.error(`persistTransaction error: ${e}`);
+      logger.error(`persistTransaction error: ${e}`);
 
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }

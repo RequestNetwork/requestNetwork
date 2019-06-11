@@ -42,6 +42,8 @@
     "@requestnetwork/data-access": "0.2.0",
     "@requestnetwork/ethereum-storage": "0.2.0",
     "@requestnetwork/types": "0.2.0",
+    "@requestnetwork/utils": "0.2.0",
+    "chalk": "2.4.2",
     "cors": "2.8.5",
     "dotenv": "8.0.0",
     "express": "4.17.1",

@@ -1,5 +1,5 @@
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
-import { StorageTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
 const hdWalletProvider = require('truffle-hdwallet-provider');
@@ -9,7 +9,7 @@ const hdWalletProvider = require('truffle-hdwallet-provider');
  * @param mnemonic: mnemonic for the web3 wallet
  * @returns ethereum storage object
  */
-export function getEthereumStorage(mnemonic: string): EthereumStorage {
+export function getEthereumStorage(mnemonic: string, logger: LogTypes.ILogger): EthereumStorage {
   // Initializes IPFS gateway connection object
   const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
     host: config.getIpfsHost(),
@@ -28,6 +28,7 @@ export function getEthereumStorage(mnemonic: string): EthereumStorage {
 
   return new EthereumStorage(ipfsGatewayConnection, web3Connection, {
     getLastBlockNumberDelay: config.getLastBlockNumberDelay(),
+    logger,
     maxConcurrency: config.getStorageConcurrency(),
     retryDelay: config.getEthereumRetryDelay(),
   });

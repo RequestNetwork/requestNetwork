@@ -1,4 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
+import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 const REQUEST_TIMEOUT: number = 600000;
@@ -14,6 +15,7 @@ export default async function getChannelsByTopic(
   clientRequest: any,
   serverResponse: any,
   dataAccess: DataAccess,
+  logger: LogTypes.ILogger,
 ): Promise<void> {
   // Retrieves data access layer
   let transactions;
@@ -38,8 +40,7 @@ export default async function getChannelsByTopic(
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {
-      // tslint:disable-next-line:no-console
-      console.error(`getChannelsByTopic error: ${e}`);
+      logger.error(`getChannelsByTopic error: ${e}`);
 
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }

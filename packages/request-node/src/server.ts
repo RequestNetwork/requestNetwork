@@ -1,13 +1,19 @@
 #!/usr/bin/env node
-
+import { LogTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 import * as config from './config';
+import Logger from './logger';
 import RequestNode from './requestNode';
+
+// Initialize the node logger
+const { logLevel, logMode } = config.getLogConfig();
+const logger = new Logger(logLevel, logMode);
 
 const startNode = async (): Promise<void> => {
   const serverMessage = `Using config:
   Ethereum network id: ${config.getStorageNetworkId()}
-  Log Level: ${config.getLogLevel()}
+  Log Level: ${LogTypes.LogLevel[config.getLogConfig().logLevel]}
+  Log Mode: ${config.getLogConfig().logMode}
   Web3 provider url: ${config.getStorageWeb3ProviderUrl()}
   IPFS host: ${config.getIpfsHost()}
   IPFS port: ${config.getIpfsPort()}
@@ -17,17 +23,15 @@ const startNode = async (): Promise<void> => {
   Transaction Index path: ${config.getTransactionIndexFilePath()}
 `;
 
-  // tslint:disable:no-console
-  console.log(serverMessage);
+  logger.info(serverMessage);
 
   // Initialize request node instance and listen for requests
-  const requestNode = new RequestNode();
+  const requestNode = new RequestNode(logger);
   await requestNode.initialize();
 
   const port = config.getServerPort();
   requestNode.listen(port, () => {
-    // tslint:disable:no-console
-    console.log(`Listening on port ${port}`);
+    logger.info(`Listening on port ${port}`);
     return 0;
   });
 };
@@ -39,7 +43,7 @@ if (argv.h) {
   console.log(config.getHelpMessage());
 } else {
   startNode().catch(error => {
-    console.error(error);
+    logger.error(error);
     process.exit(1);
   });
 }

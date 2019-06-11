@@ -1,11 +1,12 @@
 import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
-import { StorageTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import * as cors from 'cors';
 import * as express from 'express';
 import * as httpStatus from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
+import Utils from '@requestnetwork/utils';
 import { getCustomHeaders, getMnemonic, getTransactionIndexFilePath } from './config';
 import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
@@ -30,18 +31,28 @@ class RequestNode {
 
   private express: any;
   private initialized: boolean;
+  private logger: LogTypes.ILogger;
 
-  constructor() {
+  /**
+   * Request Node constructor
+   *
+   * @param [logger] The logger instance
+   */
+  constructor(logger?: LogTypes.ILogger) {
     this.initialized = false;
 
+    this.logger = logger || new Utils.SimpleLogger();
+
     // Use ethereum storage for the storage layer
-    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic());
+    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic(), this.logger);
 
     const transactionIndexStoragePath = getTransactionIndexFilePath();
 
-    const store = transactionIndexStoragePath ? new KeyvFile({
-      filename: transactionIndexStoragePath,
-    }) : undefined;
+    const store = transactionIndexStoragePath
+      ? new KeyvFile({
+          filename: transactionIndexStoragePath,
+        })
+      : undefined;
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
     const transactionIndex = new TransactionIndex(store);
@@ -61,29 +72,25 @@ class RequestNode {
    * with the current state of the storage smart contract
    */
   public async initialize(): Promise<void> {
-    // tslint:disable-next-line:no-console
-    console.log('Node initialization');
+    this.logger.info('Node initialization');
 
     try {
       await this.dataAccess.initialize();
     } catch (error) {
-      // tslint:disable-next-line:no-console
-      console.error(`Node failed to initialize`);
+      this.logger.error(`Node failed to initialize`);
       throw error;
     }
 
     try {
       this.dataAccess.startAutoSynchronization();
     } catch (error) {
-      // tslint:disable-next-line:no-console
-      console.error(`Node failed to start auto synchronization`);
+      this.logger.error(`Node failed to start auto synchronization`);
       throw error;
     }
 
     this.initialized = true;
 
-    // tslint:disable-next-line:no-console
-    console.log('Node initialized');
+    this.logger.info('Node initialized');
   }
 
   /**
@@ -124,7 +131,7 @@ class RequestNode {
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return persistTransaction(clientRequest, serverResponse, this.dataAccess);
+        return persistTransaction(clientRequest, serverResponse, this.dataAccess, this.logger);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
@@ -134,7 +141,12 @@ class RequestNode {
     // Route for getTransactionsByChannelId request
     router.get('/getTransactionsByChannelId', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getTransactionsByChannelId(clientRequest, serverResponse, this.dataAccess);
+        return getTransactionsByChannelId(
+          clientRequest,
+          serverResponse,
+          this.dataAccess,
+          this.logger,
+        );
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
@@ -144,7 +156,7 @@ class RequestNode {
     // Route for getChannelsByTopic request
     router.get('/getChannelsByTopic', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getChannelsByTopic(clientRequest, serverResponse, this.dataAccess);
+        return getChannelsByTopic(clientRequest, serverResponse, this.dataAccess, this.logger);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }

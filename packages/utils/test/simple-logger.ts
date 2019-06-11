@@ -62,6 +62,16 @@ describe.only('Simple logger', () => {
     expect(fakeConsole.debug).to.have.been.called.with(expectedLog);
   });
 
+  it('does not log in quiet log level', () => {
+    const logger = new SimpleLogger(LogLevel.QUIET);
+    logger.output = fakeConsole;
+    logger.error('test message');
+    logger.warn('test message');
+    logger.info('test message');
+    logger.debug('test message');
+    expect(fakeConsole.debug).to.not.have.been.called;
+  });
+
   it('does not log a message with higher log lever than the one set at construction', () => {
     const logger = new SimpleLogger(LogLevel.ERROR);
     const spy = chai.spy();

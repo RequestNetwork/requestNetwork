@@ -229,6 +229,14 @@ Default values correspond to the basic configuration used to run a server in a t
   - Environment variable name: `$STORAGE_MAX_CONCURRENCY`
 - `--transactionIndexFilePath` Path to a file to persist the transaction index for faster intialization
   - Environment variable name: `$TRANSACTION_INDEX_FILE_PATH`
+- `--logLevel` The maximum level of messages we will log
+  - Environment variable name: `$LOG_LEVEL`
+  - Available levels: ERROR, WARN, INFO and DEBUG
+- `--logMode` Defines the log format to use
+  - Environment variable name: `$LOG_MODE`
+  - Available modes:
+    - `human` is a more human readable log to display during development
+    - `machine` is better for parsing on CI or deployments
 
 #### Mnemonic
 
