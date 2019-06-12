@@ -1,8 +1,15 @@
+import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
 import * as Types from '../../../../types';
 const bigNumber: any = require('bn.js');
 
 /* eslint-disable spellcheck/spell-checker */
+
+// Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
+const BLOCKSTREAMINFO_REQUEST_MAX_RETRY = 3;
+
+// Delay between retries in ms
+const BLOCKSTREAMINFO_REQUEST_RETRY_DELAY = 100;
 
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockstream.info
@@ -24,7 +31,11 @@ export default class BlockstreamInfo implements Types.IBitcoinProvider {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
 
     try {
-      const res = await fetch(`${baseUrl}/address/${address}/txs`);
+      const res = await Utils.retry(async () => fetch(`${baseUrl}/address/${address}/txs`), {
+        maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,
+        retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
+      })();
+
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${baseUrl}/${address}`);
