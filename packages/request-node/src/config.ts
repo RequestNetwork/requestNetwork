@@ -23,7 +23,7 @@ const defaultValues: any = {
     },
 
     lastBlockNumberDelay: 10000,
-    maxConcurrency: 500,
+    maxConcurrency: 200,
     retryDelay: 1000,
   },
   log: {
