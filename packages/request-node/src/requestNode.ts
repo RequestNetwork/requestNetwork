@@ -73,6 +73,7 @@ class RequestNode {
    */
   public async initialize(): Promise<void> {
     this.logger.info('Node initialization');
+    const initializationStartTime: number = Date.now();
 
     try {
       await this.dataAccess.initialize();
@@ -91,6 +92,9 @@ class RequestNode {
     this.initialized = true;
 
     this.logger.info('Node initialized');
+
+    const initializationEndTime: number = Date.now();
+    this.logger.info(`Time to initialize: ${initializationEndTime - initializationStartTime}s`, ['metric']);
   }
 
   /**
