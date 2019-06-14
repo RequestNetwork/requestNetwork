@@ -115,6 +115,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
     await this.pushLocationsWithTopics(allDataWithMeta);
+
     this.isInitialized = true;
   }
 

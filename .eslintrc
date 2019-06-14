@@ -32,6 +32,8 @@
           "chai",
           "checksum",
           "cors",
+          "deserialize",
+          "deserialized",
           "dichotomic",
           "ecdsa",
           "enum",
