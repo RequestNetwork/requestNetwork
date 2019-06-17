@@ -4,28 +4,23 @@ import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
 const benchmark = require('benchmark');
 
 const signatureInfo: Types.Signature.ISignatureParameters = {
-  method: Types.Signature.REQUEST_SIGNATURE_METHOD.ECDSA,
+  method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
 const signerIdentity: Types.Identity.IIdentity = {
-  type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 
-const requestCreationHash: Types.RequestLogic.IRequestLogicCreateParameters = {
-  currency: Types.RequestLogic.REQUEST_LOGIC_CURRENCY.BTC,
+const requestCreationHash: Types.RequestLogic.ICreateParameters = {
+  currency: Types.RequestLogic.CURRENCY.BTC,
   expectedAmount: '100000000000',
   payee: signerIdentity,
   payer: {
-    type: Types.Identity.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };
-
-const topics = [
-  '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-];
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
 
@@ -61,7 +56,6 @@ function getCreateRequestThroughput(
                 contentData: actions.content,
                 requestInfo: requestCreationHash,
                 signer: signerIdentity,
-                topics,
               })
               .then(() => deferred.resolve());
           },
@@ -84,7 +78,7 @@ function analyzeBenchmark(benchmarkToAnalyze: any): IBenchmark {
     hz: countPerSec,
     stats: { mean, moe: marginOfError },
   } = benchmarkToAnalyze;
-  return { count, countPerSec: Math.round(countPerSec), mean, marginOfError };
+  return { count, countPerSec, mean, marginOfError };
 }
 
 /**

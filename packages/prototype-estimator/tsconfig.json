@@ -10,6 +10,7 @@
     { "path": "../epk-signature" },
     { "path": "../ethereum-storage" },
     { "path": "../request-logic" },
+    { "path": "../request-client.js" },
     { "path": "../transaction-manager" },
     { "path": "../types" }
   ]

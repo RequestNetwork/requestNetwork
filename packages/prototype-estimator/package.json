@@ -21,6 +21,8 @@
   },
   "main": "src/index.ts",
   "scripts": {
+    "build": "tsc -b",
+    "ganache-blocktime15": "ganache-cli -l 90000000 -p 8545 --blockTime 15 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "start": "ts-node src/index.ts"
   },
   "dependencies": {

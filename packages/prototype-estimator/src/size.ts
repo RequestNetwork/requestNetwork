@@ -3,36 +3,27 @@ import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import MockStorage from './mock-storage';
 
 const signatureInfo: SignatureTypes.ISignatureParameters = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+  method: SignatureTypes.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
 const signerIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
 
-const requestCreationHash: RequestLogicTypes.IRequestLogicCreateParameters = {
-  currency: RequestLogicTypes.REQUEST_LOGIC_CURRENCY.ETH,
+const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+  currency: RequestLogicTypes.CURRENCY.ETH,
   expectedAmount: '100000000000',
   payee: signerIdentity,
   payer: {
-    type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   },
 };
-
-const topics = [
-  '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-];
 
 // Signature provider setup
 const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
@@ -94,11 +85,7 @@ async function getSizeOfRequest(
         ],
       });
     }
-    const resultCreation = await requestLogic.createRequest(
-      _requestCreationHash,
-      signerIdentity,
-      topics,
-    );
+    const resultCreation = await requestLogic.createRequest(_requestCreationHash, signerIdentity);
     requestId = resultCreation.result.requestId;
     if (actions.accept) {
       await requestLogic.acceptRequest({ requestId }, signerIdentity);
@@ -116,7 +103,7 @@ async function getSizeOfRequest(
       );
     }
   }
-  const dataInStorage = await mockStorage.getAllData();
+  const dataInStorage = await mockStorage.getData();
   return dataInStorage.result.data.reduce((totalSize, data) => totalSize + data.length, 0);
 }
 
