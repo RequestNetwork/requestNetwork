@@ -94,7 +94,9 @@ class RequestNode {
     this.logger.info('Node initialized');
 
     const initializationEndTime: number = Date.now();
-    this.logger.info(`Time to initialize: ${initializationEndTime - initializationStartTime}s`, ['metric']);
+
+    // tslint:disable-next-line:no-magic-numbers
+    this.logger.info(`Time to initialize: ${(initializationEndTime - initializationStartTime) / 1000}s`, ['metric', 'initialization']);
   }
 
   /**

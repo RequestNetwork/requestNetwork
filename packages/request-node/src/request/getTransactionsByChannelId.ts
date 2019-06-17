@@ -20,6 +20,9 @@ export default async function getTransactionsByChannelId(
   // Retrieves data access layer
   let transactions;
 
+  // Used to compute request time
+  const requestStartTime = Date.now();
+
   // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
   // This operation can take a long time and then the timeout of the request should be increase
   // PROT-187: Decrease or remove this value
@@ -40,6 +43,10 @@ export default async function getTransactionsByChannelId(
         clientRequest.query.channelId,
         timestampBoundaries,
       );
+
+      // Log the request time
+      const requestEndTime = Date.now();
+      logger.debug(`getTransactionsByChannelId latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {

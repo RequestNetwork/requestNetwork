@@ -18,6 +18,9 @@ export default async function persistTransaction(
   // Retrieves data access layer
   let dataAccessResponse;
 
+  // Used to compute request time
+  const requestStartTime = Date.now();
+
   // Verifies if data send from post are correct
   // clientRequest.body is expected to contain data for data-acces layer:
   // transactionData: data of the transaction
@@ -31,6 +34,10 @@ export default async function persistTransaction(
         clientRequest.body.channelId,
         clientRequest.body.topics,
       );
+
+      // Log the request time
+      const requestEndTime = Date.now();
+      logger.debug(`persistTransaction latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
 
       serverResponse.status(httpStatus.OK).send(dataAccessResponse);
     } catch (e) {

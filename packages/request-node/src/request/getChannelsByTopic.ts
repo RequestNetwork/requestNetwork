@@ -20,6 +20,9 @@ export default async function getChannelsByTopic(
   // Retrieves data access layer
   let transactions;
 
+  // Used to compute request time
+  const requestStartTime = Date.now();
+
   // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
   // This operation can take a long time and then the timeout of the request should be increase
   // PROT-187: Decrease or remove this value
@@ -37,6 +40,10 @@ export default async function getChannelsByTopic(
         updatedBetween = JSON.parse(clientRequest.query.updatedBetween);
       }
       transactions = await dataAccess.getChannelsByTopic(clientRequest.query.topic, updatedBetween);
+
+      // Log the request time
+      const requestEndTime = Date.now();
+      logger.debug(`getChannelsByTopic latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {
