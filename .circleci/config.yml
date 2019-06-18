@@ -357,11 +357,11 @@ jobs:
       - run:
           name: 'Login to NPM registry'
           command: |
-            npm set registry http://npm.request.network
+            npm set registry https://npm.request.network
             echo "//npm.request.network/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
           name: Publish packages
-          command: yarn publish-prerelease --registry http://npm.request.network
+          command: yarn publish-prerelease --registry https://npm.request.network
   push-request-network-image:
     executor: gcp/default
     steps:
