@@ -11,6 +11,10 @@ export interface IRequestLogic {
     signerIdentity: Identity.IIdentity,
     indexes: string[],
   ) => Promise<IReturnCreateRequest>;
+  computeRequestId: (
+    requestParameters: ICreateParameters,
+    signerIdentity: Identity.IIdentity,
+  ) => Promise<RequestId>;
   acceptRequest: (
     requestParameters: IAcceptParameters,
     signerIdentity: Identity.IIdentity,

@@ -1,4 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 /**
  * Collection of utils functions related to the library, meant to simplify its use.
@@ -22,4 +23,10 @@ export default {
     }
     return decimals;
   },
+  /**
+   * Returns the current timestamp in second
+   *
+   * @returns current timestamp in second
+   */
+  getCurrentTimestampInSecond: Utils.getCurrentTimestampInSecond,
 };

@@ -192,6 +192,26 @@ const requestData = request.getData();
 
 `requestData.request`: [IRequestData](/packages/request-client.js/src/types.ts#L17)
 
+### Compute a request ID before it is created
+
+```javascript
+const requestId = await requestNetwork.computeRequestId({
+  requestInfo,
+  signer,
+  paymentNetwork,
+  contentData,
+  topics,
+});
+```
+
+- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `contentData`: any - optional [content data](#content-data) of the request.
+- `topics`: string[] - optional strings used to index the request.
+
+> Important: As the `requestId` is a hash of the request data, you should set `requestInfo.timestamp`, using `Utils.getCurrentTimestampInSecond`. Otherwise, it can have a different timestamp when computing the ID and when actually creating the request.
+
 ### Content Data
 
 A Request can have an optional Content Data.

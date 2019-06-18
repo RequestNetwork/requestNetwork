@@ -38,14 +38,18 @@ const fakeMetaTransactionManager = {
   meta: { storageDataId: 'fakeDataId' },
   result: { topics: [fakeTxHash] },
 };
-const fakeTransactionManager: TransactionTypes.ITransactionManager = {
-  getChannelsByTopic: chai.spy(),
-  getTransactionsByChannelId: chai.spy(),
-  persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
-};
+let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
 /* tslint:disable:no-unused-expression */
 describe('index', () => {
+  beforeEach(() => {
+    fakeTransactionManager = {
+      getChannelsByTopic: chai.spy(),
+      getTransactionsByChannelId: chai.spy(),
+      persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
+    };
+  });
+
   describe('createRequest', () => {
     it('cannot createRequest without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
@@ -74,18 +78,28 @@ describe('index', () => {
         requestId,
       );
     });
+  });
 
-    it('cannot createRequest without signature provider', async () => {
+  describe('computeRequestId', () => {
+    it('cannot computeRequestId without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
-
       try {
-        await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
+        await requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity);
         expect(false, 'must have thrown').to.be.true;
       } catch (e) {
         expect(e.message, 'wrong exception').to.equal(
           'You must give a signature provider to create actions',
         );
       }
+    });
+
+    it('can computeRequestId', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+      const generatedRequestId = await requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity);
+
+      expect(generatedRequestId).to.equal(requestId);
+
+      expect(fakeTransactionManager.persistTransaction).to.not.have.been.called();
     });
   });
 

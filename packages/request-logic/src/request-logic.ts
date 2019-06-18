@@ -63,6 +63,30 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
+   * Function to compute the id of a request without creating it
+   *
+   * @param requestParameters ICreateParameters parameters to create a request
+   * @param IIdentity signerIdentity Identity of the signer
+   *
+   * @returns Promise<RequestLogicTypes.RequestId> the request id
+   */
+  public async computeRequestId(
+    requestParameters: RequestLogicTypes.ICreateParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<RequestLogicTypes.RequestId> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+
+    const action = await RequestLogicCore.formatCreate(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
+    return RequestLogicCore.getRequestIdFromAction(action);
+  }
+
+  /**
    * Function to accept a request and persist it on through the transaction manager layer
    *
    * @param IAcceptParameters acceptParameters parameters to accept a request
