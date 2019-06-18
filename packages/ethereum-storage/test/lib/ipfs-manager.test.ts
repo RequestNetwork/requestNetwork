@@ -326,7 +326,7 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('error on read request should retry', async () => {
+  it.skip('error on read request should retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
@@ -351,7 +351,7 @@ describe('Ipfs manager', () => {
     expect(spy).to.have.been.called.exactly(5);
   });
 
-  it('error on pin request should retry', async () => {
+  it.skip('error on pin request should retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
@@ -375,7 +375,7 @@ describe('Ipfs manager', () => {
     expect(spy).to.have.been.called.exactly(5);
   });
 
-  it('error on getContentLength request should retry', async () => {
+  it.skip('error on getContentLength request should retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
@@ -403,7 +403,7 @@ describe('Ipfs manager', () => {
     expect(spy).to.have.been.called.exactly(5);
   });
 
-  it('error on connectSwarmPeer request should retry', async () => {
+  it.skip('error on connectSwarmPeer request should retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
