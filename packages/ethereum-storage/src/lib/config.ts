@@ -17,6 +17,10 @@ const config: any = {
   },
   ipfs: {
     default: 'private',
+    errorHandling: {
+      delayBetweenRetries: 500,
+      maxRetries: 3,
+    },
     nodeUrlDefault: {
       private: {
         port: 5001,
@@ -133,5 +137,16 @@ export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
     delayBetweenCalls: config.ipfs.pinRequest.delayBetweenCalls,
     maxSize: config.ipfs.pinRequest.maxSize,
     timeout: config.ipfs.pinRequest.timeout,
+  };
+}
+
+/**
+ * Retrieve from config the maximum number of retries on failed IPFS calls
+ * @returns array of the swarm addresses
+ */
+export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingConfiguration {
+  return {
+    delayBetweenRetries: config.ipfs.errorHandling.delayBetweenRetries,
+    maxRetries: config.ipfs.errorHandling.maxRetries,
   };
 }

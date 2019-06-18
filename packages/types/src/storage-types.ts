@@ -221,3 +221,9 @@ export interface IPinRequestConfiguration {
   maxSize: number;
   timeout: number;
 }
+
+/** Configuration for the IPFS error handling parameters */
+export interface IIpfsErrorHandlingConfiguration {
+  delayBetweenRetries: number;
+  maxRetries: number;
+}

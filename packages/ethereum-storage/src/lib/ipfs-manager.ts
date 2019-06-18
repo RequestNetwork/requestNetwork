@@ -2,7 +2,7 @@ import { StorageTypes } from '@requestnetwork/types';
 import * as FormData from 'form-data';
 import * as http from 'http';
 import * as https from 'https';
-import { getDefaultIpfs } from './config';
+import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
 
 // eslint-disable-next-line spellcheck/spell-checker
 const unixfs = require('ipfs-unixfs');
@@ -19,6 +19,9 @@ export default class IpfsManager {
    */
   public ipfsConnectionModule: any;
 
+  /** IPFS error handling configurations */
+  public errorHandlingConfig: StorageTypes.IIpfsErrorHandlingConfiguration;
+
   public readonly IPFS_API_ADD: string = '/api/v0/add';
   public readonly IPFS_API_CAT: string = '/api/v0/object/get';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
@@ -33,8 +36,12 @@ export default class IpfsManager {
    * If no values are provided default values from config are used
    * Private network is used for default values
    */
-  public constructor(_ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs()) {
+  public constructor(
+    _ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs(),
+    ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = getIpfsErrorHandlingConfig(),
+  ) {
     this.ipfsConnection = _ipfsConnection;
+    this.errorHandlingConfig = ipfsErrorHandling;
 
     this.ipfsConnectionModule = this.getIpfsConnectionModuleModule(this.ipfsConnection.protocol);
   }
@@ -88,7 +95,7 @@ export default class IpfsManager {
    * @param multiAddresses address of the ipfs node to connect with
    * @returns Promise resolving the peer address
    */
-  public connectSwarmPeer(multiAddress: string): Promise<string> {
+  public connectSwarmPeer(multiAddress: string, retries: number = 0): Promise<string> {
     // Promise to wait for response from server
     return new Promise<string>(
       (resolve, reject): void => {
@@ -120,7 +127,17 @@ export default class IpfsManager {
 
             // Error handling
             res.on('error', (e: string) => {
-              reject(Error(`Ipfs connecting peer response error: ${e}`));
+              if (
+                !this.errorHandlingConfig.maxRetries ||
+                retries > this.errorHandlingConfig.maxRetries
+              ) {
+                reject(Error(`Ipfs connecting peer response error: ${e}`));
+              } else {
+                setTimeout(
+                  () => resolve(this.connectSwarmPeer(multiAddress, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              }
             });
             res.on('aborted', () => {
               reject(Error('Ipfs connecting peer response has been aborted'));
@@ -130,7 +147,18 @@ export default class IpfsManager {
             reject(Error('Ipfs connecting peer has been aborted'));
           })
           .on('error', (e: string) => {
-            reject(Error(`Ipfs connecting peer error: ${e}`));
+            // If maxRetries is set and we haven't reached maxRetries, retry the request
+            if (
+              this.errorHandlingConfig.maxRetries &&
+              retries <= this.errorHandlingConfig.maxRetries
+            ) {
+              setTimeout(
+                () => resolve(this.connectSwarmPeer(multiAddress, retries + 1)),
+                this.errorHandlingConfig.delayBetweenRetries,
+              );
+            } else {
+              reject(Error(`Ipfs connecting peer error: ${e}`));
+            }
           });
       },
     );
@@ -141,13 +169,16 @@ export default class IpfsManager {
    * @param content Content to add to ipfs
    * @returns Promise resolving the hash of the new added content
    */
-  public add(content: string): Promise<string> {
+  public add(content: string, retries: number = 0): Promise<string> {
     // Promise to wait for response from server
     return new Promise<string>(
       (resolve, reject): void => {
         // Preparing form data for add request
         const addForm = new FormData();
         addForm.append('file', Buffer.from(content));
+
+        // Flag if a timeout error was thrown
+        let didTimeout = false;
 
         // Creating object for add request
         const addRequest = this.ipfsConnectionModule.request({
@@ -183,7 +214,18 @@ export default class IpfsManager {
           });
 
           res.on('error', (e: string) => {
-            reject(Error(`Ipfs add request response error: ${e}`));
+            // If maxRetries is set, and we haven't reached maxRetries, retry the request
+            if (
+              this.errorHandlingConfig.maxRetries &&
+              retries <= this.errorHandlingConfig.maxRetries
+            ) {
+              setTimeout(
+                () => resolve(this.add(content, retries + 1)),
+                this.errorHandlingConfig.delayBetweenRetries,
+              );
+            } else {
+              reject(Error(`Ipfs add request response error: ${e}`));
+            }
           });
           res.on('aborted', () => {
             reject(Error('Ipfs add request response has been aborted'));
@@ -192,6 +234,7 @@ export default class IpfsManager {
 
         // Throw error on timeout
         addRequest.on('timeout', () => {
+          didTimeout = true;
           // explicitly abort the request
           addRequest.abort();
           reject(Error('Ipfs add request timeout'));
@@ -200,7 +243,19 @@ export default class IpfsManager {
           reject(Error('Ipfs add request has been aborted'));
         });
         addRequest.on('error', (e: string) => {
-          reject(Error(`Ipfs add request error: ${e}`));
+          // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
+          if (
+            !didTimeout &&
+            this.errorHandlingConfig.maxRetries &&
+            retries <= this.errorHandlingConfig.maxRetries
+          ) {
+            setTimeout(
+              () => resolve(this.add(content, retries + 1)),
+              this.errorHandlingConfig.delayBetweenRetries,
+            );
+          } else {
+            reject(Error(`Ipfs add request error: ${e}`));
+          }
         });
       },
     );
@@ -211,7 +266,7 @@ export default class IpfsManager {
    * @param hash Hash of the content
    * @returns Promise resolving retrieved ipfs object
    */
-  public read(hash: string): Promise<StorageTypes.IIpfsObject> {
+  public read(hash: string, retries: number = 0): Promise<StorageTypes.IIpfsObject> {
     // Promise to wait for response from server
     return new Promise<StorageTypes.IIpfsObject>(
       (resolve, reject): void => {
@@ -219,6 +274,9 @@ export default class IpfsManager {
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
         }${this.IPFS_API_CAT}?arg=${hash}`;
+
+        // Flag if a timeout error was thrown
+        let didTimeout = false;
 
         const getRequest = this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
@@ -250,13 +308,25 @@ export default class IpfsManager {
 
             // Error handling
             res.on('error', (e: string) => {
-              reject(Error(`Ipfs read request response error: ${e}`));
+              // If maxRetries is set, and we haven't reached maxRetries, retry the request
+              if (
+                this.errorHandlingConfig.maxRetries &&
+                retries <= this.errorHandlingConfig.maxRetries
+              ) {
+                setTimeout(
+                  () => resolve(this.read(hash, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              } else {
+                reject(Error(`Ipfs read request response error: ${e}`));
+              }
             });
             res.on('aborted', () => {
               reject(Error('Ipfs read request response has been aborted'));
             });
           })
           .on('timeout', () => {
+            didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
             reject(Error('Ipfs read request timeout'));
@@ -265,7 +335,19 @@ export default class IpfsManager {
             reject(Error('Ipfs read request has been aborted'));
           })
           .on('error', (e: string) => {
-            reject(Error(`Ipfs read request error: ${e}`));
+            // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
+            if (
+              !didTimeout &&
+              this.errorHandlingConfig.maxRetries &&
+              retries <= this.errorHandlingConfig.maxRetries
+            ) {
+              setTimeout(
+                () => resolve(this.read(hash, retries + 1)),
+                this.errorHandlingConfig.delayBetweenRetries,
+              );
+            } else {
+              reject(Error(`Ipfs read request error: ${e}`));
+            }
           });
 
         if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
@@ -281,7 +363,7 @@ export default class IpfsManager {
    * @param [timeout] An optional timeout for the IPFS pin request
    * @returns Promise resolving the hash pinned after pinning the content
    */
-  public pin(hashes: string[], timeout?: number): Promise<string[]> {
+  public pin(hashes: string[], timeout?: number, retries: number = 0): Promise<string[]> {
     // Promise to wait for response from server
     return new Promise<string[]>(
       (resolve, reject): void => {
@@ -289,6 +371,9 @@ export default class IpfsManager {
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
         }${this.IPFS_API_PIN}?arg=${hashes.join('&arg=')}`;
+
+        // Flag if a timeout error was thrown
+        let didTimeout = false;
 
         const getRequest = this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
@@ -317,13 +402,25 @@ export default class IpfsManager {
 
             // Error handling
             res.on('error', (e: string) => {
-              reject(Error(`Ipfs pin request response error: ${e}`));
+              // If maxRetries is set, and we haven't reached maxRetries, retry the request
+              if (
+                this.errorHandlingConfig.maxRetries &&
+                retries <= this.errorHandlingConfig.maxRetries
+              ) {
+                setTimeout(
+                  () => resolve(this.pin(hashes, timeout, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              } else {
+                reject(Error(`Ipfs pin request response error: ${e}`));
+              }
             });
             res.on('aborted', () => {
               reject(Error('Ipfs pin request response has been aborted'));
             });
           })
           .on('timeout', () => {
+            didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
             reject(Error('Ipfs pin request timeout'));
@@ -332,7 +429,19 @@ export default class IpfsManager {
             reject(Error('Ipfs pin request has been aborted'));
           })
           .on('error', (e: string) => {
-            reject(Error(`Ipfs pin request error: ${e}`));
+            // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
+            if (
+              !didTimeout &&
+              this.errorHandlingConfig.maxRetries &&
+              retries <= this.errorHandlingConfig.maxRetries
+            ) {
+              setTimeout(
+                () => resolve(this.pin(hashes, timeout, retries + 1)),
+                this.errorHandlingConfig.delayBetweenRetries,
+              );
+            } else {
+              reject(Error(`Ipfs pin request error: ${e}`));
+            }
           });
 
         if (timeout || (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0)) {
@@ -347,7 +456,7 @@ export default class IpfsManager {
    * @param hash Hash of the content
    * @returns Promise resolving size of the content
    */
-  public getContentLength(hash: string): Promise<number> {
+  public getContentLength(hash: string, retries: number = 0): Promise<number> {
     // Promise to wait for response from server
     return new Promise<number>(
       (resolve, reject): void => {
@@ -355,6 +464,9 @@ export default class IpfsManager {
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
         }${this.IPFS_API_STAT}?arg=${hash}`;
+
+        // Flag if a timeout error was thrown
+        let didTimeout = false;
 
         const getRequest = this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
@@ -382,13 +494,25 @@ export default class IpfsManager {
 
             // Error handling
             res.on('error', (e: string) => {
-              reject(Error(`Ipfs stat request response error: ${e}`));
+              // If maxRetries is set, and we haven't reached maxRetries, retry the request
+              if (
+                this.errorHandlingConfig.maxRetries &&
+                retries <= this.errorHandlingConfig.maxRetries
+              ) {
+                setTimeout(
+                  () => resolve(this.getContentLength(hash, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              } else {
+                reject(Error(`Ipfs stat request response error: ${e}`));
+              }
             });
             res.on('aborted', () => {
               reject(Error('Ipfs stat request response has been aborted'));
             });
           })
           .on('timeout', () => {
+            didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
             reject(Error('Ipfs stat request timeout'));
@@ -397,7 +521,19 @@ export default class IpfsManager {
             reject(Error('Ipfs stat request has been aborted'));
           })
           .on('error', (e: string) => {
-            reject(Error(`Ipfs stat request error: ${e}`));
+            // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
+            if (
+              !didTimeout &&
+              this.errorHandlingConfig.maxRetries &&
+              retries <= this.errorHandlingConfig.maxRetries
+            ) {
+              setTimeout(
+                () => resolve(this.getContentLength(hash, retries + 1)),
+                this.errorHandlingConfig.delayBetweenRetries,
+              );
+            } else {
+              reject(Error(`Ipfs stat request error: ${e}`));
+            }
           });
 
         if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {

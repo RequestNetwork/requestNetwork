@@ -18,7 +18,7 @@ const fakeConsole = Object.assign({}, console, {
 });
 
 // tslint:disable:no-console
-describe.only('Simple logger', () => {
+describe('Simple logger', () => {
   beforeEach(() => {
     sinon.useFakeTimers();
   });

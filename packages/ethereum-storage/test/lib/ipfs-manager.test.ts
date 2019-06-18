@@ -7,9 +7,13 @@ import { EventEmitter } from 'events';
 import * as http from 'http';
 import IpfsManager from '../../src/lib/ipfs-manager';
 
+const spies = require('chai-spies');
+
 // Extends chai for promises
 chai.use(chaiAsPromised);
+chai.use(spies);
 const assert = chai.assert;
+const expect = chai.expect;
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
@@ -32,6 +36,16 @@ const invalidProtocolIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection 
   timeout: 1000,
 };
 
+const testErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = {
+  delayBetweenRetries: 0,
+  maxRetries: 0,
+};
+
+const retryTestErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = {
+  delayBetweenRetries: 0,
+  maxRetries: 3,
+};
+
 let ipfsManager: IpfsManager;
 
 const content = 'this is a little test !';
@@ -50,13 +64,13 @@ const contentLengthOnIpfs2 = 38;
 // tslint:disable:no-magic-numbers
 describe('Ipfs manager', () => {
   beforeEach(() => {
-    ipfsManager = new IpfsManager(ipfsGatewayConnection);
+    ipfsManager = new IpfsManager(ipfsGatewayConnection, testErrorHandling);
   });
 
   it('allows to verify repository', async () => {
     await ipfsManager.verifyRepository();
 
-    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
     await assert.isRejected(ipfsManager.verifyRepository(), Error, 'getaddrinfo ENOTFOUND');
   });
 
@@ -68,7 +82,7 @@ describe('Ipfs manager', () => {
 
   it('cannot connectSwarmPeer if ipfs is not reachable', async () => {
     const peer = '/ip4/108.129.54.77/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
-    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
     await assert.isRejected(ipfsManager.connectSwarmPeer(peer), Error, 'getaddrinfo ENOTFOUND');
   });
 
@@ -111,7 +125,7 @@ describe('Ipfs manager', () => {
   });
 
   it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
-    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection);
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
 
     await assert.isRejected(ipfsManager.add(content), Error, 'getaddrinfo ENOTFOUND');
     await assert.isRejected(ipfsManager.read(hash), Error, 'getaddrinfo ENOTFOUND');
@@ -136,7 +150,7 @@ describe('Ipfs manager', () => {
 
   it('initializing ipfs-manager with an invalid protocol should throw an error', async () => {
     assert.throws(
-      () => new IpfsManager(invalidProtocolIpfsGatewayConnection),
+      () => new IpfsManager(invalidProtocolIpfsGatewayConnection, testErrorHandling),
       Error,
       'Protocol not implemented for IPFS',
     );
@@ -148,7 +162,7 @@ describe('Ipfs manager', () => {
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
       // We filter the response of the request to prevent the promise to resolve
-      hookedRequest = http.get(request, _res => { });
+      hookedRequest = http.get(request, _res => {});
       return hookedRequest;
     };
     const hookedIpfsConnectionModule = { get: requestHook };
@@ -201,7 +215,7 @@ describe('Ipfs manager', () => {
 
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
-      hookedRequest = http.get(request, _res => { });
+      hookedRequest = http.get(request, _res => {});
       return hookedRequest;
     };
     const hookedIpfsConnectionModule = { get: requestHook };
@@ -300,5 +314,124 @@ describe('Ipfs manager', () => {
       Error,
       'Ipfs stat request response has no DataSize field',
     );
+  });
+
+  it('timeout should not retry', async () => {
+    ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
+
+    await assert.isRejected(
+      ipfsManager.getContentLength(notAddedHash),
+      Error,
+      'Ipfs stat request timeout',
+    );
+  });
+
+  it('error on read request should retry', async () => {
+    ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
+    let hookedGetResponse: any;
+
+    const spy = chai.spy();
+    // Hook the response of the request response to send customized event ot it
+    const getHook = (request: string, resCallback: any): EventEmitter => {
+      hookedGetResponse = new EventEmitter();
+      return http.get(request, _res => {
+        spy();
+        resCallback(hookedGetResponse);
+      });
+    };
+
+    const hookedIpfsConnectionModule = { get: getHook };
+    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+
+    // Fails for the original request, the retries and the last one that will fail
+    for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
+      setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
+    }
+    await assert.isRejected(ipfsManager.read(hash), Error, 'Ipfs read request response error');
+    expect(spy).to.have.been.called.exactly(5);
+  });
+
+  it('error on pin request should retry', async () => {
+    ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
+    let hookedGetResponse: any;
+
+    const spy = chai.spy();
+    // Hook the response of the request response to send customized event ot it
+    const getHook = (request: string, resCallback: any): EventEmitter => {
+      hookedGetResponse = new EventEmitter();
+      return http.get(request, _res => {
+        spy();
+        resCallback(hookedGetResponse);
+      });
+    };
+    const hookedIpfsConnectionModule = { get: getHook };
+    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+
+    // Fails for the original request, the retries and the last one that will fail
+    for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
+      setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
+    }
+    await assert.isRejected(ipfsManager.pin([hash]), Error, 'Ipfs pin request response error');
+    expect(spy).to.have.been.called.exactly(5);
+  });
+
+  it('error on getContentLength request should retry', async () => {
+    ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
+    let hookedGetResponse: any;
+
+    const spy = chai.spy();
+    // Hook the response of the request response to send customized event ot it
+    const getHook = (request: string, resCallback: any): EventEmitter => {
+      hookedGetResponse = new EventEmitter();
+      return http.get(request, _res => {
+        spy();
+        resCallback(hookedGetResponse);
+      });
+    };
+
+    const hookedIpfsConnectionModule = { get: getHook };
+    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+
+    for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
+      setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
+    }
+    await assert.isRejected(
+      ipfsManager.getContentLength(hash),
+      Error,
+      'Ipfs stat request response error',
+    );
+    expect(spy).to.have.been.called.exactly(5);
+  });
+
+  it('error on connectSwarmPeer request should retry', async () => {
+    ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
+    let hookedGetResponse: any;
+
+    const spy = chai.spy();
+    // Hook the response of the request response to send customized event ot it
+    const getHook = (request: string, resCallback: any): EventEmitter => {
+      hookedGetResponse = new EventEmitter();
+      return http.get(request, _res => {
+        spy();
+        resCallback(hookedGetResponse);
+      });
+    };
+
+    const hookedIpfsConnectionModule = { get: getHook };
+    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+
+    // Fails for the original request, the retries and the last one that will fail
+    for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
+      setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
+    }
+    const peer =
+      '/dns4/ipfs.request.network/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
+
+    await assert.isRejected(
+      ipfsManager.connectSwarmPeer(peer),
+      Error,
+      'Ipfs connecting peer response error',
+    );
+    expect(spy).to.have.been.called.exactly(5);
   });
 });
