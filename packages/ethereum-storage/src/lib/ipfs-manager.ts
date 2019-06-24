@@ -197,18 +197,22 @@ export default class IpfsManager {
 
         // Waiting for response
         addRequest.on('response', (res: any) => {
+          let data = '';
           // Response data
-          res.on('data', (data: string) => {
+          res.on('data', (chunk: string) => {
+            data += chunk;
+          });
+
+          res.on('end', () => {
             let jsonData;
             try {
               jsonData = JSON.parse(data);
             } catch (error) {
-              reject(Error('Ipfs add request response cannot be parsed into JSON format'));
+              return reject(Error('Ipfs add request response cannot be parsed into JSON format'));
             }
             if (!jsonData || !jsonData.Hash) {
-              reject(Error('Ipfs add request response has no Hash field'));
+              return reject(Error('Ipfs add request response has no Hash field'));
             }
-
             // Return the hash of the response
             resolve(jsonData.Hash);
           });
@@ -224,11 +228,11 @@ export default class IpfsManager {
                 this.errorHandlingConfig.delayBetweenRetries,
               );
             } else {
-              reject(Error(`Ipfs add request response error: ${e}`));
+              return reject(Error(`Ipfs add request response error: ${e}`));
             }
           });
           res.on('aborted', () => {
-            reject(Error('Ipfs add request response has been aborted'));
+            return reject(Error('Ipfs add request response has been aborted'));
           });
         });
 
@@ -237,10 +241,10 @@ export default class IpfsManager {
           didTimeout = true;
           // explicitly abort the request
           addRequest.abort();
-          reject(Error('Ipfs add request timeout'));
+          return reject(Error('Ipfs add request timeout'));
         });
         addRequest.on('abort', () => {
-          reject(Error('Ipfs add request has been aborted'));
+          return reject(Error('Ipfs add request has been aborted'));
         });
         addRequest.on('error', (e: string) => {
           // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -254,7 +258,7 @@ export default class IpfsManager {
               this.errorHandlingConfig.delayBetweenRetries,
             );
           } else {
-            reject(Error(`Ipfs add request error: ${e}`));
+            return reject(Error(`Ipfs add request error: ${e}`));
           }
         });
       },
@@ -318,21 +322,21 @@ export default class IpfsManager {
                   this.errorHandlingConfig.delayBetweenRetries,
                 );
               } else {
-                reject(Error(`Ipfs read request response error: ${e}`));
+                return reject(Error(`Ipfs read request response error: ${e}`));
               }
             });
             res.on('aborted', () => {
-              reject(Error('Ipfs read request response has been aborted'));
+              return reject(Error('Ipfs read request response has been aborted'));
             });
           })
           .on('timeout', () => {
             didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
-            reject(Error('Ipfs read request timeout'));
+            return reject(Error('Ipfs read request timeout'));
           })
           .on('abort', () => {
-            reject(Error('Ipfs read request has been aborted'));
+            return reject(Error('Ipfs read request has been aborted'));
           })
           .on('error', (e: string) => {
             // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -346,7 +350,7 @@ export default class IpfsManager {
                 this.errorHandlingConfig.delayBetweenRetries,
               );
             } else {
-              reject(Error(`Ipfs read request error: ${e}`));
+              return reject(Error(`Ipfs read request error: ${e}`));
             }
           });
 
@@ -390,10 +394,10 @@ export default class IpfsManager {
               try {
                 jsonData = JSON.parse(data);
               } catch (error) {
-                reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
+                return reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
               }
               if (!jsonData || !jsonData.Pins) {
-                reject(Error('Ipfs pin request response has no Pins field'));
+                return reject(Error('Ipfs pin request response has no Pins field'));
               }
 
               // Return the hash of the response
@@ -412,21 +416,21 @@ export default class IpfsManager {
                   this.errorHandlingConfig.delayBetweenRetries,
                 );
               } else {
-                reject(Error(`Ipfs pin request response error: ${e}`));
+                return reject(Error(`Ipfs pin request response error: ${e}`));
               }
             });
             res.on('aborted', () => {
-              reject(Error('Ipfs pin request response has been aborted'));
+              return reject(Error('Ipfs pin request response has been aborted'));
             });
           })
           .on('timeout', () => {
             didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
-            reject(Error('Ipfs pin request timeout'));
+            return reject(Error('Ipfs pin request timeout'));
           })
           .on('abort', () => {
-            reject(Error('Ipfs pin request has been aborted'));
+            return reject(Error('Ipfs pin request has been aborted'));
           })
           .on('error', (e: string) => {
             // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -440,7 +444,7 @@ export default class IpfsManager {
                 this.errorHandlingConfig.delayBetweenRetries,
               );
             } else {
-              reject(Error(`Ipfs pin request error: ${e}`));
+              return reject(Error(`Ipfs pin request error: ${e}`));
             }
           });
 
@@ -482,10 +486,12 @@ export default class IpfsManager {
               try {
                 jsonData = JSON.parse(data);
               } catch (error) {
-                reject(Error('Ipfs stat request response cannot be parsed into JSON format'));
+                return reject(
+                  Error('Ipfs stat request response cannot be parsed into JSON format'),
+                );
               }
               if (!jsonData || !jsonData.DataSize) {
-                reject(Error('Ipfs stat request response has no DataSize field'));
+                return reject(Error('Ipfs stat request response has no DataSize field'));
               } else {
                 // Return the data size
                 resolve(parseInt(jsonData.DataSize, 10));
@@ -504,21 +510,21 @@ export default class IpfsManager {
                   this.errorHandlingConfig.delayBetweenRetries,
                 );
               } else {
-                reject(Error(`Ipfs stat request response error: ${e}`));
+                return reject(Error(`Ipfs stat request response error: ${e}`));
               }
             });
             res.on('aborted', () => {
-              reject(Error('Ipfs stat request response has been aborted'));
+              return reject(Error('Ipfs stat request response has been aborted'));
             });
           })
           .on('timeout', () => {
             didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
-            reject(Error('Ipfs stat request timeout'));
+            return reject(Error('Ipfs stat request timeout'));
           })
           .on('abort', () => {
-            reject(Error('Ipfs stat request has been aborted'));
+            return reject(Error('Ipfs stat request has been aborted'));
           })
           .on('error', (e: string) => {
             // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -532,7 +538,7 @@ export default class IpfsManager {
                 this.errorHandlingConfig.delayBetweenRetries,
               );
             } else {
-              reject(Error(`Ipfs stat request error: ${e}`));
+              return reject(Error(`Ipfs stat request error: ${e}`));
             }
           });
 
