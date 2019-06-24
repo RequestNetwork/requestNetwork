@@ -268,9 +268,14 @@ export default class IpfsManager {
   /**
    * Retrieve content from ipfs from its hash
    * @param hash Hash of the content
+   * @param maxSize The maximum size of the file to read
    * @returns Promise resolving retrieved ipfs object
    */
-  public read(hash: string, retries: number = 0): Promise<StorageTypes.IIpfsObject> {
+  public read(
+    hash: string,
+    maxSize: number = Number.POSITIVE_INFINITY,
+    retries: number = 0,
+  ): Promise<StorageTypes.IIpfsObject> {
     // Promise to wait for response from server
     return new Promise<StorageTypes.IIpfsObject>(
       (resolve, reject): void => {
@@ -289,6 +294,13 @@ export default class IpfsManager {
             // Chunk of response data
             res.on('data', (chunk: string) => {
               data += chunk;
+              if (data.length > maxSize) {
+                getRequest.abort();
+                res.destroy();
+                return reject(
+                  new Error(`File size (${data.length}) exceeds maximum file size of ${maxSize}`),
+                );
+              }
             });
 
             // All data has been received
@@ -318,7 +330,7 @@ export default class IpfsManager {
                 retries <= this.errorHandlingConfig.maxRetries
               ) {
                 setTimeout(
-                  () => resolve(this.read(hash, retries + 1)),
+                  () => resolve(this.read(hash, maxSize, retries + 1)),
                   this.errorHandlingConfig.delayBetweenRetries,
                 );
               } else {
@@ -346,7 +358,7 @@ export default class IpfsManager {
               retries <= this.errorHandlingConfig.maxRetries
             ) {
               setTimeout(
-                () => resolve(this.read(hash, retries + 1)),
+                () => resolve(this.read(hash, maxSize, retries + 1)),
                 this.errorHandlingConfig.delayBetweenRetries,
               );
             } else {

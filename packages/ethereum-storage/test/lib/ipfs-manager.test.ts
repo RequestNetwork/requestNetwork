@@ -106,12 +106,23 @@ describe('Ipfs manager', () => {
 
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
-    let contentReturned = await ipfsManager.read(hash);
+    let contentReturned = await ipfsManager.read(hash, 82);
     assert.equal(content, contentReturned.content);
 
     await ipfsManager.add(content2);
     contentReturned = await ipfsManager.read(hash2);
     assert.equal(content2, contentReturned.content);
+  });
+
+  it('must throw if max size reached', async () => {
+    await ipfsManager.add(content);
+
+    const maxSize = 10;
+    await assert.isRejected(
+      ipfsManager.read(hash, maxSize),
+      Error,
+      `File size (82) exceeds maximum file size of ${maxSize}`,
+    );
   });
 
   it('allows to get file size from ipfs', async () => {

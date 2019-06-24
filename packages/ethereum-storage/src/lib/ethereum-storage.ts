@@ -6,6 +6,12 @@ import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
 
+// rate of the size of the Header of a ipfs file regarding its content size
+// used to estimate the size of a ipfs file from the content size
+const SAFE_RATE_HEADER_SIZE: number = 0.3;
+// max ipfs header size
+const SAFE_MAX_HEADER_SIZE: number = 500;
+
 /**
  * EthereumStorage
  * @notice Manages storage layer of the Request Network Protocol v2
@@ -313,7 +319,9 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param options timestamp boundaries for the data id retrieval
    * @returns Promise resolving id of stored data
    */
-  public async getDataId(options?: StorageTypes.ITimestampBoundaries): Promise<StorageTypes.IGetDataIdReturn> {
+  public async getDataId(
+    options?: StorageTypes.ITimestampBoundaries,
+  ): Promise<StorageTypes.IGetDataIdReturn> {
     const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
     // copy before deleting the key to avoid side effect
@@ -332,7 +340,11 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async pinDataToIPFS(
     hashes: string[],
-    { delayBetweenCalls, maxSize, timeout }: StorageTypes.IPinRequestConfiguration = getPinRequestConfig(),
+    {
+      delayBetweenCalls,
+      maxSize,
+      timeout,
+    }: StorageTypes.IPinRequestConfiguration = getPinRequestConfig(),
   ): Promise<void> {
     // How many slices we need from the total list of hashes to be under pinRequestMaxSize
     const slices = Math.ceil(hashes.length / maxSize);
@@ -429,12 +441,21 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         try {
           const startTime = Date.now();
 
+          // To limit the read response size, calculate a reasonable margin for the IPFS headers compared to the size stored on ethereum
+          const ipfsHeaderMargin = Math.max(
+            hashAndSize.feesParameters.contentSize * SAFE_RATE_HEADER_SIZE,
+            SAFE_MAX_HEADER_SIZE,
+          );
+
           // Send ipfs request
-          ipfsObject = await this.ipfsManager.read(hashAndSize.hash);
+          ipfsObject = await this.ipfsManager.read(
+            hashAndSize.hash,
+            Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
+          );
 
           this.logger.debug(
             `[${currentIndex}/${totalCount}] read ${hashAndSize.hash}. Took ${Date.now() -
-            startTime} ms`,
+              startTime} ms`,
             ['ipfs'],
           );
         } catch (error) {
@@ -452,7 +473,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         if (
           badDataInSmartContractError ||
           !ipfsObject ||
-          ipfsObject.ipfsSize !== contentSizeDeclared
+          ipfsObject.ipfsSize > contentSizeDeclared
         ) {
           this.logger.info(`Ignoring missing hash: ${hashAndSize.hash}`, ['ipfs']);
           if (badDataInSmartContractError) {
