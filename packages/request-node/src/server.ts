@@ -20,7 +20,7 @@ const startNode = async (): Promise<void> => {
   IPFS protocol: ${config.getIpfsProtocol()}
   IPFS timeout: ${config.getIpfsTimeout()}
   Storage concurrency: ${config.getStorageConcurrency()}
-  Transaction Index path: ${config.getTransactionIndexFilePath()}
+  Initialization storage path: ${config.getInitializationStorageFilePath()}
 `;
 
   logger.info(serverMessage);

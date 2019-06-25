@@ -7,7 +7,7 @@ import * as httpStatus from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
 import Utils from '@requestnetwork/utils';
-import { getCustomHeaders, getMnemonic, getTransactionIndexFilePath } from './config';
+import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
 import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import persistTransaction from './request/persistTransaction';
@@ -43,16 +43,16 @@ class RequestNode {
 
     this.logger = logger || new Utils.SimpleLogger();
 
-    // Use ethereum storage for the storage layer
-    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic(), this.logger);
+    const initializationStoragePath = getInitializationStorageFilePath();
 
-    const transactionIndexStoragePath = getTransactionIndexFilePath();
-
-    const store = transactionIndexStoragePath
+    const store = initializationStoragePath
       ? new KeyvFile({
-          filename: transactionIndexStoragePath,
+          filename: initializationStoragePath,
         })
       : undefined;
+
+    // Use ethereum storage for the storage layer
+    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic(), this.logger, store);
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
     const transactionIndex = new TransactionIndex(store);

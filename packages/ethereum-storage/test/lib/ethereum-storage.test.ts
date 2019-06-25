@@ -292,17 +292,14 @@ describe('EthereumStorage', () => {
       }
     });
     it(`allows to save dataId's Ethereum metadata into the metadata cache when append is called`, async () => {
-      await assert.isUndefined(ethereumStorage.ethereumMetadataCache.metadataCache[hash1]);
+      await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be.undefined;
 
       const result = await ethereumStorage.append(content1);
-      await assert.deepEqual(
-        result.meta.ethereum,
-        ethereumStorage.ethereumMetadataCache.metadataCache[hash1],
-      );
+      await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.deep.equal(result.meta.ethereum);
     });
 
     it(`prevents already saved dataId's Ethereum metadata to be erased in the metadata cache when append is called`, async () => {
-      await assert.isUndefined(ethereumStorage.ethereumMetadataCache.metadataCache[hash1]);
+      await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be.undefined;
 
       const result1 = await ethereumStorage.append(content1);
 
@@ -327,17 +324,13 @@ describe('EthereumStorage', () => {
       const result2 = await ethereumStorage.append(content1);
 
       await assert.notDeepEqual(result1, result2);
-
-      await assert.deepEqual(
-        result1.meta.ethereum,
-        ethereumStorage.ethereumMetadataCache.metadataCache[hash1],
-      );
+      await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.deep.equal(result1.meta.ethereum);
     });
 
     it('allows to read a file', async () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => { };
 
       await ethereumStorage.append(content1);
       const result = await ethereumStorage.read(hash1);
@@ -374,7 +367,7 @@ describe('EthereumStorage', () => {
     });
 
     it('cannot read if ethereumMetadataCache.getDataIdMeta fail', async () => {
-      ethereumStorage.ethereumMetadataCache.getDataIdMeta = () => {
+      ethereumStorage.ethereumMetadataCache.getDataIdMeta = async () => {
         throw Error('expected error');
       };
       await expect(ethereumStorage.read(content1)).to.eventually.rejectedWith(
@@ -450,7 +443,7 @@ describe('EthereumStorage', () => {
     it('allows to retrieve all data', async () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => { };
 
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
@@ -517,7 +510,7 @@ describe('EthereumStorage', () => {
     it('doest get meta data if the fees are too low', async () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
       ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = async (): Promise<
         any[]
       > => {
@@ -611,7 +604,7 @@ describe('EthereumStorage', () => {
     });
 
     it('allows to read a file', async () => {
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = (_dataId, _meta) => {};
+      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => { };
 
       const content = [content1, content2];
       const realSizes = [realSize1, realSize2];

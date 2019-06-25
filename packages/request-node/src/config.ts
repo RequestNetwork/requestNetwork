@@ -209,12 +209,12 @@ export function getEthereumRetryDelay(): number {
 }
 
 /**
- * Get the transaction index storage (a json-like file) path.
- * @returns the path to the json-like file that stores the transaction index.
+ * Get the initialization storage (a json-like file) path.
+ * @returns the path to the json-like file that stores the initialization data (ethereum metadata and transaction index).
  */
-export function getTransactionIndexFilePath(): string | null {
+export function getInitializationStorageFilePath(): string | null {
   return (
-    (argv.transactionIndexFilePath as string) || process.env.TRANSACTION_INDEX_FILE_PATH || null
+    (argv.initializationStorageFilePath as string) || process.env.INITIALIZATION_STORAGE_FILE_PATH || null
   );
 }
 

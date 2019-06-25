@@ -6,6 +6,8 @@ import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
 
+import * as Keyv from 'keyv';
+
 // rate of the size of the Header of a ipfs file regarding its content size
 // used to estimate the size of a ipfs file from the content size
 const SAFE_RATE_HEADER_SIZE: number = 0.3;
@@ -51,6 +53,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param ipfsGatewayConnection Information structure to connect to the ipfs gateway
    * @param web3Connection Information structure to connect to the Ethereum network
    * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
+   * @param metadataStore a Keyv store to persist the metadata in ethereumMetadataCache
    */
   public constructor(
     ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection,
@@ -68,6 +71,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       maxRetries?: number;
       retryDelay?: number;
     } = {},
+    metadataStore?: Keyv.Store<any>,
   ) {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
@@ -79,7 +83,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       maxRetries,
       retryDelay,
     });
-    this.ethereumMetadataCache = new EthereumMetadataCache(this.smartContractManager);
+    this.ethereumMetadataCache = new EthereumMetadataCache(this.smartContractManager, metadataStore);
   }
 
   /**
@@ -220,7 +224,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // Save the metadata of the new dataId into the Ethereum metadata cache
-    this.ethereumMetadataCache.saveDataIdMeta(dataId, ethereumMetadata);
+    await this.ethereumMetadataCache.saveDataIdMeta(dataId, ethereumMetadata);
 
     return {
       meta: {
@@ -393,7 +397,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       const ethereumMetadata = contentDataIdAndMeta.meta.metaData[i].ethereum;
       if (ethereumMetadata) {
         // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
-        this.ethereumMetadataCache.saveDataIdMeta(dataIds[i], ethereumMetadata);
+        await this.ethereumMetadataCache.saveDataIdMeta(dataIds[i], ethereumMetadata);
       }
     }
 
