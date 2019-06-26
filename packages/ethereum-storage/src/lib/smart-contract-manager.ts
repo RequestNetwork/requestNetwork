@@ -16,7 +16,9 @@ const bigNumber: any = require('bn.js');
 // if higher the promise may block since the confirmation event function will not be called anymore
 const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
-const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 results';
+// Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
+const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp('query returned more than [1-9][0-9]* results');
+
 const LENGTH_BYTES32_STRING = 64;
 
 /**
@@ -394,7 +396,9 @@ export default class SmartContractManager {
 
       return events;
     } catch (e) {
-      if (e.toString().includes(WEB3_API_ERROR_MORE_THAN_1000_RESULTS)) {
+      // Checks if the API returns "query returned more than XXX results" error
+      // In this case we perform a dichotomy in order to fetch past events with a smaller range
+      if (e.toString().match(MORE_THAN_XXX_RESULTS_REGEX)) {
         const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
         const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
         const eventsSecondHalfPromise = this.recursiveGetPastEvents(
