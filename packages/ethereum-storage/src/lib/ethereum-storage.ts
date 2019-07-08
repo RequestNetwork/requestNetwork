@@ -116,7 +116,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // check ipfs connection - will throw in case of error
     this.logger.info('Checking ipfs connection', ['ipfs', 'sanity']);
     try {
-      await this.ipfsManager.verifyRepository();
+      await this.ipfsManager.verifyIpfsNode();
     } catch (error) {
       throw Error(`IPFS node is not accessible or corrupted: ${error}`);
     }
@@ -158,7 +158,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // check ipfs connection - will throw in case of error
     try {
-      await this.ipfsManager.verifyRepository();
+      await this.ipfsManager.verifyIpfsNode();
     } catch (error) {
       throw Error(`IPFS node is not accessible or corrupted: ${error}`);
     }
