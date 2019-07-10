@@ -38,10 +38,12 @@ export default async function persistTransaction(
       // Log the request time
       const requestEndTime = Date.now();
       logger.debug(`persistTransaction latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
+      logger.debug(`persistTransaction successfully completed`, ['metric', 'successRate']);
 
       serverResponse.status(httpStatus.OK).send(dataAccessResponse);
     } catch (e) {
       logger.error(`persistTransaction error: ${e}`);
+      logger.debug(`persistTransaction fail`, ['metric', 'successRate']);
 
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }

@@ -1,8 +1,14 @@
-const readline = require('readline');
-const fs = require('fs');
-const simpleStatistics = require('simple-statistics');
+import * as fs from 'fs';
+import * as readline from 'readline';
+import * as simpleStatistics from 'simple-statistics';
 
 /* tslint:disable:no-console */
+
+/**
+ * To use the script from package directory:
+ * yarn build
+ * node dist/calculateLatency.js <path_to_log_file>
+ */
 
 // Read the log file
 const readlineInterface = readline.createInterface({
