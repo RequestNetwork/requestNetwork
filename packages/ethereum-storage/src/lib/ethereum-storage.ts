@@ -517,6 +517,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     this.logger.info(
       `getData on ${totalCount} events, ${succeedCount} retrieved, ${timeoutCount} not found, ${wrongFeesCount} with wrong fees`,
+      ['metric', 'successfullyRetrieved'],
     );
 
     // Filter the rejected parsedDataIdAndMeta
