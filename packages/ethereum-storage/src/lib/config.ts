@@ -14,6 +14,7 @@ const config: any = {
       },
     },
     retryDelay: 0,
+    safeGasPriceLimit: '200000000000',
   },
   ipfs: {
     default: 'private',
@@ -110,6 +111,16 @@ export function getEthereumRetryDelay(): number {
  */
 export function getEthereumMaxRetries(): number {
   return config.ethereum.maxRetries;
+}
+
+/**
+ * Retrieve from config the safe gas price limit
+ * This value ensures we don't use a value returned by an API provider
+ * that can be unsafe to use (very high gas price that generate loss of ether)
+ * @returns safe gas price limit
+ */
+export function getSafeGasPriceLimit(): string {
+  return config.ethereum.safeGasPriceLimit;
 }
 
 /**

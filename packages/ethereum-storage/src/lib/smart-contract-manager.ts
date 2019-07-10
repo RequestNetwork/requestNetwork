@@ -5,6 +5,8 @@ import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-stor
 import * as artifactsRequestHashSubmitterUtils from './artifacts-request-hash-submitter-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
+import EthereumUtils from './ethereum-utils';
+import GasPriceDefiner from './gas-price-definer';
 
 const web3Eth = require('web3-eth');
 const web3Utils = require('web3-utils');
@@ -78,8 +80,8 @@ export default class SmartContractManager {
       maxRetries?: number;
       retryDelay?: number;
     } = {
-        maxConcurrency: Number.MAX_SAFE_INTEGER,
-      },
+      maxConcurrency: Number.MAX_SAFE_INTEGER,
+    },
   ) {
     this.maxConcurrency = maxConcurrency;
     this.logger = logger || new Utils.SimpleLogger();
@@ -89,7 +91,7 @@ export default class SmartContractManager {
     try {
       this.eth = new web3Eth(
         web3Connection.web3Provider ||
-        new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
+          new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
       );
     } catch (error) {
       throw Error(`Can't initialize web3-eth ${error}`);
@@ -100,7 +102,7 @@ export default class SmartContractManager {
     this.networkName =
       typeof web3Connection.networkId === 'undefined'
         ? config.getDefaultEthereumNetwork()
-        : this.getNetworkNameFromId(web3Connection.networkId);
+        : EthereumUtils.getEthereumNetworkNameFromId(web3Connection.networkId);
 
     // If networkName is undefined, it means the network doesn't exist
     if (typeof this.networkName === 'undefined') {
@@ -203,6 +205,9 @@ export default class SmartContractManager {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
+    // Handler to get gas price
+    const gasPriceDefiner = new GasPriceDefiner();
+
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
     const fee = await Promise.race([
@@ -210,7 +215,16 @@ export default class SmartContractManager {
       this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
     ]);
 
-    const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
+    // Determines the gas price to use
+    // If the gas price is provided as a parameter, we use this value
+    // If the gas price is not provided and we use mainnet, we determine it from gas price api providers
+    // Otherwise, we use default value from config
+    const gasPriceToUse =
+      gasPrice ||
+      (await gasPriceDefiner.getGasPrice(
+        StorageTypes.GasPriceType.STANDARD,
+        this.networkName,
+      ));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
@@ -449,20 +463,6 @@ export default class SmartContractManager {
       hash: event.returnValues.hash,
       meta,
     };
-  }
-
-  /**
-   * Get the name of the Ethereum network from its id
-   * @param networkId Id of the network
-   * @return name of the network
-   */
-  private getNetworkNameFromId(networkId: StorageTypes.EthereumNetwork): string {
-    return {
-      [StorageTypes.EthereumNetwork.PRIVATE as StorageTypes.EthereumNetwork]: 'private',
-      [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'main',
-      [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
-      [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
-    }[networkId];
   }
 
   /**
