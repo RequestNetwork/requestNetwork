@@ -1,7 +1,7 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
-import { getDefaultIpfsSwarmPeers, getMaxConcurrency, getPinRequestConfig } from './config';
+import { getMaxConcurrency, getPinRequestConfig } from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
@@ -120,28 +120,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     } catch (error) {
       throw Error(`IPFS node is not accessible or corrupted: ${error}`);
     }
-
-    // add request IPFS swarm peers (allows faster request data access)
-    const swarmPeers = getDefaultIpfsSwarmPeers();
-    this.logger.info('Adding IPFS swarm peers', ['ipfs', 'sanity']);
-
-    // Log if swarm peers list is empty
-    if (!swarmPeers.length) {
-      this.logger.warn(`IPFS swarm peers list is empty`, ['ipfs']);
-    }
-
-    await Promise.all(
-      swarmPeers.map(
-        async (swarmPeer: string): Promise<void> => {
-          try {
-            const swarmPeersAddress = await this.ipfsManager.connectSwarmPeer(swarmPeer);
-            this.logger.debug(`IPFS swarm peer added: (${swarmPeersAddress})`, ['ipfs']);
-          } catch (error) {
-            this.logger.warn(`IPFS cannot add the swarm peer (${swarmPeer}): ${error}`, ['ipfs']);
-          }
-        },
-      ),
-    );
 
     this.isInitialized = true;
   }

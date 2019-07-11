@@ -74,18 +74,6 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.verifyIpfsNode(), Error, 'getaddrinfo ENOTFOUND');
   });
 
-  it('allows to connectSwarmPeer repository', async () => {
-    const peer = '/ip4/108.129.54.77/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
-    const swarmPeerAdded = await ipfsManager.connectSwarmPeer(peer);
-    assert.equal(peer, swarmPeerAdded);
-  });
-
-  it('cannot connectSwarmPeer if ipfs is not reachable', async () => {
-    const peer = '/ip4/108.129.54.77/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
-    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
-    await assert.isRejected(ipfsManager.connectSwarmPeer(peer), Error, 'getaddrinfo ENOTFOUND');
-  });
-
   it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     assert.equal(hash, hashReturned);
@@ -410,38 +398,6 @@ describe('Ipfs manager', () => {
       ipfsManager.getContentLength(hash),
       Error,
       'Ipfs stat request response error',
-    );
-    expect(spy).to.have.been.called.exactly(5);
-  });
-
-  it.skip('error on connectSwarmPeer request should retry', async () => {
-    ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
-    let hookedGetResponse: any;
-
-    const spy = chai.spy();
-    // Hook the response of the request response to send customized event ot it
-    const getHook = (request: string, resCallback: any): EventEmitter => {
-      hookedGetResponse = new EventEmitter();
-      return http.get(request, _res => {
-        spy();
-        resCallback(hookedGetResponse);
-      });
-    };
-
-    const hookedIpfsConnectionModule = { get: getHook };
-    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
-
-    // Fails for the original request, the retries and the last one that will fail
-    for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
-      setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
-    }
-    const peer =
-      '/dns4/ipfs.request.network/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC';
-
-    await assert.isRejected(
-      ipfsManager.connectSwarmPeer(peer),
-      Error,
-      'Ipfs connecting peer response error',
     );
     expect(spy).to.have.been.called.exactly(5);
   });
