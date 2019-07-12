@@ -23,18 +23,12 @@ export default class IpfsManager {
   public errorHandlingConfig: StorageTypes.IIpfsErrorHandlingConfiguration;
 
   public readonly IPFS_API_ADD: string = '/api/v0/add';
-  public readonly IPFS_API_GET_OBJECT: string = '/api/v0/object/get';
+  public readonly IPFS_API_CAT: string = '/api/v0/object/get';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
   public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
   // eslint-disable-next-line spellcheck/spell-checker
-  public readonly IPFS_API_REPOSITORY_VERIFY: string = '/api/v0/repo/verify';
+  public readonly IPFS_API_ID: string = '/api/v0/id';
   public readonly IPFS_API_PIN: string = '/api/v0/pin/add';
-
-  // every node ipfs has a file with the content the following content to test it
-  public readonly EXPECTED_CONTENT_TO_TEST = 'Hello from IPFS Gateway Checker\n';
-  // this is the hash ipfs of the previous content
-  // eslint-disable-next-line spellcheck/spell-checker
-  public readonly HASH_TO_TEST = 'Qmaisz6NMhDB51cCvNWa1GMS7LU1pAxdF4Ld6Ft9kZEP2a';
 
   /**
    * Constructor
@@ -53,17 +47,17 @@ export default class IpfsManager {
   }
 
   /**
-   * Verify ipfs node by getting a specific ipfs file
-   * @returns Promise resolving if the ipfs node is working well
+   * Get the IPFS node ID
+   * @returns Promise resolving the node ID data
    */
-  public verifyIpfsNode(): Promise<void> {
+  public getIpfsNodeId(): Promise<string> {
     // Promise to wait for response from server
-    return new Promise<void>(
+    return new Promise<string>(
       (resolve, reject): void => {
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
-        }${this.IPFS_API_GET_OBJECT}?arg=${this.HASH_TO_TEST}`;
+        }${this.IPFS_API_ID}`;
 
         this.ipfsConnectionModule
           .get(getRequestString, (res: any) => {
@@ -75,42 +69,22 @@ export default class IpfsManager {
             });
             // All data has been received
             res.on('end', () => {
-              let jsonData;
-              try {
-                jsonData = JSON.parse(data);
-              } catch (error) {
-                return reject(
-                  Error('Ipfs object get request response cannot be parsed into JSON format'),
-                );
-              }
-              if (jsonData.Type === 'error') {
-                return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
-              }
-              const content = this.getContentFromMarshaledData(jsonData.Data);
-
-              // Check if the expected content is the right one
-              if (content === this.EXPECTED_CONTENT_TO_TEST) {
-                return resolve();
-              }
-
-              return reject(
-                Error(`Expected "${this.EXPECTED_CONTENT_TO_TEST}" but got "${data}" instead`),
-              );
+              return resolve(data);
             });
 
             // Error handling
             res.on('error', (e: string) => {
-              reject(Error(`Ipfs verification response error: ${e}`));
+              reject(Error(`Ipfs id response error: ${e}`));
             });
             res.on('aborted', () => {
-              reject(Error('Ipfs verification response has been aborted'));
+              reject(Error('Ipfs id response has been aborted'));
             });
           })
           .on('abort', () => {
-            reject(Error('Ipfs verification has been aborted'));
+            reject(Error('Ipfs id has been aborted'));
           })
           .on('error', (e: string) => {
-            reject(Error(`Ipfs verification error: ${e}`));
+            reject(Error(`Ipfs id error: ${e}`));
           });
       },
     );
@@ -234,7 +208,7 @@ export default class IpfsManager {
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
-        }${this.IPFS_API_GET_OBJECT}?arg=${hash}`;
+        }${this.IPFS_API_CAT}?arg=${hash}`;
 
         // Flag if a timeout error was thrown
         let didTimeout = false;

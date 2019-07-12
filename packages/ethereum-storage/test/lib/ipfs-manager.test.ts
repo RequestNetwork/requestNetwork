@@ -68,10 +68,10 @@ describe('Ipfs manager', () => {
   });
 
   it('allows to verify repository', async () => {
-    await ipfsManager.verifyIpfsNode();
+    await ipfsManager.getIpfsNodeId();
 
     ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
-    await assert.isRejected(ipfsManager.verifyIpfsNode(), Error, 'getaddrinfo ENOTFOUND');
+    await assert.isRejected(ipfsManager.getIpfsNodeId(), Error, 'getaddrinfo ENOTFOUND');
   });
 
   it('allows to add files to ipfs', async () => {
