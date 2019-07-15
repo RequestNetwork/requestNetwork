@@ -52,7 +52,11 @@ class RequestNode {
       : undefined;
 
     // Use ethereum storage for the storage layer
-    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(getMnemonic(), this.logger, store);
+    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(
+      getMnemonic(),
+      this.logger,
+      store,
+    );
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
     const transactionIndex = new TransactionIndex(store);
@@ -95,8 +99,11 @@ class RequestNode {
 
     const initializationEndTime: number = Date.now();
 
-    // tslint:disable-next-line:no-magic-numbers
-    this.logger.info(`Time to initialize: ${(initializationEndTime - initializationStartTime) / 1000}s`, ['metric', 'initialization']);
+    this.logger.info(
+      // tslint:disable-next-line:no-magic-numbers
+      `Time to initialize: ${(initializationEndTime - initializationStartTime) / 1000}s`,
+      ['metric', 'initialization'],
+    );
   }
 
   /**
@@ -132,7 +139,19 @@ class RequestNode {
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
 
-    this.express.use('/', router);
+    // Route for health check
+    router.get('/healthz', (_, serverResponse: any) => {
+      return serverResponse.status(httpStatus.OK).send('OK');
+    });
+
+    // Route for readiness check
+    router.get('/readyz', (_, serverResponse: any) => {
+      if (this.initialized) {
+        return serverResponse.status(httpStatus.OK).send('OK');
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
 
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
@@ -142,7 +161,6 @@ class RequestNode {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
     });
-    this.express.use('/persistTransaction', router);
 
     // Route for getTransactionsByChannelId request
     router.get('/getTransactionsByChannelId', (clientRequest: any, serverResponse: any) => {
@@ -157,7 +175,6 @@ class RequestNode {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
     });
-    this.express.use('/getTransactionsByChannelId', router);
 
     // Route for getChannelsByTopic request
     router.get('/getChannelsByTopic', (clientRequest: any, serverResponse: any) => {
@@ -167,7 +184,8 @@ class RequestNode {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }
     });
-    this.express.use('/getChannelsByTopic', router);
+
+    this.express.use('/', router);
 
     // Any other route returns error 404
     this.express.use((_clientRequest: any, serverResponse: any) => {

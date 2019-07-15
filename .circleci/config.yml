@@ -317,7 +317,16 @@ jobs:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run: sleep 3
+      - run:
+          name: Waiting for Request Node to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Node initialization && exit 1
       - run:
           name: 'Test integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run test'

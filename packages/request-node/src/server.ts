@@ -25,15 +25,16 @@ const startNode = async (): Promise<void> => {
 
   logger.info(serverMessage);
 
-  // Initialize request node instance and listen for requests
+  // Instantiates the Request Node, listens for connections and initializes it
   const requestNode = new RequestNode(logger);
-  await requestNode.initialize();
 
   const port = config.getServerPort();
   requestNode.listen(port, () => {
     logger.info(`Listening on port ${port}`);
     return 0;
   });
+
+  await requestNode.initialize();
 };
 
 // If -h option is used, commands are printed

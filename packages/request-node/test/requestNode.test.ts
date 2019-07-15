@@ -10,7 +10,7 @@ import requestNode from '../src/requestNode';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-const dataAccessInitializeFailureMock = async () => {
+const dataAccessInitializeFailureMock = async (): Promise<never> => {
   throw Error('This mock function always fails');
 };
 
@@ -37,6 +37,31 @@ describe('requestNode server', () => {
       .post('/')
       .end((_err, res) => {
         expect(res.status).to.equal(httpStatus.NOT_FOUND);
+      });
+  });
+
+  it('responds with status 200 to health check requests', async () => {
+    await request(server)
+      .post('/healthz')
+      .end((_err, res) => {
+        expect(res.status).to.equal(httpStatus.OK);
+      });
+  });
+
+  it('responds with status 200 to readyness check requests when ready', async () => {
+    await request(server)
+      .post('/readyz')
+      .end((_err, res) => {
+        expect(res.status).to.equal(httpStatus.OK);
+      });
+  });
+
+  it('responds with status 503 to readyness check requests when not ready', async () => {
+    requestNodeInstance = new requestNode();
+    await request(server)
+      .post('/readyz')
+      .end((_err, res) => {
+        expect(res.status).to.equal(httpStatus.SERVICE_UNAVAILABLE);
       });
   });
 
