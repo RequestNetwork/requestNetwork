@@ -62,9 +62,16 @@ export default class BlockcypherCom implements Types.IBitcoinProvider {
   public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
     const balance = new bigNumber(addressInfo.total_received).toString();
 
+    // Retrieves all the transaction hash of the transactions having as input the current address
+    const inputTxHashes = addressInfo.txrefs
+      .filter((tx: any) => tx.tx_output_n === -1)
+      .map((tx: any) => tx.tx_hash);
+
     const events: Types.IPaymentNetworkEvent[] = addressInfo.txrefs
       // keep only the transaction with this address as output
       .filter((tx: any) => tx.tx_input_n === -1)
+      // exclude the transactions coming from the same address
+      .filter((tx: any) => !inputTxHashes.includes(tx.tx_hash))
       .map(
         (tx: any): Types.IPaymentNetworkEvent => ({
           name: eventName,

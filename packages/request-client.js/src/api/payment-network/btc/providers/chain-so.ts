@@ -2,6 +2,7 @@ import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
 import * as Types from '../../../../types';
 const converterBTC = require('satoshi-bitcoin');
+const bigNumber: any = require('bn.js');
 
 /* eslint-disable spellcheck/spell-checker */
 
@@ -62,11 +63,11 @@ export default class ChainSo implements Types.IBitcoinProvider {
    * @returns Balance with events
    */
   public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
-    const balance = converterBTC.toSatoshi(addressInfo.data.received_value).toString();
-
     const events: Types.IPaymentNetworkEvent[] = addressInfo.data.txs
       // keep only the transaction with value incoming to the address
       .filter((tx: any) => tx.incoming !== undefined)
+      // delete transactions that are from this address
+      .filter((tx: any) => tx.outgoing === undefined)
       .map(
         (tx: any): Types.IPaymentNetworkEvent => ({
           name: eventName,
@@ -78,6 +79,13 @@ export default class ChainSo implements Types.IBitcoinProvider {
           },
         }),
       );
+
+    // Compute the balance making the sum of all the transactions amount
+    const balance: string = events
+      .reduce((balanceAccumulator: any, event: Types.IPaymentNetworkEvent) => {
+        return balanceAccumulator.add(new bigNumber(event.parameters.amount));
+      }, new bigNumber('0'))
+      .toString();
 
     return { balance, events };
   }

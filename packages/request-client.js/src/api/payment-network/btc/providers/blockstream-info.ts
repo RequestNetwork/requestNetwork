@@ -11,6 +11,9 @@ const BLOCKSTREAMINFO_REQUEST_MAX_RETRY = 3;
 // Delay between retries in ms
 const BLOCKSTREAMINFO_REQUEST_RETRY_DELAY = 100;
 
+// Number of transactions per page
+const TXS_PER_PAGE = 25;
+
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockstream.info
  */
@@ -40,7 +43,34 @@ export default class BlockstreamInfo implements Types.IBitcoinProvider {
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${baseUrl}/${address}`);
       }
-      const txs = await res.json();
+      let txs: any[] = await res.json();
+
+      let checkForMoreTransactions = txs.length === TXS_PER_PAGE;
+      // if there are 'TXS_PER_PAGE' transactions, need to check the pagination
+      while (checkForMoreTransactions) {
+        const lastTxHash = txs[txs.length - 1].txid;
+
+        const resExtraPage = await Utils.retry(
+          async () => fetch(`${baseUrl}/address/${address}/txs/chain/${lastTxHash}`),
+          {
+            maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,
+            retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
+          },
+        )();
+
+        // tslint:disable-next-line:no-magic-numbers
+        if (resExtraPage.status >= 400) {
+          throw new Error(
+            `Error ${resExtraPage.status}. Bad response from server ${baseUrl}/${address}`,
+          );
+        }
+        const extraTxs = await resExtraPage.json();
+
+        checkForMoreTransactions = extraTxs.length === TXS_PER_PAGE;
+
+        // gather all the transactions retrieved
+        txs = txs.concat(extraTxs);
+      }
 
       return this.parse({ address, txs }, eventName);
     } catch (err) {
@@ -59,6 +89,13 @@ export default class BlockstreamInfo implements Types.IBitcoinProvider {
    */
   public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
     const events: Types.IPaymentNetworkEvent[] = addressInfo.txs
+      // exclude the transactions coming from the same address
+      .filter((tx: any) => {
+        const autoVin = tx.vin.filter(
+          (input: any) => input.prevout.scriptpubkey_address === addressInfo.address,
+        );
+        return autoVin.length === 0;
+      })
       .reduce((allOutput: any[], tx: any) => {
         return [
           ...allOutput,

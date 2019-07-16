@@ -11,6 +11,9 @@ const BLOCKCHAININFO_REQUEST_MAX_RETRY = 3;
 // Delay between retries in ms
 const BLOCKCHAININFO_REQUEST_RETRY_DELAY = 100;
 
+// Number of transactions per page
+const TXS_PER_PAGE = 50;
+
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockchain.info
  */
@@ -31,16 +34,45 @@ export default class BlockchainInfo implements Types.IBitcoinProvider {
     const blockchainInfoUrl = this.getBlockchainInfoUrl(bitcoinNetworkId);
 
     try {
-      const res = await Utils.retry(async () => fetch(`${blockchainInfoUrl}/rawaddr/${address}?cors=true`), {
-        maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
-        retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
-      })();
+      const res = await Utils.retry(
+        async () => fetch(`${blockchainInfoUrl}/rawaddr/${address}?cors=true`),
+        {
+          maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
+          retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
+        },
+      )();
 
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${blockchainInfoUrl}`);
       }
       const addressInfo = await res.json();
+
+      // count the number of extra pages to retrieve
+      const numberOfExtraPages = Math.floor(addressInfo.n_tx / (TXS_PER_PAGE + 1));
+
+      // get all the transactions from the whole pagination
+      for (let i = 1; i <= numberOfExtraPages; i++) {
+        const resExtraPage = await Utils.retry(
+          async () =>
+            fetch(`${blockchainInfoUrl}/rawaddr/${address}?cors=true&offset=${i * TXS_PER_PAGE}`),
+          {
+            maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
+            retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
+          },
+        )();
+
+        // tslint:disable-next-line:no-magic-numbers
+        if (resExtraPage.status >= 400) {
+          throw new Error(
+            `Error ${resExtraPage.status}. Bad response from server ${blockchainInfoUrl}`,
+          );
+        }
+        const extraPageAddressInfo = await resExtraPage.json();
+
+        // gather all the transactions retrieved
+        addressInfo.txs = addressInfo.txs.concat(extraPageAddressInfo.txs);
+      }
 
       return this.parse(addressInfo, eventName);
     } catch (err) {
@@ -62,6 +94,13 @@ export default class BlockchainInfo implements Types.IBitcoinProvider {
     const balance = new bigNumber(addressInfo.total_received).toString();
 
     const events: Types.IPaymentNetworkEvent[] = addressInfo.txs
+      // exclude the transactions coming from the same address
+      .filter((tx: any) => {
+        const selfInputs = tx.inputs.filter(
+          (input: any) => input.prev_out.addr === addressInfo.address,
+        );
+        return selfInputs.length === 0;
+      })
       .reduce((allOutput: any[], tx: any) => {
         return [
           ...allOutput,
