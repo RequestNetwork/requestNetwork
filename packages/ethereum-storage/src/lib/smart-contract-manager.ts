@@ -19,7 +19,9 @@ const bigNumber: any = require('bn.js');
 const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
 // Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
-const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp('query returned more than [1-9][0-9]* results');
+const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp(
+  'query returned more than [1-9][0-9]* results',
+);
 
 const LENGTH_BYTES32_STRING = 64;
 
@@ -60,6 +62,16 @@ export default class SmartContractManager {
   private logger: LogTypes.ILogger;
 
   /**
+   * Maximum number of retries to attempt for web3 API calls
+   */
+  private maxRetries: number | undefined;
+
+  /**
+   * Delay between retries for web3 API calls
+   */
+  private retryDelay: number | undefined;
+
+  /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
    * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
@@ -85,6 +97,9 @@ export default class SmartContractManager {
   ) {
     this.maxConcurrency = maxConcurrency;
     this.logger = logger || new Utils.SimpleLogger();
+
+    this.maxRetries = maxRetries;
+    this.retryDelay = retryDelay;
 
     web3Connection = web3Connection || {};
 
@@ -130,8 +145,8 @@ export default class SmartContractManager {
     this.ethereumBlocks = new EthereumBlocks(
       this.eth,
       this.creationBlockNumberHashStorage,
-      retryDelay || config.getEthereumRetryDelay(),
-      maxRetries || config.getEthereumMaxRetries(),
+      this.retryDelay || config.getEthereumRetryDelay(),
+      this.maxRetries || config.getEthereumMaxRetries(),
       getLastBlockNumberDelay,
       this.logger,
     );
@@ -221,10 +236,7 @@ export default class SmartContractManager {
     // Otherwise, we use default value from config
     const gasPriceToUse =
       gasPrice ||
-      (await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.STANDARD,
-        this.networkName,
-      ));
+      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.STANDARD, this.networkName));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
@@ -393,18 +405,25 @@ export default class SmartContractManager {
   ): Promise<any[]> {
     const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(toBlock);
 
+    // Reading event logs
+    // If getPastEvents doesn't throw, we can return the returned events from the function
     let events;
     try {
-      // Reading event logs
-      // If getPastEvents doesn't throw, we can return the returned events from the function
-      events = await Promise.race([
-        Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
-        this.requestHashStorage.getPastEvents({
-          event: 'NewHash',
-          fromBlock,
-          toBlock: toBlockNumber,
-        }),
-      ]);
+      events = await Utils.retry(
+        (args: any) =>
+          Promise.race([
+            Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
+            this.requestHashStorage.getPastEvents(args),
+          ]),
+        {
+          maxRetries: this.maxRetries || config.getEthereumMaxRetries(),
+          retryDelay: this.retryDelay || config.getEthereumRetryDelay(),
+        },
+      )({
+        event: 'NewHash',
+        fromBlock,
+        toBlock: toBlockNumber,
+      });
 
       this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
 
