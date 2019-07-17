@@ -273,7 +273,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         const startTime = Date.now();
         const data = await this.read(dataId);
         this.logger.debug(
-          `[${currentIndex}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
+          `[${currentIndex + 1}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
           ['read'],
         );
         return data;
@@ -439,7 +439,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           );
 
           this.logger.debug(
-            `[${currentIndex}/${totalCount}] read ${hashAndSize.hash}. Took ${Date.now() -
+            `[${currentIndex + 1}/${totalCount}] read ${hashAndSize.hash}. Took ${Date.now() -
               startTime} ms`,
             ['ipfs'],
           );
