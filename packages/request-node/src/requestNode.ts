@@ -62,6 +62,7 @@ class RequestNode {
     const transactionIndex = new TransactionIndex(store);
 
     this.dataAccess = new DataAccess(ethereumStorage, {
+      logger: this.logger,
       transactionIndex,
     });
 
