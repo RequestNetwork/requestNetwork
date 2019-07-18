@@ -382,6 +382,57 @@ describe('block', () => {
     });
   });
 
+  describe('parseBlock', () => {
+    it('can parse a data', async () => {
+      const block = RequestDataAccessBlock.parseBlock(JSON.stringify(blockWith2tx));
+      expect(block).to.deep.equal(blockWith2tx);
+    });
+
+    it('cannot parse a data not following the block standard', async () => {
+      const blockNotJson = 'This is not JSON';
+      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).to.throw();
+
+      const blockWithoutHeader = {
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader)),
+      ).to.throw();
+
+      const blockWithoutChannelIds = {
+        header: { topics: {}, version: '0.1.0' },
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutChannelIds)),
+      ).to.throw();
+
+      const blockWithoutTopics = {
+        header: { channelIds: {}, version: '0.1.0' },
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics)),
+      ).to.throw();
+
+      const blockWithoutVersion = {
+        header: { channelIds: {}, topics: {} },
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion)),
+      ).to.throw();
+
+      const blockWithoutTransactionData = {
+        header: { channelIds: {}, topics: {}, version: '0.1.0' },
+        transactions: [{}],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTransactionData)),
+      ).to.throw();
+    });
+  });
+
   describe('can use JSON', () => {
     it('can use JSON.stringify and JSON.parse', () => {
       const block = RequestDataAccessBlock.pushTransaction(

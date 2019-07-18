@@ -35,10 +35,11 @@ export interface IDataAccessOptions {
  * Implementation of Data-Access layer without encryption
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
+  // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
+  // public for test purpose
+  public transactionIndex: DataAccessTypes.ITransactionIndex;
   // boolean to store the initialization state
   protected isInitialized: boolean = false;
-  // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
-  private transactionIndex: DataAccessTypes.ITransactionIndex;
   // Storage layer
   private storage: StorageTypes.IStorage;
 
@@ -332,40 +333,31 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     if (!dataWithMeta.result || !dataWithMeta.result.data || !dataWithMeta.result.dataIds) {
       throw Error(`data from storage do not follow the standard`);
     }
-
-    let jsonParsingErrorCount = 0;
-    let requestStandardErrorCount = 0;
+    let parsingErrorCount = 0;
     let proceedCount = 0;
     await Bluebird.each(dataWithMeta.result.data, async (blockString, index) => {
       let block;
-      try {
-        block = JSON.parse(blockString);
-      } catch (e) {
-        requestStandardErrorCount++;
-        throw Error(
-          `can't parse content of the dataId (${dataWithMeta.result.dataIds[index]}): ${e}`,
-        );
-      }
-      if (!block.header || !block.header.topics) {
-        jsonParsingErrorCount++;
-        throw Error(
-          `data from storage do not follow the standard, storage location: "${
-            dataWithMeta.result.dataIds[index]
-          }"`,
-        );
-      }
 
-      proceedCount++;
-      // adds this transaction to the index, to enable retrieving it later.
-      await this.transactionIndex.addTransaction(
-        dataWithMeta.result.dataIds[index],
-        block.header,
-        dataWithMeta.meta.metaData[index].timestamp,
-      );
+      try {
+        block = Block.parseBlock(blockString);
+        proceedCount++;
+        // adds this transaction to the index, to enable retrieving it later.
+        await this.transactionIndex.addTransaction(
+          dataWithMeta.result.dataIds[index],
+          block.header,
+          dataWithMeta.meta.metaData[index].timestamp,
+        );
+      } catch (e) {
+        parsingErrorCount++;
+        this.logger.debug(
+          `Error: can't parse content of the dataId (${dataWithMeta.result.dataIds[index]}): ${e}`,
+          ['synchronization'],
+        );
+      }
     });
 
     this.logger.info(
-      `Synchronization: ${proceedCount} blocks synchronized, ${jsonParsingErrorCount} ignored from parsing error, ${requestStandardErrorCount} ignored from standard error.`,
+      `Synchronization: ${proceedCount} blocks synchronized, ${parsingErrorCount} ignored from parsing error`,
       ['synchronization'],
     );
   }

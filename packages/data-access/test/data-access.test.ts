@@ -147,46 +147,6 @@ describe('data-access', () => {
       );
     });
 
-    it('cannot initialize with content from getData not following the standard', async () => {
-      const customFakeStorage = {
-        ...defaultFakeStorage,
-        getData: (): any => {
-          return {
-            meta: {},
-            result: {
-              data: [JSON.stringify({ notFolling: 'the standad' })],
-              dataIds: [dataIdBlock2tx],
-            },
-          };
-        },
-      };
-
-      const dataAccess = new DataAccess(customFakeStorage);
-
-      await expect(dataAccess.initialize()).to.be.rejectedWith(
-        'data from storage do not follow the standard, storage location: "dataIdBlock2tx"',
-      );
-    });
-
-    it('cannot initialize with content from read not being JSON parsable', async () => {
-      const fakeStorage = {
-        ...defaultFakeStorage,
-        getData: (): any => {
-          return {
-            meta: {},
-            result: {
-              data: ['Not JSON parsable'],
-              dataIds: [dataIdBlock2tx],
-            },
-          };
-        },
-      };
-
-      const dataAccess = new DataAccess(fakeStorage);
-
-      await expect(dataAccess.initialize()).to.be.rejectedWith(`can't parse content of the dataId`);
-    });
-
     it('cannot initialize twice', async () => {
       const dataAccess = new DataAccess(defaultFakeStorage);
       await dataAccess.initialize();
@@ -377,6 +337,42 @@ describe('data-access', () => {
     await expect(dataAccess.synchronizeNewDataIds()).to.be.rejectedWith(
       'DataAccess must be initialized',
     );
+  });
+
+  it('synchronizeNewDataId() should ignore data not following the block standard', async () => {
+    const blockWithoutHeader = {
+      transactions: [{ data: '' }],
+    };
+
+    const testDataNotJsonData: Promise<StorageTypes.IGetDataIdContentAndMeta> = Promise.resolve({
+      meta: {
+        metaData: [{ timestamp: 10 }],
+      },
+      result: {
+        data: [
+          // no Header
+          JSON.stringify(blockWithoutHeader),
+        ],
+        dataIds: ['whatever'],
+      },
+    });
+
+    const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
+      append: chai.spy(),
+      getData: (): any => testDataNotJsonData,
+      getDataId: chai.spy(),
+      initialize: chai.spy(),
+      read: chai.spy(),
+      readMany: chai.spy(),
+    };
+
+    const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
+    await dataAccess.initialize();
+
+    dataAccess.transactionIndex.addTransaction = chai.spy();
+    await dataAccess.synchronizeNewDataIds();
+
+    expect(dataAccess.transactionIndex.addTransaction).to.have.been.called.exactly(0);
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
