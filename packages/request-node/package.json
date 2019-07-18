@@ -32,6 +32,7 @@
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
     "test": "nyc mocha --timeout=10000 --exit --require ts-node/register --require source-map-support/register test/**/*.ts",
+    "test:watch": "nyc mocha --watch --watch-extensions ts --timeout=10000 --exit --require ts-node/register --require source-map-support/register test/**/*.ts",
     "start": "ts-node src/server.ts",
     "start:watch": "ts-node-dev src/server.ts",
     "clean": "shx rm -rf dist",
