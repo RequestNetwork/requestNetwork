@@ -57,7 +57,7 @@
     "satoshi-bitcoin": "1.0.4"
   },
   "devDependencies": {
-    "@compodoc/compodoc": "1.1.8",
+    "@compodoc/compodoc": "1.1.10",
     "@types/bn.js": "4.11.4",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
