@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.2.0",
+  "version": "0.2.1-alpha.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,9 +40,9 @@
     "example": "ts-node specs/example/example.ts"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.2.0",
-    "@requestnetwork/types": "0.2.0",
-    "@requestnetwork/utils": "0.2.0",
+    "@requestnetwork/advanced-logic": "0.2.1-alpha.0",
+    "@requestnetwork/types": "0.2.1-alpha.0",
+    "@requestnetwork/utils": "0.2.1-alpha.0",
     "semver": "5.6.0"
   },
   "devDependencies": {
