@@ -27,33 +27,33 @@ _Information about the format of the json_
 
 _Information about the seller_
 
-| Name                | Type                     | Need     | Comment                                                                                                         |
-| ------------------- | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------- |
-| email               | string _(format: email)_ | Optional | email                                                                                                           |
-| firstName           | string                   | Optional | first name                                                                                                      |
-| lastName            | string                   | Optional | last name                                                                                                       |
-| businessName        | string                   | Optional | business name                                                                                                   |
-| phone               | string                   | Optional | phone number                                                                                                    |
-| address             | object                   | Optional | address formated as [http://json-schema.org/address](http://json-schema.org/learn/examples/address.schema.json) |
-| taxRegistration     | string                   | Optional | tax registration number                                                                                         |
-| companyRegistration | string                   | Optional | company registration number                                                                                     |
-| miscellaneous       | object                   | Optional | Miscellaneous information                                                                                       |
+| Name                | Type                     | Need     | Comment                                                                                                          |
+| ------------------- | ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| email               | string _(format: email)_ | Optional | email                                                                                                            |
+| firstName           | string                   | Optional | first name                                                                                                       |
+| lastName            | string                   | Optional | last name                                                                                                        |
+| businessName        | string                   | Optional | business name                                                                                                    |
+| phone               | string                   | Optional | phone number                                                                                                     |
+| address             | object                   | Optional | address formatted as [http://json-schema.org/address](http://json-schema.org/learn/examples/address.schema.json) |
+| taxRegistration     | string                   | Optional | tax registration number                                                                                          |
+| companyRegistration | string                   | Optional | company registration number                                                                                      |
+| miscellaneous       | object                   | Optional | Miscellaneous information                                                                                        |
 
 ## buyerInfo
 
 _Information about the buyer_
 
-| Name                | Type                     | Need     | Comment                                                                                                         |
-| ------------------- | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------- |
-| email               | string _(format: email)_ | Optional | email                                                                                                           |
-| firstName           | string                   | Optional | first name                                                                                                      |
-| lastName            | string                   | Optional | last name                                                                                                       |
-| businessName        | string                   | Optional | business name                                                                                                   |
-| phone               | string                   | Optional | phone number                                                                                                    |
-| address             | object                   | Optional | address formated as [http://json-schema.org/address](http://json-schema.org/learn/examples/address.schema.json) |
-| taxRegistration     | string                   | Optional | tax registration number                                                                                         |
-| companyRegistration | string                   | Optional | company registration number                                                                                     |
-| miscellaneous       | object                   | Optional | Miscellaneous information                                                                                       |
+| Name                | Type                     | Need     | Comment                                                                                                          |
+| ------------------- | ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| email               | string _(format: email)_ | Optional | email                                                                                                            |
+| firstName           | string                   | Optional | first name                                                                                                       |
+| lastName            | string                   | Optional | last name                                                                                                        |
+| businessName        | string                   | Optional | business name                                                                                                    |
+| phone               | string                   | Optional | phone number                                                                                                     |
+| address             | object                   | Optional | address formatted as [http://json-schema.org/address](http://json-schema.org/learn/examples/address.schema.json) |
+| taxRegistration     | string                   | Optional | tax registration number                                                                                          |
+| companyRegistration | string                   | Optional | company registration number                                                                                      |
+| miscellaneous       | object                   | Optional | Miscellaneous information                                                                                        |
 
 ## invoiceItems
 
