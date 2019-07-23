@@ -47,7 +47,8 @@
     "test:lib": "nyc mocha --timeout=5000 --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
     "test:lib:watch": "nyc mocha --watch --watch-extensions ts --timeout=5000 --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
     "test:sol": "truffle test --contracts_directory=./src test/contracts/*.js",
-    "test": "yarn run test:lib && yarn run test:sol"
+    "test": "yarn run test:lib && yarn run test:sol",
+    "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
     "@requestnetwork/types": "0.2.0",
@@ -58,9 +59,11 @@
     "ipfs-unixfs": "0.1.16",
     "keyv": "3.1.0",
     "node-fetch": "2.6.0",
+    "shelljs": "0.8.3",
     "sinon": "7.3.2",
     "web3-eth": "1.0.0-beta.37",
-    "web3-utils": "1.0.0-beta.37"
+    "web3-utils": "1.0.0-beta.37",
+    "yargs": "12.0.5"
   },
   "devDependencies": {
     "@types/bluebird": "3.5.27",
