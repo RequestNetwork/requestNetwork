@@ -38,7 +38,7 @@
     "clean": "shx rm -rf dist",
     "lint-staged": "lint-staged",
     "lint": "tslint --project .",
-    "init-ipfs": "node init-ipfs.js"
+    "init-ipfs-private-network": "node init-ipfs.js"
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.2.0",

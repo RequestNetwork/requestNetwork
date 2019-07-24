@@ -175,12 +175,12 @@ npm run build
 
 The Request Node uses IPFS to store and share transactions in a private network.
 We use a private network to allow all nodes to connect to each other directly,
-instead of having to navigate through the global IPFS network.
+instead of having to navigate through the public IPFS network.
 
 To setup your IPFS node to the private network, you can run the following utility script:
 
 ```bash
-yarn init-ipfs
+yarn init-ipfs-private-network
 ```
 
 ### Launch
@@ -336,7 +336,7 @@ ipfs daemon
 
 ```bash
 cd packages/request-node
-yarn init-ipfs
+yarn init-ipfs-private-network
 ```
 
 #### 5. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic

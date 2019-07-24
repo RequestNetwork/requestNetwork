@@ -82,7 +82,7 @@ In order to use the package in a test environment, IPFS can be installed locally
 
 ```bash
 npm install ipfs --global
-yarn ipfs-init #documented below
+yarn init-ipfs-private-network # documented below
 ipfs daemon
 ```
 
@@ -90,13 +90,13 @@ Local IPFS listening on port 5001 is used by default by the `ethereum-storage` p
 
 ### Setup IPFS private network
 
-Request uses a private network to allow all nodes to connect to each other directly,
-instead of having to navigate through the global IPFS network.
+Request uses an IPFS private network to allow all nodes to connect to each other directly,
+instead of having to navigate through the public IPFS network.
 
 To setup your IPFS node to the private network, you can run the following utility script:
 
 ```bash
-yarn init-ipfs
+yarn init-ipfs-private-network
 ```
 
 ## Contributing
