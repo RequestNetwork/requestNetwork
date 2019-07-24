@@ -22,6 +22,16 @@ const config: any = {
       delayBetweenRetries: 500,
       maxRetries: 3,
     },
+    expectedBootstrapNodes: [
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
+    ],
     nodeUrlDefault: {
       private: {
         port: 5001,
@@ -140,4 +150,12 @@ export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingCon
     delayBetweenRetries: config.ipfs.errorHandling.delayBetweenRetries,
     maxRetries: config.ipfs.errorHandling.maxRetries,
   };
+}
+
+/**
+ * Retrieve from config the ipfs bootstrap nodes of the ipfs node
+ * @returns array of the swarm addresses
+ */
+export function getIpfsExpectedBootstrapNodes(): string[] {
+  return config.ipfs.expectedBootstrapNodes;
 }

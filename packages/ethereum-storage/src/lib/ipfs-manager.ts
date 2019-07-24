@@ -29,6 +29,7 @@ export default class IpfsManager {
   // eslint-disable-next-line spellcheck/spell-checker
   public readonly IPFS_API_ID: string = '/api/v0/id';
   public readonly IPFS_API_PIN: string = '/api/v0/pin/add';
+  public readonly IPFS_API_BOOTSTRAP_LIST: string = '/api/v0/bootstrap/list';
 
   /**
    * Constructor
@@ -483,6 +484,62 @@ export default class IpfsManager {
         if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
           getRequest.setTimeout(this.ipfsConnection.timeout);
         }
+      },
+    );
+  }
+
+  /**
+   * Get the list of the bootstrap nodes
+   * @returns Promise resolving an array of the bootstrap nodes
+   */
+  public getBootstrapList(): Promise<string[]> {
+    // Promise to wait for response from server
+    return new Promise<string[]>(
+      (resolve, reject): void => {
+        // Construction get request
+        const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
+          this.ipfsConnection.port
+        }${this.IPFS_API_BOOTSTRAP_LIST}`;
+
+        this.ipfsConnectionModule
+          .get(getRequestString, (res: any) => {
+            let data = '';
+
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+
+            // All data has been received
+            res.on('end', () => {
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                return reject(Error('Ipfs bootstrap list request response cannot be parsed'));
+              }
+              if (!jsonData || !jsonData.Peers) {
+                return reject(Error('Ipfs bootstrap list request response has no Peers field'));
+              } else {
+                // Return the bootstrap nodes
+                resolve(jsonData.Peers);
+              }
+            });
+
+            // Error handling
+            res.on('error', (e: string) => {
+              reject(Error(`Ipfs bootstrap list response error: ${e}`));
+            });
+            res.on('aborted', () => {
+              reject(Error('Ipfs bootstrap list response has been aborted'));
+            });
+          })
+          .on('abort', () => {
+            reject(Error('Ipfs bootstrap list has been aborted'));
+          })
+          .on('error', (e: string) => {
+            reject(Error(`Ipfs bootstrap list error: ${e}`));
+          });
       },
     );
   }

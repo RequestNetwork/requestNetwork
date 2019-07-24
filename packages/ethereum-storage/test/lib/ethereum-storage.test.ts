@@ -161,6 +161,21 @@ describe('EthereumStorage', () => {
         'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent nonexistent:5001',
       );
     });
+    it('cannot initialize if ipfs node not in the right network', async () => {
+      const ethereumStorageWithIpfsBootstrapNodesWrong: EthereumStorage = new EthereumStorage(
+        ipfsGatewayConnection,
+        web3Connection,
+      );
+      ethereumStorageWithIpfsBootstrapNodesWrong.ipfsManager.getBootstrapList = async () => [
+        'not findable node',
+      ];
+
+      await expect(
+        ethereumStorageWithIpfsBootstrapNodesWrong.initialize(),
+      ).to.eventually.rejectedWith(
+        `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`,
+      );
+    });
     it('cannot initialize if ethereum node not reachable', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
         ipfsGatewayConnection,
