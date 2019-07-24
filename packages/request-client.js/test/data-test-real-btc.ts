@@ -1,8 +1,8 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-  Transaction as TransactionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureTypes,
+  TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 

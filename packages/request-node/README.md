@@ -169,6 +169,20 @@ npm install
 npm run build
 ```
 
+### Setup
+
+#### IPFS private network
+
+The Request Node uses IPFS to store and share transactions in a private network.
+We use a private network to allow all nodes to connect to each other directly,
+instead of having to navigate through the public IPFS network.
+
+To setup your IPFS node to the private network, you can run the following utility script:
+
+```bash
+yarn init-ipfs-private-network
+```
+
 ### Launch
 
 #### Command line
@@ -225,7 +239,18 @@ Default values correspond to the basic configuration used to run a server in a t
   - Default value: `'10000'`
   - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
 - `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
-  - Default value: `'500'`
+  - Default value: `'200'`
+  - Environment variable name: `$STORAGE_MAX_CONCURRENCY`
+- `--initializationStorageFilePath` Path to a file to persist the ethereum metadata and transaction index for faster initialization
+  - Environment variable name: `$INITIALIZATION_STORAGE_FILE_PATH`
+- `--logLevel` The maximum level of messages we will log
+  - Environment variable name: `$LOG_LEVEL`
+  - Available levels: ERROR, WARN, INFO and DEBUG
+- `--logMode` Defines the log format to use
+  - Environment variable name: `$LOG_MODE`
+  - Available modes:
+    - `human` is a more human readable log to display during development
+    - `machine` is better for parsing on CI or deployments
 
 #### Mnemonic
 
@@ -304,23 +329,30 @@ yarn build
 #### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/introduction/install/)
 
 ```bash
-ipfs daemon --offline
+ipfs daemon
 ```
 
-#### 4. On a new terminal, launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
+#### 4. On a new terminal, configure your IPFS node to connect to the private Request IPFS network
+
+```bash
+cd packages/request-node
+yarn init-ipfs-private-network
+```
+
+#### 5. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
 
 ```bash
 ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"
 ```
 
-#### 5. Deploy the smart contracts on ganache
+#### 6. Deploy the smart contracts on ganache
 
 ```bash
 cd packages/ethereum-storage
 yarn deploy
 ```
 
-#### 6. Run the Request Node
+#### 7. Run the Request Node
 
 ```bash
 cd ../packages/request-node

@@ -1,7 +1,7 @@
 import {
-  Identity as IdentityTypes,
-  Signature as SignatureTypes,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  SignatureProviderTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';

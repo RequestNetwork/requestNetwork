@@ -1,4 +1,4 @@
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
@@ -14,9 +14,14 @@ const config: any = {
       },
     },
     retryDelay: 0,
+    safeGasPriceLimit: '200000000000',
   },
   ipfs: {
     default: 'private',
+    errorHandling: {
+      delayBetweenRetries: 500,
+      maxRetries: 3,
+    },
     nodeUrlDefault: {
       private: {
         port: 5001,
@@ -36,18 +41,6 @@ const config: any = {
       maxSize: 500,
       timeout: 30000,
     },
-    // ipfs nodes that already have the request files (allow to get the request data faster)
-    requestKnownIpfsNode: [
-      // Request IPFS node 1
-      // eslint-disable-next-line spellcheck/spell-checker
-      '/dns4/ipfs.request.network/tcp/4001/ipfs/QmZz7AHe5i8Vj2hhepfWhPKYpccNQHnAUFnjps2cnZLAPC',
-      // Request IPFS node 2
-      // eslint-disable-next-line spellcheck/spell-checker
-      '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
-      // Request API IPFS node
-      // eslint-disable-next-line spellcheck/spell-checker
-      '/dns4/ipfs-3.request.network/tcp/4001/ipfs/QmZSubr9XbQdzFtEnpmPE2KCVHJYSH5soZ987na1oDFjQM',
-    ],
   },
   maxConcurrency: Number.MAX_SAFE_INTEGER,
 };
@@ -109,6 +102,16 @@ export function getEthereumMaxRetries(): number {
 }
 
 /**
+ * Retrieve from config the safe gas price limit
+ * This value ensures we don't use a value returned by an API provider
+ * that can be unsafe to use (very high gas price that generate loss of ether)
+ * @returns safe gas price limit
+ */
+export function getSafeGasPriceLimit(): string {
+  return config.ethereum.safeGasPriceLimit;
+}
+
+/**
  * Retrieve from config the maximum number of concurrent calls made from the ethereum-storage
  * @returns the maximum amount concurrent calls
  */
@@ -117,21 +120,24 @@ export function getMaxConcurrency(): number {
 }
 
 /**
- * Retrieve from config the default swarm peers for ipfs
- * @returns array of the swarm addresses
- */
-export function getDefaultIpfsSwarmPeers(): string[] {
-  return config.ipfs.requestKnownIpfsNode;
-}
-
-/**
  * Retrieve from config the default pin request maximum size, timeout and wait time between calls
  * @returns array of the swarm addresses
  */
 export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
   return {
-    delayBetweenCalls: config.ipfs.delayBetweenCalls,
-    maxSize: config.ipfs.maxSize,
-    timeout: config.ipfs.timeout,
+    delayBetweenCalls: config.ipfs.pinRequest.delayBetweenCalls,
+    maxSize: config.ipfs.pinRequest.maxSize,
+    timeout: config.ipfs.pinRequest.timeout,
+  };
+}
+
+/**
+ * Retrieve from config the maximum number of retries on failed IPFS calls
+ * @returns array of the swarm addresses
+ */
+export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingConfiguration {
+  return {
+    delayBetweenRetries: config.ipfs.errorHandling.delayBetweenRetries,
+    maxRetries: config.ipfs.errorHandling.maxRetries,
   };
 }

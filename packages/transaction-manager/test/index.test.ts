@@ -5,7 +5,7 @@ const spies = require('chai-spies');
 const expect = chai.expect;
 chai.use(spies);
 
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 import { TransactionManager } from '../src/index';
 import TransactionCore from '../src/transaction';

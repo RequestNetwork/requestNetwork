@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/transaction-manager",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publishConfig": {
     "access": "public"
   },
@@ -35,11 +35,12 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/types": "0.2.0",
-    "@requestnetwork/utils": "0.2.0"
+    "@requestnetwork/types": "0.3.0",
+    "@requestnetwork/utils": "0.3.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

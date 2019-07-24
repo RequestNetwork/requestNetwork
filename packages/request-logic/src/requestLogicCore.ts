@@ -1,4 +1,4 @@
-import { AdvancedLogic as AdvancedLogicTypes, RequestLogic as Types } from '@requestnetwork/types';
+import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Action from './action';
 import Request from './request';
@@ -35,22 +35,22 @@ export default {
  * @returns Types.IRequest  The request updated
  */
 function applyActionToRequest(
-  request: Types.IRequest | null,
-  action: Types.IAction,
+  request: RequestLogicTypes.IRequest | null,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
   advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
-): Types.IRequest {
+): RequestLogicTypes.IRequest {
   if (!Action.isActionVersionSupported(action)) {
     throw new Error('action version not supported');
   }
 
   // we don't want to modify the original request state
-  const requestCopied: Types.IRequest | null = request ? Utils.deepCopy(request) : null;
+  const requestCopied: RequestLogicTypes.IRequest | null = request ? Utils.deepCopy(request) : null;
 
-  let requestAfterApply: Types.IRequest | null = null;
+  let requestAfterApply: RequestLogicTypes.IRequest | null = null;
 
   // Creation request
-  if (action.data.name === Types.ACTION_NAME.CREATE) {
+  if (action.data.name === RequestLogicTypes.ACTION_NAME.CREATE) {
     if (requestCopied) {
       throw new Error('no request is expected at the creation');
     }
@@ -64,15 +64,15 @@ function applyActionToRequest(
     // Will throw if the request is not valid
     Request.checkRequest(requestCopied);
 
-    if (action.data.name === Types.ACTION_NAME.ACCEPT) {
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.ACCEPT) {
       requestAfterApply = AcceptAction.applyActionToRequest(action, timestamp, requestCopied);
     }
 
-    if (action.data.name === Types.ACTION_NAME.CANCEL) {
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.CANCEL) {
       requestAfterApply = CancelAction.applyActionToRequest(action, timestamp, requestCopied);
     }
 
-    if (action.data.name === Types.ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
       requestAfterApply = IncreaseExpectedAmountAction.applyActionToRequest(
         action,
         timestamp,
@@ -80,7 +80,7 @@ function applyActionToRequest(
       );
     }
 
-    if (action.data.name === Types.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
       requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(
         action,
         timestamp,
@@ -88,7 +88,7 @@ function applyActionToRequest(
       );
     }
 
-    if (action.data.name === Types.ACTION_NAME.ADD_EXTENSIONS_DATA) {
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA) {
       requestAfterApply = AddExtensionsData.applyActionToRequest(action, timestamp, requestCopied);
     }
   }
@@ -101,11 +101,11 @@ function applyActionToRequest(
   if (action.data.parameters.extensionsData && advancedLogic) {
     // Apply the extension on the state
     requestAfterApply.extensions = action.data.parameters.extensionsData.reduce(
-      (extensionState: Types.IExtensionStates, extensionAction: any) => {
+      (extensionState: RequestLogicTypes.IExtensionStates, extensionAction: any) => {
         return advancedLogic.applyActionToExtensions(
           extensionState,
           extensionAction,
-          requestAfterApply as Types.IRequest,
+          requestAfterApply as RequestLogicTypes.IRequest,
           Action.getSignerIdentityFromAction(action),
           timestamp,
         );
@@ -124,6 +124,6 @@ function applyActionToRequest(
  *
  * @returns RequestIdType the requestId
  */
-function getRequestIdFromAction(action: Types.IAction): Types.RequestId {
+function getRequestIdFromAction(action: RequestLogicTypes.IAction): RequestLogicTypes.RequestId {
   return Action.getRequestId(action);
 }

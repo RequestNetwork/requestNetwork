@@ -1,6 +1,6 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';

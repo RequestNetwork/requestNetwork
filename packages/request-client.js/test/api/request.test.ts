@@ -1,6 +1,6 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 import { assert } from 'chai';
@@ -18,6 +18,9 @@ const sandbox = chai.spy.sandbox();
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createRequest(): Promise<any> {
+    return;
+  },
+  async computeRequestId(): Promise<any> {
     return;
   },
   async acceptRequest(): Promise<any> {
@@ -464,6 +467,9 @@ describe('api/request', () => {
     it('calls request-logic', async () => {
       const mockRequestLogicWithRequest: RequestLogicTypes.IRequestLogic = {
         async createRequest(): Promise<any> {
+          return;
+        },
+        async computeRequestId(): Promise<any> {
           return;
         },
         async acceptRequest(): Promise<any> {

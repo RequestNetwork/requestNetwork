@@ -1,9 +1,9 @@
-import { Log } from '@requestnetwork/types';
+import { LogTypes } from '@requestnetwork/types';
 import 'mocha';
 import * as sinon from 'sinon';
 import SimpleLogger from '../src/simple-logger';
 
-const LogLevel = Log.LogLevel;
+const LogLevel = LogTypes.LogLevel;
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -18,7 +18,7 @@ const fakeConsole = Object.assign({}, console, {
 });
 
 // tslint:disable:no-console
-describe.only('Simple logger', () => {
+describe('Simple logger', () => {
   beforeEach(() => {
     sinon.useFakeTimers();
   });
@@ -60,6 +60,16 @@ describe.only('Simple logger', () => {
     logger.debug('test message');
     const expectedLog = `${now.toISOString()}|${LogLevel[LogLevel.DEBUG]}|test message`;
     expect(fakeConsole.debug).to.have.been.called.with(expectedLog);
+  });
+
+  it('does not log in quiet log level', () => {
+    const logger = new SimpleLogger(LogLevel.QUIET);
+    logger.output = fakeConsole;
+    logger.error('test message');
+    logger.warn('test message');
+    logger.info('test message');
+    logger.debug('test message');
+    expect(fakeConsole.debug).to.not.have.been.called;
   });
 
   it('does not log a message with higher log lever than the one set at construction', () => {

@@ -1,5 +1,7 @@
 /** Log levels used by the logger. */
 export enum LogLevel {
+  // No logs
+  QUIET,
   // Any error which is fatal to the operation. These errors will force user intervention.
   ERROR,
   // Anything that can potentially cause application oddities, but for which the code can automatically recover.

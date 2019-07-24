@@ -1,4 +1,7 @@
-import { Identity as IdentityTypes, RequestLogic as Types } from '@requestnetwork/types';
+import {
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Role from './role';
@@ -20,7 +23,7 @@ export default {
  *
  * @returns Types.ROLE the role of the signer (payee, payer or third party)
  */
-function getRoleInRequest(identity: IdentityTypes.IIdentity, request: Types.IRequest): Types.ROLE {
+function getRoleInRequest(identity: IdentityTypes.IIdentity, request: RequestLogicTypes.IRequest): RequestLogicTypes.ROLE {
   return Role.getRole(identity, request);
 }
 
@@ -31,7 +34,7 @@ function getRoleInRequest(identity: IdentityTypes.IIdentity, request: Types.IReq
  *
  * @returns boolean true if the request is valid, throw otherwise
  */
-function checkRequest(request: Types.IRequest): boolean {
+function checkRequest(request: RequestLogicTypes.IRequest): boolean {
   if (!request.version) {
     throw Error('request.version is missing');
   }
@@ -75,9 +78,9 @@ function checkRequest(request: Types.IRequest): boolean {
  * @returns Types.IRequest The request context with the extensions data added
  */
 function pushExtensionsData(
-  requestContext: Types.IRequest,
+  requestContext: RequestLogicTypes.IRequest,
   extensionsData?: any[],
-): Types.IRequest {
+): RequestLogicTypes.IRequest {
   if (extensionsData) {
     requestContext.extensionsData = (requestContext.extensionsData || []).concat(extensionsData);
   }

@@ -317,7 +317,16 @@ jobs:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run: sleep 3
+      - run:
+          name: Waiting for Request Node to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Node initialization && exit 1
       - run:
           name: 'Test integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run test'
@@ -347,30 +356,15 @@ jobs:
       - run:
           name: 'Publish Coverage'
           command: 'yarn publish-coverage'
-  publish-prerelease:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Login to NPM registry'
-          command: |
-            npm set registry http://npm.request.network
-            echo "//npm.request.network/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      - run:
-          name: Publish packages
-          command: yarn publish-prerelease --registry http://npm.request.network
   push-request-network-image:
     executor: gcp/default
-    steps: 
+    steps:
       - checkout
       - setup_remote_docker
       - gcp/install
       - gcp/initialize
-      - run: 
-          name: "gcloud docker auth"
+      - run:
+          name: 'gcloud docker auth'
           command: gcloud auth configure-docker  --project $GOOGLE_PROJECT_ID --quiet
       - gcp-gcr/build-image:
           image: request-network
@@ -382,12 +376,22 @@ jobs:
           tag: ${CIRCLE_SHA1:0:7}
       - run:
           name: Add Tag to image
-          command: | 
+          command: |
             export BRANCH_TAG_NAME=$(echo ${CIRCLE_BRANCH} | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
             gcloud container images add-tag  \
               eu.gcr.io/${GOOGLE_PROJECT_ID}/request-network:${CIRCLE_SHA1:0:7} \
               eu.gcr.io/${GOOGLE_PROJECT_ID}/request-network:${BRANCH_TAG_NAME} \
               --quiet
+  test-prototype-estimator:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build prototype-estimator'
+          command: 'yarn workspace @requestnetwork/prototype-estimator run build'
 
 workflows:
   version: 2
@@ -443,6 +447,10 @@ workflows:
       - test-integration-test:
           requires:
             - build
+      - test-prototype-estimator:
+          requires:
+            - build
+
       # Publish the code coverage
       - publish-coverage:
           requires:
@@ -457,20 +465,3 @@ workflows:
             - test-web3-signature
             - test-request-node
             - test-utils
-      - publish-prerelease:
-          requires:
-            - test-request-client
-            - test-data-access
-            - test-data-format
-            - test-transaction-manager
-            - test-ethereum-storage
-            - test-request-logic
-            - test-advanced-logic
-            - test-epk-signature
-            - test-web3-signature
-            - test-request-node
-            - test-utils
-          filters:
-            branches:
-              only:
-                - development

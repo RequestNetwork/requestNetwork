@@ -1,4 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
+import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 const REQUEST_TIMEOUT: number = 600000;
@@ -14,9 +15,13 @@ export default async function getTransactionsByChannelId(
   clientRequest: any,
   serverResponse: any,
   dataAccess: DataAccess,
+  logger: LogTypes.ILogger,
 ): Promise<void> {
   // Retrieves data access layer
   let transactions;
+
+  // Used to compute request time
+  const requestStartTime = Date.now();
 
   // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
   // This operation can take a long time and then the timeout of the request should be increase
@@ -39,10 +44,13 @@ export default async function getTransactionsByChannelId(
         timestampBoundaries,
       );
 
+      // Log the request time
+      const requestEndTime = Date.now();
+      logger.debug(`getTransactionsByChannelId latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
+
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {
-      // tslint:disable-next-line:no-console
-      console.error(`getTransactionsByChannelId error: ${e}`);
+      logger.error(`getTransactionsByChannelId error: ${e}`);
 
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }

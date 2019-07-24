@@ -39,11 +39,7 @@ npm install @requestnetwork/data-access
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
 
 // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
 const storage: StorageTypes.IStorage;
@@ -80,11 +76,7 @@ const result = await dataAccess.persistTransaction(transaction, channelId, chann
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
 
 const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
 
@@ -102,11 +94,7 @@ const {
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
-import {
-  DataAccess as DataAccessTypes,
-  Signature as SignatureTypes,
-  Storage as StorageTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
 
 const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
 
@@ -132,7 +120,7 @@ To save on costs, transactions are batched together. This is the responsibility 
 
 ### Cache
 
-In order to speed up recovery of transactions, data-access has a local cache of topics=>transaction. This is the reason why this package should be initialized with `dataAccess.initialize()` before being operational.
+In order to speed up recovery of transactions, data-access has a local cache of topics=>transaction. This is the reason why this package should be initialized with `dataAccess.initialize()` before being operational. This cache can be persisted in a file using a [Keyv store](https://github.com/lukechilds/keyv#official-storage-adapters).
 
 ### Synchronization
 

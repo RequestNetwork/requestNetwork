@@ -2,7 +2,7 @@ import 'mocha';
 
 import bitcoinAddressBasedManager from '../../../../src/extensions/payment-network/bitcoin/address-based';
 
-import { Extension as ExtensionTypes } from '@requestnetwork/types';
+import { ExtensionTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
 

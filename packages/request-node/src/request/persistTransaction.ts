@@ -1,4 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
+import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 /**
@@ -12,9 +13,13 @@ export default async function persistTransaction(
   clientRequest: any,
   serverResponse: any,
   dataAccess: DataAccess,
+  logger: LogTypes.ILogger,
 ): Promise<void> {
   // Retrieves data access layer
   let dataAccessResponse;
+
+  // Used to compute request time
+  const requestStartTime = Date.now();
 
   // Verifies if data send from post are correct
   // clientRequest.body is expected to contain data for data-acces layer:
@@ -30,11 +35,15 @@ export default async function persistTransaction(
         clientRequest.body.topics,
       );
 
-      serverResponse.status(httpStatus.OK).send(dataAccessResponse);
+      // Log the request time
+      const requestEndTime = Date.now();
+      logger.debug(`persistTransaction latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
+      logger.debug(`persistTransaction successfully completed`, ['metric', 'successRate']);
 
+      serverResponse.status(httpStatus.OK).send(dataAccessResponse);
     } catch (e) {
-      // tslint:disable-next-line:no-console
-      console.error(`persistTransaction error: ${e}`);
+      logger.error(`persistTransaction error: ${e}`);
+      logger.debug(`persistTransaction fail`, ['metric', 'successRate']);
 
       serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }

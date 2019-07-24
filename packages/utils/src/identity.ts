@@ -1,4 +1,4 @@
-import { Identity as IdentityTypes } from '@requestnetwork/types';
+import { IdentityTypes } from '@requestnetwork/types';
 
 /**
  * Module to manage Request Logic Identity

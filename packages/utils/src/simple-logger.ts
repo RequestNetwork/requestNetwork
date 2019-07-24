@@ -1,8 +1,8 @@
 // tslint:disable:no-console
-import { Log as LogTypes } from '@requestnetwork/types';
+import { LogTypes } from '@requestnetwork/types';
 
 // The default log level to use if none is used at the constructor.
-const DEFAULT_LOG_LEVEL = LogTypes.LogLevel.INFO;
+const DEFAULT_LOG_LEVEL = LogTypes.LogLevel.QUIET;
 
 /**
  * Simple logger that outputs content to the console.
@@ -79,13 +79,12 @@ export default class SimpleLogger implements LogTypes.ILogger {
    * Formats the message on the log format
    * The format is: ISO date|level|message|tag1,tag2,...,tagM
    *
-   * @private
    * @param level The log level of the message
    * @param message The log message
    * @param [tags] The log tags
    * @returns A string with the formatted log message
    */
-  private formatLog(level: LogTypes.LogLevel, message: string, tags?: string[]): string {
+  protected formatLog(level: LogTypes.LogLevel, message: string, tags?: string[]): string {
     const now = new Date();
     let log = `${now.toISOString()}|${LogTypes.LogLevel[level]}|${message}`;
 
@@ -100,11 +99,10 @@ export default class SimpleLogger implements LogTypes.ILogger {
   /**
    * Throws if tags contain the log separator character
    *
-   * @private
    * @param tags The list of tags to check
    * @param separator The log separator character
    */
-  private checkForSeparator(tags: string[], separator: string): void {
+  protected checkForSeparator(tags: string[], separator: string): void {
     if (tags.some(tag => tag.includes(separator))) {
       throw new Error(`Log tags can't can't contain ${separator} character`);
     }

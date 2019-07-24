@@ -1,0 +1,1 @@
+../ethereum-storage/scripts/init-ipfs.js

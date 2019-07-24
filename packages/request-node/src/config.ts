@@ -1,6 +1,6 @@
-import { Log as LogTypes } from '@requestnetwork/types';
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
+import { modeType } from './logger';
 
 // Load environment variables from .env file (without overriding variables already set)
 require('dotenv').config();
@@ -23,10 +23,13 @@ const defaultValues: any = {
     },
 
     lastBlockNumberDelay: 10000,
-    maxConcurrency: 500,
+    maxConcurrency: 200,
     retryDelay: 1000,
   },
-  logLevel: LogTypes.LogLevel.INFO,
+  log: {
+    level: LogTypes.LogLevel.INFO,
+    mode: modeType.human,
+  },
   server: {
     headers: '{}',
     port: 3000,
@@ -148,13 +151,22 @@ export function getMnemonic(): string {
 }
 
 /**
- * Get log level from command line argument, environment variables or default values.
- * Note: not documented until PROT-501 is done.
+ * Get log configs: level and mode, from command line argument, environment variables or default values.
+ * logLevel is the maximum level of messages we will log
+ * logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing
  *
  * @returns the log level
  */
-export function getLogLevel(): LogTypes.LogLevel {
-  return argv.logLevel || process.env.LOG_LEVEL || defaultValues.logLevel;
+export function getLogConfig(): { logLevel: LogTypes.LogLevel; logMode: modeType } {
+  return {
+    logLevel:
+      LogTypes.LogLevel[
+        (argv.logLevel || process.env.LOG_LEVEL) as keyof typeof LogTypes.LogLevel
+      ] || defaultValues.log.level,
+    logMode:
+      modeType[(argv.logMode || process.env.LOG_MODE) as keyof typeof modeType] ||
+      defaultValues.log.mode,
+  };
 }
 
 /**
@@ -193,6 +205,16 @@ export function getEthereumRetryDelay(): number {
     argv.ethereumRetryDelay ||
     process.env.ETHEREUM_RETRY_DELAY ||
     defaultValues.ethereumStorage.retryDelay
+  );
+}
+
+/**
+ * Get the initialization storage (a json-like file) path.
+ * @returns the path to the json-like file that stores the initialization data (ethereum metadata and transaction index).
+ */
+export function getInitializationStorageFilePath(): string | null {
+  return (
+    (argv.initializationStorageFilePath as string) || process.env.INITIALIZATION_STORAGE_FILE_PATH || null
   );
 }
 
@@ -243,6 +265,9 @@ export function getHelpMessage(): string {
         storageMaxConcurrency (${
           defaultValues.ethereumStorage.concurrency
         })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
+
+        logLevel (${defaultValues.log.level})\t\t\tThe node log level (ERROR, WARN, INFO or DEBUG)
+        logMode (${defaultValues.log.mode})\t\t\tThe node log mode (human or machine)
 
     EXAMPLE
       yarn start --port 5000 --networkId 1 --ipfsPort 6000

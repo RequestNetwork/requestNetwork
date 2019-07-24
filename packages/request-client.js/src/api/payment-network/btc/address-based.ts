@@ -1,6 +1,6 @@
 import {
-  Extension as ExtensionTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import * as Types from '../../../types';
 import BitcoinInfoRetriever from './bitcoin-info-retriever';
@@ -11,12 +11,14 @@ const bigNumber: any = require('bn.js');
  */
 export default class PaymentNetworkBTCAddressBased {
   private extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased;
+  private bitcoinInfoRetriever: BitcoinInfoRetriever;
 
   /**
    * @param advancedLogic Instance of Advanced Logic layer, to get the extension
    */
   public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased) {
     this.extension = extension;
+    this.bitcoinInfoRetriever = new BitcoinInfoRetriever();
   }
 
   /**
@@ -129,6 +131,6 @@ export default class PaymentNetworkBTCAddressBased {
     eventName: Types.EVENTS_NAMES,
     networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
-    return BitcoinInfoRetriever.getAddressInfo(networkId, address, eventName);
+    return this.bitcoinInfoRetriever.getAddressInfo(networkId, address, eventName);
   }
 }

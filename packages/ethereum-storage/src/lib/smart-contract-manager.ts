@@ -1,10 +1,12 @@
-import { Log as LogTypes, Storage as Types } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
 import * as artifactsRequestHashSubmitterUtils from './artifacts-request-hash-submitter-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
+import EthereumUtils from './ethereum-utils';
+import GasPriceDefiner from './gas-price-definer';
 
 const web3Eth = require('web3-eth');
 const web3Utils = require('web3-utils');
@@ -16,7 +18,11 @@ const bigNumber: any = require('bn.js');
 // if higher the promise may block since the confirmation event function will not be called anymore
 const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
-const WEB3_API_ERROR_MORE_THAN_1000_RESULTS = 'query returned more than 1000 results';
+// Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
+const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp(
+  'query returned more than [1-9][0-9]* results',
+);
+
 const LENGTH_BYTES32_STRING = 64;
 
 /**
@@ -56,13 +62,23 @@ export default class SmartContractManager {
   private logger: LogTypes.ILogger;
 
   /**
+   * Maximum number of retries to attempt for web3 API calls
+   */
+  private maxRetries: number | undefined;
+
+  /**
+   * Delay between retries for web3 API calls
+   */
+  private retryDelay: number | undefined;
+
+  /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
    * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
    * If values are missing, private network is used as http://localhost:8545
    */
   public constructor(
-    web3Connection?: Types.IWeb3Connection,
+    web3Connection?: StorageTypes.IWeb3Connection,
     {
       maxConcurrency,
       getLastBlockNumberDelay,
@@ -82,6 +98,9 @@ export default class SmartContractManager {
     this.maxConcurrency = maxConcurrency;
     this.logger = logger || new Utils.SimpleLogger();
 
+    this.maxRetries = maxRetries;
+    this.retryDelay = retryDelay;
+
     web3Connection = web3Connection || {};
 
     try {
@@ -98,7 +117,7 @@ export default class SmartContractManager {
     this.networkName =
       typeof web3Connection.networkId === 'undefined'
         ? config.getDefaultEthereumNetwork()
-        : this.getNetworkNameFromId(web3Connection.networkId);
+        : EthereumUtils.getEthereumNetworkNameFromId(web3Connection.networkId);
 
     // If networkName is undefined, it means the network doesn't exist
     if (typeof this.networkName === 'undefined') {
@@ -126,8 +145,8 @@ export default class SmartContractManager {
     this.ethereumBlocks = new EthereumBlocks(
       this.eth,
       this.creationBlockNumberHashStorage,
-      retryDelay || config.getEthereumRetryDelay(),
-      maxRetries || config.getEthereumMaxRetries(),
+      this.retryDelay || config.getEthereumRetryDelay(),
+      this.maxRetries || config.getEthereumMaxRetries(),
       getLastBlockNumberDelay,
       this.logger,
     );
@@ -195,11 +214,14 @@ export default class SmartContractManager {
    */
   public async addHashAndSizeToEthereum(
     contentHash: string,
-    feesParameters: Types.IFeesParameters,
+    feesParameters: StorageTypes.IFeesParameters,
     gasPrice?: number,
-  ): Promise<Types.IEthereumMetadata> {
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the account for the transaction
     const account = await this.getMainAccount();
+
+    // Handler to get gas price
+    const gasPriceDefiner = new GasPriceDefiner();
 
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
@@ -208,7 +230,13 @@ export default class SmartContractManager {
       this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
     ]);
 
-    const gasPriceToUse = gasPrice || config.getDefaultEthereumGasPrice();
+    // Determines the gas price to use
+    // If the gas price is provided as a parameter, we use this value
+    // If the gas price is not provided and we use mainnet, we determine it from gas price api providers
+    // Otherwise, we use default value from config
+    const gasPriceToUse =
+      gasPrice ||
+      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.STANDARD, this.networkName));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
@@ -253,7 +281,7 @@ export default class SmartContractManager {
                 fee,
                 gasFee.toString(),
               )
-                .then((ethereumMetadata: Types.IEthereumMetadata) => {
+                .then((ethereumMetadata: StorageTypes.IEthereumMetadata) => {
                   ethereumMetadataCreated = true;
                   resolve(ethereumMetadata);
                 })
@@ -273,7 +301,7 @@ export default class SmartContractManager {
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
-  public async getMetaFromEthereum(contentHash: string): Promise<Types.IEthereumMetadata> {
+  public async getMetaFromEthereum(contentHash: string): Promise<StorageTypes.IEthereumMetadata> {
     // Read all event logs
     const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
 
@@ -294,8 +322,8 @@ export default class SmartContractManager {
    * @return hashes and sizes with metadata
    */
   public async getHashesAndSizesFromEthereum(
-    options?: Types.ITimestampBoundaries,
-  ): Promise<Types.IGetAllHashesAndSizes[]> {
+    options?: StorageTypes.ITimestampBoundaries,
+  ): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
     let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
 
@@ -377,24 +405,33 @@ export default class SmartContractManager {
   ): Promise<any[]> {
     const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(toBlock);
 
+    // Reading event logs
+    // If getPastEvents doesn't throw, we can return the returned events from the function
     let events;
     try {
-      // Reading event logs
-      // If getPastEvents doesn't throw, we can return the returned events from the function
-      events = await Promise.race([
-        Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
-        this.requestHashStorage.getPastEvents({
-          event: 'NewHash',
-          fromBlock,
-          toBlock: toBlockNumber,
-        }),
-      ]);
+      events = await Utils.retry(
+        (args: any) =>
+          Promise.race([
+            Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
+            this.requestHashStorage.getPastEvents(args),
+          ]),
+        {
+          maxRetries: this.maxRetries || config.getEthereumMaxRetries(),
+          retryDelay: this.retryDelay || config.getEthereumRetryDelay(),
+        },
+      )({
+        event: 'NewHash',
+        fromBlock,
+        toBlock: toBlockNumber,
+      });
 
       this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
 
       return events;
     } catch (e) {
-      if (e.toString().includes(WEB3_API_ERROR_MORE_THAN_1000_RESULTS)) {
+      // Checks if the API returns "query returned more than XXX results" error
+      // In this case we perform a dichotomy in order to fetch past events with a smaller range
+      if (e.toString().match(MORE_THAN_XXX_RESULTS_REGEX)) {
         const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
         const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
         const eventsSecondHalfPromise = this.recursiveGetPastEvents(
@@ -423,8 +460,8 @@ export default class SmartContractManager {
     event: any,
   ): Promise<{
     hash: string;
-    meta: Types.IEthereumMetadata;
-    feesParameters: Types.IFeesParameters;
+    meta: StorageTypes.IEthereumMetadata;
+    feesParameters: StorageTypes.IFeesParameters;
   }> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
@@ -448,20 +485,6 @@ export default class SmartContractManager {
   }
 
   /**
-   * Get the name of the Ethereum network from its id
-   * @param networkId Id of the network
-   * @return name of the network
-   */
-  private getNetworkNameFromId(networkId: Types.EthereumNetwork): string {
-    return {
-      [Types.EthereumNetwork.PRIVATE as Types.EthereumNetwork]: 'private',
-      [Types.EthereumNetwork.MAINNET as Types.EthereumNetwork]: 'main',
-      [Types.EthereumNetwork.KOVAN as Types.EthereumNetwork]: 'kovan',
-      [Types.EthereumNetwork.RINKEBY as Types.EthereumNetwork]: 'rinkeby',
-    }[networkId];
-  }
-
-  /**
    * Create the ethereum metadata
    * @param blockNumber block number of the ethereum transaction
    * @param transactionHash transactionHash of the ethereum transaction
@@ -476,7 +499,7 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
-  ): Promise<Types.IEthereumMetadata> {
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the number confirmations of the block hosting the transaction
     let blockConfirmation;
     try {

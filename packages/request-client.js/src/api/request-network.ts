@@ -2,12 +2,12 @@ import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
-  AdvancedLogic as AdvancedLogicTypes,
-  DataAccess as DataAccessTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  SignatureProvider as SignatureProviderTypes,
-  Transaction as TransactionTypes,
+  AdvancedLogicTypes,
+  DataAccessTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
@@ -46,55 +46,10 @@ export default class RequestNetwork {
    * @returns The created request
    */
   public async createRequest(parameters: Types.ICreateRequestParameters): Promise<Request> {
-    const requestParameters = parameters.requestInfo;
-    const paymentNetworkCreationParameters = parameters.paymentNetwork;
-    const contentData = parameters.contentData;
-    const topics = parameters.topics || [];
-
-    if (requestParameters.extensionsData) {
-      throw new Error('extensionsData in request parameters must be empty');
-    }
-
-    // avoid mutation of the parameters
-    const copiedRequestParameters = Utils.deepCopy(requestParameters);
-    copiedRequestParameters.extensionsData = [];
-
-    let paymentNetwork: Types.IPaymentNetwork | null = null;
-    if (paymentNetworkCreationParameters) {
-      paymentNetwork = PaymentNetworkFactory.createPaymentNetwork(
-        this.advancedLogic,
-        requestParameters.currency,
-        paymentNetworkCreationParameters,
-      );
-
-      if (paymentNetwork) {
-        // create the extensions data for the payment network
-        copiedRequestParameters.extensionsData.push(
-          paymentNetwork.createExtensionsDataForCreation(
-            paymentNetworkCreationParameters.parameters,
-          ),
-        );
-      }
-    }
-
-    if (contentData) {
-      // create the extensions data for the content data
-      copiedRequestParameters.extensionsData.push(
-        this.contentData.createExtensionsDataForCreation(contentData),
-      );
-    }
-
-    // add identities as topics
-    if (copiedRequestParameters.payee) {
-      topics.push(copiedRequestParameters.payee.value);
-    }
-    if (copiedRequestParameters.payer) {
-      topics.push(copiedRequestParameters.payer.value);
-    }
-
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(parameters);
     const {
       result: { requestId },
-    } = await this.requestLogic.createRequest(copiedRequestParameters, parameters.signer, topics);
+    } = await this.requestLogic.createRequest(requestParameters, parameters.signer, topics);
 
     // create the request object
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
@@ -103,6 +58,17 @@ export default class RequestNetwork {
     await request.refresh();
 
     return request;
+  }
+
+  /**
+   * Gets the ID of a request without creating it.
+   *
+   * @param requestParameters Parameters to create a request
+   * @returns The requestId
+   */
+  public async computeRequestId(parameters: Types.ICreateRequestParameters): Promise<RequestLogicTypes.RequestId> {
+    const { requestParameters } = await this.prepareRequestParameters(parameters);
+    return this.requestLogic.computeRequestId(requestParameters, parameters.signer);
   }
 
   /**
@@ -188,5 +154,63 @@ export default class RequestNetwork {
     );
 
     return Promise.all(requests);
+  }
+
+  /**
+   * A helper to validate and prepare the parameters of a request.
+   * @param parameters Parameters to create a request
+   * @returns the parameters, ready for request creation, the topics, and the paymentNetwork
+   */
+  private async prepareRequestParameters(parameters: Types.ICreateRequestParameters): Promise<{
+    requestParameters: RequestLogicTypes.ICreateParameters,
+    topics: string[],
+    paymentNetwork: Types.IPaymentNetwork | null,
+  }> {
+    const requestParameters = parameters.requestInfo;
+    const paymentNetworkCreationParameters = parameters.paymentNetwork;
+    const contentData = parameters.contentData;
+    const topics = parameters.topics || [];
+
+    if (requestParameters.extensionsData) {
+      throw new Error('extensionsData in request parameters must be empty');
+    }
+
+    // avoid mutation of the parameters
+    const copiedRequestParameters = Utils.deepCopy(requestParameters);
+    copiedRequestParameters.extensionsData = [];
+
+    let paymentNetwork: Types.IPaymentNetwork | null = null;
+    if (paymentNetworkCreationParameters) {
+      paymentNetwork = PaymentNetworkFactory.createPaymentNetwork(
+        this.advancedLogic,
+        requestParameters.currency,
+        paymentNetworkCreationParameters,
+      );
+
+      if (paymentNetwork) {
+        // create the extensions data for the payment network
+        copiedRequestParameters.extensionsData.push(
+          paymentNetwork.createExtensionsDataForCreation(
+            paymentNetworkCreationParameters.parameters,
+          ),
+        );
+      }
+    }
+
+    if (contentData) {
+      // create the extensions data for the content data
+      copiedRequestParameters.extensionsData.push(
+        this.contentData.createExtensionsDataForCreation(contentData),
+      );
+    }
+
+    // add identities as topics
+    if (copiedRequestParameters.payee) {
+      topics.push(copiedRequestParameters.payee.value);
+    }
+    if (copiedRequestParameters.payer) {
+      topics.push(copiedRequestParameters.payer.value);
+    }
+    return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
   }
 }

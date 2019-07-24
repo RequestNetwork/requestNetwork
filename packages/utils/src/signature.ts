@@ -1,4 +1,4 @@
-import { Identity as IdentityTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import Crypto from './crypto';
 
 /**

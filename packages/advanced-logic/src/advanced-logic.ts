@@ -1,8 +1,8 @@
 import {
-  AdvancedLogic as Types,
-  Extension as ExtensionTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 import contentData from './extensions/content-data';
@@ -14,7 +14,7 @@ import declarative from './extensions/payment-network/declarative';
  * Module to manage Advanced logic extensions
  * Package to route the format and parsing of extensions following their id
  */
-export default class AdvancedLogic implements Types.IAdvancedLogic {
+export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
   public extensions: any = {
     addressBasedBtc,

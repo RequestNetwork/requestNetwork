@@ -1,4 +1,4 @@
-import { DataAccess as Types } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -14,6 +14,7 @@ export default {
   getTransactionPositionFromChannelId,
   getTransactionPositionsByChannelIds,
   getTransactionsByPositions,
+  parseBlock,
   pushTransaction,
 };
 
@@ -22,7 +23,7 @@ export default {
  *
  * @returns IBlock an empty block
  */
-function createEmptyBlock(): Types.IBlock {
+function createEmptyBlock(): DataAccessTypes.IBlock {
   return {
     header: {
       channelIds: {},
@@ -31,6 +32,35 @@ function createEmptyBlock(): Types.IBlock {
     },
     transactions: [],
   };
+}
+
+/**
+ * Parses a string to a block checking if the standard is followed
+ *
+ * @param data the data to parse
+ * @returns the block or throw en exception if the standard is not followed
+ */
+function parseBlock(data: string): DataAccessTypes.IBlock {
+  let maybeBlock;
+  try {
+    maybeBlock = JSON.parse(data);
+  } catch (e) {
+    throw new Error(`Impossible to JSON parse the data: "${e}"`);
+  }
+  if (!maybeBlock.header || !maybeBlock.transactions) {
+    throw new Error(`Data do not follow the block standard`);
+  }
+  if (!maybeBlock.header.topics || !maybeBlock.header.channelIds || !maybeBlock.header.version) {
+    throw new Error(`Header do not follow the block standard`);
+  }
+  if (maybeBlock.header.version !== '0.1.0') {
+    throw new Error(`Version not supported`);
+  }
+  if (maybeBlock.transactions.filter((tx: any) => !tx.data).length !== 0) {
+    throw new Error(`Transactions do not follow the block standard`);
+  }
+
+  return maybeBlock as DataAccessTypes.IBlock;
 }
 
 /**
@@ -44,16 +74,16 @@ function createEmptyBlock(): Types.IBlock {
  * @returns the new state
  */
 function pushTransaction(
-  block: Types.IBlock,
-  transaction: Types.ITransaction,
+  block: DataAccessTypes.IBlock,
+  transaction: DataAccessTypes.ITransaction,
   channelId: string,
   topics: string[] = [],
-): Types.IBlock {
+): DataAccessTypes.IBlock {
   if (transaction.data === undefined) {
     throw new Error('The transaction is missing the data property');
   }
   // we don't want to modify the original block state
-  const copiedBlock: Types.IBlock = Utils.deepCopy(block);
+  const copiedBlock: DataAccessTypes.IBlock = Utils.deepCopy(block);
 
   const newTransactionPosition = copiedBlock.transactions.length;
   copiedBlock.transactions.push(transaction);
@@ -86,7 +116,10 @@ function pushTransaction(
  *
  * @returns the transaction
  */
-function getTransactionFromPosition(block: Types.IBlock, position: number): Types.ITransaction {
+function getTransactionFromPosition(
+  block: DataAccessTypes.IBlock,
+  position: number,
+): DataAccessTypes.ITransaction {
   return block.transactions[position];
 }
 
@@ -99,9 +132,9 @@ function getTransactionFromPosition(block: Types.IBlock, position: number): Type
  * @returns the transactions
  */
 function getTransactionsByPositions(
-  block: Types.IBlock,
+  block: DataAccessTypes.IBlock,
   positions: number[],
-): Types.ITransaction[] {
+): DataAccessTypes.ITransaction[] {
   // remove duplicates and sort
   const sortedPositions = Array.from(new Set(positions)).sort();
 
@@ -117,7 +150,7 @@ function getTransactionsByPositions(
  *
  * @returns all the transactions with topics
  */
-function getAllTransactions(block: Types.IBlock): Types.ITransaction[] {
+function getAllTransactions(block: DataAccessTypes.IBlock): DataAccessTypes.ITransaction[] {
   return block.transactions;
 }
 
@@ -129,7 +162,10 @@ function getAllTransactions(block: Types.IBlock): Types.ITransaction[] {
  *
  * @returns list of transaction positions
  */
-function getTransactionPositionFromChannelId(block: Types.IBlock, channelId: string): number[] {
+function getTransactionPositionFromChannelId(
+  block: DataAccessTypes.IBlock,
+  channelId: string,
+): number[] {
   return block.header.channelIds[channelId] || [];
 }
 
@@ -141,7 +177,10 @@ function getTransactionPositionFromChannelId(block: Types.IBlock, channelId: str
  *
  * @returns list of transaction positions
  */
-function getTransactionPositionsByChannelIds(block: Types.IBlock, channelIds: string[]): number[] {
+function getTransactionPositionsByChannelIds(
+  block: DataAccessTypes.IBlock,
+  channelIds: string[],
+): number[] {
   const result: number[] = channelIds
     .map(id => block.header.channelIds[id])
     .filter(value => value !== undefined)
@@ -158,7 +197,7 @@ function getTransactionPositionsByChannelIds(block: Types.IBlock, channelIds: st
  *
  * @returns all the topics
  */
-function getAllTopics(block: Types.IBlock): Types.ITopics {
+function getAllTopics(block: DataAccessTypes.IBlock): DataAccessTypes.ITopics {
   return block.header.topics;
 }
 
@@ -169,6 +208,6 @@ function getAllTopics(block: Types.IBlock): Types.ITopics {
  *
  * @returns all the channel ids
  */
-function getAllChannelIds(block: Types.IBlock): Types.IChannelIds {
+function getAllChannelIds(block: DataAccessTypes.IBlock): DataAccessTypes.IChannelIds {
   return block.header.channelIds;
 }

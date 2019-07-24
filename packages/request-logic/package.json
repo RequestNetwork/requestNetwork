@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publishConfig": {
     "access": "public"
   },
@@ -36,12 +36,13 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
     "example": "ts-node specs/example/example.ts"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.2.0",
-    "@requestnetwork/types": "0.2.0",
-    "@requestnetwork/utils": "0.2.0",
+    "@requestnetwork/advanced-logic": "0.3.0",
+    "@requestnetwork/types": "0.3.0",
+    "@requestnetwork/utils": "0.3.0",
     "semver": "5.6.0"
   },
   "devDependencies": {

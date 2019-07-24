@@ -1,4 +1,4 @@
-import { RequestLogic as Types } from '@requestnetwork/types';
+import { RequestLogicTypes } from '@requestnetwork/types';
 import * as Semver from 'semver';
 import Config from './config';
 
@@ -22,7 +22,7 @@ export default {
  *
  * @returns boolean true, if version is supported false otherwise
  */
-function isSupported(version: string, versionConfiguration?: Types.IVersionSupportConfig): boolean {
+function isSupported(version: string, versionConfiguration?: RequestLogicTypes.IVersionSupportConfig): boolean {
   versionConfiguration = versionConfiguration || Config.specificationVersion;
 
   return (

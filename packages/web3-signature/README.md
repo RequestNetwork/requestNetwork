@@ -20,8 +20,8 @@ npm install @requestnetwork/web3-signature
 
 ```javascript
 import {
-  Identity as IdentityTypes,
-  Signature as SignatureTypes
+  IdentityTypes,
+  SignatureTypes
 } from '@requestnetwork/types'
 
 import Web3SignatureProvider from '@requestnetwork/web3-signature'

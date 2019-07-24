@@ -1,5 +1,12 @@
-import { DataAccess as DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
+
+// Maximum number of retries to attempt when http requests to the Node fail
+const HTTP_REQUEST_MAX_RETRY = 3;
+
+// Delay between retry in ms
+const HTTP_REQUEST_RETRY_DELAY = 100;
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -45,15 +52,23 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    const { data } = await axios.post(
-      '/persistTransaction',
+    const { data } = await Utils.retry(
+      async () =>
+        axios.post(
+          '/persistTransaction',
+          {
+            channelId,
+            topics,
+            transactionData,
+          },
+          this.axiosConfig,
+        ),
       {
-        channelId,
-        topics,
-        transactionData,
+        maxRetries: HTTP_REQUEST_MAX_RETRY,
+        retryDelay: HTTP_REQUEST_RETRY_DELAY,
       },
-      this.axiosConfig,
-    );
+    )();
+
     return data;
   }
 
@@ -67,12 +82,20 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const { data } = await axios.get(
-      '/getTransactionsByChannelId',
-      Object.assign(this.axiosConfig, {
-        params: { channelId, timestampBoundaries },
-      }),
-    );
+    const { data } = await Utils.retry(
+      async () =>
+        axios.get(
+          '/getTransactionsByChannelId',
+          Object.assign(this.axiosConfig, {
+            params: { channelId, timestampBoundaries },
+          }),
+        ),
+      {
+        maxRetries: HTTP_REQUEST_MAX_RETRY,
+        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+      },
+    )();
+
     return data;
   }
 
@@ -86,12 +109,20 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await axios.get(
-      '/getChannelsByTopic',
-      Object.assign(this.axiosConfig, {
-        params: { topic, updatedBetween },
-      }),
-    );
+    const { data } = await Utils.retry(
+      async () =>
+        axios.get(
+          '/getChannelsByTopic',
+          Object.assign(this.axiosConfig, {
+            params: { topic, updatedBetween },
+          }),
+        ),
+      {
+        maxRetries: HTTP_REQUEST_MAX_RETRY,
+        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+      },
+    )();
+
     return data;
   }
 }

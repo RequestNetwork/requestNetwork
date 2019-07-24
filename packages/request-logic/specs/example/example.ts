@@ -1,10 +1,10 @@
 /** Script to generate the example of the specs */
 
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  Signature as SignatureTypes,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -55,7 +55,7 @@ async function foo(): Promise<void> {
   const arbitraryTimestamp = 1544426030;
 
   const createParams = {
-    currency: Types.CURRENCY.ETH,
+    currency: RequestLogicTypes.CURRENCY.ETH,
     expectedAmount: arbitraryExpectedAmount,
     payee: bobRaw.identity,
     payer: aliceRaw.identity,

@@ -12,7 +12,7 @@ npm install @requestnetwork/types --save-dev
 ## Usage
 
 ```javascript
-import { Identity as IdentityTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 const signatureMethod = SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA;
 const identityType = IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS;

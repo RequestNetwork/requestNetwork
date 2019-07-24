@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/prototype-estimator",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Tool to estimate size and throughput of v2 system.",
   "keywords": [
@@ -21,20 +21,23 @@
   },
   "main": "src/index.ts",
   "scripts": {
+    "build": "tsc -b",
+    "ganache-blocktime15": "ganache-cli -l 90000000 -p 8545 --blockTime 15 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.2.0",
-    "@requestnetwork/data-access": "0.2.0",
-    "@requestnetwork/epk-signature": "0.2.0",
-    "@requestnetwork/ethereum-storage": "0.2.0",
-    "@requestnetwork/request-client.js": "0.2.0",
-    "@requestnetwork/request-logic": "0.2.0",
-    "@requestnetwork/request-node": "0.2.0",
-    "@requestnetwork/transaction-manager": "0.2.0",
-    "@requestnetwork/types": "0.2.0",
-    "@requestnetwork/utils": "0.2.0",
-    "benchmark": "2.1.4"
+    "@requestnetwork/advanced-logic": "0.3.0",
+    "@requestnetwork/data-access": "0.3.0",
+    "@requestnetwork/epk-signature": "0.3.0",
+    "@requestnetwork/ethereum-storage": "0.3.0",
+    "@requestnetwork/request-client.js": "0.3.0",
+    "@requestnetwork/request-logic": "0.3.0",
+    "@requestnetwork/request-node": "0.3.0",
+    "@requestnetwork/transaction-manager": "0.3.0",
+    "@requestnetwork/types": "0.3.0",
+    "@requestnetwork/utils": "0.3.0",
+    "benchmark": "2.1.4",
+    "simple-statistics": "7.0.2"
   },
   "devDependencies": {
     "prettier": "1.16.4",

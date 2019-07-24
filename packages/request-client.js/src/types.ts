@@ -1,11 +1,22 @@
 import {
-  Extension as ExtensionTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 // Export all the types to avoid the users to import them beside the present module
-export * from '@requestnetwork/types';
+export {
+  AdvancedLogicTypes as AdvancedLogic,
+  LogTypes as Log,
+  ExtensionTypes as Extension,
+  RequestLogicTypes as RequestLogic,
+  DataAccessTypes as DataAccess,
+  SignatureTypes as Signature,
+  SignatureProviderTypes as SignatureProvider,
+  IdentityTypes as Identity,
+  StorageTypes as Storage,
+  TransactionTypes as Transaction,
+} from '@requestnetwork/types';
 
 /** Restrict research to two timestamp */
 export interface ITimestampBoundaries {
@@ -51,6 +62,16 @@ export interface IPaymentNetwork {
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
   getBalance(request: RequestLogicTypes.IRequest): Promise<IBalanceWithEvents>;
+}
+
+/** Interface of the class to manage the bitcoin provider API */
+export interface IBitcoinProvider {
+  getAddressInfo: (
+    bitcoinNetworkId: number,
+    address: string,
+    eventName: EVENTS_NAMES,
+  ) => Promise<IBalanceWithEvents>;
+  parse: (addressInfo: any, eventName: EVENTS_NAMES) => IBalanceWithEvents;
 }
 
 /** Interface for balances and the events link to the payments and refund */

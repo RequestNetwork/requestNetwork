@@ -1,7 +1,7 @@
 import {
-  AdvancedLogic as AdvancedLogicTypes,
-  Extension as ExtensionTypes,
-  RequestLogic as RequestLogicTypes,
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 import BTCAddressedBased from '../../../src/api/payment-network/btc/mainnet-address-based';

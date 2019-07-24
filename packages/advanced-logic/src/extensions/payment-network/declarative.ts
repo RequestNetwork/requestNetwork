@@ -1,14 +1,14 @@
 import {
-  Extension as Types,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
  * Core of the declarative payment network
  */
-const pnDeclarative: Types.PnAnyDeclarative.IAnyDeclarative = {
+const pnDeclarative: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = {
   applyActionToExtension,
   createAddPaymentInstructionAction,
   createAddRefundInstructionAction,
@@ -30,11 +30,11 @@ const CURRENT_VERSION = '0.1.0';
  * @returns the extensionsData to be stored in the request
  */
 function createCreationAction(
-  parameters?: Types.PnAnyDeclarative.ICreationParameters,
-): Types.IAction {
+  parameters?: ExtensionTypes.PnAnyDeclarative.ICreationParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.CREATE,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       paymentInfo: parameters && parameters.paymentInfo,
       refundInfo: parameters && parameters.refundInfo,
@@ -51,11 +51,11 @@ function createCreationAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareSentPaymentAction(
-  parameters: Types.PnAnyDeclarative.ISentParameters,
-): Types.IAction {
+  parameters: ExtensionTypes.PnAnyDeclarative.ISentParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
       note: parameters.note,
@@ -71,11 +71,11 @@ function createDeclareSentPaymentAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareSentRefundAction(
-  parameters: Types.PnAnyDeclarative.ISentParameters,
-): Types.IAction {
+  parameters: ExtensionTypes.PnAnyDeclarative.ISentParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
       note: parameters.note,
@@ -91,11 +91,11 @@ function createDeclareSentRefundAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareReceivedPaymentAction(
-  parameters: Types.PnAnyDeclarative.IReceivedParameters,
-): Types.IAction {
+  parameters: ExtensionTypes.PnAnyDeclarative.IReceivedParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
       note: parameters.note,
@@ -111,11 +111,11 @@ function createDeclareReceivedPaymentAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createDeclareReceivedRefundAction(
-  parameters: Types.PnAnyDeclarative.IReceivedParameters,
-): Types.IAction {
+  parameters: ExtensionTypes.PnAnyDeclarative.IReceivedParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       amount: parameters.amount,
       note: parameters.note,
@@ -131,11 +131,11 @@ function createDeclareReceivedRefundAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentInstructionAction(
-  parameters: Types.PnAnyDeclarative.IAddPaymentInstructionParameters,
-): Types.IAction {
+  parameters: ExtensionTypes.PnAnyDeclarative.IAddPaymentInstructionParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       paymentInfo: parameters.paymentInfo,
     },
@@ -150,11 +150,11 @@ function createAddPaymentInstructionAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundInstructionAction(
-  parameters: Types.PnAnyDeclarative.IAddRefundInstructionParameters,
-): Types.IAction {
+  parameters: ExtensionTypes.PnAnyDeclarative.IAddRefundInstructionParameters,
+): ExtensionTypes.IAction {
   return {
-    action: Types.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
-    id: Types.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
       refundInfo: parameters.refundInfo,
     },
@@ -175,14 +175,14 @@ function createAddRefundInstructionAction(
  */
 function applyActionToExtension(
   extensionsState: RequestLogicTypes.IExtensionStates,
-  extensionAction: Types.IAction,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.CREATE) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
       throw Error(`This extension have already been created`);
     }
@@ -197,7 +197,7 @@ function applyActionToExtension(
     throw Error(`This extension must have been already created`);
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT) {
     copiedExtensionState[extensionAction.id] = applyDeclareSentPayment(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -208,7 +208,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND) {
     copiedExtensionState[extensionAction.id] = applyDeclareSentRefund(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -219,7 +219,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
     copiedExtensionState[extensionAction.id] = applyDeclareReceivedPayment(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -230,7 +230,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
     copiedExtensionState[extensionAction.id] = applyDeclareReceivedRefund(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -241,7 +241,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION) {
     copiedExtensionState[extensionAction.id] = applyAddPaymentInstruction(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -251,7 +251,7 @@ function applyActionToExtension(
     );
     return copiedExtensionState;
   }
-  if (extensionAction.action === Types.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION) {
+  if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION) {
     copiedExtensionState[extensionAction.id] = applyAddRefundInstruction(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -271,7 +271,7 @@ function applyActionToExtension(
  *
  * @returns state of the extension created
  */
-function applyCreation(extensionAction: Types.IAction, timestamp: number): Types.IState {
+function applyCreation(extensionAction: ExtensionTypes.IAction, timestamp: number): ExtensionTypes.IState {
   return {
     events: [
       {
@@ -284,7 +284,7 @@ function applyCreation(extensionAction: Types.IAction, timestamp: number): Types
       },
     ],
     id: extensionAction.id,
-    type: Types.TYPE.PAYMENT_NETWORK,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentInfo: extensionAction.parameters.paymentInfo,
       receivedPaymentAmount: '0',
@@ -308,12 +308,12 @@ function applyCreation(extensionAction: Types.IAction, timestamp: number): Types
  * @returns state of the extension created
  */
 function applyDeclareSentPayment(
-  extensionState: Types.IState,
-  extensionAction: Types.IAction,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
-): Types.IState {
+): ExtensionTypes.IState {
   if (!requestState.payer) {
     throw Error(`The request must have a payer`);
   }
@@ -324,7 +324,7 @@ function applyDeclareSentPayment(
     throw Error(`The amount is not an integer`);
   }
 
-  const copiedExtensionState: Types.IState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // increment sentPaymentAmount
   copiedExtensionState.values.sentPaymentAmount = Utils.amount.add(
@@ -334,7 +334,7 @@ function applyDeclareSentPayment(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
+    name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -356,12 +356,12 @@ function applyDeclareSentPayment(
  * @returns state of the extension created
  */
 function applyDeclareSentRefund(
-  extensionState: Types.IState,
-  extensionAction: Types.IAction,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
-): Types.IState {
+): ExtensionTypes.IState {
   if (!requestState.payee) {
     throw Error(`The request must have a payee`);
   }
@@ -372,7 +372,7 @@ function applyDeclareSentRefund(
     throw Error(`The amount is not an payee`);
   }
 
-  const copiedExtensionState: Types.IState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // increment sentRefundAmount
   copiedExtensionState.values.sentRefundAmount = Utils.amount.add(
@@ -382,7 +382,7 @@ function applyDeclareSentRefund(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
+    name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -404,12 +404,12 @@ function applyDeclareSentRefund(
  * @returns state of the extension created
  */
 function applyDeclareReceivedPayment(
-  extensionState: Types.IState,
-  extensionAction: Types.IAction,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
-): Types.IState {
+): ExtensionTypes.IState {
   if (!requestState.payee) {
     throw Error(`The request must have a payee`);
   }
@@ -420,7 +420,7 @@ function applyDeclareReceivedPayment(
     throw Error(`The amount is not an integer`);
   }
 
-  const copiedExtensionState: Types.IState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // increment receivedPaymentAmount
   copiedExtensionState.values.receivedPaymentAmount = Utils.amount.add(
@@ -430,7 +430,7 @@ function applyDeclareReceivedPayment(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+    name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -452,12 +452,12 @@ function applyDeclareReceivedPayment(
  * @returns state of the extension created
  */
 function applyDeclareReceivedRefund(
-  extensionState: Types.IState,
-  extensionAction: Types.IAction,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
-): Types.IState {
+): ExtensionTypes.IState {
   if (!requestState.payer) {
     throw Error(`The request must have a payer`);
   }
@@ -468,7 +468,7 @@ function applyDeclareReceivedRefund(
     throw Error(`The amount is not an payer`);
   }
 
-  const copiedExtensionState: Types.IState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // increment receivedRefundAmount
   copiedExtensionState.values.receivedRefundAmount = Utils.amount.add(
@@ -478,7 +478,7 @@ function applyDeclareReceivedRefund(
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
+    name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
     parameters: {
       amount: extensionAction.parameters.amount,
       note: extensionAction.parameters.note,
@@ -500,12 +500,12 @@ function applyDeclareReceivedRefund(
  * @returns state of the extension created
  */
 function applyAddPaymentInstruction(
-  extensionState: Types.IState,
-  extensionAction: Types.IAction,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
-): Types.IState {
+): ExtensionTypes.IState {
   if (extensionState.values.paymentInfo) {
     throw Error(`The payment instruction already given`);
   }
@@ -516,14 +516,14 @@ function applyAddPaymentInstruction(
     throw Error(`The signer must be the payee`);
   }
 
-  const copiedExtensionState: Types.IState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // increment paymentInfo
   copiedExtensionState.values.paymentInfo = extensionAction.parameters.paymentInfo;
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
+    name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
     parameters: {
       paymentInfo: extensionAction.parameters.paymentInfo,
     },
@@ -544,12 +544,12 @@ function applyAddPaymentInstruction(
  * @returns state of the extension created
  */
 function applyAddRefundInstruction(
-  extensionState: Types.IState,
-  extensionAction: Types.IAction,
+  extensionState: ExtensionTypes.IState,
+  extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
-): Types.IState {
+): ExtensionTypes.IState {
   if (extensionState.values.refundInfo) {
     throw Error(`The refund instruction already given`);
   }
@@ -560,14 +560,14 @@ function applyAddRefundInstruction(
     throw Error(`The signer must be the payer`);
   }
 
-  const copiedExtensionState: Types.IState = Utils.deepCopy(extensionState);
+  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
   // increment refundInfo
   copiedExtensionState.values.refundInfo = extensionAction.parameters.refundInfo;
 
   // update events
   copiedExtensionState.events.push({
-    name: Types.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
+    name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
     parameters: {
       refundInfo: extensionAction.parameters.refundInfo,
     },

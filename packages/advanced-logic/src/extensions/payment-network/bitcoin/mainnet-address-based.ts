@@ -1,7 +1,7 @@
 import {
-  Extension as ExtensionTypes,
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 const walletAddressValidator = require('wallet-address-validator');

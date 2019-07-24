@@ -1,6 +1,6 @@
 import 'mocha';
 
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import EthereumBlocks from '../../src/lib/ethereum-blocks';
@@ -166,7 +166,9 @@ const noMoreThan1000ResultsGetPastEventsMock = async (
 
   // Return the concerned error if total number of result is more than 1000
   if (totalResult > 1000) {
-    throw Error('query returned more than 1000 results');
+    // We use totalResult for the message because we should handle any
+    // "query returned more than XXX results" error message
+    throw Error(`query returned more than ${totalResult} results`);
   }
 
   // Same return as previous mock

@@ -183,7 +183,7 @@ const requestData = request.getData();
   events,
   state,
   creator,
-  meta,
+  meta, // see "Metadata of a request"
   balance,
   contentData,
 }
@@ -191,6 +191,71 @@ const requestData = request.getData();
 ```
 
 `requestData.request`: [IRequestData](/packages/request-client.js/src/types.ts#L17)
+
+#### Metadata of a request
+
+In the object returned by `request.getData();`, the property `meta` contains the metadata of the request:
+
+```javascript
+{
+  ...
+  meta: {
+    ignoredTransactions: [
+      {
+        reason // reason why the transaction has been ignored
+        transaction // the ignored transaction
+      }
+    ],
+    transactionManagerMeta: {
+      dataAccessMeta: {
+        storageMeta: [
+          {
+            ethereum: {
+              blockConfirmation // number of confirmation of the block from where the data comes from
+              blockNumber // the block number
+              blockTimestamp // the block timestamp
+              cost // total cost in wei paid to submit the block on ethereum
+              fee // request fees paid in wei
+              gasFee // ethereum gas fees paid in wei
+              networkName // ethereum network name
+              smartContractAddress // address of the smartcontract where the hash is stored
+              transactionHash // ethereum transaction hash that stored the hash
+            },
+            ipfs: {
+              size // size of the ipfs content of the block
+            },
+            storageType  // type of the storage (for now, always "ethereumIpfs")
+            timestamp: // timestamp of the data (for now, always equals to the ethereum.blockTimestamp)
+          }
+        ],
+        transactionsStorageLocation: [
+          // location of the data used to interpret the request
+        ]
+      }
+    }
+  }
+}
+```
+
+### Compute a request ID before it is created
+
+```javascript
+const requestId = await requestNetwork.computeRequestId({
+  requestInfo,
+  signer,
+  paymentNetwork,
+  contentData,
+  topics,
+});
+```
+
+- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `contentData`: any - optional [content data](#content-data) of the request.
+- `topics`: string[] - optional strings used to index the request.
+
+> Important: As the `requestId` is a hash of the request data, you should set `requestInfo.timestamp`, using `Utils.getCurrentTimestampInSecond`. Otherwise, it can have a different timestamp when computing the ID and when actually creating the request.
 
 ### Content Data
 

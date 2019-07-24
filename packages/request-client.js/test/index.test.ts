@@ -1,10 +1,10 @@
 const axios = require('axios');
 
 import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import 'mocha';
@@ -202,6 +202,58 @@ describe('index', () => {
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
     expect(request.requestId.length).to.equal(requestIdLength);
+  });
+
+  it('allows to compute a request id', async () => {
+    mockAxios();
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    const requestId = await requestNetwork.computeRequestId({
+      requestInfo: requestParameters,
+      signer: payeeIdentity,
+    });
+
+    expect(axiosSpyGet).to.not.have.been.called();
+    expect(axiosSpyPost).to.not.have.been.called();
+
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    expect(requestId.length).to.equal(requestIdLength);
+  });
+
+  it('allows to compute a request id, then generate the request with the same id', async () => {
+    mockAxios();
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    const axiosSpyGet = sandbox.on(axios, 'get');
+    const axiosSpyPost = sandbox.on(axios, 'post');
+
+    const requestInfo = {
+      ...requestParameters,
+      timestamp: 1,
+    };
+
+    const requestId = await requestNetwork.computeRequestId({
+      requestInfo,
+      signer: payeeIdentity,
+    });
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    expect(requestId.length).to.equal(requestIdLength);
+
+    await new Promise((resolve): any => setTimeout(resolve, 1500));
+    const request = await requestNetwork.createRequest({
+      requestInfo,
+      signer: payeeIdentity,
+    });
+
+    expect(request).to.be.instanceOf(Request);
+    expect(request.requestId).to.equal(requestId);
+    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyPost).to.have.been.called.once;
   });
 
   it('allows to get a request from its ID', async () => {
@@ -497,7 +549,7 @@ describe('index', () => {
     await request.declareSentRefund('100', 'sent refund', payeeIdentity);
     await request.declareReceivedPayment('1000', 'received payment', payeeIdentity);
 
-    const requestData = await request.getData();
+    const requestData = request.getData();
     // @ts-ignore
     expect(requestData.balance.balance).to.equal('990');
     // @ts-ignore

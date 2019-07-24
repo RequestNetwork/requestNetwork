@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  Signature as SignatureTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import AddExtensionsDataAction from '../../../src/actions/addExtensionsData';
@@ -52,7 +52,7 @@ describe('actions/addExtensionsData', () => {
         TestData.fakeSignatureProviderArbitrary,
       );
       expect(actionAddExtensionsData.data.name, 'action is wrong').to.equal(
-        Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+        RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
       );
 
       expect(actionAddExtensionsData.data.parameters.requestId, 'requestId is wrong').to.equal(
@@ -88,8 +88,8 @@ describe('actions/addExtensionsData', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -123,7 +123,7 @@ describe('actions/addExtensionsData', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+        name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
         parameters: { extensionsDataLength: 1 },
         timestamp: 2,
       });
@@ -132,7 +132,7 @@ describe('actions/addExtensionsData', () => {
     it('cannot apply addExtensionsData if no requestId', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+          name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
           parameters: { extensionsData: TestData.oneExtension },
           version: CURRENT_VERSION,
         },
@@ -154,7 +154,7 @@ describe('actions/addExtensionsData', () => {
     it('cannot apply addExtensionsData if no extensionsData', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+          name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
           parameters: { requestId: TestData.requestIdMock },
           version: CURRENT_VERSION,
         },
@@ -176,7 +176,7 @@ describe('actions/addExtensionsData', () => {
     it('cannot apply addExtensionsData if extensionsData empty', () => {
       const action = {
         data: {
-          name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+          name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
           parameters: { extensionsData: [], requestId: TestData.requestIdMock },
           version: CURRENT_VERSION,
         },
@@ -213,8 +213,8 @@ describe('actions/addExtensionsData', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -251,7 +251,7 @@ describe('actions/addExtensionsData', () => {
 
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+        name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
         parameters: { extensionsDataLength: 1 },
         timestamp: 2,
       });
@@ -274,8 +274,8 @@ describe('actions/addExtensionsData', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(Types.CURRENCY.ETH);
-      expect(request.state, 'state is wrong').to.equal(Types.STATE.CREATED);
+      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -311,7 +311,7 @@ describe('actions/addExtensionsData', () => {
       }
       expect(request.events[1], 'request.events is wrong').to.deep.equal({
         actionSigner: TestData.payerRaw.identity,
-        name: Types.ACTION_NAME.ADD_EXTENSIONS_DATA,
+        name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
         parameters: { extensionsDataLength: 1 },
         timestamp: 2,
       });

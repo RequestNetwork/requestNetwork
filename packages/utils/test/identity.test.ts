@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Identity as IdentityTypes } from '@requestnetwork/types';
+import { IdentityTypes } from '@requestnetwork/types';
 import Identity from '../src/identity';
 
 /* tslint:disable:no-unused-expression */

@@ -1,7 +1,7 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -27,12 +27,12 @@ export default {
  * @returns IAction  the action with the signature
  */
 function format(
-  cancelParameters: Types.ICancelParameters,
+  cancelParameters: RequestLogicTypes.ICancelParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Promise<Types.IAction> {
-  const unsignedAction: Types.IUnsignedAction = {
-    name: Types.ACTION_NAME.CANCEL,
+): Promise<RequestLogicTypes.IAction> {
+  const unsignedAction: RequestLogicTypes.IUnsignedAction = {
+    name: RequestLogicTypes.ACTION_NAME.CANCEL,
     parameters: cancelParameters,
     version: Version.currentVersion,
   };
@@ -48,10 +48,10 @@ function format(
  * @returns Types.IRequest the new request
  */
 function applyActionToRequest(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
-  request: Types.IRequest,
-): Types.IRequest {
+  request: RequestLogicTypes.IRequest,
+): RequestLogicTypes.IRequest {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -60,23 +60,23 @@ function applyActionToRequest(
   const signerRole = Request.getRoleInRequest(signer, request);
 
   // avoid to mutate the request
-  let requestCopied: Types.IRequest = Utils.deepCopy(request);
+  let requestCopied: RequestLogicTypes.IRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
-  if (signerRole === Types.ROLE.PAYER) {
-    if (request.state !== Types.STATE.CREATED) {
+  if (signerRole === RequestLogicTypes.ROLE.PAYER) {
+    if (request.state !== RequestLogicTypes.STATE.CREATED) {
       throw new Error('A payer cancel need to be done on a request with the state created');
     }
-    requestCopied.state = Types.STATE.CANCELED;
+    requestCopied.state = RequestLogicTypes.STATE.CANCELED;
     return requestCopied;
   }
 
-  if (signerRole === Types.ROLE.PAYEE) {
-    if (request.state === Types.STATE.CANCELED) {
+  if (signerRole === RequestLogicTypes.ROLE.PAYEE) {
+    if (request.state === RequestLogicTypes.STATE.CANCELED) {
       throw new Error('Cannot cancel an already canceled request');
     }
-    requestCopied.state = Types.STATE.CANCELED;
+    requestCopied.state = RequestLogicTypes.STATE.CANCELED;
     return requestCopied;
   }
 
@@ -92,15 +92,15 @@ function applyActionToRequest(
  * @returns Types.IEvent the event generated
  */
 function generateEvent(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
   actionSigner: IdentityTypes.IIdentity,
-): Types.IEvent {
+): RequestLogicTypes.IEvent {
   const params = action.data.parameters;
 
-  const event: Types.IEvent = {
+  const event: RequestLogicTypes.IEvent = {
     actionSigner,
-    name: Types.ACTION_NAME.CANCEL,
+    name: RequestLogicTypes.ACTION_NAME.CANCEL,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },

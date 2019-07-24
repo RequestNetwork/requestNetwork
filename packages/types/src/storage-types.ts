@@ -1,3 +1,5 @@
+const bigNumber: any = require('bn.js');
+
 /** Interface of the storage */
 export interface IStorage {
   initialize: () => Promise<void>;
@@ -220,4 +222,23 @@ export interface IPinRequestConfiguration {
   delayBetweenCalls: number;
   maxSize: number;
   timeout: number;
+}
+
+/** Gas price type */
+export enum GasPriceType {
+  FAST = 'fast',
+  STANDARD = 'standard',
+  SAFELOW = 'safeLow',
+}
+
+/** Interface of the class to retrieve gas price through a provider API */
+export interface IGasPriceProvider {
+  providerUrl: string;
+  getGasPrice: (type: GasPriceType) => Promise<typeof bigNumber>;
+}
+
+/** Configuration for the IPFS error handling parameters */
+export interface IIpfsErrorHandlingConfiguration {
+  delayBetweenRetries: number;
+  maxRetries: number;
 }

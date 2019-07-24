@@ -46,4 +46,4 @@ If a hotfix is implemented on `master`, it is back-ported to `development`.
 
 ### Useful information when developping
 
-Have a look at this [guide](https://docs.request.network/development/getting-started) to help you get started with developing Request
+Have a look at this [guide](https://docs.request.network/dev/contributing) to help you get started with developing Request

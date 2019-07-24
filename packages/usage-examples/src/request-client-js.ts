@@ -39,12 +39,27 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
 });
 
 /* tslint:disable:no-console */
-requestNetwork
-  .createRequest({
-    paymentNetwork,
-    requestInfo,
-    signer: payeeIdentity,
+
+const createParams = {
+  paymentNetwork,
+  requestInfo,
+  signer: payeeIdentity,
+};
+
+// Optionally, compute the request ID before actually creating it.
+// Setting the timestamp is recommended, as it has an impact on the generated ID.
+createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
+requestNetwork.computeRequestId(createParams)
+  .then(requestId => {
+    console.log(`The request will be created with ID ${requestId}`);
   })
+  .catch(error => {
+    console.error(error.message || error);
+    process.exit(1);
+  });
+
+requestNetwork
+  .createRequest(createParams)
   .then(request => {
     console.log(request.requestId);
   })

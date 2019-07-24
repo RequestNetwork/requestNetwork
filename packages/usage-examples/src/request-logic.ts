@@ -3,11 +3,11 @@ import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signatu
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
-  Identity as IdentityTypes,
-  RequestLogic as RequestLogicTypes,
-  Signature as SignatureTypes,
-  SignatureProvider as SignatureProviderTypes,
-  Transaction as TransactionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
+  SignatureTypes,
+  TransactionTypes,
 } from '@requestnetwork/types';
 
 import MockStorage from './mock/mock-storage';
@@ -47,10 +47,16 @@ const signatureProvider: SignatureProviderTypes.ISignatureProvider = new Ethereu
 
   const requestLogic = new RequestLogic(transactionManager, signatureProvider);
 
-  const { result } = await requestLogic.createRequest(createParams, {
+  const signerIdentity = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  });
+  };
+
+  // optionally, compute the request ID before actually creating it.
+  const requestId = await requestLogic.computeRequestId(createParams, signerIdentity);
+  console.log(`The request will be created with ID ${requestId}`);
+
+  const { result } = await requestLogic.createRequest(createParams, signerIdentity);
 
   return result;
 })()

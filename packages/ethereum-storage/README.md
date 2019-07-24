@@ -18,7 +18,7 @@ npm install @requestnetwork/ethereum-storage
 
 ```js
 import EthereumStorage from '@requestnetwork/ethereum-storage';
-import { Storage as StorageTypes } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 
 const web3HttpProvider = require('web3-providers-http');
 
@@ -73,7 +73,7 @@ There are 3 smart contracts:
 When deploying the smart contracts for development you can manually set the provider host and port via env variables:
 
 ```bash
-TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy 
+TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy
 ```
 
 ## IPFS
@@ -82,11 +82,22 @@ In order to use the package in a test environment, IPFS can be installed locally
 
 ```bash
 npm install ipfs --global
-ipfs init
+yarn init-ipfs-private-network # documented below
 ipfs daemon
 ```
 
 Local IPFS listening on port 5001 is used by default by the `ethereum-storage` package.
+
+### Setup IPFS private network
+
+Request uses an IPFS private network to allow all nodes to connect to each other directly,
+instead of having to navigate through the public IPFS network.
+
+To setup your IPFS node to the private network, you can run the following utility script:
+
+```bash
+yarn init-ipfs-private-network
+```
 
 ## Contributing
 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { DataAccess as Types } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import RequestDataAccessBlock from '../src/block';
 
@@ -18,10 +18,10 @@ const transactionDataMock2String = JSON.stringify({
 });
 const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionDataMock2String);
 
-const transactionMock: Types.ITransaction = {
+const transactionMock: DataAccessTypes.ITransaction = {
   data: transactionDataMock1String,
 };
-const transactionMock2: Types.ITransaction = {
+const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 
@@ -379,6 +379,57 @@ describe('block', () => {
         arbitraryId1,
       ]);
       expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+    });
+  });
+
+  describe('parseBlock', () => {
+    it('can parse a data', async () => {
+      const block = RequestDataAccessBlock.parseBlock(JSON.stringify(blockWith2tx));
+      expect(block).to.deep.equal(blockWith2tx);
+    });
+
+    it('cannot parse a data not following the block standard', async () => {
+      const blockNotJson = 'This is not JSON';
+      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).to.throw();
+
+      const blockWithoutHeader = {
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader)),
+      ).to.throw();
+
+      const blockWithoutChannelIds = {
+        header: { topics: {}, version: '0.1.0' },
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutChannelIds)),
+      ).to.throw();
+
+      const blockWithoutTopics = {
+        header: { channelIds: {}, version: '0.1.0' },
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics)),
+      ).to.throw();
+
+      const blockWithoutVersion = {
+        header: { channelIds: {}, topics: {} },
+        transactions: [{ data: '' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion)),
+      ).to.throw();
+
+      const blockWithoutTransactionData = {
+        header: { channelIds: {}, topics: {}, version: '0.1.0' },
+        transactions: [{}],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTransactionData)),
+      ).to.throw();
     });
   });
 

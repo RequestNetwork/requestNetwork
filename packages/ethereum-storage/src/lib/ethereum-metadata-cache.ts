@@ -1,5 +1,7 @@
-import { Storage as Types } from '@requestnetwork/types';
+import { StorageTypes } from '@requestnetwork/types';
 import SmartContractManager from './smart-contract-manager';
+
+import * as Keyv from 'keyv';
 
 /**
  * Allows to save and retrieve ethereum metadata associated to a data id
@@ -12,7 +14,7 @@ export default class EthereumMetadataCache {
    * Store the ethereum metadata for a data id in a dictionary
    * This attribute is left public for mocking purpose to facilitate tests on the module
    */
-  public metadataCache: { [dataId: string]: Types.IEthereumMetadata } = {};
+  public metadataCache: Keyv<StorageTypes.IEthereumMetadata>;
 
   /**
    * Manager for the storage smart contract
@@ -23,9 +25,15 @@ export default class EthereumMetadataCache {
   /**
    * Constructor
    * @param smartContractManager Instance of SmartContractManager used to get metadata in case they're not registered yet
+   * @param store a Keyv store to persist the metadata
    */
-  public constructor(smartContractManager: SmartContractManager) {
+  public constructor(smartContractManager: SmartContractManager, store?: Keyv.Store<any>) {
     this.smartContractManager = smartContractManager;
+
+    this.metadataCache = new Keyv<StorageTypes.IEthereumMetadata>({
+      namespace: 'ethereumMetadata',
+      store,
+    });
   }
 
   /**
@@ -33,14 +41,14 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to index ethereum metadata
    * @param meta Ethereum metadata related to the dataId
    */
-  public saveDataIdMeta(dataId: string, meta: Types.IEthereumMetadata): void {
+  public async saveDataIdMeta(dataId: string, meta: StorageTypes.IEthereumMetadata): Promise<void> {
     // We save the metadata only if it doesn't exist yet
     // A user can add the same dataId into the smart contract indefinitely
     // Therefore, only the first occurrence of the dataId has valid metadata
     // Finding several occurrences of the same dataId is not abnormal and we don't throw an error in this case
     // PROT-503: We should ensure the corresponding metadata is the metadata of the first occurrence of the dataId
-    if (!this.metadataCache[dataId]) {
-      this.metadataCache[dataId] = meta;
+    if (!(await this.metadataCache.get(dataId))) {
+      await this.metadataCache.set(dataId, meta);
     }
   }
 
@@ -51,13 +59,15 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to get Ethereum metadata from
    * @returns Ethereum metadata of the dataId
    */
-  public async getDataIdMeta(dataId: string): Promise<Types.IEthereumMetadata> {
+  public async getDataIdMeta(dataId: string): Promise<StorageTypes.IEthereumMetadata> {
     // If the metadata has not been saved in the cache yet
     // we get them with smartContractManager and save them
-    if (!this.metadataCache[dataId]) {
-      this.metadataCache[dataId] = await this.smartContractManager.getMetaFromEthereum(dataId);
+    let metadata: StorageTypes.IEthereumMetadata | undefined = await this.metadataCache.get(dataId);
+    if (!metadata) {
+      metadata = await this.smartContractManager.getMetaFromEthereum(dataId);
+      await this.metadataCache.set(dataId, metadata);
     }
 
-    return this.metadataCache[dataId];
+    return metadata;
   }
 }

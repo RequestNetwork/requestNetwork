@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { RequestLogic as Types } from '@requestnetwork/types';
+import { RequestLogicTypes } from '@requestnetwork/types';
 
 import Request from '../../src/request';
 import * as TestData from './utils/test-data-generator';
@@ -16,15 +16,15 @@ describe('Request', () => {
       expect(
         Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension),
         'getRoleInRequest() error',
-      ).to.be.deep.equal(Types.ROLE.PAYEE);
+      ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYEE);
       expect(
         Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension),
         'getRoleInRequest() error',
-      ).to.be.deep.equal(Types.ROLE.PAYER);
+      ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYER);
       expect(
         Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension),
         'getRoleInRequest() error',
-      ).to.be.deep.equal(Types.ROLE.THIRD_PARTY);
+      ).to.be.deep.equal(RequestLogicTypes.ROLE.THIRD_PARTY);
     });
   });
 
@@ -32,14 +32,14 @@ describe('Request', () => {
     it('can valid request', () => {
       const requestError = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensions: {},
         extensionsData: [],
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -48,13 +48,13 @@ describe('Request', () => {
     it('cannot valid request with no payer and no payee', () => {
       const requestNoPayeeNoPayer = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensions: {},
         extensionsData: [],
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -64,12 +64,12 @@ describe('Request', () => {
     });
     it('cannot valid request with no creator', () => {
       const requestError: any = {
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(() => Request.checkRequest(requestError)).to.throw('request.creator is missing');
@@ -78,11 +78,11 @@ describe('Request', () => {
     it('cannot valid request with expected amount missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(() => Request.checkRequest(requestError)).to.throw(
@@ -92,14 +92,14 @@ describe('Request', () => {
     it('cannot valid request with expected amount not valid', () => {
       const requestError = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: '-10000',
         extensions: {},
         extensionsData: [],
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -113,12 +113,12 @@ describe('Request', () => {
           type: 'not_supported_type',
           value: '0xaaaa',
         },
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
@@ -129,7 +129,7 @@ describe('Request', () => {
     it('cannot valid request with payer identity type not supported', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -138,7 +138,7 @@ describe('Request', () => {
           value: '0xaaaa',
         },
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(() => Request.checkRequest(requestError)).to.throw('request.payer.type not supported');
@@ -146,7 +146,7 @@ describe('Request', () => {
     it('cannot valid request with payee identity type not supported', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: {
@@ -154,7 +154,7 @@ describe('Request', () => {
           value: '0xaaaa',
         },
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(() => Request.checkRequest(requestError)).to.throw('request.payee.type not supported');
@@ -163,7 +163,7 @@ describe('Request', () => {
     it('cannot valid request with state missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -175,12 +175,12 @@ describe('Request', () => {
     it('cannot valid request with version missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
       };
       expect(() => Request.checkRequest(requestError)).to.throw('request.version is missing');
     });
@@ -191,7 +191,7 @@ describe('Request', () => {
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(() => Request.checkRequest(requestError)).to.throw('request.currency is missing');
@@ -199,11 +199,11 @@ describe('Request', () => {
     it('cannot valid request with requestId missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: Types.CURRENCY.ETH,
+        currency: RequestLogicTypes.CURRENCY.ETH,
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
-        state: Types.STATE.CREATED,
+        state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
       expect(() => Request.checkRequest(requestError)).to.throw('request.requestId is missing');

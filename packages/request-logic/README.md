@@ -24,6 +24,7 @@ See [packages/usage-examples/request-logic.ts](`packages/usage-examples/request-
 - `reduceExpectedAmountRequest` : reduce the amount of a request
 - `getFirstRequestFromTopic` : get the first request from the actions indexed by a topic (should be used with requestId)
 - `getRequestsByTopic` : get all the requests for a topic
+- `computeRequestId` : compute the ID of a request before actually creating it.
 
 ## Action topics
 

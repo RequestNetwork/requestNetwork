@@ -3,9 +3,9 @@ import * as TestDataCreate from './generator-data-create';
 import * as TestData from '../../test-data-generator';
 
 import {
-  Extension as ExtensionTypes,
-  Identity as IdentityTypes,
-  RequestLogic as Types,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 
 export const arbitraryTimestamp = 1544426030;
@@ -88,19 +88,19 @@ export const extensionStateWithRefundAfterCreation = {
 
 // ---------------------------------------------------------------------
 // request states
-export const requestStateCreatedEmptyThenAddPayment: Types.IRequest = {
+export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.CURRENCY.BTC,
+  currency: RequestLogicTypes.CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 2,
@@ -121,24 +121,24 @@ export const requestStateCreatedEmptyThenAddPayment: Types.IRequest = {
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.STATE.CREATED,
+  state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyThenAddRefund: Types.IRequest = {
+export const requestStateCreatedEmptyThenAddRefund: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: Types.CURRENCY.BTC,
+  currency: RequestLogicTypes.CURRENCY.BTC,
   events: [
     {
       actionSigner: {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: TestData.payeeRaw.address,
       },
-      name: Types.ACTION_NAME.CREATE,
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
         extensionsDataLength: 2,
@@ -159,7 +159,7 @@ export const requestStateCreatedEmptyThenAddRefund: Types.IRequest = {
     value: TestData.payerRaw.address,
   },
   requestId: TestData.requestIdMock,
-  state: Types.STATE.CREATED,
+  state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };

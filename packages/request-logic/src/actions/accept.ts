@@ -1,7 +1,7 @@
 import {
-  Identity as IdentityTypes,
-  RequestLogic as Types,
-  SignatureProvider as SignatureProviderTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+  SignatureProviderTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -27,12 +27,12 @@ export default {
  * @returns IAction  the action with the signature
  */
 function format(
-  acceptParameters: Types.IAcceptParameters,
+  acceptParameters: RequestLogicTypes.IAcceptParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Promise<Types.IAction> {
-  const unsignedAction: Types.IUnsignedAction = {
-    name: Types.ACTION_NAME.ACCEPT,
+): Promise<RequestLogicTypes.IAction> {
+  const unsignedAction: RequestLogicTypes.IUnsignedAction = {
+    name: RequestLogicTypes.ACTION_NAME.ACCEPT,
     parameters: acceptParameters,
     version: Version.currentVersion,
   };
@@ -48,10 +48,10 @@ function format(
  * @returns Types.IRequest the new request
  */
 function applyActionToRequest(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
-  request: Types.IRequest,
-): Types.IRequest {
+  request: RequestLogicTypes.IRequest,
+): RequestLogicTypes.IRequest {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -60,20 +60,20 @@ function applyActionToRequest(
     throw new Error('the request must have a payer');
   }
 
-  if (request.state !== Types.STATE.CREATED) {
+  if (request.state !== RequestLogicTypes.STATE.CREATED) {
     throw new Error('the request state must be created');
   }
 
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
   const signerRole = Request.getRoleInRequest(signer, request);
 
-  if (signerRole === Types.ROLE.PAYER) {
-    request.state = Types.STATE.ACCEPTED;
+  if (signerRole === RequestLogicTypes.ROLE.PAYER) {
+    request.state = RequestLogicTypes.STATE.ACCEPTED;
   } else {
     throw new Error('Signer must be the payer');
   }
   // avoid to mutate the request
-  let requestCopied: Types.IRequest = Utils.deepCopy(request);
+  let requestCopied: RequestLogicTypes.IRequest = Utils.deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
@@ -89,15 +89,15 @@ function applyActionToRequest(
  * @returns Types.IEvent the event generated
  */
 function generateEvent(
-  action: Types.IAction,
+  action: RequestLogicTypes.IAction,
   timestamp: number,
   actionSigner: IdentityTypes.IIdentity,
-): Types.IEvent {
+): RequestLogicTypes.IEvent {
   const params = action.data.parameters;
 
-  const event: Types.IEvent = {
+  const event: RequestLogicTypes.IEvent = {
     actionSigner,
-    name: Types.ACTION_NAME.ACCEPT,
+    name: RequestLogicTypes.ACTION_NAME.ACCEPT,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },

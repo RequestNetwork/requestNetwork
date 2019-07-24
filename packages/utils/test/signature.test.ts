@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Identity as IdentityTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import Crypto from '../src/crypto';
 import Signature from '../src/signature';
 

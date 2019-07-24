@@ -15,7 +15,7 @@ npm install @requestnetwork/transaction-manager
 ### Persist a Transaction
 
 ```javascript
-import { DataAccess as DataAccessTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes } from '@requestnetwork/types';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 
 const dataAccess: DataAccessTypes.IDataAccess; // A Data Access implementation, for example @requestnetwork/data-access
@@ -32,7 +32,7 @@ const { result } = await transactionManager.persistTransaction(data, channelId, 
 ### Get Transactions from channel id
 
 ```javascript
-import { DataAccess as DataAccessTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes } from '@requestnetwork/types';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 
 const dataAccess: DataAccessTypes.IDataAccess; // A Data Access implementation, for example @requestnetwork/data-access
@@ -47,7 +47,7 @@ const { result: {transactions} } = await transactionManager.getTransactionsByCha
 ### Get Transactions from topic
 
 ```typescript
-import { DataAccess as DataAccessTypes, Signature as SignatureTypes } from '@requestnetwork/types';
+import { DataAccessTypes, SignatureTypes } from '@requestnetwork/types';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 
 const dataAccess: DataAccessTypes.IDataAccess; // A Data Access implementation, for example @requestnetwork/data-access

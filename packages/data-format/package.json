@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publishConfig": {
     "access": "public"
   },
@@ -36,7 +36,8 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "nyc mocha --watch --watch-extensions json --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
     "ajv": "6.8.1",
