@@ -28,7 +28,7 @@ import Web3SignatureProvider from '@requestnetwork/web3-signature'
 
 // Identity from the previous signature parameter
 const identityExample: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57'
 };
 
@@ -42,7 +42,7 @@ const signedData = signatureProvider.sign(dataToSign, identityExample);
 {
   data: { ... },
   signature: {
-    method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+    method: SignatureTypes.METHOD.ECDSA,
     value: '0x...'
   }
 }
