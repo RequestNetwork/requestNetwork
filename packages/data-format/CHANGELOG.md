@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.1.1-alpha.3...@requestnetwork/data-format@0.3.0) (2019-07-24)
+
+**Note:** Version bump only for package @requestnetwork/data-format
+
+
+
+
+
 ## [0.2.1-alpha.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.1.1-alpha.3...@requestnetwork/data-format@0.2.1-alpha.0) (2019-07-22)
 
 **Note:** Version bump only for package @requestnetwork/data-format
