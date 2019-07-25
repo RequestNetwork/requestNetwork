@@ -74,20 +74,22 @@ describe('Request system', () => {
       content: { this: 'could', be: 'an', invoice: true },
     });
 
+    const payer = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    };
+
     const requestCreationHash: RequestLogicTypes.ICreateParameters = {
       currency: RequestLogicTypes.CURRENCY.ETH,
       expectedAmount: '100000000000',
       extensionsData: [contentDataExtensionData],
       payee: signerIdentity,
-      payer: {
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-      },
+      payer,
     };
 
     const topics = [
-      '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-      '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+      Utils.crypto.normalizeKeccak256Hash(signerIdentity),
+      Utils.crypto.normalizeKeccak256Hash(payer),
     ];
 
     const resultCreation = await requestLogic.createRequest(
@@ -118,20 +120,23 @@ describe('Request system', () => {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
     );
+
+    const payer = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    };
+
     const requestCreationHash: RequestLogicTypes.ICreateParameters = {
       currency: RequestLogicTypes.CURRENCY.BTC,
       expectedAmount: '100000000000',
       extensionsData: [pnBTCExtensionData, contentDataExtensionData],
       payee: signerIdentity,
-      payer: {
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-      },
+      payer,
     };
 
     const topics = [
-      '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-      '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+      Utils.crypto.normalizeKeccak256Hash(signerIdentity),
+      Utils.crypto.normalizeKeccak256Hash(payer),
     ];
 
     const resultCreation = await requestLogic.createRequest(

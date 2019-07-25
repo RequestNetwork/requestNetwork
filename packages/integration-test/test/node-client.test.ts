@@ -28,8 +28,6 @@ const requestCreationHashUSD: Types.RequestLogic.ICreateParameters = {
   payer: payerIdentity,
 };
 
-const topics = [payerIdentity.value, payeeIdentity.value];
-
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
@@ -47,7 +45,6 @@ describe('Request client using a request node', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestCreationHashBTC,
       signer: payeeIdentity,
-      topics,
     });
     assert.instanceOf(request, Request);
     assert.exists(request.requestId);
@@ -88,7 +85,6 @@ describe('Request client using a request node', () => {
       paymentNetwork,
       requestInfo: requestCreationHashUSD,
       signer: payeeIdentity,
-      topics,
     });
     assert.instanceOf(request, Request);
     assert.exists(request.requestId);
@@ -131,7 +127,9 @@ describe('Request client using a request node', () => {
       payer: payerIdentity,
       timestamp: Utils.getCurrentTimestampInSecond(),
     };
-    const topicsRequest1and2 = [Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)];
+    const topicsRequest1and2: string[] = [
+      Utils.crypto.normalizeKeccak256Hash(requestCreationHash1),
+    ];
 
     const request1: Request = await requestNetwork.createRequest({
       requestInfo: requestCreationHash1,

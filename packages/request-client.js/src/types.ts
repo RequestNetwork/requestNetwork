@@ -1,8 +1,4 @@
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 // Export all the types to avoid the users to import them beside the present module
 export {

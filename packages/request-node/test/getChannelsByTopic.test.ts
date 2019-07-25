@@ -5,12 +5,12 @@ import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
 
-const channelId = '0xchannelId2';
-const anotherChannelId = '0xanotherChannelId2';
-const commonTopic = ['0xbbbbbb2'];
-const topics = ['0xaaaaaa2'].concat(commonTopic);
-const otherTopics = ['0xcccccc2'].concat(commonTopic);
-const nonExistentTopic = 'NonExistentTopic';
+const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const commonTopic = ['01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'];
+const topics = ['01dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'].concat(commonTopic);
+const otherTopics = ['01eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'].concat(commonTopic);
+const nonExistentTopic = '010000000000000000000000000000000000000000000000000000000000000000';
 const transactionData = {
   data: 'this is sample data for a transaction to test getChannelsByTopic',
 };
@@ -92,7 +92,7 @@ describe('getChannelsByTopic', () => {
   it('responds with no transaction to requests with a non-existent topic', async () => {
     const serverResponse = await request(server)
       .get('/getChannelsByTopic')
-      .query({ topic: { nonExistentTopic } })
+      .query({ topic: nonExistentTopic })
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 

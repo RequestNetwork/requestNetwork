@@ -1,8 +1,4 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureProviderTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Role from './role';
 import Version from './version';
@@ -58,7 +54,10 @@ function getSignerIdentityFromAction(action: RequestLogicTypes.IAction): Identit
  *
  * @returns RequestEnum.ROLE the role of the signer
  */
-function getRoleInAction(identity: IdentityTypes.IIdentity, action: RequestLogicTypes.IAction): RequestLogicTypes.ROLE {
+function getRoleInAction(
+  identity: IdentityTypes.IIdentity,
+  action: RequestLogicTypes.IAction,
+): RequestLogicTypes.ROLE {
   return getRoleInUnsignedAction(identity, action.data);
 }
 
@@ -119,7 +118,7 @@ function getVersionFromAction(action: RequestLogicTypes.IAction): string {
  *
  * @param IAction action action to get the hash
  *
- * @returns string the hash
+ * @returns string the hash formatted
  */
 function getActionHash(action: RequestLogicTypes.IAction): string {
   return Utils.crypto.normalizeKeccak256Hash(action.data);

@@ -453,11 +453,11 @@ describe('block', () => {
             [arbitraryId1]: [
               '0xaaaaaa',
               '0xccccccccccc',
-              '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
+              '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
             ],
             [arbitraryId2]: [
               '0xccccccccccc',
-              '0x60d9be697d09d3d93d5e812a42f72a60411b4d364726bf89fa811d5330d00bd1',
+              '0160d9be697d09d3d93d5e812a42f72a60411b4d364726bf89fa811d5330d00bd1',
             ],
           },
           version: '0.1.0',

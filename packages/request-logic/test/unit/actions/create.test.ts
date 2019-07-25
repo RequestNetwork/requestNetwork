@@ -2,10 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 const bigNumber: any = require('bn.js');
 
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
 
@@ -33,7 +30,9 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.CREATE);
+      expect(actionCreation.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      );
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -81,7 +80,9 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.CREATE);
+      expect(actionCreation.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      );
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -127,7 +128,9 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.CREATE);
+      expect(actionCreation.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      );
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -173,7 +176,9 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.CREATE);
+      expect(actionCreation.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      );
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -220,7 +225,9 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.CREATE);
+      expect(actionCreation.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      );
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
@@ -329,7 +336,9 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.CREATE);
+      expect(actionCreation.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      );
       expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
         RequestLogicTypes.CURRENCY.ETH,
       );

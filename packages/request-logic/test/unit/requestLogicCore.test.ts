@@ -18,8 +18,9 @@ import * as TestData from './utils/test-data-generator';
 import RequestLogicCore from '../../src/requestLogicCore';
 
 const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions: (extensionStates: RequestLogicTypes.IExtensionStates): RequestLogicTypes.IExtensionStates =>
-    extensionStates,
+  applyActionToExtensions: (
+    extensionStates: RequestLogicTypes.IExtensionStates,
+  ): RequestLogicTypes.IExtensionStates => extensionStates,
   extensions: {},
 };
 
@@ -330,7 +331,7 @@ describe('requestLogicCore', () => {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
         },
-        requestId: '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
+        requestId: '011c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8',
         state: RequestLogicTypes.STATE.CREATED,
         timestamp: 1544426030,
         version: CURRENT_VERSION,

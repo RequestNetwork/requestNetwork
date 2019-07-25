@@ -38,7 +38,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async createRequest(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    indexes: string[] = [],
+    topics: string[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -54,7 +54,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
-      indexes,
+      topics,
     );
     return {
       meta: { transactionManagerMeta: resultPersistTx.meta },

@@ -33,8 +33,8 @@ const transactionMock2: DataAccessTypes.ITransaction = {
 const arbitraryId1 = '0x111111111111111';
 const arbitraryId2 = '0x222222222222222';
 
-const arbitraryTopic1 = '0xaaaaaa';
-const arbitraryTopic2 = '0xccccccccccc';
+const arbitraryTopic1 = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const arbitraryTopic2 = '01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
 const blockWith1tx = RequestDataAccessBlock.pushTransaction(
@@ -296,8 +296,8 @@ describe('data-access', () => {
             },
             topics: {
               [arbitraryId1]: [
-                '0xaaaaaa',
-                '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
+                arbitraryTopic1,
+                '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
               ],
             },
             version: '0.1.0',
@@ -314,7 +314,7 @@ describe('data-access', () => {
           storageMeta: { timestamp: 1 },
           topics: [
             arbitraryTopic1,
-            '0xc23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
+            '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
           ],
           transactionStorageLocation: dataIdBlock2tx,
         },

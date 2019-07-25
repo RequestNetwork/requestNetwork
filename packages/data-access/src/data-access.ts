@@ -136,6 +136,18 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     topics: string[] = [],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     this.checkInitialized();
+
+    // get all the topics not well formatted
+    const notFormattedTopics: string[] = topics.filter(
+      topic => !Utils.multiFormat.isKeccak256Hash(topic),
+    );
+
+    if (notFormattedTopics.length !== 0) {
+      throw new Error(
+        `The following topics are not well formatted: ${JSON.stringify(notFormattedTopics)}`,
+      );
+    }
+
     // create a block and add the transaction in it
     const updatedBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
@@ -243,6 +255,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     this.checkInitialized();
+
+    // check if the topic is well formatted
+    if (!Utils.multiFormat.isKeccak256Hash(topic)) {
+      throw new Error(`The topic is not well formatted: ${topic}`);
+    }
+
     const channelIds = await this.transactionIndex.getChannelIdsForTopic(topic, updatedBetween);
 
     // Gets the transactions per channel id

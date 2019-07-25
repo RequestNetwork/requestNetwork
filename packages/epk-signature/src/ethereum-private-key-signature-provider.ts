@@ -1,8 +1,4 @@
-import {
-  IdentityTypes,
-  SignatureProviderTypes,
-  SignatureTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
 
@@ -58,7 +54,8 @@ export default class EthereumPrivateKeySignatureProvider
       throw Error(`private key unknown for the address ${actualSigner.value}`);
     }
 
-    const hashData = Utils.crypto.normalizeKeccak256Hash(data);
+    // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
+    const hashData = `0x${Utils.crypto.normalizeKeccak256Hash(data).slice(2)}`;
     const signatureValue = Utils.crypto.EcUtils.sign(signatureParameter.privateKey, hashData);
 
     return {

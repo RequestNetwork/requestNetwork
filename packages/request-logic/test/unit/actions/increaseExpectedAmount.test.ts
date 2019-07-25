@@ -14,7 +14,7 @@ const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from '../utils/test-data-generator';
 
-const requestIdMock = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
+const requestIdMock = '011c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
 
 const arbitraryExpectedAmount = '123400000000000000';
 const arbitraryDeltaAmount = '100000000000000000';
