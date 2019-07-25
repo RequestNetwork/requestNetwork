@@ -17,7 +17,12 @@ const config: any = {
     safeGasPriceLimit: '200000000000',
   },
   ipfs: {
-    default: 'private',
+    defaultNode: {
+      host: 'localhost',
+      port: 5001,
+      protocol: 'http',
+      timeout: 10000,
+    },
     errorHandling: {
       delayBetweenRetries: 500,
       maxRetries: 3,
@@ -32,20 +37,6 @@ const config: any = {
       // eslint-disable-next-line spellcheck/spell-checker
       '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
     ],
-    nodeUrlDefault: {
-      private: {
-        port: 5001,
-        private: 'localhost',
-        protocol: 'http',
-        timeout: 10000,
-      },
-      public: {
-        host: 'ipfs.infura.io',
-        port: 5001,
-        protocol: 'https',
-        timeout: 10000,
-      },
-    },
     pinRequest: {
       delayBetweenCalls: 1000,
       maxSize: 500,
@@ -60,7 +51,7 @@ const config: any = {
  * @returns IIpfsGatewayConnection the host, port, protocol and timeout threshold to connect to the gateway
  */
 export function getDefaultIpfs(): StorageTypes.IIpfsGatewayConnection {
-  return config.ipfs.nodeUrlDefault[config.ipfs.default];
+  return config.ipfs.defaultNode;
 }
 
 /**
