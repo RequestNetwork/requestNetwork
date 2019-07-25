@@ -30,8 +30,8 @@ const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 
-const arbitraryId1 = '0x111111111111111';
-const arbitraryId2 = '0x222222222222222';
+const arbitraryId1 = '011111111111111111111111111111111111111111111111111111111111111111';
+const arbitraryId2 = '012222222222222222222222222222222222222222222222222222222222222222';
 
 const arbitraryTopic1 = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const arbitraryTopic2 = '01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
@@ -206,7 +206,7 @@ describe('data-access', () => {
       ).to.deep.equal({
         meta: {
           storageMeta: [{ timestamp: 10 }],
-          transactionsStorageLocation: ['dataIdBlock2tx'],
+          transactionsStorageLocation: [dataIdBlock2tx],
         },
         result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
       });
@@ -255,7 +255,7 @@ describe('data-access', () => {
       ).to.deep.equal({
         meta: {
           storageMeta: { [arbitraryId1]: [{ timestamp: 10 }] },
-          transactionsStorageLocation: { [arbitraryId1]: ['dataIdBlock2tx'] },
+          transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
         },
         result: {
           transactions: { [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 10 }] },
@@ -429,11 +429,11 @@ describe('data-access', () => {
       'result with arbitraryTopic1 wrong',
     ).to.deep.equal({
       meta: {
-        storageMeta: { '0x111111111111111': [{ timestamp: 1 }] },
-        transactionsStorageLocation: { '0x111111111111111': ['dataIdBlock2tx'] },
+        storageMeta: { [arbitraryId1]: [{ timestamp: 1 }] },
+        transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
       },
       result: {
-        transactions: { '0x111111111111111': [{ transaction: transactionMock1, timestamp: 1 }] },
+        transactions: { [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 1 }] },
       },
     });
 
@@ -443,18 +443,18 @@ describe('data-access', () => {
     ).to.deep.equal({
       meta: {
         storageMeta: {
-          '0x111111111111111': [{ timestamp: 1 }],
-          '0x222222222222222': [{ timestamp: 1 }],
+          [arbitraryId1]: [{ timestamp: 1 }],
+          [arbitraryId2]: [{ timestamp: 1 }],
         },
         transactionsStorageLocation: {
-          '0x111111111111111': ['dataIdBlock2tx'],
-          '0x222222222222222': ['dataIdBlock2tx'],
+          [arbitraryId1]: [dataIdBlock2tx],
+          [arbitraryId2]: [dataIdBlock2tx],
         },
       },
       result: {
         transactions: {
-          '0x111111111111111': [{ transaction: transactionMock1, timestamp: 1 }],
-          '0x222222222222222': [{ transaction: transactionMock2, timestamp: 1 }],
+          [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 1 }],
+          [arbitraryId2]: [{ transaction: transactionMock2, timestamp: 1 }],
         },
       },
     });

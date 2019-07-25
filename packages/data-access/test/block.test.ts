@@ -25,11 +25,11 @@ const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
 };
 
-const arbitraryId1 = '0x111111111111111';
-const arbitraryId2 = '0x222222222222222';
+const arbitraryId1 = '011111111111111111111111111111111111111111111111111111111111111111';
+const arbitraryId2 = '012222222222222222222222222222222222222222222222222222222222222222';
 
-const arbitraryTopic1 = '0xaaaaaa';
-const arbitraryTopic2 = '0xccccccccccc';
+const arbitraryTopic1 = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const arbitraryTopic2 = '01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
 
 const emptyblock = RequestDataAccessBlock.createEmptyBlock();
 const blockWith1tx = RequestDataAccessBlock.pushTransaction(
@@ -390,38 +390,47 @@ describe('block', () => {
 
     it('cannot parse a data not following the block standard', async () => {
       const blockNotJson = 'This is not JSON';
-      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).to.throw();
+      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).to.throw(
+        `Impossible to JSON parse the data: `,
+      );
 
       const blockWithoutHeader = {
-        transactions: [{ data: '' }],
+        transactions: [{ data: 'any data' }],
       };
-      expect(() =>
-        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader)),
-      ).to.throw();
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader))).to.throw(
+        `Data do not follow the block standard`,
+      );
 
       const blockWithoutChannelIds = {
         header: { topics: {}, version: '0.1.0' },
-        transactions: [{ data: '' }],
+        transactions: [{ data: 'any data' }],
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutChannelIds)),
-      ).to.throw();
+      ).to.throw(`Header do not follow the block standard`);
 
       const blockWithoutTopics = {
         header: { channelIds: {}, version: '0.1.0' },
-        transactions: [{ data: '' }],
+        transactions: [{ data: 'any data' }],
       };
-      expect(() =>
-        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics)),
-      ).to.throw();
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics))).to.throw(
+        `Header do not follow the block standard`,
+      );
 
       const blockWithoutVersion = {
         header: { channelIds: {}, topics: {} },
-        transactions: [{ data: '' }],
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion))).to.throw(
+        `Header do not follow the block standard`,
+      );
+
+      const blockWithoutTransactions = {
+        header: { channelIds: {}, topics: {}, version: '0.1.0' },
       };
       expect(() =>
-        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion)),
-      ).to.throw();
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTransactions)),
+      ).to.throw(`Data do not follow the block standard`);
 
       const blockWithoutTransactionData = {
         header: { channelIds: {}, topics: {}, version: '0.1.0' },
@@ -429,7 +438,55 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTransactionData)),
-      ).to.throw();
+      ).to.throw(`Transactions do not follow the block standard`);
+
+      const blockWrongVersion = {
+        header: { channelIds: {}, topics: {}, version: '0.0.0' },
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWrongVersion))).to.throw(
+        `Version not supported`,
+      );
+
+      const blockWithChannelIdNotHash = {
+        header: { channelIds: { ['0x111']: [0] }, topics: {}, version: '0.1.0' },
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithChannelIdNotHash)),
+      ).to.throw(`Channel ids in header.channelIds must be formatted keccak256 hashes`);
+
+      const blockWithTxPositionNotExisting = {
+        header: { channelIds: { [arbitraryId1]: [1] }, topics: {}, version: '0.1.0' },
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithTxPositionNotExisting)),
+      ).to.throw(`transactions in channel ids must refer to transaction in the blocks`);
+
+      const blockWithNegativePosition = {
+        header: { channelIds: { [arbitraryId1]: [-1] }, topics: {}, version: '0.1.0' },
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithNegativePosition)),
+      ).to.throw(`transactions in channel ids must refer to transaction in the blocks`);
+
+      const blockWithChannelIdInTopicsNotHash = {
+        header: { channelIds: {}, topics: { ['Ox111']: [arbitraryTopic1] }, version: '0.1.0' },
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithChannelIdInTopicsNotHash)),
+      ).to.throw(`Channel ids in header.topics must be formatted keccak256 hashes`);
+
+      const blockWithTopicsNotHash = {
+        header: { channelIds: {}, topics: { [arbitraryId1]: ['0x111'] }, version: '0.1.0' },
+        transactions: [{ data: 'any data' }],
+      };
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithTopicsNotHash)),
+      ).to.throw(`topics in header.topics must be formatted keccak256 hashes`);
     });
   });
 
@@ -451,12 +508,12 @@ describe('block', () => {
           },
           topics: {
             [arbitraryId1]: [
-              '0xaaaaaa',
-              '0xccccccccccc',
+              arbitraryTopic1,
+              arbitraryTopic2,
               '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
             ],
             [arbitraryId2]: [
-              '0xccccccccccc',
+              arbitraryTopic2,
               '0160d9be697d09d3d93d5e812a42f72a60411b4d364726bf89fa811d5330d00bd1',
             ],
           },
