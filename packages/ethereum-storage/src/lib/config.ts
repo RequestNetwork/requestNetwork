@@ -21,7 +21,7 @@ const config: any = {
       host: 'localhost',
       port: 5001,
       protocol: 'http',
-      timeout: 10000,
+      timeout: 30000,
     },
     errorHandling: {
       delayBetweenRetries: 500,
@@ -43,7 +43,7 @@ const config: any = {
       timeout: 30000,
     },
   },
-  maxConcurrency: Number.MAX_SAFE_INTEGER,
+  maxConcurrency: 20,
 };
 
 /**
