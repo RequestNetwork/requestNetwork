@@ -116,7 +116,7 @@ export default class RequestNetwork {
     if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
       throw new Error(`${identity.type} is not supported`);
     }
-    return this.fromTopic(identity.value, updatedBetween);
+    return this.fromTopic(identity, updatedBetween);
   }
 
   /**

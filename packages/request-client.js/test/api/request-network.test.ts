@@ -99,7 +99,10 @@ describe('api/request-network', () => {
   describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async getChannelsByTopic(): Promise<any> {
+        async getChannelsByTopic(topic: string): Promise<any> {
+          expect(topic).to.equals(
+            '01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76',
+          );
           return {
             meta: {
               [TestData.actionRequestId]: [],
