@@ -16,7 +16,7 @@ export default {
   getEthereumNetworkNameFromId(networkId: StorageTypes.EthereumNetwork): string {
     return {
       [StorageTypes.EthereumNetwork.PRIVATE as StorageTypes.EthereumNetwork]: 'private',
-      [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'main',
+      [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'mainnet',
       [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
       [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
     }[networkId];
@@ -32,6 +32,8 @@ export default {
    * @returns True if the gas price can be used
    */
   isGasPriceSafe(gasPrice: typeof bigNumber): boolean {
-    return gasPrice.gt(new bigNumber(0)) && gasPrice.lt(new bigNumber(config.getSafeGasPriceLimit()));
+    return (
+      gasPrice.gt(new bigNumber(0)) && gasPrice.lt(new bigNumber(config.getSafeGasPriceLimit()))
+    );
   },
 };

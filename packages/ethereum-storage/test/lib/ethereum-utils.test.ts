@@ -17,7 +17,7 @@ describe('Ethereum Utils', () => {
       ).to.equals('private');
       expect(
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
-      ).to.equals('main');
+      ).to.equals('mainnet');
       expect(
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.KOVAN),
       ).to.equals('kovan');
