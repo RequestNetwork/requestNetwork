@@ -233,10 +233,11 @@ export default class SmartContractManager {
     // Determines the gas price to use
     // If the gas price is provided as a parameter, we use this value
     // If the gas price is not provided and we use mainnet, we determine it from gas price api providers
+    // We use the fast value provided by the api providers
     // Otherwise, we use default value from config
     const gasPriceToUse =
       gasPrice ||
-      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.STANDARD, this.networkName));
+      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
