@@ -29,9 +29,9 @@ export default class BlockcypherCom implements Types.IBitcoinProvider {
     eventName: Types.EVENTS_NAMES,
   ): Promise<Types.IBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
-
+    const queryUrl = `${baseUrl}/addrs/${address}`;
     try {
-      const res = await Utils.retry(async () => fetch(`${baseUrl}/addrs/${address}`), {
+      const res = await Utils.retry(async () => fetch(queryUrl), {
         maxRetries: BLOCKCYPHER_REQUEST_MAX_RETRY,
         retryDelay: BLOCKCYPHER_REQUEST_RETRY_DELAY,
       })();
@@ -39,7 +39,7 @@ export default class BlockcypherCom implements Types.IBitcoinProvider {
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
         throw new Error(
-          `Error ${res.status}. Bad response from server ${baseUrl}/addrs/${address}`,
+          `Error ${res.status}. Bad response from server ${queryUrl}`,
         );
       }
       const addressInfo = await res.json();
@@ -47,7 +47,7 @@ export default class BlockcypherCom implements Types.IBitcoinProvider {
       return this.parse(addressInfo, eventName);
     } catch (err) {
       // tslint:disable-next-line:no-console
-      console.warn(err);
+      console.warn(err.message || err);
       return { balance: '-1', events: [] };
     }
   }

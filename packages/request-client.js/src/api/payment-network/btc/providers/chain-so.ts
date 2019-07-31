@@ -30,16 +30,17 @@ export default class ChainSo implements Types.IBitcoinProvider {
     eventName: Types.EVENTS_NAMES,
   ): Promise<Types.IBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
+    const queryUrl = `${baseUrl}/${address}`;
 
     try {
-      const res = await Utils.retry(async () => fetch(`${baseUrl}/${address}`), {
+      const res = await Utils.retry(async () => fetch(queryUrl), {
         maxRetries: CHAINSO_REQUEST_MAX_RETRY,
         retryDelay: CHAINSO_REQUEST_RETRY_DELAY,
       })();
 
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
-        throw new Error(`Error ${res.status}. Bad response from server ${baseUrl}/${address}`);
+        throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
       const data = await res.json();
 
@@ -50,7 +51,7 @@ export default class ChainSo implements Types.IBitcoinProvider {
       return this.parse(data, eventName);
     } catch (err) {
       // tslint:disable-next-line:no-console
-      console.warn(err);
+      console.warn(err.message || err);
       return { balance: '-1', events: [] };
     }
   }

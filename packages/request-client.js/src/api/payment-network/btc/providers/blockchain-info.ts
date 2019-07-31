@@ -33,9 +33,10 @@ export default class BlockchainInfo implements Types.IBitcoinProvider {
   ): Promise<Types.IBalanceWithEvents> {
     const blockchainInfoUrl = this.getBlockchainInfoUrl(bitcoinNetworkId);
 
+    const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
     try {
       const res = await Utils.retry(
-        async () => fetch(`${blockchainInfoUrl}/rawaddr/${address}?cors=true`),
+        async () => fetch(queryUrl),
         {
           maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
           retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
@@ -44,7 +45,7 @@ export default class BlockchainInfo implements Types.IBitcoinProvider {
 
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
-        throw new Error(`Error ${res.status}. Bad response from server ${blockchainInfoUrl}`);
+        throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
       const addressInfo = await res.json();
 
@@ -77,7 +78,7 @@ export default class BlockchainInfo implements Types.IBitcoinProvider {
       return this.parse(addressInfo, eventName);
     } catch (err) {
       // tslint:disable-next-line:no-console
-      console.warn(err);
+      console.warn(err.message || err);
       return { balance: '-1', events: [] };
     }
   }
