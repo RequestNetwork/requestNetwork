@@ -79,7 +79,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getData(): Promise<StorageTypes.IGetDataIdContentAndMeta> {
+  public async getData(): Promise<StorageTypes.IGetContentAndDataId> {
     const dataIds = Object.keys(this.data);
     const results = Object.values(this.data).map(elem => elem.content);
     const metaData = Object.values(this.data).map(elem => {
@@ -89,8 +89,11 @@ export default class MockStorage implements StorageTypes.IStorage {
       };
     });
 
+    const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
+
     return {
       meta: {
+        lastTimestamp: nowTimestampInSec,
         metaData,
       },
       result: {

@@ -229,8 +229,6 @@ describe('EthereumStorage', () => {
       await ethereumStorage.initialize();
 
       ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
-      ethereumStorage.smartContractManager.ethereumBlocks.getLastBlockNumber = () =>
-        Promise.resolve(Date.now());
       ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
         StorageTypes.IEthereumMetadata
       > => {
@@ -533,23 +531,28 @@ describe('EthereumStorage', () => {
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
       ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = async (): Promise<
-        any[]
+        any
       > => {
-        return [
-          {
-            feesParameters: { contentSize: 1 },
-            hash: hash1,
-            meta: {
-              blockConfirmation: 1561192254600,
-              blockNumber: 1,
-              blockTimestamp: 1561191682,
-              networkName: 'private',
-              smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-              transactionHash: '0xa',
+        return {
+          data: [
+            {
+              feesParameters: { contentSize: 1 },
+              hash: hash1,
+              meta: {
+                blockConfirmation: 1561192254600,
+                blockNumber: 1,
+                blockTimestamp: 1561191682,
+                networkName: 'private',
+                smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+                transactionHash: '0xa',
+              },
+              timestamp: 1,
             },
-            timestamp: 1,
+          ],
+          meta: {
+            lastBlockTimestamp: 0,
           },
-        ];
+        };
       };
 
       const result = await ethereumStorage.getData();
@@ -592,15 +595,18 @@ describe('EthereumStorage', () => {
 
     it('getDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
       // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<
-        StorageTypes.IGetAllHashesAndSizes[]
-      > => {
-        return Promise.resolve([
-          {
-            feesParameters: { contentSize: 10 },
-            meta: {} as StorageTypes.IEthereumMetadata,
-          } as StorageTypes.IGetAllHashesAndSizes,
-        ]);
+      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+        return Promise.resolve({
+          data: [
+            {
+              feesParameters: { contentSize: 10 },
+              meta: {} as StorageTypes.IEthereumMetadata,
+            } as StorageTypes.IGetAllHashesAndSizes,
+          ],
+          meta: {
+            lastBlockTimestamp: 0,
+          },
+        });
       };
 
       await assert.isRejected(
@@ -610,15 +616,18 @@ describe('EthereumStorage', () => {
       );
 
       // Test with no meta
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<
-        StorageTypes.IGetAllHashesAndSizes[]
-      > => {
-        return Promise.resolve([
-          {
-            feesParameters: { contentSize: 10 },
-            hash: '0xad',
-          } as StorageTypes.IGetAllHashesAndSizes,
-        ]);
+      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+        return Promise.resolve({
+          data: [
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0xad',
+            } as StorageTypes.IGetAllHashesAndSizes,
+          ],
+          meta: {
+            lastBlockTimestamp: 0,
+          },
+        });
       };
 
       await assert.isRejected(ethereumStorage.getDataId(), Error, 'The event log has no metadata');

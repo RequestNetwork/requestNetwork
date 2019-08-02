@@ -137,7 +137,7 @@ describe('data-access', () => {
     it('cannot initialize with getData without result', async () => {
       const customFakeStorage = {
         ...defaultFakeStorage,
-        getData: (): any => ({} as any),
+        getData: (): any => ({ meta: { lastTimestamp: 0 } } as any),
       };
 
       const dataAccess = new DataAccess(customFakeStorage);

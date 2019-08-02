@@ -283,7 +283,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async getData(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IGetDataIdContentAndMeta> {
+  ): Promise<StorageTypes.IGetContentAndDataId> {
     const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
     return contentDataIdAndMeta;
@@ -346,18 +346,19 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   private async getContentAndDataId(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IGetDataIdContentAndMeta> {
+  ): Promise<StorageTypes.IGetContentAndDataId> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
     this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
-    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
+    const {
+      data,
+      meta: hashesAndSizesMeta,
+    } = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
     this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
 
-    const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(
-      hashesAndSizes,
-    );
+    const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(data);
 
     const dataIds = contentDataIdAndMeta.result.dataIds || [];
     // Pin data asynchronously
@@ -373,7 +374,10 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       }
     }
 
-    return contentDataIdAndMeta;
+    return {
+      ...contentDataIdAndMeta,
+      meta: { ...contentDataIdAndMeta.meta, lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp },
+    };
   }
 
   /**

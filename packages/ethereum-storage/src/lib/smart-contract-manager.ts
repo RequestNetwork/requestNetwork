@@ -317,14 +317,19 @@ export default class SmartContractManager {
   }
 
   /**
-   * Get all hashes and sizes with metadata inside storage smart contract past events
+   * Get all hashes with feesParameters and timestamps from storage smart contract past events
    *
    * @param options timestamp boundaries for the hash retrieval
-   * @return hashes and sizes with metadata
+   * @return hashes with with metadata
    */
   public async getHashesAndSizesFromEthereum(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IGetAllHashesAndSizes[]> {
+  ): Promise<
+    StorageTypes.IResponseWithMeta<
+      StorageTypes.IEthereumTimestampMeta,
+      StorageTypes.IGetAllHashesAndSizes[]
+    >
+  > {
     let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
 
@@ -336,21 +341,36 @@ export default class SmartContractManager {
       fromBlock = optionFromBlockNumbers.blockAfter;
     }
 
-    // get toBlock from the timestamp given in options
+    // get toBlock from the timestamp given in options or use the latest block
     if (options && options.to) {
       const optionToBlockNumbers = await this.ethereumBlocks.getBlockNumbersFromTimestamp(
         options.to,
       );
       toBlock = optionToBlockNumbers.blockBefore;
+    } else {
+      toBlock = await this.ethereumBlocks.getLastBlockNumber();
     }
 
-    if (toBlock && toBlock < fromBlock) {
+    if (toBlock < fromBlock) {
       throw Error(
         `toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`,
       );
     }
 
-    return this.getHashesAndSizesFromEvents(fromBlock, toBlock);
+    // Get the toBlock timestamp and returns it with the data
+    // This is important because the the upper layers using this function shouldn't
+    // know what a block is and they (probably) will use timestamps as abstractions.
+    // We need to return this value, so the upper layers can use as "last sync time".
+    // Using now as "last sync time" will lead to issues, because new blocks can be
+    // added between the last block created and now.
+    const lastBlockTimestamp = await this.ethereumBlocks.getBlockTimestamp(toBlock);
+
+    return {
+      data: await this.getHashesAndSizesFromEvents(fromBlock, toBlock),
+      meta: {
+        lastBlockTimestamp,
+      },
+    };
   }
 
   /**

@@ -6,8 +6,14 @@ export interface IStorage {
   append: (data: string) => Promise<IOneDataIdAndMeta>;
   read: (dataId: string) => Promise<IOneContentAndMeta>;
   readMany: (dataIds: string[]) => Promise<IOneContentAndMeta[]>;
-  getData: (options?: ITimestampBoundaries) => Promise<IGetDataIdContentAndMeta>;
+  getData: (options?: ITimestampBoundaries) => Promise<IGetContentAndDataId>;
   getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
+}
+
+/** A template interface for return values with data and metadata */
+export interface IResponseWithMeta<META, DATA> {
+  meta: META;
+  data: DATA;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -112,6 +118,24 @@ export interface IGetDataIdContentAndMeta {
   };
 }
 
+/** return interface for GetContentAndDataId */
+export interface IGetContentAndDataId {
+  /** meta information */
+  meta: {
+    /** meta of the data (follow the position of the result.data) */
+    metaData: IMetaOneData[];
+    /** the timestamp of the last block this data belongs to */
+    lastTimestamp: number;
+  };
+  /** result of the execution */
+  result: {
+    /** array of all data id stored */
+    dataIds: string[];
+    /** array of all data stored */
+    data: string[];
+  };
+}
+
 /** return interface for the meta of one piece of data in the storage */
 export interface IMetaOneData {
   /** Storage type for now only ethereum + ipfs */
@@ -137,6 +161,12 @@ export interface IGetAllHashesAndSizes {
   feesParameters: IFeesParameters;
   /** timestamp of the data */
   timestamp: number;
+}
+
+/** Metadata about Ethereum block timestamp */
+export interface IEthereumTimestampMeta {
+  /** the timestamp of the last block this data belongs to */
+  lastBlockTimestamp: number;
 }
 
 /** Parameters used to compute the fees */
