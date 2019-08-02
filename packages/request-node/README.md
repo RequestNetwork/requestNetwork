@@ -180,7 +180,7 @@ instead of having to navigate through the public IPFS network.
 To setup your IPFS node to the private network, you can run the following utility script:
 
 ```bash
-yarn init-ipfs-private-network
+yarn init-ipfs
 ```
 
 ### Launch
@@ -336,7 +336,7 @@ ipfs daemon
 
 ```bash
 cd packages/request-node
-yarn init-ipfs-private-network
+yarn init-ipfs
 ```
 
 #### 5. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
