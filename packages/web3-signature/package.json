@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/web3-signature",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publishConfig": {
     "access": "public"
   },
@@ -41,8 +41,8 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/types": "0.3.0",
-    "@requestnetwork/utils": "0.3.0",
+    "@requestnetwork/types": "0.4.0",
+    "@requestnetwork/utils": "0.4.0",
     "web3-eth": "1.0.0-beta.37"
   },
   "devDependencies": {
