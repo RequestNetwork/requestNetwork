@@ -32,7 +32,7 @@ const unsignedAction: RequestLogicTypes.IUnsignedAction = {
 const requestId = Utils.crypto.normalizeKeccak256Hash(unsignedAction);
 const action = Utils.signature.sign(unsignedAction, TestData.payeeRaw.signatureParams);
 
-const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const fakeMetaTransactionManager = {
   meta: { storageDataId: 'fakeDataId' },
@@ -95,7 +95,10 @@ describe('index', () => {
 
     it('can computeRequestId', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
-      const generatedRequestId = await requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity);
+      const generatedRequestId = await requestLogic.computeRequestId(
+        createParams,
+        TestData.payeeRaw.identity,
+      );
 
       expect(generatedRequestId).to.equal(requestId);
 

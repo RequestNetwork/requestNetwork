@@ -1,5 +1,6 @@
 import EthCrypto from 'eth-crypto';
 import EcUtils from './crypto/ec-utils';
+import multiFormat from './multi-format';
 import Utils from './utils';
 
 /**
@@ -13,19 +14,19 @@ export default {
 };
 
 /**
- * Hashes with the keccak256 algorithm with a normalization before
+ * Hashes with the keccak256 algorithm with a normalization before and formats it
  *
  * @notice It will sort the object by keys before hashing
  *
  * @param data The data to hash
- * @returns The hashed data
+ * @returns The hashed data multi-formatted
  */
 function normalizeKeccak256Hash(data: any): string {
-  return keccak256Hash(normalize(data));
+  return multiFormat.formatKeccak256Hash(keccak256Hash(normalize(data)));
 }
 
 /**
- * Normalizes data: sorts the object by keys and convert it in hexadecimal string
+ * Normalizes data: sorts the object by keys and convert it in string
  *
  * @param data The data to normalize
  * @returns The normalized data
@@ -46,7 +47,7 @@ function normalize(data: any): string {
  * Hashes with the keccak256 algorithm
  *
  * @param data The string to hash
- * @returns The hashed data
+ * @returns The hashed data multi-formatted
  */
 function keccak256Hash(data: string): string {
   return EthCrypto.hash.keccak256(data);

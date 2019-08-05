@@ -258,8 +258,7 @@ describe('SmartContractManager', () => {
         number: 9,
       };
     };
-    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
-    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum();
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
@@ -290,10 +289,9 @@ describe('SmartContractManager', () => {
       };
     };
 
-    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
+    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum({
       from: 299,
     });
-    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
 
     assert.equal(allHashesAndSizes.length, 1);
     assert.equal(allHashesAndSizes[0].hash, otherContent);
@@ -311,10 +309,9 @@ describe('SmartContractManager', () => {
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
-    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
+    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum({
       to: 299,
     });
-    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
     assert.equal(allHashesAndSizes.length, 3);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
     assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
@@ -335,11 +332,10 @@ describe('SmartContractManager', () => {
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
-    const hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum({
+    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum({
       from: 10,
       to: 299,
     });
-    const allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
     assert.equal(allHashesAndSizes.length, 2);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
     assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: fakeSize });
@@ -479,8 +475,7 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration1, info);
 
-    let hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
-    let allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    let { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum();
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
@@ -498,8 +493,7 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration2, info);
 
-    hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
-    allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
@@ -517,8 +511,7 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration3, info);
 
-    hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
-    allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
@@ -536,8 +529,7 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration4, info);
 
-    hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
-    allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);
@@ -555,8 +547,7 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration5, info);
 
-    hashesAndSizesPromise = await smartContractManager.getHashesAndSizesFromEthereum();
-    allHashesAndSizes = await Promise.all(hashesAndSizesPromise);
+    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
 
     assert.equal(allHashesAndSizes.length, 4);
     assert.equal(allHashesAndSizes[0].hash, hashStr);

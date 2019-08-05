@@ -7,7 +7,7 @@ references:
   node_image: &node_image
     image: circleci/node:10
   ipfs_image: &ipfs_image
-    image: ipfs/go-ipfs
+    image: requestnetwork/request-ipfs
   ganache_image: &ganache_image
     image: trufflesuite/ganache-cli:v6.3.0
     command:

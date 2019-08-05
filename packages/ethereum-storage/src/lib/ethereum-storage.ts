@@ -1,7 +1,7 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
-import { getMaxConcurrency, getPinRequestConfig } from './config';
+import { getIpfsExpectedBootstrapNodes, getMaxConcurrency, getPinRequestConfig } from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
@@ -116,13 +116,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       throw Error(error);
     }
 
-    // check ipfs connection - will throw in case of error
-    this.logger.info('Checking ipfs connection', ['ipfs', 'sanity']);
-    try {
-      await this.ipfsManager.getIpfsNodeId();
-    } catch (error) {
-      throw Error(`IPFS node is not accessible or corrupted: ${error}`);
-    }
+    // Check IPFS node state - will throw in case of error
+    await this.checkIpfsNode();
 
     this.isInitialized = true;
   }
@@ -137,12 +132,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   ): Promise<void> {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
 
-    // check ipfs connection - will throw in case of error
-    try {
-      await this.ipfsManager.getIpfsNodeId();
-    } catch (error) {
-      throw Error(`IPFS node is not accessible or corrupted: ${error}`);
-    }
+    // Check IPFS node state - will throw in case of error
+    await this.checkIpfsNode();
   }
 
   /**
@@ -292,7 +283,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async getData(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IGetDataIdContentAndMeta> {
+  ): Promise<StorageTypes.IGetContentAndDataId> {
     const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
     return contentDataIdAndMeta;
@@ -355,18 +346,19 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   private async getContentAndDataId(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IGetDataIdContentAndMeta> {
+  ): Promise<StorageTypes.IGetContentAndDataId> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
     this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
-    const hashesAndSizes = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
+    const {
+      data,
+      meta: hashesAndSizesMeta,
+    } = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
     this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
 
-    const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(
-      hashesAndSizes,
-    );
+    const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(data);
 
     const dataIds = contentDataIdAndMeta.result.dataIds || [];
     // Pin data asynchronously
@@ -382,7 +374,10 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       }
     }
 
-    return contentDataIdAndMeta;
+    return {
+      ...contentDataIdAndMeta,
+      meta: { ...contentDataIdAndMeta.meta, lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp },
+    };
   }
 
   /**
@@ -519,5 +514,39 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       },
       result: { dataIds, data },
     };
+  }
+
+  /**
+   * Verify the ipfs node (connectivity and network)
+   * Check if the node is reachable and if the list of bootstrap nodes is correct
+   *
+   * @returns nothing but throw if the ipfs node is not reachable or in the wrong network
+   */
+  private async checkIpfsNode(): Promise<void> {
+    // check ipfs connection - will throw in case of error
+    this.logger.info('Checking ipfs connection', ['ipfs', 'sanity']);
+    try {
+      await this.ipfsManager.getIpfsNodeId();
+    } catch (error) {
+      throw Error(`IPFS node is not accessible or corrupted: ${error}`);
+    }
+
+    // check if the ipfs node is in the request network private network - will throw in case of error
+    this.logger.info('Checking ipfs network', ['ipfs', 'sanity']);
+    try {
+      const bootstrapList = await this.ipfsManager.getBootstrapList();
+
+      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(nodeExpected =>
+        bootstrapList.includes(nodeExpected),
+      ).length;
+
+      if (bootstrapNodeFoundCount !== getIpfsExpectedBootstrapNodes().length) {
+        throw Error(
+          `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`,
+        );
+      }
+    } catch (error) {
+      throw Error(`IPFS node bootstrap node check failed: ${error}`);
+    }
   }
 }

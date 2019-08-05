@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publishConfig": {
     "access": "public"
   },
@@ -48,11 +48,11 @@
     "test:lib:watch": "nyc mocha --watch --watch-extensions ts --timeout=5000 --require ts-node/register --require source-map-support/register \"test/lib/**/*.ts\"",
     "test:sol": "truffle test --contracts_directory=./src test/contracts/*.js",
     "test": "yarn run test:lib && yarn run test:sol",
-    "init-ipfs-private-network": "node scripts/init-ipfs.js"
+    "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.3.0",
-    "@requestnetwork/utils": "0.3.0",
+    "@requestnetwork/types": "0.4.0",
+    "@requestnetwork/utils": "0.4.0",
     "bluebird": "3.5.3",
     "bn.js": "4.11.8",
     "form-data": "2.3.3",

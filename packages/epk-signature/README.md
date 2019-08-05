@@ -22,14 +22,14 @@ import { IdentityTypes,  SignatureTypes } from '@requestnetwork/types'
 
 import EthereumPrivateKeySignatureProvider from '@requestnetwork/epk-signature'
 
-const signatureParametersExample: SignatureTypes.ISignature = {
-  method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA,
+const signatureParametersExample: SignatureTypes.ISignatureParameters = {
+  method: SignatureTypes.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
 };
 
 // Identity from the previous signature parameter
 const identityExample: IdentityTypes.IIdentity = {
-  type: IdentityTypes.REQUEST_IDENTITY_TYPE.ETHEREUM_ADDRESS,
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57'
 };
 
@@ -41,7 +41,7 @@ const listOfAvailableIdentity = signatureProvider.getAllRegisteredIdentities(); 
 
 // can sign data with identity
 const dataToSign = { ... };
-const signedData = await signatureProvider.sign(dataToSign, identityExample); // { data: { ... }, signature: { method: SignatureTypes.REQUEST_SIGNATURE_METHOD.ECDSA, value: '0x...' }}
+const signedData = await signatureProvider.sign(dataToSign, identityExample); // { data: { ... }, signature: { method: SignatureTypes.METHOD.ECDSA, value: '0x...' }}
 
 // can add a new signature parameters
 signatureProvider.addSignatureParameters({method: ..., privateKey: ...});

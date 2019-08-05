@@ -19,11 +19,11 @@ const defaultValues: any = {
       host: 'localhost',
       port: 5001,
       protocol: 'http',
-      timeout: 10000,
+      timeout: 30000,
     },
 
     lastBlockNumberDelay: 10000,
-    maxConcurrency: 200,
+    maxConcurrency: 20,
     retryDelay: 1000,
   },
   log: {
@@ -214,7 +214,9 @@ export function getEthereumRetryDelay(): number {
  */
 export function getInitializationStorageFilePath(): string | null {
   return (
-    (argv.initializationStorageFilePath as string) || process.env.INITIALIZATION_STORAGE_FILE_PATH || null
+    (argv.initializationStorageFilePath as string) ||
+    process.env.INITIALIZATION_STORAGE_FILE_PATH ||
+    null
   );
 }
 

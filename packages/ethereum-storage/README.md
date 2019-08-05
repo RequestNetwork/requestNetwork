@@ -78,11 +78,10 @@ TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy
 
 ## IPFS
 
-In order to use the package in a test environment, IPFS can be installed locally and started with the following commands:
+In order to use the package in a test environment, IPFS should be [installed locally](https://docs.ipfs.io/guides/guides/install/) and can then be started with the following commands:
 
 ```bash
-npm install ipfs --global
-yarn init-ipfs-private-network # documented below
+yarn init-ipfs # documented below
 ipfs daemon
 ```
 
@@ -96,7 +95,7 @@ instead of having to navigate through the public IPFS network.
 To setup your IPFS node to the private network, you can run the following utility script:
 
 ```bash
-yarn init-ipfs-private-network
+yarn init-ipfs
 ```
 
 ## Contributing

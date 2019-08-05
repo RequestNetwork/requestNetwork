@@ -5,9 +5,9 @@ import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
 
-const channelId = '0xchannelId';
-const anotherChannelId = '0xanotherChannelId';
-const topics = ['ThisIsOneTopic', 'ThisIsOneAnotherTopic'];
+const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const anotherChannelId = '010bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const topics = ['010ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', '010ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'];
 const transactionData = { data: 'this is sample data for a transaction' };
 const anotherTransactionData = { data: 'you can put any data' };
 const badlyFormattedTransactionData = { not: 'a transaction' };

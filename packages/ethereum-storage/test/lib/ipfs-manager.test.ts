@@ -74,6 +74,16 @@ describe('Ipfs manager', () => {
     await assert.isRejected(ipfsManager.getIpfsNodeId(), Error, 'getaddrinfo ENOTFOUND');
   });
 
+  it('allows to get the bootstrap list', async () => {
+    const bootstrapList = await ipfsManager.getBootstrapList();
+    assert.isArray(bootstrapList);
+  });
+
+  it('must throw if the ipfs node is not reachable when using getBootstrapList()', async () => {
+    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
+    await assert.isRejected(ipfsManager.getBootstrapList(), Error, 'getaddrinfo ENOTFOUND');
+  });
+
   it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     assert.equal(hash, hashReturned);

@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publishConfig": {
     "access": "public"
   },
@@ -38,13 +38,13 @@
     "clean": "shx rm -rf dist",
     "lint-staged": "lint-staged",
     "lint": "tslint --project .",
-    "init-ipfs-private-network": "node init-ipfs.js"
+    "init-ipfs": "node init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.3.0",
-    "@requestnetwork/ethereum-storage": "0.3.0",
-    "@requestnetwork/types": "0.3.0",
-    "@requestnetwork/utils": "0.3.0",
+    "@requestnetwork/data-access": "0.4.0",
+    "@requestnetwork/ethereum-storage": "0.4.0",
+    "@requestnetwork/types": "0.4.0",
+    "@requestnetwork/utils": "0.4.0",
     "chalk": "2.4.2",
     "cors": "2.8.5",
     "dotenv": "8.0.0",

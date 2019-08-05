@@ -56,8 +56,50 @@ function parseBlock(data: string): DataAccessTypes.IBlock {
   if (maybeBlock.header.version !== '0.1.0') {
     throw new Error(`Version not supported`);
   }
-  if (maybeBlock.transactions.filter((tx: any) => !tx.data).length !== 0) {
+
+  // check the transactions format
+  if (maybeBlock.transactions.some((tx: any) => !tx.data)) {
     throw new Error(`Transactions do not follow the block standard`);
+  }
+
+  // check if channelIds are well formatted
+  // check that all the channel ids are keccak256 hashes
+  if (
+    Object.keys(maybeBlock.header.channelIds).some(
+      (channelId: string) => !Utils.multiFormat.isKeccak256Hash(channelId),
+    )
+  ) {
+    throw new Error(`Channel ids in header.channelIds must be formatted keccak256 hashes`);
+  }
+
+  // check if channel ids refer to actual transactions in the block
+  const transactionCount = maybeBlock.transactions.length;
+  if (
+    Object.values(maybeBlock.header.channelIds).some((listOfTransactionPosition: any) =>
+      listOfTransactionPosition.some(
+        (position: number) => position < 0 || position >= transactionCount,
+      ),
+    )
+  ) {
+    throw new Error(`transactions in channel ids must refer to transaction in the blocks`);
+  }
+
+  // check if topics are well formatted
+  // check that all the channel ids are keccak256 hashes
+  if (
+    Object.keys(maybeBlock.header.topics).some(
+      (channelId: string) => !Utils.multiFormat.isKeccak256Hash(channelId),
+    )
+  ) {
+    throw new Error(`Channel ids in header.topics must be formatted keccak256 hashes`);
+  }
+  // check if topics are keccak256 hashes
+  if (
+    Object.values(maybeBlock.header.topics).some((listOfTopics: any) =>
+      listOfTopics.some((topic: string) => !Utils.multiFormat.isKeccak256Hash(topic)),
+    )
+  ) {
+    throw new Error(`topics in header.topics must be formatted keccak256 hashes`);
   }
 
   return maybeBlock as DataAccessTypes.IBlock;

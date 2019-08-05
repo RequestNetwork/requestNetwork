@@ -17,32 +17,33 @@ const config: any = {
     safeGasPriceLimit: '200000000000',
   },
   ipfs: {
-    default: 'private',
+    defaultNode: {
+      host: 'localhost',
+      port: 5001,
+      protocol: 'http',
+      timeout: 30000,
+    },
     errorHandling: {
       delayBetweenRetries: 500,
       maxRetries: 3,
     },
-    nodeUrlDefault: {
-      private: {
-        port: 5001,
-        private: 'localhost',
-        protocol: 'http',
-        timeout: 10000,
-      },
-      public: {
-        host: 'ipfs.infura.io',
-        port: 5001,
-        protocol: 'https',
-        timeout: 10000,
-      },
-    },
+    expectedBootstrapNodes: [
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx',
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
+      // eslint-disable-next-line spellcheck/spell-checker
+      '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
+    ],
     pinRequest: {
       delayBetweenCalls: 1000,
       maxSize: 500,
       timeout: 30000,
     },
   },
-  maxConcurrency: Number.MAX_SAFE_INTEGER,
+  maxConcurrency: 20,
 };
 
 /**
@@ -50,7 +51,7 @@ const config: any = {
  * @returns IIpfsGatewayConnection the host, port, protocol and timeout threshold to connect to the gateway
  */
 export function getDefaultIpfs(): StorageTypes.IIpfsGatewayConnection {
-  return config.ipfs.nodeUrlDefault[config.ipfs.default];
+  return config.ipfs.defaultNode;
 }
 
 /**
@@ -140,4 +141,12 @@ export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingCon
     delayBetweenRetries: config.ipfs.errorHandling.delayBetweenRetries,
     maxRetries: config.ipfs.errorHandling.maxRetries,
   };
+}
+
+/**
+ * Retrieve from config the ipfs bootstrap nodes of the ipfs node
+ * @returns array of the swarm addresses
+ */
+export function getIpfsExpectedBootstrapNodes(): string[] {
+  return config.ipfs.expectedBootstrapNodes;
 }

@@ -36,7 +36,7 @@ const signedAction = {
   signature: {
     method: SignatureTypes.METHOD.ECDSA,
     value:
-      '0xbcf77e28b615620636cefbad5bc6abf8324aad610581d7cec0394da216da12f063332e0a03a337a6352665c421b11ab187e515bd3518eeb12f42f8c64eb44c6e1b',
+      '01bcf77e28b615620636cefbad5bc6abf8324aad610581d7cec0394da216da12f063332e0a03a337a6352665c421b11ab187e515bd3518eeb12f42f8c64eb44c6e1b',
   },
 };
 

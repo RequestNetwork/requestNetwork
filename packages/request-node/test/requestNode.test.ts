@@ -33,7 +33,7 @@ describe('requestNode server', () => {
   });
 
   it('responds with status 404 to unimplemented requests', async () => {
-    await request(server)
+    request(server)
       .post('/')
       .end((_err, res) => {
         expect(res.status).to.equal(httpStatus.NOT_FOUND);

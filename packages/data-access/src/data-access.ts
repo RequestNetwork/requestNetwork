@@ -48,8 +48,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private synchronizationTimer: IntervalTimer;
 
   // Timestamp of the last synchronization
-  // This the last timestamp we got the data
-  private lastSyncedTimeStamp: number;
+  //
+  // Are you debugging and this value is not changing as much as you think it should? Read bellow.
+  // ATTENTION: This value should be updated with the lastTimestamp returned by the storage
+  // and never with `now` timestamp. For example, if storage is using ethereum, it may add new blocks
+  // between the most recent block and the current timestamp. This may lead to blocks being skipped.
+  private lastSyncStorageTimestamp: number;
 
   /**
    * Logger instance
@@ -73,7 +77,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       ...options,
     };
     this.storage = storage;
-    this.lastSyncedTimeStamp = 0;
+    this.lastSyncStorageTimestamp = 0;
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
       options.synchronizationIntervalTime!,
@@ -110,8 +114,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         : undefined,
     );
 
-    // The last synced timestamp is the current timestamp
-    this.lastSyncedTimeStamp = now;
+    // The last synced timestamp is the latest one returned by storage
+    this.lastSyncStorageTimestamp = allDataWithMeta.meta.lastTimestamp;
 
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
@@ -136,6 +140,18 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     topics: string[] = [],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     this.checkInitialized();
+
+    // get all the topics not well formatted
+    const notFormattedTopics: string[] = topics.filter(
+      topic => !Utils.multiFormat.isKeccak256Hash(topic),
+    );
+
+    if (notFormattedTopics.length !== 0) {
+      throw new Error(
+        `The following topics are not well formatted: ${JSON.stringify(notFormattedTopics)}`,
+      );
+    }
+
     // create a block and add the transaction in it
     const updatedBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
@@ -243,6 +259,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     this.checkInitialized();
+
+    // check if the topic is well formatted
+    if (!Utils.multiFormat.isKeccak256Hash(topic)) {
+      throw new Error(`The topic is not well formatted: ${topic}`);
+    }
+
     const channelIds = await this.transactionIndex.getChannelIdsForTopic(topic, updatedBetween);
 
     // Gets the transactions per channel id
@@ -287,7 +309,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async synchronizeNewDataIds(): Promise<void> {
     this.checkInitialized();
-    const synchronizationFrom = this.lastSyncedTimeStamp;
+    const synchronizationFrom = this.lastSyncStorageTimestamp;
     const synchronizationTo = Utils.getCurrentTimestampInSecond();
 
     // Read new data from storage
@@ -300,8 +322,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // if yes, the dataIds are indexed with LocationByTopic
     await this.pushLocationsWithTopics(newDataWithMeta);
 
-    // update the last synced Timestamp
-    this.lastSyncedTimeStamp = synchronizationTo;
+    // The last synced timestamp is the latest one returned by storage
+    this.lastSyncStorageTimestamp = newDataWithMeta.meta.lastTimestamp;
   }
 
   /**

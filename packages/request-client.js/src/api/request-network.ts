@@ -46,7 +46,9 @@ export default class RequestNetwork {
    * @returns The created request
    */
   public async createRequest(parameters: Types.ICreateRequestParameters): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(parameters);
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
     const {
       result: { requestId },
     } = await this.requestLogic.createRequest(requestParameters, parameters.signer, topics);
@@ -66,7 +68,9 @@ export default class RequestNetwork {
    * @param requestParameters Parameters to create a request
    * @returns The requestId
    */
-  public async computeRequestId(parameters: Types.ICreateRequestParameters): Promise<RequestLogicTypes.RequestId> {
+  public async computeRequestId(
+    parameters: Types.ICreateRequestParameters,
+  ): Promise<RequestLogicTypes.RequestId> {
     const { requestParameters } = await this.prepareRequestParameters(parameters);
     return this.requestLogic.computeRequestId(requestParameters, parameters.signer);
   }
@@ -112,7 +116,7 @@ export default class RequestNetwork {
     if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
       throw new Error(`${identity.type} is not supported`);
     }
-    return this.fromTopic(identity.value, updatedBetween);
+    return this.fromTopic(identity, updatedBetween);
   }
 
   /**
@@ -122,12 +126,12 @@ export default class RequestNetwork {
    * @returns the Requests
    */
   public async fromTopic(
-    topic: string,
+    topic: any,
     updatedBetween?: Types.ITimestampBoundaries,
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
-      topic,
+      Utils.crypto.normalizeKeccak256Hash(topic),
       updatedBetween,
     );
     // From the requests of the Request-logic creates the request objects and gets the payment networks
@@ -161,15 +165,17 @@ export default class RequestNetwork {
    * @param parameters Parameters to create a request
    * @returns the parameters, ready for request creation, the topics, and the paymentNetwork
    */
-  private async prepareRequestParameters(parameters: Types.ICreateRequestParameters): Promise<{
-    requestParameters: RequestLogicTypes.ICreateParameters,
-    topics: string[],
-    paymentNetwork: Types.IPaymentNetwork | null,
+  private async prepareRequestParameters(
+    parameters: Types.ICreateRequestParameters,
+  ): Promise<{
+    requestParameters: RequestLogicTypes.ICreateParameters;
+    topics: any[];
+    paymentNetwork: Types.IPaymentNetwork | null;
   }> {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
-    const topics = parameters.topics || [];
+    let topics = parameters.topics || [];
 
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');
@@ -206,11 +212,15 @@ export default class RequestNetwork {
 
     // add identities as topics
     if (copiedRequestParameters.payee) {
-      topics.push(copiedRequestParameters.payee.value);
+      topics.push(copiedRequestParameters.payee);
     }
     if (copiedRequestParameters.payer) {
-      topics.push(copiedRequestParameters.payer.value);
+      topics.push(copiedRequestParameters.payer);
     }
+
+    // format all the topics
+    topics = topics.map(Utils.crypto.normalizeKeccak256Hash);
+
     return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
   }
 }

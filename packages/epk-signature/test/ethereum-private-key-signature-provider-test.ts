@@ -42,7 +42,7 @@ export const id2Raw = {
 };
 
 const data = { What: 'ever', the: 'data', are: true };
-const hashData = Utils.crypto.normalizeKeccak256Hash(data);
+const hashData = `0x${Utils.crypto.normalizeKeccak256Hash(data).slice(2)}`;
 const signatureValueExpected = Utils.crypto.EcUtils.sign(id1Raw.privateKey, hashData);
 const signedDataExpected = {
   data,
