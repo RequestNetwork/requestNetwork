@@ -21,9 +21,9 @@ const defaultValues: any = {
       protocol: 'http',
       timeout: 30000,
     },
-
     lastBlockNumberDelay: 10000,
     maxConcurrency: 20,
+    persistTransactionTimeout: 600,
     retryDelay: 1000,
   },
   log: {
@@ -217,6 +217,21 @@ export function getInitializationStorageFilePath(): string | null {
     (argv.initializationStorageFilePath as string) ||
     process.env.INITIALIZATION_STORAGE_FILE_PATH ||
     null
+  );
+}
+
+/**
+ * Get the delay to wait before sending a timeout when performing a persistTransaction request
+ * persistTransaction is called when a request is created or updated and need to wait for Ethereum to commit the transaction
+ * PROT-300: This configuration value can be removed once batching is implenented
+ * because there will be no more need to wait for the smart contract
+ * @returns THe delay to wait for the timeout
+ */
+export function getPersistTransactionTimeout(): number {
+  return (
+    argv.persistTransactionTimeout ||
+    process.env.PERSIST_TRANSACTION_TIMEOUT ||
+    defaultValues.ethereumStorage.persistTransactionTimeout
   );
 }
 

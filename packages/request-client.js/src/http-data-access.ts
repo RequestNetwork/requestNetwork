@@ -52,22 +52,19 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.post(
-          '/persistTransaction',
-          {
-            channelId,
-            topics,
-            transactionData,
-          },
-          this.axiosConfig,
-        ),
+
+    // We don't retry this request since it may fail because of a slow Storage
+    // For example, if the Ethereum network is slow and we retry the request three times
+    // three data will be persisted at the end
+    const { data } = await axios.post(
+      '/persistTransaction',
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        channelId,
+        topics,
+        transactionData,
       },
-    )();
+      this.axiosConfig,
+    );
 
     return data;
   }

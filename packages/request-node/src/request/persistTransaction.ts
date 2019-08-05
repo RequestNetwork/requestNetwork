@@ -1,6 +1,7 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
+import { getPersistTransactionTimeout } from '../config';
 
 /**
  * Handles persistTransaction of data-access layer.
@@ -20,6 +21,10 @@ export default async function persistTransaction(
 
   // Used to compute request time
   const requestStartTime = Date.now();
+
+  // Set the timeout from the value from config and convert seconds to milliseconds
+  // tslint:disable:no-magic-numbers
+  clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
 
   // Verifies if data send from post are correct
   // clientRequest.body is expected to contain data for data-acces layer:

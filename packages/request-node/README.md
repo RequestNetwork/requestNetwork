@@ -251,6 +251,9 @@ Default values correspond to the basic configuration used to run a server in a t
   - Available modes:
     - `human` is a more human readable log to display during development
     - `machine` is better for parsing on CI or deployments
+- `--persistTransactionTimeout` Defines the delay in seconds to wait before sending a timeout when creating or updating a request
+  - Default value: 600
+  - Environment variable name: `$PERSIST_TRANSACTION_TIMEOUT`
 
 #### Mnemonic
 
