@@ -86,4 +86,10 @@ describe('Utils.crypto utils', () => {
     expect(crypto.normalize(null)).to.be.equal('null');
     expect(crypto.normalize(undefined)).to.be.equal('undefined');
   });
+
+  it('can generate32BufferKey()', async () => {
+    const randomKey = await crypto.generate32BufferKey();
+    expect(Buffer.isBuffer(randomKey), 'random32Bytes() error').to.be.true;
+    expect(randomKey.length, 'random32Bytes() error').to.be.equal(32);
+  });
 });

@@ -1,4 +1,5 @@
 import EthCrypto from 'eth-crypto';
+import CryptoWrapper from './crypto/crypto-wrapper';
 import EcUtils from './crypto/ec-utils';
 import multiFormat from './multi-format';
 import Utils from './utils';
@@ -8,6 +9,7 @@ import Utils from './utils';
  */
 export default {
   EcUtils,
+  generate32BufferKey,
   keccak256Hash,
   normalize,
   normalizeKeccak256Hash,
@@ -51,4 +53,13 @@ function normalize(data: any): string {
  */
 function keccak256Hash(data: string): string {
   return EthCrypto.hash.keccak256(data);
+}
+
+/**
+ * Generates a random 32 bytes key
+ *
+ * @returns a random buffer of 32 bytes
+ */
+async function generate32BufferKey(): Promise<Buffer> {
+  return CryptoWrapper.random32Bytes();
 }

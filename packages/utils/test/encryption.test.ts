@@ -6,7 +6,6 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 import { EncryptionTypes, IdentityTypes, MultiFormatTypes } from '@requestnetwork/types';
-// import Crypto from '../src/crypto';
 import Encryption from '../src/encryption';
 
 const otherIdRaw = {
