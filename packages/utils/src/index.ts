@@ -1,6 +1,7 @@
 import amount from './amount';
 import cachedThrottle from './cached-throttle';
 import crypto from './crypto';
+import encryption from './encryption';
 import identity from './identity';
 import multiFormat from './multi-format';
 import retry from './retry';
@@ -17,6 +18,7 @@ export default {
   crypto,
   deepCopy: utils.deepCopy,
   deepSort: utils.deepSort,
+  encryption,
   flatten2DimensionsArray: utils.flatten2DimensionsArray,
   getCurrentTimestampInSecond: utils.getCurrentTimestampInSecond,
   identity,

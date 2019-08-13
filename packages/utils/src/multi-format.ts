@@ -4,8 +4,10 @@ import { MultiFormatTypes } from '@requestnetwork/types';
  * Collection of function to format data
  */
 export default {
+  formatEciesEncryption,
   formatKeccak256Hash,
   formatPlainText,
+  isEciesEncryption,
   isKeccak256Hash,
   isPlainText,
 };
@@ -54,4 +56,24 @@ function isKeccak256Hash(formattedData: string): boolean {
     formattedData.slice(0, 2) === MultiFormatTypes.prefix.NORMALIZE_KECCAK256_HASH &&
     formattedData.length === MultiFormatTypes.FORMAT_NORMALIZE_KECCAK256_HASH_LENGTH
   );
+}
+
+/**
+ * transforms an ECIES encrypted data to a multi-format
+ *
+ * @param encryptedData encrypted data to format
+ * @returns format the encrypted data adding the prefix '02'
+ */
+function formatEciesEncryption(encryptedData: string): string {
+  return `${MultiFormatTypes.prefix.ECIES_ENCRYPTED}${encryptedData}`;
+}
+
+/**
+ * Checks if a formatted data is a formatted ECIES encryption
+ *
+ * @param formattedData the formatted data to check
+ * @returns true if follow the format, false otherwise
+ */
+function isEciesEncryption(formattedData: string): boolean {
+  return formattedData.slice(0, 2) === MultiFormatTypes.prefix.ECIES_ENCRYPTED;
 }

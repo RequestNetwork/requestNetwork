@@ -1,5 +1,6 @@
 import * as AdvancedLogicTypes from './advanced-logic-types';
 import * as DataAccessTypes from './data-access-types';
+import * as EncryptionTypes from './encryption-types';
 import * as ExtensionTypes from './extension-types';
 import * as IdentityTypes from './identity-types';
 import * as LogTypes from './logger-types';
@@ -13,6 +14,7 @@ import * as TransactionTypes from './transaction-types';
 export {
   AdvancedLogicTypes,
   LogTypes,
+  EncryptionTypes,
   ExtensionTypes,
   RequestLogicTypes,
   DataAccessTypes,

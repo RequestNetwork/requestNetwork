@@ -5,10 +5,7 @@
     "ecmaVersion": 10,
     "sourceType": "module"
   },
-  "plugins": [
-    "typescript",
-    "spellcheck"
-  ],
+  "plugins": ["typescript", "spellcheck"],
   "rules": {
     "spellcheck/spell-checker": [
       "error",
@@ -19,6 +16,7 @@
         "lang": "en_US",
         "skipWords": [
           "abi",
+          "aes256",
           "api",
           "arg",
           "args",
@@ -29,13 +27,18 @@
           "blockstream",
           "btc",
           "bitcoin",
+          "cbc",
           "chai",
           "checksum",
           "cors",
+          "cryptographically",
+          "decrypt",
+          "decrypted",
           "deserialize",
           "deserialized",
           "dichotomic",
           "ecdsa",
+          "ecies",
           "enum",
           "epk",
           "eslint",

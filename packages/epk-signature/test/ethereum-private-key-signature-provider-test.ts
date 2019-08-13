@@ -89,7 +89,7 @@ describe('ethereum-private-key-signature-provider', () => {
             privateKey: '0x0',
           }),
         'should have thrown',
-      ).to.throw('private key length is invalid');
+      ).to.throw('The private key must be a string representing 32 bytes');
     });
   });
 
