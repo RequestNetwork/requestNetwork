@@ -47,6 +47,14 @@ async function encrypt(
     return multiFormat.formatEciesEncryption(encryptedData);
   }
 
+  if (encryptionParams.method === EncryptionTypes.METHOD.AES256_CBC) {
+    const encryptedDataBuffer = await Crypto.CryptoWrapper.encryptWithAes256cbc(
+      Buffer.from(data, 'utf-8'),
+      Buffer.from(encryptionParams.key, 'utf-8'),
+    );
+    return multiFormat.formatAes256cbcEncryption(encryptedDataBuffer.toString('Base64'));
+  }
+
   throw new Error('encryptionParams.method not supported');
 }
 
@@ -62,14 +70,26 @@ async function encrypt(
 async function decrypt(
   encryptedData: string,
   decryptionParams: EncryptionTypes.IDecryptionParameters,
-): Promise<any> {
+): Promise<string> {
   if (multiFormat.isEciesEncryption(encryptedData)) {
     if (decryptionParams.method !== EncryptionTypes.METHOD.ECIES) {
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.ECIES}`);
     }
     const data = await Crypto.EcUtils.decrypt(decryptionParams.key, encryptedData.slice(2));
 
-    return JSON.parse(data);
+    return data;
+  }
+
+  if (multiFormat.isAes256cbcEncryption(encryptedData)) {
+    if (decryptionParams.method !== EncryptionTypes.METHOD.AES256_CBC) {
+      throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.AES256_CBC}`);
+    }
+    const dataBuffer = await Crypto.CryptoWrapper.decryptWithAes256cbc(
+      // remove the multi-format padding and decode from the base64 to a buffer
+      Buffer.from(multiFormat.removePadding(encryptedData), 'base64'),
+      Buffer.from(decryptionParams.key, 'utf-8'),
+    );
+    return dataBuffer.toString();
   }
 
   throw new Error('encryptedData method not supported');

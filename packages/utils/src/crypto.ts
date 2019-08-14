@@ -8,6 +8,7 @@ import Utils from './utils';
  * manages crypto functions
  */
 export default {
+  CryptoWrapper,
   EcUtils,
   generate32BufferKey,
   keccak256Hash,
