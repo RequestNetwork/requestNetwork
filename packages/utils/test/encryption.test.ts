@@ -29,7 +29,7 @@ const otherIdRaw = {
 };
 
 const arbitraryAES256cbcEncryptionParams: EncryptionTypes.IEncryptionParameters = {
-  key: '12345678901234567890123456789012',
+  key: '+wqzz0nClfG9MNjEziGDfMPcxo7WwXQ/m/0ESEpmkCs=',
   method: EncryptionTypes.METHOD.AES256_CBC,
 };
 

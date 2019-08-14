@@ -149,4 +149,20 @@ describe('Utils.ecUtils', () => {
       ).to.eventually.rejectedWith('The encrypted data is not well formatted');
     });
   });
+
+  it('can encrypt()', async () => {
+    const encryptedData = await ecUtils.encrypt(rawId.publicKey, anyData);
+    expect(encryptedData.length, 'encrypt() error').to.be.equal(226);
+    expect(await ecUtils.decrypt(rawId.privateKey, encryptedData), 'decrypt() error').to.be.equal(
+      anyData,
+    );
+  });
+
+  it('can decrypt()', async () => {
+    const data = await ecUtils.decrypt(
+      rawId.privateKey,
+      '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
+    );
+    expect(data, 'decrypt() error').to.be.equal(anyData);
+  });
 });

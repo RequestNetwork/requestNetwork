@@ -89,7 +89,6 @@ describe('Utils.crypto utils', () => {
 
   it('can generate32BufferKey()', async () => {
     const randomKey = await crypto.generate32BufferKey();
-    expect(Buffer.isBuffer(randomKey), 'random32Bytes() error').to.be.true;
-    expect(randomKey.length, 'random32Bytes() error').to.be.equal(32);
+    expect(Buffer.from(randomKey, 'base64').length, 'random32Bytes() error').to.be.equal(32);
   });
 });

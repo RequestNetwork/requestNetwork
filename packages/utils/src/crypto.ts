@@ -57,10 +57,10 @@ function keccak256Hash(data: string): string {
 }
 
 /**
- * Generates a random 32 bytes key
+ * Generates a 32 bytes key in a base64 string
  *
- * @returns a random buffer of 32 bytes
+ * @returns a random buffer of 32 bytes in a base64 string
  */
-async function generate32BufferKey(): Promise<Buffer> {
-  return CryptoWrapper.random32Bytes();
+async function generate32BufferKey(): Promise<string> {
+  return (await CryptoWrapper.random32Bytes()).toString('base64');
 }

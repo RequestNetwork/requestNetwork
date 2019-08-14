@@ -1,4 +1,4 @@
-import { DataAccessTypes, TransactionTypes } from '@requestnetwork/types';
+import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 
 import TransactionCore from './transaction';
 
@@ -13,28 +13,64 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   }
 
   /**
-   * Persists transaction and topic in storage
-   *
-   * later it will handle encryption
+   * Persists a clear transaction and topic in storage
    *
    * @param transactionData transaction to persist
-   * @param channelId string to identify a bunch of transaction
+   * @param channelId string to identify a group of transactions
    * @param topics list of string to topic the transaction
    *
-   * @returns string dataId where the transaction is stored
+   * @returns object containing the meta-data of the persist
    */
   public async persistTransaction(
     transactionData: TransactionTypes.ITransactionData,
     channelId: string,
     topics: string[] = [],
   ): Promise<TransactionTypes.IReturnPersistTransaction> {
-    const transaction: TransactionTypes.ITransaction = TransactionCore.createTransaction(transactionData);
+    const transaction: TransactionTypes.ITransaction = TransactionCore.createTransaction(
+      transactionData,
+    );
 
-    const resultPersist = await this.dataAccess.persistTransaction(transaction, channelId, topics);
+    const persistResult = await this.dataAccess.persistTransaction(transaction, channelId, topics);
 
     return {
       meta: {
-        dataAccessMeta: resultPersist.meta,
+        dataAccessMeta: persistResult.meta,
+      },
+      result: {},
+    };
+  }
+
+  /**
+   * Encrypts and persists a transaction and topics in storage
+   *
+   * @param transactionData transaction to persist
+   * @param channelId string to identify a group of transactions
+   * @param encryptionParams list of encryption parameters to encrypt the channel key with
+   * @param topics list of string to topic the transaction
+   *
+   * @returns object containing the meta-data of the persist
+   */
+  public async persistEncryptedTransaction(
+    transactionData: TransactionTypes.ITransactionData,
+    channelId: string,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    topics: string[] = [],
+  ): Promise<TransactionTypes.IReturnPersistTransaction> {
+    const encryptedTransaction: TransactionTypes.ITransaction = await TransactionCore.createEncryptedTransaction(
+      transactionData,
+      encryptionParams,
+    );
+
+    const persistResult = await this.dataAccess.persistTransaction(
+      encryptedTransaction,
+      channelId,
+      topics,
+    );
+
+    return {
+      meta: {
+        dataAccessMeta: persistResult.meta,
+        encryptionMethod: encryptedTransaction.encryptionMethod,
       },
       result: {},
     };
