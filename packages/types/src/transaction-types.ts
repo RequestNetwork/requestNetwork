@@ -1,8 +1,16 @@
+import * as Encryption from './encryption-types';
+
 /** Transaction Manager interface */
 export interface ITransactionManager {
   persistTransaction: (
     transactionData: ITransactionData,
     channelId: string,
+    topics?: string[],
+  ) => Promise<IReturnPersistTransaction>;
+  persistEncryptedTransaction: (
+    transactionData: ITransactionData,
+    channelId: string,
+    encryptionParams: Encryption.IEncryptionParameters[],
     topics?: string[],
   ) => Promise<IReturnPersistTransaction>;
   getTransactionsByChannelId: (

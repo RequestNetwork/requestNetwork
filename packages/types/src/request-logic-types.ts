@@ -1,3 +1,4 @@
+import * as Encryption from './encryption-types';
 import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
@@ -9,6 +10,12 @@ export interface IRequestLogic {
   createRequest: (
     requestParameters: ICreateParameters,
     signerIdentity: Identity.IIdentity,
+    indexes: string[],
+  ) => Promise<IReturnCreateRequest>;
+  createEncryptedRequest: (
+    requestParameters: ICreateParameters,
+    signerIdentity: Identity.IIdentity,
+    encryptionParams: Encryption.IEncryptionParameters[],
     indexes: string[],
   ) => Promise<IReturnCreateRequest>;
   computeRequestId: (

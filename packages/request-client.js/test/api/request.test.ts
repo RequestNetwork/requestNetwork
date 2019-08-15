@@ -20,6 +20,9 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createRequest(): Promise<any> {
     return;
   },
+  async createEncryptedRequest(): Promise<any> {
+    return;
+  },
   async computeRequestId(): Promise<any> {
     return;
   },
@@ -467,6 +470,9 @@ describe('api/request', () => {
     it('calls request-logic', async () => {
       const mockRequestLogicWithRequest: RequestLogicTypes.IRequestLogic = {
         async createRequest(): Promise<any> {
+          return;
+        },
+        async createEncryptedRequest(): Promise<any> {
           return;
         },
         async computeRequestId(): Promise<any> {
