@@ -22,7 +22,7 @@ const defaultValues: any = {
       timeout: 30000,
     },
     lastBlockNumberDelay: 10000,
-    maxConcurrency: 20,
+    maxConcurrency: 5,
     persistTransactionTimeout: 600,
     retryDelay: 1000,
   },

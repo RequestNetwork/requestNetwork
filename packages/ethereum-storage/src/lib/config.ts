@@ -43,7 +43,7 @@ const config: any = {
       timeout: 30000,
     },
   },
-  maxConcurrency: 20,
+  maxConcurrency: 5,
 };
 
 /**
