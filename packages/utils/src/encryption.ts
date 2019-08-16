@@ -75,7 +75,7 @@ async function decrypt(
     if (decryptionParams.method !== EncryptionTypes.METHOD.ECIES) {
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.ECIES}`);
     }
-    return Crypto.EcUtils.decrypt(decryptionParams.key, encryptedData.slice(2));
+    return Crypto.EcUtils.decrypt(decryptionParams.key, multiFormat.removePadding(encryptedData));
   }
 
   if (multiFormat.isAes256cbcEncryption(encryptedData)) {
