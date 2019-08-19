@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-signature@0.4.0...@requestnetwork/epk-signature@0.5.0) (2019-08-19)
+
+
+### Features
+
+* add ECIES Encryption in types and utils packages ([#488](https://github.com/RequestNetwork/requestNetwork/issues/488)) ([0252903](https://github.com/RequestNetwork/requestNetwork/commit/0252903))
+
+
+
+
+
+
 # [0.3.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-signature@0.1.1-alpha.4...@requestnetwork/epk-signature@0.3.0) (2019-07-24)
 
 **Note:** Version bump only for package @requestnetwork/epk-signature

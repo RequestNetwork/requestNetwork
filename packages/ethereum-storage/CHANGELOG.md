@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.0...@requestnetwork/ethereum-storage@0.4.1) (2019-08-19)
+
+
+### Performance Improvements
+
+* lower concurrency to 5 and disable DHT on IPFS ([#500](https://github.com/RequestNetwork/requestNetwork/issues/500)) ([cec31e3](https://github.com/RequestNetwork/requestNetwork/commit/cec31e3))
+
+
+
+
+
+
 # [0.3.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.1.1-alpha.4...@requestnetwork/ethereum-storage@0.3.0) (2019-07-24)
 
 

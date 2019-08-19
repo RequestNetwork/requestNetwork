@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publishConfig": {
     "access": "public"
   },
@@ -51,8 +51,8 @@
     "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.4.0",
-    "@requestnetwork/utils": "0.4.0",
+    "@requestnetwork/types": "0.5.0",
+    "@requestnetwork/utils": "0.5.0",
     "bluebird": "3.5.3",
     "bn.js": "4.11.8",
     "form-data": "2.3.3",
