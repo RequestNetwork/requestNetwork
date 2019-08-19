@@ -59,20 +59,25 @@ async function createEncryptedTransaction(
   const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
     async (
       encryptionParam: EncryptionTypes.IEncryptionParameters,
-    ): Promise<{ encryptedKey: string; hashedIdentity: string }> => {
+    ): Promise<{ encryptedKey: string; multiFormattedIdentity: string }> => {
       const encryptedKey = await Utils.encryption.encrypt(symmetricKey, encryptionParam);
       const identityEncryption = Utils.encryption.getIdentityFromEncryptionParams(encryptionParam);
-      const hashedIdentity = Utils.crypto.normalizeKeccak256Hash(identityEncryption);
+      const multiFormattedIdentity = Utils.multiFormat.formatIdentityEthereumAddress(
+        identityEncryption.value,
+      );
 
-      return { encryptedKey, hashedIdentity };
+      return { encryptedKey, multiFormattedIdentity };
     },
   );
   const encryptedKeyAndIdentityHashes = await Promise.all(encryptedKeyAndIdentityHashesPromises);
 
-  // Create the encrypted keys object - Encrypted keys indexed by identity hash
+  // Create the encrypted keys object - Encrypted keys indexed by identity multi-format
   const keys = encryptedKeyAndIdentityHashes.reduce(
-    (allKeys: any, keyAndHash: { encryptedKey: string; hashedIdentity: string }): Promise<any> => {
-      allKeys[keyAndHash.hashedIdentity] = keyAndHash.encryptedKey;
+    (
+      allKeys: any,
+      keyAndHash: { encryptedKey: string; multiFormattedIdentity: string },
+    ): Promise<any> => {
+      allKeys[keyAndHash.multiFormattedIdentity] = keyAndHash.encryptedKey;
       return allKeys;
     },
     {},

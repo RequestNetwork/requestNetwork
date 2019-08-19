@@ -48,9 +48,9 @@ describe('transaction', () => {
 
       expect(Object.keys(encryptedTx.keys || {}).length, 'keys not right').to.deep.equal(3);
       expect(Object.keys(encryptedTx.keys || {}), 'keys not right').to.deep.equal([
-        Utils.crypto.normalizeKeccak256Hash(TestData.idRaw1.identity),
-        Utils.crypto.normalizeKeccak256Hash(TestData.idRaw2.identity),
-        Utils.crypto.normalizeKeccak256Hash(TestData.idRaw3.identity),
+        Utils.multiFormat.formatIdentityEthereumAddress(TestData.idRaw1.identity.value),
+        Utils.multiFormat.formatIdentityEthereumAddress(TestData.idRaw2.identity.value),
+        Utils.multiFormat.formatIdentityEthereumAddress(TestData.idRaw3.identity.value),
       ]);
 
       expect(
