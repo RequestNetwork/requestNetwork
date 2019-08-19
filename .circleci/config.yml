@@ -275,6 +275,26 @@ jobs:
           root: *working_directory
           paths:
             - packages/epk-signature/coverage/
+  test-epk-decryption:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build epk-decryption'
+          command: 'yarn workspace @requestnetwork/epk-decryption run build'
+      - run:
+          name: 'Lint epk-decryption'
+          command: 'yarn workspace @requestnetwork/epk-decryption run lint'
+      - run:
+          name: 'Test epk-decryption'
+          command: 'yarn workspace @requestnetwork/epk-decryption run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/epk-decryption/coverage/
   test-web3-signature:
     docker:
       - *node_image
@@ -438,6 +458,9 @@ workflows:
       - test-epk-signature:
           requires:
             - build
+      - test-epk-decryption:
+          requires:
+            - build
       - test-web3-signature:
           requires:
             - build
@@ -463,5 +486,6 @@ workflows:
             - test-advanced-logic
             - test-epk-signature
             - test-web3-signature
+            - test-epk-decryption
             - test-request-node
             - test-utils

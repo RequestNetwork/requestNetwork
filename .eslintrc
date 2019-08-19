@@ -5,10 +5,7 @@
     "ecmaVersion": 10,
     "sourceType": "module"
   },
-  "plugins": [
-    "typescript",
-    "spellcheck"
-  ],
+  "plugins": ["typescript", "spellcheck"],
   "rules": {
     "spellcheck/spell-checker": [
       "error",
@@ -19,6 +16,8 @@
         "lang": "en_US",
         "skipWords": [
           "abi",
+          "aes",
+          "aes256cbc",
           "api",
           "arg",
           "args",
@@ -29,13 +28,21 @@
           "blockstream",
           "btc",
           "bitcoin",
+          "cbc",
           "chai",
           "checksum",
+          "cipheriv",
           "cors",
+          "cryptographically",
+          "decipheriv",
+          "decrypt",
+          "decrypts",
+          "decrypted",
           "deserialize",
           "deserialized",
           "dichotomic",
           "ecdsa",
+          "ecies",
           "enum",
           "epk",
           "eslint",
@@ -81,6 +88,7 @@
           "tsconfig",
           "typedef",
           "typeof",
+          "utf",
           "utils",
           "validator",
           "versioning",

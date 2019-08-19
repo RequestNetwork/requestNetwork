@@ -2,7 +2,7 @@ import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
-const REQUEST_TIMEOUT: number = 600000;
+const GET_TRANSACTIONS_TIMEOUT: number = 600000;
 
 /**
  * Handles getTransactionsByChannelId of data-access layer.
@@ -26,7 +26,7 @@ export default async function getTransactionsByChannelId(
   // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
   // This operation can take a long time and then the timeout of the request should be increase
   // PROT-187: Decrease or remove this value
-  clientRequest.setTimeout(REQUEST_TIMEOUT);
+  clientRequest.setTimeout(GET_TRANSACTIONS_TIMEOUT);
 
   // Verifies if data sent from get request are correct
   // clientRequest.query is expected to contain the channelId of the transactions to search for

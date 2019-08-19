@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.4.0...@requestnetwork/types@0.5.0) (2019-08-19)
+
+
+### Features
+
+* add ECIES Encryption in types and utils packages ([#488](https://github.com/RequestNetwork/requestNetwork/issues/488)) ([0252903](https://github.com/RequestNetwork/requestNetwork/commit/0252903))
+* Ethereum Private key (Epk) decryption provider implementation ([#499](https://github.com/RequestNetwork/requestNetwork/issues/499)) ([207b762](https://github.com/RequestNetwork/requestNetwork/commit/207b762))
+* persist encrypted transaction in transaction manager ([#495](https://github.com/RequestNetwork/requestNetwork/issues/495)) ([7523f93](https://github.com/RequestNetwork/requestNetwork/commit/7523f93))
+* Request logic: create encrypted request ([#496](https://github.com/RequestNetwork/requestNetwork/issues/496)) ([9f1ebe6](https://github.com/RequestNetwork/requestNetwork/commit/9f1ebe6))
+
+
+
+
+
+
 # [0.3.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.1.1-alpha.3...@requestnetwork/types@0.3.0) (2019-07-24)
 
 

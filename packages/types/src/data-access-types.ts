@@ -96,6 +96,12 @@ export interface ITopics {
 /** Transaction */
 export interface ITransaction {
   data: ITransactionData;
+  /** Hash of the data before encryption */
+  hash?: string;
+  /** Symmetric key encrypted with asymmetric key from the parties keys, indexed by the hash of their identities */
+  keys?: { [key: string]: string };
+  /** Encryption method */
+  encryptionMethod?: string;
 }
 
 /** Transaction confirmed */
@@ -114,6 +120,12 @@ export interface ITransactionIndex {
   initialize(): Promise<void>;
   getLastTransactionTimestamp(): Promise<number | null>;
   addTransaction(dataId: string, header: IBlockHeader, timestamp: number): Promise<void>;
-  getChannelIdsForTopic(topic: string, timestampBoundaries?: ITimestampBoundaries): Promise<string[]>;
-  getStorageLocationList(channelId: string, timestampBoundaries?: ITimestampBoundaries): Promise<string[]>;
+  getChannelIdsForTopic(
+    topic: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ): Promise<string[]>;
+  getStorageLocationList(
+    channelId: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ): Promise<string[]>;
 }

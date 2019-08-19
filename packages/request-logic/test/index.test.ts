@@ -46,6 +46,7 @@ describe('index', () => {
     fakeTransactionManager = {
       getChannelsByTopic: chai.spy(),
       getTransactionsByChannelId: chai.spy(),
+      persistEncryptedTransaction: chai.spy.returns(fakeMetaTransactionManager),
       persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
     };
   });
@@ -76,6 +77,43 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(action),
         requestId,
+      );
+    });
+  });
+
+  describe('createEncryptedRequest', () => {
+    it('cannot create encrypted request without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
+
+      try {
+        await requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
+          TestData.payeeRaw.encryptionParams,
+          TestData.payerRaw.encryptionParams,
+        ]);
+        expect(false, 'must have thrown').to.be.true;
+      } catch (e) {
+        expect(e.message, 'wrong exception').to.equal(
+          'You must give a signature provider to create actions',
+        );
+      }
+    });
+
+    it('can create en encrypted request', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+      const ret = await requestLogic.createEncryptedRequest(
+        createParams,
+        TestData.payeeRaw.identity,
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+      );
+      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
+      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      expect(fakeTransactionManager.persistEncryptedTransaction).to.have.been.called.with(
+        JSON.stringify(action),
+        requestId,
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
     });
   });
@@ -398,6 +436,7 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -538,6 +577,7 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -684,6 +724,7 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -769,6 +810,7 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -821,6 +863,7 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -981,6 +1024,7 @@ describe('index', () => {
           return listAllActions;
         },
         getTransactionsByChannelId: chai.spy(),
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -1052,6 +1096,7 @@ describe('index', () => {
           return listActions;
         },
         getTransactionsByChannelId: chai.spy(),
+        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(

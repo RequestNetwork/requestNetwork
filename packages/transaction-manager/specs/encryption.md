@@ -12,9 +12,8 @@ This document specifies how the encryption is done at the Transaction layer of R
   - [Add encrypted data](#add-encrypted-data)
   - [Add new public keys](#add-new-public-keys)
 
-## Note on addresses
+## Note on hashes
 
-"Addresses" refer here to the rightmost 20 bytes of the Keccak-256 hash of the public key (like Ethereum addresses).
 A "normalized Keccak256 hash" of a JSON object is Keccak256 hash of an object which:
 
 - the properties have been sorted alphabetically
@@ -38,7 +37,7 @@ Parties can be added on an encrypted channel by any other parties.
 The encryption uses:
 
 - asymmetric Elliptic Curve Integrated Encryption Scheme (ECIES)
-- symmetric AES-256 encryption.
+- symmetric AES-256-CBC encryption.
 
 The data are first encrypted by AES-256 with a generated key.
 This key is then encrypted for every other party with ECIES from their public key.
@@ -49,12 +48,12 @@ The encrypted data, the encrypted keys and a hash of the data are pushed on chai
 
 ### Create an encrypted channel
 
-| Property             | Type   | Description                                                                                                     |
-| -------------------- | ------ | --------------------------------------------------------------------------------------------------------------- |
-| **encryptedData**    | String | First encrypted data of the channel in base64                                                                   |
-| **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                      |
-| **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their addresses |
-| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                   |
+| Property             | Type   | Description                                                                                                                  |
+| -------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| **data**             | String | First encrypted data of the channel in base64                                                                                |
+| **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                   |
+| **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by the hash of their identities |
+| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                |
 
 The data are encrypted with the algorithm AES-256 from the channel key generated for this channel.
 The channel key generation must be cryptographically strong.
@@ -64,49 +63,45 @@ Example:
 
 ```JSON
 {
-  "encryptedData": "JOz9aOV1aYatMSAx+3CD9EyjNI/FwLp6DeA+AYk5ERnTDwwaETY7zz2NemubnGW7GGDATjSVsnCVWXuM58cihq1Bhkon2aiPHhQdpteEugkrM2Zx/kWrVlvRY8kyseB30hU7NhyiDUSLGOJ/Pmq3PjANbBi2svgADLFZ6SdYgwFkjxaO1XkvW/qvjuraFqW55/4wCd53yjWcjMcLzMgLYcTLmSns642xAjx0hAvwVPQmTVI5xOFf6PjbEN9qfRPfdQkaOuuGG2AYsVhOkSK73BULdIvx6PArfqICCtL23xmt4kCeFgd6HYQvSzSFqszqAWT1kJdiRj3sZXRtf6xcpeXDelBacHN+xD2mzdZlroVhlsjZi5s0mhemBd+C",
-  "hash": "0x865ea95812388a93162b560e01c5680f12966492dfbad8a9a104e1e79f6665fc",
+  "data": "JOz9aOV1aYatMSAx+3CD9EyjNI/FwLp6DeA+AYk5ERnTDwwaETY7zz2NemubnGW7GGDATjSVsnCVWXuM58cihq1Bhkon2aiPHhQdpteEugkrM2Zx/kWrVlvRY8kyseB30hU7NhyiDUSLGOJ/Pmq3PjANbBi2svgADLFZ6SdYgwFkjxaO1XkvW/qvjuraFqW55/4wCd53yjWcjMcLzMgLYcTLmSns642xAjx0hAvwVPQmTVI5xOFf6PjbEN9qfRPfdQkaOuuGG2AYsVhOkSK73BULdIvx6PArfqICCtL23xmt4kCeFgd6HYQvSzSFqszqAWT1kJdiRj3sZXRtf6xcpeXDelBacHN+xD2mzdZlroVhlsjZi5s0mhemBd+C",
+  "hash": "01865ea95812388a93162b560e01c5680f12966492dfbad8a9a104e1e79f6665fc",
   "keys":
    {
-      "0x627306090abab3a6e1400e9345bc60c78a8bef57": "aYOGYgtlt0JkBoKjxkMpoQJbE7GXtTT6JrjA+NF0Bd6BxDLyn5+hFIDvHltMkGS7rpzR3RyEnDl+SncDJ+cCxLo9Od7ntqGNVdin6n7EJqilmY0AmxJpAIAOnCwK5C46zH4RE0g7vBv/+3Gx2uFKw2Dfhpy7olQ5NL6Krsb2qEnmW32R3wmv85uCE88uxmcDlo/OrS36X+jzOye+/ZR+kOE=",
-      "0xf17f52151ebef6c7334fad080c5704d77216b732": "AKJaJONWml2moKwTGZCuXQMxBt014+6Sxo2rzXYBbgKV8peBo3RM6KrxvhIdnCtTwxu3CrlFrkfUm6VYoMsKPu5WhZMU1Wk2R+vYl7roJFCQsTqTN1Qkx0skBLhaSKwynzZY3BWyTZ5rf1+JPmi7g6fGB9VOUpv6EDlp9k1p2RZnsVc+fMYKMAWhMnSZ3gJQUVbHY2Jx0CiQX/N+PtpnTWM=",
+      "014e90cd5a599a1ac02d55d8af16655d4ae90d82642c6a8ef2fe2341a608053982": "aYOGYgtlt0JkBoKjxkMpoQJbE7GXtTT6JrjA+NF0Bd6BxDLyn5+hFIDvHltMkGS7rpzR3RyEnDl+SncDJ+cCxLo9Od7ntqGNVdin6n7EJqilmY0AmxJpAIAOnCwK5C46zH4RE0g7vBv/+3Gx2uFKw2Dfhpy7olQ5NL6Krsb2qEnmW32R3wmv85uCE88uxmcDlo/OrS36X+jzOye+/ZR+kOE=",
+      "01f17f52151ebef6c7334fad080c5704d77216b732f6c7334fad08072117f341a6": "AKJaJONWml2moKwTGZCuXQMxBt014+6Sxo2rzXYBbgKV8peBo3RM6KrxvhIdnCtTwxu3CrlFrkfUm6VYoMsKPu5WhZMU1Wk2R+vYl7roJFCQsTqTN1Qkx0skBLhaSKwynzZY3BWyTZ5rf1+JPmi7g6fGB9VOUpv6EDlp9k1p2RZnsVc+fMYKMAWhMnSZ3gJQUVbHY2Jx0CiQX/N+PtpnTWM=",
     },
-  "encryptionMethod": "ECIES-AES256"
+  "encryptionMethod": "ECIES-AES256-CBC"
 }
 ```
 
 ### Add encrypted data
 
-| Property          | Type   | Description                                                           |
-| ----------------- | ------ | --------------------------------------------------------------------- |
-| **channelId**     | String | Normalized Keccak256 hash of the transaction that created the channel |
-| **encryptedData** | String | Encrypted data in base64                                              |
-| **hash**          | String | Normalized Keccak256 hash of the message before encryption            |
+| Property | Type   | Description                                                |
+| -------- | ------ | ---------------------------------------------------------- |
+| **data** | String | Encrypted data in base64                                   |
+| **hash** | String | Normalized Keccak256 hash of the message before encryption |
 
 Example:
 
 ```JSON
 {
-    "channelId": "0xa8ea7b21ec36153beaa493f7afb082dc3e9886a41fcfc0ef72f3e175c2ad8b01",
-    "encryptedData": "mBVy2ENb0Edkego5c9QXcFxszKxe7iQVE22wUPHMbrC7bBm99S238BAyACa1TBDlI4SajbrWM+/MG8CkBoph4FLTvh4PsUjhnfazFI9BnMtIMhdqDAoxXUSHsvnwbEFhllqwhFCWn6pslLNu7X7UJSDgj7nQ0t1IHegBSV7ZRqdOYw3UoxAEAyVOoUwMhr/sitF2AlgMSvKas5YCD47YIm6rDNmzyBn9Ed/fAxNojMXcg386khrPs37P6Q==",
-    "hash": "0x8f94ee7e96fa65a761e8df9792af3f72fcf936f186fbb86881630f7d5333c8bb",
+    "data": "mBVy2ENb0Edkego5c9QXcFxszKxe7iQVE22wUPHMbrC7bBm99S238BAyACa1TBDlI4SajbrWM+/MG8CkBoph4FLTvh4PsUjhnfazFI9BnMtIMhdqDAoxXUSHsvnwbEFhllqwhFCWn6pslLNu7X7UJSDgj7nQ0t1IHegBSV7ZRqdOYw3UoxAEAyVOoUwMhr/sitF2AlgMSvKas5YCD47YIm6rDNmzyBn9Ed/fAxNojMXcg386khrPs37P6Q==",
+    "hash": "018f94ee7e96fa65a761e8df9792af3f72fcf936f186fbb86881630f7d5333c8bb",
 }
 ```
 
 ### Add new public keys
 
-| Property      | Type   | Description                                                                          |
-| ------------- | ------ | ------------------------------------------------------------------------------------ |
-| **channelId** | String | Normalized Keccak256 hash of the transaction that created the channel                |
-| **keys**      | Object | AES-256 key encrypted with ECIES from the new public keys indexed by their addresses |
+| Property | Type   | Description                                                                                       |
+| -------- | ------ | ------------------------------------------------------------------------------------------------- |
+| **keys** | Object | AES-256 key encrypted with ECIES from the new public keys indexed by the hash of their identities |
 
 Example:
 
 ```JSON
 {
-    "channelId": "0xa8ea7b21ec36153beaa493f7afb082dc3e9886a41fcfc0ef72f3e175c2ad8b01",
     "keys": {
-        "0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef": "OXdF4wZshE3+FM49ojErrgJIzqCx4r0DDj0bqof1yQJ7Kmz3zTaYh1xauD/Pq6HO1TJ3h+g4ca9DNzy2m2j7Q2RkqppeDkh4zsSyQ0eEN1dYLjfHqOisWelZ5l4hAH7+0LM8FHTCpKFJ1kSSHuALubYzbA+uO17eEr2dgzR3WaWDUhVn/uMYFwws3mHto41W4FWDGW+AWxIowhc3HrqsZRE=",
+        "01c5fdf4076b8f3a5357c5e395ab970b5b54098fefa65a761e8df9792af3f398a": "OXdF4wZshE3+FM49ojErrgJIzqCx4r0DDj0bqof1yQJ7Kmz3zTaYh1xauD/Pq6HO1TJ3h+g4ca9DNzy2m2j7Q2RkqppeDkh4zsSyQ0eEN1dYLjfHqOisWelZ5l4hAH7+0LM8FHTCpKFJ1kSSHuALubYzbA+uO17eEr2dgzR3WaWDUhVn/uMYFwws3mHto41W4FWDGW+AWxIowhc3HrqsZRE=",
     }
 }
 ```

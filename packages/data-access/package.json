@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-access",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publishConfig": {
     "access": "public"
   },
@@ -39,8 +39,8 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/types": "0.4.0",
-    "@requestnetwork/utils": "0.4.0",
+    "@requestnetwork/types": "0.5.0",
+    "@requestnetwork/utils": "0.5.0",
     "bluebird": "3.5.5",
     "keyv": "3.1.0"
   },
@@ -66,7 +66,7 @@
     "prettier": "1.16.4",
     "shx": "0.3.2",
     "sinon": "7.2.3",
-    "source-map-support": "0.5.10",
+    "source-map-support": "0.5.13",
     "ts-node": "8.0.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1"

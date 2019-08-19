@@ -73,7 +73,7 @@ function sign(
 /**
  * Function to recover signer identity from a signature
  *
- * this is used to recover from the signature made by the signature providers
+ * IMPORTANT: this is used to recover from the signature made by the signature providers
  *
  * @param signedData the data signed
  * @returns identity of the signer

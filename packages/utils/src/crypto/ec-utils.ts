@@ -4,7 +4,10 @@ import EthCrypto from 'eth-crypto';
  * Function to manage Elliptic-curve cryptography
  */
 export default {
+  decrypt,
+  encrypt,
   getAddressFromPrivateKey,
+  getAddressFromPublicKey,
   recover,
   sign,
 };
@@ -12,35 +15,122 @@ export default {
 /**
  * Function to derive the address from an EC private key
  *
- * @param string privateKey the private key to derive
+ * @param privateKey the private key to derive
  *
- * @returns string the address
+ * @returns the address
  */
 function getAddressFromPrivateKey(privateKey: string): string {
-  const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
-  const address = EthCrypto.publicKey.toAddress(publicKey);
-  return address;
+  try {
+    const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
+    return EthCrypto.publicKey.toAddress(publicKey);
+  } catch (e) {
+    if (e.message === 'private key length is invalid') {
+      throw new Error('The private key must be a string representing 32 bytes');
+    }
+    throw e;
+  }
+}
+
+/**
+ * Function to derive the address from an EC public key
+ *
+ * @param publicKey the public key to derive
+ *
+ * @returns the address
+ */
+function getAddressFromPublicKey(publicKey: string): string {
+  try {
+    return EthCrypto.publicKey.toAddress(publicKey);
+  } catch (e) {
+    if (e.message === 'public key length is invalid') {
+      throw new Error('The public key must be a string representing 64 bytes');
+    }
+    throw e;
+  }
 }
 
 /**
  * Function sign data with ECDSA
  *
- * @param string data the data to sign
+ * @param data the data to sign
  *
- * @returns string the signature
+ * @returns the signature
  */
 function sign(privateKey: string, data: string): string {
-  return EthCrypto.sign(privateKey, data);
+  try {
+    return EthCrypto.sign(privateKey, data);
+  } catch (e) {
+    if (e.message === 'private key length is invalid') {
+      throw new Error('The private key must be a string representing 32 bytes');
+    }
+    throw e;
+  }
 }
 
 /**
  * Function to recover address from a signature
  *
- * @param string signature the signature
- * @param string data the data signed
+ * @param signature the signature
+ * @param data the data signed
  *
- * @returns string
+ * @returns the address
  */
 function recover(signature: string, data: string): string {
-  return EthCrypto.recover(signature, data);
+  try {
+    return EthCrypto.recover(signature, data);
+  } catch (e) {
+    if (e.message === 'signature length is invalid') {
+      throw new Error('The signature must be a string representing 66 bytes');
+    }
+    throw e;
+  }
+}
+
+/**
+ * Function to encrypt data with a public key
+ *
+ * @param publicKey the public key to encrypt with
+ * @param data the data to encrypt
+ *
+ * @returns the encrypted data
+ */
+async function encrypt(publicKey: string, data: string): Promise<string> {
+  try {
+    // Encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
+    const encrypted = await EthCrypto.encryptWithPublicKey(publicKey, data);
+
+    // Transforms the object with the encrypted data into a smaller string-representation.
+    return EthCrypto.cipher.stringify(encrypted);
+  } catch (e) {
+    if (e.message === 'public key length is invalid') {
+      throw new Error('The public key must be a string representing 64 bytes');
+    }
+    throw e;
+  }
+}
+
+/**
+ * Function to decrypt data with a public key
+ *
+ * @param privateKey the private key to decrypt with
+ * @param data the data to decrypt
+ *
+ * @returns the decrypted data
+ */
+async function decrypt(privateKey: string, encrypted: string): Promise<string> {
+  try {
+    return await EthCrypto.decryptWithPrivateKey(privateKey, EthCrypto.cipher.parse(encrypted));
+  } catch (e) {
+    if (e.message === 'Bad input') {
+      throw new Error('The private key must be a string representing 32 bytes');
+    }
+    if (
+      e.message === 'public key length is invalid' ||
+      e.message === 'Bad MAC' ||
+      e.message === 'the public key could not be parsed or is invalid'
+    ) {
+      throw new Error('The encrypted data is not well formatted');
+    }
+    throw e;
+  }
 }

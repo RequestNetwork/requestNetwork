@@ -1,5 +1,6 @@
 import {
   AdvancedLogicTypes,
+  EncryptionTypes,
   IdentityTypes,
   RequestLogicTypes,
   SignatureProviderTypes,
@@ -27,33 +28,60 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to create a request and persist it on the transaction manager layer
+   * Creates a request and persists it on the transaction manager layer
    *
-   * @param requestParameters ICreateParameters parameters to create a request
-   * @param IIdentity signerIdentity Identity of the signer
-   * @param string[] topics list of string to topic the request
+   * @param ICreateParameters parameters to create a request
+   * @param signerIdentity Identity of the signer
+   * @param topics list of string to topic the request
    *
-   * @returns Promise<IRequestLogicReturnCreateRequest>  the request id and the meta data
+   * @returns the request id and the meta data
    */
   public async createRequest(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
     topics: string[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
-    if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
-    }
-
-    const action = await RequestLogicCore.formatCreate(
+    const { action, requestId } = await this.createActionAndRequestId(
       requestParameters,
       signerIdentity,
-      this.signatureProvider,
     );
-    const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
+      topics,
+    );
+    return {
+      meta: { transactionManagerMeta: resultPersistTx.meta },
+      result: { requestId },
+    };
+  }
+
+  /**
+   * Creates an encrypted request and persists it on the transaction manager layer
+   *
+   * @param requestParameters parameters to create a request
+   * @param signerIdentity Identity of the signer
+   * @param encryptionParams list of encryption parameters to encrypt the channel key with
+   * @param topics list of string to topic the request
+   *
+   * @returns the request id and the meta data
+   */
+  public async createEncryptedRequest(
+    requestParameters: RequestLogicTypes.ICreateParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    topics: string[] = [],
+  ): Promise<RequestLogicTypes.IReturnCreateRequest> {
+    const { action, requestId } = await this.createActionAndRequestId(
+      requestParameters,
+      signerIdentity,
+    );
+
+    const resultPersistTx = await this.transactionManager.persistEncryptedTransaction(
+      JSON.stringify(action),
+      requestId,
+      encryptionParams,
       topics,
     );
     return {
@@ -87,7 +115,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to accept a request and persist it on through the transaction manager layer
+   * Function to accept a request   it on through the transaction manager layer
    *
    * @param IAcceptParameters acceptParameters parameters to accept a request
    * @param IIdentity signerIdentity Identity of the signer
@@ -250,7 +278,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    *
    * @returns the request constructed from the actions
    */
-  public async getRequestFromId(requestId: string): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
+  public async getRequestFromId(
+    requestId: string,
+  ): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions;
     let ignoredTransactions: any[] = [];
@@ -411,5 +441,34 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         result: { requests: [] },
       },
     );
+  }
+
+  /**
+   * Creates the action and the requestId of a request
+   *
+   * @param requestParameters parameters to create a request
+   * @param signerIdentity Identity of the signer
+   *
+   * @returns the request id and the action
+   */
+  private async createActionAndRequestId(
+    requestParameters: RequestLogicTypes.ICreateParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<{ action: RequestLogicTypes.IAction; requestId: RequestLogicTypes.RequestId }> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+
+    const action = await RequestLogicCore.formatCreate(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
+
+    return {
+      action,
+      requestId,
+    };
   }
 }

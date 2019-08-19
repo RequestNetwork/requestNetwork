@@ -82,6 +82,10 @@ function initializeNode(ipfsPath) {
   shell.exec(
     `ipfs bootstrap add /dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx /dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj /dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd /dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh`,
   );
+
+  shell.echo('Configuring the IPFS node...');
+  // Disable DHT routing
+  shell.exec(`ipfs config Routing.Type none`);
 }
 
 /**

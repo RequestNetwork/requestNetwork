@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/advanced-logic",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publishConfig": {
     "access": "public"
   },
@@ -39,8 +39,8 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/types": "0.4.0",
-    "@requestnetwork/utils": "0.4.0",
+    "@requestnetwork/types": "0.5.0",
+    "@requestnetwork/utils": "0.5.0",
     "@types/node": "11.9.0",
     "lodash": "4.17.13",
     "wallet-address-validator": "0.2.4"

@@ -69,4 +69,22 @@ describe('Utils.multiFormat', () => {
       'should be false with a wrong prefix',
     ).to.be.false;
   });
+
+  describe('removePadding', () => {
+    it('can remove the padding of a multi-format', () => {
+      expect(
+        multiFormat.removePadding(
+          '01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+        ),
+        'should remove the padding',
+      ).to.be.equal('af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
+    });
+    it('cannot remove the padding of an unknown multi-format', () => {
+      expect(() => {
+        multiFormat.removePadding(
+          '99af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+        );
+      }, 'should remove the padding').to.throw('Format not supported');
+    });
+  });
 });
