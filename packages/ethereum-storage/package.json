@@ -93,7 +93,7 @@
     "prettier": "1.16.4",
     "shx": "0.3.2",
     "solium": "1.2.2",
-    "source-map-support": "0.5.10",
+    "source-map-support": "0.5.13",
     "truffle": "5.0.3",
     "truffle-hdwallet-provider": "1.0.3",
     "ts-node": "8.0.2",
