@@ -14,7 +14,7 @@ npm install @requestnetwork/request-client.js
 
 ### Usage as commonjs module
 
-See [packages/usage-examples/request-client-js.ts](`packages/usage-examples/request-client-js.ts`).
+See [packages/usage-examples/src/request-client-js.ts](packages/usage-examples/src/request-client-js.ts).
 
 ### Usage as UMD module
 
