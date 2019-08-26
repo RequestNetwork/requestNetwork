@@ -48,10 +48,35 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
 
 /* tslint:disable:no-unused-expression */
 describe('Action', () => {
-  it('can getRequestId()', () => {
+  it('can getRequestId() of current version', () => {
     const reqId = Action.getRequestId(signedAction);
     expect(reqId, 'getRequestId() error').to.be.equal(
-      Utils.crypto.normalizeKeccak256Hash(randomUnsignedAction),
+      Utils.crypto.normalizeKeccak256Hash(signedAction),
+    );
+  });
+  it('can getRequestId() of version before or equal 2.0.0', () => {
+    const randomUnsignedAction200 = {
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
+      parameters: {
+        currency: RequestLogicTypes.CURRENCY.ETH,
+        expectedAmount: '100000',
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+      },
+      version: '2.0.0',
+    };
+    const signedAction200 = {
+      data: randomUnsignedAction200,
+      signature: {
+        method: SignatureTypes.METHOD.ECDSA,
+        value:
+          '01bcf77e28b615620636cefbad5bc6abf8324aad610581d7cec0394da216da12f063332e0a03a337a6352665c421b11ab187e515bd3518eeb12f42f8c64eb44c6e1b',
+      },
+    };
+
+    const reqId = Action.getRequestId(signedAction200);
+    expect(reqId, 'getRequestId() error').to.be.equal(
+      Utils.crypto.normalizeKeccak256Hash(randomUnsignedAction200),
     );
   });
 

@@ -1,5 +1,6 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as Semver from 'semver';
 import Role from './role';
 import Version from './version';
 
@@ -121,5 +122,9 @@ function getVersionFromAction(action: RequestLogicTypes.IAction): string {
  * @returns string the hash formatted
  */
 function getActionHash(action: RequestLogicTypes.IAction): string {
-  return Utils.crypto.normalizeKeccak256Hash(action.data);
+  // Before the version 2.0.0, the hash was computed without the signature
+  if (Semver.lte(action.data.version, '2.0.0')) {
+    return Utils.crypto.normalizeKeccak256Hash(action.data);
+  }
+  return Utils.crypto.normalizeKeccak256Hash(action);
 }

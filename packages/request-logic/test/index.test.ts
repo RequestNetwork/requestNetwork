@@ -29,8 +29,8 @@ const unsignedAction: RequestLogicTypes.IUnsignedAction = {
   parameters: createParams,
   version: CURRENT_VERSION,
 };
-const requestId = Utils.crypto.normalizeKeccak256Hash(unsignedAction);
 const action = Utils.signature.sign(unsignedAction, TestData.payeeRaw.signatureParams);
+const requestId = Utils.crypto.normalizeKeccak256Hash(action);
 
 const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 

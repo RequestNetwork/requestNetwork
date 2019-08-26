@@ -75,7 +75,7 @@ describe('index', () => {
     sandbox.restore();
   });
 
-  it('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
+  it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
     const mock = new mockAdapter(axios);
 
     const callback = (config: any): any => {
@@ -105,7 +105,7 @@ describe('index', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
+  it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
     const mock = new mockAdapter(axios);
 
     const callback = (config: any): any => {
