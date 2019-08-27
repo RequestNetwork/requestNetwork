@@ -1,8 +1,14 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
-import { getIpfsExpectedBootstrapNodes, getMaxConcurrency, getPinRequestConfig } from './config';
+import {
+  getIpfsExpectedBootstrapNodes,
+  getMaxConcurrency,
+  getMaxIpfsReadRetry,
+  getPinRequestConfig,
+} from './config';
 import EthereumMetadataCache from './ethereum-metadata-cache';
+import IpfsConnectionError from './ipfs-connection-error';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
 
@@ -40,6 +46,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Maximum number of concurrent calls
    */
   public maxConcurrency: number;
+
+  /**
+   * Number of times we retry to read hashes on IPFS
+   * Left public for testing purpose
+   */
+  public maxIpfsReadRetry: number = getMaxIpfsReadRetry();
 
   /**
    * Logger instance
@@ -387,38 +399,60 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Filtered list of dataId with metadata
    */
   private async hashesAndSizesToFilteredDataIdContentAndMeta(
-    hashesAndSizes: StorageTypes.IGetAllHashesAndSizes[],
+    hashesAndSizesPromises: StorageTypes.IGetAllHashesAndSizes[],
   ): Promise<StorageTypes.IGetDataIdContentAndMeta> {
-    const totalCount = hashesAndSizes.length;
-    let succeedCount = 0;
-    let timeoutCount = 0;
-    let wrongFeesCount = 0;
+    let hashesAndSizesToRetrieve = await Promise.all(hashesAndSizesPromises);
 
-    // Parse hashes and sizes
-    // Reject on error when parsing the hash on ipfs
-    // or when the size doesn't correspond to the size of the content stored on ipfs
-    const parsedDataIdAndMeta = await Bluebird.map(
-      hashesAndSizes,
-      async (
-        hashAndSizePromise: StorageTypes.IGetAllHashesAndSizes,
-        currentIndex: number,
-      ): Promise<StorageTypes.IOneDataIdContentAndMeta | null> => {
-        const hashAndSize = await hashAndSizePromise;
-        // Check if the event log is incorrect
-        if (
-          typeof hashAndSize.hash === 'undefined' ||
-          typeof hashAndSize.feesParameters === 'undefined'
-        ) {
-          throw Error('The event log has no hash or feesParameters');
-        }
-        if (typeof hashAndSize.meta === 'undefined') {
-          throw Error('The event log has no metadata');
-        }
+    const totalCount: number = hashesAndSizesToRetrieve.length;
+    let successCount: number = 0;
+    let successCountOnFirstTry: number = 0;
+    let ipfsConnectionErrorCount: number = 0;
+    let wrongFeesCount: number = 0;
+    let incorrectFileCount: number = 0;
 
-        // Get content from ipfs and verify provided size is correct
-        let badDataInSmartContractError;
-        let ipfsObject;
-        try {
+    // Contains results from readHashOnIPFS function
+    // We store hashAndSize in this array in order to know which hashes have not been found on IPFS
+    let hashesAndSizesWithParsedDataIdAndMeta: Array<{
+      dataIdAndMeta: StorageTypes.IOneDataIdContentAndMeta | null;
+      hashToRetryAndSize: StorageTypes.IGetAllHashesAndSizes | null;
+    }>;
+
+    // Contains hashes we retry to read on IPFS
+    let hashesAndSizesToRetry: StorageTypes.IGetAllHashesAndSizes[] = [];
+
+    // Final array of dataIds and meta
+    const dataIdsAndMeta: StorageTypes.IOneDataIdContentAndMeta[] = [];
+
+    // Try to read the hashes on IPFS
+    // The operation is done at least once and retried depending on the readOnIPFSRetry config
+    for (let tryIndex = 0; tryIndex < 1 + this.maxIpfsReadRetry; tryIndex++) {
+      // Reset for each retry
+      ipfsConnectionErrorCount = 0;
+
+      if (tryIndex > 0) {
+        this.logger.debug(`Retrying to read hashes on IPFS`, ['ipfs']);
+      }
+
+      hashesAndSizesWithParsedDataIdAndMeta = await Bluebird.map(
+        hashesAndSizesToRetrieve,
+        // Read hash on IPFS and retrieve content corresponding to the hash
+        // Reject on error when no file is found on IPFS
+        // or when the declared size doesn't correspond to the size of the content stored on ipfs
+        async (hashAndSize: StorageTypes.IGetAllHashesAndSizes, currentIndex: number) => {
+          // Check if the event log is incorrect
+          if (
+            typeof hashAndSize.hash === 'undefined' ||
+            typeof hashAndSize.feesParameters === 'undefined'
+          ) {
+            throw Error('The event log has no hash or feesParameters');
+          }
+          if (typeof hashAndSize.meta === 'undefined') {
+            throw Error('The event log has no metadata');
+          }
+
+          // Get content from ipfs and verify provided size is correct
+          let ipfsObject;
+
           const startTime = Date.now();
 
           // To limit the read response size, calculate a reasonable margin for the IPFS headers compared to the size stored on ethereum
@@ -427,86 +461,111 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             SAFE_MAX_HEADER_SIZE,
           );
 
-          // Send ipfs request
-          ipfsObject = await this.ipfsManager.read(
-            hashAndSize.hash,
-            Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
-          );
+          try {
+            // Send ipfs request
+            ipfsObject = await this.ipfsManager.read(
+              hashAndSize.hash,
+              Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
+            );
 
-          this.logger.debug(
-            `[${currentIndex + 1}/${totalCount}] read ${hashAndSize.hash}. Took ${Date.now() -
-              startTime} ms`,
-            ['ipfs'],
-          );
-        } catch (error) {
-          badDataInSmartContractError = `IPFS read: ${error.message || error} ${hashAndSize.hash}`;
-        }
+            this.logger.debug(
+              `[${successCount + currentIndex + 1}/${totalCount}] read ${
+                hashAndSize.hash
+              }, try; ${tryIndex + 1}. Took ${Date.now() - startTime} ms`,
+              ['ipfs'],
+            );
+          } catch (error) {
+            const errorMessage = error.message || error;
 
-        const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
+            // Check the type of the error
+            if (error instanceof IpfsConnectionError) {
+              this.logger.info(`IPFS connection error when trying to fetch: ${hashAndSize.hash}`, [
+                'ipfs',
+              ]);
+              ipfsConnectionErrorCount++;
+              this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
 
-        /* Anybody can add any data into the storage smart contract
-         * Therefore we can find in the storage smart contract:
-         * - Hash that doesn't match to any file in IPFS
-         * - Size value that doesn't match to the real size of the file stored on IPFS
-         * In these cases, we simply ignore the values instead of throwing an error
-         */
-        if (
-          badDataInSmartContractError ||
-          !ipfsObject ||
-          ipfsObject.ipfsSize > contentSizeDeclared
-        ) {
-          this.logger.info(`Ignoring missing hash: ${hashAndSize.hash}`, ['ipfs']);
-          if (badDataInSmartContractError) {
-            timeoutCount++;
-            this.logger.debug(badDataInSmartContractError, ['ipfs']);
-          } else {
-            wrongFeesCount++;
-            this.logger.debug('The size of the content is not the size stored on ethereum', [
-              'ipfs',
-            ]);
+              // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the hash
+              return { dataIdAndMeta: null, hashToRetryAndSize: hashAndSize };
+            } else {
+              this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
+              incorrectFileCount++;
+              this.logger.debug(`Incorrect file error: ${errorMessage}`, ['ipfs']);
+
+              // No need to retry to find this hash
+              return { dataIdAndMeta: null, hashToRetryAndSize: null };
+            }
           }
-          return null;
+
+          const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
+
+          // Check if the declared size is higher or equal to the size of the actual file
+          // If the declared size is higher, it's not considered as a problem since it means the hash submitter has paid a bigger fee than he had to
+          if (!ipfsObject || ipfsObject.ipfsSize > contentSizeDeclared) {
+            this.logger.info(`Incorrect declared size for hash: ${hashAndSize.hash}`, ['ipfs']);
+            wrongFeesCount++;
+
+            // No need to retry to find this hash
+            return { dataIdAndMeta: null, hashToRetryAndSize: null };
+          }
+
+          // Get meta data from ethereum
+          const ethereumMetadata = hashAndSize.meta;
+
+          const dataIdAndMeta = {
+            meta: {
+              ethereum: ethereumMetadata,
+              ipfs: { size: ipfsObject.ipfsSize },
+              storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+              timestamp: ethereumMetadata.blockTimestamp,
+            },
+            result: {
+              data: ipfsObject.content,
+              dataId: hashAndSize.hash,
+            },
+          };
+          return { dataIdAndMeta, hashToRetryAndSize: null };
+        },
+        {
+          concurrency: this.maxConcurrency,
+        },
+      );
+
+      // Store found hashes in dataIdsAndMeta
+      // The hashes to retry to read are the hashes where readHashOnIPFS returned null
+      hashesAndSizesWithParsedDataIdAndMeta.forEach(hashAndSizeWithParsedDataIdAndMeta => {
+        if (hashAndSizeWithParsedDataIdAndMeta.dataIdAndMeta) {
+          dataIdsAndMeta.push(hashAndSizeWithParsedDataIdAndMeta.dataIdAndMeta);
+        } else if (hashAndSizeWithParsedDataIdAndMeta.hashToRetryAndSize) {
+          hashesAndSizesToRetry.push(hashAndSizeWithParsedDataIdAndMeta.hashToRetryAndSize);
         }
+      });
 
-        succeedCount++;
+      // Put the remaining hashes to retrieved in the queue for the next retry
+      hashesAndSizesToRetrieve = hashesAndSizesToRetry;
+      hashesAndSizesToRetry = [];
 
-        // Get meta data from ethereum
-        const ethereumMetadata = hashAndSize.meta;
+      successCount = dataIdsAndMeta.length;
 
-        return {
-          meta: {
-            ethereum: ethereumMetadata,
-            ipfs: { size: ipfsObject.ipfsSize },
-            storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-            timestamp: ethereumMetadata.blockTimestamp,
-          },
-          result: {
-            data: ipfsObject.content,
-            dataId: hashAndSize.hash,
-          },
-        };
-      },
-      {
-        concurrency: this.maxConcurrency,
-      },
-    );
+      this.logger.debug(`${successCount} retrieved dataIds after try ${tryIndex + 1}`, ['ipfs']);
+
+      if (tryIndex === 0) {
+        successCountOnFirstTry = successCount;
+      }
+    }
 
     this.logger.info(
-      `getData on ${totalCount} events, ${succeedCount} retrieved, ${timeoutCount} not found, ${wrongFeesCount} with wrong fees`,
+      `getData on ${totalCount} events, ${successCount} retrieved (${successCount -
+        successCountOnFirstTry} after retries), ${ipfsConnectionErrorCount} not found, ${incorrectFileCount} incorrect files, ${wrongFeesCount} with wrong fees`,
       ['metric', 'successfullyRetrieved'],
     );
 
-    // Filter the rejected parsedDataIdAndMeta
-    const arrayOfDataIdAndMeta = parsedDataIdAndMeta.filter(
-      dataIdAndMeta => dataIdAndMeta,
-    ) as StorageTypes.IOneDataIdContentAndMeta[];
-
     // Create the array of data ids
-    const dataIds = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.dataId);
+    const dataIds = dataIdsAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.dataId);
     // Create the array of data content
-    const data = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.data);
+    const data = dataIdsAndMeta.map(dataIdAndMeta => dataIdAndMeta.result.data);
     // Create the array of metadata
-    const metaData = arrayOfDataIdAndMeta.map(dataIdAndMeta => dataIdAndMeta.meta);
+    const metaData = dataIdsAndMeta.map(dataIdAndMeta => dataIdAndMeta.meta);
 
     return {
       meta: {
