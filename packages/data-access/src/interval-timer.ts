@@ -1,12 +1,18 @@
 import { LogTypes } from '@requestnetwork/types';
+
 /**
  * Module to start and stop a periodical function
  */
 export default class IntervalTimer {
+  // Count the successive number of failure from the interval function
+  // This value is used as we may not want to directly log an error if the interval function fails once
+  public intervalFunctionSuccessiveFailureCount: number = 0;
+
   private intervalFunction: any;
   private intervalTime: number;
   private timeoutObject: any = null;
-  private logger?: LogTypes.ILogger;
+  private logger: LogTypes.ILogger;
+  private successiveFailureThreshold: number;
 
   /**
    * Constructor IntervalTimer
@@ -14,15 +20,18 @@ export default class IntervalTimer {
    * @param intervalFunction function to call periodically when timer is started
    * @param intervalTime Interval time between interval function call
    * @param logger Logger instance
+   * @param successiveFailureThreshold Required number of successive failure from interval function before logging an error
    */
   public constructor(
     intervalFunction: () => Promise<void>,
     intervalTime: number,
-    logger?: LogTypes.ILogger,
+    logger: LogTypes.ILogger,
+    successiveFailureThreshold: number = 1,
   ) {
     this.intervalFunction = intervalFunction;
     this.intervalTime = intervalTime;
     this.logger = logger;
+    this.successiveFailureThreshold = successiveFailureThreshold;
   }
 
   /**
@@ -41,11 +50,24 @@ export default class IntervalTimer {
       try {
         // We wait for the internal function to reset the timeout
         await this.intervalFunction();
+
+        // Reset intervalFunctionSuccessiveFailureCount
+        this.intervalFunctionSuccessiveFailureCount = 0;
       } catch (e) {
         // An error in the interval function should not stop the interval timer
-        // We display the error and continue the interval timer
-        if (this.logger) {
-          this.logger.error(`intervalTimer error: ${e}`);
+
+        // An isolated error from the interval function is considered as a warning
+        this.logger.warn(`${this.intervalFunction.name || 'intervalFunction'} error: ${e}`);
+
+        this.intervalFunctionSuccessiveFailureCount++;
+
+        // If the interval function failed several times in a row, it can be caused by a bigger problem therefore we display an error
+        if (this.intervalFunctionSuccessiveFailureCount >= this.successiveFailureThreshold) {
+          this.logger.error(
+            `${this.intervalFunction.name || 'intervalFunction'} failed ${
+              this.intervalFunctionSuccessiveFailureCount
+            } times in a row, last error: ${e}`,
+          );
         }
       }
 

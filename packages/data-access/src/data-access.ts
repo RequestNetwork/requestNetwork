@@ -82,6 +82,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       (): Promise<void> => this.synchronizeNewDataIds(),
       options.synchronizationIntervalTime!,
       options.logger!,
+      5,
     );
     this.transactionIndex = options.transactionIndex!;
 
