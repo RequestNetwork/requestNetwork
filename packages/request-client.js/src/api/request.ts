@@ -1,7 +1,4 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';

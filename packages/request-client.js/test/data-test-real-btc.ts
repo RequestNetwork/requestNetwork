@@ -35,7 +35,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
   payee: payee.identity,
   payer: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
   },
   timestamp: 1549956270,
 };
@@ -43,7 +43,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
 export const data = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters,
-  version: '2.0.0',
+  version: '2.0.1',
 };
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);

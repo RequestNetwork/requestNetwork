@@ -48,9 +48,11 @@ export interface IReturnGetTransactions {
   meta: {
     /** meta-data from the layer below */
     dataAccessMeta?: any;
+    /** Ignored transactions */
+    ignoredTransactions: Array<IIgnoredTransaction | null>;
   };
   /** result of the execution */
-  result: { transactions: IConfirmedTransaction[] };
+  result: { transactions: Array<IConfirmedTransaction | null> };
 }
 
 /** return interface for getTransactionsByChannelId  */
@@ -59,9 +61,11 @@ export interface IReturnGetTransactionsByChannels {
   meta: {
     /** meta-data from the layer below */
     dataAccessMeta?: any;
+    /** Ignored transactions */
+    ignoredTransactions: { [key: string]: Array<IIgnoredTransaction | null> };
   };
   /** result of the execution */
-  result: { transactions: { [key: string]: IConfirmedTransaction[] } };
+  result: { transactions: { [key: string]: Array<IConfirmedTransaction | null> } };
 }
 
 /** Transaction */
@@ -83,3 +87,9 @@ export interface IConfirmedTransaction {
 
 /** Transaction data */
 export type ITransactionData = string;
+
+/** Ignored transaction */
+export interface IIgnoredTransaction {
+  transaction: IConfirmedTransaction;
+  reason: string;
+}
