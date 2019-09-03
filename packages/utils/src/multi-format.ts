@@ -110,7 +110,9 @@ function isAes256cbcEncryption(formattedData: string): boolean {
  * @returns format the encrypted data adding the prefix MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS
  */
 function formatIdentityEthereumAddress(ethereumAddress: string): string {
-  return `${MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS}${ethereumAddress.slice(2)}`;
+  return `${MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS}${ethereumAddress
+    .slice(2)
+    .toLowerCase()}`;
 }
 
 /**
@@ -137,7 +139,8 @@ function removePadding(formattedData: string): string {
     isPlainText(formattedData) ||
     isKeccak256Hash(formattedData) ||
     isAes256cbcEncryption(formattedData) ||
-    isEciesEncryption(formattedData)
+    isEciesEncryption(formattedData) ||
+    isIdentityEthereumAddress(formattedData)
   ) {
     return formattedData.slice(2);
   }

@@ -224,4 +224,22 @@ describe('ethereum-private-key-decryption-provider', () => {
       ).to.eventually.be.rejectedWith('private key unknown for the identity: 0x000');
     });
   });
+  describe('isIdentityRegistered', () => {
+    it('can check if an identity is registered', async () => {
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+
+      expect(
+        await decryptionProvider.isIdentityRegistered(id1Raw.identity),
+        'id1Raw must be registered',
+      ).to.be.true;
+    });
+
+    it('can check if an identity is NOT registered', async () => {
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      expect(
+        await decryptionProvider.isIdentityRegistered(id2Raw.identity),
+        'id2Raw must not be registered',
+      ).to.be.false;
+    });
+  });
 });

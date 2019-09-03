@@ -7,43 +7,52 @@ const expect = chai.expect;
 
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import TransactionCore from '../../src/transaction';
+import TransactionsFactory from '../../src/transactions-factory';
 import * as TestData from './utils/test-data';
 
-/* tslint:disable:no-unused-expression */
-describe('transaction', () => {
-  describe('createTransaction', () => {
-    it('can create transaction', () => {
-      const data = '{ what: "ever", it: "is,", this: "must", work: true }';
+const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 
-      const tx = TransactionCore.createTransaction(data);
+/* tslint:disable:no-unused-expression */
+describe('transaction-factory', () => {
+  describe('createClearTransaction', () => {
+    it('can create clear transaction', async () => {
+      const tx = await TransactionsFactory.createClearTransaction(data);
 
       expect(tx, 'transaction not right').to.deep.equal({ data });
+    });
+    it('cannot create clear transaction with not parsable data', async () => {
+      await expect(
+        TransactionsFactory.createClearTransaction('Not parsable'),
+        'transaction not right',
+      ).to.eventually.be.rejectedWith('Data not parsable');
     });
   });
 
   describe('createEncryptedTransaction', async () => {
     it('can create encrypted transaction', async () => {
-      const data = '{ what: "ever", it: "is,", this: "must", work: true }';
-
-      const encryptedTx = await TransactionCore.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
       ]);
-
       // tslint:disable-next-line:no-magic-numbers
-      expect(encryptedTx.data.length, 'encryptedData not right').to.deep.equal(110);
-      expect(encryptedTx.data.slice(0, 2), 'encryptedData not right').to.deep.equal(
-        MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED,
-      );
+
+      if (encryptedTx.encryptedData) {
+        // tslint:disable-next-line:no-magic-numbers
+        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(110);
+        expect(encryptedTx.encryptedData.slice(0, 2), 'encryptedData not right').to.deep.equal(
+          MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED,
+        );
+      } else {
+        expect.fail('encryptedData should not be undefined');
+      }
 
       expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.deep.equal(
         `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`,
       );
 
       expect(encryptedTx.hash, 'hash not right').to.deep.equal(
-        Utils.crypto.normalizeKeccak256Hash(data),
+        Utils.crypto.normalizeKeccak256Hash(JSON.parse(data)),
       );
 
       expect(Object.keys(encryptedTx.keys || {}).length, 'keys not right').to.deep.equal(3);
@@ -67,10 +76,8 @@ describe('transaction', () => {
     });
 
     it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
-      const data = '{ what: "ever", it: "is,", this: "must", work: true }';
-
       await expect(
-        TransactionCore.createEncryptedTransaction(data, [
+        TransactionsFactory.createEncryptedTransaction(data, [
           TestData.idRaw1.encryptionParams,
           TestData.idRaw2.encryptionParams,
           { method: EncryptionTypes.METHOD.AES256_CBC, key: '0123456789' },
@@ -78,6 +85,16 @@ describe('transaction', () => {
       ).to.eventually.rejectedWith(
         `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`,
       );
+    });
+
+    it('cannot create encrypted transaction with not parsable data', async () => {
+      await expect(
+        TransactionsFactory.createEncryptedTransaction('Not parsable', [
+          TestData.idRaw1.encryptionParams,
+          TestData.idRaw2.encryptionParams,
+        ]),
+        'transaction not right',
+      ).to.eventually.be.rejectedWith('Data not parsable');
     });
   });
 });

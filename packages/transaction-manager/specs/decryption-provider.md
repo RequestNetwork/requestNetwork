@@ -26,6 +26,16 @@ This read-only property lists in an array all the identity types the decryption 
 
 Possible values: `'ethereumAddress'`
 
+### `isIdentityRegistered()`
+
+This function checks if it is possible to decrypt from a specific identity.
+
+| Parameters   | Type     | Description       |
+| ------------ | -------- | ----------------- |
+| **identity** | Identity | Identity to check |
+
+Returns: `true` if the identity is registered in the provider, `false` otherwise.
+
 ### `decrypt()`
 
 This function is able to decrypt encrypted data with the methods listed in `supportedMethods` and for the identity types listed in `supportedIdentityTypes`

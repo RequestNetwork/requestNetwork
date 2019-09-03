@@ -282,9 +282,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: string,
   ): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
-
     const actions = resultGetTx.result.transactions
-      // remove the actions ignored by the under layer
+      // filter the actions ignored by the previous layers
       .filter(action => action !== null);
     let ignoredTransactions: any[] = [];
 

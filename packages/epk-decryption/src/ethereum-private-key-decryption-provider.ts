@@ -56,6 +56,19 @@ export default class EthereumPrivateKeyDecryptionProvider
   }
 
   /**
+   * Check if an identity is registered in the provider
+   *
+   * @param identity identity to check
+   *
+   * @returns true if the identity is registered, false otherwise
+   */
+  public async isIdentityRegistered(identity: IdentityTypes.IIdentity): Promise<boolean> {
+    return Array.from(this.decryptionParametersDictionary.keys()).some(
+      address => identity.value.toLowerCase() === address.toLowerCase(),
+    );
+  }
+
+  /**
    * Adds a new private key in the provider
    *
    * @param decryptionParameters decryption parameters to add

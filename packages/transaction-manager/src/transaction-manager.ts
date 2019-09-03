@@ -1,16 +1,26 @@
-import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import {
+  DataAccessTypes,
+  DecryptionProviderTypes,
+  EncryptionTypes,
+  TransactionTypes,
+} from '@requestnetwork/types';
 
-import TransactionCore from './transaction';
+import TransactionsFactory from './transactions-factory';
+import TransactionsParser from './transactions-parser';
 
 /**
  * Implementation of TransactionManager layer without encryption
  */
 export default class TransactionManager implements TransactionTypes.ITransactionManager {
   private dataAccess: DataAccessTypes.IDataAccess;
+  private transactionParser: TransactionsParser;
 
-  public constructor(dataAccess: DataAccessTypes.IDataAccess) {
+  public constructor(
+    dataAccess: DataAccessTypes.IDataAccess,
+    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+  ) {
     this.dataAccess = dataAccess;
+    this.transactionParser = new TransactionsParser(decryptionProvider);
   }
 
   /**
@@ -27,7 +37,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     channelId: string,
     topics: string[] = [],
   ): Promise<TransactionTypes.IReturnPersistTransaction> {
-    const transaction: TransactionTypes.ITransaction = TransactionCore.createTransaction(
+    const transaction: TransactionTypes.IPersistedTransaction = await TransactionsFactory.createClearTransaction(
       transactionData,
     );
 
@@ -57,7 +67,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     topics: string[] = [],
   ): Promise<TransactionTypes.IReturnPersistTransaction> {
-    const encryptedTransaction: TransactionTypes.ITransaction = await TransactionCore.createEncryptedTransaction(
+    const encryptedTransaction: TransactionTypes.IPersistedTransaction = await TransactionsFactory.createEncryptedTransaction(
       transactionData,
       encryptionParams,
     );
@@ -95,8 +105,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       timestampBoundaries,
     );
 
-    // Clean the channel from the data-access layers
-    const { transactions, ignoredTransactions } = await this.cleanChannel(
+    // Decrypts and clean the channel from the data-access layers
+    const { transactions, ignoredTransactions } = await this.decryptAndCleanChannel(
       channelId,
       resultGetTx.result.transactions,
     );
@@ -123,15 +133,17 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
     const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
 
-    // Clean the channels from the data-access layers one by one
+    // Get the channels from the data-access layers to decrypt and clean them one by one
     const result = await Object.keys(resultGetTx.result.transactions).reduce(
       async (accumulatorPromise, channelId) => {
-        const cleaned = await this.cleanChannel(
+        const cleaned = await this.decryptAndCleanChannel(
           channelId,
           resultGetTx.result.transactions[channelId],
         );
 
+        // await for the accumulator promise at the end to parallelize the calls to decryptAndCleanChannel()
         const accumulator: any = await accumulatorPromise;
+
         accumulator.transactions[channelId] = cleaned.transactions;
         accumulator.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
         return accumulator;
@@ -149,76 +161,107 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   }
 
   /**
-   * Clean a channel by removing the wrong transactions
+   * Decrypts and cleans a channel by removing the wrong transactions
    *
    * @param channelId the channelId of the channel
-   * @param transactions the transactions of the channel
-   * @returns Promise resolving the kept transactions and the ignored transactions
+   * @param transactions the transactions of the channel to decrypt and clean
+   * @returns Promise resolving the kept transactions and the ignored ones with the reason
    */
-  private async cleanChannel(
+  private async decryptAndCleanChannel(
     channelId: string,
     transactions: TransactionTypes.IConfirmedTransaction[],
   ): Promise<{
     transactions: Array<TransactionTypes.IConfirmedTransaction | null>;
     ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null>;
   }> {
-    let firstValidTxFound: boolean = false;
-    const validAndIgnoredTransactions = transactions.map(
-      (
+    let channelType: TransactionTypes.ChannelType = TransactionTypes.ChannelType.UNKNOWN;
+    let channelKey: EncryptionTypes.IDecryptionParameters | undefined;
+
+    interface IValidAndIgnoredTransactions {
+      valid: TransactionTypes.IConfirmedTransaction | null;
+      ignored: TransactionTypes.IIgnoredTransaction | null;
+    }
+
+    // use of .reduce instead of .map to keep a sequential execution
+    const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
+      async (
+        accumulatorPromise: Promise<IValidAndIgnoredTransactions[]>,
         confirmedTransaction: TransactionTypes.IConfirmedTransaction,
-      ): {
-        valid: TransactionTypes.IConfirmedTransaction | null;
-        ignored: TransactionTypes.IIgnoredTransaction | null;
-      } => {
-        const transaction = confirmedTransaction.transaction;
+      ) => {
+        const result = await accumulatorPromise;
 
-        // Recursively remove the first transaction if the hash is not the same as the channelId and for clear transaction if the transaction data is not parsable
-        if (!firstValidTxFound) {
-          let isFirstTransactionValid: boolean = false;
-          try {
-            isFirstTransactionValid =
-              Utils.crypto.normalizeKeccak256Hash(JSON.parse(transaction.data)) === channelId;
-          } catch (e) {
-            // if the transaction data are not parsable (in a clear transaction)
-            return {
-              ignored: {
-                reason: 'Impossible to JSON parse the transaction',
-                transaction: confirmedTransaction,
-              },
-              valid: null,
-            };
-          }
-
-          if (!isFirstTransactionValid) {
-            return {
-              ignored: {
-                reason:
-                  'as first transaction, the hash of the transaction do not match the channelId',
-                transaction: confirmedTransaction,
-              },
-              valid: null,
-            };
-          }
-          firstValidTxFound = true;
-          return { valid: confirmedTransaction, ignored: null };
-        }
-
-        // We check that the transaction data are parsable
+        let parsedTransactionAndChannelKey;
         try {
-          JSON.parse(transaction.data);
-        } catch (e) {
-          return {
-            ignored: {
-              reason: 'Impossible to JSON parse the transaction',
-              transaction: confirmedTransaction,
+          // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
+          parsedTransactionAndChannelKey = await this.transactionParser.parsePersistedTransaction(
+            confirmedTransaction.transaction,
+            channelType,
+            channelKey,
+          );
+        } catch (error) {
+          return result.concat([
+            {
+              ignored: {
+                reason: error.message,
+                transaction: confirmedTransaction,
+              },
+              valid: null,
             },
-            valid: null,
-          };
+          ]);
         }
 
-        // No other check yet
-        return { valid: confirmedTransaction, ignored: null };
+        const transaction: TransactionTypes.ITransaction =
+          parsedTransactionAndChannelKey.transaction;
+
+        // We check if the transaction is valid
+        const error = await transaction.getError();
+        if (error !== '') {
+          return result.concat([
+            {
+              ignored: {
+                reason: error,
+                transaction: confirmedTransaction,
+              },
+              valid: null,
+            },
+          ]);
+        }
+
+        // If this is the first transaction, it removes the transaction if the hash is not the same as the channelId
+        if (channelType === TransactionTypes.ChannelType.UNKNOWN) {
+          const hash = await transaction.getHash();
+          if (hash !== channelId) {
+            return result.concat([
+              {
+                ignored: {
+                  reason:
+                    'as first transaction, the hash of the transaction do not match the channelId',
+                  transaction: confirmedTransaction,
+                },
+                valid: null,
+              },
+            ]);
+          }
+          // from the first valid transaction, we can deduce the type of the channel
+          channelType = !!parsedTransactionAndChannelKey.channelKey
+            ? TransactionTypes.ChannelType.ENCRYPTED
+            : TransactionTypes.ChannelType.CLEAR;
+
+          // we keep the channelKey for this channel
+          channelKey = parsedTransactionAndChannelKey.channelKey;
+        }
+
+        const data = await transaction.getData();
+
+        // add the decrypted transaction as valid
+        return result.concat([
+          {
+            ignored: null,
+            valid: { transaction: { data }, timestamp: confirmedTransaction.timestamp },
+          },
+        ]);
       },
+      Promise.resolve([]),
     );
 
     const ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null> = validAndIgnoredTransactions.map(
