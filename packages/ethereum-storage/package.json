@@ -94,7 +94,7 @@
     "solium": "1.2.2",
     "source-map-support": "0.5.13",
     "truffle": "5.0.3",
-    "truffle-hdwallet-provider": "1.0.3",
+    "truffle-hdwallet-provider": "1.0.17",
     "ts-node": "8.0.2",
     "tslint": "5.12.1",
     "typescript": "3.3.1",
