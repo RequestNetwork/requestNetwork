@@ -123,9 +123,7 @@ describe('transaction-parser', () => {
             TransactionTypes.ChannelType.UNKNOWN,
           ),
           'must reject',
-        ).to.eventually.be.rejectedWith(
-          `Impossible to decrypt the channel key from this transaction`,
-        );
+        ).to.eventually.be.rejectedWith(`No decryption provider given`);
       });
       it('cannot parse encrypted transaction with keys corrupted', async () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransaction(data, [

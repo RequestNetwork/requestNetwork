@@ -103,6 +103,11 @@ export default class TransactionsParser {
     keys: TransactionTypes.IKeysDictionary,
     encryptionMethod: string,
   ): Promise<EncryptionTypes.IDecryptionParameters> {
+    // Check if the decryption provider is given
+    if (!this.decryptionProvider) {
+      throw new Error(`No decryption provider given`);
+    }
+
     // Check the encryption method
     if (
       encryptionMethod !== `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`

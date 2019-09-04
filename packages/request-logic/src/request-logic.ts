@@ -368,6 +368,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
       const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
         transactionsByChannel[channelId]
+          // filter the actions ignored by the previous layers
+          .filter(action => action !== null)
           .map((t: any) => {
             try {
               return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
