@@ -63,7 +63,7 @@ describe('index', () => {
       });
       expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
         await TransactionsFactory.createClearTransaction(data),
-        extraTopics,
+        extraTopics.concat([channelId]),
       );
     });
   });

@@ -130,15 +130,10 @@ function pushTransaction(
   const newTransactionPosition = copiedBlock.transactions.length;
   copiedBlock.transactions.push(transaction);
 
-  const txHash = Utils.crypto.normalizeKeccak256Hash(transaction.data);
-
   // index the transaction with the channel id
   copiedBlock.header.channelIds[channelId] = (
     copiedBlock.header.channelIds[channelId] || []
   ).concat([newTransactionPosition]);
-
-  // concat topic given and the default topic (hash)
-  topics.push(txHash);
 
   // add topics in the header
   for (const topic of topics) {

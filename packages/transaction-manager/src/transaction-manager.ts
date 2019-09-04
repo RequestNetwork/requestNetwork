@@ -4,6 +4,7 @@ import {
   EncryptionTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import TransactionsFactory from './transactions-factory';
 import TransactionsParser from './transactions-parser';
@@ -41,7 +42,14 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       transactionData,
     );
 
-    const persistResult = await this.dataAccess.persistTransaction(transaction, channelId, topics);
+    // compute hash to add it to the topics
+    const hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData));
+
+    const persistResult = await this.dataAccess.persistTransaction(
+      transaction,
+      channelId,
+      topics.concat([hash]),
+    );
 
     return {
       meta: {
@@ -72,10 +80,13 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       encryptionParams,
     );
 
+    // compute hash to add it to the topics
+    const hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData));
+
     const persistResult = await this.dataAccess.persistTransaction(
       encryptedTransaction,
       channelId,
-      topics,
+      topics.concat([hash]),
     );
 
     return {
