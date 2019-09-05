@@ -95,7 +95,7 @@
     "source-map-support": "0.5.13",
     "truffle": "5.0.3",
     "truffle-hdwallet-provider": "1.0.17",
-    "ts-node": "8.0.2",
+    "ts-node": "8.3.0",
     "tslint": "5.12.1",
     "typescript": "3.3.1",
     "web3-providers-http": "1.2.1"
