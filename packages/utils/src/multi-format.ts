@@ -6,10 +6,12 @@ import { MultiFormatTypes } from '@requestnetwork/types';
 export default {
   formatAes256cbcEncryption,
   formatEciesEncryption,
+  formatIdentityEthereumAddress,
   formatKeccak256Hash,
   formatPlainText,
   isAes256cbcEncryption,
   isEciesEncryption,
+  isIdentityEthereumAddress,
   isKeccak256Hash,
   isPlainText,
   removePadding,
@@ -19,7 +21,7 @@ export default {
  * Formats a plain text
  *
  * @param data data to format in plain text
- * @returns the data with the right prefix ('00')
+ * @returns the data with the right prefix (MultiFormatTypes.prefix.PLAIN_TEXT)
  */
 function formatPlainText(data: string): string {
   return `${MultiFormatTypes.prefix.PLAIN_TEXT}${data}`;
@@ -39,7 +41,7 @@ function isPlainText(formattedData: string): boolean {
  * Transforms a keccak256 to a multi-format keccak256
  *
  * @param hash to format
- * @returns format the hash replacing the prefix '0x' by '01'
+ * @returns format the hash replacing the prefix '0x' by MultiFormatTypes.prefix.NORMALIZE_KECCAK256_HASH
  */
 function formatKeccak256Hash(hash: string): string {
   if (hash.length !== MultiFormatTypes.FORMAT_NORMALIZE_KECCAK256_HASH_LENGTH) {
@@ -65,7 +67,7 @@ function isKeccak256Hash(formattedData: string): boolean {
  * Transforms an ECIES encrypted data to a multi-format
  *
  * @param encryptedData encrypted data to format
- * @returns format the encrypted data adding the prefix '02'
+ * @returns format the encrypted data adding the prefix MultiFormatTypes.prefix.ECIES_ENCRYPTED
  */
 function formatEciesEncryption(encryptedData: string): string {
   return `${MultiFormatTypes.prefix.ECIES_ENCRYPTED}${encryptedData}`;
@@ -85,7 +87,7 @@ function isEciesEncryption(formattedData: string): boolean {
  * Transforms an AES256-cbc encrypted data to a multi-format
  *
  * @param encryptedData encrypted data to format
- * @returns format the encrypted data adding the prefix '03'
+ * @returns format the encrypted data adding the prefix MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED
  */
 function formatAes256cbcEncryption(encryptedData: string): string {
   return `${MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED}${encryptedData}`;
@@ -102,6 +104,31 @@ function isAes256cbcEncryption(formattedData: string): boolean {
 }
 
 /**
+ * Transforms an ethereum address to a multi-format
+ *
+ * @param ethereumAddress ethereum address to format
+ * @returns format the encrypted data adding the prefix MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS
+ */
+function formatIdentityEthereumAddress(ethereumAddress: string): string {
+  return `${MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS}${ethereumAddress
+    .slice(2)
+    .toLowerCase()}`;
+}
+
+/**
+ * Checks if a formatted data is an ethereum address identity
+ *
+ * @param formattedData the formatted data to check
+ * @returns true if follow the format, false otherwise
+ */
+function isIdentityEthereumAddress(formattedData: string): boolean {
+  return (
+    formattedData.slice(0, 2) === MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS &&
+    formattedData.length === MultiFormatTypes.FORMAT_IDENTITY_ETHEREUM_ADDRESS_LENGTH
+  );
+}
+
+/**
  * Removes padding of a multi-format
  *
  * @param formattedData the formatted data
@@ -112,7 +139,8 @@ function removePadding(formattedData: string): string {
     isPlainText(formattedData) ||
     isKeccak256Hash(formattedData) ||
     isAes256cbcEncryption(formattedData) ||
-    isEciesEncryption(formattedData)
+    isEciesEncryption(formattedData) ||
+    isIdentityEthereumAddress(formattedData)
   ) {
     return formattedData.slice(2);
   }

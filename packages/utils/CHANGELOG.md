@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.5.0...@requestnetwork/utils@0.6.0) (2019-09-05)
+
+
+### Bug Fixes
+
+* Encryption channel use multi-format for identity instead of hash ([#501](https://github.com/RequestNetwork/requestNetwork/issues/501)) ([500a724](https://github.com/RequestNetwork/requestNetwork/commit/500a724))
+
+
+### Features
+
+* **transaction-manager:** decrypt channels  ([#516](https://github.com/RequestNetwork/requestNetwork/issues/516)) ([8142c3d](https://github.com/RequestNetwork/requestNetwork/commit/8142c3d))
+
+
+
+
+
+
 # [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.4.0...@requestnetwork/utils@0.5.0) (2019-08-19)
 
 

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.1...@requestnetwork/ethereum-storage@0.4.2) (2019-09-05)
+
+
+### Bug Fixes
+
+* retry twice to parse data on IPFS during initialisation of data-access ([#497](https://github.com/RequestNetwork/requestNetwork/issues/497)) ([c8d542d](https://github.com/RequestNetwork/requestNetwork/commit/c8d542d))
+
+
+
+
+
+
 ## [0.4.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.0...@requestnetwork/ethereum-storage@0.4.1) (2019-08-19)
 
 

@@ -29,8 +29,8 @@ const unsignedAction: RequestLogicTypes.IUnsignedAction = {
   parameters: createParams,
   version: CURRENT_VERSION,
 };
-const requestId = Utils.crypto.normalizeKeccak256Hash(unsignedAction);
 const action = Utils.signature.sign(unsignedAction, TestData.payeeRaw.signatureParams);
+const requestId = Utils.crypto.normalizeKeccak256Hash(action);
 
 const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
@@ -411,7 +411,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const meta = {};
+      const meta = { ignoredTransactions: [] };
       const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
@@ -548,7 +548,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const meta = {};
+      const meta = { ignoredTransactions: [] };
       const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
@@ -695,7 +695,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const meta = {};
+      const meta = { ignoredTransactions: [] };
       const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
         meta,
         result: {
@@ -800,7 +800,7 @@ describe('index', () => {
         transaction: { data: '{NOT parsable}' },
       };
       const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta: {},
+        meta: { ignoredTransactions: [] },
         result: {
           transactions: [transactionNotParsable],
         },
@@ -848,7 +848,7 @@ describe('index', () => {
       );
 
       const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta: {},
+        meta: { ignoredTransactions: [] },
         result: {
           transactions: [
             {
@@ -978,6 +978,7 @@ describe('index', () => {
 
       const meta = {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
+        ignoredTransactions: {},
       };
       const listAllActions: Promise<
         TransactionTypes.IReturnGetTransactionsByChannels
@@ -1066,6 +1067,7 @@ describe('index', () => {
 
       const meta = {
         dataAccessMeta: { [requestId]: [] },
+        ignoredTransactions: {},
       };
       const listActions: Promise<
         TransactionTypes.IReturnGetTransactionsByChannels

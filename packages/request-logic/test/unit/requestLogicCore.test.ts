@@ -371,11 +371,7 @@ describe('requestLogicCore', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash({
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: paramsCreate,
-          version: CURRENT_VERSION,
-        }),
+        Utils.crypto.normalizeKeccak256Hash(actionCreation),
       );
       expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);

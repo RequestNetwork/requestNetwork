@@ -282,7 +282,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: string,
   ): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
-    const actions = resultGetTx.result.transactions;
+    const actions = resultGetTx.result.transactions
+      // filter the actions ignored by the previous layers
+      .filter(action => action !== null);
     let ignoredTransactions: any[] = [];
 
     // array of transaction without duplicates to avoid replay attack
@@ -366,6 +368,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
       const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
         transactionsByChannel[channelId]
+          // filter the actions ignored by the previous layers
+          .filter(action => action !== null)
           .map((t: any) => {
             try {
               return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };

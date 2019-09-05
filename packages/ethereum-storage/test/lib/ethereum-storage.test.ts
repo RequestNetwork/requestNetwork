@@ -5,6 +5,7 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import EthereumStorage from '../../src/lib/ethereum-storage';
+import IpfsConnectionError from '../../src/lib/ipfs-connection-error';
 
 import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
 import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
@@ -687,6 +688,122 @@ describe('EthereumStorage', () => {
       hashes = new Array(200).fill(hash1);
       await ethereumStorage.pinDataToIPFS(hashes, pinConfig);
       await expect(spy).to.have.been.called.exactly(3);
+    });
+
+    it('allows to read hash on IPFS with retries', async () => {
+      // Mock to test IPFS read retry
+      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+        return Promise.resolve({
+          data: [
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x0',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x1',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x2',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x3',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x4',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x5',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+            {
+              feesParameters: { contentSize: 10 },
+              hash: '0x6',
+              meta: {},
+            } as StorageTypes.IGetAllHashesAndSizes,
+          ],
+          meta: {
+            lastBlockTimestamp: 0,
+          },
+        });
+      };
+
+      // Store how many time we tried to read a specific hash
+      const hashTryCount: any = {};
+
+      ethereumStorage.maxIpfsReadRetry = 4;
+
+      // This mock simulates ipfsManager.read() when we try to read the hash on IPFS differente times
+      ethereumStorage.ipfsManager.read = async (hash: string) => {
+        hashTryCount[hash] ? hashTryCount[hash]++ : (hashTryCount[hash] = 1);
+
+        switch (hash) {
+          case '0x0':
+            throw new Error(`File size (1) exceeds maximum file size of 0`);
+          case '0x1':
+            throw new Error('Ipfs object get request response cannot be parsed into JSON format');
+          case '0x2':
+            throw new Error('Ipfs object get failed');
+          case '0x3':
+            return {
+              content: '0000',
+              ipfsSize: 20,
+            } as StorageTypes.IIpfsObject;
+          case '0x4':
+            if (hashTryCount[hash] < 2) {
+              throw new IpfsConnectionError('Timeout');
+            }
+
+            return {
+              content: '0000',
+              ipfsSize: 10,
+            } as StorageTypes.IIpfsObject;
+          case '0x5':
+            if (hashTryCount[hash] < 3) {
+              throw new IpfsConnectionError('Timeout');
+            }
+
+            return {
+              content: '0000',
+              ipfsSize: 10,
+            } as StorageTypes.IIpfsObject;
+          case '0x6':
+            if (hashTryCount[hash] < 10) {
+              throw new IpfsConnectionError('Timeout');
+            }
+
+            return {
+              content: '0000',
+              ipfsSize: 10,
+            } as StorageTypes.IIpfsObject;
+          default:
+            assert.fail(`ipfsManager.read() unrocognized hash: ${hash}`);
+        }
+
+        throw Error('expected error');
+      };
+
+      await ethereumStorage.getData();
+
+      // Check how many time we tried to get hashes
+      assert.deepEqual(hashTryCount, {
+        '0x0': 1,
+        '0x1': 1,
+        '0x2': 1,
+        '0x3': 1,
+        '0x4': 2,
+        '0x5': 3,
+        '0x6': 5,
+      });
     });
   });
 });

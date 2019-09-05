@@ -48,12 +48,12 @@ The encrypted data, the encrypted keys and a hash of the data are pushed on chai
 
 ### Create an encrypted channel
 
-| Property             | Type   | Description                                                                                                                  |
-| -------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| **data**             | String | First encrypted data of the channel in base64                                                                                |
-| **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                   |
-| **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by the hash of their identities |
-| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                |
+| Property             | Type   | Description                                                                                                                      |
+| -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| **data**             | String | First encrypted data of the channel in base64                                                                                    |
+| **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                       |
+| **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their multi-formatted identities |
+| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                    |
 
 The data are encrypted with the algorithm AES-256 from the channel key generated for this channel.
 The channel key generation must be cryptographically strong.
@@ -67,8 +67,8 @@ Example:
   "hash": "01865ea95812388a93162b560e01c5680f12966492dfbad8a9a104e1e79f6665fc",
   "keys":
    {
-      "014e90cd5a599a1ac02d55d8af16655d4ae90d82642c6a8ef2fe2341a608053982": "aYOGYgtlt0JkBoKjxkMpoQJbE7GXtTT6JrjA+NF0Bd6BxDLyn5+hFIDvHltMkGS7rpzR3RyEnDl+SncDJ+cCxLo9Od7ntqGNVdin6n7EJqilmY0AmxJpAIAOnCwK5C46zH4RE0g7vBv/+3Gx2uFKw2Dfhpy7olQ5NL6Krsb2qEnmW32R3wmv85uCE88uxmcDlo/OrS36X+jzOye+/ZR+kOE=",
-      "01f17f52151ebef6c7334fad080c5704d77216b732f6c7334fad08072117f341a6": "AKJaJONWml2moKwTGZCuXQMxBt014+6Sxo2rzXYBbgKV8peBo3RM6KrxvhIdnCtTwxu3CrlFrkfUm6VYoMsKPu5WhZMU1Wk2R+vYl7roJFCQsTqTN1Qkx0skBLhaSKwynzZY3BWyTZ5rf1+JPmi7g6fGB9VOUpv6EDlp9k1p2RZnsVc+fMYKMAWhMnSZ3gJQUVbHY2Jx0CiQX/N+PtpnTWM=",
+      "20af083f77f1ffd54218d91491afd06c9296eac3ce": "aYOGYgtlt0JkBoKjxkMpoQJbE7GXtTT6JrjA+NF0Bd6BxDLyn5+hFIDvHltMkGS7rpzR3RyEnDl+SncDJ+cCxLo9Od7ntqGNVdin6n7EJqilmY0AmxJpAIAOnCwK5C46zH4RE0g7vBv/+3Gx2uFKw2Dfhpy7olQ5NL6Krsb2qEnmW32R3wmv85uCE88uxmcDlo/OrS36X+jzOye+/ZR+kOE=",
+      "20740fc87bd3f41d07d23a01dec90623ebc5fed9d6": "AKJaJONWml2moKwTGZCuXQMxBt014+6Sxo2rzXYBbgKV8peBo3RM6KrxvhIdnCtTwxu3CrlFrkfUm6VYoMsKPu5WhZMU1Wk2R+vYl7roJFCQsTqTN1Qkx0skBLhaSKwynzZY3BWyTZ5rf1+JPmi7g6fGB9VOUpv6EDlp9k1p2RZnsVc+fMYKMAWhMnSZ3gJQUVbHY2Jx0CiQX/N+PtpnTWM=",
     },
   "encryptionMethod": "ECIES-AES256-CBC"
 }
@@ -92,16 +92,16 @@ Example:
 
 ### Add new public keys
 
-| Property | Type   | Description                                                                                       |
-| -------- | ------ | ------------------------------------------------------------------------------------------------- |
-| **keys** | Object | AES-256 key encrypted with ECIES from the new public keys indexed by the hash of their identities |
+| Property | Type   | Description                                                                                           |
+| -------- | ------ | ----------------------------------------------------------------------------------------------------- |
+| **keys** | Object | AES-256 key encrypted with ECIES from the new public keys indexed by their multi-formatted identities |
 
 Example:
 
 ```JSON
 {
     "keys": {
-        "01c5fdf4076b8f3a5357c5e395ab970b5b54098fefa65a761e8df9792af3f398a": "OXdF4wZshE3+FM49ojErrgJIzqCx4r0DDj0bqof1yQJ7Kmz3zTaYh1xauD/Pq6HO1TJ3h+g4ca9DNzy2m2j7Q2RkqppeDkh4zsSyQ0eEN1dYLjfHqOisWelZ5l4hAH7+0LM8FHTCpKFJ1kSSHuALubYzbA+uO17eEr2dgzR3WaWDUhVn/uMYFwws3mHto41W4FWDGW+AWxIowhc3HrqsZRE=",
+        "20818b6337657a23f58581715fc610577292e521d0": "OXdF4wZshE3+FM49ojErrgJIzqCx4r0DDj0bqof1yQJ7Kmz3zTaYh1xauD/Pq6HO1TJ3h+g4ca9DNzy2m2j7Q2RkqppeDkh4zsSyQ0eEN1dYLjfHqOisWelZ5l4hAH7+0LM8FHTCpKFJ1kSSHuALubYzbA+uO17eEr2dgzR3WaWDUhVn/uMYFwws3mHto41W4FWDGW+AWxIowhc3HrqsZRE=",
     }
 }
 ```

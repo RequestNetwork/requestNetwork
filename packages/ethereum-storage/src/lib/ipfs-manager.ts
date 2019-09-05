@@ -3,6 +3,7 @@ import * as FormData from 'form-data';
 import * as http from 'http';
 import * as https from 'https';
 import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
+import IpfsConnectionError from './ipfs-connection-error';
 
 // eslint-disable-next-line spellcheck/spell-checker
 const unixfs = require('ipfs-unixfs');
@@ -237,7 +238,7 @@ export default class IpfsManager {
                 jsonData = JSON.parse(data);
               } catch (error) {
                 return reject(
-                  Error('Ipfs object get request response cannot be parsed into JSON format'),
+                  new Error('Ipfs object get request response cannot be parsed into JSON format'),
                 );
               }
               if (jsonData.Type === 'error') {
@@ -261,21 +262,21 @@ export default class IpfsManager {
                   this.errorHandlingConfig.delayBetweenRetries,
                 );
               } else {
-                return reject(Error(`Ipfs read request response error: ${e}`));
+                return reject(new IpfsConnectionError(`Ipfs read request response error: ${e}`));
               }
             });
             res.on('aborted', () => {
-              return reject(Error('Ipfs read request response has been aborted'));
+              return reject(new IpfsConnectionError('Ipfs read request response has been aborted'));
             });
           })
           .on('timeout', () => {
             didTimeout = true;
             // explicitly abort the request
             getRequest.abort();
-            return reject(Error('Ipfs read request timeout'));
+            return reject(new IpfsConnectionError('Ipfs read request timeout'));
           })
           .on('abort', () => {
-            return reject(Error('Ipfs read request has been aborted'));
+            return reject(new IpfsConnectionError('Ipfs read request has been aborted'));
           })
           .on('error', (e: string) => {
             // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -289,7 +290,7 @@ export default class IpfsManager {
                 this.errorHandlingConfig.delayBetweenRetries,
               );
             } else {
-              return reject(Error(`Ipfs read request error: ${e}`));
+              return reject(new IpfsConnectionError(`Ipfs read request error: ${e}`));
             }
           });
 

@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.5.0...@requestnetwork/request-logic@0.6.0) (2019-09-05)
+
+
+### Features
+
+* request logic version 2.0.1: compute the request id takes in account the signature ([#511](https://github.com/RequestNetwork/requestNetwork/issues/511)) ([14643d8](https://github.com/RequestNetwork/requestNetwork/commit/14643d8))
+* Transaction-manager: ignore the wrong transactions of channels ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([4ec82c6](https://github.com/RequestNetwork/requestNetwork/commit/4ec82c6))
+* **transaction-manager:** decrypt channels  ([#516](https://github.com/RequestNetwork/requestNetwork/issues/516)) ([8142c3d](https://github.com/RequestNetwork/requestNetwork/commit/8142c3d))
+* **transaction-manager:** get encrypted channels by topic ([#519](https://github.com/RequestNetwork/requestNetwork/issues/519)) ([5f4a77e](https://github.com/RequestNetwork/requestNetwork/commit/5f4a77e))
+
+
+
+
+
+
 # [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.4.0...@requestnetwork/request-logic@0.5.0) (2019-08-19)
 
 

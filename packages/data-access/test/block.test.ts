@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import RequestDataAccessBlock from '../src/block';
 
 const CURRENT_VERSION = '0.1.0';
@@ -10,13 +9,11 @@ const transactionDataMock1String = JSON.stringify({
   attribut1: 'plop',
   attribut2: 'value',
 });
-const transactionHash1 = Utils.crypto.normalizeKeccak256Hash(transactionDataMock1String);
 
 const transactionDataMock2String = JSON.stringify({
   attribut1: 'foo',
   attribut2: 'bar',
 });
-const transactionHash2 = Utils.crypto.normalizeKeccak256Hash(transactionDataMock2String);
 
 const transactionMock: DataAccessTypes.ITransaction = {
   data: transactionDataMock1String,
@@ -80,7 +77,7 @@ describe('block', () => {
           [arbitraryId1]: [0],
         },
         topics: {
-          [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2, transactionHash1],
+          [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2],
         },
         version: CURRENT_VERSION,
       });
@@ -104,9 +101,7 @@ describe('block', () => {
         channelIds: {
           [arbitraryId1]: [0],
         },
-        topics: {
-          [arbitraryId1]: [transactionHash1],
-        },
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(previousBlock.transactions, 'transactions are wrong').to.be.deep.equal([
@@ -119,8 +114,7 @@ describe('block', () => {
           [arbitraryId2]: [1],
         },
         topics: {
-          [arbitraryId1]: [transactionHash1],
-          [arbitraryId2]: [arbitraryTopic1, arbitraryTopic2, transactionHash2],
+          [arbitraryId2]: [arbitraryTopic1, arbitraryTopic2],
         },
         version: CURRENT_VERSION,
       });
@@ -147,9 +141,7 @@ describe('block', () => {
         channelIds: {
           [arbitraryId1]: [0],
         },
-        topics: {
-          [arbitraryId1]: [transactionHash1],
-        },
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([transactionMock]);
@@ -170,9 +162,7 @@ describe('block', () => {
         channelIds: {
           [arbitraryId1]: [0],
         },
-        topics: {
-          [arbitraryId1]: [transactionHash1],
-        },
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(previousBlock.transactions, 'transactions are wrong').to.be.deep.equal([
@@ -184,10 +174,7 @@ describe('block', () => {
           [arbitraryId1]: [0],
           [arbitraryId2]: [1],
         },
-        topics: {
-          [arbitraryId1]: [transactionHash1],
-          [arbitraryId2]: [transactionHash2],
-        },
+        topics: {},
         version: CURRENT_VERSION,
       });
       expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
@@ -209,8 +196,8 @@ describe('block', () => {
           [arbitraryId2]: [1],
         },
         topics: {
-          [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2, transactionHash1],
-          [arbitraryId2]: [arbitraryTopic2, transactionHash2],
+          [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2],
+          [arbitraryId2]: [arbitraryTopic2],
         },
         version: CURRENT_VERSION,
       });
@@ -260,8 +247,8 @@ describe('block', () => {
     it('can getAllTopic on NOT empty block', () => {
       const allTopices = RequestDataAccessBlock.getAllTopics(blockWith2tx);
       expect(allTopices, 'transactions must be empty').to.be.deep.equal({
-        [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2, transactionHash1],
-        [arbitraryId2]: [arbitraryTopic2, transactionHash2],
+        [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2],
+        [arbitraryId2]: [arbitraryTopic2],
       });
     });
   });
@@ -507,15 +494,8 @@ describe('block', () => {
             [arbitraryId2]: [1],
           },
           topics: {
-            [arbitraryId1]: [
-              arbitraryTopic1,
-              arbitraryTopic2,
-              '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
-            ],
-            [arbitraryId2]: [
-              arbitraryTopic2,
-              '0160d9be697d09d3d93d5e812a42f72a60411b4d364726bf89fa811d5330d00bd1',
-            ],
+            [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2],
+            [arbitraryId2]: [arbitraryTopic2],
           },
           version: '0.1.0',
         },

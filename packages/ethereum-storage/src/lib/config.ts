@@ -37,6 +37,7 @@ const config: any = {
       // eslint-disable-next-line spellcheck/spell-checker
       '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
     ],
+    maxIpfsReadRetry: 1,
     pinRequest: {
       delayBetweenCalls: 1000,
       maxSize: 500,
@@ -149,4 +150,12 @@ export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingCon
  */
 export function getIpfsExpectedBootstrapNodes(): string[] {
   return config.ipfs.expectedBootstrapNodes;
+}
+
+/**
+ * Retrieve from config the number of times we retry to read hashes on IPFS
+ * @returns Number of times we retry to read hashes on IPFS
+ */
+export function getMaxIpfsReadRetry(): number {
+  return config.ipfs.maxIpfsReadRetry;
 }

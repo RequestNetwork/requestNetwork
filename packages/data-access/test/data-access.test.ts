@@ -295,10 +295,7 @@ describe('data-access', () => {
               [arbitraryId1]: [0],
             },
             topics: {
-              [arbitraryId1]: [
-                arbitraryTopic1,
-                '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
-              ],
+              [arbitraryId1]: [arbitraryTopic1],
             },
             version: '0.1.0',
           },
@@ -312,10 +309,7 @@ describe('data-access', () => {
       expect(result, 'result wrong').to.deep.equal({
         meta: {
           storageMeta: { timestamp: 1 },
-          topics: [
-            arbitraryTopic1,
-            '01c23dc7c66c4b91a3a53f9a052ab8c359fd133c8ddf976aab57f296ffd9d4a2ca',
-          ],
+          topics: [arbitraryTopic1],
           transactionStorageLocation: dataIdBlock2tx,
         },
         result: {},
