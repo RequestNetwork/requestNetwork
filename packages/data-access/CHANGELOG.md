@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.4.1...@requestnetwork/data-access@0.4.2) (2019-09-05)
+
+
+### Bug Fixes
+
+* log interval function failure as warning instead of error in data-access ([#508](https://github.com/RequestNetwork/requestNetwork/issues/508)) ([d132f54](https://github.com/RequestNetwork/requestNetwork/commit/d132f54))
+
+
+
+
+
+
 ## [0.4.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.4.0...@requestnetwork/data-access@0.4.1) (2019-08-19)
 
 **Note:** Version bump only for package @requestnetwork/data-access
