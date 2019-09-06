@@ -154,7 +154,6 @@ export default class TransactionsParser {
         `Impossible to decrypt the channel key from this transaction (${errorReason})`,
       );
     }
-
     return {
       key: channelKey,
       method: EncryptionTypes.METHOD.AES256_CBC,

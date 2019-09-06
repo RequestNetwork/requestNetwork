@@ -24,13 +24,13 @@ export default class TransactionsFactory {
   }
 
   /**
-   * Creates an encrypted transaction
+   * Creates an encrypted transaction without a channel key
    *
    * @param data The data to create the transaction with
    * @param encryptionParams Array of the encryption parameters to encrypt the key with
    * @returns the encrypted transaction
    */
-  public static async createEncryptedTransaction(
+  public static async createEncryptedTransactionInNewChannel(
     data: TransactionTypes.ITransactionData,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
   ): Promise<TransactionTypes.IPersistedTransaction> {
@@ -95,5 +95,35 @@ export default class TransactionsFactory {
     );
 
     return { encryptedData, keys, hash, encryptionMethod };
+  }
+
+  /**
+   * Creates an encrypted transaction with a channel key
+   *
+   * @param data The data to create the transaction with
+   * @param channelKey Channel key use to encrypt the transaction
+   * @returns the encrypted transaction
+   */
+  public static async createEncryptedTransaction(
+    data: TransactionTypes.ITransactionData,
+    channelKey: EncryptionTypes.IEncryptionParameters,
+  ): Promise<TransactionTypes.IPersistedTransaction> {
+    // check if the encryption method is the good one
+    if (channelKey.method !== EncryptionTypes.METHOD.AES256_CBC) {
+      throw new Error(`encryption method not supported for the channel key: ${channelKey.method}`);
+    }
+
+    // Encrypt the data with the key and the AES256-CBC algorithm
+    const encryptedData: string = await Utils.encryption.encrypt(data, channelKey);
+
+    // Compute the hash of the data
+    let hash: string;
+    try {
+      hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+    } catch (error) {
+      throw new Error('Data not parsable');
+    }
+
+    return { encryptedData, hash };
   }
 }

@@ -28,9 +28,9 @@ describe('transaction-factory', () => {
     });
   });
 
-  describe('createEncryptedTransaction', async () => {
+  describe('createEncryptedTransactionInNewChannel', async () => {
     it('can create encrypted transaction', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
@@ -77,7 +77,7 @@ describe('transaction-factory', () => {
 
     it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
       await expect(
-        TransactionsFactory.createEncryptedTransaction(data, [
+        TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
           TestData.idRaw1.encryptionParams,
           TestData.idRaw2.encryptionParams,
           { method: EncryptionTypes.METHOD.AES256_CBC, key: '0123456789' },
@@ -89,10 +89,62 @@ describe('transaction-factory', () => {
 
     it('cannot create encrypted transaction with not parsable data', async () => {
       await expect(
-        TransactionsFactory.createEncryptedTransaction('Not parsable', [
+        TransactionsFactory.createEncryptedTransactionInNewChannel('Not parsable', [
           TestData.idRaw1.encryptionParams,
           TestData.idRaw2.encryptionParams,
         ]),
+        'transaction not right',
+      ).to.eventually.be.rejectedWith('Data not parsable');
+    });
+  });
+
+  describe('createEncryptedTransaction', async () => {
+    it('can create encrypted transaction', async () => {
+      const channelKey = {
+        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+        method: EncryptionTypes.METHOD.AES256_CBC,
+      };
+      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, channelKey);
+      // tslint:disable-next-line:no-magic-numbers
+
+      if (encryptedTx.encryptedData) {
+        // tslint:disable-next-line:no-magic-numbers
+        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(110);
+        expect(encryptedTx.encryptedData.slice(0, 2), 'encryptedData not right').to.deep.equal(
+          MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED,
+        );
+      } else {
+        expect.fail('encryptedData should not be undefined');
+      }
+
+      expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.be.undefined;
+
+      expect(encryptedTx.hash, 'hash not right').to.deep.equal(
+        Utils.crypto.normalizeKeccak256Hash(JSON.parse(data)),
+      );
+
+      expect(encryptedTx.keys, 'keys not right').to.be.undefined;
+    });
+
+    it('cannot create encrypted transaction with encryption parameters not AES256-CBC', async () => {
+      const channelKeyWrong = {
+        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+        method: EncryptionTypes.METHOD.ECIES,
+      };
+      await expect(
+        TransactionsFactory.createEncryptedTransaction(data, channelKeyWrong),
+      ).to.eventually.rejectedWith(
+        `encryption method not supported for the channel key: ${channelKeyWrong.method}`,
+      );
+    });
+
+    it('cannot create encrypted transaction with not parsable data', async () => {
+      const channelKey = {
+        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+        method: EncryptionTypes.METHOD.AES256_CBC,
+      };
+      await expect(
+        TransactionsFactory.createEncryptedTransaction('Not parsable', channelKey),
         'transaction not right',
       ).to.eventually.be.rejectedWith('Data not parsable');
     });

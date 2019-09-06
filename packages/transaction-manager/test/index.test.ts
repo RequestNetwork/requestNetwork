@@ -4,8 +4,12 @@ import Utils from '@requestnetwork/utils';
 
 const chai = require('chai');
 const spies = require('chai-spies');
-const expect = chai.expect;
+const chaiAsPromised = require('chai-as-promised');
+
 chai.use(spies);
+chai.use(chaiAsPromised);
+
+const expect = chai.expect;
 
 import { DataAccessTypes, EncryptionTypes } from '@requestnetwork/types';
 
@@ -23,8 +27,10 @@ const data2 = '{"or": "can", "be":false}';
 const tx: DataAccessTypes.IConfirmedTransaction = { transaction: { data }, timestamp: 1 };
 const tx2: DataAccessTypes.IConfirmedTransaction = { transaction: { data: data2 }, timestamp: 1 };
 
-const channelId = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
-const channelId2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
+const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+const channelId = dataHash;
+const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
+const channelId2 = dataHash2;
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = {
   meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
@@ -53,43 +59,161 @@ describe('index', () => {
     };
   });
   describe('persistTransaction', () => {
-    it('can persist a transaction', async () => {
-      const transactionManager = new TransactionManager(fakeDataAccess);
+    describe('in a new channel', () => {
+      it('can persist a clear transaction in a new channel', async () => {
+        const transactionManager = new TransactionManager(fakeDataAccess);
 
-      const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
+        const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
-        dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
+        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: undefined,
+        });
+        expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
+          await TransactionsFactory.createClearTransaction(data),
+          extraTopics.concat([channelId]),
+        );
       });
-      expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
-        await TransactionsFactory.createClearTransaction(data),
-        extraTopics.concat([channelId]),
-      );
-    });
-  });
 
-  describe('persistEncryptedTransaction', () => {
-    it('can persist an encrypted transaction', async () => {
-      const transactionManager = new TransactionManager(fakeDataAccess);
+      it('can persist an encrypted transaction in a new channel', async () => {
+        const transactionManager = new TransactionManager(fakeDataAccess);
 
-      const ret = await transactionManager.persistEncryptedTransaction(
-        data,
-        channelId,
-        [
+        const ret = await transactionManager.persistTransaction(data, channelId, extraTopics, [
           TestData.idRaw1.encryptionParams,
           TestData.idRaw2.encryptionParams,
           TestData.idRaw3.encryptionParams,
-        ],
-        extraTopics,
-      );
+        ]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
-        dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-        encryptionMethod: 'ecies-aes256-cbc',
+        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
+        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: 'ecies-aes256-cbc',
+        });
+        expect(fakeDataAccess.persistTransaction).to.have.been.called.once();
       });
-      expect(fakeDataAccess.persistTransaction).to.have.been.called.once();
+    });
+
+    describe('in an existing new channel', () => {
+      it('can persist a clear transaction in an existing channel', async () => {
+        const transactionManager = new TransactionManager(fakeDataAccess);
+
+        const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics);
+
+        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
+        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: undefined,
+        });
+        expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
+          await TransactionsFactory.createClearTransaction(data2),
+          channelId,
+          extraTopics.concat([dataHash2]),
+        );
+      });
+
+      it('can persist a encrypted transaction in an existing channel', async () => {
+        const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+          TestData.idRaw1.encryptionParams,
+        ]);
+
+        const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1'],
+          },
+          result: {
+            transactions: [{ transaction: encryptedTx, timestamp: 1 }],
+          },
+        };
+
+        fakeDataAccess = {
+          getChannelsByTopic: chai.spy(),
+          getTransactionsByChannelId: chai.spy.returns(
+            fakeMetaDataAccessGetReturnWithEncryptedTransaction,
+          ),
+          initialize: chai.spy(),
+          persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+        };
+
+        const transactionManager = new TransactionManager(
+          fakeDataAccess,
+          TestData.fakeDecryptionProvider,
+        );
+        const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics);
+
+        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
+        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: 'aes256-cbc',
+        });
+
+        expect(fakeDataAccess.persistTransaction).to.have.been.called.to.have.been.called.with(
+          channelId,
+          extraTopics.concat([dataHash2]),
+        );
+      });
+
+      it('cannot persist a encrypted transaction on a channel not found', async () => {
+        const fakeMetaDataAccessGetReturnEmpty: DataAccessTypes.IReturnGetTransactions = {
+          meta: {
+            transactionsStorageLocation: [],
+          },
+          result: {
+            transactions: [],
+          },
+        };
+
+        fakeDataAccess = {
+          getChannelsByTopic: chai.spy(),
+          getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnEmpty),
+          initialize: chai.spy(),
+          persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+        };
+
+        const transactionManager = new TransactionManager(
+          fakeDataAccess,
+          TestData.fakeDecryptionProvider,
+        );
+        await expect(
+          transactionManager.persistTransaction(data2, channelId, extraTopics),
+          'must throw',
+        ).to.eventually.be.rejectedWith(`Impossible to retrieve the channel: ${channelId}`);
+      });
+
+      it('cannot persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
+        const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+          TestData.idRaw1.encryptionParams,
+        ]);
+
+        const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1'],
+          },
+          result: {
+            transactions: [{ transaction: encryptedTx, timestamp: 1 }],
+          },
+        };
+
+        fakeDataAccess = {
+          getChannelsByTopic: chai.spy(),
+          getTransactionsByChannelId: chai.spy.returns(
+            fakeMetaDataAccessGetReturnWithEncryptedTransaction,
+          ),
+          initialize: chai.spy(),
+          persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+        };
+
+        const transactionManager = new TransactionManager(
+          fakeDataAccess,
+          TestData.fakeDecryptionProvider,
+        );
+        await expect(
+          transactionManager.persistTransaction(data2, channelId, extraTopics, [
+            TestData.idRaw1.encryptionParams,
+          ]),
+          'must throw',
+        ).to.eventually.be.rejectedWith('Impossible to add new stakeholder to an existing channel');
+      });
     });
   });
 
@@ -190,7 +314,7 @@ describe('index', () => {
     });
 
     it('can get a transaction from an encrypted channel', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
@@ -225,7 +349,7 @@ describe('index', () => {
     });
 
     it('cannot get a transaction from an encrypted channel without decryption provider', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
@@ -260,12 +384,13 @@ describe('index', () => {
         result: { transactions: [null] },
       });
     });
+
     it('can get two transactions with different encryptions from the same encrypted channel', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
-      const encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, [
+      const encryptedTx2 = await TransactionsFactory.createEncryptedTransactionInNewChannel(data2, [
         TestData.idRaw3.encryptionParams,
       ]);
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
@@ -316,12 +441,13 @@ describe('index', () => {
     });
 
     it('can get two transactions with different encryptions from the same encrypted channel the first has the right hash but wrong data', async () => {
-      const encryptedTxFakeHash = await TransactionsFactory.createEncryptedTransaction(data2, [
-        TestData.idRaw3.encryptionParams,
-      ]);
+      const encryptedTxFakeHash = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+        data2,
+        [TestData.idRaw3.encryptionParams],
+      );
       encryptedTxFakeHash.hash = channelId;
 
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
@@ -372,7 +498,7 @@ describe('index', () => {
     });
 
     it('can get two transactions, the first is encrypted but the second is clear (will be ignored)', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
@@ -423,7 +549,7 @@ describe('index', () => {
     });
 
     it('can get two transactions first encrypted but decrypt impossible and second clear', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         {
           key: '0396212fc129c2f78771218b2e93da7a5aac63490a42bb41b97848c39c14fe65cd',
           method: EncryptionTypes.METHOD.ECIES,
@@ -481,7 +607,7 @@ describe('index', () => {
     });
 
     it('can get two transactions first clear and second encrypted', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data2, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data2, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
@@ -551,7 +677,7 @@ describe('index', () => {
     });
 
     it('can get an encrypted channel indexed by topic', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
@@ -598,7 +724,7 @@ describe('index', () => {
     });
 
     it('cannot get an encrypted channel indexed by topic without decryptionProvider', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
@@ -647,7 +773,7 @@ describe('index', () => {
     });
 
     it('can get an clear channel indexed by topic without decryptionProvider even if an encrypted transaction happen first', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
@@ -745,7 +871,7 @@ describe('index', () => {
     });
 
     it('can get channels encrypted and clear', async () => {
-      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, [
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,

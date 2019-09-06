@@ -372,7 +372,7 @@ describe('index', () => {
 
     await request.accept(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -388,7 +388,7 @@ describe('index', () => {
 
     await request.cancel(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -404,7 +404,7 @@ describe('index', () => {
 
     await request.increaseExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -420,7 +420,7 @@ describe('index', () => {
 
     await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -458,7 +458,7 @@ describe('index', () => {
 
       await request.declareSentPayment('10', 'sent payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -481,7 +481,7 @@ describe('index', () => {
 
       await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -504,7 +504,7 @@ describe('index', () => {
 
       await request.declareSentRefund('10', 'sent refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -527,7 +527,7 @@ describe('index', () => {
 
       await request.declareReceivedRefund('10', 'received refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 

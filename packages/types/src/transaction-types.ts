@@ -6,12 +6,7 @@ export interface ITransactionManager {
     transactionData: ITransactionData,
     channelId: string,
     topics?: string[],
-  ) => Promise<IReturnPersistTransaction>;
-  persistEncryptedTransaction: (
-    transactionData: ITransactionData,
-    channelId: string,
-    encryptionParams: Encryption.IEncryptionParameters[],
-    topics?: string[],
+    encryptionParams?: Encryption.IEncryptionParameters[],
   ) => Promise<IReturnPersistTransaction>;
   getTransactionsByChannelId: (
     channelId: string,

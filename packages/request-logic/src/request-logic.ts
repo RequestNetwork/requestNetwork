@@ -78,11 +78,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       signerIdentity,
     );
 
-    const resultPersistTx = await this.transactionManager.persistEncryptedTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
-      encryptionParams,
       topics,
+      encryptionParams,
     );
     return {
       meta: { transactionManagerMeta: resultPersistTx.meta },

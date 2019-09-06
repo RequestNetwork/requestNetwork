@@ -98,11 +98,14 @@ describe('transaction-parser', () => {
         transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
       });
       it('can parse encrypted transaction on an unknown channel', async () => {
-        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransaction(data, [
-          TestData.idRaw1.encryptionParams,
-          TestData.idRaw2.encryptionParams,
-          TestData.idRaw3.encryptionParams,
-        ]);
+        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [
+            TestData.idRaw1.encryptionParams,
+            TestData.idRaw2.encryptionParams,
+            TestData.idRaw3.encryptionParams,
+          ],
+        );
         const ret = await transactionParser.parsePersistedTransaction(
           encryptedParsedTx,
           TransactionTypes.ChannelType.UNKNOWN,
@@ -113,9 +116,10 @@ describe('transaction-parser', () => {
       });
       it('cannot parse encrypted transaction without decryptionProvider', async () => {
         transactionParser = new TransactionsParser();
-        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransaction(data, [
-          TestData.idRaw1.encryptionParams,
-        ]);
+        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [TestData.idRaw1.encryptionParams],
+        );
 
         await expect(
           transactionParser.parsePersistedTransaction(
@@ -126,9 +130,10 @@ describe('transaction-parser', () => {
         ).to.eventually.be.rejectedWith(`No decryption provider given`);
       });
       it('cannot parse encrypted transaction with keys corrupted', async () => {
-        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransaction(data, [
-          TestData.idRaw1.encryptionParams,
-        ]);
+        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [TestData.idRaw1.encryptionParams],
+        );
 
         const addRaw1Formatted = `20${TestData.idRaw1.address.slice(2)}`;
         encryptedParsedTx.keys = { [addRaw1Formatted]: '02Corrupted keys' };
@@ -160,10 +165,10 @@ describe('transaction-parser', () => {
       it('cannot parse encrypted transaction on an clear channel', async () => {
         transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
 
-        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransaction(data, [
-          TestData.idRaw1.encryptionParams,
-          TestData.idRaw2.encryptionParams,
-        ]);
+        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [TestData.idRaw1.encryptionParams, TestData.idRaw2.encryptionParams],
+        );
         await expect(
           transactionParser.parsePersistedTransaction(
             encryptedParsedTx,

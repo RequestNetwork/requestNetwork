@@ -46,7 +46,6 @@ describe('index', () => {
     fakeTransactionManager = {
       getChannelsByTopic: chai.spy(),
       getTransactionsByChannelId: chai.spy(),
-      persistEncryptedTransaction: chai.spy.returns(fakeMetaTransactionManager),
       persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
     };
   });
@@ -110,7 +109,7 @@ describe('index', () => {
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManager.persistEncryptedTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
         JSON.stringify(action),
         requestId,
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
@@ -436,7 +435,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -577,7 +575,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -724,7 +721,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -810,7 +806,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -863,7 +858,6 @@ describe('index', () => {
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -1025,7 +1019,6 @@ describe('index', () => {
           return listAllActions;
         },
         getTransactionsByChannelId: chai.spy(),
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
@@ -1098,7 +1091,6 @@ describe('index', () => {
           return listActions;
         },
         getTransactionsByChannelId: chai.spy(),
-        persistEncryptedTransaction: chai.spy(),
         persistTransaction: chai.spy(),
       };
       const requestLogic = new RequestLogic(
