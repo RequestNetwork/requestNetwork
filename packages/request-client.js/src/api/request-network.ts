@@ -4,6 +4,7 @@ import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
   DataAccessTypes,
+  DecryptionProviderTypes,
   IdentityTypes,
   RequestLogicTypes,
   SignatureProviderTypes,
@@ -28,13 +29,15 @@ export default class RequestNetwork {
   /**
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
+   * @param decryptionProvider module in charge of the decryption
    */
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     signatureProvider?: SignatureProviderTypes.ISignatureProvider,
+    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
   ) {
     this.advancedLogic = new AdvancedLogic();
-    this.transaction = new TransactionManager(dataAccess);
+    this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
   }

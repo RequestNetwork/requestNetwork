@@ -4,12 +4,14 @@ const web3Eth = require('web3-eth');
 
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
+import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
+  EncryptionTypes,
   IdentityTypes,
   RequestLogicTypes,
   SignatureTypes,
@@ -22,6 +24,7 @@ let requestLogic: RequestLogicTypes.IRequestLogic;
 let provider: any;
 let signatureInfo: SignatureTypes.ISignatureParameters;
 let signerIdentity: IdentityTypes.IIdentity;
+let encryptionData: any;
 
 describe('Request system', () => {
   beforeEach(async () => {
@@ -43,9 +46,6 @@ describe('Request system', () => {
     const dataAccess = new DataAccess(ethereumStorage);
     await dataAccess.initialize();
 
-    // Transaction manager setup
-    const transactionManager = new TransactionManager(dataAccess);
-
     // Signature provider setup
     signatureInfo = {
       method: SignatureTypes.METHOD.ECDSA,
@@ -56,6 +56,29 @@ describe('Request system', () => {
       value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
     };
     const signatureProvider = new EthereumPrivateKeySignatureProvider(signatureInfo);
+
+    encryptionData = {
+      decryptionParams: {
+        key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+        method: EncryptionTypes.METHOD.ECIES,
+      },
+      encryptionParams: {
+        key:
+          '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+        method: EncryptionTypes.METHOD.ECIES,
+      },
+      privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+      publicKey:
+        '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    };
+
+    // Decryption provider setup
+    const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
+      encryptionData.decryptionParams,
+    );
+
+    // Transaction manager setup
+    const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
 
     // Advanced Logic setup
     advancedLogic = new AdvancedLogic();
@@ -228,5 +251,50 @@ describe('Request system', () => {
     assert.equal(request1.requestId, requestId1);
     assert.equal(request1.state, RequestLogicTypes.STATE.CANCELED);
     assert.equal(request1.expectedAmount, '90000000000');
+  });
+
+  it('can create an encrypted request', async () => {
+    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+      content: { this: 'could', be: 'an', invoice: true },
+    });
+
+    const payer = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    };
+
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: RequestLogicTypes.CURRENCY.ETH,
+      expectedAmount: '12345678987654321',
+      extensionsData: [contentDataExtensionData],
+      payee: signerIdentity,
+      payer,
+    };
+
+    const topics = [
+      Utils.crypto.normalizeKeccak256Hash(signerIdentity),
+      Utils.crypto.normalizeKeccak256Hash(payer),
+    ];
+
+    const resultCreation = await requestLogic.createEncryptedRequest(
+      requestCreationHash,
+      signerIdentity,
+      [encryptionData.encryptionParams],
+      topics,
+    );
+
+    assert.exists(resultCreation);
+
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    assert.equal(resultCreation.result.requestId.length, requestIdLength);
+
+    const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
+
+    assert.exists(request.result);
+    assert.equal(request.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.exists(request.result.request);
+    assert.equal(request.result.request!.expectedAmount, '12345678987654321');
+    assert.equal(request.result.request!.state, 'created');
   });
 });

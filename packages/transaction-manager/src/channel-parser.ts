@@ -22,11 +22,13 @@ export default class ChannelParser {
     channelId: string,
     transactions: TransactionTypes.IConfirmedTransaction[],
   ): Promise<{
+    encryptionMethod: string | undefined;
     transactions: Array<TransactionTypes.IConfirmedTransaction | null>;
     ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null>;
   }> {
     let channelType: TransactionTypes.ChannelType = TransactionTypes.ChannelType.UNKNOWN;
     let channelKey: EncryptionTypes.IDecryptionParameters | undefined;
+    let encryptionMethod: string | undefined;
 
     interface IValidAndIgnoredTransactions {
       valid: TransactionTypes.IConfirmedTransaction | null;
@@ -41,10 +43,10 @@ export default class ChannelParser {
       ) => {
         const result = await accumulatorPromise;
 
-        let parsedTransactionAndChannelKey;
+        let parsedData;
         try {
           // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
-          parsedTransactionAndChannelKey = await this.transactionParser.parsePersistedTransaction(
+          parsedData = await this.transactionParser.parsePersistedTransaction(
             confirmedTransaction.transaction,
             channelType,
             channelKey,
@@ -61,8 +63,7 @@ export default class ChannelParser {
           ]);
         }
 
-        const transaction: TransactionTypes.ITransaction =
-          parsedTransactionAndChannelKey.transaction;
+        const transaction: TransactionTypes.ITransaction = parsedData.transaction;
 
         // We check if the transaction is valid
         const error = await transaction.getError();
@@ -94,12 +95,14 @@ export default class ChannelParser {
             ]);
           }
           // from the first valid transaction, we can deduce the type of the channel
-          channelType = !!parsedTransactionAndChannelKey.channelKey
+          channelType = !!parsedData.channelKey
             ? TransactionTypes.ChannelType.ENCRYPTED
             : TransactionTypes.ChannelType.CLEAR;
 
+          encryptionMethod = parsedData.encryptionMethod;
+
           // we keep the channelKey for this channel
-          channelKey = parsedTransactionAndChannelKey.channelKey;
+          channelKey = parsedData.channelKey;
         }
 
         const data = await transaction.getData();
@@ -125,6 +128,7 @@ export default class ChannelParser {
 
     // The cleaned result
     return {
+      encryptionMethod,
       ignoredTransactions,
       transactions: cleanTransactions,
     };
@@ -163,10 +167,10 @@ export default class ChannelParser {
           return result;
         }
 
-        let parsedTransactionAndChannelKey;
+        let parsedData;
         try {
           // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
-          parsedTransactionAndChannelKey = await this.transactionParser.parsePersistedTransaction(
+          parsedData = await this.transactionParser.parsePersistedTransaction(
             confirmedTransaction.transaction,
             TransactionTypes.ChannelType.UNKNOWN,
           );
@@ -175,8 +179,7 @@ export default class ChannelParser {
           return result;
         }
 
-        const transaction: TransactionTypes.ITransaction =
-          parsedTransactionAndChannelKey.transaction;
+        const transaction: TransactionTypes.ITransaction = parsedData.transaction;
 
         // We check if the transaction is valid
         const error = await transaction.getError();
@@ -193,12 +196,12 @@ export default class ChannelParser {
         }
 
         // We can deduce the type of the channel
-        result.channelType = !!parsedTransactionAndChannelKey.channelKey
+        result.channelType = !!parsedData.channelKey
           ? TransactionTypes.ChannelType.ENCRYPTED
           : TransactionTypes.ChannelType.CLEAR;
 
         // we keep the channelKey for this channel
-        result.channelKey = parsedTransactionAndChannelKey.channelKey;
+        result.channelKey = parsedData.channelKey;
 
         return result;
       },

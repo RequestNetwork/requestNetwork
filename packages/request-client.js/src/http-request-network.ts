@@ -1,5 +1,6 @@
 import {
   DataAccessTypes,
+  DecryptionProviderTypes,
   SignatureProviderTypes,
 } from '@requestnetwork/types';
 import { AxiosRequestConfig } from 'axios';
@@ -21,17 +22,19 @@ export default class HttpRequestNetwork extends RequestNetwork {
    */
   constructor(
     {
+      decryptionProvider,
       nodeConnectionConfig,
       signatureProvider,
       useMockStorage,
     }: {
+      decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
     } = {
-        nodeConnectionConfig: {},
-        useMockStorage: false,
-      },
+      nodeConnectionConfig: {},
+      useMockStorage: false,
+    },
   ) {
     // useMockStorage === true => use mock data-access
     // useMockStorage === false => use http data-access
@@ -39,6 +42,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
       ? new MockDataAccess(new MockStorage())
       : new HttpDataAccess(nodeConnectionConfig);
 
-    super(dataAccess, signatureProvider);
+    super(dataAccess, signatureProvider, decryptionProvider);
   }
 }

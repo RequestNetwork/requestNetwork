@@ -37,6 +37,7 @@
   "devDependencies": {
     "@requestnetwork/advanced-logic": "0.4.2",
     "@requestnetwork/data-access": "0.4.2",
+    "@requestnetwork/epk-decryption": "0.3.0",
     "@requestnetwork/epk-signature": "0.5.1",
     "@requestnetwork/ethereum-storage": "0.4.2",
     "@requestnetwork/request-client.js": "0.6.0",

@@ -43,6 +43,8 @@ export interface IReturnGetTransactions {
   meta: {
     /** meta-data from the layer below */
     dataAccessMeta?: any;
+    /** encryption method used if transaction encrypted */
+    encryptionMethod?: string;
     /** Ignored transactions */
     ignoredTransactions: Array<IIgnoredTransaction | null>;
   };
@@ -56,6 +58,8 @@ export interface IReturnGetTransactionsByChannels {
   meta: {
     /** meta-data from the layer below */
     dataAccessMeta?: any;
+    /** encryption method used if transaction encrypted */
+    encryptionMethod?: string;
     /** Ignored transactions */
     ignoredTransactions: { [key: string]: Array<IIgnoredTransaction | null> };
   };

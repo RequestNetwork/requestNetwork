@@ -342,6 +342,7 @@ describe('index', () => {
       expect(ret, 'return is wrong').to.be.deep.equal({
         meta: {
           dataAccessMeta: { transactionsStorageLocation: ['fakeDataId1'] },
+          encryptionMethod: 'ecies-aes256-cbc',
           ignoredTransactions: [null],
         },
         result: { transactions: [{ transaction: { data }, timestamp: 1 }] },
@@ -425,6 +426,7 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
+          encryptionMethod: 'ecies-aes256-cbc',
           ignoredTransactions: [
             null,
             {
@@ -483,6 +485,7 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
+          encryptionMethod: 'ecies-aes256-cbc',
           ignoredTransactions: [
             {
               reason: 'The given hash does not match the hash of the decrypted data',
@@ -534,6 +537,7 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
+          encryptionMethod: 'ecies-aes256-cbc',
           ignoredTransactions: [
             null,
             {

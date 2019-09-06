@@ -132,16 +132,26 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     );
 
     // Decrypts and cleans the channel from the data-access layers
-    const { transactions, ignoredTransactions } = await this.channelParser.decryptAndCleanChannel(
-      channelId,
-      resultGetTx.result.transactions,
-    );
+    const {
+      transactions,
+      ignoredTransactions,
+      encryptionMethod,
+    } = await this.channelParser.decryptAndCleanChannel(channelId, resultGetTx.result.transactions);
+
+    const meta = {
+      dataAccessMeta: resultGetTx.meta,
+      encryptionMethod,
+      ignoredTransactions,
+    };
+
+    // Remove encryptionMethod from meta if it's undefined
+    // to make it clearer the channel is not encrypted.
+    if (!encryptionMethod) {
+      delete meta.encryptionMethod;
+    }
 
     return {
-      meta: {
-        dataAccessMeta: resultGetTx.meta,
-        ignoredTransactions,
-      },
+      meta,
       result: { transactions },
     };
   }
