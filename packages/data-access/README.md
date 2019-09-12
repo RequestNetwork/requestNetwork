@@ -72,7 +72,7 @@ const channelTopics = ['stakeholder1', 'stakeholder2'];
 const result = await dataAccess.persistTransaction(transaction, channelId, channelTopics);
 ```
 
-### Get Transactions by topics
+### Get Transactions by topic
 
 ```typescript
 import DataAccess from '@requestnetwork/data-access';
@@ -83,11 +83,32 @@ const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @r
 const dataAccess = new DataAccess(storage);
 await dataAccess.initialize();
 
-const transactionTopic = 'stakeholder1';
+const transactionTopic = '010000000000000000000000000000000000000000';
 
 const {
   result: { transactions },
 } = await dataAccess.getTransactionsByTopic(transactionTopic);
+```
+
+### Get Transactions by multiple topics
+
+```typescript
+import DataAccess from '@requestnetwork/data-access';
+import { DataAccessTypes, SignatureTypes, StorageTypes } from '@requestnetwork/types';
+
+const storage: StorageTypes.IStorage; // Any implementation of Storage layer, @requestnetwork/ethereum-storage for example
+
+const dataAccess = new DataAccess(storage);
+await dataAccess.initialize();
+
+const topics = [
+  '010000000000000000000000000000000000000000',
+  '011111111111111111111111111111111111111111',
+];
+
+const {
+  result: { transactions },
+} = await dataAccess.getChannelsByMultipleTopics(topics);
 ```
 
 ### Get Transactions by channelId

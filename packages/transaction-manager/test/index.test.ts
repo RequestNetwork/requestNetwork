@@ -52,6 +52,7 @@ let fakeDataAccess: DataAccessTypes.IDataAccess;
 describe('index', () => {
   beforeEach(() => {
     fakeDataAccess = {
+      getChannelsByMultipleTopics: chai.spy(),
       getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
       getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturn),
       initialize: chai.spy(),
@@ -127,6 +128,7 @@ describe('index', () => {
         };
 
         fakeDataAccess = {
+          getChannelsByMultipleTopics: chai.spy(),
           getChannelsByTopic: chai.spy(),
           getTransactionsByChannelId: chai.spy.returns(
             fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -164,6 +166,7 @@ describe('index', () => {
         };
 
         fakeDataAccess = {
+          getChannelsByMultipleTopics: chai.spy(),
           getChannelsByTopic: chai.spy(),
           getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnEmpty),
           initialize: chai.spy(),
@@ -195,6 +198,7 @@ describe('index', () => {
         };
 
         fakeDataAccess = {
+          getChannelsByMultipleTopics: chai.spy(),
           getChannelsByTopic: chai.spy(),
           getTransactionsByChannelId: chai.spy.returns(
             fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -245,6 +249,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: chai.spy(),
@@ -285,6 +290,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: chai.spy(),
@@ -325,6 +331,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -361,6 +368,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -407,6 +415,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -466,6 +475,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -518,6 +528,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -572,6 +583,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -628,6 +640,7 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: chai.spy.returns(
           fakeMetaDataAccessGetReturnWithEncryptedTransaction,
@@ -700,6 +713,7 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: chai.spy(),
         initialize: chai.spy(),
@@ -747,6 +761,7 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: chai.spy(),
         initialize: chai.spy(),
@@ -799,6 +814,7 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: chai.spy(),
         initialize: chai.spy(),
@@ -844,6 +860,7 @@ describe('index', () => {
         result: { transactions: { [channelId]: [txWrongHash, tx, tx2] } },
       };
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnFirstHashWrong),
         getTransactionsByChannelId: chai.spy(),
         initialize: chai.spy(),
@@ -896,6 +913,7 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: chai.spy(),
         initialize: chai.spy(),

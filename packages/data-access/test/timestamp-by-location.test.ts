@@ -46,8 +46,10 @@ describe('LocationTimestamp', () => {
         timestampLocation.isDataInBoundaries(arbitraryDataId1, { to: 100 }),
         'isDataInBoundaries is wrong',
       ).to.eventually.be.true;
-      await expect(timestampLocation.isDataInBoundaries(arbitraryDataId1), 'isDataInBoundaries is wrong')
-        .to.eventually.be.true;
+      await expect(
+        timestampLocation.isDataInBoundaries(arbitraryDataId1),
+        'isDataInBoundaries is wrong',
+      ).to.eventually.be.true;
 
       await expect(
         timestampLocation.isDataInBoundaries(arbitraryDataId1, { from: 1, to: 9 }),
@@ -70,8 +72,10 @@ describe('LocationTimestamp', () => {
     it('cannot isDataInBoundaries() on dataId not pushed', async () => {
       const timestampLocation = new TimestampByLocationTransactionIndex();
 
-      expect(timestampLocation.isDataInBoundaries(arbitraryDataId1, { from: 1, to: 100 }), 'must throw')
-        .to.rejectedWith(`Timestamp not know for the dataId ${arbitraryDataId1}`);
+      expect(
+        timestampLocation.isDataInBoundaries(arbitraryDataId1, { from: 1, to: 100 }),
+        'must throw',
+      ).to.rejectedWith(`Timestamp not know for the dataId ${arbitraryDataId1}`);
     });
   });
 
@@ -90,6 +94,26 @@ describe('LocationTimestamp', () => {
 
       const latest = await timestampLocation.getLastTransactionTimestamp();
       expect(latest).to.be.eq(3);
+    });
+  });
+
+  describe('getTimestampFromLocation', () => {
+    it('can get getTimestamp From Location', async () => {
+      const timestampLocation = new TimestampByLocationTransactionIndex();
+      await timestampLocation.pushTimestampByLocation('a', 2);
+      await timestampLocation.pushTimestampByLocation('b', 3);
+      await timestampLocation.pushTimestampByLocation('c', 1);
+
+      expect(await timestampLocation.getTimestampFromLocation('b')).to.be.eq(3);
+      expect(await timestampLocation.getTimestampFromLocation('c')).to.be.eq(1);
+      expect(await timestampLocation.getTimestampFromLocation('a')).to.be.eq(2);
+    });
+    it('cannot get getTimestamp From Location not existing', async () => {
+      const timestampLocation = new TimestampByLocationTransactionIndex();
+      await timestampLocation.pushTimestampByLocation('a', 2);
+
+      expect(await timestampLocation.getTimestampFromLocation('a')).to.be.eq(2);
+      expect(await timestampLocation.getTimestampFromLocation('b')).to.be.eq(null);
     });
   });
 });

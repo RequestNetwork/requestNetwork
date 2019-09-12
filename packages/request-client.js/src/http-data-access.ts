@@ -52,7 +52,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-
     // We don't retry this request since it may fail because of a slow Storage
     // For example, if the Ethereum network is slow and we retry the request three times
     // three data will be persisted at the end
@@ -112,6 +111,33 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           '/getChannelsByTopic',
           Object.assign(this.axiosConfig, {
             params: { topic, updatedBetween },
+          }),
+        ),
+      {
+        maxRetries: HTTP_REQUEST_MAX_RETRY,
+        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+      },
+    )();
+
+    return data;
+  }
+
+  /**
+   * Gets all the transactions of channel indexed by multiple topics from the node through HTTP.
+   *
+   * @param topics topics to search for
+   * @param updatedBetween filter timestamp boundaries
+   */
+  public async getChannelsByMultipleTopics(
+    topics: string[],
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    const { data } = await Utils.retry(
+      async () =>
+        axios.get(
+          '/getChannelsByMultipleTopics',
+          Object.assign(this.axiosConfig, {
+            params: { topics, updatedBetween },
           }),
         ),
       {
