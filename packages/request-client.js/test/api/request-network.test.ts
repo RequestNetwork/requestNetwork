@@ -75,8 +75,7 @@ describe('api/request-network', () => {
   });
 
   describe('fromRequestId', () => {
-    // skip the check that randomly timeout because of the bitcoin provider
-    it.skip('can get request with payment network fromRequestId', async () => {
+    it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByTopic(): Promise<any> {
           return;
@@ -107,8 +106,7 @@ describe('api/request-network', () => {
   });
 
   describe('fromIdentity', () => {
-    // skip the check that randomly timeout because of the bitcoin provider
-    it.skip('can get requests with payment network fromIdentity', async () => {
+    it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByTopic(topic: string): Promise<any> {
           expect(topic).to.equals(
@@ -222,7 +220,72 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
-      const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
+      const requests: Request[] = await requestnetwork.fromTopic(TestData.payee.identity);
+
+      expect(requests.length).to.be.equal(2);
+      expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
+      expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
+    });
+  });
+
+  describe('fromMultipleIdentities', () => {
+    it('can get requests with payment network fromIdentity', async () => {
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByMultipleTopics(topics: [string]): Promise<any> {
+          expect(topics).to.deep.equals([
+            '01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76',
+          ]);
+          return {
+            meta: {
+              [TestData.actionRequestId]: [],
+              [TestData.actionRequestIdSecondRequest]: [],
+            },
+            result: {
+              transactions: {
+                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestIdSecondRequest]: [
+                  TestData.transactionConfirmedSecondRequest,
+                ],
+              },
+            },
+          };
+        },
+        async getTransactionsByChannelId(channelId: string): Promise<any> {
+          let transactions: any[] = [];
+          if (channelId === TestData.actionRequestId) {
+            transactions = [
+              {
+                timestamp: TestData.arbitraryTimestamp,
+                transaction: {
+                  data: JSON.stringify(TestData.action),
+                },
+              },
+            ];
+          }
+          if (channelId === TestData.actionRequestIdSecondRequest) {
+            transactions = [TestData.transactionConfirmedSecondRequest];
+          }
+          return {
+            result: {
+              transactions,
+            },
+          };
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requests: Request[] = await requestnetwork.fromMultipleIdentities([
+        TestData.payee.identity,
+      ]);
 
       expect(requests.length).to.be.equal(2);
       expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
@@ -232,8 +295,65 @@ describe('api/request-network', () => {
       const requestnetwork = new RequestNetwork(mockDataAccess);
 
       await expect(
-        requestnetwork.fromIdentity({ type: 'not supported', value: 'whatever' } as any),
+        requestnetwork.fromMultipleIdentities([
+          { type: 'not supported', value: 'whatever' } as any,
+        ]),
       ).to.eventually.be.rejectedWith('not supported is not supported');
+    });
+  });
+
+  describe('fromMultipleTopics', () => {
+    it('can get requests with payment network fromMultipleTopics', async () => {
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByMultipleTopics(): Promise<any> {
+          return {
+            meta: {
+              [TestData.actionRequestId]: [],
+              [TestData.actionRequestIdSecondRequest]: [],
+            },
+            result: {
+              transactions: {
+                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestIdSecondRequest]: [
+                  TestData.transactionConfirmedSecondRequest,
+                ],
+              },
+            },
+          };
+        },
+        async getTransactionsByChannelId(channelId: string): Promise<any> {
+          let transactions: any[] = [];
+          if (channelId === TestData.actionRequestId) {
+            transactions = [TestData.transactionConfirmed];
+          }
+          if (channelId === TestData.actionRequestIdSecondRequest) {
+            transactions = [TestData.transactionConfirmedSecondRequest];
+          }
+          return {
+            result: {
+              transactions,
+            },
+          };
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requests: Request[] = await requestnetwork.fromMultipleTopics([
+        TestData.payee.identity,
+      ]);
+
+      expect(requests.length).to.be.equal(2);
+      expect(requests[0].requestId).to.be.equal(TestData.actionRequestId);
+      expect(requests[1].requestId).to.be.equal(TestData.actionRequestIdSecondRequest);
     });
   });
 });

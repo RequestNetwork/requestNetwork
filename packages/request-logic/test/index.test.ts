@@ -44,6 +44,7 @@ let fakeTransactionManager: TransactionTypes.ITransactionManager;
 describe('index', () => {
   beforeEach(() => {
     fakeTransactionManager = {
+      getChannelsByMultipleTopics: chai.spy(),
       getChannelsByTopic: chai.spy(),
       getTransactionsByChannelId: chai.spy(),
       persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
@@ -432,6 +433,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
@@ -572,6 +574,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
@@ -718,6 +721,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
@@ -803,6 +807,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
@@ -855,6 +860,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: chai.spy(),
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
@@ -1015,6 +1021,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listAllActions;
         },
@@ -1087,6 +1094,7 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listActions;
         },
@@ -1101,6 +1109,158 @@ describe('index', () => {
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
       expect(requests.result.requests.length, 'requests result is wrong').to.equal(1);
+    });
+  });
+
+  describe('getRequestsByMultipleTopic', () => {
+    it('can getRequestsByMultipleTopic', async () => {
+      const unsignedActionCreation = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: RequestLogicTypes.CURRENCY.ETH,
+          expectedAmount: '123400000000000000',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation);
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: newRequestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId: newRequestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const unsignedActionCreation2 = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: RequestLogicTypes.CURRENCY.BTC,
+          expectedAmount: '10',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544411111,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate2: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation2,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId2 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2);
+
+      const actionCancel2: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: newRequestId2,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const unsignedActionCreation3 = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: RequestLogicTypes.CURRENCY.BTC,
+          expectedAmount: '666',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544433333,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate3: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation3,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId3 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3);
+
+      const meta = {
+        dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
+        ignoredTransactions: {},
+      };
+      const listAllActions: Promise<
+        TransactionTypes.IReturnGetTransactionsByChannels
+      > = Promise.resolve({
+        meta,
+        result: {
+          transactions: {
+            [requestId]: [
+              {
+                timestamp: 0,
+                transaction: { data: JSON.stringify(actionCreate) },
+              },
+              {
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionAccept) },
+              },
+              {
+                timestamp: 3,
+                transaction: { data: JSON.stringify(rxReduce) },
+              },
+            ],
+            [newRequestId2]: [
+              {
+                timestamp: 1,
+                transaction: { data: JSON.stringify(actionCreate2) },
+              },
+              {
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionCancel2) },
+              },
+            ],
+            [newRequestId3]: [
+              {
+                timestamp: 4,
+                transaction: { data: JSON.stringify(actionCreate3) },
+              },
+            ],
+          },
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: (): Promise<
+          TransactionTypes.IReturnGetTransactionsByChannels
+        > => {
+          return listAllActions;
+        },
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy(),
+        persistTransaction: chai.spy(),
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const requests = await requestLogic.getRequestsByMultipleTopics(['fakeTopicForAll']);
+
+      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
     });
   });
 });

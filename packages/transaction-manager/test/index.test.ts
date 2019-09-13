@@ -52,7 +52,7 @@ let fakeDataAccess: DataAccessTypes.IDataAccess;
 describe('index', () => {
   beforeEach(() => {
     fakeDataAccess = {
-      getChannelsByMultipleTopics: chai.spy(),
+      getChannelsByMultipleTopics: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
       getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
       getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturn),
       initialize: chai.spy(),
@@ -941,6 +941,25 @@ describe('index', () => {
         },
       });
       expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+    });
+  });
+
+  describe('getChannelsByMultipleTopic', () => {
+    it('can get channels indexed by topics', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      const ret = await transactionManager.getChannelsByMultipleTopics([extraTopics[0]]);
+
+      expect(ret.result, 'ret.result is wrong').to.be.deep.equal(
+        fakeMetaDataAccessGetChannelsReturn.result,
+      );
+      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
+        ignoredTransactions: {
+          '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
+        },
+      });
+      expect(fakeDataAccess.getChannelsByMultipleTopics).to.have.been.called.with([extraTopics[0]]);
     });
   });
 });

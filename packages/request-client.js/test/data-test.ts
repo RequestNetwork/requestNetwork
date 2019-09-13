@@ -37,9 +37,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
     {
       action: 'create',
       id: 'pn-testnet-bitcoin-address-based',
-      parameters: {
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
-      },
+      parameters: {},
       version: '0.1.0',
     },
   ],

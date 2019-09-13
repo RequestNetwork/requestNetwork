@@ -47,6 +47,10 @@ export interface IRequestLogic {
     topic: string,
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetRequestsByTopic>;
+  getRequestsByMultipleTopics: (
+    topics: string[],
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetRequestsByTopic>;
 }
 
 /** Restrict research to two timestamp */

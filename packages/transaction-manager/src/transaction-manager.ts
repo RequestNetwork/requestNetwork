@@ -118,7 +118,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
    *
    * later it will handle decryption
    *
-   * @param channelId channel id to retrieve the transaction from
+   * @param channelId channel id to retrieve the transactions from
    * @param timestampBoundaries timestamp boundaries of the transactions search
    * @returns list of transactions of the channel
    */
@@ -159,7 +159,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   /**
    * Gets a list of channels indexed by topic
    *
-   * @param topic topic to retrieve the transaction from
+   * @param topic topic to retrieve the channels from
    * @param updatedBetween filter the channel whose received new data in the boundaries
    * @returns list of channels indexed by topic
    */
@@ -169,6 +169,34 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
     const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
 
+    return this.parseMultipleChannels(resultGetTx);
+  }
+
+  /**
+   * Gets a list of channels indexed by topics
+   *
+   * @param topics topics to retrieve the channels from
+   * @param updatedBetween filter the channel whose hasn't received new data in the boundaries
+   * @returns list of channels indexed by topics
+   */
+  public async getChannelsByMultipleTopics(
+    topics: string[],
+    updatedBetween?: TransactionTypes.ITimestampBoundaries,
+  ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
+    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(topics, updatedBetween);
+
+    return this.parseMultipleChannels(resultGetTx);
+  }
+
+  /**
+   * Parses the return of getChannels function from data-access layer
+   *
+   * @param resultGetTx returned value from getChannels function
+   * @returns decrypted and cleaned channels in the right format
+   */
+  private async parseMultipleChannels(
+    resultGetTx: DataAccessTypes.IReturnGetChannelsByTopic,
+  ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
     // Get the channels from the data-access layers to decrypt and clean them one by one
     const result = await Object.keys(resultGetTx.result.transactions).reduce(
       async (accumulatorPromise, channelId) => {

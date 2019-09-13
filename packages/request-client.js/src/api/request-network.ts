@@ -107,9 +107,10 @@ export default class RequestNetwork {
   }
 
   /**
-   * Create an array of Request instances from an identity
+   * Create an array of request instances from an identity
    *
    * @param identity
+   * @param updatedBetween filter the requests with time boundaries
    * @returns the Requests
    */
   public async fromIdentity(
@@ -123,9 +124,32 @@ export default class RequestNetwork {
   }
 
   /**
-   * Create an array of Request instances from a topic
+   * Create an array of request instances from multiple identities
+   *
+   * @param identities
+   * @param updatedBetween filter the requests with time boundaries
+   * @returns the requests
+   */
+  public async fromMultipleIdentities(
+    identities: IdentityTypes.IIdentity[],
+    updatedBetween?: Types.ITimestampBoundaries,
+  ): Promise<Request[]> {
+    const identityNotSupported = identities.find(
+      identity => identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    );
+
+    if (identityNotSupported) {
+      throw new Error(`${identityNotSupported.type} is not supported`);
+    }
+
+    return this.fromMultipleTopics(identities, updatedBetween);
+  }
+
+  /**
+   * Create an array of request instances from a topic
    *
    * @param topic
+   * @param updatedBetween filter the requests with time boundaries
    * @returns the Requests
    */
   public async fromTopic(
@@ -137,8 +161,8 @@ export default class RequestNetwork {
       Utils.crypto.normalizeKeccak256Hash(topic),
       updatedBetween,
     );
-    // From the requests of the Request-logic creates the request objects and gets the payment networks
-    const requests = requestsAndMeta.result.requests.map(
+    // From the requests of the request-logic layer creates the request objects and gets the payment networks
+    const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           this.advancedLogic,
@@ -160,7 +184,50 @@ export default class RequestNetwork {
       },
     );
 
-    return Promise.all(requests);
+    return Promise.all(requestPromises);
+  }
+
+  /**
+   * Create an array of request instances from a multiple topics
+   *
+   * @param topics
+   * @param updatedBetween filter the requests with time boundaries
+   * @returns the Requests
+   */
+  public async fromMultipleTopics(
+    topics: any[],
+    updatedBetween?: Types.ITimestampBoundaries,
+  ): Promise<Request[]> {
+    // Gets all the requests indexed by the value of the identity
+    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
+      topics.map(Utils.crypto.normalizeKeccak256Hash),
+      updatedBetween,
+    );
+
+    // From the requests of the request-logic layer creates the request objects and gets the payment networks
+    const requestPromises = requestsAndMeta.result.requests.map(
+      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
+        const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+          this.advancedLogic,
+          requestFromLogic,
+        );
+
+        // create the request object
+        const request = new Request(
+          this.requestLogic,
+          requestFromLogic.requestId,
+          paymentNetwork,
+          this.contentData,
+        );
+
+        // refresh the local request data
+        await request.refresh();
+
+        return request;
+      },
+    );
+
+    return Promise.all(requestPromises);
   }
 
   /**

@@ -16,6 +16,10 @@ export interface ITransactionManager {
     topic: string,
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetTransactionsByChannels>;
+  getChannelsByMultipleTopics: (
+    topics: string[],
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactionsByChannels>;
 }
 
 /** Restrict the get data research to two timestamp */
