@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.6.0...@requestnetwork/transaction-manager@0.7.0) (2019-09-16)
+
+
+### Features
+
+* **data-access:** get channels from multiple topics ([#527](https://github.com/RequestNetwork/requestNetwork/issues/527)) ([bdebab7](https://github.com/RequestNetwork/requestNetwork/commit/bdebab7))
+* **transaction-manager:** add transaction to an existing encrypted channel ([#524](https://github.com/RequestNetwork/requestNetwork/issues/524)) ([027a0f5](https://github.com/RequestNetwork/requestNetwork/commit/027a0f5))
+* get requests by multiple topics or multiple identities ([#530](https://github.com/RequestNetwork/requestNetwork/issues/530)) ([8fe7d30](https://github.com/RequestNetwork/requestNetwork/commit/8fe7d30))
+
+
+
+
+
 # [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.5.0...@requestnetwork/transaction-manager@0.6.0) (2019-09-05)
 
 

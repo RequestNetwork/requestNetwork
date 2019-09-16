@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/prototype-estimator",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "private": true,
   "description": "Tool to estimate size and throughput of v2 system.",
   "keywords": [
@@ -26,16 +26,16 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.4.2",
-    "@requestnetwork/data-access": "0.4.2",
-    "@requestnetwork/epk-signature": "0.5.1",
-    "@requestnetwork/ethereum-storage": "0.4.2",
-    "@requestnetwork/request-client.js": "0.6.0",
-    "@requestnetwork/request-logic": "0.6.0",
-    "@requestnetwork/request-node": "0.5.1",
-    "@requestnetwork/transaction-manager": "0.6.0",
-    "@requestnetwork/types": "0.6.0",
-    "@requestnetwork/utils": "0.6.0",
+    "@requestnetwork/advanced-logic": "0.4.3",
+    "@requestnetwork/data-access": "0.5.0",
+    "@requestnetwork/epk-signature": "0.5.2",
+    "@requestnetwork/ethereum-storage": "0.4.3",
+    "@requestnetwork/request-client.js": "0.7.0",
+    "@requestnetwork/request-logic": "0.7.0",
+    "@requestnetwork/request-node": "0.5.2",
+    "@requestnetwork/transaction-manager": "0.7.0",
+    "@requestnetwork/types": "0.7.0",
+    "@requestnetwork/utils": "0.6.1",
     "benchmark": "2.1.4",
     "simple-statistics": "7.0.2"
   },

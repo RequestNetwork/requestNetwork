@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.4.2...@requestnetwork/data-access@0.5.0) (2019-09-16)
+
+
+### Features
+
+* **data-access:** get channels from multiple topics ([#527](https://github.com/RequestNetwork/requestNetwork/issues/527)) ([bdebab7](https://github.com/RequestNetwork/requestNetwork/commit/bdebab7))
+
+
+
+
+
 ## [0.4.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.4.1...@requestnetwork/data-access@0.4.2) (2019-09-05)
 
 
