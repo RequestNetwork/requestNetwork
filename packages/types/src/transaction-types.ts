@@ -6,12 +6,7 @@ export interface ITransactionManager {
     transactionData: ITransactionData,
     channelId: string,
     topics?: string[],
-  ) => Promise<IReturnPersistTransaction>;
-  persistEncryptedTransaction: (
-    transactionData: ITransactionData,
-    channelId: string,
-    encryptionParams: Encryption.IEncryptionParameters[],
-    topics?: string[],
+    encryptionParams?: Encryption.IEncryptionParameters[],
   ) => Promise<IReturnPersistTransaction>;
   getTransactionsByChannelId: (
     channelId: string,
@@ -19,6 +14,10 @@ export interface ITransactionManager {
   ) => Promise<IReturnGetTransactions>;
   getChannelsByTopic: (
     topic: string,
+    updatedBetween?: ITimestampBoundaries,
+  ) => Promise<IReturnGetTransactionsByChannels>;
+  getChannelsByMultipleTopics: (
+    topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetTransactionsByChannels>;
 }
@@ -48,6 +47,8 @@ export interface IReturnGetTransactions {
   meta: {
     /** meta-data from the layer below */
     dataAccessMeta?: any;
+    /** encryption method used if transaction encrypted */
+    encryptionMethod?: string;
     /** Ignored transactions */
     ignoredTransactions: Array<IIgnoredTransaction | null>;
   };
@@ -61,6 +62,8 @@ export interface IReturnGetTransactionsByChannels {
   meta: {
     /** meta-data from the layer below */
     dataAccessMeta?: any;
+    /** encryption method used if transaction encrypted */
+    encryptionMethod?: string;
     /** Ignored transactions */
     ignoredTransactions: { [key: string]: Array<IIgnoredTransaction | null> };
   };

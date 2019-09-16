@@ -250,7 +250,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Function to get a list of channels indexed by topic
    *
-   * @param topic topic to retrieve the transaction from
+   * @param topic topic to retrieve the channels from
    * @param updatedBetween filter the channels that have received new data within the time boundaries
    *
    * @returns list of channels indexed by topic
@@ -269,14 +269,74 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const channelIds = await this.transactionIndex.getChannelIdsForTopic(topic, updatedBetween);
 
     // Gets the transactions per channel id
-    const transactionsAndMeta = await Bluebird.map(channelIds, channelId =>
+    const transactionsAndMeta = Bluebird.map(channelIds, channelId =>
       this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
         channelId,
         transactionsWithMeta,
       })),
     );
 
-    // Gather all the transaction in one object
+    // Gather all the transactions in one object
+    return transactionsAndMeta.reduce(
+      (finalResult: DataAccessTypes.IReturnGetChannelsByTopic, channelIdAndTransactions: any) => {
+        const id = channelIdAndTransactions.channelId;
+
+        // Adds the storage location of the channel's data
+        finalResult.meta.transactionsStorageLocation[id] =
+          channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
+
+        // Adds the meta of the channel
+        finalResult.meta.storageMeta[id] =
+          channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
+
+        // Adds the transaction of the channel
+        finalResult.result.transactions[id] =
+          channelIdAndTransactions.transactionsWithMeta.result.transactions;
+
+        return finalResult;
+      },
+      {
+        meta: {
+          storageMeta: {},
+          transactionsStorageLocation: {},
+        },
+        result: { transactions: {} },
+      },
+    );
+  }
+
+  /**
+   * Function to get a list of channels indexed by multiple topics
+   *
+   * @param topics topics to retrieve the channels from
+   * @param updatedBetween filter the channels that have received new data within the time boundaries
+   *
+   * @returns list of channels indexed by topics
+   */
+  public async getChannelsByMultipleTopics(
+    topics: string[],
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    this.checkInitialized();
+
+    if (!topics.every(Utils.multiFormat.isKeccak256Hash)) {
+      throw new Error(`The topics are not well formatted`);
+    }
+
+    const channelIds: string[] = await this.transactionIndex.getChannelIdsForMultipleTopics(
+      topics,
+      updatedBetween,
+    );
+
+    // Gets the transactions per channel id
+    const transactionsAndMeta = Bluebird.map(channelIds, channelId =>
+      this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
+        channelId,
+        transactionsWithMeta,
+      })),
+    );
+
+    // Gather all the transactions in one object
     return transactionsAndMeta.reduce(
       (finalResult: DataAccessTypes.IReturnGetChannelsByTopic, channelIdAndTransactions: any) => {
         const id = channelIdAndTransactions.channelId;

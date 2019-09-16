@@ -41,7 +41,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     signerIdentity: IdentityTypes.IIdentity,
     topics: string[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
-    const { action, requestId } = await this.createActionAndRequestId(
+    const { action, requestId } = await this.createCreationActionAndRequestId(
       requestParameters,
       signerIdentity,
     );
@@ -73,16 +73,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     topics: string[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
-    const { action, requestId } = await this.createActionAndRequestId(
+    const { action, requestId } = await this.createCreationActionAndRequestId(
       requestParameters,
       signerIdentity,
     );
 
-    const resultPersistTx = await this.transactionManager.persistEncryptedTransaction(
+    const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
-      encryptionParams,
       topics,
+      encryptionParams,
     );
     return {
       meta: { transactionManagerMeta: resultPersistTx.meta },
@@ -315,24 +315,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }),
     );
 
-    // second parameter is null, because the first action must be a creation (no state expected)
-    const request = actionsConfirmedWithoutDuplicates.uniqueItems.reduce(
-      (requestState: any, actionConfirmed: any) => {
-        try {
-          return RequestLogicCore.applyActionToRequest(
-            requestState,
-            actionConfirmed.action,
-            actionConfirmed.timestamp,
-            this.advancedLogic,
-          );
-        } catch (e) {
-          // if an error occurs during the apply we ignore the action
-          ignoredTransactions.push({ reason: e.message, transaction: actionConfirmed });
-          return requestState;
-        }
-      },
-      null,
+    const { request, ignoredTransactionsByApplication } = await this.computeRequestFromTransactions(
+      actionsConfirmedWithoutDuplicates.uniqueItems,
     );
+    ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
     return {
       meta: {
@@ -344,7 +330,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Gets the requests indexed by a topic from the actions in the data-access layer
+   * Gets the requests indexed by a topic from the transactions of transaction-manager layer
    *
    * @param topic
    * @returns all the requests indexed by topic
@@ -357,68 +343,152 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       topic,
       updatedBetween,
     );
-    const transactionsByChannel = getChannelsResult.result.transactions;
-    const transactionManagerMeta = getChannelsResult.meta.dataAccessMeta;
+    return this.computeMultipleRequestFromChannels(getChannelsResult);
+  }
+
+  /**
+   * Gets the requests indexed by multiple topics from the transactions of transaction-manager layer
+   *
+   * @param topics
+   * @returns all the requests indexed by topics
+   */
+  public async getRequestsByMultipleTopics(
+    topics: string[],
+    updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
+  ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
+    const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
+      topics,
+      updatedBetween,
+    );
+    return this.computeMultipleRequestFromChannels(getChannelsResult);
+  }
+
+  /**
+   * Creates the creation action and the requestId of a request
+   *
+   * @param requestParameters parameters to create a request
+   * @param signerIdentity Identity of the signer
+   *
+   * @returns the request id and the action
+   */
+  private async createCreationActionAndRequestId(
+    requestParameters: RequestLogicTypes.ICreateParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<{ action: RequestLogicTypes.IAction; requestId: RequestLogicTypes.RequestId }> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+
+    const action = await RequestLogicCore.formatCreate(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
+
+    return {
+      action,
+      requestId,
+    };
+  }
+
+  /**
+   * Interprets a request from transactions
+   *
+   * @param transactions transactions to compute the request from
+   * @returns the request and the ignoredTransactions
+   */
+  private async computeRequestFromTransactions(
+    transactions: TransactionTypes.IConfirmedTransaction[],
+  ): Promise<{
+    request: RequestLogicTypes.IRequest | null;
+    ignoredTransactionsByApplication: any[];
+  }> {
+    const ignoredTransactionsByApplication: any[] = [];
+
+    // second parameter is null, because the first action must be a creation (no state expected)
+    const request = transactions.reduce((requestState: any, actionConfirmed: any) => {
+      try {
+        return RequestLogicCore.applyActionToRequest(
+          requestState,
+          actionConfirmed.action,
+          actionConfirmed.timestamp,
+          this.advancedLogic,
+        );
+      } catch (e) {
+        // if an error occurs while applying we ignore the action
+        ignoredTransactionsByApplication.push({ reason: e.message, transaction: actionConfirmed });
+        return requestState;
+      }
+    }, null);
+
+    return { ignoredTransactionsByApplication, request };
+  }
+
+  /**
+   * Interprets multiple requests from channels
+   *
+   * @param channelsRawData returned value by getChannels function
+   * @returns the requests and meta data
+   */
+  private async computeMultipleRequestFromChannels(
+    channelsRawData: TransactionTypes.IReturnGetTransactionsByChannels,
+  ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
+    const transactionsByChannel = channelsRawData.result.transactions;
+    const transactionManagerMeta = channelsRawData.meta.dataAccessMeta;
 
     // Gets all the requests from the transactions
-    const allRequestAndMeta = Object.keys(getChannelsResult.result.transactions).map(channelId => {
+    const allRequestAndMetaPromises = Object.keys(channelsRawData.result.transactions).map(
       // Parses and removes corrupted or duplicated transactions
+      async channelId => {
+        let ignoredTransactions: any[] = [];
 
-      let ignoredTransactions: any[] = [];
+        const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
+          transactionsByChannel[channelId]
+            // filter the actions ignored by the previous layers
+            .filter(action => action !== null)
+            .map((t: any) => {
+              try {
+                return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
+              } catch (e) {
+                // We ignore the transaction.data that cannot be parsed
+                ignoredTransactions.push({
+                  reason: 'JSON parsing error',
+                  transaction: t,
+                });
+                return;
+              }
+            })
+            .filter((elem: any) => elem !== undefined),
+          'action',
+        );
 
-      const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
-        transactionsByChannel[channelId]
-          // filter the actions ignored by the previous layers
-          .filter(action => action !== null)
-          .map((t: any) => {
-            try {
-              return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
-            } catch (e) {
-              // We ignore the transaction.data that cannot be parsed
-              ignoredTransactions.push({
-                reason: 'JSON parsing error',
-                transaction: t,
-              });
-              return;
-            }
-          })
-          .filter((elem: any) => elem !== undefined),
-        'action',
-      );
+        // Keeps the ignored transactions
+        ignoredTransactions = ignoredTransactions.concat(
+          actionsConfirmedWithoutDuplicates.duplicates.map(tx => ({
+            reason: 'Duplicated transaction',
+            transaction: tx,
+          })),
+        );
 
-      // Keeps the transaction ignored
-      ignoredTransactions = ignoredTransactions.concat(
-        actionsConfirmedWithoutDuplicates.duplicates.map(tx => ({
-          reason: 'Duplicated transaction',
-          transaction: tx,
-        })),
-      );
+        // Computes the request from the transactions
+        const {
+          request,
+          ignoredTransactionsByApplication,
+        } = await this.computeRequestFromTransactions(
+          actionsConfirmedWithoutDuplicates.uniqueItems,
+        );
+        ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
-      // second parameter is null, because the first action must be a creation (no state expected)
-      const request = actionsConfirmedWithoutDuplicates.uniqueItems.reduce(
-        (requestState: any, actionConfirmed: any) => {
-          try {
-            return RequestLogicCore.applyActionToRequest(
-              requestState,
-              actionConfirmed.action,
-              actionConfirmed.timestamp,
-              this.advancedLogic,
-            );
-          } catch (e) {
-            // if an error occurs during the apply we ignore the action
-            ignoredTransactions.push({ reason: e.message, transaction: actionConfirmed });
-            return requestState;
-          }
-        },
-        null,
-      );
+        return {
+          ignoredTransactions,
+          request,
+          transactionManagerMeta: transactionManagerMeta[channelId],
+        };
+      },
+    );
 
-      return {
-        ignoredTransactions,
-        request,
-        transactionManagerMeta: transactionManagerMeta[channelId],
-      };
-    });
+    const allRequestAndMeta = await Promise.all(allRequestAndMetaPromises);
 
     // Merge all the requests and meta in one object
     return allRequestAndMeta.reduce(
@@ -445,34 +515,5 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         result: { requests: [] },
       },
     );
-  }
-
-  /**
-   * Creates the action and the requestId of a request
-   *
-   * @param requestParameters parameters to create a request
-   * @param signerIdentity Identity of the signer
-   *
-   * @returns the request id and the action
-   */
-  private async createActionAndRequestId(
-    requestParameters: RequestLogicTypes.ICreateParameters,
-    signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<{ action: RequestLogicTypes.IAction; requestId: RequestLogicTypes.RequestId }> {
-    if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
-    }
-
-    const action = await RequestLogicCore.formatCreate(
-      requestParameters,
-      signerIdentity,
-      this.signatureProvider,
-    );
-    const requestId = RequestLogicCore.getRequestIdFromAction(action);
-
-    return {
-      action,
-      requestId,
-    };
   }
 }

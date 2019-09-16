@@ -14,6 +14,10 @@ export interface IDataAccess {
     topic: string,
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetChannelsByTopic>;
+  getChannelsByMultipleTopics(
+    topics: string[],
+    updatedBetween?: ITimestampBoundaries,
+  ): Promise<IReturnGetChannelsByTopic>;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -123,6 +127,10 @@ export interface ITransactionIndex {
   addTransaction(dataId: string, header: IBlockHeader, timestamp: number): Promise<void>;
   getChannelIdsForTopic(
     topic: string,
+    timestampBoundaries?: ITimestampBoundaries,
+  ): Promise<string[]>;
+  getChannelIdsForMultipleTopics(
+    topics: string[],
     timestampBoundaries?: ITimestampBoundaries,
   ): Promise<string[]>;
   getStorageLocationList(

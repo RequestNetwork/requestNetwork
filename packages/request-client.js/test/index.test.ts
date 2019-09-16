@@ -1,6 +1,8 @@
 const axios = require('axios');
 
 import {
+  DecryptionProviderTypes,
+  EncryptionTypes,
   IdentityTypes,
   RequestLogicTypes,
   SignatureProviderTypes,
@@ -49,6 +51,30 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
+};
+
+const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
+  decrypt: (data: string, identity: IdentityTypes.IIdentity): Promise<string> => {
+    switch (identity.value.toLowerCase()) {
+      case payeeIdentity.value:
+        return Utils.encryption.decrypt(data, {
+          key: signatureParametersPayee.privateKey,
+          method: EncryptionTypes.METHOD.ECIES,
+        });
+      case payerIdentity.value:
+        return Utils.encryption.decrypt(data, {
+          key: signatureParametersPayer.privateKey,
+          method: EncryptionTypes.METHOD.ECIES,
+        });
+      default:
+        throw new Error('Identity not registered');
+    }
+  },
+  isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
+    return [payeeIdentity.value, payerIdentity.value].includes(identity.value.toLowerCase());
+  },
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
 const requestParameters: RequestLogicTypes.ICreateParameters = {
@@ -372,7 +398,7 @@ describe('index', () => {
 
     await request.accept(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -388,7 +414,7 @@ describe('index', () => {
 
     await request.cancel(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -404,7 +430,7 @@ describe('index', () => {
 
     await request.increaseExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -420,7 +446,7 @@ describe('index', () => {
 
     await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.twice;
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -458,7 +484,7 @@ describe('index', () => {
 
       await request.declareSentPayment('10', 'sent payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -481,7 +507,7 @@ describe('index', () => {
 
       await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -504,7 +530,7 @@ describe('index', () => {
 
       await request.declareSentRefund('10', 'sent refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -527,7 +553,7 @@ describe('index', () => {
 
       await request.declareReceivedRefund('10', 'received refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyGet).to.have.been.called.twice;
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -626,6 +652,28 @@ describe('index', () => {
       ).to.eventually.be.rejectedWith(
         'Cannot declare sent payment without declarative payment network',
       );
+    });
+  });
+
+  describe('tests with encryption', () => {
+    // beforeEach(() => {
+
+    // });
+
+    it('reads an encrypted request', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+
+      const requestFromId = await requestNetwork.fromRequestId(request.requestId);
+      expect(requestFromId.requestId).to.equal(request.requestId);
     });
   });
 });

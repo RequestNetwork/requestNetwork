@@ -121,8 +121,10 @@ function pushTransaction(
   channelId: string,
   topics: string[] = [],
 ): DataAccessTypes.IBlock {
-  if (transaction.data === undefined) {
-    throw new Error('The transaction is missing the data property');
+  if (transaction.data === undefined && !(transaction.encryptedData && transaction.hash)) {
+    throw new Error(
+      'The transaction is missing the data property or encryptedData and hash property',
+    );
   }
   // we don't want to modify the original block state
   const copiedBlock: DataAccessTypes.IBlock = Utils.deepCopy(block);

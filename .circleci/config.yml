@@ -366,6 +366,19 @@ jobs:
       - run:
           name: 'Execute usage-examples'
           command: 'yarn workspace @requestnetwork/usage-examples run start'
+  test-toolbox:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build toolbox'
+          command: 'yarn workspace @requestnetwork/toolbox run build'
+      - run:
+          name: 'Lint toolbox'
+          command: 'yarn workspace @requestnetwork/toolbox run lint'
   publish-coverage:
     docker:
       - *node_image
@@ -465,6 +478,9 @@ workflows:
           requires:
             - build
       - test-usage-examples:
+          requires:
+            - build
+      - test-toolbox:
           requires:
             - build
       - test-integration-test:

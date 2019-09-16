@@ -34,6 +34,7 @@ export default class TransactionsParser {
   ): Promise<{
     transaction: TransactionTypes.ITransaction;
     channelKey?: EncryptionTypes.IDecryptionParameters;
+    encryptionMethod?: string;
   }> {
     // looks like a clear transaction
     if (persistedTransaction.data) {
@@ -81,6 +82,7 @@ export default class TransactionsParser {
 
       return {
         channelKey,
+        encryptionMethod: persistedTransaction.encryptionMethod,
         transaction: new EncryptedTransaction(
           persistedTransaction.encryptedData,
           persistedTransaction.hash,
@@ -154,7 +156,6 @@ export default class TransactionsParser {
         `Impossible to decrypt the channel key from this transaction (${errorReason})`,
       );
     }
-
     return {
       key: channelKey,
       method: EncryptionTypes.METHOD.AES256_CBC,

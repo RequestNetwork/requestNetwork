@@ -1,4 +1,5 @@
 import { DataAccessTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import * as Keyv from 'keyv';
 
@@ -93,6 +94,21 @@ export default class LocationByTopicTransactionIndex {
     return Array.from((await this.channelIdByTopics.get(topic)) || []);
   }
 
+  /**
+   * Function to get the channel ids from multiple topics
+   *
+   * @param topics topics to retrieve the dataIds
+   * @returns list of the channel ids linked to the topics
+   */
+  public async getChannelIdsFromMultipleTopics(topics: string[]): Promise<string[]> {
+    const channelIdsPromises = topics.map(async topic => {
+      return Array.from((await this.channelIdByTopics.get(topic)) || []);
+    });
+    const channelIds = await Promise.all(channelIdsPromises);
+
+    // flatten the array of array and remove the duplicates
+    return Utils.unique(Utils.flatten2DimensionsArray(channelIds)).uniqueItems;
+  }
   /**
    * Function to get storage locations from a channel id
    *

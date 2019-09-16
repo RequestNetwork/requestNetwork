@@ -1,7 +1,4 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { assert } from 'chai';
 import 'mocha';
@@ -45,6 +42,14 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
     return { meta: {}, result: { request: { requestId: '1' } } };
   },
   async getRequestsByTopic(): Promise<any> {
+    return {
+      meta: {},
+      result: {
+        requests: [],
+      },
+    };
+  },
+  async getRequestsByMultipleTopics(): Promise<any> {
     return {
       meta: {},
       result: {
@@ -353,7 +358,9 @@ describe('api/request', () => {
         await request.declareSentPayment('1000', 'sent', signatureIdentity);
         expect(false, 'should throw').to.be.true;
       } catch (e) {
-        expect(e.message).to.equal('Cannot declare sent payment without declarative payment network');
+        expect(e.message).to.equal(
+          'Cannot declare sent payment without declarative payment network',
+        );
       }
     });
   });
@@ -389,7 +396,9 @@ describe('api/request', () => {
         await request.declareSentRefund('1000', 'sent', signatureIdentity);
         expect(false, 'should throw').to.be.true;
       } catch (e) {
-        expect(e.message).to.equal('Cannot declare sent refund without declarative payment network');
+        expect(e.message).to.equal(
+          'Cannot declare sent refund without declarative payment network',
+        );
       }
     });
   });
@@ -425,7 +434,9 @@ describe('api/request', () => {
         await request.declareReceivedPayment('1000', 'received', signatureIdentity);
         expect(false, 'should throw').to.be.true;
       } catch (e) {
-        expect(e.message).to.equal('Cannot declare received payment without declarative payment network');
+        expect(e.message).to.equal(
+          'Cannot declare received payment without declarative payment network',
+        );
       }
     });
   });
@@ -461,7 +472,9 @@ describe('api/request', () => {
         await request.declareReceivedRefund('1000', 'received', signatureIdentity);
         expect(false, 'should throw').to.be.true;
       } catch (e) {
-        expect(e.message).to.equal('Cannot declare received refund without declarative payment network');
+        expect(e.message).to.equal(
+          'Cannot declare received refund without declarative payment network',
+        );
       }
     });
   });
@@ -502,6 +515,14 @@ describe('api/request', () => {
           };
         },
         async getRequestsByTopic(): Promise<any> {
+          return {
+            meta: {},
+            result: {
+              requests: [],
+            },
+          };
+        },
+        async getRequestsByMultipleTopics(): Promise<any> {
           return {
             meta: {},
             result: {
