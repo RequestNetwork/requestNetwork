@@ -4,7 +4,7 @@ import * as config from './config';
 
 import KeyvFile from 'keyv-file';
 
-const hdWalletProvider = require('truffle-hdwallet-provider');
+const hdWalletProvider = require('@truffle/hdwallet-provider');
 
 /**
  * Get the ethereum storage with values from config
@@ -13,7 +13,11 @@ const hdWalletProvider = require('truffle-hdwallet-provider');
  * @param metadataStore a Keyv store to persist the metadata in ethereumMetadataCache
  * @returns ethereum storage object
  */
-export function getEthereumStorage(mnemonic: string, logger: LogTypes.ILogger, metadataStore?: KeyvFile): EthereumStorage {
+export function getEthereumStorage(
+  mnemonic: string,
+  logger: LogTypes.ILogger,
+  metadataStore?: KeyvFile,
+): EthereumStorage {
   // Initializes IPFS gateway connection object
   const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
     host: config.getIpfsHost(),
@@ -30,10 +34,15 @@ export function getEthereumStorage(mnemonic: string, logger: LogTypes.ILogger, m
     web3Provider: provider,
   };
 
-  return new EthereumStorage(ipfsGatewayConnection, web3Connection, {
-    getLastBlockNumberDelay: config.getLastBlockNumberDelay(),
-    logger,
-    maxConcurrency: config.getStorageConcurrency(),
-    retryDelay: config.getEthereumRetryDelay(),
-  }, metadataStore);
+  return new EthereumStorage(
+    ipfsGatewayConnection,
+    web3Connection,
+    {
+      getLastBlockNumberDelay: config.getLastBlockNumberDelay(),
+      logger,
+      maxConcurrency: config.getStorageConcurrency(),
+      retryDelay: config.getEthereumRetryDelay(),
+    },
+    metadataStore,
+  );
 }
