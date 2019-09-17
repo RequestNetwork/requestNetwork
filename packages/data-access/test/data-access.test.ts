@@ -14,6 +14,17 @@ import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
 
+// We use this function to flush the call stack
+// If we don't use this function, the fake timer will be increased before the interval function being called
+const flushCallStack = (): Promise<any> => {
+  return new Promise(
+    (resolve): any => {
+      setTimeout(resolve, 0);
+      clock.tick(1);
+    },
+  );
+};
+
 const transactionDataMock1String = JSON.stringify({
   attribut1: 'plop',
   attribut2: 'value',
@@ -127,10 +138,6 @@ let clock: sinon.SinonFakeTimers;
 describe('data-access', () => {
   beforeEach(async () => {
     clock = sinon.useFakeTimers();
-  });
-
-  afterEach(async () => {
-    sinon.restore();
   });
 
   describe('constructor', () => {
@@ -554,14 +561,60 @@ describe('data-access', () => {
 
     dataAccess.startAutoSynchronization();
     clock.tick(1100);
+    await flushCallStack();
 
     // Should have been called once after 1100ms
     expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
 
+    clock.tick(1000);
+    await flushCallStack();
+
+    // Should have been called once after 2100ms
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+
     dataAccess.stopAutoSynchronization();
     clock.tick(1000);
+    await flushCallStack();
 
     // Not called anymore after stopAutoSynchronization()
-    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+  });
+
+  it(`should not get twice the same data during synchronization`, async () => {
+    let args;
+    let lastTimestampReturnedByGetData: number = 0;
+
+    const fakeStorageSpied: StorageTypes.IStorage = {
+      ...defaultFakeStorage,
+      getData: sinon.spy(() => {
+        return {
+          meta: { metaData: [], lastTimestamp: lastTimestampReturnedByGetData },
+          result: { data: [], dataIds: [] },
+        };
+      }),
+    };
+
+    lastTimestampReturnedByGetData = 500;
+    const dataAccess = new DataAccess(fakeStorageSpied, {
+      synchronizationIntervalTime: 1000,
+    });
+    await dataAccess.initialize();
+
+    // At initialization, getData is called with no time boundaries
+    args = (fakeStorageSpied.getData as any).getCall(0).args[0];
+    expect(args).to.be.undefined;
+
+    dataAccess.startAutoSynchronization();
+
+    // Mock Date.now to parse the value "to" of the time boundaries
+    Date.now = (): number => 1000000;
+    lastTimestampReturnedByGetData = 800;
+    clock.tick(1100);
+    await flushCallStack();
+
+    args = (fakeStorageSpied.getData as any).getCall(1).args[0];
+    expect(args).to.deep.equal({from: 501, to: 1000});
+
+    dataAccess.stopAutoSynchronization();
   });
 });

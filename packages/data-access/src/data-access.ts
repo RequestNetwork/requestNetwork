@@ -370,8 +370,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async synchronizeNewDataIds(): Promise<void> {
     this.checkInitialized();
-    const synchronizationFrom = this.lastSyncStorageTimestamp;
     const synchronizationTo = Utils.getCurrentTimestampInSecond();
+
+    // We increment lastSyncStorageTimestamp because the data located at lastSyncStorageTimestamp
+    // 0 means it's the first synchronization
+    let synchronizationFrom = 0;
+    if (this.lastSyncStorageTimestamp > 0) {
+      synchronizationFrom = this.lastSyncStorageTimestamp + 1;
+    }
 
     // Read new data from storage
     const newDataWithMeta = await this.storage.getData({
