@@ -147,16 +147,19 @@ export default class ChannelParser {
   ): Promise<{
     channelType: TransactionTypes.ChannelType;
     channelKey: EncryptionTypes.IDecryptionParameters | undefined;
+    encryptionMethod: string | undefined;
   }> {
     // use of .reduce instead of .map to keep a sequential execution
     const channelTypeAndKey: {
       channelType: TransactionTypes.ChannelType;
       channelKey: EncryptionTypes.IDecryptionParameters | undefined;
+      encryptionMethod: string | undefined;
     } = await transactions.reduce(
       async (
         accumulatorPromise: Promise<{
           channelType: TransactionTypes.ChannelType;
           channelKey: EncryptionTypes.IDecryptionParameters | undefined;
+          encryptionMethod: string | undefined;
         }>,
         confirmedTransaction: TransactionTypes.IConfirmedTransaction,
       ) => {
@@ -203,9 +206,16 @@ export default class ChannelParser {
         // we keep the channelKey for this channel
         result.channelKey = parsedData.channelKey;
 
+        // we keep the encryption method for this channel
+        result.encryptionMethod = parsedData.encryptionMethod;
+
         return result;
       },
-      Promise.resolve({ channelType: TransactionTypes.ChannelType.UNKNOWN, channelKey: undefined }),
+      Promise.resolve({
+        channelKey: undefined,
+        channelType: TransactionTypes.ChannelType.UNKNOWN,
+        encryptionMethod: undefined,
+      }),
     );
 
     return channelTypeAndKey;

@@ -41,7 +41,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
   ): Promise<TransactionTypes.IReturnPersistTransaction> {
     let transaction: TransactionTypes.IPersistedTransaction = {};
-    let encryptionMethod: string | undefined;
+    let channelEncryptionMethod: string | undefined;
 
     // compute hash to add it to the topics
     const hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData));
@@ -57,14 +57,18 @@ export default class TransactionManager implements TransactionTypes.ITransaction
           transactionData,
           encryptionParams,
         );
-        encryptionMethod = transaction.encryptionMethod;
+        channelEncryptionMethod = transaction.encryptionMethod;
       }
 
       // Add the transaction to an existing channel
     } else {
       const resultGetTx = await this.dataAccess.getTransactionsByChannelId(channelId);
 
-      const { channelKey, channelType } = await this.channelParser.getChannelTypeAndChannelKey(
+      const {
+        channelKey,
+        channelType,
+        encryptionMethod,
+      } = await this.channelParser.getChannelTypeAndChannelKey(
         channelId,
         resultGetTx.result.transactions,
       );
@@ -93,7 +97,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
           channelKey,
         );
 
-        encryptionMethod = channelKey.method;
+        channelEncryptionMethod = encryptionMethod;
       }
     }
 
@@ -107,7 +111,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     return {
       meta: {
         dataAccessMeta: persistResult.meta,
-        encryptionMethod,
+        encryptionMethod: channelEncryptionMethod,
       },
       result: {},
     };

@@ -146,7 +146,7 @@ describe('index', () => {
         expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
         expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: 'aes256-cbc',
+          encryptionMethod: 'ecies-aes256-cbc',
         });
 
         expect(fakeDataAccess.persistTransaction).to.have.been.called.to.have.been.called.with(
