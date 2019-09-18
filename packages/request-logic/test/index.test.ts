@@ -79,6 +79,28 @@ describe('index', () => {
         requestId,
       );
     });
+
+    it('can createRequest with topics', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+      const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity, [
+        TestData.payeeRaw.identity,
+        TestData.payerRaw.identity,
+      ]);
+
+      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
+      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+        JSON.stringify(action),
+        requestId,
+        [
+          Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity),
+          Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity),
+        ],
+      );
+    });
   });
 
   describe('createEncryptedRequest', () => {
@@ -114,6 +136,30 @@ describe('index', () => {
         JSON.stringify(action),
         requestId,
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+      );
+    });
+
+    it('can create en encrypted request with topics', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+      const ret = await requestLogic.createEncryptedRequest(
+        createParams,
+        TestData.payeeRaw.identity,
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+        [TestData.payeeRaw.identity, TestData.payerRaw.identity],
+      );
+      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
+      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+        JSON.stringify(action),
+        requestId,
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+        [
+          Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity),
+          Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity),
+        ],
       );
     });
   });

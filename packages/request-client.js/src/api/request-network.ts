@@ -158,7 +158,7 @@ export default class RequestNetwork {
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
-      Utils.crypto.normalizeKeccak256Hash(topic),
+      topic,
       updatedBetween,
     );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
@@ -200,7 +200,7 @@ export default class RequestNetwork {
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
-      topics.map(Utils.crypto.normalizeKeccak256Hash),
+      topics,
       updatedBetween,
     );
 
@@ -245,7 +245,7 @@ export default class RequestNetwork {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
-    let topics = parameters.topics || [];
+    const topics = parameters.topics || [];
 
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');
@@ -287,9 +287,6 @@ export default class RequestNetwork {
     if (copiedRequestParameters.payer) {
       topics.push(copiedRequestParameters.payer);
     }
-
-    // format all the topics
-    topics = topics.map(Utils.crypto.normalizeKeccak256Hash);
 
     return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
   }
