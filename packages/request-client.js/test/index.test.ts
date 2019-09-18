@@ -53,25 +53,34 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
+const encryptionData = {
+  decryptionParams: {
+    key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key:
+      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  identity: {
+    type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+    value: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
+  },
+};
+
 const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   decrypt: (data: string, identity: IdentityTypes.IIdentity): Promise<string> => {
     switch (identity.value.toLowerCase()) {
-      case payeeIdentity.value:
-        return Utils.encryption.decrypt(data, {
-          key: signatureParametersPayee.privateKey,
-          method: EncryptionTypes.METHOD.ECIES,
-        });
-      case payerIdentity.value:
-        return Utils.encryption.decrypt(data, {
-          key: signatureParametersPayer.privateKey,
-          method: EncryptionTypes.METHOD.ECIES,
-        });
+      case encryptionData.identity.value:
+        return Utils.encryption.decrypt(data, encryptionData.decryptionParams);
+
       default:
         throw new Error('Identity not registered');
     }
   },
   isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
-    return [payeeIdentity.value, payerIdentity.value].includes(identity.value.toLowerCase());
+    return [encryptionData.identity.value].includes(identity.value.toLowerCase());
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
@@ -656,21 +665,20 @@ describe('index', () => {
   });
 
   describe('tests with encryption', () => {
-    // beforeEach(() => {
-
-    // });
-
-    it('reads an encrypted request', async () => {
+    it('creates and reads an encrypted request', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
 
-      const request = await requestNetwork.createRequest({
-        requestInfo: TestData.parametersWithoutExtensionsData,
-        signer: payeeIdentity,
-      });
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+        },
+        [encryptionData.encryptionParams],
+      );
 
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
       expect(requestFromId.requestId).to.equal(request.requestId);

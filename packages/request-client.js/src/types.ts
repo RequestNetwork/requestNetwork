@@ -5,6 +5,7 @@ export {
   AdvancedLogicTypes as AdvancedLogic,
   LogTypes as Log,
   ExtensionTypes as Extension,
+  EncryptionTypes as Encryption,
   RequestLogicTypes as RequestLogic,
   DataAccessTypes as DataAccess,
   SignatureTypes as Signature,

@@ -10,6 +10,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
+import { IEncryptionParameters } from '@requestnetwork/types/dist/encryption-types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -55,6 +56,38 @@ export default class RequestNetwork {
     const {
       result: { requestId },
     } = await this.requestLogic.createRequest(requestParameters, parameters.signer, topics);
+
+    // create the request object
+    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+
+    // refresh the local request data
+    await request.refresh();
+
+    return request;
+  }
+
+  /**
+   * Creates an encrypted request.
+   *
+   * @param parameters Parameters to create a request
+   * @param encryptionParams Request encryption parameters
+   * @returns The created encrypted request
+   */
+  public async _createEncryptedRequest(
+    parameters: Types.ICreateRequestParameters,
+    encryptionParams: IEncryptionParameters[],
+  ): Promise<Request> {
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
+    const {
+      result: { requestId },
+    } = await this.requestLogic.createEncryptedRequest(
+      requestParameters,
+      parameters.signer,
+      encryptionParams,
+      topics,
+    );
 
     // create the request object
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);

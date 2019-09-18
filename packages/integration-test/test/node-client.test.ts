@@ -1,3 +1,4 @@
+import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import Utils from '@requestnetwork/utils';
@@ -27,6 +28,26 @@ const requestCreationHashUSD: Types.RequestLogic.ICreateParameters = {
   payee: payeeIdentity,
   payer: payerIdentity,
 };
+
+const encryptionData = {
+  decryptionParams: {
+    key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key:
+      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+  publicKey:
+    '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+};
+
+// Decryption provider setup
+const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
+  encryptionData.decryptionParams,
+);
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,
@@ -182,5 +203,41 @@ describe('Request client using a request node', () => {
     requestData1 = requests[0].getData();
     assert.equal(requestData1.state, Types.RequestLogic.STATE.CANCELED);
     assert.equal(requestData1.expectedAmount, '90000000');
+  });
+
+  it('can create an encrypted request and get it back unencrypted', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+
+    // Create an encrypted request
+    const request = await requestNetwork._createEncryptedRequest(
+      {
+        requestInfo: requestCreationHashBTC,
+        signer: payeeIdentity,
+      },
+      [encryptionData.encryptionParams],
+    );
+
+    // Check that a request was returned
+    assert.instanceOf(request, Request);
+    assert.exists(request.requestId);
+
+    // Get the data
+    const requestData = request.getData();
+    assert.equal(requestData.expectedAmount, '1000');
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+
+    // Fetch the created request by its id
+    const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+
+    // Verify that the request values are correct
+    assert.instanceOf(fetchedRequest, Request);
+    assert.exists(fetchedRequest.requestId);
+    assert.equal(request.requestId, fetchedRequest.requestId);
+
+    const fetchedRequestData = request.getData();
+    assert.equal(requestData.expectedAmount, fetchedRequestData.expectedAmount);
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
   });
 });
