@@ -762,5 +762,32 @@ describe('index', () => {
         );
       });
     });
+
+    it('creates an encrypted request and recovers it by identity', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+          topics: ['my amazing test topic'],
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const requestFromIdentity = await requestNetwork.fromIdentity(payeeIdentity);
+      expect(requestFromIdentity).to.not.be.empty;
+      expect(requestFromIdentity[0]).to.deep.equal(request);
+
+      const requestData = requestFromIdentity[0].getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+    });
   });
 });
