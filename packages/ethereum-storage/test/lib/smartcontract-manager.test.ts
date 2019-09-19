@@ -584,4 +584,44 @@ describe('SmartContractManager', () => {
       `Block pending has no number`,
     );
   });
+
+  it('allows to check if the web3 provider is listening', async () => {
+    // smartContractManager check on http://localhost:8545
+    await assert.isFulfilled(smartContractManager.checkWeb3ProviderConnection(10000));
+  });
+
+  it('should throw an error if the web3 provider is not listening', async () => {
+    smartContractManager.eth.net.isListening = async () => false;
+    await assert.isRejected(
+      smartContractManager.checkWeb3ProviderConnection(10000),
+      Error,
+      'The Web3 provider is not listening',
+    );
+  });
+
+  it('should throw an error if the web3 provider is not reachable or takes too long to respond', async () => {
+    smartContractManager.eth.net.isListening = () => new Promise(
+      (resolve, _reject): void => {
+        setTimeout(() => resolve(true), 20000);
+      });
+
+    // Timeout is lower to not reach the mocha test timeout
+    await assert.isRejected(
+      smartContractManager.checkWeb3ProviderConnection(1000),
+      Error,
+      'The Web3 provider is not reachable, did you use the correct protocol (http/https)?',
+    );
+  });
+
+  it('should throw an error if an error occurs when checking if the web3 provider is listening', async () => {
+    smartContractManager.eth.net.isListening = async () => {
+      throw Error('A connection error');
+    };
+
+    await assert.isRejected(
+      smartContractManager.checkWeb3ProviderConnection(10000),
+      Error,
+      'Error when trying to reach Web3 provider',
+    );
+  });
 });

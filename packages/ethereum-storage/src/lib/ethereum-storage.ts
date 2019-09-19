@@ -20,6 +20,9 @@ const SAFE_RATE_HEADER_SIZE: number = 0.3;
 // max ipfs header size
 const SAFE_MAX_HEADER_SIZE: number = 500;
 
+// time to wait before considering the web3 provider is not reachable
+const WEB3_PROVIDER_TIMEOUT: number = 10000;
+
 /**
  * EthereumStorage
  * @notice Manages storage layer of the Request Network Protocol v2
@@ -115,7 +118,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // check ethereum node connection - will throw if the ethereum node is not reachable
     this.logger.info('Checking ethereum node connection', ['ethereum', 'sanity']);
     try {
-      await this.smartContractManager.checkEthereumNodeConnection();
+      await this.smartContractManager.checkWeb3ProviderConnection(WEB3_PROVIDER_TIMEOUT);
     } catch (error) {
       throw Error(`Ethereum node is not accessible: ${error}`);
     }
@@ -158,7 +161,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // check ethereum node connection - will throw if the ethereum node is not reachable
 
     try {
-      await this.smartContractManager.checkEthereumNodeConnection();
+      await this.smartContractManager.checkWeb3ProviderConnection(WEB3_PROVIDER_TIMEOUT);
     } catch (error) {
       throw Error(`Ethereum node is not accessible: ${error}`);
     }

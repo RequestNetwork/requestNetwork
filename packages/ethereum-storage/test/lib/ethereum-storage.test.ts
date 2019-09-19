@@ -183,7 +183,7 @@ describe('EthereumStorage', () => {
         invalidHostWeb3Connection,
       );
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: ""',
+        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
       );
     });
 
@@ -193,10 +193,10 @@ describe('EthereumStorage', () => {
         web3Connection,
       );
 
-      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = () => false;
+      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = async () => false;
 
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Node not listening',
+        'Ethereum node is not accessible: Error: The Web3 provider is not listening',
       );
     });
     it('cannot initialize if contracts are not deployed', async () => {
@@ -590,7 +590,7 @@ describe('EthereumStorage', () => {
       await expect(
         ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection),
       ).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: ""',
+        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
       );
     });
 

@@ -153,17 +153,41 @@ export default class SmartContractManager {
   }
 
   /**
-   * Check if the ethereum node is accessible
-   * @return Promise resolving if the node is accessible, throw otherwise
+   * Check if the web3 provider is accessible
+   * @param timeout Time to wait before considering the provider is not reachable
+   * @return Promise resolving if the web3 provider is accessible, throw otherwise
    */
-  public async checkEthereumNodeConnection(): Promise<void> {
-    try {
-      if (!(await this.eth.net.isListening())) {
-        throw Error('Node not listening');
-      }
-    } catch (error) {
-      throw Error(`Ethereum node is not reachable: ${error}`);
-    }
+  public async checkWeb3ProviderConnection(timeout: number): Promise<void> {
+    return new Promise(
+      (resolve, reject): void => {
+        const connectionTimer: any = setTimeout(() => {
+          reject(
+            Error(
+              'The Web3 provider is not reachable, did you use the correct protocol (http/https)?',
+            ),
+          );
+        }, timeout);
+
+        this.eth.net
+          .isListening()
+          .then((isListening: boolean) => {
+            // The timeout must be disabled
+            clearTimeout(connectionTimer);
+
+            if (isListening) {
+              resolve();
+            } else {
+              reject(Error('The Web3 provider is not listening'));
+            }
+          })
+          .catch((error: Error) => {
+            // The timeout must be disabled
+            clearTimeout(connectionTimer);
+
+            reject(Error(`Error when trying to reach Web3 provider: ${error}`));
+          });
+      },
+    );
   }
 
   /**
