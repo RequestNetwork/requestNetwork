@@ -468,28 +468,4 @@ export default class Request {
 
     return this.getData();
   }
-
-  /**
-   * Pays a request
-   */
-  public pay(): void {
-    // Not implemented yet
-    return;
-  }
-
-  /**
-   * Refunds a request
-   */
-  public refund(): void {
-    // Not implemented yet
-    return;
-  }
-
-  /**
-   * Gets the events of the Request
-   */
-  public getHistory(): void {
-    // Not implemented yet
-    return;
-  }
 }
