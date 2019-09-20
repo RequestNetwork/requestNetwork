@@ -790,7 +790,7 @@ describe('index', () => {
       );
     });
 
-    it('creates an encrypted request, accept it', async () => {
+    it('creates an encrypted request and accept it', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -818,7 +818,7 @@ describe('index', () => {
       expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
     });
 
-    it('creates an encrypted request, cancel it', async () => {
+    it('creates an encrypted request and cancel it', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -887,7 +887,7 @@ describe('index', () => {
       expect(fetchedRequest.getData().expectedAmount).to.equal('0');
     });
 
-    it('creates an encrypted request and cancel it', async () => {
+    it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -898,6 +898,7 @@ describe('index', () => {
         {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: payeeIdentity,
+          paymentNetwork: TestData.declarativePaymentNetwork,
         },
         [encryptionData.encryptionParams],
       );
@@ -911,9 +912,24 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
-      await fetchedRequest.cancel(payeeIdentity);
+      await fetchedRequest.accept(payerIdentity);
+      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.CANCELED);
+      await fetchedRequest.declareSentPayment(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+        'PAID',
+        payerIdentity,
+      );
+      expect(fetchedRequest.getData().balance!.balance).to.equal('0');
+
+      await fetchedRequest.declareReceivedPayment(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+        'payment received',
+        payeeIdentity,
+      );
+      expect(fetchedRequest.getData().balance!.balance).to.equal(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+      );
     });
   });
 });
