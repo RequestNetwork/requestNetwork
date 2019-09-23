@@ -226,6 +226,44 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.expectedAmount, '1000');
     assert.equal(requestData.balance, null);
     assert.exists(requestData.meta);
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+
+    // Fetch the created request by its id
+    const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+
+    // Verify that the request values are correct
+    assert.instanceOf(fetchedRequest, Request);
+    assert.deepEqual(request, fetchedRequest);
+
+    const fetchedRequestData = fetchedRequest.getData();
+    assert.equal(requestData.expectedAmount, fetchedRequestData.expectedAmount);
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+  });
+
+  it('can create an encrypted request, modify it and get it back unencrypted', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+
+    // Create an encrypted request
+    const request = await requestNetwork._createEncryptedRequest(
+      {
+        requestInfo: requestCreationHashBTC,
+        signer: payeeIdentity,
+      },
+      [encryptionData.encryptionParams],
+    );
+
+    // Check that a request was returned
+    assert.instanceOf(request, Request);
+    assert.exists(request.requestId);
+
+    // Get the data
+    const requestData = request.getData();
+    assert.equal(requestData.expectedAmount, '1000');
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -233,11 +271,41 @@ describe('Request client using a request node', () => {
     // Verify that the request values are correct
     assert.instanceOf(fetchedRequest, Request);
     assert.exists(fetchedRequest.requestId);
-    assert.equal(request.requestId, fetchedRequest.requestId);
+    assert.equal(fetchedRequest.requestId, request.requestId);
 
-    const fetchedRequestData = request.getData();
-    assert.equal(requestData.expectedAmount, fetchedRequestData.expectedAmount);
-    assert.equal(requestData.balance, null);
-    assert.exists(requestData.meta);
+    let fetchedRequestData = fetchedRequest.getData();
+    assert.equal(fetchedRequestData.expectedAmount, requestData.expectedAmount);
+    assert.equal(fetchedRequestData.balance, null);
+    assert.exists(fetchedRequestData.meta);
+    assert.equal(
+      fetchedRequestData.meta!.transactionManagerMeta.encryptionMethod,
+      'ecies-aes256-cbc',
+    );
+    assert.equal(fetchedRequestData.state, Types.RequestLogic.STATE.CREATED);
+
+    await request.accept(payerIdentity);
+
+    await fetchedRequest.refresh();
+    fetchedRequestData = fetchedRequest.getData();
+    assert.equal(fetchedRequestData.state, Types.RequestLogic.STATE.ACCEPTED);
+
+    await request.increaseExpectedAmountRequest(
+      requestCreationHashBTC.expectedAmount,
+      payerIdentity,
+    );
+
+    await fetchedRequest.refresh();
+    assert.equal(
+      fetchedRequest.getData().expectedAmount,
+      String(Number(requestCreationHashBTC.expectedAmount) * 2),
+    );
+
+    await request.reduceExpectedAmountRequest(
+      Number(requestCreationHashBTC.expectedAmount) * 2,
+      payeeIdentity,
+    );
+
+    await fetchedRequest.refresh();
+    assert.equal(fetchedRequest.getData().expectedAmount, '0');
   });
 });
