@@ -35,6 +35,7 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
+    "stryker": "stryker run",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
@@ -45,6 +46,11 @@
     "keyv": "3.1.0"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "2.1.0",
+    "@stryker-mutator/html-reporter": "2.1.0",
+    "@stryker-mutator/mocha-framework": "2.1.0",
+    "@stryker-mutator/mocha-runner": "2.1.0",
+    "@stryker-mutator/typescript": "2.1.0",
     "@types/bluebird": "3.5.27",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
