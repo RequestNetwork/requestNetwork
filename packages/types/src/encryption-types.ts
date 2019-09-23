@@ -14,6 +14,14 @@ export interface IDecryptionParameters {
   key: string;
 }
 
+/** Encrypted data */
+export interface IEncryptedData {
+  // type of the encrypted data
+  type: METHOD;
+  // the encryptedData itself
+  value: string;
+}
+
 /** Supported encryption methods */
 export enum METHOD {
   ECIES = 'ecies',

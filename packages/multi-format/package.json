@@ -1,19 +1,19 @@
 {
-  "name": "@requestnetwork/transaction-manager",
-  "version": "0.7.0",
+  "name": "@requestnetwork/multi-format",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Request Network transaction layer, handle signature and encryption for the transaction.",
+  "description": "Multi-format for Request Network packages.",
   "keywords": [
     "requestnetwork",
-    "transaction"
+    "multi-format"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/transaction#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/multi-format#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
@@ -35,17 +35,15 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
+    "prepare": "yarn run build",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/multi-format": "0.1.0",
-    "@requestnetwork/types": "0.7.0",
-    "@requestnetwork/utils": "0.6.1"
+    "@requestnetwork/types": "0.7.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
-    "@types/chai-spies": "1.0.0",
     "@types/mocha": "5.2.6",
     "@typescript-eslint/parser": "1.2.0",
     "chai": "4.2.0",
@@ -59,10 +57,9 @@
     "nyc": "13.2.0",
     "prettier": "1.16.4",
     "shx": "0.3.2",
+    "sinon": "7.3.2",
     "source-map-support": "0.5.13",
-    "ts-node": "8.3.0",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
-  },
-  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
+  }
 }

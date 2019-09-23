@@ -1,10 +1,10 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   DecryptionProviderTypes,
   EncryptionTypes,
   IdentityTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import ClearTransaction from './clear-transaction';
 import EncryptedTransaction from './encrypted-transaction';
@@ -123,13 +123,14 @@ export default class TransactionsParser {
       async (decryptedChannelKeyPromise, identityMultiFormatted: string) => {
         let decryptedChannelKey = await decryptedChannelKeyPromise;
         if (keys && decryptedChannelKey === '') {
-          // TODO: PROT-745 - need a library to serialize/de-serialize multi-format
+          let identity: IdentityTypes.IIdentity | undefined;
+          try {
+            identity = MultiFormat.deserialize(identityMultiFormatted);
+          } catch (e) {
+            // if we cannot deserialize it, just ignore this identity
+          }
           // Ignore what is not an identity Ethereum address
-          if (Utils.multiFormat.isIdentityEthereumAddress(identityMultiFormatted)) {
-            const identity: IdentityTypes.IIdentity = {
-              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-              value: `0x${Utils.multiFormat.removePadding(identityMultiFormatted)}`,
-            };
+          if (identity && identity.type === IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
             // Check if we can decrypt the key with this identity
             if (
               this.decryptionProvider &&

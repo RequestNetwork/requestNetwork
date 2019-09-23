@@ -379,6 +379,26 @@ jobs:
       - run:
           name: 'Lint toolbox'
           command: 'yarn workspace @requestnetwork/toolbox run lint'
+  test-multi-format:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build multi-format'
+          command: 'yarn workspace @requestnetwork/multi-format run build'
+      - run:
+          name: 'Lint multi-format'
+          command: 'yarn workspace @requestnetwork/multi-format run lint'
+      - run:
+          name: 'Test multi-format'
+          command: 'yarn workspace @requestnetwork/multi-format run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/multi-format/coverage/
   publish-coverage:
     docker:
       - *node_image
@@ -456,6 +476,9 @@ workflows:
       - test-request-logic:
           requires:
             - build
+      - test-multi-format:
+          requires:
+            - build
       - test-advanced-logic:
           requires:
             - build
@@ -505,3 +528,4 @@ workflows:
             - test-epk-decryption
             - test-request-node
             - test-utils
+            - test-multi-format
