@@ -371,6 +371,18 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       meta: hashesAndSizesMeta,
     } = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
 
+    // If no hash was found on ethereum, we return an empty list
+    if (!data.length) {
+      this.logger.info('No new data found.', ['ethereum']);
+      return {
+        meta: { metaData: [], lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp },
+        result: {
+          data: [],
+          dataIds: [],
+        },
+      };
+    }
+
     this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
 
     const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(data);

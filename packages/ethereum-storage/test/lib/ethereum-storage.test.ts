@@ -805,5 +805,14 @@ describe('EthereumStorage', () => {
         '0x6': 5,
       });
     });
+
+    it('getData returns an empty array if no hash was found', async () => {
+      ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = () => [];
+      const { result } = await ethereumStorage.getData({ from: 10000, to: 10001 });
+      assert.deepEqual(result, {
+        data: [],
+        dataIds: [],
+      });
+    });
   });
 });
