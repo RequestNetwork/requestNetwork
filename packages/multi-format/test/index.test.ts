@@ -17,7 +17,7 @@ describe('Utils.multiFormat', () => {
       ).to.be.equal('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
     });
 
-    it('cannot serialize a hash with wrong length', () => {
+    it('cannot serialize a hash with incorrect length', () => {
       expect(() => {
         MultiFormat.serialize({
           type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
@@ -36,12 +36,14 @@ describe('Utils.multiFormat', () => {
       });
     });
 
-    it('should return false if a wrong formatted hash is given to isDeserializableString', () => {
+    it('should return false if an incorrect format hash is given to isDeserializableString', () => {
       expect(() => {
         MultiFormat.deserialize(
           'zzaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         );
-      }, 'should throw with a wrong prefix').to.throw('No format found to deserialize this string');
+      }, 'should throw with an incorrect prefix').to.throw(
+        'No format found to deserialize this string',
+      );
 
       expect(() => {
         MultiFormat.deserialize('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f9');

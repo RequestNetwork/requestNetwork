@@ -13,7 +13,7 @@ describe('hash/keccak256-format', () => {
   });
 
   describe('isDeserializableString', () => {
-    it('should return true if a right formatted hash is given', () => {
+    it('should return true if a correct format hash is given', () => {
       expect(
         keccak256Format.isDeserializableString(
           '01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
@@ -22,12 +22,12 @@ describe('hash/keccak256-format', () => {
       ).to.be.true;
     });
 
-    it('should return false if a wrong formatted hash is given', () => {
+    it('should return false if an incorrect format hash is given', () => {
       expect(
         keccak256Format.isDeserializableString(
           '00af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         ),
-        'should be false with a wrong prefix',
+        'should be false with an incorrect prefix',
       ).to.be.false;
 
       expect(
@@ -47,7 +47,7 @@ describe('hash/keccak256-format', () => {
   });
 
   describe('isSerializableObject', () => {
-    it('should return true if a right formatted hash is given', () => {
+    it('should return true if a correct format hash is given', () => {
       expect(
         keccak256Format.isSerializableObject({
           type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
@@ -57,13 +57,13 @@ describe('hash/keccak256-format', () => {
       ).to.be.true;
     });
 
-    it('should return false if a wrong formatted hash is given', () => {
+    it('should return false if an incorrect format hash is given', () => {
       expect(
         keccak256Format.isSerializableObject({
           type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
           value: '01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         }),
-        'should be false with a wrong prefix',
+        'should be false with an incorrect prefix',
       ).to.be.false;
 
       expect(
@@ -71,7 +71,7 @@ describe('hash/keccak256-format', () => {
           type: MultiFormatTypes.PlainTypes.TYPE.PLAIN_TEXT,
           value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         }),
-        'should be false with a wrong type',
+        'should be false with an incorrect type',
       ).to.be.false;
 
       expect(
@@ -103,7 +103,7 @@ describe('hash/keccak256-format', () => {
       ).to.be.equal('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
     });
 
-    it('cannot serialize a hash with wrong length', () => {
+    it('cannot serialize a hash with incorrect length', () => {
       expect(() => {
         keccak256Format.serialize({
           type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
@@ -125,12 +125,12 @@ describe('hash/keccak256-format', () => {
       });
     });
 
-    it('should return false if a wrong formatted hash is given to isDeserializableString', () => {
+    it('should return false if an incorrect format hash is given to isDeserializableString', () => {
       expect(() => {
         keccak256Format.deserialize(
           '00af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         );
-      }, 'should throw with a wrong prefix').to.throw('string is not a serialized string');
+      }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
 
       expect(() => {
         keccak256Format.deserialize(

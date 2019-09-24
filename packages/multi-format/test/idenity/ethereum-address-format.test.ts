@@ -13,17 +13,17 @@ describe('hash/identity/ethereum-address-format', () => {
   });
 
   describe('isDeserializableString', () => {
-    it('should return true if a right formatted hash is given', () => {
+    it('should return true if a correct format hash is given', () => {
       expect(
         ethereumAddressFormat.isDeserializableString('20Af083f77F1fFd54218d91491AFD06c9296EaC3ce'),
         'isDeserializableString() error',
       ).to.be.true;
     });
 
-    it('should return false if a wrong formatted hash is given', () => {
+    it('should return false if an incorrect format hash is given', () => {
       expect(
         ethereumAddressFormat.isDeserializableString('01Af083f77F1fFd54218d91491AFD06c9296EaC3ce'),
-        'should be false with a wrong prefix',
+        'should be false with an incorrect prefix',
       ).to.be.false;
 
       expect(
@@ -39,7 +39,7 @@ describe('hash/identity/ethereum-address-format', () => {
   });
 
   describe('isSerializableObject', () => {
-    it('should return true if a right formatted hash is given', () => {
+    it('should return true if a correct format hash is given', () => {
       expect(
         ethereumAddressFormat.isSerializableObject({
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -49,13 +49,13 @@ describe('hash/identity/ethereum-address-format', () => {
       ).to.be.true;
     });
 
-    it('should return false if a wrong formatted hash is given', () => {
+    it('should return false if an incorrect format hash is given', () => {
       expect(
         ethereumAddressFormat.isSerializableObject({
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: '00Af083f77F1fFd54218d91491AFD06c9296EaC3ce',
         }),
-        'should be false with a wrong prefix',
+        'should be false with an incorrect prefix',
       ).to.be.false;
 
       expect(
@@ -63,7 +63,7 @@ describe('hash/identity/ethereum-address-format', () => {
           type: MultiFormatTypes.PlainTypes.TYPE.PLAIN_TEXT,
           value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
         }),
-        'should be false with a wrong type',
+        'should be false with an incorrect type',
       ).to.be.false;
 
       expect(
@@ -95,7 +95,7 @@ describe('hash/identity/ethereum-address-format', () => {
       ).to.be.equal('20af083f77f1ffd54218d91491afd06c9296eac3ce');
     });
 
-    it('cannot serialize a hash with wrong length', () => {
+    it('cannot serialize a hash with incorrect length', () => {
       expect(() => {
         ethereumAddressFormat.serialize({
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -117,10 +117,10 @@ describe('hash/identity/ethereum-address-format', () => {
       });
     });
 
-    it('should return false if a wrong formatted hash is given to isDeserializableString', () => {
+    it('should return false if an incorrect format hash is given to isDeserializableString', () => {
       expect(() => {
         ethereumAddressFormat.deserialize('01Af083f77F1fFd54218d91491AFD06c9296EaC3ce');
-      }, 'should throw with a wrong prefix').to.throw('string is not a serialized string');
+      }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
     });
   });
 });
