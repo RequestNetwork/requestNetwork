@@ -49,6 +49,12 @@ const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
   encryptionData.decryptionParams,
 );
 
+// Wrong decryption provider
+const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
+  key: '0x0000000000111111111122222222223333333333444444444455555555556666',
+  method: Types.Encryption.METHOD.ECIES,
+});
+
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
@@ -308,4 +314,69 @@ describe('Request client using a request node', () => {
     await fetchedRequest.refresh();
     assert.equal(fetchedRequest.getData().expectedAmount, '0');
   });
+});
+
+it('create an encrypted and unencrypted request with the same content', async () => {
+  const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+
+  // Create an encrypted request
+  const encryptedRequest = await requestNetwork._createEncryptedRequest(
+    {
+      requestInfo: requestCreationHashBTC,
+      signer: payeeIdentity,
+    },
+    [encryptionData.encryptionParams],
+  );
+
+  // Create a plain request
+  const plainRequest = await requestNetwork.createRequest({
+    requestInfo: requestCreationHashBTC,
+    signer: payeeIdentity,
+  });
+
+  assert.notEqual(encryptedRequest.requestId, plainRequest.requestId);
+
+  const encryptedRequestData = encryptedRequest.getData();
+  const plainRequestData = plainRequest.getData();
+
+  assert.notDeepEqual(encryptedRequestData, plainRequestData);
+
+  assert.equal(
+    encryptedRequestData.meta!.transactionManagerMeta.encryptionMethod,
+    'ecies-aes256-cbc',
+  );
+
+  assert.notExists(plainRequestData.meta!.transactionManagerMeta.encryptionMethod);
+});
+
+it('cannot decrypt a request with the wrong decryption provider', async () => {
+  const requestNetwork = new RequestNetwork({
+    decryptionProvider,
+    signatureProvider,
+  });
+
+  const badRequestNetwork = new RequestNetwork({
+    decryptionProvider: wrongDecryptionProvider,
+    signatureProvider,
+  });
+
+  const request = await requestNetwork._createEncryptedRequest(
+    {
+      requestInfo: requestCreationHashBTC,
+      signer: payeeIdentity,
+      topics: ['my nice topic'],
+    },
+    [encryptionData.encryptionParams],
+  );
+
+  let error = '';
+  try {
+    await badRequestNetwork.fromRequestId(request.requestId);
+  } catch (e) {
+    error = e.message;
+  }
+  assert.include(error, 'No request found for the id:');
+
+  const requests = await badRequestNetwork.fromTopic('my nice topic');
+  assert.isEmpty(requests);
 });
