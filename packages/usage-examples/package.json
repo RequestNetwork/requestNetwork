@@ -24,12 +24,14 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "start": "ts-node src/request-client-js.ts && ts-node src/request-client-js-declarative-request.ts && ts-node src/request-logic.ts",
+    "start": "ts-node src/request-client-js.ts && ts-node src/request-client-js-declarative-request.ts && ts-node src/request-logic-clear-request.ts && ts-node src/request-logic-encrypted-request.ts",
     "prepare": "yarn run build"
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.5.0",
+    "@requestnetwork/epk-decryption": "0.3.1",
     "@requestnetwork/epk-signature": "0.5.2",
+    "@requestnetwork/multi-format": "0.1.0",
     "@requestnetwork/request-client.js": "0.7.0",
     "@requestnetwork/request-logic": "0.7.0",
     "@requestnetwork/transaction-manager": "0.7.0",
