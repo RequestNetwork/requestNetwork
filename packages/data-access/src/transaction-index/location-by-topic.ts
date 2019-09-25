@@ -25,14 +25,16 @@ export default class LocationByTopicTransactionIndex {
   /**
    * Storage location by channel id
    * maps channelId => [storageLocation]
+   * This attribute is public for mocking purpose
    */
-  private storageLocationByChannelId: Keyv<Set<string>>;
+  public storageLocationByChannelId: Keyv<Set<string>>;
 
   /**
    * Channel Ids by topic
    * maps topic => [channelId]
+   * This attribute is public for mocking purpose
    */
-  private channelIdByTopics: Keyv<Set<string>>;
+  public channelIdByTopics: Keyv<Set<string>>;
 
   /**
    * Constructor for LocationByTopicIndex
@@ -64,22 +66,18 @@ export default class LocationByTopicTransactionIndex {
     blockHeader: DataAccessTypes.IBlockHeader,
   ): Promise<void> {
     // index the new block with the channel ids
-    for (const id in blockHeader.channelIds) {
-      if (blockHeader.channelIds.hasOwnProperty(id)) {
-        const existingLocationIds: Set<string> =
-          (await this.storageLocationByChannelId.get(id)) || new Set([]);
-        await this.storageLocationByChannelId.set(id, existingLocationIds.add(storageLocation));
-      }
+    for (const id of Object.keys(blockHeader.channelIds)) {
+      const existingLocationIds: Set<string> =
+        (await this.storageLocationByChannelId.get(id)) || new Set([]);
+      await this.storageLocationByChannelId.set(id, existingLocationIds.add(storageLocation));
     }
 
     // index channel ids by the topics
-    for (const id in blockHeader.topics) {
-      if (blockHeader.topics.hasOwnProperty(id)) {
-        for (const topic of blockHeader.topics[id]) {
-          const existingChannelIds: Set<string> =
-            (await this.channelIdByTopics.get(topic)) || new Set([]);
-          await this.channelIdByTopics.set(topic, existingChannelIds.add(id));
-        }
+    for (const id of Object.keys(blockHeader.topics)) {
+      for (const topic of blockHeader.topics[id]) {
+        const existingChannelIds: Set<string> =
+          (await this.channelIdByTopics.get(topic)) || new Set([]);
+        await this.channelIdByTopics.set(topic, existingChannelIds.add(id));
       }
     }
   }

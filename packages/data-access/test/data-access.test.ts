@@ -390,6 +390,16 @@ describe('data-access', () => {
         dataAccess.persistTransaction(transactionMock1, arbitraryId1, [arbitraryTopic1]),
       ).to.be.rejectedWith('DataAccess must be initialized');
     });
+
+    it('cannot persistTransaction() if a topic is not well formatted', async () => {
+      const dataAccess = new DataAccess(defaultFakeStorage);
+      const notFormattedTopic = 'This topic is not formatted';
+      await dataAccess.initialize();
+
+      await expect(
+        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [notFormattedTopic, arbitraryTopic2]),
+      ).to.be.rejectedWith(`The following topics are not well formatted: ["This topic is not formatted"]`);
+    });
   });
 
   it('synchronizeNewDataId() should throw an error if not initialized', async () => {
