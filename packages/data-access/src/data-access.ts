@@ -115,8 +115,13 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         : undefined,
     );
 
+    // If lastTimestamp is not returned by storage, we throw an error
+    if (allDataWithMeta.result.lastTimestamp === undefined) {
+      throw Error('Storage response missing lastTimestamp value');
+    }
+
     // The last synced timestamp is the latest one returned by storage
-    this.lastSyncStorageTimestamp = allDataWithMeta.meta.lastTimestamp;
+    this.lastSyncStorageTimestamp = allDataWithMeta.result.lastTimestamp;
 
     // check if the data returned by getDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
@@ -389,8 +394,13 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // if yes, the dataIds are indexed with LocationByTopic
     await this.pushLocationsWithTopics(newDataWithMeta);
 
+    // If lastTimestamp is not returned by storage, we throw an error
+    if (newDataWithMeta.result.lastTimestamp === undefined) {
+      throw Error('Storage response missing lastTimestamp value');
+    }
+
     // The last synced timestamp is the latest one returned by storage
-    this.lastSyncStorageTimestamp = newDataWithMeta.meta.lastTimestamp;
+    this.lastSyncStorageTimestamp = newDataWithMeta.result.lastTimestamp;
   }
 
   /**
@@ -417,14 +427,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @param locationByTopic LocationByTopic object to push location
    */
   private async pushLocationsWithTopics(
-    dataWithMeta: StorageTypes.IGetDataIdContentAndMeta,
+    dataWithMeta: StorageTypes.IResultEntriesWithMeta,
   ): Promise<void> {
-    if (!dataWithMeta.result || !dataWithMeta.result.data || !dataWithMeta.result.dataIds) {
+    if (!dataWithMeta.result || !dataWithMeta.result.contents || !dataWithMeta.result.dataIds) {
       throw Error(`data from storage do not follow the standard`);
     }
     let parsingErrorCount = 0;
     let proceedCount = 0;
-    await Bluebird.each(dataWithMeta.result.data, async (blockString, index) => {
+    await Bluebird.each(dataWithMeta.result.contents, async (blockString, index) => {
       let block;
 
       try {
@@ -434,7 +444,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         await this.transactionIndex.addTransaction(
           dataWithMeta.result.dataIds[index],
           block.header,
-          dataWithMeta.meta.metaData[index].timestamp,
+          dataWithMeta.meta[index].timestamp,
         );
       } catch (e) {
         parsingErrorCount++;
@@ -460,7 +470,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private async getBlockAndMetaFromStorageLocation(
     storageLocationList: string[],
   ): Promise<
-    Array<{ block: DataAccessTypes.IBlock; meta: StorageTypes.IMetaOneData; location: string }>
+    Array<{ block: DataAccessTypes.IBlock; meta: StorageTypes.IEntryMetadata; location: string }>
   > {
     // Gets blocks indexed by topic
     return Promise.all(
@@ -489,7 +499,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     transactionPositions: number[],
     block: DataAccessTypes.IBlock,
     location: string,
-    meta: StorageTypes.IMetaOneData,
+    meta: StorageTypes.IEntryMetadata,
   ): {
     transactions: DataAccessTypes.IConfirmedTransaction[];
     transactionsStorageLocation: string[];

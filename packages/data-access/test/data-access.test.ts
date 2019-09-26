@@ -63,26 +63,23 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
-const getDataIdResult: StorageTypes.IGetDataIdReturn = {
-  meta: {
-    metaData: [{ timestamp: 10 }],
-  },
+const getDataIdResult: StorageTypes.IResultDataIdsWithMeta = {
+  meta: [{ timestamp: 10 }],
   result: {
     dataIds: [dataIdBlock2tx],
   },
 };
 
-const getDataResult: StorageTypes.IGetDataIdContentAndMeta = {
-  meta: {
-    metaData: [{ timestamp: 10 }],
-  },
+const getDataResult: StorageTypes.IResultEntriesWithMeta = {
+  meta: [{ timestamp: 10 }],
   result: {
-    data: [JSON.stringify(blockWith2tx)],
+    contents: [JSON.stringify(blockWith2tx)],
     dataIds: [dataIdBlock2tx],
+    lastTimestamp: 0,
   },
 };
 
-const appendResult: StorageTypes.IOneDataIdAndMeta = {
+const appendResult: StorageTypes.IResultDataIdWithMeta = {
   meta: {
     timestamp: 1,
   },
@@ -91,30 +88,31 @@ const appendResult: StorageTypes.IOneDataIdAndMeta = {
   },
 };
 
-const emptyDataIdResult: StorageTypes.IGetNewDataIdReturn = {
-  meta: {
-    metaDataIds: [],
-  },
+const emptyDataIdResult: StorageTypes.IResultDataIdsWithMeta = {
+  meta: [],
   result: {
     dataIds: [],
   },
 };
 
-const emptyDataResult: StorageTypes.IGetDataIdContentAndMeta = {
-  meta: {
-    metaData: [],
-  },
+const emptyDataResult: StorageTypes.IResultEntriesWithMeta = {
+  meta: [],
   result: {
-    data: [],
+    contents: [],
     dataIds: [],
+    lastTimestamp: 0,
   },
 };
 
-const defaultTestData: Promise<StorageTypes.IGetDataReturn> = Promise.resolve(getDataResult);
-const defaultTestTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
+const defaultTestData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve(
+  getDataResult,
+);
+const defaultTestTopics: Promise<StorageTypes.IResultDataIdsWithMeta> = Promise.resolve(
+  getDataIdResult,
+);
 const defaultFakeStorage: StorageTypes.IStorage = {
   append: chai.spy.returns(appendResult),
-  getData: (): any => defaultTestData,
+  getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => defaultTestData,
   getDataId: (): any => defaultTestTopics,
   initialize: chai.spy(),
   read: (param: string): any => {
@@ -144,7 +142,8 @@ describe('data-access', () => {
     it('cannot initialize with getData without result', async () => {
       const customFakeStorage = {
         ...defaultFakeStorage,
-        getData: (): any => ({ meta: { lastTimestamp: 0 } } as any),
+        getData: (): Promise<StorageTypes.IResultEntriesWithMeta> =>
+          ({ meta: [], result: { lastTimestamp: 0 } } as any),
       };
 
       const dataAccess = new DataAccess(customFakeStorage);
@@ -165,7 +164,7 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
             meta: { timestamp: 1 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -191,7 +190,7 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
             meta: { timestamp: 10 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -240,7 +239,7 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
             meta: { timestamp: 10 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -291,7 +290,7 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
             meta: { timestamp: 10 },
             result: { content: JSON.stringify(blockWith2tx) },
           };
@@ -415,22 +414,21 @@ describe('data-access', () => {
       transactions: [{ data: '' }],
     };
 
-    const testDataNotJsonData: Promise<StorageTypes.IGetDataIdContentAndMeta> = Promise.resolve({
-      meta: {
-        metaData: [{ timestamp: 10 }],
-      },
+    const testDataNotJsonData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve({
+      meta: [{ timestamp: 10 }],
       result: {
-        data: [
+        contents: [
           // no Header
           JSON.stringify(blockWithoutHeader),
         ],
         dataIds: ['whatever'],
+        lastTimestamp: 0,
       },
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
       append: chai.spy(),
-      getData: (): any => testDataNotJsonData,
+      getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => testDataNotJsonData,
       getDataId: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
@@ -447,16 +445,18 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-    const testData: Promise<StorageTypes.IGetDataReturn> = Promise.resolve(getDataResult);
+    const testTopics: Promise<StorageTypes.IResultDataIdsWithMeta> = Promise.resolve(
+      getDataIdResult,
+    );
+    const testData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve(getDataResult);
 
     // We create a fakeStorage where getDataId() called at initialization returns empty structure
     // and getNewDataId() returns testTopics
     const fakeStorage = {
       ...defaultFakeStorage,
-      getData: (options: any): any => {
+      getData: (options: any): Promise<StorageTypes.IResultEntriesWithMeta> => {
         if (!options) {
-          return emptyDataResult;
+          return Promise.resolve(emptyDataResult);
         }
         return testData;
       },
@@ -467,7 +467,7 @@ describe('data-access', () => {
         return testTopics;
       },
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+        const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
           meta: { timestamp: 1 },
           result: { content: JSON.stringify(blockWith2tx) },
         };
@@ -534,7 +534,7 @@ describe('data-access', () => {
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       append: chai.spy.returns(appendResult),
-      getData: (): any => chai.spy(),
+      getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => chai.spy(),
       getDataId: chai.spy.returns({ result: { dataIds: [] } }),
       initialize: chai.spy(),
       read: chai.spy(),
@@ -550,7 +550,7 @@ describe('data-access', () => {
       ...defaultFakeStorage,
       getDataId: (): any => emptyDataIdResult,
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+        const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
           meta: { timestamp: 1 },
           result: { content: JSON.stringify(blockWith2tx) },
         };
@@ -596,12 +596,13 @@ describe('data-access', () => {
 
     const fakeStorageSpied: StorageTypes.IStorage = {
       ...defaultFakeStorage,
-      getData: sinon.spy(() => {
-        return {
-          meta: { metaData: [], lastTimestamp: lastTimestampReturnedByGetData },
-          result: { data: [], dataIds: [] },
-        };
-      }),
+      getData: sinon.spy(
+        (): Promise<StorageTypes.IResultEntriesWithMeta> =>
+          Promise.resolve({
+            meta: [],
+            result: { contents: [], dataIds: [], lastTimestamp: lastTimestampReturnedByGetData },
+          }),
+      ),
     };
 
     lastTimestampReturnedByGetData = 500;
@@ -623,7 +624,7 @@ describe('data-access', () => {
     await flushCallStack();
 
     args = (fakeStorageSpied.getData as any).getCall(1).args[0];
-    expect(args).to.deep.equal({from: 501, to: 1000});
+    expect(args).to.deep.equal({ from: 501, to: 1000 });
 
     dataAccess.stopAutoSynchronization();
   });

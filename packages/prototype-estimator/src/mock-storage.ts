@@ -17,7 +17,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
+  public async append(content: string): Promise<StorageTypes.IResultDataIdWithMeta> {
     if (!content) {
       throw Error('Error: no content provided');
     }
@@ -37,7 +37,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async read(id: string): Promise<StorageTypes.IOneContentAndMeta> {
+  public async read(id: string): Promise<StorageTypes.IResultContentWithMeta> {
     if (!id) {
       throw Error('No id provided');
     }
@@ -50,40 +50,36 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async readMany(ids: string[]): Promise<StorageTypes.IOneContentAndMeta[]> {
+  public async readMany(ids: string[]): Promise<StorageTypes.IResultContentWithMeta[]> {
     return Promise.all(ids.map(id => this.read(id)));
   }
 
-  public async getDataId(): Promise<StorageTypes.IGetDataIdReturn> {
+  public async getDataId(): Promise<StorageTypes.IResultDataIdsWithMeta> {
     const results = Object.keys(this.data);
     return {
-      meta: {
-        metaData: new Array(results.length).fill({
-          storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        }),
-      },
+      meta: new Array(results.length).fill({
+        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
+      }),
       result: {
         dataIds: results,
       },
     };
   }
 
-  public async getData(): Promise<StorageTypes.IGetContentAndDataId> {
+  public async getData(): Promise<StorageTypes.IResultEntriesWithMeta> {
     const results = Object.values(this.data).map(data => String(data.content));
     const dataIds = Object.keys(this.data);
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
     return {
-      meta: {
-        lastTimestamp: nowTimestampInSec,
-        metaData: new Array(results.length).fill({
-          storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        }),
-      },
+      meta: new Array(results.length).fill({
+        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
+      }),
       result: {
-        data: results,
+        contents: results,
         dataIds,
+        lastTimestamp: nowTimestampInSec,
       },
     };
   }

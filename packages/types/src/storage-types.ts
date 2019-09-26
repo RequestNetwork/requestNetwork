@@ -3,23 +3,28 @@ const bigNumber: any = require('bn.js');
 /** Interface of the storage */
 export interface IStorage {
   initialize: () => Promise<void>;
-  append: (data: string) => Promise<IOneDataIdAndMeta>;
-  read: (dataId: string) => Promise<IOneContentAndMeta>;
-  readMany: (dataIds: string[]) => Promise<IOneContentAndMeta[]>;
-  getData: (options?: ITimestampBoundaries) => Promise<IGetContentAndDataId>;
-  getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
+  append: (data: string) => Promise<IResultDataIdWithMeta>;
+  read: (dataId: string) => Promise<IResultContentWithMeta>;
+  readMany: (dataIds: string[]) => Promise<IResultContentWithMeta[]>;
+  getData: (options?: ITimestampBoundaries) => Promise<IResultEntriesWithMeta>;
+  getDataId: (options?: ITimestampBoundaries) => Promise<IResultDataIdsWithMeta>;
+}
+
+/** An extensible template that declares a generic meta */
+export interface IWithMeta {
+  meta: any;
 }
 
 /** A template interface for return values with data and metadata */
-export interface IResponseWithMeta<META, DATA> {
+export interface IResponseWithMeta<META, DATA> extends IWithMeta {
   meta: META;
   data: DATA;
 }
 
-/** Restrict the get data research to two timestamp */
-export interface ITimestampBoundaries {
-  from?: number;
-  to?: number;
+/** A template interface for result values with data and metadata */
+export interface IResultWithMeta<META, DATA> extends IWithMeta {
+  meta: META;
+  result: DATA;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -28,116 +33,37 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
-/** return interface for append  */
-export interface IOneDataIdAndMeta {
-  /** meta information */
-  meta: IMetaOneData;
-  /** result of the execution */
-  result: {
-    /** data id of the data persisted */
-    dataId: string;
-  };
-}
+/** Response with one entry DataId and meta */
+export type IResultDataIdWithMeta = IResultWithMeta<IEntryMetadata, { dataId: string }>;
 
-/** return interface for read  */
-export interface IOneContentAndMeta {
-  /** meta information */
-  meta: IMetaOneData;
-  /** result of the execution */
-  result: {
-    /** the data itself */
-    content: string;
-  };
-}
+/** Response with one entry content and meta */
+export type IResultContentWithMeta = IResultWithMeta<IEntryMetadata, { content: string }>;
 
-/** return interface for read  */
-export interface IOneDataIdContentAndMeta {
-  /** meta information */
-  meta: IMetaOneData;
-  /** result of the execution */
-  result: {
-    /** data id of the data persisted */
-    dataId: string;
-    /** the data itself */
-    data: string;
-  };
-}
+/** Response with one entry dataId and content, with meta  */
+export type IResultEntryWithMeta = IResultWithMeta<
+  IEntryMetadata,
+  { dataId: string; content: string }
+>;
 
-/** return interface for array return */
-export interface IGetDataIdReturn {
-  /** meta information */
-  meta: {
-    /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaData: IMetaOneData[];
-  };
-  result: {
-    /** array of all data id stored */
+/** Response with many entry DataId and meta */
+export type IResultDataIdsWithMeta = IResultWithMeta<IEntryMetadata[], { dataIds: string[] }>;
+
+/** Response with many entries dataId and content, with meta  */
+export type IResultEntriesWithMeta = IResultWithMeta<
+  /** Metadata */
+  IEntryMetadata[],
+  {
+    /** The list of data ids */
     dataIds: string[];
-  };
-}
-
-/** return interface for array return */
-export interface IGetNewDataIdReturn {
-  /** meta information */
-  meta: {
-    /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaDataIds: IMetaOneData[];
-  };
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-  };
-}
-
-/** return interface for array return */
-export interface IGetDataReturn {
-  /** meta information */
-  meta: {
-    /** meta of the data (follow the position of the result.data) */
-    metaData: IMetaOneData[];
-  };
-  result: {
-    /** array of all data stored */
-    data: string[];
-  };
-}
-
-/** return interface for read  */
-export interface IGetDataIdContentAndMeta {
-  /** meta information */
-  meta: {
-    /** meta of the data (follow the position of the result.data) */
-    metaData: IMetaOneData[];
-  };
-  /** result of the execution */
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-    /** array of all data stored */
-    data: string[];
-  };
-}
-
-/** return interface for GetContentAndDataId */
-export interface IGetContentAndDataId {
-  /** meta information */
-  meta: {
-    /** meta of the data (follow the position of the result.data) */
-    metaData: IMetaOneData[];
-    /** the timestamp of the last block this data belongs to */
-    lastTimestamp: number;
-  };
-  /** result of the execution */
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-    /** array of all data stored */
-    data: string[];
-  };
-}
+    /** The list of data contents */
+    contents: string[];
+    /** The last timestamp boundary this data belongs to */
+    lastTimestamp?: number;
+  }
+>;
 
 /** return interface for the meta of one piece of data in the storage */
-export interface IMetaOneData {
+export interface IEntryMetadata {
   /** Storage type for now only ethereum + ipfs */
   storageType?: StorageSystemType;
   /** meta about ethereum smart contract */

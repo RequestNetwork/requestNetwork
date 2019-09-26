@@ -11,7 +11,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
+  public async append(content: string): Promise<StorageTypes.IResultDataIdWithMeta> {
     if (!content) {
       throw Error('Error: no content provided');
     }
@@ -32,7 +32,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async read(id: string): Promise<StorageTypes.IOneContentAndMeta> {
+  public async read(id: string): Promise<StorageTypes.IResultContentWithMeta> {
     if (!id) {
       throw Error('No id provided');
     }
@@ -45,13 +45,13 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async readMany(ids: string[]): Promise<StorageTypes.IOneContentAndMeta[]> {
+  public async readMany(ids: string[]): Promise<StorageTypes.IResultContentWithMeta[]> {
     return Promise.all(ids.map(id => this.read(id)));
   }
 
-  public async getDataId(): Promise<StorageTypes.IGetDataIdReturn> {
+  public async getDataId(): Promise<StorageTypes.IResultDataIdsWithMeta> {
     const results = Object.keys(this.data);
-    const metaData = Object.values(this.data).map(elem => {
+    const meta = Object.values(this.data).map(elem => {
       return {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: elem.timestamp,
@@ -59,30 +59,26 @@ export default class MockStorage implements StorageTypes.IStorage {
     });
 
     return {
-      meta: {
-        metaData,
-      },
+      meta,
       result: {
         dataIds: results,
       },
     };
   }
 
-  public async getNewDataId(): Promise<StorageTypes.IGetNewDataIdReturn> {
+  public async getNewDataId(): Promise<StorageTypes.IResultDataIdsWithMeta> {
     return {
-      meta: {
-        metaDataIds: [],
-      },
+      meta: [],
       result: {
         dataIds: [],
       },
     };
   }
 
-  public async getData(): Promise<StorageTypes.IGetContentAndDataId> {
+  public async getData(): Promise<StorageTypes.IResultEntriesWithMeta> {
     const dataIds = Object.keys(this.data);
     const results = Object.values(this.data).map(elem => elem.content);
-    const metaData = Object.values(this.data).map(elem => {
+    const meta = Object.values(this.data).map(elem => {
       return {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: elem.timestamp,
@@ -92,13 +88,11 @@ export default class MockStorage implements StorageTypes.IStorage {
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
     return {
-      meta: {
-        lastTimestamp: nowTimestampInSec,
-        metaData,
-      },
+      meta,
       result: {
-        data: results,
+        contents: results,
         dataIds,
+        lastTimestamp: nowTimestampInSec,
       },
     };
   }

@@ -52,7 +52,7 @@ describe('mock-storage', () => {
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
     assert.deepEqual(result.dataIds, [resultAppend1.dataId, resultAppend2.dataId]);
 
-    assert.equal(meta.metaData.length, 2);
+    assert.equal(meta.length, 2);
   });
 
   it('can get all data', async () => {
@@ -63,8 +63,8 @@ describe('mock-storage', () => {
     const { result, meta } = await storage.getData();
 
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
-    assert.deepEqual(result.data, ['stuff1', 'stuff2']);
-    assert.equal(meta.metaData.length, 2);
+    assert.deepEqual(result.contents, ['stuff1', 'stuff2']);
+    assert.equal(meta.length, 2);
   });
 
   it('can append the same data twice', async () => {
@@ -75,7 +75,7 @@ describe('mock-storage', () => {
     assert.equal(resultAppend1.dataId, resultAppend2.dataId);
 
     const { result: resultData } = await storage.getData();
-    assert.equal(resultData.data.length, 1);
+    assert.equal(resultData.contents.length, 1);
 
     const { result: resultDataId } = await storage.getDataId();
     assert.equal(resultDataId.dataIds.length, 1);
@@ -90,6 +90,6 @@ describe('mock-storage', () => {
 
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
     assert.deepEqual(result.dataIds, []);
-    assert.deepEqual(meta.metaDataIds, []);
+    assert.deepEqual(meta, []);
   });
 });
