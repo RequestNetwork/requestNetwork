@@ -26,3 +26,6 @@ yarn-error.log
 
 # local environment variables
 .env
+
+# stryker
+.stryker-tmp
