@@ -339,6 +339,19 @@ describe('extensions/payment-network/any/declarative', () => {
           );
         }, 'must throw').to.throw(`The signer must be the payer`);
       });
+      it('cannot applyActionToExtensions of declareSentPayment with an invalid amount', () => {
+        TestDataDeclarative.actionDeclareSentPayment.parameters.amount = 'invalid amount';
+
+        expect(() => {
+          PnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            TestDataDeclarative.actionDeclareSentPayment,
+            TestDataDeclarative.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }, 'must throw').to.throw(`The amount is not a valid amount`);
+      });
     });
 
     describe('applyActionToExtension/declareReceivedRefund', () => {
@@ -389,6 +402,19 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`The signer must be the payer`);
+      });
+      it('cannot applyActionToExtensions of declareReceivedRefund with an invalid amount', () => {
+        TestDataDeclarative.actionDeclareReceivedRefund.parameters.amount = 'invalid amount';
+
+        expect(() => {
+          PnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            TestDataDeclarative.actionDeclareReceivedRefund,
+            TestDataDeclarative.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }, 'must throw').to.throw(`The amount is not a valid amount`);
       });
     });
 
@@ -441,6 +467,19 @@ describe('extensions/payment-network/any/declarative', () => {
           );
         }, 'must throw').to.throw(`The signer must be the payee`);
       });
+      it('cannot applyActionToExtensions of declareSentRefund with an invalid amount', () => {
+        TestDataDeclarative.actionDeclareSentRefund.parameters.amount = 'invalid amount';
+
+        expect(() => {
+          PnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            TestDataDeclarative.actionDeclareSentRefund,
+            TestDataDeclarative.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }, 'must throw').to.throw(`The amount is not a valid amount`);
+      });
     });
 
     describe('applyActionToExtension/declareReceivedPayment', () => {
@@ -491,6 +530,19 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(`The signer must be the payee`);
+      });
+      it('cannot applyActionToExtensions of declareReceivedPayment with an invalid amount', () => {
+        TestDataDeclarative.actionDeclareReceivedPayment.parameters.amount = 'invalid amount';
+
+        expect(() => {
+          PnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            TestDataDeclarative.actionDeclareReceivedPayment,
+            TestDataDeclarative.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }, 'must throw').to.throw(`The amount is not a valid amount`);
       });
     });
   });
