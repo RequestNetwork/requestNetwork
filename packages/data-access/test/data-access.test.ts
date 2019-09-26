@@ -63,13 +63,6 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
-const getDataIdResult: StorageTypes.IResultDataIdsWithMeta = {
-  meta: [{ timestamp: 10 }],
-  result: {
-    dataIds: [dataIdBlock2tx],
-  },
-};
-
 const getDataResult: StorageTypes.IResultEntriesWithMeta = {
   meta: [{ timestamp: 10 }],
   result: {
@@ -88,13 +81,6 @@ const appendResult: StorageTypes.IResultDataIdWithMeta = {
   },
 };
 
-const emptyDataIdResult: StorageTypes.IResultDataIdsWithMeta = {
-  meta: [],
-  result: {
-    dataIds: [],
-  },
-};
-
 const emptyDataResult: StorageTypes.IResultEntriesWithMeta = {
   meta: [],
   result: {
@@ -107,13 +93,10 @@ const emptyDataResult: StorageTypes.IResultEntriesWithMeta = {
 const defaultTestData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve(
   getDataResult,
 );
-const defaultTestTopics: Promise<StorageTypes.IResultDataIdsWithMeta> = Promise.resolve(
-  getDataIdResult,
-);
+
 const defaultFakeStorage: StorageTypes.IStorage = {
   append: chai.spy.returns(appendResult),
   getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => defaultTestData,
-  getDataId: (): any => defaultTestTopics,
   initialize: chai.spy(),
   read: (param: string): any => {
     const dataIdBlock2txFake: any = {
@@ -429,7 +412,6 @@ describe('data-access', () => {
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
       append: chai.spy(),
       getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => testDataNotJsonData,
-      getDataId: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -445,13 +427,9 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testTopics: Promise<StorageTypes.IResultDataIdsWithMeta> = Promise.resolve(
-      getDataIdResult,
-    );
     const testData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve(getDataResult);
 
-    // We create a fakeStorage where getDataId() called at initialization returns empty structure
-    // and getNewDataId() returns testTopics
+    // We create a fakeStorage where getData() called at initialization returns empty structure
     const fakeStorage = {
       ...defaultFakeStorage,
       getData: (options: any): Promise<StorageTypes.IResultEntriesWithMeta> => {
@@ -459,12 +437,6 @@ describe('data-access', () => {
           return Promise.resolve(emptyDataResult);
         }
         return testData;
-      },
-      getDataId: (options: any): any => {
-        if (!options) {
-          return emptyDataIdResult;
-        }
-        return testTopics;
       },
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
@@ -535,7 +507,6 @@ describe('data-access', () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       append: chai.spy.returns(appendResult),
       getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => chai.spy(),
-      getDataId: chai.spy.returns({ result: { dataIds: [] } }),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -548,7 +519,6 @@ describe('data-access', () => {
   it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
     const fakeStorage = {
       ...defaultFakeStorage,
-      getDataId: (): any => emptyDataIdResult,
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
           meta: { timestamp: 1 },

@@ -7,7 +7,6 @@ export interface IStorage {
   read: (dataId: string) => Promise<IResultContentWithMeta>;
   readMany: (dataIds: string[]) => Promise<IResultContentWithMeta[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IResultEntriesWithMeta>;
-  getDataId: (options?: ITimestampBoundaries) => Promise<IResultDataIdsWithMeta>;
 }
 
 /** An extensible template that declares a generic meta */
@@ -44,9 +43,6 @@ export type IResultEntryWithMeta = IResultWithMeta<
   IEntryMetadata,
   { dataId: string; content: string }
 >;
-
-/** Response with many entry DataId and meta */
-export type IResultDataIdsWithMeta = IResultWithMeta<IEntryMetadata[], { dataIds: string[] }>;
 
 /** Response with many entries dataId and content, with meta  */
 export type IResultEntriesWithMeta = IResultWithMeta<

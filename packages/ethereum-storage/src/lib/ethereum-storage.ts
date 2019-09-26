@@ -305,26 +305,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   }
 
   /**
-   * Get all id from data stored on the storage
-   *
-   * @param options timestamp boundaries for the data id retrieval
-   * @returns Promise resolving id of stored data
-   */
-  public async getDataId(
-    options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IResultDataIdsWithMeta> {
-    const contentDataIdAndMeta = await this.getContentAndDataId(options);
-
-    // copy before deleting the key to avoid side effect
-    const contentDataIdAndMetaCopied = Utils.deepCopy(contentDataIdAndMeta);
-
-    // only keep the dataIds and cast in the right format
-    delete contentDataIdAndMetaCopied.result.contents;
-
-    return contentDataIdAndMetaCopied as StorageTypes.IResultDataIdsWithMeta;
-  }
-
-  /**
    * Pin an array of IPFS hashes
    *
    * @param hashes An array of IPFS hashes to pin

@@ -139,9 +139,6 @@ describe('EthereumStorage', () => {
         ipfsGatewayConnection,
         web3Connection,
       );
-      await expect(ethereumStorageNotInitialized.getDataId()).to.eventually.rejectedWith(
-        'Ethereum storage must be initialized',
-      );
       await expect(ethereumStorageNotInitialized.getData()).to.eventually.rejectedWith(
         'Ethereum storage must be initialized',
       );
@@ -224,7 +221,7 @@ describe('EthereumStorage', () => {
     });
   });
 
-  describe('append/read/getDataId/getData', () => {
+  describe('append/read/getData', () => {
     beforeEach(async () => {
       ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
       await ethereumStorage.initialize();
@@ -403,7 +400,7 @@ describe('EthereumStorage', () => {
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
       await ethereumStorage.append(content2);
-      const result = await ethereumStorage.getDataId();
+      const result = await ethereumStorage.getData();
 
       if (!result.meta[0].ethereum) {
         assert.fail('result.meta[0].ethereum does not exist');
@@ -592,7 +589,7 @@ describe('EthereumStorage', () => {
       );
     });
 
-    it('getDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
+    it('getData should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
       // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
       ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
         return Promise.resolve({
@@ -609,7 +606,7 @@ describe('EthereumStorage', () => {
       };
 
       await assert.isRejected(
-        ethereumStorage.getDataId(),
+        ethereumStorage.getData(),
         Error,
         'The event log has no hash or feesParameters',
       );
@@ -629,7 +626,7 @@ describe('EthereumStorage', () => {
         });
       };
 
-      await assert.isRejected(ethereumStorage.getDataId(), Error, 'The event log has no metadata');
+      await assert.isRejected(ethereumStorage.getData(), Error, 'The event log has no metadata');
     });
 
     it('allows to read a file', async () => {

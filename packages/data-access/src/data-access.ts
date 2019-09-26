@@ -423,7 +423,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Check the format of the data, extract the topics from it and push location indexed with the topics
    *
    * @private
-   * @param dataWithMeta dataIds from getDataId and getNewDataId from storage functions
+   * @param dataWithMeta data with meta from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
   private async pushLocationsWithTopics(

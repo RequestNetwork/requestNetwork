@@ -42,19 +42,6 @@ describe('mock-storage', () => {
     }
   });
 
-  it('can get all data Ids', async () => {
-    const storage = new MockStorage();
-    const { result: resultAppend1 } = await storage.append('stuff1');
-    const { result: resultAppend2 } = await storage.append('stuff2');
-
-    const { result, meta } = await storage.getDataId();
-
-    assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
-    assert.deepEqual(result.dataIds, [resultAppend1.dataId, resultAppend2.dataId]);
-
-    assert.equal(meta.length, 2);
-  });
-
   it('can get all data', async () => {
     const storage = new MockStorage();
     const { result: resultAppend1 } = await storage.append('stuff1');
@@ -76,20 +63,5 @@ describe('mock-storage', () => {
 
     const { result: resultData } = await storage.getData();
     assert.equal(resultData.contents.length, 1);
-
-    const { result: resultDataId } = await storage.getDataId();
-    assert.equal(resultDataId.dataIds.length, 1);
-  });
-
-  it('can get all data Ids', async () => {
-    const storage = new MockStorage();
-    const { result: resultAppend1 } = await storage.append('stuff1');
-    const { result: resultAppend2 } = await storage.append('stuff2');
-
-    const { result, meta } = await storage.getNewDataId();
-
-    assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
-    assert.deepEqual(result.dataIds, []);
-    assert.deepEqual(meta, []);
   });
 });

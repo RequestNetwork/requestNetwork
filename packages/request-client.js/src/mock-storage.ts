@@ -49,32 +49,6 @@ export default class MockStorage implements StorageTypes.IStorage {
     return Promise.all(ids.map(id => this.read(id)));
   }
 
-  public async getDataId(): Promise<StorageTypes.IResultDataIdsWithMeta> {
-    const results = Object.keys(this.data);
-    const meta = Object.values(this.data).map(elem => {
-      return {
-        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        timestamp: elem.timestamp,
-      };
-    });
-
-    return {
-      meta,
-      result: {
-        dataIds: results,
-      },
-    };
-  }
-
-  public async getNewDataId(): Promise<StorageTypes.IResultDataIdsWithMeta> {
-    return {
-      meta: [],
-      result: {
-        dataIds: [],
-      },
-    };
-  }
-
   public async getData(): Promise<StorageTypes.IResultEntriesWithMeta> {
     const dataIds = Object.keys(this.data);
     const results = Object.values(this.data).map(elem => elem.content);
