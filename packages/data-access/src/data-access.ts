@@ -115,17 +115,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         : undefined,
     );
 
-    // If lastTimestamp is not returned by storage, we throw an error
-    if (allDataWithMeta.result.lastTimestamp === undefined) {
-      throw Error('Storage response missing lastTimestamp value');
-    }
-
     // The last synced timestamp is the latest one returned by storage
-    this.lastSyncStorageTimestamp = allDataWithMeta.result.lastTimestamp;
+    this.lastSyncStorageTimestamp = allDataWithMeta.lastTimestamp;
 
-    // check if the data returned by getDataId are correct
+    // check if the data returned by getData are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopics(allDataWithMeta);
+    await this.pushLocationsWithTopics(allDataWithMeta.entries);
 
     this.isInitialized = true;
   }
@@ -392,15 +387,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopics(newDataWithMeta);
-
-    // If lastTimestamp is not returned by storage, we throw an error
-    if (newDataWithMeta.result.lastTimestamp === undefined) {
-      throw Error('Storage response missing lastTimestamp value');
-    }
+    await this.pushLocationsWithTopics(newDataWithMeta.entries);
 
     // The last synced timestamp is the latest one returned by storage
-    this.lastSyncStorageTimestamp = newDataWithMeta.result.lastTimestamp;
+    this.lastSyncStorageTimestamp = newDataWithMeta.lastTimestamp;
   }
 
   /**
@@ -423,35 +413,33 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Check the format of the data, extract the topics from it and push location indexed with the topics
    *
    * @private
-   * @param dataWithMeta data with meta from storage functions
+   * @param entries data with meta from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
-  private async pushLocationsWithTopics(
-    dataWithMeta: StorageTypes.IResultEntriesWithMeta,
-  ): Promise<void> {
-    if (!dataWithMeta.result || !dataWithMeta.result.contents || !dataWithMeta.result.dataIds) {
+  private async pushLocationsWithTopics(entries: StorageTypes.IEntry[]): Promise<void> {
+    if (!entries) {
       throw Error(`data from storage do not follow the standard`);
     }
     let parsingErrorCount = 0;
     let proceedCount = 0;
-    await Bluebird.each(dataWithMeta.result.contents, async (blockString, index) => {
+    await Bluebird.each(entries, async entry => {
+      if (!entry.content || !entry.id) {
+        throw Error(`data from storage do not follow the standard`);
+      }
+
       let block;
+      const blockString = entry.content;
 
       try {
         block = Block.parseBlock(blockString);
         proceedCount++;
         // adds this transaction to the index, to enable retrieving it later.
-        await this.transactionIndex.addTransaction(
-          dataWithMeta.result.dataIds[index],
-          block.header,
-          dataWithMeta.meta[index].timestamp,
-        );
+        await this.transactionIndex.addTransaction(entry.id, block.header, entry.meta.timestamp);
       } catch (e) {
         parsingErrorCount++;
-        this.logger.debug(
-          `Error: can't parse content of the dataId (${dataWithMeta.result.dataIds[index]}): ${e}`,
-          ['synchronization'],
-        );
+        this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
+          'synchronization',
+        ]);
       }
     });
 

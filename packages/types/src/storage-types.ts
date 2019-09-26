@@ -6,23 +6,21 @@ export interface IStorage {
   append: (data: string) => Promise<IResultDataIdWithMeta>;
   read: (dataId: string) => Promise<IResultContentWithMeta>;
   readMany: (dataIds: string[]) => Promise<IResultContentWithMeta[]>;
-  getData: (options?: ITimestampBoundaries) => Promise<IResultEntriesWithMeta>;
+  getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
 }
 
 /** An extensible template that declares a generic meta */
-export interface IWithMeta {
-  meta: any;
+export interface IWithMeta<META> {
+  meta: META;
 }
 
 /** A template interface for return values with data and metadata */
-export interface IResponseWithMeta<META, DATA> extends IWithMeta {
-  meta: META;
+export interface IResponseWithMeta<META, DATA> extends IWithMeta<META> {
   data: DATA;
 }
 
 /** A template interface for result values with data and metadata */
-export interface IResultWithMeta<META, DATA> extends IWithMeta {
-  meta: META;
+export interface IResultWithMeta<META, DATA> extends IWithMeta<META> {
   result: DATA;
 }
 
@@ -32,31 +30,23 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
+/** One entry on the storage layer */
+export interface IEntry extends IWithMeta<IEntryMetadata> {
+  id: string;
+  content: string;
+}
+
+/** A list of entries with the last timestamp these entries were fetched from */
+export interface IEntriesWithLastTimestamp {
+  entries: IEntry[];
+  lastTimestamp: number;
+}
+
 /** Response with one entry DataId and meta */
 export type IResultDataIdWithMeta = IResultWithMeta<IEntryMetadata, { dataId: string }>;
 
 /** Response with one entry content and meta */
 export type IResultContentWithMeta = IResultWithMeta<IEntryMetadata, { content: string }>;
-
-/** Response with one entry dataId and content, with meta  */
-export type IResultEntryWithMeta = IResultWithMeta<
-  IEntryMetadata,
-  { dataId: string; content: string }
->;
-
-/** Response with many entries dataId and content, with meta  */
-export type IResultEntriesWithMeta = IResultWithMeta<
-  /** Metadata */
-  IEntryMetadata[],
-  {
-    /** The list of data ids */
-    dataIds: string[];
-    /** The list of data contents */
-    contents: string[];
-    /** The last timestamp boundary this data belongs to */
-    lastTimestamp?: number;
-  }
->;
 
 /** return interface for the meta of one piece of data in the storage */
 export interface IEntryMetadata {

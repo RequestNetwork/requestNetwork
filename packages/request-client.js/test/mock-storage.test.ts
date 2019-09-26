@@ -47,11 +47,11 @@ describe('mock-storage', () => {
     const { result: resultAppend1 } = await storage.append('stuff1');
     const { result: resultAppend2 } = await storage.append('stuff2');
 
-    const { result, meta } = await storage.getData();
+    const { entries } = await storage.getData();
 
     assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
-    assert.deepEqual(result.contents, ['stuff1', 'stuff2']);
-    assert.equal(meta.length, 2);
+    assert.deepEqual(entries.map(({ content }) => content), ['stuff1', 'stuff2']);
+    assert.equal(entries.length, 2);
   });
 
   it('can append the same data twice', async () => {
@@ -61,7 +61,7 @@ describe('mock-storage', () => {
 
     assert.equal(resultAppend1.dataId, resultAppend2.dataId);
 
-    const { result: resultData } = await storage.getData();
-    assert.equal(resultData.contents.length, 1);
+    const { entries } = await storage.getData();
+    assert.equal(entries.length, 1);
   });
 });

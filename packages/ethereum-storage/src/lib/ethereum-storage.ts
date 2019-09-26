@@ -298,7 +298,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async getData(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IResultEntriesWithMeta> {
+  ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
     const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
     return contentDataIdAndMeta;
@@ -341,7 +341,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   private async getContentAndDataId(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IResultEntriesWithMeta> {
+  ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
@@ -355,39 +355,32 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     if (!data.length) {
       this.logger.info('No new data found.', ['ethereum']);
       return {
-        meta: [],
-        result: {
-          contents: [],
-          dataIds: [],
-          lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp,
-        },
+        entries: [],
+        lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp,
       };
     }
 
     this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
 
-    const contentDataIdAndMeta = await this.hashesAndSizesToFilteredDataIdContentAndMeta(data);
+    const entries = await this.hashesAndSizesToEntries(data);
 
-    const dataIds = contentDataIdAndMeta.result.dataIds || [];
+    const ids = entries.map(entry => entry.id) || [];
     // Pin data asynchronously
     // tslint:disable-next-line:no-floating-promises
-    this.pinDataToIPFS(dataIds);
+    this.pinDataToIPFS(ids);
 
     // Save existing ethereum metadata to the ethereum metadata cache
-    for (let i = 0; i < dataIds.length; i++) {
-      const ethereumMetadata = contentDataIdAndMeta.meta[i].ethereum;
+    for (const entry of entries) {
+      const ethereumMetadata = entry.meta.ethereum;
       if (ethereumMetadata) {
         // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
-        await this.ethereumMetadataCache.saveDataIdMeta(dataIds[i], ethereumMetadata);
+        await this.ethereumMetadataCache.saveDataIdMeta(entry.id, ethereumMetadata);
       }
     }
 
     return {
-      meta: contentDataIdAndMeta.meta,
-      result: {
-        ...contentDataIdAndMeta.result,
-        lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp,
-      },
+      entries,
+      lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp,
     };
   }
 
@@ -397,9 +390,9 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param hashesAndSizes Promises of hash and size from the smart contract
    * @returns Filtered list of dataId with metadata
    */
-  private async hashesAndSizesToFilteredDataIdContentAndMeta(
+  private async hashesAndSizesToEntries(
     hashesAndSizesPromises: StorageTypes.IGetAllHashesAndSizes[],
-  ): Promise<StorageTypes.IResultEntriesWithMeta> {
+  ): Promise<StorageTypes.IEntry[]> {
     let hashesAndSizesToRetrieve = await Promise.all(hashesAndSizesPromises);
 
     const totalCount: number = hashesAndSizesToRetrieve.length;
@@ -411,8 +404,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // Contains results from readHashOnIPFS function
     // We store hashAndSize in this array in order to know which hashes have not been found on IPFS
-    let hashesAndSizesWithParsedDataIdAndMeta: Array<{
-      dataIdAndMeta: StorageTypes.IResultEntryWithMeta | null;
+    let entriesWithHashToRetry: Array<{
+      entry: StorageTypes.IEntry | null;
       hashToRetryAndSize: StorageTypes.IGetAllHashesAndSizes | null;
     }>;
 
@@ -420,7 +413,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     let hashesAndSizesToRetry: StorageTypes.IGetAllHashesAndSizes[] = [];
 
     // Final array of dataIds and meta
-    const entriesResult: StorageTypes.IResultEntryWithMeta[] = [];
+    const entries: StorageTypes.IEntry[] = [];
 
     // Try to read the hashes on IPFS
     // The operation is done at least once and retried depending on the readOnIPFSRetry config
@@ -432,7 +425,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         this.logger.debug(`Retrying to read hashes on IPFS`, ['ipfs']);
       }
 
-      hashesAndSizesWithParsedDataIdAndMeta = await Bluebird.map(
+      entriesWithHashToRetry = await Bluebird.map(
         hashesAndSizesToRetrieve,
         // Read hash on IPFS and retrieve content corresponding to the hash
         // Reject on error when no file is found on IPFS
@@ -485,14 +478,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
 
               // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the hash
-              return { dataIdAndMeta: null, hashToRetryAndSize: hashAndSize };
+              return { entry: null, hashToRetryAndSize: hashAndSize };
             } else {
               this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
               incorrectFileCount++;
               this.logger.debug(`Incorrect file error: ${errorMessage}`, ['ipfs']);
 
               // No need to retry to find this hash
-              return { dataIdAndMeta: null, hashToRetryAndSize: null };
+              return { entry: null, hashToRetryAndSize: null };
             }
           }
 
@@ -505,38 +498,36 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             wrongFeesCount++;
 
             // No need to retry to find this hash
-            return { dataIdAndMeta: null, hashToRetryAndSize: null };
+            return { entry: null, hashToRetryAndSize: null };
           }
 
           // Get meta data from ethereum
           const ethereumMetadata = hashAndSize.meta;
 
-          const dataIdAndMeta = {
+          const entry = {
+            content: ipfsObject.content,
+            id: hashAndSize.hash,
             meta: {
               ethereum: ethereumMetadata,
               ipfs: { size: ipfsObject.ipfsSize },
               storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
               timestamp: ethereumMetadata.blockTimestamp,
             },
-            result: {
-              content: ipfsObject.content,
-              dataId: hashAndSize.hash,
-            },
           };
-          return { dataIdAndMeta, hashToRetryAndSize: null };
+          return { entry, hashToRetryAndSize: null };
         },
         {
           concurrency: this.maxConcurrency,
         },
       );
 
-      // Store found hashes in entriesResult
+      // Store found hashes in entries
       // The hashes to retry to read are the hashes where readHashOnIPFS returned null
-      hashesAndSizesWithParsedDataIdAndMeta.forEach(hashAndSizeWithParsedDataIdAndMeta => {
-        if (hashAndSizeWithParsedDataIdAndMeta.dataIdAndMeta) {
-          entriesResult.push(hashAndSizeWithParsedDataIdAndMeta.dataIdAndMeta);
-        } else if (hashAndSizeWithParsedDataIdAndMeta.hashToRetryAndSize) {
-          hashesAndSizesToRetry.push(hashAndSizeWithParsedDataIdAndMeta.hashToRetryAndSize);
+      entriesWithHashToRetry.forEach(entryWithHashToRetry => {
+        if (entryWithHashToRetry.entry) {
+          entries.push(entryWithHashToRetry.entry);
+        } else if (entryWithHashToRetry.hashToRetryAndSize) {
+          hashesAndSizesToRetry.push(entryWithHashToRetry.hashToRetryAndSize);
         }
       });
 
@@ -544,7 +535,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       hashesAndSizesToRetrieve = hashesAndSizesToRetry;
       hashesAndSizesToRetry = [];
 
-      successCount = entriesResult.length;
+      successCount = entries.length;
 
       this.logger.debug(`${successCount} retrieved dataIds after try ${tryIndex + 1}`, ['ipfs']);
 
@@ -559,17 +550,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       ['metric', 'successfullyRetrieved'],
     );
 
-    // Create the array of data ids
-    const dataIds = entriesResult.map(entryWithMeta => entryWithMeta.result.dataId);
-    // Create the array of data content
-    const contents = entriesResult.map(entryWithMeta => entryWithMeta.result.content);
-    // Create the array of metadata
-    const meta = entriesResult.map(entryWithMeta => entryWithMeta.meta);
-
-    return {
-      meta,
-      result: { dataIds, contents },
-    };
+    return entries;
   }
 
   /**

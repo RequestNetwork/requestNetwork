@@ -63,13 +63,15 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
-const getDataResult: StorageTypes.IResultEntriesWithMeta = {
-  meta: [{ timestamp: 10 }],
-  result: {
-    contents: [JSON.stringify(blockWith2tx)],
-    dataIds: [dataIdBlock2tx],
-    lastTimestamp: 0,
-  },
+const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
+  entries: [
+    {
+      content: JSON.stringify(blockWith2tx),
+      id: dataIdBlock2tx,
+      meta: { timestamp: 10 },
+    },
+  ],
+  lastTimestamp: 0,
 };
 
 const appendResult: StorageTypes.IResultDataIdWithMeta = {
@@ -81,22 +83,18 @@ const appendResult: StorageTypes.IResultDataIdWithMeta = {
   },
 };
 
-const emptyDataResult: StorageTypes.IResultEntriesWithMeta = {
-  meta: [],
-  result: {
-    contents: [],
-    dataIds: [],
-    lastTimestamp: 0,
-  },
+const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
+  entries: [],
+  lastTimestamp: 0,
 };
 
-const defaultTestData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve(
+const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
   getDataResult,
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
   append: chai.spy.returns(appendResult),
-  getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => defaultTestData,
+  getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
   initialize: chai.spy(),
   read: (param: string): any => {
     const dataIdBlock2txFake: any = {
@@ -125,8 +123,10 @@ describe('data-access', () => {
     it('cannot initialize with getData without result', async () => {
       const customFakeStorage = {
         ...defaultFakeStorage,
-        getData: (): Promise<StorageTypes.IResultEntriesWithMeta> =>
-          ({ meta: [], result: { lastTimestamp: 0 } } as any),
+        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> =>
+          Promise.resolve({
+            lastTimestamp: 0,
+          } as any),
       };
 
       const dataAccess = new DataAccess(customFakeStorage);
@@ -379,8 +379,13 @@ describe('data-access', () => {
       await dataAccess.initialize();
 
       await expect(
-        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [notFormattedTopic, arbitraryTopic2]),
-      ).to.be.rejectedWith(`The following topics are not well formatted: ["This topic is not formatted"]`);
+        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+          notFormattedTopic,
+          arbitraryTopic2,
+        ]),
+      ).to.be.rejectedWith(
+        `The following topics are not well formatted: ["This topic is not formatted"]`,
+      );
     });
   });
 
@@ -397,21 +402,20 @@ describe('data-access', () => {
       transactions: [{ data: '' }],
     };
 
-    const testDataNotJsonData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve({
-      meta: [{ timestamp: 10 }],
-      result: {
-        contents: [
-          // no Header
-          JSON.stringify(blockWithoutHeader),
-        ],
-        dataIds: ['whatever'],
-        lastTimestamp: 0,
-      },
+    const testDataNotJsonData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve({
+      entries: [
+        {
+          content: JSON.stringify(blockWithoutHeader),
+          id: 'whatever',
+          meta: { timestamp: 10 },
+        },
+      ],
+      lastTimestamp: 0,
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
       append: chai.spy(),
-      getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => testDataNotJsonData,
+      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -427,12 +431,14 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testData: Promise<StorageTypes.IResultEntriesWithMeta> = Promise.resolve(getDataResult);
+    const testData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
+      getDataResult,
+    );
 
     // We create a fakeStorage where getData() called at initialization returns empty structure
     const fakeStorage = {
       ...defaultFakeStorage,
-      getData: (options: any): Promise<StorageTypes.IResultEntriesWithMeta> => {
+      getData: (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
         if (!options) {
           return Promise.resolve(emptyDataResult);
         }
@@ -506,7 +512,7 @@ describe('data-access', () => {
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       append: chai.spy.returns(appendResult),
-      getData: (): Promise<StorageTypes.IResultEntriesWithMeta> => chai.spy(),
+      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -567,10 +573,10 @@ describe('data-access', () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       ...defaultFakeStorage,
       getData: sinon.spy(
-        (): Promise<StorageTypes.IResultEntriesWithMeta> =>
+        (): Promise<StorageTypes.IEntriesWithLastTimestamp> =>
           Promise.resolve({
-            meta: [],
-            result: { contents: [], dataIds: [], lastTimestamp: lastTimestampReturnedByGetData },
+            entries: [],
+            lastTimestamp: lastTimestampReturnedByGetData,
           }),
       ),
     };
