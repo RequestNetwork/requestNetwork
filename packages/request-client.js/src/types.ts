@@ -4,6 +4,7 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 export {
   AdvancedLogicTypes as AdvancedLogic,
   LogTypes as Log,
+  DecryptionProviderTypes as DecryptionProvider,
   ExtensionTypes as Extension,
   EncryptionTypes as Encryption,
   RequestLogicTypes as RequestLogic,
