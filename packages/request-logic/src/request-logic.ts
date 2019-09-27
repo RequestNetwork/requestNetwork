@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   AdvancedLogicTypes,
   EncryptionTypes,
@@ -342,7 +343,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
-    const hashedTopic = Utils.crypto.normalizeKeccak256Hash(topic);
+    const hashedTopic = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic));
 
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
       hashedTopic,
@@ -362,7 +363,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
-    const hashedTopics = topics.map(Utils.crypto.normalizeKeccak256Hash);
+    const hashedTopics = topics.map(topic =>
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+    );
 
     const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
       hashedTopics,
@@ -400,7 +403,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // hash all the topics
-    const hashedTopics = topics.map(Utils.crypto.normalizeKeccak256Hash);
+    const hashedTopics = topics.map(topic =>
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+    );
 
     return {
       action,

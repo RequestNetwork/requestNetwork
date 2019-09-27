@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -26,7 +27,7 @@ export default class ClearTransaction implements TransactionTypes.ITransaction {
    * @returns a promise resolving the transaction data hash
    */
   public async getHash(): Promise<string> {
-    return Utils.crypto.normalizeKeccak256Hash(JSON.parse(this.data));
+    return MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(this.data)));
   }
 
   /**

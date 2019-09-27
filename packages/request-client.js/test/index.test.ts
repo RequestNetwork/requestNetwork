@@ -70,7 +70,10 @@ const encryptionData = {
 };
 
 const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
-  decrypt: (data: string, identity: IdentityTypes.IIdentity): Promise<string> => {
+  decrypt: (
+    data: EncryptionTypes.IEncryptedData,
+    identity: IdentityTypes.IIdentity,
+  ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
       case encryptionData.identity.value:
         return Utils.encryption.decrypt(data, encryptionData.decryptionParams);
@@ -896,9 +899,9 @@ describe('index', () => {
 
       const request = await requestNetwork._createEncryptedRequest(
         {
+          paymentNetwork: TestData.declarativePaymentNetwork,
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: payeeIdentity,
-          paymentNetwork: TestData.declarativePaymentNetwork,
         },
         [encryptionData.encryptionParams],
       );

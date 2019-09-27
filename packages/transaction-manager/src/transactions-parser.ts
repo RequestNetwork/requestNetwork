@@ -137,10 +137,8 @@ export default class TransactionsParser {
               (await this.decryptionProvider.isIdentityRegistered(identity))
             ) {
               try {
-                decryptedChannelKey = await this.decryptionProvider.decrypt(
-                  keys[identityMultiFormatted],
-                  identity,
-                );
+                const key = MultiFormat.deserialize(keys[identityMultiFormatted]);
+                decryptedChannelKey = await this.decryptionProvider.decrypt(key, identity);
               } catch (e) {
                 errorReason = e.message;
               }

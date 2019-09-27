@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -15,7 +16,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     if (!content) {
       throw Error('Error: no content provided');
     }
-    const hash = Utils.crypto.normalizeKeccak256Hash(content);
+    const hash = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(content));
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 

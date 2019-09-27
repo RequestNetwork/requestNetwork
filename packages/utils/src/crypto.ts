@@ -1,7 +1,7 @@
+import { MultiFormatTypes } from '@requestnetwork/types';
 import EthCrypto from 'eth-crypto';
 import CryptoWrapper from './crypto/crypto-wrapper';
 import EcUtils from './crypto/ec-utils';
-import multiFormat from './multi-format';
 import Utils from './utils';
 
 /**
@@ -24,8 +24,11 @@ export default {
  * @param data The data to hash
  * @returns The hashed data multi-formatted
  */
-function normalizeKeccak256Hash(data: any): string {
-  return multiFormat.formatKeccak256Hash(keccak256Hash(normalize(data)));
+function normalizeKeccak256Hash(data: any): MultiFormatTypes.HashTypes.IHash {
+  return {
+    type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
+    value: keccak256Hash(normalize(data)),
+  };
 }
 
 /**

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -371,7 +372,7 @@ describe('requestLogicCore', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(
-        Utils.crypto.normalizeKeccak256Hash(actionCreation),
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
       );
       expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);

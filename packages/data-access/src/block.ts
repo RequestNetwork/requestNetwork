@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -63,10 +64,10 @@ function parseBlock(data: string): DataAccessTypes.IBlock {
   }
 
   // check if channelIds are well formatted
-  // check that all the channel ids are keccak256 hashes
+  // check that all the channel ids are hashes
   if (
     Object.keys(maybeBlock.header.channelIds).some(
-      (channelId: string) => !Utils.multiFormat.isKeccak256Hash(channelId),
+      (channelId: string) => !MultiFormat.hashFormat.isDeserializableString(channelId),
     )
   ) {
     throw new Error(`Channel ids in header.channelIds must be formatted keccak256 hashes`);
@@ -85,18 +86,18 @@ function parseBlock(data: string): DataAccessTypes.IBlock {
   }
 
   // check if topics are well formatted
-  // check that all the channel ids are keccak256 hashes
+  // check that all the channel ids are hashes
   if (
     Object.keys(maybeBlock.header.topics).some(
-      (channelId: string) => !Utils.multiFormat.isKeccak256Hash(channelId),
+      (channelId: string) => !MultiFormat.hashFormat.isDeserializableString(channelId),
     )
   ) {
     throw new Error(`Channel ids in header.topics must be formatted keccak256 hashes`);
   }
-  // check if topics are keccak256 hashes
+  // check if topics are hashes
   if (
     Object.values(maybeBlock.header.topics).some((listOfTopics: any) =>
-      listOfTopics.some((topic: string) => !Utils.multiFormat.isKeccak256Hash(topic)),
+      listOfTopics.some((topic: string) => !MultiFormat.hashFormat.isDeserializableString(topic)),
     )
   ) {
     throw new Error(`topics in header.topics must be formatted keccak256 hashes`);

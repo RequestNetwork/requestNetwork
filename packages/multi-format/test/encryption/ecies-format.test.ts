@@ -36,7 +36,7 @@ describe('encryption/ecies-format', () => {
       expect(
         eciesFormat.isSerializableObject({
           type: EncryptionTypes.METHOD.ECIES,
-          value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+          value: 'af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         }),
         'isDeserializableString() error',
       ).to.be.true;
@@ -46,17 +46,9 @@ describe('encryption/ecies-format', () => {
       expect(
         eciesFormat.isSerializableObject({
           type: MultiFormatTypes.PlainTypes.TYPE.PLAIN_TEXT,
-          value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
-        }),
-        'should be false with an incorrect type',
-      ).to.be.false;
-
-      expect(
-        eciesFormat.isSerializableObject({
-          type: EncryptionTypes.METHOD.ECIES,
           value: 'af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         }),
-        'isDeserializableString() error',
+        'should be false with an incorrect type',
       ).to.be.false;
     });
   });
@@ -66,7 +58,7 @@ describe('encryption/ecies-format', () => {
       expect(
         eciesFormat.serialize({
           type: EncryptionTypes.METHOD.ECIES,
-          value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+          value: 'af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
         }),
         'serialize() error',
       ).to.be.equal('02af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
@@ -76,13 +68,6 @@ describe('encryption/ecies-format', () => {
       expect(() => {
         eciesFormat.serialize({
           type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
-          value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f9071',
-        });
-      }, 'serialize() error').to.throw('object is not a serializable object');
-
-      expect(() => {
-        eciesFormat.serialize({
-          type: EncryptionTypes.METHOD.ECIES,
           value: 'af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f9071',
         });
       }, 'serialize() error').to.throw('object is not a serializable object');
@@ -94,7 +79,7 @@ describe('encryption/ecies-format', () => {
       const formatted = '02af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907';
       expect(eciesFormat.deserialize(formatted), 'deserialize(formatted) error').to.be.deep.equal({
         type: EncryptionTypes.METHOD.ECIES,
-        value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+        value: 'af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
       });
     });
 

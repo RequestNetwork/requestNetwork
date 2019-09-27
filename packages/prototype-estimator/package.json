@@ -30,6 +30,7 @@
     "@requestnetwork/data-access": "0.5.0",
     "@requestnetwork/epk-signature": "0.5.2",
     "@requestnetwork/ethereum-storage": "0.4.3",
+    "@requestnetwork/multi-format": "0.1.0",
     "@requestnetwork/request-client.js": "0.7.0",
     "@requestnetwork/request-logic": "0.7.0",
     "@requestnetwork/request-node": "0.5.2",

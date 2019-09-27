@@ -1,5 +1,6 @@
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import Utils from '@requestnetwork/utils';
 
@@ -155,7 +156,7 @@ describe('Request client using a request node', () => {
       timestamp: Utils.getCurrentTimestampInSecond(),
     };
     const topicsRequest1and2: string[] = [
-      Utils.crypto.normalizeKeccak256Hash(requestCreationHash1),
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)),
     ];
 
     const request1: Request = await requestNetwork.createRequest({

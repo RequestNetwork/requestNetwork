@@ -1,7 +1,7 @@
 import 'mocha';
 
+import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
-
 import Utils from '@requestnetwork/utils';
 
 import { RequestLogic } from '../src/index';
@@ -30,7 +30,7 @@ const unsignedAction: RequestLogicTypes.IUnsignedAction = {
   version: CURRENT_VERSION,
 };
 const action = Utils.signature.sign(unsignedAction, TestData.payeeRaw.signatureParams);
-const requestId = Utils.crypto.normalizeKeccak256Hash(action);
+const requestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
 
 const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
@@ -96,8 +96,8 @@ describe('index', () => {
         JSON.stringify(action),
         requestId,
         [
-          Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity),
-          Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity),
+          MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity)),
+          MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity)),
         ],
       );
     });
@@ -157,8 +157,8 @@ describe('index', () => {
         requestId,
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
         [
-          Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity),
-          Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity),
+          MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity)),
+          MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity)),
         ],
       );
     });
@@ -952,7 +952,9 @@ describe('index', () => {
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation);
+      const newRequestId = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation),
+      );
 
       const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
         {
@@ -992,7 +994,9 @@ describe('index', () => {
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId2 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2);
+      const newRequestId2 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2),
+      );
 
       const actionCancel2: RequestLogicTypes.IAction = Utils.signature.sign(
         {
@@ -1020,7 +1024,9 @@ describe('index', () => {
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId3 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3);
+      const newRequestId3 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3),
+      );
 
       const meta = {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
@@ -1175,7 +1181,9 @@ describe('index', () => {
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation);
+      const newRequestId = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation),
+      );
 
       const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
         {
@@ -1215,7 +1223,9 @@ describe('index', () => {
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId2 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2);
+      const newRequestId2 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2),
+      );
 
       const actionCancel2: RequestLogicTypes.IAction = Utils.signature.sign(
         {
@@ -1243,7 +1253,9 @@ describe('index', () => {
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId3 = Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3);
+      const newRequestId3 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3),
+      );
 
       const meta = {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },

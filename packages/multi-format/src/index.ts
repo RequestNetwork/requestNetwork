@@ -9,6 +9,10 @@ import plainFormat from './plain/plain-format';
 /** Serializes and deserializes any multi-format supported */
 export default {
   deserialize,
+  encryptionFormats,
+  hashFormat,
+  identityFormat,
+  plainFormat,
   serialize,
 };
 

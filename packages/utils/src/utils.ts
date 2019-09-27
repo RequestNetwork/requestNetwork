@@ -78,13 +78,13 @@ function unique(array: any[]): { uniqueItems: any[]; duplicates: any[] } {
     ) => {
       const hash = crypto.normalizeKeccak256Hash(element);
 
-      if (accumulator.uniqueItemsHashes.includes(hash)) {
+      if (accumulator.uniqueItemsHashes.includes(hash.value)) {
         // if already included, adds it to the array of duplicates
         accumulator.duplicates.push(element);
       } else {
         // if not already included, includes it and reports the hash
         accumulator.uniqueItems.push(element);
-        accumulator.uniqueItemsHashes.push(hash);
+        accumulator.uniqueItemsHashes.push(hash.value);
       }
       return accumulator;
     },
@@ -113,13 +113,13 @@ function uniqueByProperty(
     ) => {
       const hash = crypto.normalizeKeccak256Hash(element[property]);
 
-      if (accumulator.uniqueItemsHashes.includes(hash)) {
+      if (accumulator.uniqueItemsHashes.includes(hash.value)) {
         // if already included, adds it to the array of duplicates
         accumulator.duplicates.push(element);
       } else {
         // if not already included, includes it and reports the hash
         accumulator.uniqueItems.push(element);
-        accumulator.uniqueItemsHashes.push(hash);
+        accumulator.uniqueItemsHashes.push(hash.value);
       }
       return accumulator;
     },

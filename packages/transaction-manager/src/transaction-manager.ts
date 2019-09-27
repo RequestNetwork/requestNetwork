@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   DataAccessTypes,
   DecryptionProviderTypes,
@@ -44,7 +45,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     let channelEncryptionMethod: string | undefined;
 
     // compute hash to add it to the topics
-    const hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData));
+    const hash = MultiFormat.serialize(
+      Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData)),
+    );
 
     // Need to create a new channel (only the first transaction can have the hash equals to the channel id)
     if (channelId === hash) {

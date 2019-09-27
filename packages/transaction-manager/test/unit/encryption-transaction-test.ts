@@ -5,13 +5,14 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import EncryptedTransaction from '../../src/encrypted-transaction';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
-const hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+const hash = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data)));
 const channelKey = {
   key: 'XYVH7kMWMAy/if+IZ0e7EXMbPVptHd22Xmpr9ktmjRo=',
   method: EncryptionTypes.METHOD.AES256_CBC,
@@ -38,7 +39,9 @@ describe('encryption-transaction', () => {
 
   describe('getError', () => {
     it('can get error of a transaction not parsable', async () => {
-      const encryptedDataNotParsable = await Utils.encryption.encrypt('Not parsable', channelKey);
+      const encryptedDataNotParsable = MultiFormat.serialize(
+        await Utils.encryption.encrypt('Not parsable', channelKey),
+      );
 
       const tx = new EncryptedTransaction(encryptedDataNotParsable, hash, channelKey);
 

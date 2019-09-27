@@ -1,6 +1,5 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 import Crypto from './crypto';
-import multiFormat from './multi-format';
 
 /**
  * Functions to manage encryption
@@ -41,10 +40,13 @@ function getIdentityFromEncryptionParams(
 async function encrypt(
   data: string,
   encryptionParams: EncryptionTypes.IEncryptionParameters,
-): Promise<string> {
+): Promise<EncryptionTypes.IEncryptedData> {
   if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
     const encryptedData = await Crypto.EcUtils.encrypt(encryptionParams.key, data);
-    return multiFormat.formatEciesEncryption(encryptedData);
+    return {
+      type: EncryptionTypes.METHOD.ECIES,
+      value: encryptedData,
+    };
   }
 
   if (encryptionParams.method === EncryptionTypes.METHOD.AES256_CBC) {
@@ -52,7 +54,10 @@ async function encrypt(
       Buffer.from(data, 'utf-8'),
       Buffer.from(encryptionParams.key, 'base64'),
     );
-    return multiFormat.formatAes256cbcEncryption(encryptedDataBuffer.toString('Base64'));
+    return {
+      type: EncryptionTypes.METHOD.AES256_CBC,
+      value: encryptedDataBuffer.toString('Base64'),
+    };
   }
 
   throw new Error('encryptionParams.method not supported');
@@ -68,23 +73,23 @@ async function encrypt(
  * @returns the decrypted data
  */
 async function decrypt(
-  encryptedData: string,
+  encryptedData: EncryptionTypes.IEncryptedData,
   decryptionParams: EncryptionTypes.IDecryptionParameters,
 ): Promise<string> {
-  if (multiFormat.isEciesEncryption(encryptedData)) {
+  if (encryptedData.type === EncryptionTypes.METHOD.ECIES) {
     if (decryptionParams.method !== EncryptionTypes.METHOD.ECIES) {
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.ECIES}`);
     }
-    return Crypto.EcUtils.decrypt(decryptionParams.key, multiFormat.removePadding(encryptedData));
+    return Crypto.EcUtils.decrypt(decryptionParams.key, encryptedData.value);
   }
 
-  if (multiFormat.isAes256cbcEncryption(encryptedData)) {
+  if (encryptedData.type === EncryptionTypes.METHOD.AES256_CBC) {
     if (decryptionParams.method !== EncryptionTypes.METHOD.AES256_CBC) {
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.AES256_CBC}`);
     }
     const dataBuffer = await Crypto.CryptoWrapper.decryptWithAes256cbc(
       // remove the multi-format padding and decode from the base64 to a buffer
-      Buffer.from(multiFormat.removePadding(encryptedData), 'base64'),
+      Buffer.from(encryptedData.value, 'base64'),
       Buffer.from(decryptionParams.key, 'base64'),
     );
     return dataBuffer.toString();

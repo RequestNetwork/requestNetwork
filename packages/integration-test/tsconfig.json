@@ -11,6 +11,7 @@
     { "path": "../ethereum-storage" },
     { "path": "../epk-decryption" },
     { "path": "../epk-signature" },
+    { "path": "../multi-format" },
     { "path": "../request-logic" },
     { "path": "../transaction-manager" },
     { "path": "../types" }

@@ -1,5 +1,6 @@
 import 'mocha';
 
+import MultiFormat from '@requestnetwork/multi-format';
 import Utils from '@requestnetwork/utils';
 
 const chai = require('chai');
@@ -28,9 +29,9 @@ const tx: DataAccessTypes.IConfirmedTransaction = { transaction: { data }, times
 const tx2: DataAccessTypes.IConfirmedTransaction = { transaction: { data: data2 }, timestamp: 1 };
 
 const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
-const channelId = dataHash;
+const channelId = MultiFormat.serialize(dataHash);
 const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
-const channelId2 = dataHash2;
+const channelId2 = MultiFormat.serialize(dataHash2);
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = {
   meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
@@ -109,7 +110,7 @@ describe('index', () => {
         expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
           await TransactionsFactory.createClearTransaction(data2),
           channelId,
-          extraTopics.concat([dataHash2]),
+          extraTopics.concat([channelId2]),
         );
       });
 
@@ -151,7 +152,7 @@ describe('index', () => {
 
         expect(fakeDataAccess.persistTransaction).to.have.been.called.to.have.been.called.with(
           channelId,
-          extraTopics.concat([dataHash2]),
+          extraTopics.concat([channelId2]),
         );
       });
 

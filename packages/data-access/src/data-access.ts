@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -144,7 +145,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // get all the topics not well formatted
     const notFormattedTopics: string[] = topics.filter(
-      topic => !Utils.multiFormat.isKeccak256Hash(topic),
+      topic => !MultiFormat.hashFormat.isDeserializableString(topic),
     );
 
     if (notFormattedTopics.length !== 0) {
@@ -262,7 +263,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     this.checkInitialized();
 
     // check if the topic is well formatted
-    if (!Utils.multiFormat.isKeccak256Hash(topic)) {
+    if (!MultiFormat.hashFormat.isDeserializableString(topic)) {
       throw new Error(`The topic is not well formatted: ${topic}`);
     }
 
@@ -319,7 +320,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     this.checkInitialized();
 
-    if (!topics.every(Utils.multiFormat.isKeccak256Hash)) {
+    if (topics.some(topic => !MultiFormat.hashFormat.isDeserializableString(topic))) {
       throw new Error(`The topics are not well formatted`);
     }
 

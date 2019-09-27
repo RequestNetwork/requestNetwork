@@ -7,6 +7,7 @@ import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
+import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
@@ -423,12 +424,12 @@ describe('Request system', () => {
     assert.exists(dataAccessData.result.transactions[0].transaction.keys);
     assert.exists(
       dataAccessData.result.transactions[0].transaction.keys![
-        Utils.multiFormat.formatIdentityEthereumAddress(encryptionDataPayee.identity.value)
+        MultiFormat.serialize(encryptionDataPayee.identity)
       ],
     );
     assert.exists(
       dataAccessData.result.transactions[0].transaction.keys![
-        Utils.multiFormat.formatIdentityEthereumAddress(encryptionDataPayer.identity.value)
+        MultiFormat.serialize(encryptionDataPayer.identity)
       ],
     );
     assert.isUndefined(dataAccessData.result.transactions[0].transaction.data);
