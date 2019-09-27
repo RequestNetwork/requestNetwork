@@ -3,9 +3,9 @@ const bigNumber: any = require('bn.js');
 /** Interface of the storage */
 export interface IStorage {
   initialize: () => Promise<void>;
-  append: (data: string) => Promise<IResultDataIdWithMeta>;
-  read: (dataId: string) => Promise<IResultContentWithMeta>;
-  readMany: (dataIds: string[]) => Promise<IResultContentWithMeta[]>;
+  append: (data: string) => Promise<IEntry>;
+  read: (dataId: string) => Promise<IEntry>;
+  readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
 }
 
@@ -17,11 +17,6 @@ export interface IWithMeta<META> {
 /** A template interface for return values with data and metadata */
 export interface IResponseWithMeta<META, DATA> extends IWithMeta<META> {
   data: DATA;
-}
-
-/** A template interface for result values with data and metadata */
-export interface IResultWithMeta<META, DATA> extends IWithMeta<META> {
-  result: DATA;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -41,12 +36,6 @@ export interface IEntriesWithLastTimestamp {
   entries: IEntry[];
   lastTimestamp: number;
 }
-
-/** Response with one entry DataId and meta */
-export type IResultDataIdWithMeta = IResultWithMeta<IEntryMetadata, { dataId: string }>;
-
-/** Response with one entry content and meta */
-export type IResultContentWithMeta = IResultWithMeta<IEntryMetadata, { content: string }>;
 
 /** return interface for the meta of one piece of data in the storage */
 export interface IEntryMetadata {

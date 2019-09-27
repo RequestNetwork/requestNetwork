@@ -172,7 +172,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
    */
-  public async append(content: string): Promise<StorageTypes.IResultDataIdWithMeta> {
+  public async append(content: string): Promise<StorageTypes.IEntry> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
@@ -214,13 +214,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
 
     return {
+      content,
+      id: ipfsHash,
       meta: {
         ethereum: ethereumMetadata,
         ipfs: { size: contentSize },
         storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
         timestamp: ethereumMetadata.blockTimestamp,
       },
-      result: { dataId: ipfsHash },
     };
   }
 
@@ -229,7 +230,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param Id Id used to retrieve content
    * @returns Promise resolving content from id
    */
-  public async read(id: string): Promise<StorageTypes.IResultContentWithMeta> {
+  public async read(id: string): Promise<StorageTypes.IEntry> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
@@ -254,13 +255,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     return {
+      content: ipfsObject.content,
+      id,
       meta: {
         ethereum: ethereumMetadata,
         ipfs: { size: ipfsObject.ipfsSize },
         storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
         timestamp: ethereumMetadata.blockTimestamp,
       },
-      result: { content: ipfsObject.content },
     };
   }
 
@@ -270,7 +272,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param dataIds A list of dataIds used to retrieve the content
    * @returns Promise resolving the list of contents
    */
-  public async readMany(dataIds: string[]): Promise<StorageTypes.IResultContentWithMeta[]> {
+  public async readMany(dataIds: string[]): Promise<StorageTypes.IEntry[]> {
     const totalCount = dataIds.length;
     // Concurrently get all the content from the id's in the parameters
     return Bluebird.map(

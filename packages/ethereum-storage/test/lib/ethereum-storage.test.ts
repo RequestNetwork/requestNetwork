@@ -256,7 +256,9 @@ describe('EthereumStorage', () => {
         return;
       }
 
-      const resultExpected: StorageTypes.IResultDataIdWithMeta = {
+      const resultExpected: StorageTypes.IEntry = {
+        content: content1,
+        id: hash1,
         meta: {
           ethereum: {
             blockConfirmation: 10,
@@ -275,7 +277,6 @@ describe('EthereumStorage', () => {
           storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
           timestamp: 1545816416,
         },
-        result: { dataId: hash1 },
       };
       assert.deepEqual(result, resultExpected);
     });
@@ -357,7 +358,7 @@ describe('EthereumStorage', () => {
         return;
       }
 
-      assert.deepEqual(result.result, { content: content1 });
+      assert.deepEqual(result.content, content1);
       assert.deepEqual(result.meta.ipfs, {
         size: realSize1,
       });
@@ -644,7 +645,7 @@ describe('EthereumStorage', () => {
           assert.fail('result.meta.ethereum does not exist');
           return;
         }
-        assert.deepEqual(result.result, { content: content[index] });
+        assert.deepEqual(result.content, content[index]);
         assert.deepEqual(result.meta.ipfs, {
           size: realSizes[index],
         });

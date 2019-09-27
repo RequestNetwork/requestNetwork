@@ -11,7 +11,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async append(content: string): Promise<StorageTypes.IResultDataIdWithMeta> {
+  public async append(content: string): Promise<StorageTypes.IEntry> {
     if (!content) {
       throw Error('Error: no content provided');
     }
@@ -22,30 +22,30 @@ export default class MockStorage implements StorageTypes.IStorage {
     this.data[hash] = { content, timestamp: nowTimestampInSec };
 
     return {
+      content: '',
+      id: hash,
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: nowTimestampInSec,
       },
-      result: {
-        dataId: hash,
-      },
     };
   }
 
-  public async read(id: string): Promise<StorageTypes.IResultContentWithMeta> {
+  public async read(id: string): Promise<StorageTypes.IEntry> {
     if (!id) {
       throw Error('No id provided');
     }
     return {
+      content: this.data[id].content,
+      id,
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: this.data[id].timestamp,
       },
-      result: { content: this.data[id].content },
     };
   }
 
-  public async readMany(ids: string[]): Promise<StorageTypes.IResultContentWithMeta[]> {
+  public async readMany(ids: string[]): Promise<StorageTypes.IEntry[]> {
     return Promise.all(ids.map(id => this.read(id)));
   }
 

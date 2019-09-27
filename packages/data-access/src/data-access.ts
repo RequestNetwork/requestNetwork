@@ -165,7 +165,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // adds this transaction to the index, to enable retrieving it later.
     await this.transactionIndex.addTransaction(
-      resultAppend.result.dataId,
+      resultAppend.id,
       updatedBlock.header,
       resultAppend.meta.timestamp,
     );
@@ -174,7 +174,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       meta: {
         storageMeta: resultAppend.meta,
         topics,
-        transactionStorageLocation: resultAppend.result.dataId,
+        transactionStorageLocation: resultAppend.id,
       },
       result: {},
     };
@@ -466,7 +466,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         const resultRead = await this.storage.read(location);
 
         return {
-          block: JSON.parse(resultRead.result.content),
+          block: JSON.parse(resultRead.content),
           location,
           meta: resultRead.meta,
         };

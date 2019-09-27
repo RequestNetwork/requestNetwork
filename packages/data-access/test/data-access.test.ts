@@ -74,13 +74,12 @@ const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   lastTimestamp: 0,
 };
 
-const appendResult: StorageTypes.IResultDataIdWithMeta = {
+const appendResult: StorageTypes.IEntry = {
   meta: {
     timestamp: 1,
   },
-  result: {
-    dataId: dataIdBlock2tx,
-  },
+  id: dataIdBlock2tx,
+  content: '',
 };
 
 const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
@@ -147,9 +146,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 1 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -173,9 +173,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -222,9 +223,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -273,9 +275,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -445,9 +448,10 @@ describe('data-access', () => {
         return testData;
       },
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
+        const dataIdBlock2txFake: StorageTypes.IEntry = {
+          content: JSON.stringify(blockWith2tx),
+          id: '1',
           meta: { timestamp: 1 },
-          result: { content: JSON.stringify(blockWith2tx) },
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,
@@ -526,9 +530,10 @@ describe('data-access', () => {
     const fakeStorage = {
       ...defaultFakeStorage,
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IResultContentWithMeta = {
+        const dataIdBlock2txFake: StorageTypes.IEntry = {
+          content: JSON.stringify(blockWith2tx),
+          id: '1',
           meta: { timestamp: 1 },
-          result: { content: JSON.stringify(blockWith2tx) },
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,

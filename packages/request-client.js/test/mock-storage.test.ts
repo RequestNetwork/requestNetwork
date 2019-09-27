@@ -6,9 +6,9 @@ import MockStorage from '../src/mock-storage';
 describe('mock-storage', () => {
   it('can append data', async () => {
     const storage = new MockStorage();
-    const { result, meta } = await storage.append('stuff');
+    const { id, meta } = await storage.append('stuff');
 
-    assert.isString(result.dataId);
+    assert.isString(id);
     assert.equal(meta.storageType, StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
   });
 
@@ -24,11 +24,11 @@ describe('mock-storage', () => {
 
   it('can read data', async () => {
     const storage = new MockStorage();
-    const { result: resultAppend } = await storage.append('stuff');
+    const { id } = await storage.append('stuff');
 
-    const { result: resultRead, meta } = await storage.read(resultAppend.dataId);
+    const { content, meta } = await storage.read(id);
 
-    assert.isString(resultRead.content, 'stuff');
+    assert.isString(content, 'stuff');
     assert.equal(meta.storageType, StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
   });
 
@@ -44,22 +44,22 @@ describe('mock-storage', () => {
 
   it('can get all data', async () => {
     const storage = new MockStorage();
-    const { result: resultAppend1 } = await storage.append('stuff1');
-    const { result: resultAppend2 } = await storage.append('stuff2');
+    const { id: id1 } = await storage.append('stuff1');
+    const { id: id2 } = await storage.append('stuff2');
 
     const { entries } = await storage.getData();
 
-    assert.notEqual(resultAppend1.dataId, resultAppend2.dataId);
+    assert.notEqual(id1, id2);
     assert.deepEqual(entries.map(({ content }) => content), ['stuff1', 'stuff2']);
     assert.equal(entries.length, 2);
   });
 
   it('can append the same data twice', async () => {
     const storage = new MockStorage();
-    const { result: resultAppend1 } = await storage.append('stuff');
-    const { result: resultAppend2 } = await storage.append('stuff');
+    const { id: id1 } = await storage.append('stuff');
+    const { id: id2 } = await storage.append('stuff');
 
-    assert.equal(resultAppend1.dataId, resultAppend2.dataId);
+    assert.equal(id1, id2);
 
     const { entries } = await storage.getData();
     assert.equal(entries.length, 1);
