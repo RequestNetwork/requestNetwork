@@ -14,11 +14,6 @@ export interface IWithMeta<META> {
   meta: META;
 }
 
-/** A template interface for return values with data and metadata */
-export interface IResponseWithMeta<META, DATA> extends IWithMeta<META> {
-  data: DATA;
-}
-
 /** Restrict the get data research to two timestamp */
 export interface ITimestampBoundaries {
   from?: number;
@@ -52,22 +47,19 @@ export interface IEntryMetadata {
   timestamp: number;
 }
 
-/** return interface for getAllHashesAndSizes() */
-export interface IGetAllHashesAndSizes {
-  /** meta information */
-  meta: IEthereumMetadata;
+/** One entry on the ethereum smart contract */
+export interface IEthereumEntry extends IWithMeta<IEthereumMetadata> {
   /** data id of the persisted data */
   hash: string;
   /** parameters used to compute fees */
   feesParameters: IFeesParameters;
-  /** timestamp of the data */
-  timestamp: number;
 }
 
-/** Metadata about Ethereum block timestamp */
-export interface IEthereumTimestampMeta {
+/** A list of ethereum entries with the last block timestamp these entries were fetched from */
+export interface IEthereumEntriesWithLastTimestamp {
+  ethereumEntries: IEthereumEntry[];
   /** the timestamp of the last block this data belongs to */
-  lastBlockTimestamp: number;
+  lastTimestamp: number;
 }
 
 /** Parameters used to compute the fees */

@@ -9,6 +9,7 @@ import IpfsConnectionError from '../../src/lib/ipfs-connection-error';
 
 import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
 import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+import { IEthereumEntriesWithLastTimestamp } from '@requestnetwork/types/src/storage-types';
 
 // tslint:disable:no-magic-numbers
 
@@ -527,11 +528,11 @@ describe('EthereumStorage', () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = async (): Promise<
-        any
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<
+        IEthereumEntriesWithLastTimestamp
       > => {
         return {
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 1 },
               hash: hash1,
@@ -543,12 +544,9 @@ describe('EthereumStorage', () => {
                 smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
                 transactionHash: '0xa',
               },
-              timestamp: 1,
             },
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         };
       };
 
@@ -590,19 +588,17 @@ describe('EthereumStorage', () => {
       );
     });
 
-    it('getData should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
-      // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+    it('getData should throw an error when data from getEntriesFromEthereum are incorrect', async () => {
+      // Mock getEntriesFromEthereum of smartContractManager to return unexpected promise value
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<any> => {
         return Promise.resolve({
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 10 },
               meta: {} as StorageTypes.IEthereumMetadata,
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         });
       };
 
@@ -613,17 +609,17 @@ describe('EthereumStorage', () => {
       );
 
       // Test with no meta
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
+        IEthereumEntriesWithLastTimestamp
+      > => {
         return Promise.resolve({
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 10 },
               hash: '0xad',
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         });
       };
 
@@ -688,48 +684,48 @@ describe('EthereumStorage', () => {
 
     it('allows to read hash on IPFS with retries', async () => {
       // Mock to test IPFS read retry
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
+        IEthereumEntriesWithLastTimestamp
+      > => {
         return Promise.resolve({
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 10 },
               hash: '0x0',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x1',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x2',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x3',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x4',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x5',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x6',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         });
       };
 

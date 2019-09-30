@@ -349,22 +349,22 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
     this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
     const {
-      data,
-      meta: hashesAndSizesMeta,
-    } = await this.smartContractManager.getHashesAndSizesFromEthereum(options);
+      ethereumEntries,
+      lastTimestamp,
+    } = await this.smartContractManager.getEntriesFromEthereum(options);
 
     // If no hash was found on ethereum, we return an empty list
-    if (!data.length) {
+    if (!ethereumEntries.length) {
       this.logger.info('No new data found.', ['ethereum']);
       return {
         entries: [],
-        lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp,
+        lastTimestamp,
       };
     }
 
     this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
 
-    const entries = await this.hashesAndSizesToEntries(data);
+    const entries = await this.EthereumEntriesToEntries(ethereumEntries);
 
     const ids = entries.map(entry => entry.id) || [];
     // Pin data asynchronously
@@ -382,22 +382,20 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     return {
       entries,
-      lastTimestamp: hashesAndSizesMeta.lastBlockTimestamp,
+      lastTimestamp,
     };
   }
 
   /**
-   * Verify the hashes are present on IPFS with the corresponding size and add metadata
+   * Verify the hashes are present on IPFS for the corresponding ethereum entry
    * Filtered incorrect hashes
-   * @param hashesAndSizes Promises of hash and size from the smart contract
+   * @param ethereumEntries Ethereum entries from the smart contract
    * @returns Filtered list of dataId with metadata
    */
-  private async hashesAndSizesToEntries(
-    hashesAndSizesPromises: StorageTypes.IGetAllHashesAndSizes[],
+  private async EthereumEntriesToEntries(
+    ethereumEntries: StorageTypes.IEthereumEntry[],
   ): Promise<StorageTypes.IEntry[]> {
-    let hashesAndSizesToRetrieve = await Promise.all(hashesAndSizesPromises);
-
-    const totalCount: number = hashesAndSizesToRetrieve.length;
+    const totalCount: number = ethereumEntries.length;
     let successCount: number = 0;
     let successCountOnFirstTry: number = 0;
     let ipfsConnectionErrorCount: number = 0;
@@ -406,13 +404,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // Contains results from readHashOnIPFS function
     // We store hashAndSize in this array in order to know which hashes have not been found on IPFS
-    let entriesWithHashToRetry: Array<{
+    let entriesAndEthereumEntriesToRetry: Array<{
       entry: StorageTypes.IEntry | null;
-      hashToRetryAndSize: StorageTypes.IGetAllHashesAndSizes | null;
+      ethereumEntryToRetry: StorageTypes.IEthereumEntry | null;
     }>;
 
     // Contains hashes we retry to read on IPFS
-    let hashesAndSizesToRetry: StorageTypes.IGetAllHashesAndSizes[] = [];
+    let ethereumEntriesToRetry: StorageTypes.IEthereumEntry[] = [];
 
     // Final array of dataIds and meta
     const entries: StorageTypes.IEntry[] = [];
@@ -427,12 +425,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         this.logger.debug(`Retrying to read hashes on IPFS`, ['ipfs']);
       }
 
-      entriesWithHashToRetry = await Bluebird.map(
-        hashesAndSizesToRetrieve,
+      entriesAndEthereumEntriesToRetry = await Bluebird.map(
+        ethereumEntries,
         // Read hash on IPFS and retrieve content corresponding to the hash
         // Reject on error when no file is found on IPFS
         // or when the declared size doesn't correspond to the size of the content stored on ipfs
-        async (hashAndSize: StorageTypes.IGetAllHashesAndSizes, currentIndex: number) => {
+        async (hashAndSize: StorageTypes.IEthereumEntry, currentIndex: number) => {
           // Check if the event log is incorrect
           if (
             typeof hashAndSize.hash === 'undefined' ||
@@ -480,14 +478,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
 
               // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the hash
-              return { entry: null, hashToRetryAndSize: hashAndSize };
+              return { entry: null, ethereumEntryToRetry: hashAndSize };
             } else {
               this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
               incorrectFileCount++;
               this.logger.debug(`Incorrect file error: ${errorMessage}`, ['ipfs']);
 
               // No need to retry to find this hash
-              return { entry: null, hashToRetryAndSize: null };
+              return { entry: null, ethereumEntryToRetry: null };
             }
           }
 
@@ -500,7 +498,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             wrongFeesCount++;
 
             // No need to retry to find this hash
-            return { entry: null, hashToRetryAndSize: null };
+            return { entry: null, ethereumEntryToRetry: null };
           }
 
           // Get meta data from ethereum
@@ -516,7 +514,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               timestamp: ethereumMetadata.blockTimestamp,
             },
           };
-          return { entry, hashToRetryAndSize: null };
+          return { entry, ethereumEntryToRetry: null };
         },
         {
           concurrency: this.maxConcurrency,
@@ -525,17 +523,17 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
       // Store found hashes in entries
       // The hashes to retry to read are the hashes where readHashOnIPFS returned null
-      entriesWithHashToRetry.forEach(entryWithHashToRetry => {
-        if (entryWithHashToRetry.entry) {
-          entries.push(entryWithHashToRetry.entry);
-        } else if (entryWithHashToRetry.hashToRetryAndSize) {
-          hashesAndSizesToRetry.push(entryWithHashToRetry.hashToRetryAndSize);
+      entriesAndEthereumEntriesToRetry.forEach(({ entry, ethereumEntryToRetry }) => {
+        if (entry) {
+          entries.push(entry);
+        } else if (ethereumEntryToRetry) {
+          ethereumEntriesToRetry.push(ethereumEntryToRetry);
         }
       });
 
       // Put the remaining hashes to retrieved in the queue for the next retry
-      hashesAndSizesToRetrieve = hashesAndSizesToRetry;
-      hashesAndSizesToRetry = [];
+      ethereumEntries = ethereumEntriesToRetry;
+      ethereumEntriesToRetry = [];
 
       successCount = entries.length;
 

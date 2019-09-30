@@ -258,17 +258,17 @@ describe('SmartContractManager', () => {
         number: 9,
       };
     };
-    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum();
+    const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum();
 
-    assert.equal(allHashesAndSizes.length, 4);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
-    assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 4);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries[3].hash, otherContent);
+    assert.deepEqual(ethereumEntries[3].feesParameters, { contentSize: otherSize });
   });
 
   it('allows to get all hashes with options from', async () => {
@@ -289,13 +289,13 @@ describe('SmartContractManager', () => {
       };
     };
 
-    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum({
+    const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum({
       from: 299,
     });
 
-    assert.equal(allHashesAndSizes.length, 1);
-    assert.equal(allHashesAndSizes[0].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 1);
+    assert.equal(ethereumEntries[0].hash, otherContent);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: otherSize });
   });
 
   it('allows to get all hashes with options to', async () => {
@@ -309,16 +309,16 @@ describe('SmartContractManager', () => {
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
-    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum({
+    const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum({
       to: 299,
     });
-    assert.equal(allHashesAndSizes.length, 3);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 3);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
   });
 
   it('allows to get all hashes with options from and to', async () => {
@@ -332,15 +332,15 @@ describe('SmartContractManager', () => {
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
-    const { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum({
+    const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum({
       from: 10,
       to: 299,
     });
-    assert.equal(allHashesAndSizes.length, 2);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[1].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 2);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[1].hash, otherContent);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: otherSize });
   });
 
   it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
@@ -356,14 +356,14 @@ describe('SmartContractManager', () => {
     );
   });
 
-  it('getHashesAndSizesFromEthereum with a invalid host provider should throw a timeout error', async () => {
+  it('getEntriesFromEthereum with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
     smartContractManager.ethereumBlocks.retryDelay = 0;
     smartContractManager.ethereumBlocks.maxRetries = 0;
-    await assert.isRejected(smartContractManager.getHashesAndSizesFromEthereum(), Error);
+    await assert.isRejected(smartContractManager.getEntriesFromEthereum(), Error);
   });
 
-  it('getHashesAndSizesFromEthereum rejects if fromBlock is larger than toBlock', async () => {
+  it('getEntriesFromEthereum rejects if fromBlock is larger than toBlock', async () => {
     const mockBlocksEthereum = [7, 30, 45, 87, 100, 150, 209, 234, 290, 306];
     const mockEth = {
       getBlock: (i: number): any => {
@@ -375,7 +375,7 @@ describe('SmartContractManager', () => {
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     await assert.isRejected(
-      smartContractManager.getHashesAndSizesFromEthereum({
+      smartContractManager.getEntriesFromEthereum({
         from: 200,
         to: 10,
       }),
@@ -453,7 +453,7 @@ describe('SmartContractManager', () => {
   it('badly formatted events from web3 should throw an error', async () => {
     smartContractManager.requestHashStorage.getPastEvents = getBadEventsMock;
 
-    const allHashesPromise = smartContractManager.getHashesAndSizesFromEthereum();
+    const allHashesPromise = smartContractManager.getEntriesFromEthereum();
 
     await assert.isRejected(
       allHashesPromise,
@@ -475,17 +475,17 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration1, info);
 
-    let { data: allHashesAndSizes } = await smartContractManager.getHashesAndSizesFromEthereum();
+    let { ethereumEntries } = await smartContractManager.getEntriesFromEthereum();
 
-    assert.equal(allHashesAndSizes.length, 4);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
-    assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 4);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries[3].hash, otherContent);
+    assert.deepEqual(ethereumEntries[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -493,17 +493,17 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration2, info);
 
-    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
+    ethereumEntries = (await smartContractManager.getEntriesFromEthereum()).ethereumEntries;
 
-    assert.equal(allHashesAndSizes.length, 4);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
-    assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 4);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries[3].hash, otherContent);
+    assert.deepEqual(ethereumEntries[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -511,17 +511,17 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration3, info);
 
-    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
+    ethereumEntries = (await smartContractManager.getEntriesFromEthereum()).ethereumEntries;
 
-    assert.equal(allHashesAndSizes.length, 4);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
-    assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 4);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries[3].hash, otherContent);
+    assert.deepEqual(ethereumEntries[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -529,17 +529,17 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration4, info);
 
-    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
+    ethereumEntries = (await smartContractManager.getEntriesFromEthereum()).ethereumEntries;
 
-    assert.equal(allHashesAndSizes.length, 4);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
-    assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 4);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries[3].hash, otherContent);
+    assert.deepEqual(ethereumEntries[3].feesParameters, { contentSize: otherSize });
 
     smartContractManager.requestHashStorage.getPastEvents = (info: {
       event: string;
@@ -547,22 +547,22 @@ describe('SmartContractManager', () => {
       toBlock: number;
     }): Promise<any[]> => noMoreThan1000ResultsGetPastEventsMock(txPerBlockConfiguration5, info);
 
-    allHashesAndSizes = (await smartContractManager.getHashesAndSizesFromEthereum()).data;
+    ethereumEntries = (await smartContractManager.getEntriesFromEthereum()).ethereumEntries;
 
-    assert.equal(allHashesAndSizes.length, 4);
-    assert.equal(allHashesAndSizes[0].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[0].feesParameters, { contentSize: realSize });
-    assert.equal(allHashesAndSizes[1].hash, hashStr);
-    assert.deepEqual(allHashesAndSizes[1].feesParameters, { contentSize: fakeSize });
-    assert.equal(allHashesAndSizes[2].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[2].feesParameters, { contentSize: otherSize });
-    assert.equal(allHashesAndSizes[3].hash, otherContent);
-    assert.deepEqual(allHashesAndSizes[3].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries.length, 4);
+    assert.equal(ethereumEntries[0].hash, hashStr);
+    assert.deepEqual(ethereumEntries[0].feesParameters, { contentSize: realSize });
+    assert.equal(ethereumEntries[1].hash, hashStr);
+    assert.deepEqual(ethereumEntries[1].feesParameters, { contentSize: fakeSize });
+    assert.equal(ethereumEntries[2].hash, otherContent);
+    assert.deepEqual(ethereumEntries[2].feesParameters, { contentSize: otherSize });
+    assert.equal(ethereumEntries[3].hash, otherContent);
+    assert.deepEqual(ethereumEntries[3].feesParameters, { contentSize: otherSize });
   });
 
   it('cannot get hashes and sizes from events with incorrect toBlock option', async () => {
     await assert.isRejected(
-      smartContractManager.getHashesAndSizesFromEvents(0, 'incorrectBlockDescriber'),
+      smartContractManager.getEthereumEntriesFromEvents(0, 'incorrectBlockDescriber'),
       Error,
       `Cannot get the number of the block`,
     );
@@ -579,7 +579,7 @@ describe('SmartContractManager', () => {
     };
 
     await assert.isRejected(
-      smartContractManager.getHashesAndSizesFromEvents(0, 'pending'),
+      smartContractManager.getEthereumEntriesFromEvents(0, 'pending'),
       Error,
       `Block pending has no number`,
     );
@@ -600,10 +600,12 @@ describe('SmartContractManager', () => {
   });
 
   it('should throw an error if the web3 provider is not reachable or takes too long to respond', async () => {
-    smartContractManager.eth.net.isListening = () => new Promise(
-      (resolve, _reject): void => {
-        setTimeout(() => resolve(true), 20000);
-      });
+    smartContractManager.eth.net.isListening = () =>
+      new Promise(
+        (resolve, _reject): void => {
+          setTimeout(() => resolve(true), 20000);
+        },
+      );
 
     // Timeout is lower to not reach the mocha test timeout
     await assert.isRejected(
