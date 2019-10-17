@@ -162,7 +162,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('This extension have already been created');
+        }, 'must throw').to.throw('This extension has already been created');
       });
     });
 

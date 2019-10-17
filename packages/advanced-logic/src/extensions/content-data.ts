@@ -1,7 +1,4 @@
-import {
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
 
@@ -59,7 +56,7 @@ function applyActionToExtension(
   }
 
   if (requestState.extensions[ExtensionTypes.ID.CONTENT_DATA]) {
-    throw Error(`This extension have already been created`);
+    throw Error(`This extension has already been created`);
   }
 
   if (!extensionAction.parameters.content) {

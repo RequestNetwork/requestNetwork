@@ -49,6 +49,7 @@
           "ecies",
           "enum",
           "epk",
+          "erc20",
           "eslint",
           "eth",
           "etherchain",

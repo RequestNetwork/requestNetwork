@@ -180,7 +180,7 @@ function applyActionToExtension(
 
   if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
-      throw Error(`This extension have already been created`);
+      throw Error(`This extension has already been created`);
     }
 
     copiedExtensionState[extensionAction.id] = applyCreation(extensionAction, timestamp);

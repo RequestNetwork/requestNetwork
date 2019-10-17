@@ -1,12 +1,8 @@
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 const walletAddressValidator = require('wallet-address-validator');
 
-import BitcoinAddressBased from './address-based';
+import AddressBased from '../address-based';
 
 const BITCOIN_NETWORK = 'testnet';
 
@@ -17,7 +13,7 @@ const BITCOIN_NETWORK = 'testnet';
  * Every bitcoin transaction that reaches these addresses will be interpreted as payment or refund.
  * Important: the addresses must be exclusive to the request
  */
-const bitcoinAddressBasedManager: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased = {
+const bitcoinAddressBasedManager: ExtensionTypes.PnBitcoinAddressBased.IAddressBased = {
   applyActionToExtension,
   createAddPaymentAddressAction,
   createAddRefundAddressAction,
@@ -43,7 +39,7 @@ function createCreationAction(
     throw Error('refundAddress is not a valid bitcoin address');
   }
 
-  return BitcoinAddressBased.createCreationAction(
+  return AddressBased.createCreationAction(
     ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     creationParameters,
   );
@@ -66,7 +62,7 @@ function createAddPaymentAddressAction(
     throw Error('paymentAddress is not a valid bitcoin address');
   }
 
-  return BitcoinAddressBased.createAddPaymentAddressAction(
+  return AddressBased.createAddPaymentAddressAction(
     ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     addPaymentAddressParameters,
   );
@@ -89,7 +85,7 @@ function createAddRefundAddressAction(
     throw Error('refundAddress is not a valid bitcoin address');
   }
 
-  return BitcoinAddressBased.createAddRefundAddressAction(
+  return AddressBased.createAddRefundAddressAction(
     ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
     addRefundAddressParameters,
   );
@@ -113,7 +109,18 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  return BitcoinAddressBased.applyActionToExtension(
+  if (requestState.currency !== RequestLogicTypes.CURRENCY.BTC) {
+    throw Error(`This extension can be used only on BTC request`);
+  }
+
+  if (extensionAction.id !== ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
+    throw Error(
+      `This extension is not recognized by the BTC testnet address based payment network`,
+    );
+  }
+
+  return AddressBased.applyActionToExtension(
+    isValidAddress,
     extensionsState,
     extensionAction,
     requestState,
