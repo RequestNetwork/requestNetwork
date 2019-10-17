@@ -237,6 +237,8 @@ export enum CURRENCY {
   BTC = 'BTC',
   EUR = 'EUR',
   USD = 'USD',
+  // TODO: add full list of supported ERC20
+  DAI = 'DAI',
 }
 
 /** States of a request */
