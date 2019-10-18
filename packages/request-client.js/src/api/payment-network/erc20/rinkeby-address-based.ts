@@ -1,25 +1,27 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
 
-import BTCAddressBased from './address-based';
+import ERC20AddressBased from './address-based';
 
-const PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED =
-  ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED;
-const TESTNET_BITCOIN_NETWORK_ID = 3;
+const PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED =
+  ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED;
+const RINKEBY_NETWORK_ID = 4;
 
 /**
- * Handle payment networks with testnet BTC based address extension
+ * Handle payment networks with rinkeby testnet ERC20 based address extension
  *
- * @class PaymentNetworkBTCAddressBased
+ * @class PaymentNetworkERC20AddressBased
  */
-export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetwork {
-  private btcAddressBased: BTCAddressBased;
+export default class PaymentNetworkErc20RinkebyAddressBased implements Types.IPaymentNetwork {
+  private erc20AddressBased: ERC20AddressBased;
 
   /**
    * @param advancedLogic Instance of Advanced Logic layer, to get the extension
    */
   public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
-    this.btcAddressBased = new BTCAddressBased(advancedLogic.extensions.addressBasedTestnetBtc);
+    this.erc20AddressBased = new ERC20AddressBased(
+      advancedLogic.extensions.addressBasedRinkebyErc20,
+    );
   }
 
   /**
@@ -30,9 +32,9 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
   ): ExtensionTypes.IAction {
-    return this.btcAddressBased.createExtensionsDataForCreation(paymentNetworkCreationParameters);
+    return this.erc20AddressBased.createExtensionsDataForCreation(paymentNetworkCreationParameters);
   }
 
   /**
@@ -43,9 +45,9 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this.btcAddressBased.createExtensionsDataForAddPaymentInformation(parameters);
+    return this.erc20AddressBased.createExtensionsDataForAddPaymentInformation(parameters);
   }
 
   /**
@@ -56,22 +58,22 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this.btcAddressBased.createExtensionsDataForAddRefundInformation(parameters);
+    return this.erc20AddressBased.createExtensionsDataForAddRefundInformation(parameters);
   }
 
   /**
    * Gets the balance and the payment/refund events
    *
-   * @param the request to check
+   * @param request The request to check
    * @returns the balance and the payment/refund events
    */
   public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
-    return this.btcAddressBased.getBalance(
+    return this.erc20AddressBased.getBalance(
       request,
-      PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
-      TESTNET_BITCOIN_NETWORK_ID,
+      PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+      RINKEBY_NETWORK_ID,
     );
   }
 }

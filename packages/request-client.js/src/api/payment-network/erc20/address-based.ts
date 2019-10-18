@@ -1,21 +1,19 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
-import BitcoinInfoRetriever from './bitcoin-info-retriever';
+
 const bigNumber: any = require('bn.js');
 
 /**
- * Handle payment networks with BTC based address extension
+ * Handle payment networks with ERC20 based address extension
  */
-export default class PaymentNetworkBTCAddressBased {
-  private extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased;
-  private bitcoinInfoRetriever: BitcoinInfoRetriever;
+export default class PaymentNetworkERC20AddressBased {
+  private extension: ExtensionTypes.PnAddressBased.IAddressBased;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased) {
+  public constructor(extension: ExtensionTypes.PnAddressBased.IAddressBased) {
     this.extension = extension;
-    this.bitcoinInfoRetriever = new BitcoinInfoRetriever();
   }
 
   /**
@@ -25,7 +23,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -36,11 +34,11 @@ export default class PaymentNetworkBTCAddressBased {
   /**
    * Creates the extensions data to add payment address
    *
-   * @param Parameters to add payment information
+   * @param parameters to add payment information
    * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
@@ -54,7 +52,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
@@ -66,7 +64,7 @@ export default class PaymentNetworkBTCAddressBased {
    *
    * @param request the request to check
    * @param paymentNetworkId payment network id
-   * @param networkId bitcoin network id
+   * @param networkId ethereum network id
    * @returns the balance and the payment/refund events
    */
   public async getBalance(
@@ -98,7 +96,7 @@ export default class PaymentNetworkBTCAddressBased {
       );
     }
 
-    const balance: string = new bigNumber(new bigNumber(payments.balance || 0))
+    const balance: string = new bigNumber(payments.balance || 0)
       .sub(new bigNumber(refunds.balance || 0))
       .toString();
 
@@ -114,7 +112,7 @@ export default class PaymentNetworkBTCAddressBased {
   }
 
   /**
-   * Extracts the balance and events of an address
+   * TODO: Extracts the balance and events of an address
    *
    * @private
    * @param address Address to check
@@ -122,10 +120,14 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The balance
    */
   private async extractBalanceAndEvents(
-    address: string,
-    eventName: Types.EVENTS_NAMES,
-    networkId: number,
+    _address: string,
+    _eventName: Types.EVENTS_NAMES,
+    _networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
-    return this.bitcoinInfoRetriever.getAddressInfo(networkId, address, eventName);
+    // TODO
+    return {
+      balance: '0',
+      events: [],
+    };
   }
 }

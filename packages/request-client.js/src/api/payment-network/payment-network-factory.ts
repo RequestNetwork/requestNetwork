@@ -1,12 +1,10 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../types';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
+import ERC20AddressBased from './erc20/mainnet-address-based';
+import RinkebyERC20AddressBased from './erc20/rinkeby-address-based';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
@@ -15,6 +13,11 @@ const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
     [ExtensionTypes.ID
       .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
     [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+  },
+  DAI: {
+    [ExtensionTypes.ID
+      .PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED as string]: RinkebyERC20AddressBased,
+    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
   },
   any: {
     [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
@@ -44,7 +47,7 @@ export default class PaymentNetworkFactory {
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
         `the payment network id: ${
-        paymentNetworkCreationParameters.id
+          paymentNetworkCreationParameters.id
         } is not supported for the currency: ${currency}`,
       );
     }
