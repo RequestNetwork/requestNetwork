@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.4.3...@requestnetwork/advanced-logic@0.5.0) (2019-10-21)
+
+
+### Features
+
+* add ERC20 payment network ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([8d820d4](https://github.com/RequestNetwork/requestNetwork/commit/8d820d4))
+
+
+
+
+
+
 ## [0.4.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.4.2...@requestnetwork/advanced-logic@0.4.3) (2019-09-16)
 
 **Note:** Version bump only for package @requestnetwork/advanced-logic

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.5.0...@requestnetwork/data-access@0.5.1) (2019-10-21)
+
+
+### Bug Fixes
+
+* **data-access:** Some blocks read twice during synchronization ([653fe64](https://github.com/RequestNetwork/requestNetwork/commit/653fe64))
+
+
+
+
+
+
 # [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.4.2...@requestnetwork/data-access@0.5.0) (2019-09-16)
 
 
