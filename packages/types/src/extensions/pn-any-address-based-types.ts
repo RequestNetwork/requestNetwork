@@ -1,7 +1,7 @@
 import * as Extension from '../extension-types';
 
 /** Manager of the extension */
-export interface IBitcoinAddressBased extends Extension.IExtension {
+export interface IAddressBased extends Extension.IExtension {
   createAddPaymentAddressAction: (
     creationParameters: IAddPaymentAddressParameters,
   ) => Extension.IAction;

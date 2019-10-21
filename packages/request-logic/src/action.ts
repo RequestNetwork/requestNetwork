@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Semver from 'semver';
@@ -124,7 +125,7 @@ function getVersionFromAction(action: RequestLogicTypes.IAction): string {
 function getActionHash(action: RequestLogicTypes.IAction): string {
   // Before the version 2.0.0, the hash was computed without the signature
   if (Semver.lte(action.data.version, '2.0.0')) {
-    return Utils.crypto.normalizeKeccak256Hash(action.data);
+    return MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action.data));
   }
-  return Utils.crypto.normalizeKeccak256Hash(action);
+  return MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
 }

@@ -153,17 +153,41 @@ export default class SmartContractManager {
   }
 
   /**
-   * Check if the ethereum node is accessible
-   * @return Promise resolving if the node is accessible, throw otherwise
+   * Check if the web3 provider is accessible
+   * @param timeout Time to wait before considering the provider is not reachable
+   * @return Promise resolving if the web3 provider is accessible, throw otherwise
    */
-  public async checkEthereumNodeConnection(): Promise<void> {
-    try {
-      if (!(await this.eth.net.isListening())) {
-        throw Error('Node not listening');
-      }
-    } catch (error) {
-      throw Error(`Ethereum node is not reachable: ${error}`);
-    }
+  public async checkWeb3ProviderConnection(timeout: number): Promise<void> {
+    return new Promise(
+      (resolve, reject): void => {
+        const connectionTimer: any = setTimeout(() => {
+          reject(
+            Error(
+              'The Web3 provider is not reachable, did you use the correct protocol (http/https)?',
+            ),
+          );
+        }, timeout);
+
+        this.eth.net
+          .isListening()
+          .then((isListening: boolean) => {
+            // The timeout must be disabled
+            clearTimeout(connectionTimer);
+
+            if (isListening) {
+              resolve();
+            } else {
+              reject(Error('The Web3 provider is not listening'));
+            }
+          })
+          .catch((error: Error) => {
+            // The timeout must be disabled
+            clearTimeout(connectionTimer);
+
+            reject(Error(`Error when trying to reach Web3 provider: ${error}`));
+          });
+      },
+    );
   }
 
   /**
@@ -317,19 +341,14 @@ export default class SmartContractManager {
   }
 
   /**
-   * Get all hashes with feesParameters and timestamps from storage smart contract past events
+   * Get all entries from storage smart contract past events
    *
    * @param options timestamp boundaries for the hash retrieval
    * @return hashes with with metadata
    */
-  public async getHashesAndSizesFromEthereum(
+  public async getEntriesFromEthereum(
     options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<
-    StorageTypes.IResponseWithMeta<
-      StorageTypes.IEthereumTimestampMeta,
-      StorageTypes.IGetAllHashesAndSizes[]
-    >
-  > {
+  ): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> {
     let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
 
@@ -363,13 +382,11 @@ export default class SmartContractManager {
     // We need to return this value, so the upper layers can use as "last sync time".
     // Using now as "last sync time" will lead to issues, because new blocks can be
     // added between the last block created and now.
-    const lastBlockTimestamp = await this.ethereumBlocks.getBlockTimestamp(toBlock);
+    const lastTimestamp = await this.ethereumBlocks.getBlockTimestamp(toBlock);
 
     return {
-      data: await this.getHashesAndSizesFromEvents(fromBlock, toBlock),
-      meta: {
-        lastBlockTimestamp,
-      },
+      ethereumEntries: await this.getEthereumEntriesFromEvents(fromBlock, toBlock),
+      lastTimestamp,
     };
   }
 
@@ -380,10 +397,10 @@ export default class SmartContractManager {
    * @param toBlock number of the block to stop to get events
    * @return Hashes and sizes with metadata
    */
-  public async getHashesAndSizesFromEvents(
+  public async getEthereumEntriesFromEvents(
     fromBlock: number,
     toBlock?: number | string,
-  ): Promise<any[]> {
+  ): Promise<StorageTypes.IEthereumEntry[]> {
     fromBlock =
       fromBlock < this.creationBlockNumberHashStorage
         ? this.creationBlockNumberHashStorage
@@ -393,7 +410,7 @@ export default class SmartContractManager {
     // Read all event logs
     let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
 
-    this.logger.debug(`${events.length} events fetched in getHashesAndSizesFromEvents`, [
+    this.logger.debug(`${events.length} events fetched in getEthereumEntriesFromEvents`, [
       'ethereum',
     ]);
 
@@ -477,13 +494,7 @@ export default class SmartContractManager {
    * @param event event of type NewHash
    * @returns processed event
    */
-  private async checkAndAddMetaDataToEvent(
-    event: any,
-  ): Promise<{
-    hash: string;
-    meta: StorageTypes.IEthereumMetadata;
-    feesParameters: StorageTypes.IFeesParameters;
-  }> {
+  private async checkAndAddMetaDataToEvent(event: any): Promise<StorageTypes.IEthereumEntry> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
     // because you can add empty string as hash or 0 as size in the storage smart contract

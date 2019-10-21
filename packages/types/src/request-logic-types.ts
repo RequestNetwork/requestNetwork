@@ -10,13 +10,13 @@ export interface IRequestLogic {
   createRequest: (
     requestParameters: ICreateParameters,
     signerIdentity: Identity.IIdentity,
-    indexes: string[],
+    topics: any[],
   ) => Promise<IReturnCreateRequest>;
   createEncryptedRequest: (
     requestParameters: ICreateParameters,
     signerIdentity: Identity.IIdentity,
     encryptionParams: Encryption.IEncryptionParameters[],
-    indexes: string[],
+    topics: any[],
   ) => Promise<IReturnCreateRequest>;
   computeRequestId: (
     requestParameters: ICreateParameters,
@@ -44,11 +44,11 @@ export interface IRequestLogic {
   ) => Promise<IRequestLogicReturn>;
   getRequestFromId: (topic: string) => Promise<IReturnGetRequestFromId>;
   getRequestsByTopic: (
-    topic: string,
+    topic: any,
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetRequestsByTopic>;
   getRequestsByMultipleTopics: (
-    topics: string[],
+    topics: any[],
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetRequestsByTopic>;
 }
@@ -237,6 +237,8 @@ export enum CURRENCY {
   BTC = 'BTC',
   EUR = 'EUR',
   USD = 'USD',
+  // TODO: add full list of supported ERC20
+  DAI = 'DAI',
 }
 
 /** States of a request */

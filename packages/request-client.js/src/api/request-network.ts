@@ -10,6 +10,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
+import { IEncryptionParameters } from '@requestnetwork/types/dist/encryption-types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -55,6 +56,38 @@ export default class RequestNetwork {
     const {
       result: { requestId },
     } = await this.requestLogic.createRequest(requestParameters, parameters.signer, topics);
+
+    // create the request object
+    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+
+    // refresh the local request data
+    await request.refresh();
+
+    return request;
+  }
+
+  /**
+   * Creates an encrypted request.
+   *
+   * @param parameters Parameters to create a request
+   * @param encryptionParams Request encryption parameters
+   * @returns The created encrypted request
+   */
+  public async _createEncryptedRequest(
+    parameters: Types.ICreateRequestParameters,
+    encryptionParams: IEncryptionParameters[],
+  ): Promise<Request> {
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
+    const {
+      result: { requestId },
+    } = await this.requestLogic.createEncryptedRequest(
+      requestParameters,
+      parameters.signer,
+      encryptionParams,
+      topics,
+    );
 
     // create the request object
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
@@ -158,7 +191,7 @@ export default class RequestNetwork {
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
-      Utils.crypto.normalizeKeccak256Hash(topic),
+      topic,
       updatedBetween,
     );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
@@ -200,7 +233,7 @@ export default class RequestNetwork {
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
-      topics.map(Utils.crypto.normalizeKeccak256Hash),
+      topics,
       updatedBetween,
     );
 
@@ -245,7 +278,7 @@ export default class RequestNetwork {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
-    let topics = parameters.topics || [];
+    const topics = parameters.topics || [];
 
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');
@@ -287,9 +320,6 @@ export default class RequestNetwork {
     if (copiedRequestParameters.payer) {
       topics.push(copiedRequestParameters.payer);
     }
-
-    // format all the topics
-    topics = topics.map(Utils.crypto.normalizeKeccak256Hash);
 
     return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
   }

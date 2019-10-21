@@ -5,6 +5,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import TransactionsFactory from '../../src/transactions-factory';
@@ -52,14 +53,14 @@ describe('transaction-factory', () => {
       );
 
       expect(encryptedTx.hash, 'hash not right').to.deep.equal(
-        Utils.crypto.normalizeKeccak256Hash(JSON.parse(data)),
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
       );
 
       expect(Object.keys(encryptedTx.keys || {}).length, 'keys not right').to.deep.equal(3);
       expect(Object.keys(encryptedTx.keys || {}), 'keys not right').to.deep.equal([
-        Utils.multiFormat.formatIdentityEthereumAddress(TestData.idRaw1.identity.value),
-        Utils.multiFormat.formatIdentityEthereumAddress(TestData.idRaw2.identity.value),
-        Utils.multiFormat.formatIdentityEthereumAddress(TestData.idRaw3.identity.value),
+        MultiFormat.serialize(TestData.idRaw1.identity),
+        MultiFormat.serialize(TestData.idRaw2.identity),
+        MultiFormat.serialize(TestData.idRaw3.identity),
       ]);
 
       expect(
@@ -119,8 +120,8 @@ describe('transaction-factory', () => {
 
       expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.be.undefined;
 
-      expect(encryptedTx.hash, 'hash not right').to.deep.equal(
-        Utils.crypto.normalizeKeccak256Hash(JSON.parse(data)),
+      expect(encryptedTx.hash, 'hash not right').to.equal(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
       );
 
       expect(encryptedTx.keys, 'keys not right').to.be.undefined;

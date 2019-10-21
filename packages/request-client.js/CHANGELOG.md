@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.7.0...@requestnetwork/request-client.js@0.8.0) (2019-10-21)
+
+
+### Features
+
+* add ERC20 payment network ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([8d820d4](https://github.com/RequestNetwork/requestNetwork/commit/8d820d4))
+* add ERC20 paymentNetwork to request-client ([#569](https://github.com/RequestNetwork/requestNetwork/issues/569)) ([21ebc48](https://github.com/RequestNetwork/requestNetwork/commit/21ebc48))
+* create encrypted request through request-client.js ([#536](https://github.com/RequestNetwork/requestNetwork/issues/536)) ([35678dd](https://github.com/RequestNetwork/requestNetwork/commit/35678dd))
+
+
+
+
+
+
 # [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.6.0...@requestnetwork/request-client.js@0.7.0) (2019-09-16)
 
 

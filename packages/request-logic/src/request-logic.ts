@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   AdvancedLogicTypes,
   EncryptionTypes,
@@ -39,17 +40,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async createRequest(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    topics: string[] = [],
+    topics: any[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
-    const { action, requestId } = await this.createCreationActionAndRequestId(
+    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
       requestParameters,
       signerIdentity,
+      topics,
     );
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
-      topics,
+      hashedTopics,
     );
     return {
       meta: { transactionManagerMeta: resultPersistTx.meta },
@@ -71,17 +73,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
-    topics: string[] = [],
+    topics: any[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
-    const { action, requestId } = await this.createCreationActionAndRequestId(
+    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
       requestParameters,
       signerIdentity,
+      topics,
     );
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
-      topics,
+      hashedTopics,
       encryptionParams,
     );
     return {
@@ -339,8 +342,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     topic: string,
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
+    // hash all the topics
+    const hashedTopic = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic));
+
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
-      topic,
+      hashedTopic,
       updatedBetween,
     );
     return this.computeMultipleRequestFromChannels(getChannelsResult);
@@ -356,8 +362,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     topics: string[],
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
+    // hash all the topics
+    const hashedTopics = topics.map(topic =>
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+    );
+
     const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
-      topics,
+      hashedTopics,
       updatedBetween,
     );
     return this.computeMultipleRequestFromChannels(getChannelsResult);
@@ -369,12 +380,17 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param requestParameters parameters to create a request
    * @param signerIdentity Identity of the signer
    *
-   * @returns the request id and the action
+   * @returns the request id, the action and the hashed topics
    */
-  private async createCreationActionAndRequestId(
+  private async createCreationActionRequestIdAndTopics(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<{ action: RequestLogicTypes.IAction; requestId: RequestLogicTypes.RequestId }> {
+    topics: any[],
+  ): Promise<{
+    action: RequestLogicTypes.IAction;
+    hashedTopics: string[];
+    requestId: RequestLogicTypes.RequestId;
+  }> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -386,8 +402,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
+    // hash all the topics
+    const hashedTopics = topics.map(topic =>
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+    );
+
     return {
       action,
+      hashedTopics,
       requestId,
     };
   }

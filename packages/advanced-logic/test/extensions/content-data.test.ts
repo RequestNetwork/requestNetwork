@@ -47,7 +47,7 @@ describe('content-data', () => {
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         ),
-      ).to.throw('This extension have already been created');
+      ).to.throw('This extension has already been created');
     });
 
     it('cannot create state if action parameters do not have content', () => {

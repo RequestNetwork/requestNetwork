@@ -3,17 +3,15 @@ const bigNumber: any = require('bn.js');
 /** Interface of the storage */
 export interface IStorage {
   initialize: () => Promise<void>;
-  append: (data: string) => Promise<IOneDataIdAndMeta>;
-  read: (dataId: string) => Promise<IOneContentAndMeta>;
-  readMany: (dataIds: string[]) => Promise<IOneContentAndMeta[]>;
-  getData: (options?: ITimestampBoundaries) => Promise<IGetContentAndDataId>;
-  getDataId: (options?: ITimestampBoundaries) => Promise<IGetDataIdReturn>;
+  append: (data: string) => Promise<IEntry>;
+  read: (dataId: string) => Promise<IEntry>;
+  readMany: (dataIds: string[]) => Promise<IEntry[]>;
+  getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
 }
 
-/** A template interface for return values with data and metadata */
-export interface IResponseWithMeta<META, DATA> {
+/** An extensible template that declares a generic meta */
+export interface IWithMeta<META> {
   meta: META;
-  data: DATA;
 }
 
 /** Restrict the get data research to two timestamp */
@@ -22,122 +20,20 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
-/** Restrict the get data research to two timestamp */
-export interface ITimestampBoundaries {
-  from?: number;
-  to?: number;
+/** One entry on the storage layer */
+export interface IEntry extends IWithMeta<IEntryMetadata> {
+  id: string;
+  content: string;
 }
 
-/** return interface for append  */
-export interface IOneDataIdAndMeta {
-  /** meta information */
-  meta: IMetaOneData;
-  /** result of the execution */
-  result: {
-    /** data id of the data persisted */
-    dataId: string;
-  };
-}
-
-/** return interface for read  */
-export interface IOneContentAndMeta {
-  /** meta information */
-  meta: IMetaOneData;
-  /** result of the execution */
-  result: {
-    /** the data itself */
-    content: string;
-  };
-}
-
-/** return interface for read  */
-export interface IOneDataIdContentAndMeta {
-  /** meta information */
-  meta: IMetaOneData;
-  /** result of the execution */
-  result: {
-    /** data id of the data persisted */
-    dataId: string;
-    /** the data itself */
-    data: string;
-  };
-}
-
-/** return interface for array return */
-export interface IGetDataIdReturn {
-  /** meta information */
-  meta: {
-    /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaData: IMetaOneData[];
-  };
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-  };
-}
-
-/** return interface for array return */
-export interface IGetNewDataIdReturn {
-  /** meta information */
-  meta: {
-    /** meta of the dataIds (follow the position of the result.dataIds) */
-    metaDataIds: IMetaOneData[];
-  };
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-  };
-}
-
-/** return interface for array return */
-export interface IGetDataReturn {
-  /** meta information */
-  meta: {
-    /** meta of the data (follow the position of the result.data) */
-    metaData: IMetaOneData[];
-  };
-  result: {
-    /** array of all data stored */
-    data: string[];
-  };
-}
-
-/** return interface for read  */
-export interface IGetDataIdContentAndMeta {
-  /** meta information */
-  meta: {
-    /** meta of the data (follow the position of the result.data) */
-    metaData: IMetaOneData[];
-  };
-  /** result of the execution */
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-    /** array of all data stored */
-    data: string[];
-  };
-}
-
-/** return interface for GetContentAndDataId */
-export interface IGetContentAndDataId {
-  /** meta information */
-  meta: {
-    /** meta of the data (follow the position of the result.data) */
-    metaData: IMetaOneData[];
-    /** the timestamp of the last block this data belongs to */
-    lastTimestamp: number;
-  };
-  /** result of the execution */
-  result: {
-    /** array of all data id stored */
-    dataIds: string[];
-    /** array of all data stored */
-    data: string[];
-  };
+/** A list of entries with the last timestamp these entries were fetched from */
+export interface IEntriesWithLastTimestamp {
+  entries: IEntry[];
+  lastTimestamp: number;
 }
 
 /** return interface for the meta of one piece of data in the storage */
-export interface IMetaOneData {
+export interface IEntryMetadata {
   /** Storage type for now only ethereum + ipfs */
   storageType?: StorageSystemType;
   /** meta about ethereum smart contract */
@@ -151,22 +47,19 @@ export interface IMetaOneData {
   timestamp: number;
 }
 
-/** return interface for getAllHashesAndSizes() */
-export interface IGetAllHashesAndSizes {
-  /** meta information */
-  meta: IEthereumMetadata;
+/** One entry on the ethereum smart contract */
+export interface IEthereumEntry extends IWithMeta<IEthereumMetadata> {
   /** data id of the persisted data */
   hash: string;
   /** parameters used to compute fees */
   feesParameters: IFeesParameters;
-  /** timestamp of the data */
-  timestamp: number;
 }
 
-/** Metadata about Ethereum block timestamp */
-export interface IEthereumTimestampMeta {
+/** A list of ethereum entries with the last block timestamp these entries were fetched from */
+export interface IEthereumEntriesWithLastTimestamp {
+  ethereumEntries: IEthereumEntry[];
   /** the timestamp of the last block this data belongs to */
-  lastBlockTimestamp: number;
+  lastTimestamp: number;
 }
 
 /** Parameters used to compute the fees */

@@ -9,6 +9,7 @@ import IpfsConnectionError from '../../src/lib/ipfs-connection-error';
 
 import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
 import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+import { IEthereumEntriesWithLastTimestamp } from '@requestnetwork/types/src/storage-types';
 
 // tslint:disable:no-magic-numbers
 
@@ -139,9 +140,6 @@ describe('EthereumStorage', () => {
         ipfsGatewayConnection,
         web3Connection,
       );
-      await expect(ethereumStorageNotInitialized.getDataId()).to.eventually.rejectedWith(
-        'Ethereum storage must be initialized',
-      );
       await expect(ethereumStorageNotInitialized.getData()).to.eventually.rejectedWith(
         'Ethereum storage must be initialized',
       );
@@ -183,7 +181,7 @@ describe('EthereumStorage', () => {
         invalidHostWeb3Connection,
       );
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: ""',
+        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
       );
     });
 
@@ -193,10 +191,10 @@ describe('EthereumStorage', () => {
         web3Connection,
       );
 
-      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = () => false;
+      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = async () => false;
 
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Node not listening',
+        'Ethereum node is not accessible: Error: The Web3 provider is not listening',
       );
     });
     it('cannot initialize if contracts are not deployed', async () => {
@@ -224,7 +222,7 @@ describe('EthereumStorage', () => {
     });
   });
 
-  describe('append/read/getDataId/getData', () => {
+  describe('append/read/getData', () => {
     beforeEach(async () => {
       ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
       await ethereumStorage.initialize();
@@ -259,7 +257,9 @@ describe('EthereumStorage', () => {
         return;
       }
 
-      const resultExpected: StorageTypes.IOneDataIdAndMeta = {
+      const resultExpected: StorageTypes.IEntry = {
+        content: content1,
+        id: hash1,
         meta: {
           ethereum: {
             blockConfirmation: 10,
@@ -278,7 +278,6 @@ describe('EthereumStorage', () => {
           storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
           timestamp: 1545816416,
         },
-        result: { dataId: hash1 },
       };
       assert.deepEqual(result, resultExpected);
     });
@@ -360,7 +359,7 @@ describe('EthereumStorage', () => {
         return;
       }
 
-      assert.deepEqual(result.result, { content: content1 });
+      assert.deepEqual(result.content, content1);
       assert.deepEqual(result.meta.ipfs, {
         size: realSize1,
       });
@@ -403,61 +402,61 @@ describe('EthereumStorage', () => {
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
       await ethereumStorage.append(content2);
-      const result = await ethereumStorage.getDataId();
+      const { entries } = await ethereumStorage.getData();
 
-      if (!result.meta.metaData[0].ethereum) {
-        assert.fail('result.meta.metaData[0].ethereum does not exist');
+      if (!entries[0].meta.ethereum) {
+        assert.fail('entries[0].meta.ethereum does not exist');
         return;
       }
-      assert.deepEqual(result.meta.metaData[0].ipfs, {
+      assert.deepEqual(entries[0].meta.ipfs, {
         size: realSize1,
       });
-      assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.equal(result.meta.metaData[0].ethereum.networkName, 'private');
+      assert.equal(entries[0].meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.equal(entries[0].meta.ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaData[0].ethereum.smartContractAddress,
+        entries[0].meta.ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.isAtLeast(result.meta.metaData[0].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaData[0].ethereum.blockTimestamp);
+      assert.equal(entries[0].meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.isAtLeast(entries[0].meta.ethereum.blockConfirmation, 1);
+      assert.exists(entries[0].meta.ethereum.blockTimestamp);
 
-      if (!result.meta.metaData[1].ethereum) {
-        assert.fail('result.meta.metaData[1].ethereum does not exist');
+      if (!entries[1].meta.ethereum) {
+        assert.fail('entries[1].meta.ethereum does not exist');
         return;
       }
-      assert.deepEqual(result.meta.metaData[1].ipfs, {
+      assert.deepEqual(entries[1].meta.ipfs, {
         size: realSize1,
       });
-      assert.equal(result.meta.metaData[1].ethereum.blockNumber, pastEventsMock[1].blockNumber);
-      assert.equal(result.meta.metaData[1].ethereum.networkName, 'private');
+      assert.equal(entries[1].meta.ethereum.blockNumber, pastEventsMock[1].blockNumber);
+      assert.equal(entries[1].meta.ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaData[1].ethereum.smartContractAddress,
+        entries[1].meta.ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaData[1].ethereum.blockNumber, pastEventsMock[1].blockNumber);
-      assert.isAtLeast(result.meta.metaData[1].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaData[1].ethereum.blockTimestamp);
+      assert.equal(entries[1].meta.ethereum.blockNumber, pastEventsMock[1].blockNumber);
+      assert.isAtLeast(entries[1].meta.ethereum.blockConfirmation, 1);
+      assert.exists(entries[1].meta.ethereum.blockTimestamp);
 
-      if (!result.meta.metaData[2].ethereum) {
-        assert.fail('result.meta.metaData[2].ethereum does not exist');
+      if (!entries[2].meta.ethereum) {
+        assert.fail('entries[2].meta.ethereum does not exist');
         return;
       }
 
-      assert.deepEqual(result.meta.metaData[2].ipfs, {
+      assert.deepEqual(entries[2].meta.ipfs, {
         size: realSize2,
       });
-      assert.equal(result.meta.metaData[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-      assert.equal(result.meta.metaData[2].ethereum.networkName, 'private');
+      assert.equal(entries[2].meta.ethereum.blockNumber, pastEventsMock[2].blockNumber);
+      assert.equal(entries[2].meta.ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaData[2].ethereum.smartContractAddress,
+        entries[2].meta.ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaData[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-      assert.isAtLeast(result.meta.metaData[2].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaData[2].ethereum.blockTimestamp);
+      assert.equal(entries[2].meta.ethereum.blockNumber, pastEventsMock[2].blockNumber);
+      assert.isAtLeast(entries[2].meta.ethereum.blockConfirmation, 1);
+      assert.exists(entries[2].meta.ethereum.blockTimestamp);
 
-      assert.deepEqual(result.result, { dataIds: [hash1, hash1, hash2] });
+      assert.deepEqual(entries.map(({ id }) => id), [hash1, hash1, hash2]);
     });
 
     it('allows to retrieve all data', async () => {
@@ -468,74 +467,72 @@ describe('EthereumStorage', () => {
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
       await ethereumStorage.append(content2);
-      const result = await ethereumStorage.getData();
+      const { entries } = await ethereumStorage.getData();
 
-      if (!result.meta.metaData[0].ethereum) {
-        assert.fail('result.meta.metaData[0].ethereum does not exist');
+      if (!entries[0].meta.ethereum) {
+        assert.fail('entries[0].meta.ethereum does not exist');
         return;
       }
-      assert.deepEqual(result.meta.metaData[0].ipfs, {
+      assert.deepEqual(entries[0].meta.ipfs, {
         size: realSize1,
       });
-      assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.equal(result.meta.metaData[0].ethereum.networkName, 'private');
+      assert.equal(entries[0].meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.equal(entries[0].meta.ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaData[0].ethereum.smartContractAddress,
+        entries[0].meta.ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaData[0].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.isAtLeast(result.meta.metaData[0].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaData[0].ethereum.blockTimestamp);
+      assert.equal(entries[0].meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.isAtLeast(entries[0].meta.ethereum.blockConfirmation, 1);
+      assert.exists(entries[0].meta.ethereum.blockTimestamp);
 
-      if (!result.meta.metaData[1].ethereum) {
-        assert.fail('result.meta.metaData[1].ethereum does not exist');
+      if (!entries[1].meta.ethereum) {
+        assert.fail('entries[1].meta.ethereum does not exist');
         return;
       }
-      assert.deepEqual(result.meta.metaData[1].ipfs, {
+      assert.deepEqual(entries[1].meta.ipfs, {
         size: realSize1,
       });
-      assert.equal(result.meta.metaData[1].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.equal(result.meta.metaData[1].ethereum.networkName, 'private');
+      assert.equal(entries[1].meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.equal(entries[1].meta.ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaData[1].ethereum.smartContractAddress,
+        entries[1].meta.ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaData[1].ethereum.blockNumber, pastEventsMock[0].blockNumber);
-      assert.isAtLeast(result.meta.metaData[1].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaData[1].ethereum.blockTimestamp);
+      assert.equal(entries[1].meta.ethereum.blockNumber, pastEventsMock[0].blockNumber);
+      assert.isAtLeast(entries[1].meta.ethereum.blockConfirmation, 1);
+      assert.exists(entries[1].meta.ethereum.blockTimestamp);
 
-      if (!result.meta.metaData[2].ethereum) {
-        assert.fail('result.meta.metaData[2].ethereum does not exist');
+      if (!entries[2].meta.ethereum) {
+        assert.fail('entries[2].meta.ethereum does not exist');
         return;
       }
-      assert.deepEqual(result.meta.metaData[2].ipfs, {
+      assert.deepEqual(entries[2].meta.ipfs, {
         size: realSize2,
       });
-      assert.equal(result.meta.metaData[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-      assert.equal(result.meta.metaData[2].ethereum.networkName, 'private');
+      assert.equal(entries[2].meta.ethereum.blockNumber, pastEventsMock[2].blockNumber);
+      assert.equal(entries[2].meta.ethereum.networkName, 'private');
       assert.equal(
-        result.meta.metaData[2].ethereum.smartContractAddress,
+        entries[2].meta.ethereum.smartContractAddress,
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      assert.equal(result.meta.metaData[2].ethereum.blockNumber, pastEventsMock[2].blockNumber);
-      assert.isAtLeast(result.meta.metaData[2].ethereum.blockConfirmation, 1);
-      assert.exists(result.meta.metaData[2].ethereum.blockTimestamp);
+      assert.equal(entries[2].meta.ethereum.blockNumber, pastEventsMock[2].blockNumber);
+      assert.isAtLeast(entries[2].meta.ethereum.blockConfirmation, 1);
+      assert.exists(entries[2].meta.ethereum.blockTimestamp);
 
-      assert.deepEqual(result.result, {
-        data: [content1, content1, content2],
-        dataIds: [hash1, hash1, hash2],
-      });
+      assert.deepEqual(entries.map(({ content }) => content), [content1, content1, content2]);
+      assert.deepEqual(entries.map(({ id }) => id), [hash1, hash1, hash2]);
     });
 
     it('doest get meta data if the fees are too low', async () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = async (): Promise<
-        any
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<
+        IEthereumEntriesWithLastTimestamp
       > => {
         return {
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 1 },
               hash: hash1,
@@ -547,17 +544,14 @@ describe('EthereumStorage', () => {
                 smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
                 transactionHash: '0xa',
               },
-              timestamp: 1,
             },
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         };
       };
 
       const result = await ethereumStorage.getData();
-      expect(result.result.data.length).to.equal(0);
+      expect(result.entries.length).to.equal(0);
     });
 
     it('append and read with no parameter should throw an error', async () => {
@@ -590,48 +584,46 @@ describe('EthereumStorage', () => {
       await expect(
         ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection),
       ).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Ethereum node is not reachable: Error: Invalid JSON RPC response: ""',
+        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
       );
     });
 
-    it('getDataId should throw an error when data from getAllHashesAndSizesFromEthereum are incorrect', async () => {
-      // Mock getAllHashesAndSizesFromEthereum of smartContractManager to return unexpected promise value
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+    it('getData should throw an error when data from getEntriesFromEthereum are incorrect', async () => {
+      // Mock getEntriesFromEthereum of smartContractManager to return unexpected promise value
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<any> => {
         return Promise.resolve({
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 10 },
               meta: {} as StorageTypes.IEthereumMetadata,
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         });
       };
 
       await assert.isRejected(
-        ethereumStorage.getDataId(),
+        ethereumStorage.getData(),
         Error,
         'The event log has no hash or feesParameters',
       );
 
       // Test with no meta
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
+        IEthereumEntriesWithLastTimestamp
+      > => {
         return Promise.resolve({
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 10 },
               hash: '0xad',
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         });
       };
 
-      await assert.isRejected(ethereumStorage.getDataId(), Error, 'The event log has no metadata');
+      await assert.isRejected(ethereumStorage.getData(), Error, 'The event log has no metadata');
     });
 
     it('allows to read a file', async () => {
@@ -649,7 +641,7 @@ describe('EthereumStorage', () => {
           assert.fail('result.meta.ethereum does not exist');
           return;
         }
-        assert.deepEqual(result.result, { content: content[index] });
+        assert.deepEqual(result.content, content[index]);
         assert.deepEqual(result.meta.ipfs, {
           size: realSizes[index],
         });
@@ -692,48 +684,48 @@ describe('EthereumStorage', () => {
 
     it('allows to read hash on IPFS with retries', async () => {
       // Mock to test IPFS read retry
-      ethereumStorage.smartContractManager.getHashesAndSizesFromEthereum = (): Promise<any> => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
+        IEthereumEntriesWithLastTimestamp
+      > => {
         return Promise.resolve({
-          data: [
+          ethereumEntries: [
             {
               feesParameters: { contentSize: 10 },
               hash: '0x0',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x1',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x2',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x3',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x4',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x5',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
             {
               feesParameters: { contentSize: 10 },
               hash: '0x6',
               meta: {},
-            } as StorageTypes.IGetAllHashesAndSizes,
+            } as StorageTypes.IEthereumEntry,
           ],
-          meta: {
-            lastBlockTimestamp: 0,
-          },
+          lastTimestamp: 0,
         });
       };
 
@@ -804,6 +796,13 @@ describe('EthereumStorage', () => {
         '0x5': 3,
         '0x6': 5,
       });
+    });
+
+    it('getData returns an empty array if no hash was found', async () => {
+      ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = () => [];
+      const result = await ethereumStorage.getData({ from: 10000, to: 10001 });
+      assert.deepEqual(result.entries, []);
+      assert.isNumber(result.lastTimestamp);
     });
   });
 });

@@ -14,6 +14,17 @@ import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
 
+// We use this function to flush the call stack
+// If we don't use this function, the fake timer will be increased before the interval function being called
+const flushCallStack = (): Promise<any> => {
+  return new Promise(
+    (resolve): any => {
+      setTimeout(resolve, 0);
+      clock.tick(1);
+    },
+  );
+};
+
 const transactionDataMock1String = JSON.stringify({
   attribut1: 'plop',
   attribut2: 'value',
@@ -52,59 +63,37 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(
 
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
-const getDataIdResult: StorageTypes.IGetDataIdReturn = {
-  meta: {
-    metaData: [{ timestamp: 10 }],
-  },
-  result: {
-    dataIds: [dataIdBlock2tx],
-  },
+const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
+  entries: [
+    {
+      content: JSON.stringify(blockWith2tx),
+      id: dataIdBlock2tx,
+      meta: { timestamp: 10 },
+    },
+  ],
+  lastTimestamp: 0,
 };
 
-const getDataResult: StorageTypes.IGetDataIdContentAndMeta = {
-  meta: {
-    metaData: [{ timestamp: 10 }],
-  },
-  result: {
-    data: [JSON.stringify(blockWith2tx)],
-    dataIds: [dataIdBlock2tx],
-  },
-};
-
-const appendResult: StorageTypes.IOneDataIdAndMeta = {
+const appendResult: StorageTypes.IEntry = {
   meta: {
     timestamp: 1,
   },
-  result: {
-    dataId: dataIdBlock2tx,
-  },
+  id: dataIdBlock2tx,
+  content: '',
 };
 
-const emptyDataIdResult: StorageTypes.IGetNewDataIdReturn = {
-  meta: {
-    metaDataIds: [],
-  },
-  result: {
-    dataIds: [],
-  },
+const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
+  entries: [],
+  lastTimestamp: 0,
 };
 
-const emptyDataResult: StorageTypes.IGetDataIdContentAndMeta = {
-  meta: {
-    metaData: [],
-  },
-  result: {
-    data: [],
-    dataIds: [],
-  },
-};
+const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
+  getDataResult,
+);
 
-const defaultTestData: Promise<StorageTypes.IGetDataReturn> = Promise.resolve(getDataResult);
-const defaultTestTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
 const defaultFakeStorage: StorageTypes.IStorage = {
   append: chai.spy.returns(appendResult),
-  getData: (): any => defaultTestData,
-  getDataId: (): any => defaultTestTopics,
+  getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
   initialize: chai.spy(),
   read: (param: string): any => {
     const dataIdBlock2txFake: any = {
@@ -129,15 +118,14 @@ describe('data-access', () => {
     clock = sinon.useFakeTimers();
   });
 
-  afterEach(async () => {
-    sinon.restore();
-  });
-
   describe('constructor', () => {
     it('cannot initialize with getData without result', async () => {
       const customFakeStorage = {
         ...defaultFakeStorage,
-        getData: (): any => ({ meta: { lastTimestamp: 0 } } as any),
+        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> =>
+          Promise.resolve({
+            lastTimestamp: 0,
+          } as any),
       };
 
       const dataAccess = new DataAccess(customFakeStorage);
@@ -158,9 +146,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 1 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -184,9 +173,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -233,9 +223,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -284,9 +275,10 @@ describe('data-access', () => {
       const fakeStorage = {
         ...defaultFakeStorage,
         read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
             meta: { timestamp: 10 },
-            result: { content: JSON.stringify(blockWith2tx) },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -383,6 +375,21 @@ describe('data-access', () => {
         dataAccess.persistTransaction(transactionMock1, arbitraryId1, [arbitraryTopic1]),
       ).to.be.rejectedWith('DataAccess must be initialized');
     });
+
+    it('cannot persistTransaction() if a topic is not well formatted', async () => {
+      const dataAccess = new DataAccess(defaultFakeStorage);
+      const notFormattedTopic = 'This topic is not formatted';
+      await dataAccess.initialize();
+
+      await expect(
+        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+          notFormattedTopic,
+          arbitraryTopic2,
+        ]),
+      ).to.be.rejectedWith(
+        `The following topics are not well formatted: ["This topic is not formatted"]`,
+      );
+    });
   });
 
   it('synchronizeNewDataId() should throw an error if not initialized', async () => {
@@ -398,23 +405,20 @@ describe('data-access', () => {
       transactions: [{ data: '' }],
     };
 
-    const testDataNotJsonData: Promise<StorageTypes.IGetDataIdContentAndMeta> = Promise.resolve({
-      meta: {
-        metaData: [{ timestamp: 10 }],
-      },
-      result: {
-        data: [
-          // no Header
-          JSON.stringify(blockWithoutHeader),
-        ],
-        dataIds: ['whatever'],
-      },
+    const testDataNotJsonData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve({
+      entries: [
+        {
+          content: JSON.stringify(blockWithoutHeader),
+          id: 'whatever',
+          meta: { timestamp: 10 },
+        },
+      ],
+      lastTimestamp: 0,
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
       append: chai.spy(),
-      getData: (): any => testDataNotJsonData,
-      getDataId: chai.spy(),
+      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -430,29 +434,24 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testTopics: Promise<StorageTypes.IGetDataIdReturn> = Promise.resolve(getDataIdResult);
-    const testData: Promise<StorageTypes.IGetDataReturn> = Promise.resolve(getDataResult);
+    const testData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
+      getDataResult,
+    );
 
-    // We create a fakeStorage where getDataId() called at initialization returns empty structure
-    // and getNewDataId() returns testTopics
+    // We create a fakeStorage where getData() called at initialization returns empty structure
     const fakeStorage = {
       ...defaultFakeStorage,
-      getData: (options: any): any => {
+      getData: (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
         if (!options) {
-          return emptyDataResult;
+          return Promise.resolve(emptyDataResult);
         }
         return testData;
       },
-      getDataId: (options: any): any => {
-        if (!options) {
-          return emptyDataIdResult;
-        }
-        return testTopics;
-      },
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+        const dataIdBlock2txFake: StorageTypes.IEntry = {
+          content: JSON.stringify(blockWith2tx),
+          id: '1',
           meta: { timestamp: 1 },
-          result: { content: JSON.stringify(blockWith2tx) },
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,
@@ -517,8 +516,7 @@ describe('data-access', () => {
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
       append: chai.spy.returns(appendResult),
-      getData: (): any => chai.spy(),
-      getDataId: chai.spy.returns({ result: { dataIds: [] } }),
+      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -531,11 +529,11 @@ describe('data-access', () => {
   it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
     const fakeStorage = {
       ...defaultFakeStorage,
-      getDataId: (): any => emptyDataIdResult,
       read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IOneContentAndMeta = {
+        const dataIdBlock2txFake: StorageTypes.IEntry = {
+          content: JSON.stringify(blockWith2tx),
+          id: '1',
           meta: { timestamp: 1 },
-          result: { content: JSON.stringify(blockWith2tx) },
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,
@@ -554,14 +552,61 @@ describe('data-access', () => {
 
     dataAccess.startAutoSynchronization();
     clock.tick(1100);
+    await flushCallStack();
 
     // Should have been called once after 1100ms
     expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
 
+    clock.tick(1000);
+    await flushCallStack();
+
+    // Should have been called once after 2100ms
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+
     dataAccess.stopAutoSynchronization();
     clock.tick(1000);
+    await flushCallStack();
 
     // Not called anymore after stopAutoSynchronization()
-    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
+    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+  });
+
+  it(`should not get twice the same data during synchronization`, async () => {
+    let args;
+    let lastTimestampReturnedByGetData: number = 0;
+
+    const fakeStorageSpied: StorageTypes.IStorage = {
+      ...defaultFakeStorage,
+      getData: sinon.spy(
+        (): Promise<StorageTypes.IEntriesWithLastTimestamp> =>
+          Promise.resolve({
+            entries: [],
+            lastTimestamp: lastTimestampReturnedByGetData,
+          }),
+      ),
+    };
+
+    lastTimestampReturnedByGetData = 500;
+    const dataAccess = new DataAccess(fakeStorageSpied, {
+      synchronizationIntervalTime: 1000,
+    });
+    await dataAccess.initialize();
+
+    // At initialization, getData is called with no time boundaries
+    args = (fakeStorageSpied.getData as any).getCall(0).args[0];
+    expect(args).to.be.undefined;
+
+    dataAccess.startAutoSynchronization();
+
+    // Mock Date.now to parse the value "to" of the time boundaries
+    Date.now = (): number => 1000000;
+    lastTimestampReturnedByGetData = 800;
+    clock.tick(1100);
+    await flushCallStack();
+
+    args = (fakeStorageSpied.getData as any).getCall(1).args[0];
+    expect(args).to.deep.equal({ from: 501, to: 1000 });
+
+    dataAccess.stopAutoSynchronization();
   });
 });

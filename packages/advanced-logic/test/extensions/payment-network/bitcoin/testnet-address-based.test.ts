@@ -133,7 +133,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.arbitraryTimestamp,
           );
         }, 'must throw').to.throw(
-          'This extension is not recognized by the BTC payment network address based',
+          'This extension is not recognized by the BTC testnet address based payment network',
         );
       });
     });
@@ -160,7 +160,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('This extension have already been created');
+        }, 'must throw').to.throw('This extension has already been created');
       });
       it('cannot applyActionToExtensions of creation on a not BTC request', () => {
         expect(() => {
@@ -188,7 +188,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('paymentAddress is not a valid bitcoin address');
+        }, 'must throw').to.throw('paymentAddress is not a valid address');
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
@@ -204,7 +204,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('refundAddress is not a valid bitcoin address');
+        }, 'must throw').to.throw('refundAddress is not a valid address');
       });
     });
 
@@ -230,7 +230,9 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw(`This extension must have been already created`);
+        }, 'must throw').to.throw(
+          `The extension should be created before receiving any other action`,
+        );
       });
       it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
         const previousState = Utils.deepCopy(DataBTCCreate.requestStateCreatedEmpty);
@@ -282,7 +284,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('paymentAddress is not a valid bitcoin address');
+        }, 'must throw').to.throw('paymentAddress is not a valid address');
       });
     });
 
@@ -308,7 +310,9 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw(`This extension must have been already created`);
+        }, 'must throw').to.throw(
+          `The extension should be created before receiving any other action`,
+        );
       });
       it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
         const previousState = Utils.deepCopy(DataBTCCreate.requestStateCreatedEmpty);
@@ -359,7 +363,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('refundAddress is not a valid bitcoin address');
+        }, 'must throw').to.throw('refundAddress is not a valid address');
       });
     });
   });

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.7.0...@requestnetwork/types@0.8.0) (2019-10-21)
+
+
+### Features
+
+* add ERC20 payment network ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([8d820d4](https://github.com/RequestNetwork/requestNetwork/commit/8d820d4))
+* add multi-format package to serialize and deserialize data ([#546](https://github.com/RequestNetwork/requestNetwork/issues/546)) ([2b03cd1](https://github.com/RequestNetwork/requestNetwork/commit/2b03cd1))
+
+
+
+
+
+
 # [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.6.0...@requestnetwork/types@0.7.0) (2019-09-16)
 
 

@@ -7,7 +7,10 @@ It ships both as a commonjs and a UMD module. This means you can use it in node 
 ## Installation
 
 ```bash
+# install the request js library
 npm install @requestnetwork/request-client.js
+# install a request signature provider (e.g: web3-signature to use Metamask)
+npm install @requestnetwork/web3-signature
 ```
 
 ## Usage
@@ -22,9 +25,14 @@ A global `RequestNetwork` is exposed:
 
 ```html
 <script src="requestnetwork.min.js"></script>
+<script src="web3-signature.min.js"></script>
 
 <script>
-  const requestNetwork = new RequestNetwork.RequestNetwork();
+  const signatureProvider = new Web3SignatureProvider();
+
+  const requestNetwork = new RequestNetwork.RequestNetwork({
+    signatureProvider,
+  });
 
   const request = await requestNetwork.createRequest({
     requestInfo,
@@ -34,7 +42,11 @@ A global `RequestNetwork` is exposed:
 </script>
 ```
 
-A full example is available in `packages\request-client.js\test\index.html` (see [here](/packages/request-client.js/test/index.html))
+Full examples are available in `packages\request-client.js\test\`:
+
+- Simple example of request creation (see [index.html](/packages/request-client.js/test/index.html))
+- Example with signature with metamask (see [index-metamask.html](/packages/request-client.js/test/index-metamask.html))
+- Example with encrypted request (see [index-encryption.html](/packages/request-client.js/test/index-encryption.html))
 
 ### Configure which Request node to use
 
@@ -78,6 +90,41 @@ const request = await requestNetwork.createRequest({
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
+
+### Create an encrypted request
+
+```javascript
+// a public key to encrypt the request with
+const encryptionParameters = {
+  key:
+    'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+  method: EncryptionTypes.METHOD.ECIES,
+};
+// another public key to encrypt the request with
+const encryptionParameters2 = {
+  key:
+    '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+  method: EncryptionTypes.METHOD.ECIES,
+};
+
+const request = await requestNetwork.createEncryptedRequest(
+  {
+    requestInfo,
+    signer,
+    paymentNetwork,
+    contentData,
+    topics,
+  },
+  [encryptionParameters, encryptionParameters2],
+);
+```
+
+- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `contentData`: any - optional [content data](#content-data) of the request.
+- `topics`: string[] - optional strings used to index the request.
+- `encryptionParameters`: [RequestNetwork.Types.Encryption.IEncryptionParameters[]](/packages/types/src/encryption-types.ts#L2) - array of encryption parameters
 
 ### Get a request from its ID
 
@@ -127,6 +174,37 @@ const requestsFromIdentity = await requestNetwork.fromTopic(topic, updatedBetwee
 - `updatedBetween`
   - `from`: number - get requests updated from this timestamp on
   - `to`: number - get requests updated before this timestamp
+
+### Get encrypted requests
+
+To get encrypted request you must use a decryption provider.
+
+```bash
+# install a request decryption provider (e.g: epk-decryption). If you need to get encrypted requests.
+npm install @requestnetwork/epk-decryption
+```
+
+```html
+<script src="epk-decryption.min.js"></script>
+
+<script>
+  const decryptionParameters = {
+    key: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
+    method: EncryptionTypes.METHOD.ECIES,
+  };
+
+  const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(decryptionParameters);
+
+  const requestNetwork = new RequestNetwork.RequestNetwork({
+    ...,
+    decryptionProvider,
+  });
+
+  // then use the function as before
+  const requestFromId = await requestNetwork.fromRequestId(requestId);
+  const requestsFromIdentity = await requestNetwork.fromTopic(topic, updatedBetween);
+</script>
+```
 
 ### Accept a request
 

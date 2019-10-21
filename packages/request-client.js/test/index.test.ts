@@ -53,25 +53,37 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
+const encryptionData = {
+  decryptionParams: {
+    key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key:
+      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  identity: {
+    type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+    value: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
+  },
+};
+
 const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
-  decrypt: (data: string, identity: IdentityTypes.IIdentity): Promise<string> => {
+  decrypt: (
+    data: EncryptionTypes.IEncryptedData,
+    identity: IdentityTypes.IIdentity,
+  ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
-      case payeeIdentity.value:
-        return Utils.encryption.decrypt(data, {
-          key: signatureParametersPayee.privateKey,
-          method: EncryptionTypes.METHOD.ECIES,
-        });
-      case payerIdentity.value:
-        return Utils.encryption.decrypt(data, {
-          key: signatureParametersPayer.privateKey,
-          method: EncryptionTypes.METHOD.ECIES,
-        });
+      case encryptionData.identity.value:
+        return Utils.encryption.decrypt(data, encryptionData.decryptionParams);
+
       default:
         throw new Error('Identity not registered');
     }
   },
   isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
-    return [payeeIdentity.value, payerIdentity.value].includes(identity.value.toLowerCase());
+    return [encryptionData.identity.value].includes(identity.value.toLowerCase());
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
@@ -656,24 +668,271 @@ describe('index', () => {
   });
 
   describe('tests with encryption', () => {
-    // beforeEach(() => {
-
-    // });
-
-    it('reads an encrypted request', async () => {
+    it('creates and reads an encrypted request', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
 
-      const request = await requestNetwork.createRequest({
-        requestInfo: TestData.parametersWithoutExtensionsData,
-        signer: payeeIdentity,
-      });
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+        },
+        [encryptionData.encryptionParams],
+      );
 
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
-      expect(requestFromId.requestId).to.equal(request.requestId);
+
+      expect(requestFromId).to.deep.equal(request);
+
+      const requestData = requestFromId.getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+    });
+
+    it('creates an encrypted request and recovers it by topic', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+          topics: ['my amazing test topic'],
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
+      expect(requestsFromTopic).to.not.be.empty;
+      expect(requestsFromTopic[0]).to.deep.equal(request);
+
+      const requestData = requestsFromTopic[0].getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+    });
+
+    it('creates multiple encrypted requests and recovers it by multiple topic', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+          topics: ['my amazing test topic'],
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const request2 = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: {
+            ...TestData.parametersWithoutExtensionsData,
+            timestamp: (TestData.parametersWithoutExtensionsData.timestamp || 1) + 1,
+          },
+          signer: payeeIdentity,
+          topics: ['my second best test topic'],
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const requestsFromTopic = await requestNetwork.fromMultipleTopics([
+        'my amazing test topic',
+        'my second best test topic',
+      ]);
+      expect(requestsFromTopic).to.have.length(2);
+      expect(requestsFromTopic[0]).to.deep.equal(request);
+      expect(requestsFromTopic[1]).to.deep.equal(request2);
+
+      requestsFromTopic.forEach(req => {
+        const requestData = req.getData();
+        expect(requestData.meta).to.not.be.null;
+        expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+          'ecies-aes256-cbc',
+        );
+      });
+    });
+
+    it('creates an encrypted request and recovers it by identity', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+          topics: ['my amazing test topic'],
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const requestFromIdentity = await requestNetwork.fromIdentity(payeeIdentity);
+      expect(requestFromIdentity).to.not.be.empty;
+      expect(requestFromIdentity[0]).to.deep.equal(request);
+
+      const requestData = requestFromIdentity[0].getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+    });
+
+    it('creates an encrypted request and accept it', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+      expect(fetchedRequest).to.deep.equal(request);
+
+      const requestData = fetchedRequest.getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+
+      await fetchedRequest.accept(payerIdentity);
+      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+    });
+
+    it('creates an encrypted request and cancel it', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+      expect(fetchedRequest).to.deep.equal(request);
+
+      const requestData = fetchedRequest.getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+
+      await fetchedRequest.cancel(payeeIdentity);
+      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.CANCELED);
+    });
+
+    it('creates an encrypted request, increase and decrease the amount', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+      expect(fetchedRequest).to.deep.equal(request);
+
+      const requestData = fetchedRequest.getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+
+      await fetchedRequest.increaseExpectedAmountRequest(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+        payerIdentity,
+      );
+
+      expect(fetchedRequest.getData().expectedAmount).to.equal(
+        String(TestData.parametersWithoutExtensionsData.expectedAmount * 2),
+      );
+
+      await fetchedRequest.reduceExpectedAmountRequest(
+        TestData.parametersWithoutExtensionsData.expectedAmount * 2,
+        payeeIdentity,
+      );
+
+      expect(fetchedRequest.getData().expectedAmount).to.equal('0');
+    });
+
+    it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          paymentNetwork: TestData.declarativePaymentNetwork,
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: payeeIdentity,
+        },
+        [encryptionData.encryptionParams],
+      );
+
+      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+      expect(fetchedRequest).to.deep.equal(request);
+
+      const requestData = fetchedRequest.getData();
+      expect(requestData.meta).to.not.be.null;
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+        'ecies-aes256-cbc',
+      );
+
+      await fetchedRequest.accept(payerIdentity);
+      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+
+      await fetchedRequest.declareSentPayment(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+        'PAID',
+        payerIdentity,
+      );
+      expect(fetchedRequest.getData().balance!.balance).to.equal('0');
+
+      await fetchedRequest.declareReceivedPayment(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+        'payment received',
+        payeeIdentity,
+      );
+      expect(fetchedRequest.getData().balance!.balance).to.equal(
+        TestData.parametersWithoutExtensionsData.expectedAmount,
+      );
     });
   });
 });

@@ -123,9 +123,6 @@ describe('api/request', () => {
     assert.isFunction(requestNetwork.increaseExpectedAmountRequest);
     assert.isFunction(requestNetwork.reduceExpectedAmountRequest);
     assert.isFunction(requestNetwork.getData);
-    assert.isFunction(requestNetwork.pay);
-    assert.isFunction(requestNetwork.refund);
-    assert.isFunction(requestNetwork.getHistory);
   });
 
   describe('accept', () => {
@@ -537,27 +534,6 @@ describe('api/request', () => {
       await request.refresh();
 
       expect(spy).to.have.been.called.once;
-    });
-  });
-
-  describe('pay', () => {
-    it('is not implemented yet', async () => {
-      const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(request.pay());
-    });
-  });
-
-  describe('refund', () => {
-    it('is not implemented yet', async () => {
-      const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(request.refund());
-    });
-  });
-
-  describe('getHistory', () => {
-    it('is not implemented yet', async () => {
-      const request = new Request(mockRequestLogic, '1');
-      assert.isUndefined(request.getHistory());
     });
   });
 });

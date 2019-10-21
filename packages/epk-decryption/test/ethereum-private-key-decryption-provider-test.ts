@@ -60,19 +60,19 @@ const decryptedDataExpected = JSON.stringify({
 describe('ethereum-private-key-decryption-provider', () => {
   describe('constructor', () => {
     it('can construct', async () => {
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       expect(
-        encryptionProvider.supportedIdentityTypes,
-        'encryptionProvider.supportedIdentityTypes is wrong',
+        decryptionProvider.supportedIdentityTypes,
+        'decryptionProvider.supportedIdentityTypes is wrong',
       ).to.be.deep.equal([IdentityTypes.TYPE.ETHEREUM_ADDRESS]);
       expect(
-        encryptionProvider.supportedMethods,
-        'encryptionProvider.supportedMethods is wrong',
+        decryptionProvider.supportedMethods,
+        'decryptionProvider.supportedMethods is wrong',
       ).to.be.deep.equal([EncryptionTypes.METHOD.ECIES]);
 
       expect(
-        encryptionProvider.getAllRegisteredIdentities(),
+        decryptionProvider.getAllRegisteredIdentities(),
         'getAllRegisteredIdentities is wrong',
       ).to.be.deep.equal([id1Raw.identity]);
     });
@@ -100,66 +100,66 @@ describe('ethereum-private-key-decryption-provider', () => {
 
   describe('addDecryptionParameters', () => {
     it('can addDecryptionParameters', () => {
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
-      const identityAdded: IdentityTypes.IIdentity = encryptionProvider.addDecryptionParameters(
+      const identityAdded: IdentityTypes.IIdentity = decryptionProvider.addDecryptionParameters(
         id2Raw.decryptionParams,
       );
       expect(identityAdded, 'identityAdded is wrong').to.deep.equal(id2Raw.identity);
 
       expect(
-        encryptionProvider.getAllRegisteredIdentities(),
+        decryptionProvider.getAllRegisteredIdentities(),
         'getAllRegisteredIdentities is wrong',
       ).to.be.deep.equal([id1Raw.identity, id2Raw.identity]);
     });
 
     it('cannot addDecryptionParameters if method not supported', () => {
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       const arbitraryParams: any = {
         method: 'unknown method',
         privateKey: '0x000',
       };
       expect(() => {
-        encryptionProvider.addDecryptionParameters(arbitraryParams);
+        decryptionProvider.addDecryptionParameters(arbitraryParams);
       }, 'should throw').to.throw('Encryption method not supported unknown method');
     });
   });
   describe('removeDecryptionParameters', () => {
     it('can removeDecryptionParameters', () => {
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
-      encryptionProvider.addDecryptionParameters(id2Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      decryptionProvider.addDecryptionParameters(id2Raw.decryptionParams);
 
-      encryptionProvider.removeRegisteredIdentity(id2Raw.identity);
+      decryptionProvider.removeRegisteredIdentity(id2Raw.identity);
 
       expect(
-        encryptionProvider.getAllRegisteredIdentities(),
+        decryptionProvider.getAllRegisteredIdentities(),
         'getAllRegisteredIdentities is wrong',
       ).to.be.deep.equal([id1Raw.identity]);
     });
 
     it('cannot removeDecryptionParameters if method not supported', () => {
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       const arbitraryIdentity: any = {
         type: 'unknown type',
         value: '0x000',
       };
       expect(() => {
-        encryptionProvider.removeRegisteredIdentity(arbitraryIdentity);
+        decryptionProvider.removeRegisteredIdentity(arbitraryIdentity);
       }, 'should throw').to.throw('Identity type not supported unknown type');
     });
   });
 
   describe('clearAllDecryptionParameters', () => {
     it('can clearAllDecryptionParameters', () => {
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
-      encryptionProvider.addDecryptionParameters(id2Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      decryptionProvider.addDecryptionParameters(id2Raw.decryptionParams);
 
-      encryptionProvider.clearAllRegisteredIdentities();
+      decryptionProvider.clearAllRegisteredIdentities();
 
       expect(
-        encryptionProvider.getAllRegisteredIdentities(),
+        decryptionProvider.getAllRegisteredIdentities(),
         'getAllRegisteredIdentities is wrong',
       ).to.be.deep.equal([]);
     });
@@ -171,9 +171,10 @@ describe('ethereum-private-key-decryption-provider', () => {
         decryptedDataExpected,
         id1Raw.encryptionParams,
       );
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
-      const decryptedData: string = await encryptionProvider.decrypt(
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+
+      const decryptedData: string = await decryptionProvider.decrypt(
         encryptedData,
         id1Raw.identity,
       );
@@ -182,11 +183,11 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot decrypt if encryption not supported', async () => {
-      const encryptedData = '04000000';
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const encryptedData = { type: EncryptionTypes.METHOD.AES256_CBC, value: '0000000' };
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       await expect(
-        encryptionProvider.decrypt(encryptedData, id1Raw.identity),
+        decryptionProvider.decrypt(encryptedData, id1Raw.identity),
         'should throw',
       ).to.eventually.be.rejectedWith(
         `The data must be encrypted with ${EncryptionTypes.METHOD.ECIES}`,
@@ -198,11 +199,11 @@ describe('ethereum-private-key-decryption-provider', () => {
         decryptedDataExpected,
         id1Raw.encryptionParams,
       );
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       const arbitraryIdentity: any = { type: 'unknown type', value: '0x000' };
       await expect(
-        encryptionProvider.decrypt(encryptedData, arbitraryIdentity),
+        decryptionProvider.decrypt(encryptedData, arbitraryIdentity),
         'should throw',
       ).to.eventually.be.rejectedWith('Identity type not supported unknown type');
     });
@@ -212,14 +213,14 @@ describe('ethereum-private-key-decryption-provider', () => {
         decryptedDataExpected,
         id1Raw.encryptionParams,
       );
-      const encryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       const arbitraryIdentity: IdentityTypes.IIdentity = {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x000',
       };
       await expect(
-        encryptionProvider.decrypt(encryptedData, arbitraryIdentity),
+        decryptionProvider.decrypt(encryptedData, arbitraryIdentity),
         'should throw',
       ).to.eventually.be.rejectedWith('private key unknown for the identity: 0x000');
     });

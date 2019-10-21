@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/usage-examples",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": true,
   "description": "Usage examples of Request Network.",
   "keywords": [
@@ -24,17 +24,19 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "start": "ts-node src/request-client-js.ts && ts-node src/request-client-js-declarative-request.ts && ts-node src/request-logic.ts",
+    "start": "ts-node src/request-client-js.ts && ts-node src/request-client-js-declarative-request.ts && ts-node src/request-client-js-erc20-request.ts && ts-node src/request-logic-clear-request.ts && ts-node src/request-logic-encrypted-request.ts",
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.5.0",
-    "@requestnetwork/epk-signature": "0.5.2",
-    "@requestnetwork/request-client.js": "0.7.0",
-    "@requestnetwork/request-logic": "0.7.0",
-    "@requestnetwork/transaction-manager": "0.7.0",
-    "@requestnetwork/types": "0.7.0",
-    "@requestnetwork/utils": "0.6.1"
+    "@requestnetwork/data-access": "0.5.1",
+    "@requestnetwork/epk-decryption": "0.3.2",
+    "@requestnetwork/epk-signature": "0.5.3",
+    "@requestnetwork/multi-format": "0.2.0",
+    "@requestnetwork/request-client.js": "0.8.0",
+    "@requestnetwork/request-logic": "0.7.1",
+    "@requestnetwork/transaction-manager": "0.8.0",
+    "@requestnetwork/types": "0.8.0",
+    "@requestnetwork/utils": "0.6.2"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "1.2.0",

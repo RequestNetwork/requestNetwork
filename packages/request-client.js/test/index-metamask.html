@@ -6,11 +6,14 @@
     <script src="..\..\web3-signature\dist\web3-signature.min.js"></script>
   </head>
   <body>
+    <h2>Important</h2>
+    <p>
+      This HTML page <strong>must be served on HTTP</strong> to be able to communicate with MetaMask
+    </p>
+    <p>
+      The dependencies must be built. (yarn build)
+    </p>
     <script>
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      // IMPORTANT: THIS HTML PAGE MUST BE SERVED ON HTTP (not file) TO BE ABLE TO COMMUNICATE WITH METAMASK
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
       window.addEventListener('load', async () => {
         // Modern dapp browsers...
         if (window.ethereum) {

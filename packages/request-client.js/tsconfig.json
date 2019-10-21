@@ -10,6 +10,7 @@
     { "path": "../data-access" },
     { "path": "../data-format" },
     { "path": "../epk-signature" },
+    { "path": "../multi-format" },
     { "path": "../request-logic" },
     { "path": "../transaction-manager" },
     { "path": "../types" }

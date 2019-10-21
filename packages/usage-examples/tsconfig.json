@@ -7,7 +7,9 @@
   "include": ["./src/**/*"],
   "references": [
     { "path": "../data-access" },
+    { "path": "../epk-decryption" },
     { "path": "../epk-signature" },
+    { "path": "../multi-format" },
     { "path": "../transaction-manager" },
     { "path": "../request-logic" },
     { "path": "../request-client.js" },

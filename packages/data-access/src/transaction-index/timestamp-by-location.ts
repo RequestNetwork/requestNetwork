@@ -30,7 +30,7 @@ export default class TimestampByLocationTransactionIndex {
    * @param timestamp timestamp of the block
    */
   public async pushTimestampByLocation(dataId: string, timestamp: number): Promise<void> {
-    if (!await this.timestampByLocation.get(dataId)) {
+    if (!(await this.timestampByLocation.get(dataId))) {
       await this.timestampByLocation!.set(dataId, timestamp);
     }
     const lastTransactionTimestamp = await this.getLastTransactionTimestamp();
@@ -56,10 +56,13 @@ export default class TimestampByLocationTransactionIndex {
    * @param dataId location to get the timestamp from
    * @returns timestamp of the location, null if not found
    */
-  public async isDataInBoundaries(dataId: string, boundaries?: DataAccessTypes.ITimestampBoundaries): Promise<boolean> {
+  public async isDataInBoundaries(
+    dataId: string,
+    boundaries?: DataAccessTypes.ITimestampBoundaries,
+  ): Promise<boolean> {
     const timestamp = await this.timestampByLocation.get(dataId);
     if (!timestamp) {
-      throw Error(`Timestamp not know for the dataId ${dataId}`);
+      throw Error(`Unknown timestamp for the dataId ${dataId}`);
     }
 
     return (

@@ -104,7 +104,7 @@ async function getSizeOfRequest(
     }
   }
   const dataInStorage = await mockStorage.getData();
-  return dataInStorage.result.data.reduce((totalSize, data) => totalSize + data.length, 0);
+  return dataInStorage.entries.reduce((totalSize, { content }) => totalSize + content.length, 0);
 }
 
 export default getSizeOfRequest;

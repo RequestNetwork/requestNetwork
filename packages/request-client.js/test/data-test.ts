@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   IdentityTypes,
   RequestLogicTypes,
@@ -5,6 +6,7 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as Types from '../src/types';
 
 export const arbitraryTimestamp = 1549953337;
 
@@ -116,7 +118,7 @@ export const transactionConfirmedWithDeclarative: TransactionTypes.IConfirmedTra
   transaction: { data: JSON.stringify(actionWithDeclarative) },
 };
 
-export const actionRequestId = Utils.crypto.normalizeKeccak256Hash(action);
+export const actionRequestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
 
 export const anotherCreationAction: RequestLogicTypes.IAction = Utils.signature.sign(
   data,
@@ -150,6 +152,16 @@ export const transactionConfirmedSecondRequest: TransactionTypes.IConfirmedTrans
   transaction: { data: JSON.stringify(actionCreationSecondRequest) },
 };
 
-export const actionRequestIdSecondRequest = Utils.crypto.normalizeKeccak256Hash(
-  actionCreationSecondRequest,
+export const actionRequestIdSecondRequest = MultiFormat.serialize(
+  Utils.crypto.normalizeKeccak256Hash(actionCreationSecondRequest),
 );
+
+export const declarativePaymentNetwork: Types.IPaymentNetworkCreateParameters = {
+  id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+  parameters: {
+    paymentInformation: {
+      BIC: 'SABAIE2D',
+      IBAN: 'FR89370400440532013000',
+    },
+  },
+};

@@ -1,4 +1,5 @@
-import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
+import MultiFormat from '@requestnetwork/multi-format';
+import { EncryptionTypes, MultiFormatTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -41,13 +42,13 @@ export default class TransactionsFactory {
     const symmetricKey: string = await Utils.crypto.generate32BufferKey();
 
     // Encrypt the data with the key and the AES256-CBC algorithm
-    const encryptedData: string = await Utils.encryption.encrypt(data, {
+    const encryptedData: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(data, {
       key: symmetricKey,
       method: EncryptionTypes.METHOD.AES256_CBC,
     });
 
     // Compute the hash of the data
-    let hash: string;
+    let hash: MultiFormatTypes.HashTypes.IHash;
     try {
       hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
     } catch (error) {
@@ -68,14 +69,18 @@ export default class TransactionsFactory {
     const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
       async (
         encryptionParam: EncryptionTypes.IEncryptionParameters,
-      ): Promise<{ encryptedKey: string; multiFormattedIdentity: string }> => {
-        const encryptedKey = await Utils.encryption.encrypt(symmetricKey, encryptionParam);
+      ): Promise<{
+        encryptedKey: EncryptionTypes.IEncryptedData;
+        multiFormattedIdentity: string;
+      }> => {
+        const encryptedKey: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(
+          symmetricKey,
+          encryptionParam,
+        );
         const identityEncryption = Utils.encryption.getIdentityFromEncryptionParams(
           encryptionParam,
         );
-        const multiFormattedIdentity = Utils.multiFormat.formatIdentityEthereumAddress(
-          identityEncryption.value,
-        );
+        const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
         return { encryptedKey, multiFormattedIdentity };
       },
@@ -83,18 +88,26 @@ export default class TransactionsFactory {
     const encryptedKeyAndIdentityHashes = await Promise.all(encryptedKeyAndIdentityHashesPromises);
 
     // Create the encrypted keys object - Encrypted keys indexed by identity multi-format
-    const keys = encryptedKeyAndIdentityHashes.reduce(
+    const keys: TransactionTypes.IKeysDictionary = encryptedKeyAndIdentityHashes.reduce(
       (
-        allKeys: any,
-        keyAndHash: { encryptedKey: string; multiFormattedIdentity: string },
-      ): Promise<any> => {
-        allKeys[keyAndHash.multiFormattedIdentity] = keyAndHash.encryptedKey;
+        allKeys: TransactionTypes.IKeysDictionary,
+        keyAndHash: {
+          encryptedKey: EncryptionTypes.IEncryptedData;
+          multiFormattedIdentity: string;
+        },
+      ): TransactionTypes.IKeysDictionary => {
+        const encryptedKeySerialized: string = MultiFormat.serialize(keyAndHash.encryptedKey);
+
+        allKeys[keyAndHash.multiFormattedIdentity] = encryptedKeySerialized;
         return allKeys;
       },
       {},
     );
 
-    return { encryptedData, keys, hash, encryptionMethod };
+    const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
+    const hashSerialized: string = MultiFormat.serialize(hash);
+
+    return { encryptedData: encryptedDataSerialized, keys, hash: hashSerialized, encryptionMethod };
   }
 
   /**
@@ -114,16 +127,22 @@ export default class TransactionsFactory {
     }
 
     // Encrypt the data with the key and the AES256-CBC algorithm
-    const encryptedData: string = await Utils.encryption.encrypt(data, channelKey);
+    const encryptedData: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(
+      data,
+      channelKey,
+    );
 
     // Compute the hash of the data
-    let hash: string;
+    let hash: MultiFormatTypes.HashTypes.IHash;
     try {
       hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
     } catch (error) {
       throw new Error('Data not parsable');
     }
 
-    return { encryptedData, hash };
+    const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
+    const hashSerialized: string = MultiFormat.serialize(hash);
+
+    return { encryptedData: encryptedDataSerialized, hash: hashSerialized };
   }
 }

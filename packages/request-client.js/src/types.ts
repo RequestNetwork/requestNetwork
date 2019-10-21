@@ -4,7 +4,9 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 export {
   AdvancedLogicTypes as AdvancedLogic,
   LogTypes as Log,
+  DecryptionProviderTypes as DecryptionProvider,
   ExtensionTypes as Extension,
+  EncryptionTypes as Encryption,
   RequestLogicTypes as RequestLogic,
   DataAccessTypes as DataAccess,
   SignatureTypes as Signature,
@@ -92,5 +94,7 @@ export enum EVENTS_NAMES {
 export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+  ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+  RINKEBY_ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
   DECLARATIVE = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
 }

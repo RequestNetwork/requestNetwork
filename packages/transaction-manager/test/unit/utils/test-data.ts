@@ -62,7 +62,10 @@ export const idRaw3 = {
 };
 
 export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
-  decrypt: (data: string, identity: IdentityTypes.IIdentity): Promise<string> => {
+  decrypt: (
+    data: EncryptionTypes.IEncryptedData,
+    identity: IdentityTypes.IIdentity,
+  ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
       case idRaw1.address:
         return Utils.encryption.decrypt(data, idRaw1.decryptionParams);

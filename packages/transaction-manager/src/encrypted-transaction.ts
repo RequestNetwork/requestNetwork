@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -9,10 +10,10 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
   private data: TransactionTypes.ITransactionData = '';
 
   /** Hash computed from the decrypted data - start empty then filled by getHash() */
-  private dataHash: string = '';
+  private dataHashSerialized: string = '';
 
-  /** Encrypted data */
-  private encryptedData: TransactionTypes.ITransactionData;
+  /** Persisted data */
+  private persistedData: TransactionTypes.ITransactionData;
 
   /** hash given by the persisted transaction */
   private hashFromPersistedTransaction: string;
@@ -22,16 +23,16 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
 
   /**
    * Creates an instance of EncryptedTransaction.
-   * @param encryptedData the encrypted data of the transaction
+   * @param persistedData the encrypted data of the transaction
    * @param hashFromPersistedTransaction the hash of the decrypted data (not checked)
    * @param channelKey decryption parameters to decrypted the encrypted data
    */
   constructor(
-    encryptedData: TransactionTypes.ITransactionData,
+    persistedData: TransactionTypes.ITransactionData,
     hashFromPersistedTransaction: string,
     channelKey: EncryptionTypes.IDecryptionParameters,
   ) {
-    this.encryptedData = encryptedData;
+    this.persistedData = persistedData;
     this.channelKey = channelKey;
     this.hashFromPersistedTransaction = hashFromPersistedTransaction;
   }
@@ -44,7 +45,8 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
   public async getData(): Promise<TransactionTypes.ITransactionData> {
     if (this.data === '') {
       try {
-        this.data = await Utils.encryption.decrypt(this.encryptedData, this.channelKey);
+        const encryptedData = MultiFormat.deserialize(this.persistedData);
+        this.data = await Utils.encryption.decrypt(encryptedData, this.channelKey);
       } catch {
         throw new Error('Impossible to decrypt the transaction');
       }
@@ -58,15 +60,16 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
    * @returns a promise resolving the transaction data hash
    */
   public async getHash(): Promise<string> {
-    if (this.dataHash === '') {
+    if (this.dataHashSerialized === '') {
       const data = await this.getData();
       try {
-        this.dataHash = await Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+        const dataHash = await Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+        this.dataHashSerialized = MultiFormat.serialize(dataHash);
       } catch (e) {
         throw new Error('Impossible to JSON parse the decrypted transaction data');
       }
     }
-    return this.dataHash;
+    return this.dataHashSerialized;
   }
 
   /**

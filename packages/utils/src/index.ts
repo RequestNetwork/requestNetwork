@@ -3,7 +3,6 @@ import cachedThrottle from './cached-throttle';
 import crypto from './crypto';
 import encryption from './encryption';
 import identity from './identity';
-import multiFormat from './multi-format';
 import retry from './retry';
 import signature from './signature';
 import SimpleLogger from './simple-logger';
@@ -23,7 +22,6 @@ export default {
   getCurrentTimestampInSecond: utils.getCurrentTimestampInSecond,
   identity,
   isString: utils.isString,
-  multiFormat,
   retry,
   signature,
   timeoutPromise: utils.timeoutPromise,

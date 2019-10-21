@@ -13,11 +13,12 @@ npm install @requestnetwork/request-logic
 
 ## Usage
 
-See [packages/usage-examples/request-logic.ts](`packages/usage-examples/request-logic.ts`).
+See [packages/usage-examples/request-logic.ts](`packages/usage-examples/src/request-logic.ts`).
 
 ## Features
 
 - `createRequest` : create a request
+- `createEncryptedRequest` : create an encrypted request
 - `acceptRequest` : accept a request
 - `cancelRequest` : cancel a request
 - `increaseExpectedAmountRequest` : increase the amount of a request

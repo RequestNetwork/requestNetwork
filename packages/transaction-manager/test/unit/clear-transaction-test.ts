@@ -5,6 +5,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+import MultiFormat from '@requestnetwork/multi-format';
 import Utils from '@requestnetwork/utils';
 import ClearTransaction from '../../src/clear-transaction';
 
@@ -25,7 +26,7 @@ describe('clear-transaction', () => {
       const tx = new ClearTransaction(data);
 
       expect(await tx.getHash(), 'hash not right').to.deep.equal(
-        Utils.crypto.normalizeKeccak256Hash(JSON.parse(data)),
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
       );
     });
   });

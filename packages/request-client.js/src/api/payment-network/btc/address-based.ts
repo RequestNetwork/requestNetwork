@@ -1,7 +1,4 @@
-import {
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
 import BitcoinInfoRetriever from './bitcoin-info-retriever';
 const bigNumber: any = require('bn.js');
@@ -10,21 +7,19 @@ const bigNumber: any = require('bn.js');
  * Handle payment networks with BTC based address extension
  */
 export default class PaymentNetworkBTCAddressBased {
-  private extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased;
+  private extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased;
   private bitcoinInfoRetriever: BitcoinInfoRetriever;
 
   /**
-   * @param advancedLogic Instance of Advanced Logic layer, to get the extension
+   * @param extension The advanced logic payment network extensions
    */
-  public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IBitcoinAddressBased) {
+  public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased) {
     this.extension = extension;
     this.bitcoinInfoRetriever = new BitcoinInfoRetriever();
   }
 
   /**
    * Creates the extensions data for the creation of this extension
-   *
-   * @param any paymentNetworkCreationParameters
    *
    * @param paymentNetworkCreationParameters Parameters to create the extension
    * @returns The extensionData object

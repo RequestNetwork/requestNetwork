@@ -1,6 +1,7 @@
 /* eslint-disable spellcheck/spell-checker */
 // Copy from packages/request-client.js/src/mock-storage.ts
 
+import MultiFormat from '@requestnetwork/multi-format';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -14,95 +15,59 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async append(content: string): Promise<StorageTypes.IOneDataIdAndMeta> {
+  public async append(content: string): Promise<StorageTypes.IEntry> {
     if (!content) {
       throw Error('Error: no content provided');
     }
-    const hash = Utils.crypto.normalizeKeccak256Hash(content);
+    const hash = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(content));
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
     this.data[hash] = { content, timestamp: nowTimestampInSec };
 
     return {
+      content: '',
+      id: hash,
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: nowTimestampInSec,
       },
-      result: {
-        dataId: hash,
-      },
     };
   }
 
-  public async read(id: string): Promise<StorageTypes.IOneContentAndMeta> {
+  public async read(id: string): Promise<StorageTypes.IEntry> {
     if (!id) {
       throw Error('No id provided');
     }
     return {
+      content: this.data[id].content,
+      id,
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: this.data[id].timestamp,
       },
-      result: { content: this.data[id].content },
     };
   }
 
-  public async readMany(ids: string[]): Promise<StorageTypes.IOneContentAndMeta[]> {
+  public async readMany(ids: string[]): Promise<StorageTypes.IEntry[]> {
     return Promise.all(ids.map(id => this.read(id)));
   }
 
-  public async getDataId(): Promise<StorageTypes.IGetDataIdReturn> {
-    const results = Object.keys(this.data);
-    const metaData = Object.values(this.data).map(elem => {
-      return {
-        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        timestamp: elem.timestamp,
-      };
-    });
-
-    return {
+  public async getData(): Promise<StorageTypes.IEntriesWithLastTimestamp> {
+    const entries = Object.entries(this.data).map(([id, { content, timestamp }]) => ({
+      content,
+      id,
       meta: {
-        metaData,
-      },
-      result: {
-        dataIds: results,
-      },
-    };
-  }
-
-  public async getNewDataId(): Promise<StorageTypes.IGetNewDataIdReturn> {
-    return {
-      meta: {
-        metaDataIds: [],
-      },
-      result: {
-        dataIds: [],
-      },
-    };
-  }
-
-  public async getData(): Promise<StorageTypes.IGetContentAndDataId> {
-    const dataIds = Object.keys(this.data);
-    const results = Object.values(this.data).map(elem => elem.content);
-    const metaData = Object.values(this.data).map(elem => {
-      return {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        timestamp: elem.timestamp,
-      };
-    });
+        timestamp,
+      },
+    }));
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
     return {
-      meta: {
-        lastTimestamp: nowTimestampInSec,
-        metaData,
-      },
-      result: {
-        data: results,
-        dataIds,
-      },
+      entries,
+      lastTimestamp: nowTimestampInSec,
     };
   }
 }

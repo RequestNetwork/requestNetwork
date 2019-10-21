@@ -55,7 +55,7 @@ export default class EthereumPrivateKeySignatureProvider
     }
 
     // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
-    const hashData = `0x${Utils.crypto.normalizeKeccak256Hash(data).slice(2)}`;
+    const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
     const signatureValue = Utils.crypto.EcUtils.sign(signatureParameter.privateKey, hashData);
 
     return {

@@ -1,0 +1,65 @@
+{
+  "name": "@requestnetwork/multi-format",
+  "version": "0.2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Multi-format for Request Network packages.",
+  "keywords": [
+    "requestnetwork",
+    "multi-format"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/multi-format#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist",
+    "lint": "tslint --project . && eslint \"src/**/*.ts\"",
+    "lint-staged": "lint-staged",
+    "prepare": "yarn run build",
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
+  },
+  "dependencies": {
+    "@requestnetwork/types": "0.8.0"
+  },
+  "devDependencies": {
+    "@types/chai": "4.1.7",
+    "@types/mocha": "5.2.6",
+    "@typescript-eslint/parser": "1.2.0",
+    "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
+    "chai-spies": "1.0.0",
+    "eslint": "5.13.0",
+    "eslint-plugin-spellcheck": "0.0.11",
+    "eslint-plugin-typescript": "0.14.0",
+    "lint-staged": "8.1.3",
+    "mocha": "5.2.0",
+    "nyc": "13.2.0",
+    "prettier": "1.16.4",
+    "shx": "0.3.2",
+    "sinon": "7.3.2",
+    "source-map-support": "0.5.13",
+    "tslint": "5.12.1",
+    "typescript": "3.3.1"
+  }
+}

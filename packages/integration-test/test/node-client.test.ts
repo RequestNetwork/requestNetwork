@@ -1,4 +1,6 @@
+import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import Utils from '@requestnetwork/utils';
 
@@ -27,6 +29,32 @@ const requestCreationHashUSD: Types.RequestLogic.ICreateParameters = {
   payee: payeeIdentity,
   payer: payerIdentity,
 };
+
+const encryptionData = {
+  decryptionParams: {
+    key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key:
+      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    method: Types.Encryption.METHOD.ECIES,
+  },
+  privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+  publicKey:
+    '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+};
+
+// Decryption provider setup
+const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
+  encryptionData.decryptionParams,
+);
+
+// Wrong decryption provider
+const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
+  key: '0x0000000000111111111122222222223333333333444444444455555555556666',
+  method: Types.Encryption.METHOD.ECIES,
+});
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,
@@ -128,7 +156,7 @@ describe('Request client using a request node', () => {
       timestamp: Utils.getCurrentTimestampInSecond(),
     };
     const topicsRequest1and2: string[] = [
-      Utils.crypto.normalizeKeccak256Hash(requestCreationHash1),
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)),
     ];
 
     const request1: Request = await requestNetwork.createRequest({
@@ -183,4 +211,173 @@ describe('Request client using a request node', () => {
     assert.equal(requestData1.state, Types.RequestLogic.STATE.CANCELED);
     assert.equal(requestData1.expectedAmount, '90000000');
   });
+
+  it('can create an encrypted request and get it back unencrypted', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+
+    // Create an encrypted request
+    const request = await requestNetwork._createEncryptedRequest(
+      {
+        requestInfo: requestCreationHashBTC,
+        signer: payeeIdentity,
+      },
+      [encryptionData.encryptionParams],
+    );
+
+    // Check that a request was returned
+    assert.instanceOf(request, Request);
+    assert.exists(request.requestId);
+
+    // Get the data
+    const requestData = request.getData();
+    assert.equal(requestData.expectedAmount, '1000');
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+
+    // Fetch the created request by its id
+    const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+
+    // Verify that the request values are correct
+    assert.instanceOf(fetchedRequest, Request);
+    assert.deepEqual(request, fetchedRequest);
+
+    const fetchedRequestData = fetchedRequest.getData();
+    assert.equal(requestData.expectedAmount, fetchedRequestData.expectedAmount);
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+  });
+
+  it('can create an encrypted request, modify it and get it back unencrypted', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+
+    // Create an encrypted request
+    const request = await requestNetwork._createEncryptedRequest(
+      {
+        requestInfo: requestCreationHashBTC,
+        signer: payeeIdentity,
+      },
+      [encryptionData.encryptionParams],
+    );
+
+    // Check that a request was returned
+    assert.instanceOf(request, Request);
+    assert.exists(request.requestId);
+
+    // Get the data
+    const requestData = request.getData();
+    assert.equal(requestData.expectedAmount, '1000');
+    assert.equal(requestData.balance, null);
+    assert.exists(requestData.meta);
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+
+    // Fetch the created request by its id
+    const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+
+    // Verify that the request values are correct
+    assert.instanceOf(fetchedRequest, Request);
+    assert.exists(fetchedRequest.requestId);
+    assert.equal(fetchedRequest.requestId, request.requestId);
+
+    let fetchedRequestData = fetchedRequest.getData();
+    assert.equal(fetchedRequestData.expectedAmount, requestData.expectedAmount);
+    assert.equal(fetchedRequestData.balance, null);
+    assert.exists(fetchedRequestData.meta);
+    assert.equal(
+      fetchedRequestData.meta!.transactionManagerMeta.encryptionMethod,
+      'ecies-aes256-cbc',
+    );
+    assert.equal(fetchedRequestData.state, Types.RequestLogic.STATE.CREATED);
+
+    await request.accept(payerIdentity);
+
+    await fetchedRequest.refresh();
+    fetchedRequestData = fetchedRequest.getData();
+    assert.equal(fetchedRequestData.state, Types.RequestLogic.STATE.ACCEPTED);
+
+    await request.increaseExpectedAmountRequest(
+      requestCreationHashBTC.expectedAmount,
+      payerIdentity,
+    );
+
+    await fetchedRequest.refresh();
+    assert.equal(
+      fetchedRequest.getData().expectedAmount,
+      String(Number(requestCreationHashBTC.expectedAmount) * 2),
+    );
+
+    await request.reduceExpectedAmountRequest(
+      Number(requestCreationHashBTC.expectedAmount) * 2,
+      payeeIdentity,
+    );
+
+    await fetchedRequest.refresh();
+    assert.equal(fetchedRequest.getData().expectedAmount, '0');
+  });
+});
+
+it('create an encrypted and unencrypted request with the same content', async () => {
+  const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+
+  // Create an encrypted request
+  const encryptedRequest = await requestNetwork._createEncryptedRequest(
+    {
+      requestInfo: requestCreationHashBTC,
+      signer: payeeIdentity,
+    },
+    [encryptionData.encryptionParams],
+  );
+
+  // Create a plain request
+  const plainRequest = await requestNetwork.createRequest({
+    requestInfo: requestCreationHashBTC,
+    signer: payeeIdentity,
+  });
+
+  assert.notEqual(encryptedRequest.requestId, plainRequest.requestId);
+
+  const encryptedRequestData = encryptedRequest.getData();
+  const plainRequestData = plainRequest.getData();
+
+  assert.notDeepEqual(encryptedRequestData, plainRequestData);
+
+  assert.equal(
+    encryptedRequestData.meta!.transactionManagerMeta.encryptionMethod,
+    'ecies-aes256-cbc',
+  );
+
+  assert.notExists(plainRequestData.meta!.transactionManagerMeta.encryptionMethod);
+});
+
+it('cannot decrypt a request with the wrong decryption provider', async () => {
+  const requestNetwork = new RequestNetwork({
+    decryptionProvider,
+    signatureProvider,
+  });
+
+  const badRequestNetwork = new RequestNetwork({
+    decryptionProvider: wrongDecryptionProvider,
+    signatureProvider,
+  });
+
+  const request = await requestNetwork._createEncryptedRequest(
+    {
+      requestInfo: requestCreationHashBTC,
+      signer: payeeIdentity,
+      topics: ['my nice topic'],
+    },
+    [encryptionData.encryptionParams],
+  );
+
+  let error = '';
+  try {
+    await badRequestNetwork.fromRequestId(request.requestId);
+  } catch (e) {
+    error = e.message;
+  }
+  assert.include(error, 'No request found for the id:');
+
+  const requests = await badRequestNetwork.fromTopic('my nice topic');
+  assert.isEmpty(requests);
 });

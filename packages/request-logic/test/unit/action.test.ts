@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import MultiFormat from '@requestnetwork/multi-format';
 import {
   IdentityTypes,
   RequestLogicTypes,
@@ -51,7 +52,7 @@ describe('Action', () => {
   it('can getRequestId() of current version', () => {
     const reqId = Action.getRequestId(signedAction);
     expect(reqId, 'getRequestId() error').to.be.equal(
-      Utils.crypto.normalizeKeccak256Hash(signedAction),
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(signedAction)),
     );
   });
   it('can getRequestId() of version before or equal 2.0.0', () => {
@@ -76,7 +77,7 @@ describe('Action', () => {
 
     const reqId = Action.getRequestId(signedAction200);
     expect(reqId, 'getRequestId() error').to.be.equal(
-      Utils.crypto.normalizeKeccak256Hash(randomUnsignedAction200),
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(randomUnsignedAction200)),
     );
   });
 

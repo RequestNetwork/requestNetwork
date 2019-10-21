@@ -1,8 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
 
 import BTCAddressBased from './address-based';
@@ -19,6 +15,9 @@ const TESTNET_BITCOIN_NETWORK_ID = 3;
 export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetwork {
   private btcAddressBased: BTCAddressBased;
 
+  /**
+   * @param advancedLogic Instance of Advanced Logic layer, to get the extension
+   */
   public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
     this.btcAddressBased = new BTCAddressBased(advancedLogic.extensions.addressBasedTestnetBtc);
   }

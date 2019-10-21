@@ -1,4 +1,10 @@
-import { expect } from 'chai';
+const chai = require('chai');
+const spies = require('chai-spies');
+
+const expect = chai.expect;
+chai.use(spies);
+
+
 import 'mocha';
 
 import LocationByTopic from '../src/transaction-index/location-by-topic';
@@ -32,6 +38,37 @@ const arbitraryBlockHeader2 = {
 
 /* tslint:disable:no-unused-expression */
 describe('LocationByTopic', () => {
+
+  describe('pushStorageLocationIndexedWithBlockTopics', () => {
+    it('can index new block', async () => {
+      const localIndex = new LocationByTopic();
+
+      // Mock the set function to parse the calls
+      localIndex.storageLocationByChannelId.set = chai.spy((_returns: any): Promise<true> => Promise.resolve(true as true));
+
+      await localIndex.pushStorageLocationIndexedWithBlockTopics(
+        arbitraryDataId1,
+        arbitraryBlockHeader1,
+      );
+
+      expect(localIndex.storageLocationByChannelId.set).to.have.been.called;
+    });
+
+    it('can index channel ids', async () => {
+      const localIndex = new LocationByTopic();
+
+      // Mock the set function to parse the calls
+      localIndex.channelIdByTopics.set = chai.spy((_returns: any): Promise<true> => Promise.resolve(true as true));
+
+      await localIndex.pushStorageLocationIndexedWithBlockTopics(
+        arbitraryDataId1,
+        arbitraryBlockHeader1,
+      );
+
+      expect(localIndex.channelIdByTopics.set).to.have.been.called;
+    });
+  });
+
   describe('getStorageLocationsFromChannelId', () => {
     it('can getStorageLocationsFromChannelId with one block', async () => {
       const localIndex = new LocationByTopic();

@@ -1,10 +1,10 @@
 import * as ContentData from './extensions/content-data-types';
+import * as PnAddressBased from './extensions/pn-any-address-based-types';
 import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
-import * as PnBitcoinAddressBased from './extensions/pn-bitcoin-address-based-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
-export { ContentData, PnAnyDeclarative, PnBitcoinAddressBased };
+export { ContentData, PnAnyDeclarative, PnAddressBased as PnBitcoinAddressBased, PnAddressBased };
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {
@@ -46,6 +46,8 @@ export enum ID {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
   PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
+  PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
+  PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED = 'pn-rinkeby-erc20-address-based',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
 }
 

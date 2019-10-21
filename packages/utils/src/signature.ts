@@ -50,7 +50,7 @@ function sign(
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
     value = Crypto.EcUtils.sign(
       signatureParams.privateKey,
-      `0x${Crypto.normalizeKeccak256Hash(data).slice(2)}`,
+      Crypto.normalizeKeccak256Hash(data).value,
     );
     return { data, signature: { method: signatureParams.method, value } };
   }
@@ -83,7 +83,7 @@ function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentit
   if (signedData.signature.method === SignatureTypes.METHOD.ECDSA) {
     value = Crypto.EcUtils.recover(
       signedData.signature.value,
-      `0x${Crypto.normalizeKeccak256Hash(signedData.data).slice(2)}`,
+      Crypto.normalizeKeccak256Hash(signedData.data).value,
     );
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import { MultiFormatTypes } from '@requestnetwork/types';
 import crypto from '../src/crypto';
 
 /* tslint:disable:no-unused-expression */
-describe('Utils.crypto utils', () => {
+describe('Utils.crypto', () => {
   it('can normalizeKeccak256Hash', () => {
     const arbitraryObject = {
       param1: 'valC',
@@ -14,7 +15,10 @@ describe('Utils.crypto utils', () => {
     expect(
       crypto.normalizeKeccak256Hash(arbitraryObject),
       'normalizeKeccak256Hash(arbitraryObject) error',
-    ).to.be.equal('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
+    ).to.be.deep.equal({
+      type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
+      value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+    });
   });
 
   it('can normalizeKeccak256Hash with two same object with different order', () => {
@@ -34,11 +38,17 @@ describe('Utils.crypto utils', () => {
     expect(
       crypto.normalizeKeccak256Hash(arbitraryObject),
       'normalizeKeccak256Hash(arbitraryObject) error',
-    ).to.be.equal('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
+    ).to.be.deep.equal({
+      type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
+      value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+    });
     expect(
       crypto.normalizeKeccak256Hash(arbitraryObjectSame),
       'normalizeKeccak256Hash(arbitraryObjectSame) error',
-    ).to.be.equal('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907');
+    ).to.be.deep.equal({
+      type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
+      value: '0xaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+    });
   });
 
   it('can normalizeKeccak256Hash with two same nested objects with different', () => {
@@ -72,11 +82,17 @@ describe('Utils.crypto utils', () => {
     expect(
       crypto.normalizeKeccak256Hash(arbitraryObject),
       'normalizeKeccak256Hash(arbitraryObject) error',
-    ).to.be.equal('017c36b5b8c7c5e787838a8ad5b083f3c9326bf364aa9e35691140f15c9a94f786');
+    ).to.be.deep.equal({
+      type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
+      value: '0x7c36b5b8c7c5e787838a8ad5b083f3c9326bf364aa9e35691140f15c9a94f786',
+    });
     expect(
       crypto.normalizeKeccak256Hash(arbitraryObjectSame),
       'normalizeKeccak256Hash(arbitraryObjectSame) error',
-    ).to.be.equal('017c36b5b8c7c5e787838a8ad5b083f3c9326bf364aa9e35691140f15c9a94f786');
+    ).to.be.deep.equal({
+      type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
+      value: '0x7c36b5b8c7c5e787838a8ad5b083f3c9326bf364aa9e35691140f15c9a94f786',
+    });
   });
 
   it('can normalize integer, null, string, undefined', () => {

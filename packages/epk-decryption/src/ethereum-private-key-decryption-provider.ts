@@ -34,8 +34,11 @@ export default class EthereumPrivateKeyDecryptionProvider
    *
    * @returns the data decrypted
    */
-  public async decrypt(data: string, identity: IdentityTypes.IIdentity): Promise<string> {
-    if (!Utils.multiFormat.isEciesEncryption(data)) {
+  public async decrypt(
+    encryptedData: EncryptionTypes.IEncryptedData,
+    identity: IdentityTypes.IIdentity,
+  ): Promise<string> {
+    if (encryptedData.type !== EncryptionTypes.METHOD.ECIES) {
       throw Error(`The data must be encrypted with ${EncryptionTypes.METHOD.ECIES}`);
     }
 
@@ -52,7 +55,7 @@ export default class EthereumPrivateKeyDecryptionProvider
       throw Error(`private key unknown for the identity: ${identity.value}`);
     }
 
-    return Utils.encryption.decrypt(data, decryptionParameters);
+    return Utils.encryption.decrypt(encryptedData, decryptionParameters);
   }
 
   /**

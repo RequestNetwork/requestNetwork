@@ -5,6 +5,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+import MultiFormat from '@requestnetwork/multi-format';
 import { TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import ChannelParser from '../../src/channel-parser';
@@ -20,9 +21,9 @@ const tx: TransactionTypes.IConfirmedTransaction = { transaction: { data }, time
 const tx2: TransactionTypes.IConfirmedTransaction = { transaction: { data: data2 }, timestamp: 1 };
 
 const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
-const channelId = dataHash;
+const channelId = MultiFormat.serialize(dataHash);
 const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
-const channelId2 = dataHash2;
+const channelId2 = MultiFormat.serialize(dataHash2);
 
 /* tslint:disable:no-unused-expression */
 describe('channel-parser', () => {

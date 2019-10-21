@@ -6,6 +6,9 @@ export interface IDecryptionProvider {
   supportedMethods: Encryption.METHOD[];
   supportedIdentityTypes: Identity.TYPE[];
 
-  decrypt: (data: string, signer: Identity.IIdentity) => Promise<string>;
+  decrypt: (
+    encryptedData: Encryption.IEncryptedData,
+    signer: Identity.IIdentity,
+  ) => Promise<string>;
   isIdentityRegistered: (identity: Identity.IIdentity) => Promise<boolean>;
 }

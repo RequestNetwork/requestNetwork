@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.4.3...@requestnetwork/integration-test@0.5.0) (2019-10-21)
+
+
+### Features
+
+* create encrypted request through request-client.js ([#536](https://github.com/RequestNetwork/requestNetwork/issues/536)) ([35678dd](https://github.com/RequestNetwork/requestNetwork/commit/35678dd))
+
+
+
+
+
+
 ## [0.4.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.4.2...@requestnetwork/integration-test@0.4.3) (2019-09-16)
 
 **Note:** Version bump only for package @requestnetwork/integration-test

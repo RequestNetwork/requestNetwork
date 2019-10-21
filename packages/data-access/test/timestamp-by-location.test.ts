@@ -72,10 +72,10 @@ describe('LocationTimestamp', () => {
     it('cannot isDataInBoundaries() on dataId not pushed', async () => {
       const timestampLocation = new TimestampByLocationTransactionIndex();
 
-      expect(
+      await expect(
         timestampLocation.isDataInBoundaries(arbitraryDataId1, { from: 1, to: 100 }),
         'must throw',
-      ).to.rejectedWith(`Timestamp not know for the dataId ${arbitraryDataId1}`);
+      ).to.rejectedWith(`Unknown timestamp for the dataId ${arbitraryDataId1}`);
     });
   });
 

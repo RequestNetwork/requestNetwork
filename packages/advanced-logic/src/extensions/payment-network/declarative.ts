@@ -1,8 +1,4 @@
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -184,7 +180,7 @@ function applyActionToExtension(
 
   if (extensionAction.action === ExtensionTypes.PnAnyDeclarative.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
-      throw Error(`This extension have already been created`);
+      throw Error(`This extension has already been created`);
     }
 
     copiedExtensionState[extensionAction.id] = applyCreation(extensionAction, timestamp);
@@ -271,7 +267,10 @@ function applyActionToExtension(
  *
  * @returns state of the extension created
  */
-function applyCreation(extensionAction: ExtensionTypes.IAction, timestamp: number): ExtensionTypes.IState {
+function applyCreation(
+  extensionAction: ExtensionTypes.IAction,
+  timestamp: number,
+): ExtensionTypes.IState {
   return {
     events: [
       {
@@ -321,7 +320,7 @@ function applyDeclareSentPayment(
     throw Error(`The signer must be the payer`);
   }
   if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
-    throw Error(`The amount is not an integer`);
+    throw Error(`The amount is not a valid amount`);
   }
 
   const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
@@ -369,7 +368,7 @@ function applyDeclareSentRefund(
     throw Error(`The signer must be the payee`);
   }
   if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
-    throw Error(`The amount is not an payee`);
+    throw Error(`The amount is not a valid amount`);
   }
 
   const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
@@ -417,7 +416,7 @@ function applyDeclareReceivedPayment(
     throw Error(`The signer must be the payee`);
   }
   if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
-    throw Error(`The amount is not an integer`);
+    throw Error(`The amount is not a valid amount`);
   }
 
   const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
@@ -465,7 +464,7 @@ function applyDeclareReceivedRefund(
     throw Error(`The signer must be the payer`);
   }
   if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
-    throw Error(`The amount is not an payer`);
+    throw Error(`The amount is not a valid amount`);
   }
 
   const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);

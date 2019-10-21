@@ -1,3 +1,4 @@
+import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -116,11 +117,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // The last synced timestamp is the latest one returned by storage
-    this.lastSyncStorageTimestamp = allDataWithMeta.meta.lastTimestamp;
+    this.lastSyncStorageTimestamp = allDataWithMeta.lastTimestamp;
 
-    // check if the data returned by getDataId are correct
+    // check if the data returned by getData are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopics(allDataWithMeta);
+    await this.pushLocationsWithTopics(allDataWithMeta.entries);
 
     this.isInitialized = true;
   }
@@ -144,7 +145,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // get all the topics not well formatted
     const notFormattedTopics: string[] = topics.filter(
-      topic => !Utils.multiFormat.isKeccak256Hash(topic),
+      topic => !MultiFormat.hashFormat.isDeserializableString(topic),
     );
 
     if (notFormattedTopics.length !== 0) {
@@ -165,7 +166,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // adds this transaction to the index, to enable retrieving it later.
     await this.transactionIndex.addTransaction(
-      resultAppend.result.dataId,
+      resultAppend.id,
       updatedBlock.header,
       resultAppend.meta.timestamp,
     );
@@ -174,7 +175,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       meta: {
         storageMeta: resultAppend.meta,
         topics,
-        transactionStorageLocation: resultAppend.result.dataId,
+        transactionStorageLocation: resultAppend.id,
       },
       result: {},
     };
@@ -262,7 +263,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     this.checkInitialized();
 
     // check if the topic is well formatted
-    if (!Utils.multiFormat.isKeccak256Hash(topic)) {
+    if (!MultiFormat.hashFormat.isDeserializableString(topic)) {
       throw new Error(`The topic is not well formatted: ${topic}`);
     }
 
@@ -319,7 +320,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     this.checkInitialized();
 
-    if (!topics.every(Utils.multiFormat.isKeccak256Hash)) {
+    if (topics.some(topic => !MultiFormat.hashFormat.isDeserializableString(topic))) {
       throw new Error(`The topics are not well formatted`);
     }
 
@@ -370,8 +371,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async synchronizeNewDataIds(): Promise<void> {
     this.checkInitialized();
-    const synchronizationFrom = this.lastSyncStorageTimestamp;
     const synchronizationTo = Utils.getCurrentTimestampInSecond();
+
+    // We increment lastSyncStorageTimestamp because the data located at lastSyncStorageTimestamp
+    // 0 means it's the first synchronization
+    let synchronizationFrom = 0;
+    if (this.lastSyncStorageTimestamp > 0) {
+      synchronizationFrom = this.lastSyncStorageTimestamp + 1;
+    }
 
     // Read new data from storage
     const newDataWithMeta = await this.storage.getData({
@@ -381,10 +388,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopics(newDataWithMeta);
+    await this.pushLocationsWithTopics(newDataWithMeta.entries);
 
     // The last synced timestamp is the latest one returned by storage
-    this.lastSyncStorageTimestamp = newDataWithMeta.meta.lastTimestamp;
+    this.lastSyncStorageTimestamp = newDataWithMeta.lastTimestamp;
   }
 
   /**
@@ -407,35 +414,33 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Check the format of the data, extract the topics from it and push location indexed with the topics
    *
    * @private
-   * @param dataWithMeta dataIds from getDataId and getNewDataId from storage functions
+   * @param entries data with meta from storage functions
    * @param locationByTopic LocationByTopic object to push location
    */
-  private async pushLocationsWithTopics(
-    dataWithMeta: StorageTypes.IGetDataIdContentAndMeta,
-  ): Promise<void> {
-    if (!dataWithMeta.result || !dataWithMeta.result.data || !dataWithMeta.result.dataIds) {
+  private async pushLocationsWithTopics(entries: StorageTypes.IEntry[]): Promise<void> {
+    if (!entries) {
       throw Error(`data from storage do not follow the standard`);
     }
     let parsingErrorCount = 0;
     let proceedCount = 0;
-    await Bluebird.each(dataWithMeta.result.data, async (blockString, index) => {
+    await Bluebird.each(entries, async entry => {
+      if (!entry.content || !entry.id) {
+        throw Error(`data from storage do not follow the standard`);
+      }
+
       let block;
+      const blockString = entry.content;
 
       try {
         block = Block.parseBlock(blockString);
         proceedCount++;
         // adds this transaction to the index, to enable retrieving it later.
-        await this.transactionIndex.addTransaction(
-          dataWithMeta.result.dataIds[index],
-          block.header,
-          dataWithMeta.meta.metaData[index].timestamp,
-        );
+        await this.transactionIndex.addTransaction(entry.id, block.header, entry.meta.timestamp);
       } catch (e) {
         parsingErrorCount++;
-        this.logger.debug(
-          `Error: can't parse content of the dataId (${dataWithMeta.result.dataIds[index]}): ${e}`,
-          ['synchronization'],
-        );
+        this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
+          'synchronization',
+        ]);
       }
     });
 
@@ -454,7 +459,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   private async getBlockAndMetaFromStorageLocation(
     storageLocationList: string[],
   ): Promise<
-    Array<{ block: DataAccessTypes.IBlock; meta: StorageTypes.IMetaOneData; location: string }>
+    Array<{ block: DataAccessTypes.IBlock; meta: StorageTypes.IEntryMetadata; location: string }>
   > {
     // Gets blocks indexed by topic
     return Promise.all(
@@ -462,7 +467,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         const resultRead = await this.storage.read(location);
 
         return {
-          block: JSON.parse(resultRead.result.content),
+          block: JSON.parse(resultRead.content),
           location,
           meta: resultRead.meta,
         };
@@ -483,7 +488,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     transactionPositions: number[],
     block: DataAccessTypes.IBlock,
     location: string,
-    meta: StorageTypes.IMetaOneData,
+    meta: StorageTypes.IEntryMetadata,
   ): {
     transactions: DataAccessTypes.IConfirmedTransaction[];
     transactionsStorageLocation: string[];

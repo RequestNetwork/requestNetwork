@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.3...@requestnetwork/ethereum-storage@0.4.4) (2019-10-21)
+
+
+### Bug Fixes
+
+* **ethereum-storage:** checkEthereumNodeConnection never finishing when Ethereum node not reachable ([6941bd9](https://github.com/RequestNetwork/requestNetwork/commit/6941bd9))
+* skip fetching data if no hash was found ([#545](https://github.com/RequestNetwork/requestNetwork/issues/545)) ([9583b8d](https://github.com/RequestNetwork/requestNetwork/commit/9583b8d))
+
+
+
+
+
+
 ## [0.4.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.2...@requestnetwork/ethereum-storage@0.4.3) (2019-09-16)
 
 **Note:** Version bump only for package @requestnetwork/ethereum-storage

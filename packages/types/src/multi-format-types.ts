@@ -1,3 +1,8 @@
+import * as HashTypes from './multi-format/hash-types';
+import * as PlainTypes from './multi-format/plain-types';
+
+export { HashTypes, PlainTypes };
+
 /** Prefix of handled data format */
 export enum prefix {
   PLAIN_TEXT = '00',
@@ -11,6 +16,17 @@ export enum prefix {
   /** Identity Ethereum address */
   IDENTITY_ETHEREUM_ADDRESS = '20',
 }
+
+/** Interface of all the deserialized multi-format object */
+export interface IMultiFormatDeserialized {
+  // type of the data
+  type: any;
+  // the data itself
+  value: string;
+}
+
+/** type of the serialized multi-format object */
+export type MultiFormatSerialized = string;
 
 /** Length of a formatted normalized Keccak256 hash (prefix + hash = 2 + 64 = 66) (no 0x expected) */
 export const FORMAT_NORMALIZE_KECCAK256_HASH_LENGTH = 66;

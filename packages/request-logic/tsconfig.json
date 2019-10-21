@@ -5,5 +5,10 @@
     "rootDir": "src"
   },
   "include": ["./src/**/*"],
-  "references": [{ "path": "../advanced-logic" }, { "path": "../types" }, { "path": "../utils" }]
+  "references": [
+    { "path": "../advanced-logic" },
+    { "path": "../multi-format" },
+    { "path": "../types" },
+    { "path": "../utils" }
+  ]
 }
