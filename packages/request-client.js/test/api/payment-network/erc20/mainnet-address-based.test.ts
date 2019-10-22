@@ -1,6 +1,6 @@
-import { AdvancedLogicTypes } from '@requestnetwork/types';
-
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ERC20AddressedBased from '../../../../src/api/payment-network/erc20/mainnet-address-based';
+import * as Types from '../../../../src/types';
 
 import 'chai';
 import 'mocha';
@@ -73,4 +73,43 @@ describe('api/erc20/mainnet-address-based', () => {
 
     expect(spy).to.have.been.called.once;
   });
+
+  // Skipping this one until we add some DAI to the test address
+  it.skip('can getBalance on a request', async () => {
+    const mockRequest = {
+      creator: { type: '', value: '0x2' },
+      currency: 'DAI',
+      events: [],
+      expectedAmount: '0',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
+          events: [],
+          id: '0',
+          type: 'none',
+          values: {
+            paymentAddress: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
+          },
+          version: '0',
+        },
+      },
+      extensionsData: [],
+      requestId: '0x1',
+      state: 'Good',
+      timestamp: 0,
+      version: '0.2',
+    };
+
+    const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
+
+    expect(balance.balance).to.be.equal('1000000000000000000');
+    expect(balance.events).to.have.lengthOf(1);
+    expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].parameters.to).to.be.equal(
+      '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
+    );
+    expect(balance.events[0].parameters.from).to.be.equal(
+      '0x2c27D95AB580A332D9829c0374B04e835221351b',
+    );
+    expect(balance.events[0].parameters.value).to.be.equal('1000000000000000000');
+  }).timeout(5000);
 });

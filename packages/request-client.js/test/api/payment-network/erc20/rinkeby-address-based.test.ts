@@ -1,6 +1,6 @@
-import { AdvancedLogicTypes } from '@requestnetwork/types';
-
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import RinkebyErc20AddressBased from '../../../../src/api/payment-network/erc20/rinkeby-address-based';
+import * as Types from '../../../../src/types';
 
 import 'chai';
 import 'mocha';
@@ -76,4 +76,42 @@ describe('api/erc20/rinkeby-address-based', () => {
 
     expect(spy).to.have.been.called.once;
   });
+
+  it('can getBalance on a request', async () => {
+    const mockRequest = {
+      creator: { type: '', value: '0x2' },
+      currency: 'DAI',
+      events: [],
+      expectedAmount: '0',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED]: {
+          events: [],
+          id: '',
+          type: '',
+          values: {
+            paymentAddress: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
+          },
+          version: '',
+        },
+      },
+      extensionsData: [],
+      requestId: '',
+      state: '',
+      timestamp: 0,
+      version: '',
+    };
+
+    const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
+
+    expect(balance.balance).to.be.equal('1000000000000000000');
+    expect(balance.events).to.have.lengthOf(1);
+    expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].parameters.to).to.be.equal(
+      '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
+    );
+    expect(balance.events[0].parameters.from).to.be.equal(
+      '0x0000000000000000000000000000000000000000',
+    );
+    expect(balance.events[0].parameters.value).to.be.equal('1000000000000000000');
+  }).timeout(5000);
 });

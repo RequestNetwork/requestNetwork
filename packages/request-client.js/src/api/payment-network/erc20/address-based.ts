@@ -1,14 +1,13 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
+import erc20InfoRetriever from './info-retriever';
 
 const bigNumber: any = require('bn.js');
-
 /**
  * Handle payment networks with ERC20 based address extension
  */
 export default class PaymentNetworkERC20AddressBased {
   private extension: ExtensionTypes.PnAddressBased.IAddressBased;
-
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -64,16 +63,26 @@ export default class PaymentNetworkERC20AddressBased {
    *
    * @param request the request to check
    * @param paymentNetworkId payment network id
-   * @param networkId ethereum network id
+   * @param tokenContractAddress the address of the token contract
    * @returns the balance and the payment/refund events
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
     paymentNetworkId: ExtensionTypes.ID,
-    networkId: number,
+    tokenContractAddress: string,
   ): Promise<Types.IBalanceWithEvents> {
     if (!request.extensions[paymentNetworkId]) {
       throw new Error(`The request do not have the extension : ̀${paymentNetworkId}`);
+    }
+    let network;
+    if (paymentNetworkId === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
+      network = 'mainnet';
+    } else if (paymentNetworkId === ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED) {
+      network = 'rinkeby';
+    } else {
+      throw new Error(
+        `Payment network not supported by ERC20 payment detection: ${paymentNetworkId}`,
+      );
     }
     const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
     const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
@@ -83,7 +92,8 @@ export default class PaymentNetworkERC20AddressBased {
       payments = await this.extractBalanceAndEvents(
         paymentAddress,
         Types.EVENTS_NAMES.PAYMENT,
-        networkId,
+        network,
+        tokenContractAddress,
       );
     }
 
@@ -92,7 +102,8 @@ export default class PaymentNetworkERC20AddressBased {
       refunds = await this.extractBalanceAndEvents(
         refundAddress,
         Types.EVENTS_NAMES.REFUND,
-        networkId,
+        network,
+        tokenContractAddress,
       );
     }
 
@@ -112,22 +123,31 @@ export default class PaymentNetworkERC20AddressBased {
   }
 
   /**
-   * TODO: Extracts the balance and events of an address
+   * Extracts the balance and events of an address
    *
    * @private
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
+   * @param network The id of network we want to check
+   * @param tokenContractAddress the address of the token contract
    * @returns The balance
    */
   private async extractBalanceAndEvents(
-    _address: string,
-    _eventName: Types.EVENTS_NAMES,
-    _networkId: number,
+    address: string,
+    eventName: Types.EVENTS_NAMES,
+    network: string,
+    tokenContractAddress: string,
   ): Promise<Types.IBalanceWithEvents> {
-    // TODO
+    const info = await erc20InfoRetriever(tokenContractAddress, address, network);
+
+    const balance = info.tokenEvents
+      .reduce((acc, event) => acc.add(new bigNumber(event.value)), new bigNumber(0))
+      .toString();
+    const events = info.tokenEvents.map(event => ({ name: eventName, parameters: event }));
+
     return {
-      balance: '0',
-      events: [],
+      balance,
+      events,
     };
   }
 }

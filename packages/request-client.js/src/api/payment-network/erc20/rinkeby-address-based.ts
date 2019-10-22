@@ -5,8 +5,9 @@ import ERC20AddressBased from './address-based';
 
 const PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED =
   ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED;
-const RINKEBY_NETWORK_ID = 4;
 
+// On rinkeby we will only use the FAU token, for testing
+const fauRinkebyContractAddress = '0xFab46E002BbF0b4509813474841E0716E6730136';
 /**
  * Handle payment networks with rinkeby testnet ERC20 based address extension
  *
@@ -73,7 +74,7 @@ export default class PaymentNetworkErc20RinkebyAddressBased implements Types.IPa
     return this.erc20AddressBased.getBalance(
       request,
       PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
-      RINKEBY_NETWORK_ID,
+      fauRinkebyContractAddress,
     );
   }
 }

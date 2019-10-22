@@ -4,7 +4,10 @@ import * as Types from '../../../types';
 import ERC20AddressBased from './address-based';
 
 const PAYMENT_NETWORK_ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED;
-const MAINNET_NETWORK_ID = 0;
+
+// ERC20 DAI contract address
+// TODO: currently hard-coded to DAI, should get from ERC20 token list
+const erc20ContractAddress = '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359';
 
 /**
  * Handle payment networks with mainnet BTC based address extension
@@ -70,7 +73,7 @@ export default class PaymentNetworkERC20AddressBased implements Types.IPaymentNe
     return this.erc20AddressBased.getBalance(
       request,
       PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
-      MAINNET_NETWORK_ID,
+      erc20ContractAddress,
     );
   }
 }
