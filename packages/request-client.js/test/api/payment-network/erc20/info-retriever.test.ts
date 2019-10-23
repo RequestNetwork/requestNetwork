@@ -45,8 +45,7 @@ describe('api/erc20/mainnet-address-based', function() {
     });
   });
 
-  // Skipping this one until we add some DAI to the test address
-  describe.skip('on mainnet', () => {
+  describe('on mainnet', () => {
     it('can get the mainnet balance of an address', async () => {
       const paymentAddress = '0x6a08d2c8f251af1f17b5943f7f7bb7078c50e29a';
       const balanceObject = await ERC20InfoRetriever(
@@ -58,9 +57,9 @@ describe('api/erc20/mainnet-address-based', function() {
       expect(balanceObject.decimals).to.be.equal('18');
       expect(balanceObject.tokenEvents).to.have.lengthOf(1);
       expect(balanceObject.tokenEvents[0]).to.deep.equal({
-        from: '0x2c27D95AB580A332D9829c0374B04e835221351b',
+        from: '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
         to: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
-        value: '1000000000000000000',
+        value: '510000000000000000',
       });
     });
 

@@ -74,8 +74,7 @@ describe('api/erc20/mainnet-address-based', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  // Skipping this one until we add some DAI to the test address
-  it.skip('can getBalance on a request', async () => {
+  it('can getBalance on a request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
       currency: 'DAI',
@@ -101,15 +100,15 @@ describe('api/erc20/mainnet-address-based', () => {
 
     const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
 
-    expect(balance.balance).to.be.equal('1000000000000000000');
+    expect(balance.balance).to.be.equal('510000000000000000');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
     expect(balance.events[0].parameters.to).to.be.equal(
       '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
     );
     expect(balance.events[0].parameters.from).to.be.equal(
-      '0x2c27D95AB580A332D9829c0374B04e835221351b',
+      '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
     );
-    expect(balance.events[0].parameters.value).to.be.equal('1000000000000000000');
+    expect(balance.events[0].parameters.value).to.be.equal('510000000000000000');
   }).timeout(5000);
 });
