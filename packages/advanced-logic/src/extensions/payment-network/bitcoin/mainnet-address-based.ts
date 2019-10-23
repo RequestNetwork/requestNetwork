@@ -12,7 +12,7 @@ const BITCOIN_NETWORK = 'prod';
  * Every bitcoin transaction that reaches these addresses will be interpreted as payment or refund.
  * Important: the addresses must be exclusive to the request
  */
-const bitcoinAddressBasedManager: ExtensionTypes.PnBitcoinAddressBased.IAddressBased = {
+const bitcoinAddressBasedManager: ExtensionTypes.PnAddressBased.IAddressBased = {
   applyActionToExtension,
   createAddPaymentAddressAction,
   createAddRefundAddressAction,
@@ -28,7 +28,7 @@ const bitcoinAddressBasedManager: ExtensionTypes.PnBitcoinAddressBased.IAddressB
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
 function createCreationAction(
-  creationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+  creationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
 ): ExtensionTypes.IAction {
   if (creationParameters.paymentAddress && !isValidAddress(creationParameters.paymentAddress)) {
     throw Error('paymentAddress is not a valid bitcoin address');
@@ -52,7 +52,7 @@ function createCreationAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentAddressAction(
-  addPaymentAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+  addPaymentAddressParameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
 ): ExtensionTypes.IAction {
   if (
     addPaymentAddressParameters.paymentAddress &&
@@ -75,7 +75,7 @@ function createAddPaymentAddressAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundAddressAction(
-  addRefundAddressParameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+  addRefundAddressParameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
 ): ExtensionTypes.IAction {
   if (
     addRefundAddressParameters.refundAddress &&

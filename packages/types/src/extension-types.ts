@@ -4,7 +4,7 @@ import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
-export { ContentData, PnAnyDeclarative, PnAddressBased as PnBitcoinAddressBased, PnAddressBased };
+export { ContentData, PnAnyDeclarative, PnAddressBased };
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {

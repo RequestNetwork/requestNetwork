@@ -2,11 +2,7 @@ import * as TestDataCreate from './generator-data-create';
 
 import * as TestData from '../../test-data-generator';
 
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export const arbitraryTimestamp = 1544426030;
 
@@ -20,14 +16,14 @@ export const refundTestnetBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
 // ---------------------------------------------------------------------
 // actions
 export const actionAddPaymentAddress = {
-  action: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
+  action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   parameters: {
     paymentAddress: paymentBTCAddress,
   },
 };
 export const actionAddRefundAddress = {
-  action: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
+  action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   parameters: {
     refundAddress: refundBTCAddress,
@@ -40,12 +36,12 @@ export const extensionStateWithPaymentAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
+        name: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
         parameters: {
           paymentAddress: paymentBTCAddress,
         },
@@ -65,12 +61,12 @@ export const extensionStateWithRefundAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.CREATE,
+        name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnBitcoinAddressBased.ACTION.ADD_REFUND_ADDRESS,
+        name: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
         parameters: {
           refundAddress: refundBTCAddress,
         },

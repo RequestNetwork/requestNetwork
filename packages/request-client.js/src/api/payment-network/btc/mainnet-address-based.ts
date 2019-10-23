@@ -30,7 +30,7 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
   ): ExtensionTypes.IAction {
     return this.btcAddressBased.createExtensionsDataForCreation(paymentNetworkCreationParameters);
   }
@@ -43,7 +43,7 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.btcAddressBased.createExtensionsDataForAddPaymentInformation(parameters);
   }
@@ -56,7 +56,7 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @returns the extensions data object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.btcAddressBased.createExtensionsDataForAddRefundInformation(parameters);
   }

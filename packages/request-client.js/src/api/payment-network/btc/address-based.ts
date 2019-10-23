@@ -7,13 +7,13 @@ const bigNumber: any = require('bn.js');
  * Handle payment networks with BTC based address extension
  */
 export default class PaymentNetworkBTCAddressBased {
-  private extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased;
+  private extension: ExtensionTypes.PnAddressBased.IAddressBased;
   private bitcoinInfoRetriever: BitcoinInfoRetriever;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased) {
+  public constructor(extension: ExtensionTypes.PnAddressBased.IAddressBased) {
     this.extension = extension;
     this.bitcoinInfoRetriever = new BitcoinInfoRetriever();
   }
@@ -25,7 +25,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -40,7 +40,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
@@ -54,7 +54,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
