@@ -7,6 +7,7 @@ import ERC20AddressBased from './erc20/mainnet-address-based';
 import RinkebyERC20AddressBased from './erc20/rinkeby-address-based';
 
 /** Register the payment network by currency and type */
+// TODO: take into account currency network and possibly value when finding supported network
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
@@ -14,7 +15,7 @@ const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
       .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
     [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
   },
-  DAI: {
+  ERC20: {
     [ExtensionTypes.ID
       .PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED as string]: RinkebyERC20AddressBased,
     [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
@@ -37,10 +38,10 @@ export default class PaymentNetworkFactory {
    */
   public static createPaymentNetwork(
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    currency: RequestLogicTypes.CURRENCY,
+    currency: RequestLogicTypes.ICurrency,
     paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
   ): Types.IPaymentNetwork {
-    let paymentNetworkForCurrency = supportedPaymentNetwork[currency];
+    let paymentNetworkForCurrency = supportedPaymentNetwork[currency.type];
     if (!paymentNetworkForCurrency) {
       paymentNetworkForCurrency = supportedPaymentNetwork.any;
     }
@@ -48,7 +49,7 @@ export default class PaymentNetworkFactory {
       throw new Error(
         `the payment network id: ${
           paymentNetworkCreationParameters.id
-        } is not supported for the currency: ${currency}`,
+        } is not supported for the currency: ${currency.type} ${currency.value}`,
       );
     }
 
@@ -77,13 +78,15 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    let paymentNetworkForCurrency = supportedPaymentNetwork[currency];
+    let paymentNetworkForCurrency = supportedPaymentNetwork[currency.type];
     if (!paymentNetworkForCurrency) {
       paymentNetworkForCurrency = supportedPaymentNetwork.any;
     }
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
-        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${currency}`,
+        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${
+          currency.type
+        } ${currency.value}`,
       );
     }
 

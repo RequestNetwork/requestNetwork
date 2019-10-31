@@ -114,7 +114,7 @@ export interface IRequest {
   requestId: RequestId;
   /** identity of the request creator (the one who initiates it) */
   creator: Identity.IIdentity;
-  currency: CURRENCY;
+  currency: ICurrency;
   state: STATE;
   expectedAmount: Amount;
   payee?: Identity.IIdentity;
@@ -158,7 +158,7 @@ export interface IVersionSupportConfig {
 
 /** Parameters to create a request */
 export interface ICreateParameters {
-  currency: CURRENCY;
+  currency: ICurrency;
   expectedAmount: Amount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
@@ -220,6 +220,16 @@ export interface IEvent {
   timestamp: number;
 }
 
+/** Currency interface */
+export interface ICurrency {
+  /** The main currency name (e.g.: 'ERC20', 'FIAT', 'ETH') */
+  type: CURRENCY;
+  /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
+  value: string;
+  /** The currency network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox') */
+  network?: string;
+}
+
 /** Enum of name possible in a action */
 export enum ACTION_NAME {
   CREATE = 'create',
@@ -235,10 +245,8 @@ export enum ACTION_NAME {
 export enum CURRENCY {
   ETH = 'ETH',
   BTC = 'BTC',
-  EUR = 'EUR',
-  USD = 'USD',
-  // TODO: add full list of supported ERC20
-  DAI = 'DAI',
+  ISO4217 = 'ISO4217',
+  ERC20 = 'ERC20',
 }
 
 /** States of a request */

@@ -93,7 +93,10 @@ export const requestCreatedNoExtension: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {
@@ -132,7 +135,10 @@ export const requestCreatedWithExtensions: RequestLogicTypes.IRequest = {
     value: payeeRaw.address,
   },
 
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {
@@ -170,7 +176,10 @@ export const requestCanceledNoExtension: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {
@@ -216,7 +225,10 @@ export const requestAcceptedNoExtension: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {

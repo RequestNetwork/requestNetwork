@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import AcceptAction from '../../../src/actions/accept';
 
@@ -25,7 +21,9 @@ describe('actions/accept', () => {
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionAccept.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.ACCEPT);
+      expect(actionAccept.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.ACCEPT,
+      );
 
       expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
@@ -43,7 +41,9 @@ describe('actions/accept', () => {
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionAccept.data.name, 'action is wrong').to.equal(RequestLogicTypes.ACTION_NAME.ACCEPT);
+      expect(actionAccept.data.name, 'action is wrong').to.equal(
+        RequestLogicTypes.ACTION_NAME.ACCEPT,
+      );
 
       expect(actionAccept.data.parameters.requestId, 'requestId is wrong').to.equal(
         TestData.requestIdMock,
@@ -69,7 +69,10 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -169,7 +172,10 @@ describe('actions/accept', () => {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [
           {
             actionSigner: {
@@ -285,7 +291,10 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -346,7 +355,10 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -410,7 +422,10 @@ describe('actions/accept', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,

@@ -16,7 +16,10 @@ import {
 import MockStorage from './mock/mock-storage';
 
 const createParams = {
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   expectedAmount: '170000000000',
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

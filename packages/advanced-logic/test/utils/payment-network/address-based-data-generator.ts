@@ -90,7 +90,10 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.EUR,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    value: 'EUR',
+  },
   events: [
     {
       actionSigner: {
@@ -128,7 +131,10 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.EUR,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    value: 'EUR',
+  },
   events: [
     {
       actionSigner: {
@@ -166,7 +172,10 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.EUR,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    value: 'EUR',
+  },
   events: [
     {
       actionSigner: {

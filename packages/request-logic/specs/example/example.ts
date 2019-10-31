@@ -55,7 +55,11 @@ async function foo(): Promise<void> {
   const arbitraryTimestamp = 1544426030;
 
   const createParams = {
-    currency: RequestLogicTypes.CURRENCY.ETH,
+    currency: {
+      network: 'mainnet',
+      type: RequestLogicTypes.CURRENCY.ETH,
+      value: 'ETH',
+    },
     expectedAmount: arbitraryExpectedAmount,
     payee: bobRaw.identity,
     payer: aliceRaw.identity,

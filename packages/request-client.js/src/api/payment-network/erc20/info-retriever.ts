@@ -93,3 +93,21 @@ async function getTransferEvents(
 }
 
 export default getTransferEvents;
+
+/**
+ * Returns the amount of decimals for an ERC20 token
+ *
+ * @param tokenContractAddress The ERC20 contract address
+ * @param network The ERC20 contract network
+ * @returns The number of decimals
+ */
+export async function getDecimals(tokenContractAddress: string, network: string): Promise<number> {
+  // Connect to the network
+  const provider = ethers.getDefaultProvider(network);
+
+  // Setup the ERC20 contract interface
+  const contract = new ethers.Contract(tokenContractAddress, erc20BalanceOfAbiFragment, provider);
+
+  // Returns the amount of decimals for the ERC20
+  return new bigNumber(await contract.decimals()).toNumber();
+}

@@ -108,7 +108,7 @@ function applyActionToExtension(
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
   // TODO: test for full list of supported ERC20 currencies
-  if (requestState.currency !== RequestLogicTypes.CURRENCY.DAI) {
+  if (requestState.currency.type !== RequestLogicTypes.CURRENCY.ERC20) {
     throw Error(`This extension can be used only on ERC20 requests`);
   }
 

@@ -77,7 +77,11 @@ describe('api/erc20/mainnet-address-based', () => {
   it('can getBalance on a request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
-      currency: 'DAI',
+      currency: {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+      },
       events: [],
       expectedAmount: '0',
       extensions: {

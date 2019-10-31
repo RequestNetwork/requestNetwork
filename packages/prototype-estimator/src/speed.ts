@@ -13,7 +13,10 @@ const signerIdentity: Types.Identity.IIdentity = {
 };
 
 const requestCreationHash: Types.RequestLogic.ICreateParameters = {
-  currency: Types.RequestLogic.CURRENCY.BTC,
+  currency: {
+    type: Types.RequestLogic.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   payee: signerIdentity,
   payer: {

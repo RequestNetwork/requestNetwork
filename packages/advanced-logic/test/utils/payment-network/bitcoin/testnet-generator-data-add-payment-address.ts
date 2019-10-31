@@ -89,7 +89,11 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'testnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   events: [
     {
       actionSigner: {
@@ -127,7 +131,11 @@ export const requestStateCreatedEmptyThenAddRefund: RequestLogicTypes.IRequest =
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'testnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   events: [
     {
       actionSigner: {

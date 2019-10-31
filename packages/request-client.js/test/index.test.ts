@@ -90,7 +90,11 @@ const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
 };
 
 const requestParameters: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,
@@ -571,7 +575,10 @@ describe('index', () => {
 
     it('allows to get the right balance', async () => {
       const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
-        currency: RequestLogicTypes.CURRENCY.USD,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'USD',
+        },
         expectedAmount: '100000000000',
         payee: payeeIdentity,
         payer: payerIdentity,

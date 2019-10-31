@@ -33,7 +33,11 @@ export const payer = {
 };
 
 export const parameters: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'testnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   extensionsData: [
     {
@@ -48,7 +52,10 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
   timestamp: arbitraryTimestamp,
 };
 export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   extensionsData: [
     {
@@ -64,14 +71,20 @@ export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
 };
 
 export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   payee: payee.identity,
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
 };
 export const parametersWithoutExtensionsDataForSigning: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   extensionsData: [],
   payee: payee.identity,
@@ -82,17 +95,17 @@ export const parametersWithoutExtensionsDataForSigning: RequestLogicTypes.ICreat
 export const data = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters,
-  version: '2.0.1',
+  version: '2.0.2',
 };
 export const dataWithoutExtensionsData = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithoutExtensionsDataForSigning,
-  version: '2.0.1',
+  version: '2.0.2',
 };
 export const dataWithDeclarative = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithDeclarative,
-  version: '2.0.1',
+  version: '2.0.2',
 };
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
@@ -139,7 +152,7 @@ const dataSecondRequest = {
     payee: payee.identity,
     timestamp: 1544426030,
   },
-  version: '2.0.1',
+  version: '2.0.2',
 };
 
 export const actionCreationSecondRequest: RequestLogicTypes.IAction = Utils.signature.sign(

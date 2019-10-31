@@ -84,7 +84,10 @@ export const requestCreatedNoExtension: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {
@@ -123,7 +126,10 @@ export const requestCreatedWithContentData: RequestLogicTypes.IRequest = {
     value: payeeRaw.address,
   },
 
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {

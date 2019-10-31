@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import IncreaseExpectedAmountAction from '../../../src/actions/increaseExpectedAmount';
 
@@ -133,7 +129,10 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
@@ -267,7 +266,10 @@ describe('actions/increaseExpectedAmount', () => {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
           value: TestData.payeeRaw.address,
         },
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [
           {
             actionSigner: {
@@ -351,7 +353,10 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
@@ -411,7 +416,10 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
@@ -473,7 +481,10 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,
@@ -532,7 +543,10 @@ describe('actions/increaseExpectedAmount', () => {
       );
 
       expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         arbitraryExpectedAmountAfterDelta,

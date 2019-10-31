@@ -1,8 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import Declarative from '../../../src/api/payment-network/declarative';
 
@@ -57,7 +53,10 @@ const requestMock: RequestLogicTypes.IRequest = {
     type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
     value: '',
   },
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [],
   expectedAmount: {},
   extensions: {},

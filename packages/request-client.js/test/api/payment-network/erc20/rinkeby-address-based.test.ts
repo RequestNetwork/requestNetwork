@@ -80,7 +80,11 @@ describe('api/erc20/rinkeby-address-based', () => {
   it('can getBalance on a request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
-      currency: 'DAI',
+      currency: {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0xFab46E002BbF0b4509813474841E0716E6730136', // FAU rinkeby token
+      },
       events: [],
       expectedAmount: '0',
       extensions: {

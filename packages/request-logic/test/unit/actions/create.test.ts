@@ -20,7 +20,10 @@ describe('CreateAction', () => {
     it('can create with only the payee', async () => {
       const actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -38,9 +41,10 @@ describe('CreateAction', () => {
         CURRENT_VERSION,
       );
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
-        RequestLogicTypes.CURRENCY.ETH,
-      );
+      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -69,7 +73,10 @@ describe('CreateAction', () => {
     it('can create with nonce', async () => {
       const actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: TestData.arbitraryExpectedAmount,
           nonce: 2,
           payee: {
@@ -88,9 +95,10 @@ describe('CreateAction', () => {
         CURRENT_VERSION,
       );
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
-        RequestLogicTypes.CURRENCY.ETH,
-      );
+      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -119,7 +127,10 @@ describe('CreateAction', () => {
     it('can generate timestamp if not given', async () => {
       const actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -136,9 +147,10 @@ describe('CreateAction', () => {
         CURRENT_VERSION,
       );
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
-        RequestLogicTypes.CURRENCY.ETH,
-      );
+      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -165,7 +177,10 @@ describe('CreateAction', () => {
     it('can create with only the payer', async () => {
       const actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: TestData.arbitraryExpectedAmount,
           payer: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -183,9 +198,10 @@ describe('CreateAction', () => {
       expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
         CURRENT_VERSION,
       );
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
-        RequestLogicTypes.CURRENCY.ETH,
-      );
+      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -210,7 +226,10 @@ describe('CreateAction', () => {
     it('can create with the payee and the payer', async () => {
       const actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: TestData.arbitraryExpectedAmount,
           payee: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -233,9 +252,10 @@ describe('CreateAction', () => {
         CURRENT_VERSION,
       );
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
-        RequestLogicTypes.CURRENCY.ETH,
-      );
+      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -272,7 +292,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: TestData.arbitraryExpectedAmount,
             timestamp: TestData.arbitraryTimestamp,
           },
@@ -286,7 +309,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '0.1234',
             payee: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -303,7 +329,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: 'NaN',
             payee: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -320,7 +349,10 @@ describe('CreateAction', () => {
       const extensionsData = [{ id: 'extension1', value: 'whatever' }];
       const actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: TestData.arbitraryExpectedAmount,
           extensionsData,
           payee: {
@@ -340,9 +372,10 @@ describe('CreateAction', () => {
       expect(actionCreation.data.name, 'action is wrong').to.equal(
         RequestLogicTypes.ACTION_NAME.CREATE,
       );
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.equal(
-        RequestLogicTypes.CURRENCY.ETH,
-      );
+      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
       );
@@ -382,7 +415,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: TestData.arbitraryExpectedAmount,
             payee: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -403,7 +439,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: TestData.arbitraryExpectedAmount,
             payee: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -419,7 +458,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: TestData.arbitraryExpectedAmount,
             payer: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -435,7 +477,10 @@ describe('CreateAction', () => {
     it('can create with amount as integer, bigNumber or zero', async () => {
       let actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: 10000,
           payee: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -451,7 +496,10 @@ describe('CreateAction', () => {
 
       actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: new bigNumber(TestData.arbitraryExpectedAmount),
           payee: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -467,7 +515,10 @@ describe('CreateAction', () => {
 
       actionCreation = await CreateAction.format(
         {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: 0,
           payee: {
             type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -486,7 +537,10 @@ describe('CreateAction', () => {
       expect(() =>
         CreateAction.format(
           {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '-1000',
             payee: {
               type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -500,7 +554,10 @@ describe('CreateAction', () => {
     });
     it('does not support other identity type than "ethereumAddress" for Payee', () => {
       const params: any = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: '1000',
         payee: {
           type: 'not_ethereumAddress',
@@ -513,7 +570,10 @@ describe('CreateAction', () => {
     });
     it('does not support other identity type than "ethereumAddress" for Payer', () => {
       const params: any = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: '1000',
         payer: {
           type: 'not_ethereumAddress',
@@ -529,7 +589,10 @@ describe('CreateAction', () => {
   describe('createRequest', () => {
     it('can create with only the payee', async () => {
       const createParams = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -548,7 +611,10 @@ describe('CreateAction', () => {
       expect(request.requestId, 'requestId is wrong').to.equal(
         MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
       );
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -590,7 +656,10 @@ describe('CreateAction', () => {
 
     it('can create with nonce', async () => {
       const createParams = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: TestData.arbitraryExpectedAmount,
         nonce: 3,
         payee: {
@@ -610,7 +679,10 @@ describe('CreateAction', () => {
       expect(request.requestId, 'requestId is wrong').to.equal(
         MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
       );
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -653,7 +725,10 @@ describe('CreateAction', () => {
 
     it('can create with only the payer', async () => {
       const createParams = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: TestData.arbitraryExpectedAmount,
         payer: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -671,7 +746,10 @@ describe('CreateAction', () => {
       expect(request.requestId, 'requestId is wrong').to.equal(
         MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
       );
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -710,7 +788,10 @@ describe('CreateAction', () => {
 
     it('can create with the payee and the payer', async () => {
       const createParams = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: {
           type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -733,7 +814,10 @@ describe('CreateAction', () => {
       expect(request.requestId, 'requestId is wrong').to.equal(
         MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
       );
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,
@@ -868,7 +952,10 @@ describe('CreateAction', () => {
     it('can create with extensionsData', async () => {
       const extensionsData = [{ id: 'extension1', value: 'whatever' }];
       const createParams = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensionsData,
         payee: {
@@ -891,7 +978,10 @@ describe('CreateAction', () => {
       expect(request.requestId, 'requestId is wrong').to.equal(
         MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
       );
-      expect(request.currency, 'currency is wrong').to.equal(RequestLogicTypes.CURRENCY.ETH);
+      expect(request.currency, 'currency is wrong').to.deep.equal({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
       expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
       expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
         TestData.arbitraryExpectedAmount,

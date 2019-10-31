@@ -21,7 +21,10 @@ const payerIdentity = {
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
 const requestInfo: RequestNetwork.Types.RequestLogic.ICreateParameters = {
-  currency: RequestNetwork.Types.RequestLogic.CURRENCY.DAI,
+  currency: {
+    type: RequestNetwork.Types.RequestLogic.CURRENCY.ERC20,
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+  },
   expectedAmount: '1000000000000000000',
   payee: payeeIdentity,
   payer: payerIdentity,

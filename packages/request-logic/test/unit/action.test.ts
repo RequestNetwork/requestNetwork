@@ -25,7 +25,10 @@ chai.use(spies);
 const randomUnsignedAction = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: {
-    currency: RequestLogicTypes.CURRENCY.ETH,
+    currency: {
+      type: RequestLogicTypes.CURRENCY.ETH,
+      value: 'ETH',
+    },
     expectedAmount: '100000',
     payee: TestData.payeeRaw.identity,
     payer: TestData.payerRaw.identity,
@@ -59,7 +62,10 @@ describe('Action', () => {
     const randomUnsignedAction200 = {
       name: RequestLogicTypes.ACTION_NAME.CREATE,
       parameters: {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         expectedAmount: '100000',
         payee: TestData.payeeRaw.identity,
         payer: TestData.payerRaw.identity,

@@ -89,7 +89,11 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'rinkeby',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0xFab46E002BbF0b4509813474841E0716E6730136', // FAU rinkeby token
+  },
   events: [
     {
       actionSigner: {
@@ -127,7 +131,11 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'rinkeby',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0xFab46E002BbF0b4509813474841E0716E6730136', // FAU rinkeby token
+  },
   events: [
     {
       actionSigner: {
@@ -165,7 +173,11 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'rinkeby',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0xFab46E002BbF0b4509813474841E0716E6730136', // FAU rinkeby token
+  },
   events: [
     {
       actionSigner: {

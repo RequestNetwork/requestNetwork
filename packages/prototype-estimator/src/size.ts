@@ -16,7 +16,11 @@ const signerIdentity: IdentityTypes.IIdentity = {
 };
 
 const requestCreationHash: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   expectedAmount: '100000000000',
   payee: signerIdentity,
   payer: {

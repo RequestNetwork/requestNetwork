@@ -18,7 +18,10 @@ const expect = chai.expect;
 chai.use(spies);
 
 const createParams = {
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   expectedAmount: TestData.arbitraryExpectedAmount,
   payee: TestData.payeeRaw.identity,
   payer: TestData.payerRaw.identity,
@@ -423,7 +426,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -500,7 +506,10 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -548,7 +557,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -646,7 +658,10 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -694,7 +709,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -788,7 +806,10 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -882,7 +903,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: 'NOT A NUMBER',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -940,7 +964,10 @@ describe('index', () => {
       const unsignedActionCreation = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: '123400000000000000',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -982,7 +1009,10 @@ describe('index', () => {
       const unsignedActionCreation2 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '10',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1012,7 +1042,10 @@ describe('index', () => {
       const unsignedActionCreation3 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '666',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1095,7 +1128,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -1169,7 +1205,10 @@ describe('index', () => {
       const unsignedActionCreation = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: '123400000000000000',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1211,7 +1250,10 @@ describe('index', () => {
       const unsignedActionCreation2 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '10',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1241,7 +1283,10 @@ describe('index', () => {
       const unsignedActionCreation3 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '666',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,

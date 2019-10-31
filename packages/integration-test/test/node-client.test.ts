@@ -17,14 +17,20 @@ const payerIdentity: Types.Identity.IIdentity = {
 };
 
 const requestCreationHashBTC: Types.RequestLogic.ICreateParameters = {
-  currency: Types.RequestLogic.CURRENCY.BTC,
+  currency: {
+    type: Types.RequestLogic.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '1000',
   payee: payeeIdentity,
   payer: payerIdentity,
 };
 
 const requestCreationHashUSD: Types.RequestLogic.ICreateParameters = {
-  currency: Types.RequestLogic.CURRENCY.BTC,
+  currency: {
+    type: Types.RequestLogic.CURRENCY.ISO4217,
+    value: 'USD',
+  },
   expectedAmount: '1000',
   payee: payeeIdentity,
   payer: payerIdentity,
@@ -149,7 +155,10 @@ describe('Request client using a request node', () => {
 
     // create request 1
     const requestCreationHash1: Types.RequestLogic.ICreateParameters = {
-      currency: Types.RequestLogic.CURRENCY.BTC,
+      currency: {
+        type: Types.RequestLogic.CURRENCY.BTC,
+        value: 'BTC',
+      },
       expectedAmount: '100000000',
       payee: payeeIdentity,
       payer: payerIdentity,
@@ -167,7 +176,10 @@ describe('Request client using a request node', () => {
 
     // create request 2
     const requestCreationHash2: Types.RequestLogic.ICreateParameters = {
-      currency: Types.RequestLogic.CURRENCY.ETH,
+      currency: {
+        type: Types.RequestLogic.CURRENCY.BTC,
+        value: 'BTC',
+      },
       expectedAmount: '1000',
       payee: payeeIdentity,
       payer: payerIdentity,

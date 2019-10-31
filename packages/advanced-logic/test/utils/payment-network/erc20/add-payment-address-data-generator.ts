@@ -87,7 +87,11 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+  },
   events: [
     {
       actionSigner: {
@@ -125,7 +129,11 @@ export const requestStateCreatedEmptyThenAddRefund: RequestLogicTypes.IRequest =
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+  },
   events: [
     {
       actionSigner: {

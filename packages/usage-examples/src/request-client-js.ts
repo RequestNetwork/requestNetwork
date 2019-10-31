@@ -41,7 +41,10 @@ const decryptionProvider: RequestNetwork.Types.DecryptionProvider.IDecryptionPro
 );
 
 const requestInfo: RequestNetwork.Types.RequestLogic.ICreateParameters = {
-  currency: RequestNetwork.Types.RequestLogic.CURRENCY.BTC,
+  currency: {
+    type: RequestNetwork.Types.RequestLogic.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,

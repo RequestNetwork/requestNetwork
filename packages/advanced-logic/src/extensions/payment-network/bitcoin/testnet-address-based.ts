@@ -109,7 +109,7 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  if (requestState.currency !== RequestLogicTypes.CURRENCY.BTC) {
+  if (requestState.currency.type !== RequestLogicTypes.CURRENCY.BTC) {
     throw Error(`This extension can be used only on BTC request`);
   }
 

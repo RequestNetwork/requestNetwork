@@ -32,7 +32,10 @@ describe('Request', () => {
     it('can valid request', () => {
       const requestError = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensions: {},
@@ -48,7 +51,10 @@ describe('Request', () => {
     it('cannot valid request with no payer and no payee', () => {
       const requestNoPayeeNoPayer = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         extensions: {},
@@ -64,7 +70,10 @@ describe('Request', () => {
     });
     it('cannot valid request with no creator', () => {
       const requestError: any = {
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -78,7 +87,10 @@ describe('Request', () => {
     it('cannot valid request with expected amount missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         payee: TestData.payeeRaw.identity,
         requestId: TestData.requestIdMock,
@@ -92,7 +104,10 @@ describe('Request', () => {
     it('cannot valid request with expected amount not valid', () => {
       const requestError = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: '-10000',
         extensions: {},
@@ -113,7 +128,10 @@ describe('Request', () => {
           type: 'not_supported_type',
           value: '0xaaaa',
         },
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -129,7 +147,10 @@ describe('Request', () => {
     it('cannot valid request with payer identity type not supported', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -146,7 +167,10 @@ describe('Request', () => {
     it('cannot valid request with payee identity type not supported', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: {
@@ -163,7 +187,10 @@ describe('Request', () => {
     it('cannot valid request with state missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -175,7 +202,10 @@ describe('Request', () => {
     it('cannot valid request with version missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
@@ -199,7 +229,10 @@ describe('Request', () => {
     it('cannot valid request with requestId missing', () => {
       const requestError: any = {
         creator: TestData.payeeRaw.identity,
-        currency: RequestLogicTypes.CURRENCY.ETH,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
         events: [],
         expectedAmount: TestData.arbitraryExpectedAmount,
         payee: TestData.payeeRaw.identity,
