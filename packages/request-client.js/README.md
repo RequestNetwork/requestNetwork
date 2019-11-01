@@ -85,7 +85,7 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `requestInfo`: [IRequestInfo](/packages/request-client.js/src/types.ts#L42)
 - `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
@@ -119,7 +119,7 @@ const request = await requestNetwork.createEncryptedRequest(
 );
 ```
 
-- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `requestInfo`: [IRequestInfo](/packages/request-client.js/src/types.ts#L42)
 - `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
@@ -327,7 +327,7 @@ const requestId = await requestNetwork.computeRequestId({
 });
 ```
 
-- `requestInfo`: [RequestNetwork.Types.RequestLogic.ICreateParameters](/packages/types/src/request-logic-types.ts#L145)
+- `requestInfo`: [IRequestInfo](/packages/request-client.js/src/types.ts#L42)
 - `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
 - `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.

@@ -14,6 +14,7 @@ import { IEncryptionParameters } from '@requestnetwork/types/dist/encryption-typ
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
+import { stringToCurrency } from './currency';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 
@@ -282,6 +283,11 @@ export default class RequestNetwork {
 
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');
+    }
+
+    // if request currency is a string, convert it to currency object
+    if (typeof requestParameters.currency === 'string') {
+      requestParameters.currency = stringToCurrency(requestParameters.currency);
     }
 
     // avoid mutation of the parameters

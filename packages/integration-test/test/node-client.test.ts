@@ -16,21 +16,15 @@ const payerIdentity: Types.Identity.IIdentity = {
   value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
 };
 
-const requestCreationHashBTC: Types.RequestLogic.ICreateParameters = {
-  currency: {
-    type: Types.RequestLogic.CURRENCY.BTC,
-    value: 'BTC',
-  },
+const requestCreationHashBTC: Types.IRequestInfo = {
+  currency: 'BTC',
   expectedAmount: '1000',
   payee: payeeIdentity,
   payer: payerIdentity,
 };
 
-const requestCreationHashUSD: Types.RequestLogic.ICreateParameters = {
-  currency: {
-    type: Types.RequestLogic.CURRENCY.ISO4217,
-    value: 'USD',
-  },
+const requestCreationHashUSD: Types.IRequestInfo = {
+  currency: 'USD',
   expectedAmount: '1000',
   payee: payeeIdentity,
   payer: payerIdentity,
@@ -154,11 +148,8 @@ describe('Request client using a request node', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // create request 1
-    const requestCreationHash1: Types.RequestLogic.ICreateParameters = {
-      currency: {
-        type: Types.RequestLogic.CURRENCY.BTC,
-        value: 'BTC',
-      },
+    const requestCreationHash1: Types.IRequestInfo = {
+      currency: 'BTC',
       expectedAmount: '100000000',
       payee: payeeIdentity,
       payer: payerIdentity,
@@ -175,11 +166,8 @@ describe('Request client using a request node', () => {
     });
 
     // create request 2
-    const requestCreationHash2: Types.RequestLogic.ICreateParameters = {
-      currency: {
-        type: Types.RequestLogic.CURRENCY.BTC,
-        value: 'BTC',
-      },
+    const requestCreationHash2: Types.IRequestInfo = {
+      currency: 'BTC',
       expectedAmount: '1000',
       payee: payeeIdentity,
       payer: payerIdentity,

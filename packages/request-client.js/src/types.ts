@@ -31,11 +31,22 @@ export interface IRequestData extends RequestLogicTypes.IRequest {
 
 /** Create request parameters */
 export interface ICreateRequestParameters {
-  requestInfo: RequestLogicTypes.ICreateParameters;
+  requestInfo: RequestLogicTypes.ICreateParameters | IRequestInfo;
   signer: IdentityTypes.IIdentity;
   paymentNetwork?: IPaymentNetworkCreateParameters;
   topics?: string[];
   contentData?: any;
+}
+
+/** Parameters to create a request. ICreateParameters with a more flexible currency */
+export interface IRequestInfo {
+  currency: string | RequestLogicTypes.ICurrency;
+  expectedAmount: RequestLogicTypes.Amount;
+  payee?: IdentityTypes.IIdentity;
+  payer?: IdentityTypes.IIdentity;
+  extensionsData?: any[];
+  timestamp?: number;
+  nonce?: number;
 }
 
 /** Object interface to list the payment network id and its module by currency */

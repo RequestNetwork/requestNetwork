@@ -152,11 +152,7 @@ describe('api/payment-network/payment-network-factory', () => {
 
     it('can getPaymentNetworkFromRequest with any currency', async () => {
       const request: any = {
-        currency: {
-          network: 'mainnet',
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
+        currency: 'ETH',
         extensions: {
           [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
             id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,

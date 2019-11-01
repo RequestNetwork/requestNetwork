@@ -167,11 +167,13 @@ function legacyEnumToICurrencyConvert(currency: string): RequestLogicTypes.ICurr
   switch (currency) {
     case 'BTC':
       return {
+        network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.BTC,
         value: 'BTC',
       };
     case 'ETH':
       return {
+        network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       };
