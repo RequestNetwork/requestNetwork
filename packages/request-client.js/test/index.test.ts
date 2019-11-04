@@ -10,6 +10,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import 'mocha';
+import * as sinon from 'sinon';
 const mockAdapter = require('axios-mock-adapter');
 import { Request, RequestNetwork } from '../src/index';
 import * as Types from '../src/types';
@@ -574,6 +575,10 @@ describe('index', () => {
     });
 
     it('allows to get the right balance', async () => {
+      // Use sinon clock to get a predictible timestamp
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+      clock.tick(1000);
+
       const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
         currency: {
           type: RequestLogicTypes.CURRENCY.ISO4217,
@@ -611,12 +616,12 @@ describe('index', () => {
       // @ts-ignore
       expect(requestData.balance.events[0]).to.deep.equal({
         name: 'refund',
-        parameters: { amount: '10', note: 'received refund' },
+        parameters: { amount: '10', note: 'received refund', timestamp: 1 },
       });
       // @ts-ignore
       expect(requestData.balance.events[1]).to.deep.equal({
         name: 'payment',
-        parameters: { amount: '1000', note: 'received payment' },
+        parameters: { amount: '1000', note: 'received payment', timestamp: 1 },
       });
     });
 
