@@ -1,7 +1,7 @@
 # @requestnetwork/request-client.js
 
 `@requestnetwork/request-client.js` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
-This package allows you to interact with the Request blockchain through [Request nodes](/packages/request-node). This client side library uses Request nodes as servers, connected in HTTP. See the Request node documentation for more details on their API.
+This package allows you to interact with the Request blockchain through [Request nodes](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-node). This client side library uses Request nodes as servers, connected in HTTP. See the Request node documentation for more details on their API.
 It ships both as a commonjs and a UMD module. This means you can use it in node application and in web pages.
 
 ## Installation
@@ -17,7 +17,7 @@ npm install @requestnetwork/web3-signature
 
 ### Usage as commonjs module
 
-See [packages/usage-examples/src/request-client-js.ts](packages/usage-examples/src/request-client-js.ts).
+See [packages/usage-examples/src/request-client-js.ts](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/usage-examples/src/request-client-js.ts).
 
 ### Usage as UMD module
 
@@ -44,9 +44,9 @@ A global `RequestNetwork` is exposed:
 
 Full examples are available in `packages\request-client.js\test\`:
 
-- Simple example of request creation (see [index.html](/packages/request-client.js/test/index.html))
-- Example with signature with metamask (see [index-metamask.html](/packages/request-client.js/test/index-metamask.html))
-- Example with encrypted request (see [index-encryption.html](/packages/request-client.js/test/index-encryption.html))
+- Simple example of request creation (see [index.html](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/test/index.html))
+- Example with signature with metamask (see [index-metamask.html](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/test/index-metamask.html))
+- Example with encrypted request (see [index-encryption.html](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/test/index-encryption.html))
 
 ### Configure which Request node to use
 
@@ -85,9 +85,9 @@ const request = await requestNetwork.createRequest({
 });
 ```
 
-- `requestInfo`: [IRequestInfo](/packages/request-client.js/src/types.ts#L42)
-- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
-- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `requestInfo`: [IRequestInfo](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L42)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
 
@@ -119,12 +119,12 @@ const request = await requestNetwork.createEncryptedRequest(
 );
 ```
 
-- `requestInfo`: [IRequestInfo](/packages/request-client.js/src/types.ts#L42)
-- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
-- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `requestInfo`: [IRequestInfo](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L42)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
-- `encryptionParameters`: [RequestNetwork.Types.Encryption.IEncryptionParameters[]](/packages/types/src/encryption-types.ts#L2) - array of encryption parameters
+- `encryptionParameters`: [RequestNetwork.Types.Encryption.IEncryptionParameters[]](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/encryption-types.ts#L2) - array of encryption parameters
 
 ### Get a request from its ID
 
@@ -151,7 +151,7 @@ const updatedBetween = {
 const requestsFromIdentity = await requestNetwork.fromIdentity(identity, updatedBetween);
 ```
 
-- `identity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `identity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
 - `updatedBetween`
   - `from`: number - get requests updated from this timestamp on
   - `to`: number - get requests updated before this timestamp
@@ -212,7 +212,7 @@ npm install @requestnetwork/epk-decryption
 await request.accept(signerIdentity, refundInformation);
 ```
 
-- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
 - `refundInformation`: any - Optional refund information to add
 
 ### Cancel a request
@@ -221,7 +221,7 @@ await request.accept(signerIdentity, refundInformation);
 await request.cancel(signatureInfo, refundInformation);
 ```
 
-- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
 - `refundInformation`: any - Optional refund information to add
 
 ### Increase the expected amount of a request
@@ -231,7 +231,7 @@ await request.increaseExpectedAmountRequest(amount, signatureInfo, refundInforma
 ```
 
 - `amount`: string
-- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
 - `refundInformation`: any - Optional refund information to add
 
 ### Reduce the expected amount of a request
@@ -241,7 +241,7 @@ await request.reduceExpectedAmountRequest(amount, signatureInfo, paymentInformat
 ```
 
 - `amount`: string
-- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentit](/packages/types/src/identity-types.ts#L2)
+- `signerIdentity`: [RequestNetwork.Types.Identity.IIdentit](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
 - `paymentInformation`: any - Optional payment information to add
 
 ### Get a request data
@@ -268,7 +268,7 @@ const requestData = request.getData();
 */
 ```
 
-`requestData.request`: [IRequestData](/packages/request-client.js/src/types.ts#L17)
+`requestData.request`: [IRequestData](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L17)
 
 #### Metadata of a request
 
@@ -327,9 +327,9 @@ const requestId = await requestNetwork.computeRequestId({
 });
 ```
 
-- `requestInfo`: [IRequestInfo](/packages/request-client.js/src/types.ts#L42)
-- `signer`: [RequestNetwork.Types.Identity.IIdentity](/packages/types/src/identity-types.ts#L2)
-- `paymentNetwork`: [IPaymentNetworkCreateParameters](/packages/request-client.js/src/types.ts#L43)
+- `requestInfo`: [IRequestInfo](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L42)
+- `signer`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
+- `paymentNetwork`: [IPaymentNetworkCreateParameters](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L43)
 - `contentData`: any - optional [content data](#content-data) of the request.
 - `topics`: string[] - optional strings used to index the request.
 
@@ -342,7 +342,7 @@ Content Data can be any type of data that can safely be JSON stringified (check 
 
 This Content Data will be stored with the request, allowing relevant information about the request to be shared.
 
-Examples of standardized data formats that can be used in the request Content Data can be found at the [data-format](/packages/data-format/README.md) package.
+Examples of standardized data formats that can be used in the request Content Data can be found at the [data-format](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/data-format/README.md) package.
 
 ### Payment and Refund detections
 
@@ -355,7 +355,7 @@ From the information provided in payment network, the library will feed the prop
 
 The payment networks available are:
 
-- `Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED` ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request, every transaction hitting this address will be consider as a payment. Eventually, the payer can provide a BTC address for the refunds. Note that **the addresses must be used only for one and only one request** otherwise one transaction will be considered as a payment for more than one request. (see [the specification](/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md))
+- `Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED` ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request, every transaction hitting this address will be consider as a payment. Eventually, the payer can provide a BTC address for the refunds. Note that **the addresses must be used only for one and only one request** otherwise one transaction will be considered as a payment for more than one request. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md))
 - `Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED` ('pn-testnet-bitcoin-address-based'): Same as previous but for the bitcoin testnet (for test purpose)
 
 ## Contributing
