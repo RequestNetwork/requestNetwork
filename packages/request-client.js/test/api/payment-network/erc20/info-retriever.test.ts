@@ -7,7 +7,7 @@ const chai = require('chai');
 const expect = chai.expect;
 
 const erc20FAUContractAddress = '0xfab46e002bbf0b4509813474841e0716e6730136';
-const erc20DAIContractAddress = '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359';
+const erc20DAIContractAddress = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359';
 
 /* tslint:disable:no-unused-expression */
 describe('api/erc20/mainnet-address-based', function() {

@@ -15,6 +15,7 @@ import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { stringToCurrency } from './currency';
+import { validERC20Address } from './currency/erc20';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 
@@ -288,6 +289,15 @@ export default class RequestNetwork {
     // if request currency is a string, convert it to currency object
     if (typeof requestParameters.currency === 'string') {
       requestParameters.currency = stringToCurrency(requestParameters.currency);
+    } else {
+      // If ERC20, validate that the value is a checksum address
+      if (requestParameters.currency.type === RequestLogicTypes.CURRENCY.ERC20) {
+        if (!validERC20Address(requestParameters.currency.value)) {
+          throw new Error(
+            'The ERC20 currency address needs to be a valid Ethereum checksum address',
+          );
+        }
+      }
     }
 
     // avoid mutation of the parameters

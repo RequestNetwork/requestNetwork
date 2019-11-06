@@ -190,7 +190,7 @@ function legacyEnumToICurrencyConvert(currency: string): RequestLogicTypes.ICurr
     case 'DAI':
       return {
         type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
       };
     default:
       throw new Error('Unsupported currency when getting request from transactions.');

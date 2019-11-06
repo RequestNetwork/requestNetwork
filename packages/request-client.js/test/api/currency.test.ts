@@ -1,3 +1,4 @@
+// tslint:disable:no-magic-numbers
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import 'mocha';
@@ -6,7 +7,6 @@ import { getDecimalsForCurrency, stringToCurrency } from '../../src/api/currency
 describe('api/currency', () => {
   describe('getDecimalsForCurrency', () => {
     it('returns the correct number of decimals', async () => {
-      // tslint:disable-next-line:no-magic-numbers
       assert.equal(
         await getDecimalsForCurrency({
           type: RequestLogicTypes.CURRENCY.ETH,
@@ -26,15 +26,25 @@ describe('api/currency', () => {
       );
     });
 
-    it('returns the correct number of decimals for ERC20', async () => {
-      // tslint:disable-next-line:no-magic-numbers
+    it('returns the correct number of decimals for a supported ERC20', async () => {
       assert.equal(
         await getDecimalsForCurrency({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
         }),
         18,
+      );
+    });
+
+    it('returns the correct number of decimals for a non-supported ERC20', async () => {
+      assert.equal(
+        await getDecimalsForCurrency({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0xb9EF770B6A5e12E45983C5D80545258aA38F3B78', // 0chain
+        }),
+        10,
       );
     }).timeout(5000);
   });
@@ -58,7 +68,23 @@ describe('api/currency', () => {
       assert.deepEqual(stringToCurrency('DAI'), {
         network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
+        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
+      });
+    });
+
+    it('return the correct currency for REQ string', () => {
+      assert.deepEqual(stringToCurrency('REQ'), {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+      });
+    });
+
+    it('return the correct currency for CTBK-rinkeby string', () => {
+      assert.deepEqual(stringToCurrency('CTBK-rinkeby'), {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
       });
     });
 

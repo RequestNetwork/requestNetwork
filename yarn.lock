@@ -4789,6 +4789,11 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
+eth-contract-metadata@1.9.3:
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/eth-contract-metadata/-/eth-contract-metadata-1.9.3.tgz#d627d81cb6dadbe9d9261ec9594617ada38a25f2"
+  integrity sha512-qDdH9n2yw5GqWW5E6wrh7KZ8WicpEzofrpuJG3FWiJew+Yt6RapnqtXN8ljvxY+UTZPd1QzLXswKfpJyzsH4Tw==
+
 eth-crypto@1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/eth-crypto/-/eth-crypto-1.3.2.tgz#49b64d62790578c10f9817270f2322109d4d4078"

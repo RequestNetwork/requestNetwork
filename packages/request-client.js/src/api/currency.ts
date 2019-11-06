@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import * as currencyCodes from 'currency-codes';
-import { getDecimals } from './payment-network/erc20/info-retriever';
+import { getErc20Currency, getErc20Decimals } from './currency/erc20';
 
 // List of our supported cryptocurrencies
 const currencyList = new Map([
@@ -17,28 +17,6 @@ const currencyList = new Map([
     {
       type: RequestLogicTypes.CURRENCY.ETH,
       value: 'ETH',
-    },
-  ],
-]);
-
-// TODO: replace this with a full list of supported ERC20
-// List of our supported ERC20 tokens
-const erc20tokensList = new Map([
-  [
-    'DAI',
-    {
-      network: 'mainnet',
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
-    },
-  ],
-
-  [
-    'FAU',
-    {
-      network: 'rinkeby',
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0xFab46E002BbF0b4509813474841E0716E6730136',
     },
   ],
 ]);
@@ -61,33 +39,33 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
   const [value, network] = currencyString.split('-');
 
   // Simple function to get the currency from the value alone
-  const getCurrency = (val: string): RequestLogicTypes.ICurrency => {
+  const getCurrency = (): RequestLogicTypes.ICurrency => {
     // Check if it's it's a cryptocurrency
-    if (currencyList.has(val)) {
-      return currencyList.get(val)!;
+    if (currencyList.has(value)) {
+      return currencyList.get(value)!;
     }
 
-    // Check if it's one of our supported ERC20 currencies
-    // TODO: replace with actual ERC20 list
-    if (erc20tokensList.has(val)) {
-      return erc20tokensList.get(val)!;
+    // Check if it's an ERC20 token and return it if found
+    const erc20Currency = getErc20Currency(value, network);
+    if (erc20Currency) {
+      return erc20Currency;
     }
 
     // Check if it's one of ISO4217 currencies
-    if (currencyCodes.codes().includes(val)) {
+    if (currencyCodes.codes().includes(value)) {
       return {
         type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: val,
+        value,
       };
     }
-    throw new Error(`The currency ${val} is not supported`);
+    throw new Error(`The currency ${value} is not supported`);
   };
 
-  const currency = getCurrency(value);
+  const currency = getCurrency();
 
   // If a network was declared, add it to the currency object
   if (network) {
-    if (currency.network) {
+    if (currency.network !== network) {
       throw new Error(
         `You can't declare a network with currency ${value}. It's only available on the network: ${
           currency.network
@@ -109,10 +87,8 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
 export async function getDecimalsForCurrency(
   currency: RequestLogicTypes.ICurrency,
 ): Promise<number> {
-  // TODO: when we create a local list of "supported ERC20", we should fetch it from the list first
-  // For ERC20 currencies we have to check the decimals with the smart contract
   if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
-    return getERC20Decimals(currency.value, currency.network);
+    return getErc20Decimals(currency);
   }
   // Return the number of decimals for ISO-4217 currencies
   if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
@@ -120,7 +96,7 @@ export async function getDecimalsForCurrency(
     if (!iso) {
       throw new Error(`Unsupported ISO currency ${currency.value}`);
     }
-    return iso.digits;
+    return Promise.resolve(iso.digits);
   }
 
   const decimals = {
@@ -132,15 +108,4 @@ export async function getDecimalsForCurrency(
     throw new Error(`Currency ${currency} not implemented`);
   }
   return Promise.resolve(decimals);
-}
-
-/**
- * Returns the number of decimals for an ERC20 token
- *
- * @param address The ERC20 contract address
- * @param network The ERC20 contract network
- * @returns The number of decimals
- */
-async function getERC20Decimals(address: string, network: string = 'mainnet'): Promise<number> {
-  return getDecimals(address, network);
 }
