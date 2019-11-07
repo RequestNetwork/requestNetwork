@@ -1,5 +1,5 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import RinkebyErc20AddressBased from '../../../../src/api/payment-network/erc20/rinkeby-address-based';
+import ERC20AddressedBased from '../../../../src/api/payment-network/erc20/address-based';
 import * as Types from '../../../../src/types';
 
 import 'chai';
@@ -11,14 +11,14 @@ const expect = chai.expect;
 chai.use(spies);
 const sandbox = chai.spy.sandbox();
 
-let erc20AddressedBased: RinkebyErc20AddressBased;
+let erc20AddressedBased: ERC20AddressedBased;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
   extensions: {
-    addressBasedRinkebyErc20: {
+    addressBasedErc20: {
       createAddPaymentAddressAction(): any {
         return;
       },
@@ -34,17 +34,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/erc20/rinkeby-address-based', () => {
+describe('api/erc20/mainnet-address-based', () => {
   beforeEach(() => {
     sandbox.restore();
-    erc20AddressedBased = new RinkebyErc20AddressBased(mockAdvancedLogic);
+    erc20AddressedBased = new ERC20AddressedBased(mockAdvancedLogic);
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(
-      mockAdvancedLogic.extensions.addressBasedRinkebyErc20,
-      'createCreationAction',
-    );
+    const spy = sandbox.on(mockAdvancedLogic.extensions.addressBasedErc20, 'createCreationAction');
 
     erc20AddressedBased.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
 
@@ -53,7 +50,7 @@ describe('api/erc20/rinkeby-address-based', () => {
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.addressBasedRinkebyErc20,
+      mockAdvancedLogic.extensions.addressBasedErc20,
       'createAddPaymentAddressAction',
     );
 
@@ -66,7 +63,7 @@ describe('api/erc20/rinkeby-address-based', () => {
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.addressBasedRinkebyErc20,
+      mockAdvancedLogic.extensions.addressBasedErc20,
       'createAddRefundAddressAction',
     );
 
@@ -81,41 +78,41 @@ describe('api/erc20/rinkeby-address-based', () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
       currency: {
-        network: 'rinkeby',
+        network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0xFab46E002BbF0b4509813474841E0716E6730136', // FAU rinkeby token
+        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
       },
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED]: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
           events: [],
-          id: '',
-          type: '',
+          id: '0',
+          type: 'none',
           values: {
             paymentAddress: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
           },
-          version: '',
+          version: '0',
         },
       },
       extensionsData: [],
-      requestId: '',
-      state: '',
+      requestId: '0x1',
+      state: 'Good',
       timestamp: 0,
-      version: '',
+      version: '0.2',
     };
 
     const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
 
-    expect(balance.balance).to.be.equal('1000000000000000000');
+    expect(balance.balance).to.be.equal('510000000000000000');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
     expect(balance.events[0].parameters.to).to.be.equal(
       '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
     );
     expect(balance.events[0].parameters.from).to.be.equal(
-      '0x0000000000000000000000000000000000000000',
+      '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
     );
-    expect(balance.events[0].parameters.value).to.be.equal('1000000000000000000');
+    expect(balance.events[0].parameters.value).to.be.equal('510000000000000000');
   }).timeout(5000);
 });

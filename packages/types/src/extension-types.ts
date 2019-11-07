@@ -47,7 +47,6 @@ export enum ID {
   PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
   PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
   PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
-  PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED = 'pn-rinkeby-erc20-address-based',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
 }
 

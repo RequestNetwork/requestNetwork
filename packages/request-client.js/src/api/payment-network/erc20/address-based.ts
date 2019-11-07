@@ -1,18 +1,20 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
 import erc20InfoRetriever from './info-retriever';
 
 const bigNumber: any = require('bn.js');
+const supportedNetworks = ['mainnet', 'rinkeby'];
+
 /**
  * Handle payment networks with ERC20 based address extension
  */
-export default class PaymentNetworkERC20AddressBased {
+export default class PaymentNetworkERC20AddressBased implements Types.IPaymentNetwork {
   private extension: ExtensionTypes.PnAddressBased.IAddressBased;
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(extension: ExtensionTypes.PnAddressBased.IAddressBased) {
-    this.extension = extension;
+  public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
+    this.extension = advancedLogic.extensions.addressBasedErc20;
   }
 
   /**
@@ -62,38 +64,35 @@ export default class PaymentNetworkERC20AddressBased {
    * Gets the balance and the payment/refund events
    *
    * @param request the request to check
-   * @param paymentNetworkId payment network id
-   * @param tokenContractAddress the address of the token contract
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(
-    request: RequestLogicTypes.IRequest,
-    paymentNetworkId: ExtensionTypes.ID,
-    tokenContractAddress: string,
-  ): Promise<Types.IBalanceWithEvents> {
-    if (!request.extensions[paymentNetworkId]) {
-      throw new Error(`The request do not have the extension : ̀${paymentNetworkId}`);
+  public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
+    if (!request.currency.network) {
+      request.currency.network = 'mainnet';
     }
-    let network;
-    if (paymentNetworkId === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
-      network = 'mainnet';
-    } else if (paymentNetworkId === ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED) {
-      network = 'rinkeby';
-    } else {
+    if (!supportedNetworks.includes(request.currency.network)) {
       throw new Error(
-        `Payment network not supported by ERC20 payment detection: ${paymentNetworkId}`,
+        `Payment network ${
+          request.currency.network
+        } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
+          ', ',
+        )}`,
       );
     }
-    const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
-    const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
+    const paymentAddress =
+      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
+        .paymentAddress;
+    const refundAddress =
+      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
+        .refundAddress;
 
     let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       payments = await this.extractBalanceAndEvents(
         paymentAddress,
         Types.EVENTS_NAMES.PAYMENT,
-        network,
-        tokenContractAddress,
+        request.currency.network,
+        request.currency.value,
       );
     }
 
@@ -102,8 +101,8 @@ export default class PaymentNetworkERC20AddressBased {
       refunds = await this.extractBalanceAndEvents(
         refundAddress,
         Types.EVENTS_NAMES.REFUND,
-        network,
-        tokenContractAddress,
+        request.currency.network,
+        request.currency.value,
       );
     }
 

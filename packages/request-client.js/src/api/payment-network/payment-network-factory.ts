@@ -3,26 +3,32 @@ import * as Types from '../../types';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
-import ERC20AddressBased from './erc20/mainnet-address-based';
-import RinkebyERC20AddressBased from './erc20/rinkeby-address-based';
+import ERC20AddressBased from './erc20/address-based';
 
 /** Register the payment network by currency and type */
 // TODO: take into account currency network and possibly value when finding supported network
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
-    [ExtensionTypes.ID
-      .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+    mainnet: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
+    },
+    testnet: {
+      [ExtensionTypes.ID
+        .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
+    },
   },
   ERC20: {
-    [ExtensionTypes.ID
-      .PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED as string]: RinkebyERC20AddressBased,
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    mainnet: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
+    rinkeby: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
   },
-  any: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
-  },
+};
+
+const anyCurrencyPaymentNetwork: Types.IPaymentNetworkModuleByType = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -41,15 +47,14 @@ export default class PaymentNetworkFactory {
     currency: RequestLogicTypes.ICurrency,
     paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
   ): Types.IPaymentNetwork {
-    let paymentNetworkForCurrency = supportedPaymentNetwork[currency.type];
-    if (!paymentNetworkForCurrency) {
-      paymentNetworkForCurrency = supportedPaymentNetwork.any;
-    }
+    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
         `the payment network id: ${
           paymentNetworkCreationParameters.id
-        } is not supported for the currency: ${currency.type} ${currency.value}`,
+        } is not supported for the currency: ${currency.type} on network ${currency.network ||
+          'mainnet'}`,
       );
     }
 
@@ -78,18 +83,34 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    let paymentNetworkForCurrency = supportedPaymentNetwork[currency.type];
-    if (!paymentNetworkForCurrency) {
-      paymentNetworkForCurrency = supportedPaymentNetwork.any;
-    }
+    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
         `the payment network id: ${paymentNetworkId} is not supported for the currency: ${
           currency.type
-        } ${currency.value}`,
+        } on network ${currency.network || 'mainnet'}`,
       );
     }
 
     return new paymentNetworkForCurrency[paymentNetworkId](advancedLogic);
   }
+}
+
+/**
+ * Gets the payment networks supported for a Currency object
+ *
+ * @param currency The currency to get the supported networks for
+ */
+function supportedPaymentNetworksForCurrency(
+  currency: RequestLogicTypes.ICurrency,
+): Types.IPaymentNetworkModuleByType {
+  if (!supportedPaymentNetwork[currency.type]) {
+    return anyCurrencyPaymentNetwork;
+  }
+
+  const paymentNetwork =
+    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] || {};
+
+  return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
 }

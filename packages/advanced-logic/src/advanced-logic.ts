@@ -9,8 +9,7 @@ import contentData from './extensions/content-data';
 import addressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
 import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
 import declarative from './extensions/payment-network/declarative';
-import addressBasedErc20 from './extensions/payment-network/erc20/mainnet-address-based';
-import addressBasedRinkebyErc20 from './extensions/payment-network/erc20/rinkeby-address-based';
+import addressBasedErc20 from './extensions/payment-network/erc20/address-based';
 
 /**
  * Module to manage Advanced logic extensions
@@ -21,7 +20,6 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   public extensions: any = {
     addressBasedBtc,
     addressBasedErc20,
-    addressBasedRinkebyErc20,
     addressBasedTestnetBtc,
     contentData,
     declarative,
@@ -85,15 +83,6 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     }
     if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
       return addressBasedErc20.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED) {
-      return addressBasedRinkebyErc20.applyActionToExtension(
         extensionsState,
         extensionAction,
         requestState,

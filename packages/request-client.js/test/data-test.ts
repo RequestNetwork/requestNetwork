@@ -53,6 +53,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
 };
 export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
   currency: {
+    network: 'testnet',
     type: RequestLogicTypes.CURRENCY.BTC,
     value: 'BTC',
   },
@@ -72,6 +73,7 @@ export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
 
 export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameters = {
   currency: {
+    network: 'testnet',
     type: RequestLogicTypes.CURRENCY.BTC,
     value: 'BTC',
   },
@@ -82,6 +84,7 @@ export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameter
 };
 export const parametersWithoutExtensionsDataForSigning: RequestLogicTypes.ICreateParameters = {
   currency: {
+    network: 'testnet',
     type: RequestLogicTypes.CURRENCY.BTC,
     value: 'BTC',
   },
@@ -146,7 +149,11 @@ export const anotherCreationTransactionConfirmed: TransactionTypes.IConfirmedTra
 const dataSecondRequest = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: {
-    currency: 'ETH',
+    currency: {
+      network: 'testnet',
+      type: RequestLogicTypes.CURRENCY.ETH,
+      value: 'ETH',
+    },
     expectedAmount: '123400000000000000',
     extensionsData: [],
     payee: payee.identity,

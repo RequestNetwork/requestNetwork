@@ -51,7 +51,12 @@ export interface IRequestInfo {
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
-  [currency: string]: IPaymentNetworkModuleByType;
+  [currency: string]: ISupportedPaymentNetworkByNetwork;
+}
+
+/** Object interface to list the payment network module by network */
+export interface ISupportedPaymentNetworkByNetwork {
+  [network: string]: IPaymentNetworkModuleByType;
 }
 
 /** Object interface to list the payment network module by id */
@@ -106,6 +111,5 @@ export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
   ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
-  RINKEBY_ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
   DECLARATIVE = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
 }

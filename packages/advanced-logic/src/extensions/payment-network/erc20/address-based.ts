@@ -5,8 +5,7 @@ const walletAddressValidator = require('wallet-address-validator');
 import AddressBased from '../address-based';
 
 /**
- * Implementation of the payment network to pay in ERC20 tokens based on an Ethereum address ON THE RINKEBY TESTNET
- * This payment network MUST BE USED ONLY for TEST PURPOSE. it MUST NEVER BE USED for real request.
+ * Implementation of the payment network to pay in ERC20 tokens based on an Ethereum address
  * With this extension one request can have two dedicated Ethereum addresses (one for payment and one for refund)
  * Every ERC20 ethereum transaction, using the request currency ERC20, that reaches these addresses will be interpreted as payment or refund.
  * Important: the addresses must be exclusive to the request
@@ -19,8 +18,10 @@ const erc20AddressBasedManager: ExtensionTypes.PnAddressBased.IAddressBased = {
   isValidAddress,
 };
 
+const supportedNetworks = ['mainnet', 'rinkeby'];
+
 /**
- * Creates the extensionsData to create the extension ERC20 testnet address based payment detection
+ * Creates the extensionsData to create the extension ERC20 address based payment detection
  *
  * @param extensions extensions parameters to create
  *
@@ -38,7 +39,7 @@ function createCreationAction(
   }
 
   return AddressBased.createCreationAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
     creationParameters,
   );
 }
@@ -61,7 +62,7 @@ function createAddPaymentAddressAction(
   }
 
   return AddressBased.createAddPaymentAddressAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
     addPaymentAddressParameters,
   );
 }
@@ -84,7 +85,7 @@ function createAddRefundAddressAction(
   }
 
   return AddressBased.createAddRefundAddressAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
     addRefundAddressParameters,
   );
 }
@@ -107,9 +108,15 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  // TODO: test for full list of supported ERC20 currencies
-  if (requestState.currency.type !== RequestLogicTypes.CURRENCY.ERC20) {
-    throw Error(`This extension can be used only on ERC20 requests`);
+  if (
+    requestState.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
+    (requestState.currency.network && !supportedNetworks.includes(requestState.currency.network))
+  ) {
+    throw Error(
+      `This extension can be used only on ERC20 requests and on supported networks ${supportedNetworks.join(
+        ', ',
+      )}`,
+    );
   }
 
   return AddressBased.applyActionToExtension(
@@ -125,8 +132,8 @@ function applyActionToExtension(
 /**
  * Check if an ethereum address is valid
  *
- * @param address address to check
- * @returns true if address is valid
+ * @param {string} address address to check
+ * @returns {boolean} true if address is valid
  */
 function isValidAddress(address: string): boolean {
   return walletAddressValidator.validate(address, 'ethereum');
