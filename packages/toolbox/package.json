@@ -39,9 +39,9 @@
     "cli": "cross-env NODE_ENV=development ts-node src/cli.ts"
   },
   "dependencies": {
-    "@requestnetwork/epk-signature": "0.5.0",
-    "@requestnetwork/request-client.js": "0.5.0",
-    "@requestnetwork/types": "0.5.0",
+    "@requestnetwork/epk-signature": "0.5.3",
+    "@requestnetwork/request-client.js": "0.8.0",
+    "@requestnetwork/types": "0.8.0",
     "axios": "0.18.1",
     "yargs": "14.0.0"
   },
