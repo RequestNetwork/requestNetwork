@@ -706,6 +706,26 @@ describe('index', () => {
       );
     });
 
+    it('cannot create an encrypted request without encryption parameters', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      await expect(
+        requestNetwork._createEncryptedRequest(
+          {
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: payeeIdentity,
+          },
+          [],
+        ),
+      ).to.eventually.be.rejectedWith(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    });
+
     it('creates an encrypted request and recovers it by topic', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,

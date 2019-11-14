@@ -3,6 +3,7 @@ import 'mocha';
 import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as chaiAsPromised from 'chai-as-promised';
 
 import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
@@ -13,6 +14,7 @@ const CURRENT_VERSION = Version.currentVersion;
 
 const chai = require('chai');
 const spies = require('chai-spies');
+chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 chai.use(spies);
@@ -110,17 +112,12 @@ describe('index', () => {
     it('cannot create encrypted request without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
 
-      try {
-        await requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
+      await expect(
+        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
           TestData.payeeRaw.encryptionParams,
           TestData.payerRaw.encryptionParams,
-        ]);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+        ]),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
 
     it('can create en encrypted request', async () => {
@@ -165,19 +162,25 @@ describe('index', () => {
         ],
       );
     });
+
+    it('cannot create en encrypted request without encryption parameteres', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, []),
+      ).to.eventually.be.rejectedWith(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    });
   });
 
   describe('computeRequestId', () => {
     it('cannot computeRequestId without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
-      try {
-        await requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+
+      await expect(
+        requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
 
     it('can computeRequestId', async () => {
@@ -224,14 +227,9 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
   });
 
@@ -265,14 +263,9 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.cancelRequest(cancelParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.cancelRequest(cancelParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
   });
 
@@ -312,17 +305,9 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.increaseExpectedAmountRequest(
-          increaseRequest,
-          TestData.payeeRaw.identity,
-        );
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
   });
 
@@ -362,14 +347,9 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
   });
 
@@ -409,14 +389,9 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
   });
 

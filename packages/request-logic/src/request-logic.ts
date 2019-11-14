@@ -75,6 +75,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     topics: any[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
+    if (encryptionParams.length === 0) {
+      throw new Error(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    }
+
     const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
       requestParameters,
       signerIdentity,
