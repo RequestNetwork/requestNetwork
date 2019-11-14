@@ -1166,7 +1166,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bn.js@4.11.5":
+"@types/bn.js@4.11.5", "@types/bn.js@^4.11.3":
   version "4.11.5"
   resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-4.11.5.tgz#40e36197433f78f807524ec623afcf0169ac81dc"
   integrity sha512-AEAZcIZga0JgVMHNtl1CprA/hXX7/wPt79AgR4XqaDt7jyj3QWYw6LPoOiznPtugDmlubUnAahMs2PFxGcQrng==
@@ -1779,6 +1779,11 @@ acorn-walk@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-7.0.0.tgz#c8ba6f0f1aac4b0a9e32d1f0af12be769528f36b"
   integrity sha512-7Bv1We7ZGuU79zZbb6rRqcpxo3OY+zrdtloZWoyD8fmGX+FeXRjE+iuGkZjSXLVovLzrsvMGMy0EkwA0E0umxg==
+
+acorn@7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.1.0.tgz#949d36f2c292535da602283586c2477c57eb2d6c"
+  integrity sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==
 
 acorn@^5.0.0, acorn@^5.6.2, acorn@^5.7.3:
   version "5.7.3"
@@ -4246,6 +4251,18 @@ eccrypto@1.0.4:
   optionalDependencies:
     secp256k1 "^2.0.4"
 
+eccrypto@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/eccrypto/-/eccrypto-1.1.2.tgz#7962402f923044d25a802d7369447b0a563873b1"
+  integrity sha512-4z/uF18h2TFdqqtFSUvlwRD9epzmeEEUZ4nVMv3ox+jy+V7AxU9s3nLoEDDbptTUlkAbAp5bPfhaS7H4naoFqg==
+  dependencies:
+    acorn "7.1.0"
+    elliptic "6.5.1"
+    es6-promise "4.2.8"
+    nan "2.14.0"
+  optionalDependencies:
+    secp256k1 "3.7.1"
+
 ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
@@ -4271,7 +4288,7 @@ elliptic@6.3.3:
     hash.js "^1.0.0"
     inherits "^2.0.1"
 
-elliptic@^6.0.0, elliptic@^6.0.2, elliptic@^6.2.3, elliptic@^6.4.0, elliptic@^6.4.1:
+elliptic@6.5.1, elliptic@^6.0.0, elliptic@^6.0.2, elliptic@^6.2.3, elliptic@^6.4.0, elliptic@^6.4.1:
   version "6.5.1"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.1.tgz#c380f5f909bf1b9b4428d028cd18d3b0efd6b52b"
   integrity sha512-xvJINNLbTeWQjrl6X+7eQCrIy/YPv5XCpKW6kB5mKvtnGILoLDcySuwomfdzt0BMdLNVnuRNTuzKNHj0bva1Cg==
@@ -4431,15 +4448,15 @@ es6-object-assign@^1.0.3:
   resolved "https://registry.yarnpkg.com/es6-object-assign/-/es6-object-assign-1.1.0.tgz#c2c3582656247c39ea107cb1e6652b6f9f24523c"
   integrity sha1-wsNYJlYkfDnqEHyx5mUrb58kUjw=
 
+es6-promise@4.2.8, es6-promise@^4.0.3:
+  version "4.2.8"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.8.tgz#4eb21594c972bc40553d276e510539143db53e0a"
+  integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
+
 es6-promise@^3.0.2:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.3.1.tgz#a08cdde84ccdbf34d027a1451bc91d4bcd28a613"
   integrity sha1-oIzd6EzNvzTQJ6FFG8kdS80ophM=
-
-es6-promise@^4.0.3:
-  version "4.2.8"
-  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.8.tgz#4eb21594c972bc40553d276e510539143db53e0a"
-  integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
 
 es6-promisify@^5.0.0:
   version "5.0.0"
@@ -4721,6 +4738,20 @@ eth-crypto@1.3.2:
     webpack-bundle-analyzer "3.0.3"
     webpack-cli "3.1.2"
 
+eth-crypto@1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/eth-crypto/-/eth-crypto-1.5.0.tgz#f3ec292c87c10980cff358b6f15d8a330214622f"
+  integrity sha512-BSTlT/dnyB8it3MBDf1X/RCwVjbah44KYgPZNxIBpXRr7jEIXe1eF8h6ShXT+a3mpCb7SWd9aczhSB4KioCSZw==
+  dependencies:
+    "@types/bn.js" "4.11.5"
+    babel-runtime "6.26.0"
+    eccrypto "1.1.2"
+    eth-lib "0.2.8"
+    ethereumjs-tx "2.1.1"
+    ethereumjs-util "6.1.0"
+    ethers "4.0.37"
+    secp256k1 "3.7.1"
+
 eth-ens-namehash@2.0.8:
   version "2.0.8"
   resolved "https://registry.yarnpkg.com/eth-ens-namehash/-/eth-ens-namehash-2.0.8.tgz#229ac46eca86d52e0c991e7cb2aef83ff0f68bcf"
@@ -4765,6 +4796,11 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
+ethereumjs-common@^1.3.1:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/ethereumjs-common/-/ethereumjs-common-1.4.0.tgz#a940685f88f3c2587e4061630fe720b089c965b8"
+  integrity sha512-ser2SAplX/YI5W2AnzU8wmSjKRy4KQd4uxInJ36BzjS3m18E/B9QedPUIresZN1CSEQb/RgNQ2gN7C/XbpTafA==
+
 ethereumjs-tx@1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/ethereumjs-tx/-/ethereumjs-tx-1.3.7.tgz#88323a2d875b10549b8347e09f4862b546f3d89a"
@@ -4772,6 +4808,14 @@ ethereumjs-tx@1.3.7:
   dependencies:
     ethereum-common "^0.0.18"
     ethereumjs-util "^5.0.0"
+
+ethereumjs-tx@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/ethereumjs-tx/-/ethereumjs-tx-2.1.1.tgz#7d204e2b319156c9bc6cec67e9529424a26e8ccc"
+  integrity sha512-QtVriNqowCFA19X9BCRPMgdVNJ0/gMBS91TQb1DfrhsbR748g4STwxZptFAwfqehMyrF8rDwB23w87PQwru0wA==
+  dependencies:
+    ethereumjs-common "^1.3.1"
+    ethereumjs-util "^6.0.0"
 
 ethereumjs-util@6.0.0:
   version "6.0.0"
@@ -4781,6 +4825,19 @@ ethereumjs-util@6.0.0:
     bn.js "^4.11.0"
     create-hash "^1.1.2"
     ethjs-util "^0.1.6"
+    keccak "^1.0.2"
+    rlp "^2.0.0"
+    safe-buffer "^5.1.1"
+    secp256k1 "^3.0.1"
+
+ethereumjs-util@6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.1.0.tgz#e9c51e5549e8ebd757a339cc00f5380507e799c8"
+  integrity sha512-URESKMFbDeJxnAxPppnk2fN6Y3BIatn9fwn76Lm8bQlt+s52TpG8dN9M66MLPuRAiAOIqL3dfwqWJf0sd0fL0Q==
+  dependencies:
+    bn.js "^4.11.0"
+    create-hash "^1.1.2"
+    ethjs-util "0.1.6"
     keccak "^1.0.2"
     rlp "^2.0.0"
     safe-buffer "^5.1.1"
@@ -4797,6 +4854,19 @@ ethereumjs-util@^5.0.0:
     keccak "^1.0.2"
     rlp "^2.0.0"
     safe-buffer "^5.1.1"
+    secp256k1 "^3.0.1"
+
+ethereumjs-util@^6.0.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.2.0.tgz#23ec79b2488a7d041242f01e25f24e5ad0357960"
+  integrity sha512-vb0XN9J2QGdZGIEKG2vXM+kUdEivUfU6Wmi5y0cg+LRhDYKnXIZ/Lz7XjFbHRR9VIKq2lVGLzGBkA++y2nOdOQ==
+  dependencies:
+    "@types/bn.js" "^4.11.3"
+    bn.js "^4.11.0"
+    create-hash "^1.1.2"
+    ethjs-util "0.1.6"
+    keccak "^2.0.0"
+    rlp "^2.2.3"
     secp256k1 "^3.0.1"
 
 ethers@3.0.27:
@@ -4847,6 +4917,22 @@ ethers@4.0.0-beta.3:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
+ethers@4.0.37:
+  version "4.0.37"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.37.tgz#dfa70d59498663878c5e4a977d14356660ca5b90"
+  integrity sha512-B7bDdyQ45A5lPr6k2HOkEKMtYOuqlfy+nNf8glnRvWidkDQnToKw1bv7UyrwlbsIgY2mE03UxTVtouXcT6Vvcw==
+  dependencies:
+    "@types/node" "^10.3.2"
+    aes-js "3.0.0"
+    bn.js "^4.4.0"
+    elliptic "6.3.3"
+    hash.js "1.1.3"
+    js-sha3 "0.5.7"
+    scrypt-js "2.0.4"
+    setimmediate "1.0.4"
+    uuid "2.0.1"
+    xmlhttprequest "1.8.0"
+
 ethers@4.0.38:
   version "4.0.38"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.38.tgz#3fabafb4f79c435205b143b66b4a1af035043e37"
@@ -4880,7 +4966,7 @@ ethjs-unit@0.1.6:
     bn.js "4.11.6"
     number-to-bn "1.7.0"
 
-ethjs-util@^0.1.3, ethjs-util@^0.1.6:
+ethjs-util@0.1.6, ethjs-util@^0.1.3, ethjs-util@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/ethjs-util/-/ethjs-util-0.1.6.tgz#f308b62f185f9fe6237132fb2a9818866a5cd536"
   integrity sha512-CUnVOQq7gSpDHZVVrQW8ExxUETWrnrvXYvYz55wOU8Uj4VCgw56XC2B/fVqQN+f7gmrnRHSLVnFAwsCuNwji8w==
@@ -7370,6 +7456,16 @@ keccak@^1.0.2:
     nan "^2.2.1"
     safe-buffer "^5.1.0"
 
+keccak@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/keccak/-/keccak-2.0.0.tgz#7456ea5023284271e6f362b4397e8df4d2bb994c"
+  integrity sha512-rKe/lRr0KGhjoz97cwg+oeT1Rj/Y4cjae6glArioUC8JBF9ROGZctwIaaruM7d7naovME4Q8WcQSO908A8qcyQ==
+  dependencies:
+    bindings "^1.2.1"
+    inherits "^2.0.3"
+    nan "^2.2.1"
+    safe-buffer "^5.1.0"
+
 keccakjs@^0.2.1:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/keccakjs/-/keccakjs-0.2.3.tgz#5e4e969ce39689a3861f445d7752ee3477f9fe72"
@@ -8469,7 +8565,7 @@ nan@2.13.2:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.2.tgz#f51dc7ae66ba7d5d55e1e6d4d8092e802c9aefe7"
   integrity sha512-TghvYc72wlMGMVMluVo9WRJc0mB8KxxF/gZ4YYFy7V2ZQX9l7rgbPg7vjS9mt6U5HXODVFVI2bOduCzwOMv/lw==
 
-nan@^2.0.8, nan@^2.0.9, nan@^2.1.0, nan@^2.11.0, nan@^2.12.1, nan@^2.14.0, nan@^2.2.1, nan@^2.3.3:
+nan@2.14.0, nan@^2.0.8, nan@^2.0.9, nan@^2.1.0, nan@^2.11.0, nan@^2.12.1, nan@^2.14.0, nan@^2.2.1, nan@^2.3.3:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
@@ -10447,6 +10543,13 @@ rlp@^2.0.0:
     bn.js "^4.11.1"
     safe-buffer "^5.1.1"
 
+rlp@^2.2.3:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/rlp/-/rlp-2.2.4.tgz#d6b0e1659e9285fc509a5d169a9bd06f704951c1"
+  integrity sha512-fdq2yYCWpAQBhwkZv+Z8o/Z4sPmYm1CUq6P7n6lVTOdb949CnqA0sndXal5C1NleSVSZm6q5F3iEbauyVln/iw==
+  dependencies:
+    bn.js "^4.11.1"
+
 run-async@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/run-async/-/run-async-2.3.0.tgz#0371ab4ae0bdd720d4166d7dfda64ff7a445a6c0"
@@ -10592,19 +10695,7 @@ secp256k1@3.5.2:
     nan "^2.2.1"
     safe-buffer "^5.1.0"
 
-secp256k1@^2.0.4:
-  version "2.0.10"
-  resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-2.0.10.tgz#c7d6a3c119e1ca44083c367b0715e184907417b3"
-  integrity sha1-x9ajwRnhykQIPDZ7BxXhhJB0F7M=
-  dependencies:
-    bindings "^1.2.1"
-    bluebird "^3.0.2"
-    bn.js "^4.6.4"
-    elliptic "^6.0.2"
-    nan "^2.0.9"
-    object-assign "^4.0.1"
-
-secp256k1@^3.0.1:
+secp256k1@3.7.1, secp256k1@^3.0.1:
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-3.7.1.tgz#12e473e0e9a7c2f2d4d4818e722ad0e14cc1e2f1"
   integrity sha512-1cf8sbnRreXrQFdH6qsg2H71Xw91fCCS9Yp021GnUNJzWJS/py96fS4lHbnTnouLp08Xj6jBoBB6V78Tdbdu5g==
@@ -10617,6 +10708,18 @@ secp256k1@^3.0.1:
     elliptic "^6.4.1"
     nan "^2.14.0"
     safe-buffer "^5.1.2"
+
+secp256k1@^2.0.4:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-2.0.10.tgz#c7d6a3c119e1ca44083c367b0715e184907417b3"
+  integrity sha1-x9ajwRnhykQIPDZ7BxXhhJB0F7M=
+  dependencies:
+    bindings "^1.2.1"
+    bluebird "^3.0.2"
+    bn.js "^4.6.4"
+    elliptic "^6.0.2"
+    nan "^2.0.9"
+    object-assign "^4.0.1"
 
 seek-bzip@^1.0.5:
   version "1.0.5"
