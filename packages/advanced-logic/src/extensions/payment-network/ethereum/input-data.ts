@@ -225,6 +225,7 @@ function applyCreation(
     values: {
       paymentAddress: extensionAction.parameters.paymentAddress,
       refundAddress: extensionAction.parameters.refundAddress,
+      salt: extensionAction.parameters.salt,
     },
     version: CURRENT_VERSION,
   };
