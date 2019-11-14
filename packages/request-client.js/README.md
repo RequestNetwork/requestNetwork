@@ -218,7 +218,7 @@ await request.accept(signerIdentity, refundInformation);
 ### Cancel a request
 
 ```javascript
-await request.cancel(signatureInfo, refundInformation);
+await request.cancel(signerIdentity, refundInformation);
 ```
 
 - `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
@@ -227,7 +227,7 @@ await request.cancel(signatureInfo, refundInformation);
 ### Increase the expected amount of a request
 
 ```javascript
-await request.increaseExpectedAmountRequest(amount, signatureInfo, refundInformation);
+await request.increaseExpectedAmountRequest(amount, signerIdentity, refundInformation);
 ```
 
 - `amount`: string
@@ -237,7 +237,7 @@ await request.increaseExpectedAmountRequest(amount, signatureInfo, refundInforma
 ### Reduce the expected amount of a request
 
 ```javascript
-await request.reduceExpectedAmountRequest(amount, signatureInfo, paymentInformation);
+await request.reduceExpectedAmountRequest(amount, signerIdentity, paymentInformation);
 ```
 
 - `amount`: string
