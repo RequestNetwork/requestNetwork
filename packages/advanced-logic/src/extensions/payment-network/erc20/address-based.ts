@@ -23,7 +23,7 @@ const supportedNetworks = ['mainnet', 'rinkeby'];
 /**
  * Creates the extensionsData to create the extension ERC20 address based payment detection
  *
- * @param extensions extensions parameters to create
+ * @param creationParameters extensions parameters to create
  *
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
@@ -47,7 +47,7 @@ function createCreationAction(
 /**
  * Creates the extensionsData to add a payment address
  *
- * @param extensions extensions parameters to create
+ * @param addPaymentAddressParameters extensions parameters to create
  *
  * @returns IAction the extensionsData to be stored in the request
  */
@@ -70,7 +70,7 @@ function createAddPaymentAddressAction(
 /**
  * Creates the extensionsData to add a refund address
  *
- * @param extensions extensions parameters to create
+ * @param addRefundAddressParameters extensions parameters to create
  *
  * @returns IAction the extensionsData to be stored in the request
  */

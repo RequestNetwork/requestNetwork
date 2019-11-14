@@ -10,6 +10,7 @@ import addressBasedBtc from './extensions/payment-network/bitcoin/mainnet-addres
 import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
 import declarative from './extensions/payment-network/declarative';
 import addressBasedErc20 from './extensions/payment-network/erc20/address-based';
+import ethereumInputData from './extensions/payment-network/ethereum/input-data';
 
 /**
  * Module to manage Advanced logic extensions
@@ -23,6 +24,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     addressBasedTestnetBtc,
     contentData,
     declarative,
+    ethereumInputData,
   };
 
   /**
@@ -83,6 +85,15 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     }
     if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
       return addressBasedErc20.applyActionToExtension(
+        extensionsState,
+        extensionAction,
+        requestState,
+        actionSigner,
+        timestamp,
+      );
+    }
+    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA) {
+      return ethereumInputData.applyActionToExtension(
         extensionsState,
         extensionAction,
         requestState,

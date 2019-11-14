@@ -1,38 +1,64 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-
 import Utils from '@requestnetwork/utils';
 
+const walletAddressValidator = require('wallet-address-validator');
+
 /**
- * Core of the address based payment networks
- * This module is called by the address based payment networks to avoid code redundancy
+ * Implementation of the payment network to pay in ETH based on input data.
+ * With this extension, one request can have two Ethereum addresses (one for payment and one for refund) and a specific value to give as input data
+ * Every ETH ethereum transaction that reaches these addresses and has the correct input data will be interpreted as a payment or a refund.
+ * The value to give as input data is the last 8 bytes of a salted hash of the requestId and the address: `last8Bytes(hash(requestId + salt + address))`:
+ * The salt should have at least 8 bytes of randomness. A way to generate it is:
+ *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-export default {
+const ethInputData: ExtensionTypes.PnEthInputData.IEthInputData = {
   applyActionToExtension,
   createAddPaymentAddressAction,
   createAddRefundAddressAction,
   createCreationAction,
+  isValidAddress,
 };
+
+const supportedNetworks = ['mainnet', 'rinkeby'];
+
+// Regex for "at least 16 hexadecimal numbers". Used to validate the salt
+const eightHexRegex = /[0-9a-f]{16,}/;
 
 const CURRENT_VERSION = '0.1.0';
 
 /**
- * Creates the extensionsData for address based payment networks
+ * Creates the extensionsData to create the ETH payment detection extension
  *
- * @param extensions extensions parameters to create
+ * @param creationParameters extensions parameters to create
  *
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
 function createCreationAction(
-  extensionId: ExtensionTypes.ID,
-  creationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
+  creationParameters: ExtensionTypes.PnEthInputData.ICreationParameters,
 ): ExtensionTypes.IAction {
+  if (creationParameters.paymentAddress && !isValidAddress(creationParameters.paymentAddress)) {
+    throw Error('paymentAddress is not a valid ethereum address');
+  }
+
+  if (creationParameters.refundAddress && !isValidAddress(creationParameters.refundAddress)) {
+    throw Error('refundAddress is not a valid ethereum address');
+  }
+
+  if (!creationParameters.salt) {
+    throw Error('salt should not be empty');
+  }
+
+  if (!eightHexRegex.test(creationParameters.salt)) {
+    /* eslint-disable spellcheck/spell-checker */
+    throw Error(
+      `salt be a string of minimum 16 hexadecimal characters. Example: 'ea3bc7caf64110ca'`,
+    );
+  }
+
   return {
     action: ExtensionTypes.PnAddressBased.ACTION.CREATE,
-    id: extensionId,
-    parameters: {
-      paymentAddress: creationParameters.paymentAddress,
-      refundAddress: creationParameters.refundAddress,
-    },
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    parameters: creationParameters,
     version: CURRENT_VERSION,
   };
 }
@@ -40,40 +66,48 @@ function createCreationAction(
 /**
  * Creates the extensionsData to add a payment address
  *
- * @param extensions extensions parameters to create
+ * @param addPaymentAddressParameters extensions parameters to create
  *
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentAddressAction(
-  extensionId: ExtensionTypes.ID,
-  addPaymentAddressParameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
+  addPaymentAddressParameters: ExtensionTypes.PnEthInputData.IAddPaymentAddressParameters,
 ): ExtensionTypes.IAction {
+  if (
+    addPaymentAddressParameters.paymentAddress &&
+    !isValidAddress(addPaymentAddressParameters.paymentAddress)
+  ) {
+    throw Error('paymentAddress is not a valid ethereum address');
+  }
+
   return {
     action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
-    id: extensionId,
-    parameters: {
-      paymentAddress: addPaymentAddressParameters.paymentAddress,
-    },
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    parameters: addPaymentAddressParameters,
   };
 }
 
 /**
  * Creates the extensionsData to add a refund address
  *
- * @param extensions extensions parameters to create
+ * @param addRefundAddressParameters extensions parameters to create
  *
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundAddressAction(
-  extensionId: ExtensionTypes.ID,
-  addRefundAddressParameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
+  addRefundAddressParameters: ExtensionTypes.PnEthInputData.IAddRefundAddressParameters,
 ): ExtensionTypes.IAction {
+  if (
+    addRefundAddressParameters.refundAddress &&
+    !isValidAddress(addRefundAddressParameters.refundAddress)
+  ) {
+    throw Error('refundAddress is not a valid ethereum address');
+  }
+
   return {
     action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
-    id: extensionId,
-    parameters: {
-      refundAddress: addRefundAddressParameters.refundAddress,
-    },
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    parameters: addRefundAddressParameters,
   };
 }
 
@@ -81,7 +115,6 @@ function createAddRefundAddressAction(
  * Applies the extension action to the request
  * Is called to interpret the extensions data when applying the transaction
  *
- * @param isValidAddress address validator function
  * @param extensionsState previous state of the extensions
  * @param extensionAction action to apply
  * @param requestState request state read-only
@@ -90,25 +123,31 @@ function createAddRefundAddressAction(
  * @returns state of the request updated
  */
 function applyActionToExtension(
-  isValidAddress: (address: string) => boolean,
   extensionsState: RequestLogicTypes.IExtensionStates,
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
+  if (
+    requestState.currency.type !== RequestLogicTypes.CURRENCY.ETH ||
+    (requestState.currency.network && !supportedNetworks.includes(requestState.currency.network))
+  ) {
+    throw Error(
+      `This extension can be used only on ETH requests and on supported networks ${supportedNetworks.join(
+        ', ',
+      )}`,
+    );
+  }
+
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
-  if (extensionAction.action === ExtensionTypes.PnAddressBased.ACTION.CREATE) {
+  if (extensionAction.action === ExtensionTypes.PnEthInputData.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
       throw Error(`This extension has already been created`);
     }
 
-    copiedExtensionState[extensionAction.id] = applyCreation(
-      isValidAddress,
-      extensionAction,
-      timestamp,
-    );
+    copiedExtensionState[extensionAction.id] = applyCreation(extensionAction, timestamp);
 
     return copiedExtensionState;
   }
@@ -118,9 +157,8 @@ function applyActionToExtension(
     throw Error(`The extension should be created before receiving any other action`);
   }
 
-  if (extensionAction.action === ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS) {
+  if (extensionAction.action === ExtensionTypes.PnEthInputData.ACTION.ADD_PAYMENT_ADDRESS) {
     copiedExtensionState[extensionAction.id] = applyAddPaymentAddress(
-      isValidAddress,
       copiedExtensionState[extensionAction.id],
       extensionAction,
       requestState,
@@ -131,9 +169,8 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS) {
+  if (extensionAction.action === ExtensionTypes.PnEthInputData.ACTION.ADD_REFUND_ADDRESS) {
     copiedExtensionState[extensionAction.id] = applyAddRefundAddress(
-      isValidAddress,
       copiedExtensionState[extensionAction.id],
       extensionAction,
       requestState,
@@ -156,7 +193,6 @@ function applyActionToExtension(
  * @returns state of the extension created
  */
 function applyCreation(
-  isValidAddress: (address: string) => boolean,
   extensionAction: ExtensionTypes.IAction,
   timestamp: number,
 ): ExtensionTypes.IState {
@@ -179,6 +215,7 @@ function applyCreation(
         parameters: {
           paymentAddress: extensionAction.parameters.paymentAddress,
           refundAddress: extensionAction.parameters.refundAddress,
+          salt: extensionAction.parameters.salt,
         },
         timestamp,
       },
@@ -205,7 +242,6 @@ function applyCreation(
  * @returns state of the extension updated
  */
 function applyAddPaymentAddress(
-  isValidAddress: (address: string) => boolean,
   extensionState: ExtensionTypes.IState,
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
@@ -254,7 +290,6 @@ function applyAddPaymentAddress(
  * @returns state of the extension updated
  */
 function applyAddRefundAddress(
-  isValidAddress: (address: string) => boolean,
   extensionState: ExtensionTypes.IState,
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
@@ -290,3 +325,15 @@ function applyAddRefundAddress(
 
   return copiedExtensionState;
 }
+
+/**
+ * Check if an ethereum address is valid
+ *
+ * @param {string} address address to check
+ * @returns {boolean} true if address is valid
+ */
+function isValidAddress(address: string): boolean {
+  return walletAddressValidator.validate(address, 'ethereum');
+}
+
+export default ethInputData;

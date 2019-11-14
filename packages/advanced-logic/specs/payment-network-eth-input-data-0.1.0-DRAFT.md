@@ -1,4 +1,4 @@
-# Payment Network - ETH - TX data (input data)
+# Payment Network - ETH - input data
 
 You may be interested in this document if:
 
@@ -14,7 +14,7 @@ A specific value has to be given in input data when making the transfer to link 
 The value is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`:
 
 - `requestId` is the id of the request
-- `salt` is random number with 4 bytes of randomness. It must be unique to each request.
+- `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
 - `address` is the payment address for payments, the refund address for refunds
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
@@ -59,7 +59,7 @@ Note: to use the Rinkeby testnet just replace the id by "pn-rinkeby-eth-tx-data"
 
 This action is valid if:
 
-- The `salt` is not empty and long enough (4 bytes of randomness).
+- The `salt` is not empty and long enough (8 bytes of randomness minimum).
 
 #### Warnings
 
