@@ -13,7 +13,7 @@ export default class PaymentNetworkERC20AddressBased implements Types.IPaymentNe
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
+  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     this.extension = advancedLogic.extensions.addressBasedErc20;
   }
 

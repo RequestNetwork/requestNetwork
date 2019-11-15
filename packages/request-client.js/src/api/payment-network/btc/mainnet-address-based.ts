@@ -18,8 +18,17 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
   /**
    * @param advancedLogic Instance of Advanced Logic layer, to get the extension
    */
-  public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
-    this.btcAddressBased = new BTCAddressBased(advancedLogic.extensions.addressBasedBtc);
+  public constructor({
+    advancedLogic,
+    bitcoinDetectionProvider,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  }) {
+    this.btcAddressBased = new BTCAddressBased(
+      advancedLogic.extensions.addressBasedBtc,
+      bitcoinDetectionProvider,
+    );
   }
 
   /**

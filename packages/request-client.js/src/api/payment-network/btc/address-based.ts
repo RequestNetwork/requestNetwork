@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
-import BitcoinInfoRetriever from './bitcoin-info-retriever';
+import DefaultBitcoinDetectionProvider from './default-bitcoin-detection-provider';
 const bigNumber: any = require('bn.js');
 
 /**
@@ -8,14 +8,18 @@ const bigNumber: any = require('bn.js');
  */
 export default class PaymentNetworkBTCAddressBased {
   private extension: ExtensionTypes.PnAddressBased.IAddressBased;
-  private bitcoinInfoRetriever: BitcoinInfoRetriever;
+  private bitcoinDetectionProvider: Types.IBitcoinDetectionProvider;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(extension: ExtensionTypes.PnAddressBased.IAddressBased) {
+  public constructor(
+    extension: ExtensionTypes.PnAddressBased.IAddressBased,
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
+  ) {
     this.extension = extension;
-    this.bitcoinInfoRetriever = new BitcoinInfoRetriever();
+    this.bitcoinDetectionProvider =
+      bitcoinDetectionProvider || new DefaultBitcoinDetectionProvider();
   }
 
   /**
@@ -126,6 +130,6 @@ export default class PaymentNetworkBTCAddressBased {
     eventName: Types.EVENTS_NAMES,
     networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
-    return this.bitcoinInfoRetriever.getAddressInfo(networkId, address, eventName);
+    return this.bitcoinDetectionProvider.getAddressBalanceWithEvents(networkId, address, eventName);
   }
 }

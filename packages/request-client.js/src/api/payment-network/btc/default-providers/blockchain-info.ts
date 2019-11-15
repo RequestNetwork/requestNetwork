@@ -6,73 +6,73 @@ const bigNumber: any = require('bn.js');
 /* eslint-disable spellcheck/spell-checker */
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
-const BLOCKSTREAMINFO_REQUEST_MAX_RETRY = 3;
+const BLOCKCHAININFO_REQUEST_MAX_RETRY = 3;
 
 // Delay between retries in ms
-const BLOCKSTREAMINFO_REQUEST_RETRY_DELAY = 100;
+const BLOCKCHAININFO_REQUEST_RETRY_DELAY = 100;
 
 // Number of transactions per page
-const TXS_PER_PAGE = 25;
+const TXS_PER_PAGE = 50;
 
 /**
- * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockstream.info
+ * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockchain.info
  */
-export default class BlockstreamInfo implements Types.IBitcoinProvider {
+export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
   /**
-   * Gets BTC address info using blockstream.info public API
+   * Gets BTC address info using blockchain.info public API
    *
    * @param bitcoinNetworkId The Bitcoin network ID: 0 (mainnet) or 3 (testnet)
    * @param address BTC address to check
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Object containing address info
    */
-  public async getAddressInfo(
+  public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
   ): Promise<Types.IBalanceWithEvents> {
-    const baseUrl = this.getBaseUrl(bitcoinNetworkId);
-    const queryUrl = `${baseUrl}/address/${address}/txs`;
+    const blockchainInfoUrl = this.getBlockchainInfoUrl(bitcoinNetworkId);
+
+    const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
     try {
       const res = await Utils.retry(async () => fetch(queryUrl), {
-        maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,
-        retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
+        maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
+        retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
       })();
 
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      let txs: any[] = await res.json();
+      const addressInfo = await res.json();
 
-      let checkForMoreTransactions = txs.length === TXS_PER_PAGE;
-      // if there are 'TXS_PER_PAGE' transactions, need to check the pagination
-      while (checkForMoreTransactions) {
-        const lastTxHash = txs[txs.length - 1].txid;
+      // count the number of extra pages to retrieve
+      const numberOfExtraPages = Math.floor(addressInfo.n_tx / (TXS_PER_PAGE + 1));
 
+      // get all the transactions from the whole pagination
+      for (let i = 1; i <= numberOfExtraPages; i++) {
         const resExtraPage = await Utils.retry(
-          async () => fetch(`${baseUrl}/address/${address}/txs/chain/${lastTxHash}`),
+          async () =>
+            fetch(`${blockchainInfoUrl}/rawaddr/${address}?cors=true&offset=${i * TXS_PER_PAGE}`),
           {
-            maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,
-            retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
+            maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
+            retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
           },
         )();
 
         // tslint:disable-next-line:no-magic-numbers
         if (resExtraPage.status >= 400) {
           throw new Error(
-            `Error ${resExtraPage.status}. Bad response from server ${baseUrl}/${address}`,
+            `Error ${resExtraPage.status}. Bad response from server ${blockchainInfoUrl}`,
           );
         }
-        const extraTxs = await resExtraPage.json();
-
-        checkForMoreTransactions = extraTxs.length === TXS_PER_PAGE;
+        const extraPageAddressInfo = await resExtraPage.json();
 
         // gather all the transactions retrieved
-        txs = txs.concat(extraTxs);
+        addressInfo.txs = addressInfo.txs.concat(extraPageAddressInfo.txs);
       }
 
-      return this.parse({ address, txs }, eventName);
+      return this.parse(addressInfo, eventName);
     } catch (err) {
       // tslint:disable-next-line:no-console
       console.warn(err.message || err);
@@ -81,33 +81,36 @@ export default class BlockstreamInfo implements Types.IBitcoinProvider {
   }
 
   /**
-   * Parses the address information from the data of blockstream.info
+   * Parses the address information from the data of blockchain.info
    *
-   * @param addressInfo Data from blockstream.info
+   * @param addressInfo Data of blockchain.info
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
   public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
+    const address = addressInfo.address;
+    const balance = new bigNumber(addressInfo.total_received).toString();
+
     const events: Types.IPaymentNetworkEvent[] = addressInfo.txs
       // exclude the transactions coming from the same address
       .filter((tx: any) => {
-        const autoVin = tx.vin.filter(
-          (input: any) => input.prevout.scriptpubkey_address === addressInfo.address,
+        const selfInputs = tx.inputs.filter(
+          (input: any) => input.prev_out.addr === addressInfo.address,
         );
-        return autoVin.length === 0;
+        return selfInputs.length === 0;
       })
       .reduce((allOutput: any[], tx: any) => {
         return [
           ...allOutput,
-          ...tx.vout.map((output: any) => ({
-            blockHeight: tx.status.block_height,
+          ...tx.out.map((output: any) => ({
+            blockHeight: tx.block_height,
             output,
-            timestamp: tx.status.block_time,
-            txHash: tx.txid,
+            timestamp: tx.time,
+            txHash: tx.hash,
           })),
         ];
       }, [])
-      .filter((output: any) => output.output.scriptpubkey_address === addressInfo.address)
+      .filter((output: any) => output.output.addr === address)
       .map(
         (output: any): Types.IPaymentNetworkEvent => ({
           name: eventName,
@@ -120,27 +123,21 @@ export default class BlockstreamInfo implements Types.IBitcoinProvider {
         }),
       );
 
-    const balance: string = events
-      .reduce((balanceAccumulator: any, event: Types.IPaymentNetworkEvent) => {
-        return balanceAccumulator.add(new bigNumber(event.parameters.amount));
-      }, new bigNumber('0'))
-      .toString();
-
     return { balance, events };
   }
 
   /**
-   * Gets the base url to fetch according to the networkId
+   * Gets the BlockchainInfo url to fetch according to the networkId
    *
    * @param bitcoinNetworkId the Bitcoin network ID: 0 (mainnet) or 3 (testnet)
    * @returns The blockchain info URL
    */
-  private getBaseUrl(bitcoinNetworkId: number): string {
+  private getBlockchainInfoUrl(bitcoinNetworkId: number): string {
     if (bitcoinNetworkId === 0) {
-      return 'https://blockstream.info/api/';
+      return 'https://blockchain.info';
     }
     if (bitcoinNetworkId === 3) {
-      return 'https://blockstream.info/testnet/api/';
+      return 'https://testnet.blockchain.info';
     }
 
     throw new Error(

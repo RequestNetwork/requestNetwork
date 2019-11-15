@@ -72,7 +72,7 @@ const requestMock: RequestLogicTypes.IRequest = {
 describe('api/declarative', () => {
   beforeEach(() => {
     sandbox.restore();
-    declarative = new Declarative(mockAdvancedLogic);
+    declarative = new Declarative({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -161,50 +161,52 @@ describe('api/declarative', () => {
   });
 
   it('getBalance get the correct balance', async () => {
-    requestMock.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE] = { events: [
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
-        parameters: {},
-        timestamp: 10,
-      },
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
-        parameters: {},
-        timestamp: 10,
-      },
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-        parameters: {
-          amount: '1000',
-          note: 'first payment',
+    requestMock.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE] = {
+      events: [
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
+          parameters: {},
+          timestamp: 10,
         },
-        timestamp: 10,
-      },
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-        parameters: {
-          amount: '500',
-          note: 'second payment',
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
+          parameters: {},
+          timestamp: 10,
         },
-        timestamp: 15,
-      },
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-        parameters: {
-          amount: '100',
-          note: 'first refund',
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+          parameters: {
+            amount: '1000',
+            note: 'first payment',
+          },
+          timestamp: 10,
         },
-        timestamp: 20,
-      },
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-        parameters: {
-          amount: '200',
-          note: 'second refund',
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+          parameters: {
+            amount: '500',
+            note: 'second payment',
+          },
+          timestamp: 15,
         },
-        timestamp: 25,
-      },
-    ]} as ExtensionTypes.IState;
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
+          parameters: {
+            amount: '100',
+            note: 'first refund',
+          },
+          timestamp: 20,
+        },
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
+          parameters: {
+            amount: '200',
+            note: 'second refund',
+          },
+          timestamp: 25,
+        },
+      ],
+    } as ExtensionTypes.IState;
 
     const getBalanceReturn = await declarative.getBalance(requestMock);
 

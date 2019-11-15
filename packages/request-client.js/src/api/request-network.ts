@@ -29,20 +29,25 @@ export default class RequestNetwork {
 
   private contentData: ContentDataExtension;
 
+  private bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+
   /**
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
+   * @param bitcoinDetectionProvider bitcoin detection provider
    */
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     signatureProvider?: SignatureProviderTypes.ISignatureProvider,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
   ) {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
+    this.bitcoinDetectionProvider = bitcoinDetectionProvider;
   }
 
   /**
@@ -126,10 +131,11 @@ export default class RequestNetwork {
 
     let paymentNetwork: Types.IPaymentNetwork | null = null;
     if (requestAndMeta.result.request) {
-      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-        this.advancedLogic,
-        requestAndMeta.result.request,
-      );
+      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest({
+        advancedLogic: this.advancedLogic,
+        bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+        request: requestAndMeta.result.request,
+      });
     }
 
     // create the request object
@@ -200,8 +206,11 @@ export default class RequestNetwork {
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          this.advancedLogic,
-          requestFromLogic,
+          {
+            advancedLogic: this.advancedLogic,
+            bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+            request: requestFromLogic,
+          },
         );
 
         // create the request object
@@ -243,8 +252,11 @@ export default class RequestNetwork {
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          this.advancedLogic,
-          requestFromLogic,
+          {
+            advancedLogic: this.advancedLogic,
+            bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+            request: requestFromLogic,
+          },
         );
 
         // create the request object
@@ -306,11 +318,12 @@ export default class RequestNetwork {
 
     let paymentNetwork: Types.IPaymentNetwork | null = null;
     if (paymentNetworkCreationParameters) {
-      paymentNetwork = PaymentNetworkFactory.createPaymentNetwork(
-        this.advancedLogic,
-        requestParameters.currency,
+      paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
+        advancedLogic: this.advancedLogic,
+        bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+        currency: requestParameters.currency,
         paymentNetworkCreationParameters,
-      );
+      });
 
       if (paymentNetwork) {
         // create the extensions data for the payment network

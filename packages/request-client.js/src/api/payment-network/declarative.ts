@@ -10,7 +10,7 @@ const bigNumber: any = require('bn.js');
 export default class PaymentNetworkDeclarative implements Types.IPaymentNetwork {
   private extension: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
 
-  public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
+  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     this.extension = advancedLogic.extensions.declarative;
   }
 

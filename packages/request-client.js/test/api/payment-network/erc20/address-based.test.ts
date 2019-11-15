@@ -37,7 +37,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/erc20/mainnet-address-based', () => {
   beforeEach(() => {
     sandbox.restore();
-    erc20AddressedBased = new ERC20AddressedBased(mockAdvancedLogic);
+    erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {

@@ -40,13 +40,20 @@ export default class PaymentNetworkFactory {
    * @param advancedLogic the advanced-logic layer in charge of the extensions
    * @param currency the currency of the request
    * @param paymentNetworkCreationParameters creation parameters of payment network
+   * @param bitcoinDetectionProvider bitcoin detection provider
    * @returns the module to handle the payment network
    */
-  public static createPaymentNetwork(
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    currency: RequestLogicTypes.ICurrency,
-    paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
-  ): Types.IPaymentNetwork {
+  public static createPaymentNetwork({
+    advancedLogic,
+    currency,
+    paymentNetworkCreationParameters,
+    bitcoinDetectionProvider,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currency: RequestLogicTypes.ICurrency;
+    paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters;
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  }): Types.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
@@ -58,7 +65,10 @@ export default class PaymentNetworkFactory {
       );
     }
 
-    return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id](advancedLogic);
+    return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id]({
+      advancedLogic,
+      bitcoinDetectionProvider,
+    });
   }
 
   /**
@@ -67,12 +77,18 @@ export default class PaymentNetworkFactory {
    *
    * @param advancedLogic the advanced-logic layer in charge of the extensions
    * @param request the request
+   * @param bitcoinDetectionProvider bitcoin detection provider
    * @returns the module to handle the payment network or null if no payment network found
    */
-  public static getPaymentNetworkFromRequest(
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    request: RequestLogicTypes.IRequest,
-  ): Types.IPaymentNetwork | null {
+  public static getPaymentNetworkFromRequest({
+    advancedLogic,
+    request,
+    bitcoinDetectionProvider,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    request: RequestLogicTypes.IRequest;
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  }): Types.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
       extension => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -93,7 +109,10 @@ export default class PaymentNetworkFactory {
       );
     }
 
-    return new paymentNetworkForCurrency[paymentNetworkId](advancedLogic);
+    return new paymentNetworkForCurrency[paymentNetworkId]({
+      advancedLogic,
+      bitcoinDetectionProvider,
+    });
   }
 }
 
