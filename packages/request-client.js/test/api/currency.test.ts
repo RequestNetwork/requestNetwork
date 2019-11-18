@@ -40,13 +40,13 @@ describe('api/currency', () => {
     it('returns the correct number of decimals for a non-supported ERC20', async () => {
       assert.equal(
         await getDecimalsForCurrency({
-          network: 'mainnet',
+          network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0xb9EF770B6A5e12E45983C5D80545258aA38F3B78', // 0chain
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 contract
         }),
-        10,
+        18,
       );
-    }).timeout(5000);
+    });
   });
 
   describe('stringToCurrency', () => {

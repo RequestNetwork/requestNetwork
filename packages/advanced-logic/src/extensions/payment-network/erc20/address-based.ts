@@ -18,7 +18,7 @@ const erc20AddressBasedManager: ExtensionTypes.PnAddressBased.IAddressBased = {
   isValidAddress,
 };
 
-const supportedNetworks = ['mainnet', 'rinkeby'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
 /**
  * Creates the extensionsData to create the extension ERC20 address based payment detection

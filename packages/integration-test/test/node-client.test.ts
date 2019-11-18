@@ -381,3 +381,46 @@ it('cannot decrypt a request with the wrong decryption provider', async () => {
   const requests = await badRequestNetwork.fromTopic('my nice topic');
   assert.isEmpty(requests);
 });
+
+describe('ERC20 localhost request creation and detection test', () => {
+  const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+    id: Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+    parameters: {
+      paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+    },
+  };
+
+  const contractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
+
+  const erc20requestCreationHash: Types.IRequestInfo = {
+    currency: {
+      network: 'private',
+      type: Types.RequestLogic.CURRENCY.ERC20,
+      value: contractAddress,
+    },
+    expectedAmount: '10',
+    payee: payerIdentity,
+    payer: payeeIdentity,
+  };
+
+  it('can create an ERC20 request on localhost and detect the payment using address based detection', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider });
+
+    // Create a request
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: erc20requestCreationHash,
+      signer: payeeIdentity,
+    });
+
+    assert.instanceOf(request, Request);
+    assert.exists(request.requestId);
+
+    // Get the data
+    const requestData = request.getData();
+    assert.equal(requestData.expectedAmount, '10');
+    assert.notEqual(requestData.balance, null);
+    assert.equal(requestData.balance!.balance, '10');
+    assert.exists(requestData.meta);
+  });
+});

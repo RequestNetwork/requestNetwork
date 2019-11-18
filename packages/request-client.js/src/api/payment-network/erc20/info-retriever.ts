@@ -59,8 +59,11 @@ async function getTransferEvents(
   decimals: string;
   tokenEvents: Array<{ from: string; to: string; value: string }>;
 }> {
-  // Connect to the network
-  const provider = ethers.getDefaultProvider(network);
+  // Creates a local or default provider
+  const provider =
+    network === 'private'
+      ? new ethers.providers.JsonRpcProvider()
+      : ethers.getDefaultProvider(network);
 
   // Setup the ERC20 contract interface
   const contract = new ethers.Contract(tokenContractAddress, erc20BalanceOfAbiFragment, provider);
@@ -103,7 +106,10 @@ export default getTransferEvents;
  */
 export async function getDecimals(tokenContractAddress: string, network: string): Promise<number> {
   // Connect to the network
-  const provider = ethers.getDefaultProvider(network);
+  const provider =
+    network === 'private'
+      ? new ethers.providers.JsonRpcProvider()
+      : ethers.getDefaultProvider(network);
   // Setup the ERC20 contract interface
   const contract = new ethers.Contract(tokenContractAddress, erc20BalanceOfAbiFragment, provider);
   // Returns the amount of decimals for the ERC20

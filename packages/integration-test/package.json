@@ -31,8 +31,10 @@
     "lint": "tslint --project . && eslint \"test/**/*.ts\"",
     "lint-staged": "lint-staged",
     "test": "run-s test:node test:layers",
+    "test:scheduled": "run-s test:erc20",
     "test:layers": "mocha --timeout=10000 --require ts-node/register \"test/layers.test.ts\"",
-    "test:node": "mocha --timeout=10000 --require ts-node/register \"test/node-client.test.ts\""
+    "test:node": "mocha --timeout=10000 --require ts-node/register \"test/node-client.test.ts\"",
+    "test:erc20": "mocha --timeout=10000 --require ts-node/register \"test/erc20.test.ts\""
   },
   "devDependencies": {
     "@requestnetwork/advanced-logic": "0.5.0",

@@ -3,7 +3,7 @@ import * as Types from '../../../types';
 import erc20InfoRetriever from './info-retriever';
 
 const bigNumber: any = require('bn.js');
-const supportedNetworks = ['mainnet', 'rinkeby'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
 /**
  * Handle payment networks with ERC20 based address extension

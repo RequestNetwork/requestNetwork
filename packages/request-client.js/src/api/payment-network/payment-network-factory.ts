@@ -21,6 +21,9 @@ const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
     mainnet: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
     },
+    private: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
     rinkeby: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
     },

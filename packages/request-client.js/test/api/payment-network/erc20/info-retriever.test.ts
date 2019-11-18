@@ -1,3 +1,5 @@
+// tslint:disable: no-invalid-this
+// tslint:disable: no-magic-numbers
 import ERC20InfoRetriever from '../../../../src/api/payment-network/erc20/info-retriever';
 
 import 'chai';
@@ -6,69 +8,37 @@ import 'mocha';
 const chai = require('chai');
 const expect = chai.expect;
 
-const erc20FAUContractAddress = '0xfab46e002bbf0b4509813474841e0716e6730136';
-const erc20DAIContractAddress = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359';
+const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
 /* tslint:disable:no-unused-expression */
-describe('api/erc20/mainnet-address-based', function() {
-  this.timeout(5000);
+describe('api/erc20/info-retriever', () => {
+  describe('on localhost', () => {
+    const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
+    const payerAddress = '0x627306090abaB3A6e1400e9345bC60c78a8BEf57';
+    const emptyAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 
-  describe('on testnet', () => {
-    it('can get the testnet balance of an address', async () => {
-      const paymentAddress = '0x6a08d2c8f251af1f17b5943f7f7bb7078c50e29a';
+    it('can get the localhost balance of an address', async () => {
       const balanceObject = await ERC20InfoRetriever(
-        erc20FAUContractAddress,
+        erc20LocalhostContractAddress,
         paymentAddress,
-        'rinkeby',
+        'private',
       );
 
       expect(balanceObject.decimals).to.be.equal('18');
       // if this assert fails it means this address received another transaction
       expect(balanceObject.tokenEvents).to.have.lengthOf(1);
       expect(balanceObject.tokenEvents[0]).to.deep.equal({
-        from: '0x0000000000000000000000000000000000000000',
-        to: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
-        value: '1000000000000000000',
+        from: payerAddress,
+        to: paymentAddress,
+        value: '10',
       });
     });
 
-    it('gets an empty list of events for an address without ERC20 on testnet', async () => {
-      const paymentAddress = '0x8817850e660DCC3C74BE22a09dAa3872A2d5232D';
+    it('gets an empty list of events for an address without ERC20 on localhost', async () => {
       const balanceObject = await ERC20InfoRetriever(
-        erc20FAUContractAddress,
-        paymentAddress,
-        'rinkeby',
-      );
-
-      expect(balanceObject.decimals).to.be.equal('18');
-      expect(balanceObject.tokenEvents).to.be.empty;
-    });
-  });
-
-  describe('on mainnet', () => {
-    it('can get the mainnet balance of an address', async () => {
-      const paymentAddress = '0x6a08d2c8f251af1f17b5943f7f7bb7078c50e29a';
-      const balanceObject = await ERC20InfoRetriever(
-        erc20DAIContractAddress,
-        paymentAddress,
-        'mainnet',
-      );
-
-      expect(balanceObject.decimals).to.be.equal('18');
-      expect(balanceObject.tokenEvents).to.have.lengthOf(1);
-      expect(balanceObject.tokenEvents[0]).to.deep.equal({
-        from: '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
-        to: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
-        value: '510000000000000000',
-      });
-    });
-
-    it('gets an empty list of events for an address without ERC20 on mainnet', async () => {
-      const paymentAddress = '0x8817850e660DCC3C74BE22a09dAa3872A2d5232D';
-      const balanceObject = await ERC20InfoRetriever(
-        erc20DAIContractAddress,
-        paymentAddress,
-        'mainnet',
+        erc20LocalhostContractAddress,
+        emptyAddress,
+        'private',
       );
 
       expect(balanceObject.decimals).to.be.equal('18');

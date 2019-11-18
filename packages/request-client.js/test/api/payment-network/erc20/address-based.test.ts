@@ -34,7 +34,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/erc20/mainnet-address-based', () => {
+describe('api/erc20/address-based', () => {
   beforeEach(() => {
     sandbox.restore();
     erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });
@@ -74,13 +74,13 @@ describe('api/erc20/mainnet-address-based', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  it('can getBalance on a request', async () => {
+  it('can getBalance on a localhost request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
       currency: {
-        network: 'mainnet',
+        network: 'private',
         type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
+        value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 token
       },
       events: [],
       expectedAmount: '0',
@@ -90,7 +90,7 @@ describe('api/erc20/mainnet-address-based', () => {
           id: '0',
           type: 'none',
           values: {
-            paymentAddress: '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
+            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
           },
           version: '0',
         },
@@ -104,15 +104,15 @@ describe('api/erc20/mainnet-address-based', () => {
 
     const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
 
-    expect(balance.balance).to.be.equal('510000000000000000');
+    expect(balance.balance).to.be.equal('10');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
     expect(balance.events[0].parameters.to).to.be.equal(
-      '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
+      '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
     );
     expect(balance.events[0].parameters.from).to.be.equal(
-      '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
+      '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
     );
-    expect(balance.events[0].parameters.value).to.be.equal('510000000000000000');
-  }).timeout(5000);
+    expect(balance.events[0].parameters.value).to.be.equal('10');
+  });
 });
