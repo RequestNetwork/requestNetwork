@@ -191,12 +191,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    *
    * @param IIncreaseExpectedAmountParameters increaseAmountParameters parameters to increase expected amount of a request
    * @param IIdentity signerIdentity Identity of the signer
+   * @param boolean validate specifies if a validation should be done before persisting the transaction. Requires a full load of the Request.
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IIncreaseExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
+    validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -207,6 +209,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       this.signatureProvider,
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
+    if (validate) {
+      const request = await this.getRequestFromId(requestId);
+      RequestLogicCore.applyActionToRequest(request.result.request, action, Date.now(), this.advancedLogic);
+    }
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
@@ -222,12 +228,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    *
    * @param IReduceExpectedAmountParameters reduceAmountParameters parameters to reduce expected amount of a request
    * @param IIdentity signerIdentity Identity of the signer
+   * @param boolean validate specifies if a validation should be done before persisting the transaction. Requires a full load of the Request.
    *
    * @returns Promise<IRequestLogicReturn> the meta data
    */
   public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IReduceExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
+    validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -238,6 +246,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       this.signatureProvider,
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
+    if (validate) {
+      const request = await this.getRequestFromId(requestId);
+      RequestLogicCore.applyActionToRequest(request.result.request, action, Date.now(), this.advancedLogic);
+    }
 
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),

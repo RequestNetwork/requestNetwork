@@ -445,9 +445,9 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.increaseExpectedAmountRequest(3, payeeIdentity);
+    await request.increaseExpectedAmountRequest(3, payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.twice;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -463,7 +463,7 @@ describe('index', () => {
 
     await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.twice;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 

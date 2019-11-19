@@ -14,10 +14,10 @@ const CURRENT_VERSION = Version.currentVersion;
 
 const chai = require('chai');
 const spies = require('chai-spies');
-chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 chai.use(spies);
+chai.use(chaiAsPromised);
 
 const createParams = {
   currency: {
@@ -309,6 +309,56 @@ describe('index', () => {
         requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
+    it('cannot increaseExpectedAmountRequest as payee', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const increaseRequest = {
+        deltaAmount: '1000',
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.increaseExpectedAmountRequest(
+          increaseRequest,
+          TestData.payeeRaw.identity,
+          true,
+        ),
+      ).to.eventually.be.rejectedWith('signer must be the payer');
+    });
   });
 
   describe('reduceExpectedAmountRequest', () => {
@@ -350,6 +400,52 @@ describe('index', () => {
       await expect(
         requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+    it('cannot reduceExpectedAmountRequest as payer', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const increaseRequest = {
+        deltaAmount: '1000',
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.reduceExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity, true),
+      ).to.eventually.be.rejectedWith('signer must be the payee');
     });
   });
 

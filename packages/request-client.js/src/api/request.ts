@@ -151,7 +151,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity);
+    await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -186,7 +186,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity);
+    await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();

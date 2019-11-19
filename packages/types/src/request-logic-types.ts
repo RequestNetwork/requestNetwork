@@ -33,10 +33,12 @@ export interface IRequestLogic {
   increaseExpectedAmountRequest: (
     requestParameters: IIncreaseExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
   ) => Promise<IRequestLogicReturn>;
   reduceExpectedAmountRequest: (
     requestParameters: IReduceExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
   ) => Promise<IRequestLogicReturn>;
   addExtensionsDataRequest: (
     requestParameters: IAddExtensionsDataParameters,
