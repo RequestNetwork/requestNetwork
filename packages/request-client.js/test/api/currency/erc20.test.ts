@@ -24,40 +24,40 @@ describe('api/currency/erc20', () => {
   });
 
   describe('getErc20FromSymbol', () => {
-    it('get TokenDescription object from DAI string', async () => {
-      assert.deepEqual(getErc20FromSymbol('DAI'), {
+    it('get TokenDescription object from SAI string', async () => {
+      assert.deepEqual(getErc20FromSymbol('SAI'), {
         address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
         decimals: 18,
         erc20: true,
-        logo: 'dai.svg',
-        name: 'Dai Stablecoin v1.0',
-        symbol: 'DAI',
+        logo: 'sai.svg',
+        name: 'Sai Stablecoin v1.0',
+        symbol: 'SAI',
       });
     });
   });
 
   describe('getErc20FromAddress', () => {
-    it('get TokenDescription object from DAI string', async () => {
+    it('get TokenDescription object from SAI address', async () => {
       assert.deepEqual(getMainnetErc20FromAddress('0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'), {
         address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
         decimals: 18,
         erc20: true,
-        logo: 'dai.svg',
-        name: 'Dai Stablecoin v1.0',
-        symbol: 'DAI',
+        logo: 'sai.svg',
+        name: 'Sai Stablecoin v1.0',
+        symbol: 'SAI',
       });
     });
   });
 
   describe('getErc20Symbol', () => {
-    it('get the symbol for DAI currency', () => {
+    it('get the symbol for SAI currency', () => {
       assert.equal(
         getErc20Symbol({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
         }),
-        'DAI',
+        'SAI',
       );
     });
     it('get the symbol for CTBK currency', () => {

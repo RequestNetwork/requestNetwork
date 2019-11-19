@@ -31,7 +31,7 @@ describe('api/currency', () => {
         await getDecimalsForCurrency({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
         }),
         18,
       );
@@ -64,8 +64,8 @@ describe('api/currency', () => {
       });
     });
 
-    it('return the correct currency for DAI string', () => {
-      assert.deepEqual(stringToCurrency('DAI'), {
+    it('return the correct currency for SAI string', () => {
+      assert.deepEqual(stringToCurrency('SAI'), {
         network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
@@ -100,8 +100,8 @@ describe('api/currency', () => {
       });
     });
 
-    it('throws for DAI not on mainnet', () => {
-      assert.throws(() => stringToCurrency('DAI-rinkeby'));
+    it('throws for SAI not on mainnet', () => {
+      assert.throws(() => stringToCurrency('SAI-rinkeby'));
     });
 
     it('throws for an unsupported currency', () => {
@@ -152,14 +152,14 @@ describe('api/currency', () => {
       );
     });
 
-    it('return the "DAI" string for DAI currency', () => {
+    it('return the "SAI" string for SAI currency', () => {
       assert.deepEqual(
         currencyToString({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
         }),
-        'DAI',
+        'SAI',
       );
     });
 

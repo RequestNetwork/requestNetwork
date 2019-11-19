@@ -21,7 +21,7 @@ const payerIdentity = {
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
-  currency: 'DAI',
+  currency: 'SAI',
   expectedAmount: '1000000000000000000',
   payee: payeeIdentity,
   payer: payerIdentity,

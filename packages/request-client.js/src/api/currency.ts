@@ -25,7 +25,7 @@ const currencyList = new Map([
  * Returns a Currency object from a user-friendly currency string.
  * The string format is: <CURRENCY_NAME>-<network>.
  * The network is optional.
- * E.g: BTC, ETH, ETH-rinkeby, DAI, USD, EUR
+ * E.g: BTC, ETH, ETH-rinkeby, SAI, USD, EUR
  *
  * @param currencyString The currency string to be formatted
  */

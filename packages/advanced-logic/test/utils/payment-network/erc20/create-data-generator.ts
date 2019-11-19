@@ -92,7 +92,7 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   currency: {
     network: 'mainnet',
     type: RequestLogicTypes.CURRENCY.ERC20,
-    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // SAI
   },
   events: [
     {
@@ -134,7 +134,7 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
   currency: {
     network: 'mainnet',
     type: RequestLogicTypes.CURRENCY.ERC20,
-    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // SAI
   },
   events: [
     {
@@ -176,7 +176,7 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
   currency: {
     network: 'mainnet',
     type: RequestLogicTypes.CURRENCY.ERC20,
-    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // DAI
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // SAI
   },
   events: [
     {

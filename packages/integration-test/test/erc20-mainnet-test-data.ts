@@ -11,12 +11,6 @@ export const tokens = {
     decimals: '18',
     transaction: '0x946111cddc312f4ecc7fdfe7bdd5384064e2c94fdd030e5d261d0287d37e43bb',
   },
-  DAI: {
-    address: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
-    amount: '199999999999999908',
-    decimals: '18',
-    transaction: '0x0d1887d2e9e7cd76fe07a9eccaa00762f0ed5fc4f945ca224a0bfaa66f0594a1',
-  },
   DGX: {
     address: '0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf',
     amount: '4000000',
@@ -58,6 +52,12 @@ export const tokens = {
     amount: '1234248700000000000000',
     decimals: '18',
     transaction: '0xa4f2d56f3ad6ffbf50f7f5f29c60fd61948617fd8b5eda30a7f02556bf5231ee',
+  },
+  SAI: {
+    address: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
+    amount: '199999999999999908',
+    decimals: '18',
+    transaction: '0x0d1887d2e9e7cd76fe07a9eccaa00762f0ed5fc4f945ca224a0bfaa66f0594a1',
   },
   USDC: {
     address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',

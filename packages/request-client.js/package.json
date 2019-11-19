@@ -55,7 +55,7 @@
     "axios": "0.18.1",
     "bn.js": "4.11.8",
     "currency-codes": "1.5.1",
-    "eth-contract-metadata": "1.9.3",
+    "eth-contract-metadata": "1.11.0",
     "ethers": "4.0.38",
     "node-fetch": "2.3.0",
     "satoshi-bitcoin": "1.0.4"

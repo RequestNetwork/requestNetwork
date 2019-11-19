@@ -187,10 +187,10 @@ function legacyEnumToICurrencyConvert(currency: string): RequestLogicTypes.ICurr
         type: RequestLogicTypes.CURRENCY.ISO4217,
         value: 'USD',
       };
-    case 'DAI':
+    case 'SAI':
       return {
         type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // DAI
+        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
       };
     default:
       throw new Error('Unsupported currency when getting request from transactions.');
