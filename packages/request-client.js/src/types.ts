@@ -23,10 +23,14 @@ export interface ITimestampBoundaries {
 }
 
 /** Interface request data */
-export interface IRequestData extends RequestLogicTypes.IRequest {
+// TODO: when upgrading typescript to 3.5+ we should use Omit instead of Pick+Exclude
+export interface IRequestData
+  extends Pick<RequestLogicTypes.IRequest, Exclude<keyof RequestLogicTypes.IRequest, 'currency'>> {
+  currency: string;
   meta: RequestLogicTypes.IReturnMeta | null;
   balance: IBalanceWithEvents | null;
   contentData: any;
+  currencyInfo: RequestLogicTypes.ICurrency;
 }
 
 /** Create request parameters */

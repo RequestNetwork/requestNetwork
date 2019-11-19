@@ -82,10 +82,12 @@ export function getErc20Currency(
  * @returns The number of decimals for the ERC20 currency
  */
 export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): Promise<number> {
-  // Tries to get the decimals from the supported ERC20 currencies list
-  const erc20Token = getErc20FromAddress(currency.value);
-  if (erc20Token) {
-    return Promise.resolve(erc20Token.decimals);
+  if (!currency.network || currency.network === 'mainnet') {
+    // Tries to get the decimals from the supported ERC20 currencies list
+    const erc20Token = getMainnetErc20FromAddress(currency.value);
+    if (erc20Token) {
+      return Promise.resolve(erc20Token.decimals);
+    }
   }
 
   // For un-supported ERC20 currencies, we get the decimals from the smart contract
@@ -98,7 +100,7 @@ export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): Promise
  * @param address the ERC20 currency address
  * @returns the ERC20 ITokenDescription
  */
-export function getErc20FromAddress(address: string): ITokenDescription | undefined {
+export function getMainnetErc20FromAddress(address: string): ITokenDescription | undefined {
   const checksumAddress = utils.getAddress(address);
   const token = supportedERC20Tokens[checksumAddress];
   if (!token || !token.erc20) {
@@ -131,4 +133,30 @@ export function getErc20FromSymbol(symbol: string): ITokenDescription | undefine
  */
 export function validERC20Address(address: string): boolean {
   return utils.getAddress(address) === address;
+}
+
+/**
+ * Get an ERC20 symbol from the Currency object
+ *
+ * @param token the ERC20 ICurrency
+ * @returns the ERC20 currency symbol string
+ */
+export function getErc20Symbol(currency: RequestLogicTypes.ICurrency): string | null {
+  if (currency.type !== RequestLogicTypes.CURRENCY.ERC20) {
+    throw new Error('Can only get symbol for ERC20 currencies');
+  }
+  const checksumAddress = utils.getAddress(currency.value);
+  if (!currency.network || currency.network === 'mainnet') {
+    const token = supportedERC20Tokens[checksumAddress];
+    return token ? token.symbol : null;
+  }
+
+  if (currency.network === 'rinkeby') {
+    const entry = [...supportedRinkebyERC20.entries()].find(
+      ([, obj]) => currency.value === obj.value,
+    );
+    return entry ? entry[0] : null;
+  }
+
+  return null;
 }

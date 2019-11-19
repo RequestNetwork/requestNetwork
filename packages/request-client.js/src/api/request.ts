@@ -2,6 +2,7 @@ import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
+import { currencyToString } from './currency';
 import PaymentNetworkDeclarative from './payment-network/declarative';
 
 /**
@@ -433,10 +434,15 @@ export default class Request {
    * @returns The updated request data
    */
   public getData(): Types.IRequestData {
-    const result: Types.IRequestData = Utils.deepCopy(this.requestData);
-    result.meta = this.requestMeta;
-    result.balance = this.balance;
-    result.contentData = this.contentData;
+    const requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
+    const result: Types.IRequestData = {
+      ...requestData,
+      balance: this.balance,
+      contentData: this.contentData,
+      currency: requestData.currency ? currencyToString(requestData.currency) : 'unknown',
+      currencyInfo: requestData.currency,
+      meta: this.requestMeta,
+    };
 
     return result;
   }

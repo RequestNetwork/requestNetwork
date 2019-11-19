@@ -2,7 +2,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import 'mocha';
-import { getDecimalsForCurrency, stringToCurrency } from '../../src/api/currency';
+import { currencyToString, getDecimalsForCurrency, stringToCurrency } from '../../src/api/currency';
 
 describe('api/currency', () => {
   describe('getDecimalsForCurrency', () => {
@@ -106,6 +106,123 @@ describe('api/currency', () => {
 
     it('throws for an unsupported currency', () => {
       assert.throws(() => stringToCurrency('XXXXXXX'));
+    });
+  });
+
+  describe('currencyToString', () => {
+    it('return "ETH" string for ETH currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        }),
+        'ETH',
+      );
+    });
+
+    it('return "ETH-rinkeby" string for ETH on rinkeby currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        }),
+        'ETH-rinkeby',
+      );
+    });
+
+    it('return "BTC" string for BTC currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+        }),
+        'BTC',
+      );
+    });
+
+    it('return "BTC-testnet" string for BTC currency on testnet', () => {
+      assert.deepEqual(
+        currencyToString({
+          network: 'testnet',
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+        }),
+        'BTC-testnet',
+      );
+    });
+
+    it('return the "DAI" string for DAI currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
+        }),
+        'DAI',
+      );
+    });
+
+    it('return the "REQ" string for REQ currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+        }),
+        'REQ',
+      );
+    });
+
+    it('return the "CTBK-rinkeby" string for CTBK currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+        }),
+        'CTBK-rinkeby',
+      );
+    });
+
+    it('return the correct strings for USD and EUR currency', () => {
+      assert.deepEqual(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'USD',
+        }),
+        'USD',
+      );
+
+      assert.deepEqual(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'EUR',
+        }),
+        'EUR',
+      );
+    });
+
+    it('return unknown for REQ not on mainnet', () => {
+      assert.equal(
+        currencyToString({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+        }),
+        'unknown',
+      );
+    });
+
+    it('return unknown unsupported currency', () => {
+      assert.equal(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x1111111111111111111111111111111111111111',
+        }),
+        'unknown',
+      );
     });
   });
 });

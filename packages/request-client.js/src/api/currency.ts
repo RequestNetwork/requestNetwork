@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import * as currencyCodes from 'currency-codes';
-import { getErc20Currency, getErc20Decimals } from './currency/erc20';
+import { getErc20Currency, getErc20Decimals, getErc20Symbol } from './currency/erc20';
 
 // List of our supported cryptocurrencies
 const currencyList = new Map([
@@ -76,6 +76,41 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
   }
 
   return currency;
+}
+
+/**
+ * Converts a Currency object to a readable currency string
+ *
+ * @param currency The currency object to get the string from
+ * @returns The currency string identifier
+ */
+export function currencyToString(currency: RequestLogicTypes.ICurrency): string {
+  let symbol: string;
+
+  switch (currency.type) {
+    case RequestLogicTypes.CURRENCY.BTC:
+    case RequestLogicTypes.CURRENCY.ETH:
+      symbol = currency.type;
+      break;
+    case RequestLogicTypes.CURRENCY.ISO4217:
+      symbol = currency.value;
+      break;
+    case RequestLogicTypes.CURRENCY.ERC20:
+      symbol = getErc20Symbol(currency) || 'unknown';
+      break;
+    default:
+      symbol = 'unknown';
+  }
+
+  // Return without network if we don't recognize the symbol
+  if (symbol === 'unknown') {
+    return symbol;
+  }
+
+  // If the currency have a network, append it to the currency symbol
+  const network = currency.network && currency.network !== 'mainnet' ? `-${currency.network}` : '';
+
+  return symbol + network;
 }
 
 /**
