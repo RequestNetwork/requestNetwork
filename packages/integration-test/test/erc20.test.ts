@@ -5,10 +5,8 @@ import ERC20InfoRetriever from '@requestnetwork/request-client.js/src/api/paymen
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { account, tokens } from './erc20-mainnet-test-data';
 
-import 'chai';
+import { expect } from 'chai';
 import 'mocha';
-
-const expect = chai.expect;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
