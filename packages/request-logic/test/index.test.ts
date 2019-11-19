@@ -1,7 +1,7 @@
 import 'mocha';
 
 import MultiFormat from '@requestnetwork/multi-format';
-import { RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as chaiAsPromised from 'chai-as-promised';
 
@@ -231,6 +231,52 @@ describe('index', () => {
         requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
+
+    it('cannot accept as payee', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const acceptParams = {
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity, true),
+      ).to.eventually.be.rejectedWith('Signer must be the payer');
+    });
   });
 
   describe('cancelRequest', () => {
@@ -266,6 +312,52 @@ describe('index', () => {
       await expect(
         requestLogic.cancelRequest(cancelParams, TestData.payeeRaw.identity),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot cancel if not payee or payer', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const cancelParams = {
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.cancelRequest(cancelParams, TestData.otherIdRaw.identity, true),
+      ).to.eventually.be.rejectedWith('Signer must be the payer or the payee');
     });
   });
 
@@ -488,6 +580,63 @@ describe('index', () => {
       await expect(
         requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+    it('cannot addExtension if apply fail in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const addExtensionParams = {
+        extensionsData: ['whatever'],
+        requestId,
+      };
+      const requestLogic = new RequestLogic(
+        transactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      await expect(
+        requestLogic.addExtensionsDataRequest(addExtensionParams, TestData.payeeRaw.identity, true),
+      ).to.eventually.be.rejectedWith('Expected throw');
     });
   });
 

@@ -87,7 +87,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.acceptRequest(parameters, signerIdentity);
+    await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -119,7 +119,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.cancelRequest(parameters, signerIdentity);
+    await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -218,7 +218,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -249,7 +249,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -290,7 +290,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -334,7 +334,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -378,7 +378,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -422,7 +422,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity);
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();

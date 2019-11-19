@@ -25,10 +25,12 @@ export interface IRequestLogic {
   acceptRequest: (
     requestParameters: IAcceptParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
   ) => Promise<IRequestLogicReturn>;
   cancelRequest: (
     requestParameters: ICancelParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
   ) => Promise<IRequestLogicReturn>;
   increaseExpectedAmountRequest: (
     requestParameters: IIncreaseExpectedAmountParameters,
@@ -43,6 +45,7 @@ export interface IRequestLogic {
   addExtensionsDataRequest: (
     requestParameters: IAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
   ) => Promise<IRequestLogicReturn>;
   getRequestFromId: (topic: string) => Promise<IReturnGetRequestFromId>;
   getRequestsByTopic: (
