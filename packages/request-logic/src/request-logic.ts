@@ -48,11 +48,15 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       topics,
     );
 
+    // Validate the action, the apply will throw in case of error
+    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
       hashedTopics,
     );
+
     return {
       meta: { transactionManagerMeta: resultPersistTx.meta },
       result: { requestId },
@@ -87,6 +91,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       topics,
     );
 
+    // Validate the action, the apply will throw in case of error
+    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
@@ -120,6 +127,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       signerIdentity,
       this.signatureProvider,
     );
+
+    // Validate the action, the apply will throw in case of error
+    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+
     return RequestLogicCore.getRequestIdFromAction(action);
   }
 

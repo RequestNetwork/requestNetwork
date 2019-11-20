@@ -19,7 +19,7 @@ const expect = chai.expect;
 chai.use(spies);
 chai.use(chaiAsPromised);
 
-const createParams = {
+const createParams: RequestLogicTypes.ICreateParameters = {
   currency: {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'ETH',
@@ -70,6 +70,37 @@ describe('index', () => {
       }
     });
 
+    it('cannot createRequest if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
+
+      await expect(
+        requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('Expected throw');
+    });
+
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
@@ -118,6 +149,41 @@ describe('index', () => {
           TestData.payerRaw.encryptionParams,
         ]),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot create an encrypted request if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
+
+      await expect(
+        requestLogic.createEncryptedRequest(
+          createParamsWithExtensions,
+          TestData.payeeRaw.identity,
+          [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+        ),
+      ).to.eventually.be.rejectedWith('Expected throw');
     });
 
     it('can create en encrypted request', async () => {
@@ -181,6 +247,37 @@ describe('index', () => {
       await expect(
         requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity),
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot compute request id if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
+
+      await expect(
+        requestLogic.computeRequestId(createParamsWithExtensions, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('Expected throw');
     });
 
     it('can computeRequestId', async () => {
