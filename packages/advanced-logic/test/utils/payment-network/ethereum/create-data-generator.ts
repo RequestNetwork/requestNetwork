@@ -5,40 +5,42 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 export const arbitraryTimestamp = 1544426030;
 
 // ---------------------------------------------------------------------
-// Mock addresses for testing ERC-20 based payment networks
+// Mock addresses for testing ETH payment networks
 export const paymentAddress = '0x627306090abaB3A6e1400e9345bC60c78a8BEf57';
 export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const invalidAddress = '0xnotandaddress';
 // ---------------------------------------------------------------------
+export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionCreationWithPaymentAndRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {
-    paymentAddress: paymentAddress,
-    refundAddress: refundAddress,
+    paymentAddress,
+    refundAddress,
+    salt,
   },
   version: '0.1.0',
 };
 export const actionCreationOnlyPayment = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {
-    paymentAddress: paymentAddress,
+    paymentAddress,
   },
   version: '0.1.0',
 };
 export const actionCreationOnlyRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {
-    refundAddress: refundAddress,
+    refundAddress,
   },
   version: '0.1.0',
 };
 export const actionCreationEmpty = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {},
   version: '0.1.0',
 };
@@ -46,28 +48,30 @@ export const actionCreationEmpty = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAndRefund = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED as string]: {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
     events: [
       {
         name: 'create',
         parameters: {
-          paymentAddress: paymentAddress,
-          refundAddress: refundAddress,
+          paymentAddress,
+          refundAddress,
+          salt,
         },
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      paymentAddress: paymentAddress,
-      refundAddress: refundAddress,
+      paymentAddress,
+      refundAddress,
+      salt,
     },
     version: '0.1.0',
   },
 };
 export const extensionStateCreatedEmpty = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED as string]: {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
     events: [
       {
         name: 'create',
@@ -75,7 +79,7 @@ export const extensionStateCreatedEmpty = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {},
     version: '0.1.0',
@@ -89,7 +93,11 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {
@@ -127,7 +135,11 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {
@@ -165,7 +177,11 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.DAI,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [
     {
       actionSigner: {

@@ -1,20 +1,20 @@
 import * as Types from '../../../../../src/types';
 
-import BlockchainInfo from '../../../../../src/api/payment-network/btc/providers/blockchain-info';
+import ChainSo from '../../../../../src/api/payment-network/btc/default-providers/chain-so';
 
-import * as BlockchainInfoData from './blockchain-info-data';
+import * as ChainSoData from './chain-so-data';
 
 import { expect } from 'chai';
 import 'mocha';
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/btc/providers/blockchainInfo', () => {
+describe('api/btc/providers/chainSo', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {
-      const blockchainInfo = new BlockchainInfo();
       try {
-        await blockchainInfo.getAddressInfo(1, 'address', Types.EVENTS_NAMES.PAYMENT);
+        const chainSo = new ChainSo();
+        await chainSo.getAddressBalanceWithEvents(1, 'address', Types.EVENTS_NAMES.PAYMENT);
         expect(false, 'should throw').to.be.true;
       } catch (e) {
         expect(e.message).to.equal(
@@ -26,12 +26,8 @@ describe('api/btc/providers/blockchainInfo', () => {
 
   describe('parse', () => {
     it('can parse data', () => {
-      const blockchainInfo = new BlockchainInfo();
-
-      const parsedData = blockchainInfo.parse(
-        BlockchainInfoData.exampleAddressInfo,
-        Types.EVENTS_NAMES.PAYMENT,
-      );
+      const chainSo = new ChainSo();
+      const parsedData = chainSo.parse(ChainSoData.exampleAddressInfo, Types.EVENTS_NAMES.PAYMENT);
       expect(parsedData.balance, 'balance wrong').to.equal('50500000');
       expect(parsedData.events, 'balance wrong').to.deep.equal([
         {

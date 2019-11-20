@@ -37,7 +37,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/btc/testnet-address-based', () => {
   beforeEach(() => {
     sandbox.restore();
-    btcAddressedBased = new AddressBasedTestnetBtc(mockAdvancedLogic);
+    btcAddressedBased = new AddressBasedTestnetBtc({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {

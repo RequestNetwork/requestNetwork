@@ -15,7 +15,7 @@ const CHAINSO_REQUEST_RETRY_DELAY = 100;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of chain.so
  */
-export default class ChainSo implements Types.IBitcoinProvider {
+export default class ChainSo implements Types.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using chain.so public API
    *
@@ -24,7 +24,7 @@ export default class ChainSo implements Types.IBitcoinProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Object containing address info
    */
-  public async getAddressInfo(
+  public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,

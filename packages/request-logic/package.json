@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "publishConfig": {
     "access": "public"
   },
@@ -41,10 +41,10 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.5.0",
-    "@requestnetwork/multi-format": "0.2.0",
-    "@requestnetwork/types": "0.8.0",
-    "@requestnetwork/utils": "0.6.2",
+    "@requestnetwork/advanced-logic": "0.6.0",
+    "@requestnetwork/multi-format": "0.2.1",
+    "@requestnetwork/types": "0.9.0",
+    "@requestnetwork/utils": "0.7.0",
     "semver": "5.6.0"
   },
   "devDependencies": {
@@ -59,6 +59,7 @@
     "@types/semver": "5.5.0",
     "@typescript-eslint/parser": "1.2.0",
     "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
     "chai-spies": "1.0.0",
     "eslint": "5.13.0",
     "eslint-plugin-spellcheck": "0.0.11",
@@ -69,9 +70,9 @@
     "prettier": "1.16.4",
     "shx": "0.3.2",
     "source-map-support": "0.5.13",
-    "ts-node": "8.3.0",
+    "ts-node": "8.5.2",
     "tslint": "5.12.1",
-    "typescript": "3.3.1"
+    "typescript": "3.7.2"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

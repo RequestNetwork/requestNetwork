@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "publishConfig": {
     "access": "public"
   },
@@ -42,7 +42,7 @@
   "dependencies": {
     "ajv": "6.8.1",
     "tslib": "1.9.3",
-    "typescript": "3.3.1"
+    "typescript": "3.7.2"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
@@ -61,7 +61,7 @@
     "prettier": "1.16.4",
     "rimraf": "2.6.3",
     "shx": "0.3.2",
-    "ts-node": "8.3.0",
+    "ts-node": "8.5.2",
     "tslint": "5.12.1"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"

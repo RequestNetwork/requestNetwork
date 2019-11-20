@@ -20,7 +20,11 @@ const payee = {
 export const arbitraryTimestamp = 1549953337;
 
 export const parameters: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   extensionsData: [
     {
@@ -43,7 +47,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
 export const data = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters,
-  version: '2.0.1',
+  version: '2.0.2',
 };
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);

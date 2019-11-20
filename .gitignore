@@ -26,6 +26,10 @@ yarn-error.log
 
 # local environment variables
 .env
+.env.*
 
 # stryker
 .stryker-tmp
+
+# typescript
+tsconfig.tsbuildinfo

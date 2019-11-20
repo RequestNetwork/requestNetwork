@@ -147,7 +147,8 @@ function applyActionToExtension(
   throw Error(`Unknown action: ${extensionAction.action}`);
 }
 
-/** Applies a creation
+/**
+ * Applies a creation
  *
  * @param isValidAddress address validator function
  * @param extensionAction action to apply
@@ -192,7 +193,8 @@ function applyCreation(
   };
 }
 
-/** Applies add payment address
+/**
+ * Applies add payment address
  *
  * @param isValidAddress address validator function
  * @param extensionState previous state of the extension
@@ -240,7 +242,8 @@ function applyAddPaymentAddress(
   return copiedExtensionState;
 }
 
-/** Applies add refund address
+/**
+ * Applies add refund address
  *
  * @param isValidAddress address validator function
  * @param extensionState previous state of the extension

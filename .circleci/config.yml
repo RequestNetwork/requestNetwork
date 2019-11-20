@@ -46,6 +46,7 @@ jobs:
   test-request-client:
     docker:
       - *node_image
+      - *ganache_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -56,6 +57,9 @@ jobs:
       - run:
           name: 'Lint request-client.js'
           command: 'yarn workspace @requestnetwork/request-client.js run lint '
+      - run:
+          name: 'Deploy test contract from ethereum-storage'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run deploy'
       - run:
           name: 'Test request-client.js'
           command: 'yarn workspace @requestnetwork/request-client.js run test'
@@ -338,7 +342,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
       - run:
-          name: Waiting for Request Node to be ready
+          name: 'Waiting for Request Node to be ready'
           command: |
             for i in `seq 1 10`;
             do
@@ -445,6 +449,42 @@ jobs:
       - run:
           name: 'Build prototype-estimator'
           command: 'yarn workspace @requestnetwork/prototype-estimator run build'
+  test-nightly:
+    test-integration-test:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build integration-test'
+          command: 'yarn workspace @requestnetwork/integration-test run build'
+      - run:
+          name: 'Lint integration-test'
+          command: 'yarn workspace @requestnetwork/integration-test run lint'
+      - run:
+          name: 'Deploy test contract from ethereum-storage'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run deploy'
+      - run:
+          name: 'Start request-node'
+          command: 'yarn workspace @requestnetwork/request-node run start'
+          background: true
+      - run:
+          name: Waiting for Request Node to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Node initialization && exit 1
+      - run:
+          name: 'Test integration-test'
+          command: 'yarn workspace @requestnetwork/integration-test run test:scheduled'
 
 workflows:
   version: 2
@@ -529,3 +569,22 @@ workflows:
             - test-request-node
             - test-utils
             - test-multi-format
+
+  nightly:
+    triggers:
+      - schedule:
+          # This is a cron job for "everyday at 22 hours"
+          cron: '0 22 * * *'
+          filters:
+            branches:
+              only:
+                - master
+                - development
+    jobs:
+      - build
+      - lint-package-json:
+          requires:
+            - build
+      - test-nightly:
+          requires:
+            - build

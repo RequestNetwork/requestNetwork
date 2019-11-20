@@ -1,0 +1,17 @@
+version: '2' # required to adjust maintainability checks
+checks:
+  method-complexity:
+    config:
+      threshold: 10 # default: 5
+  method-lines:
+    config:
+      threshold: 50 # default: 25
+engines:
+  markdownlint:
+    checks:
+      # line length
+      MD013:
+        enabled: false
+      # consecutive blank lines
+      MD012:
+        enabled: false

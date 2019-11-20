@@ -1,10 +1,6 @@
 import * as TestData from '../../test-data-generator';
 
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export const arbitraryTimestamp = 1544426030;
 
@@ -95,7 +91,11 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   events: [
     {
       actionSigner: {
@@ -133,7 +133,11 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   events: [
     {
       actionSigner: {
@@ -171,7 +175,11 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   events: [
     {
       actionSigner: {

@@ -121,7 +121,7 @@ async function decrypt(privateKey: string, encrypted: string): Promise<string> {
   try {
     return await EthCrypto.decryptWithPrivateKey(privateKey, EthCrypto.cipher.parse(encrypted));
   } catch (e) {
-    if (e.message === 'Bad input') {
+    if (e.message === 'Bad private key') {
       throw new Error('The private key must be a string representing 32 bytes');
     }
     if (

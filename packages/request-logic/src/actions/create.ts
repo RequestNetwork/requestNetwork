@@ -1,9 +1,6 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureProviderTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as Semver from 'semver';
 import Action from '../action';
 import Version from '../version';
 
@@ -67,7 +64,10 @@ function format(
     version,
   };
 
-  const signerRole: RequestLogicTypes.ROLE = Action.getRoleInUnsignedAction(signerIdentity, unsignedAction);
+  const signerRole: RequestLogicTypes.ROLE = Action.getRoleInUnsignedAction(
+    signerIdentity,
+    unsignedAction,
+  );
 
   if (signerRole !== RequestLogicTypes.ROLE.PAYEE && signerRole !== RequestLogicTypes.ROLE.PAYER) {
     throw new Error('Signer must be the payee or the payer');
@@ -83,7 +83,10 @@ function format(
  *
  * @returns Types.IRequest the new request
  */
-function createRequest(action: RequestLogicTypes.IAction, timestamp: number): RequestLogicTypes.IRequest {
+function createRequest(
+  action: RequestLogicTypes.IAction,
+  timestamp: number,
+): RequestLogicTypes.IRequest {
   if (!action.data.parameters.payee && !action.data.parameters.payer) {
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
@@ -95,6 +98,11 @@ function createRequest(action: RequestLogicTypes.IAction, timestamp: number): Re
     throw new Error(
       'action.parameters.expectedAmount must be a string representing a positive integer',
     );
+  }
+
+  // If we're creating an older version of a request, we convert the string currency type to the new ICurrency one
+  if (Semver.lt(action.data.version, '2.0.2')) {
+    action.data.parameters.currency = legacyEnumToICurrencyConvert(action.data.parameters.currency);
   }
 
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
@@ -147,4 +155,44 @@ function generateEvent(
     timestamp,
   };
   return event;
+}
+
+/**
+ * Converts legacy enum CURRENCY format to ICurrency object
+ *
+ * @param currency The old currency string format
+ * @returns The ICurrency object
+ */
+function legacyEnumToICurrencyConvert(currency: string): RequestLogicTypes.ICurrency {
+  switch (currency) {
+    case 'BTC':
+      return {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      };
+    case 'ETH':
+      return {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      };
+    case 'EUR':
+      return {
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'EUR',
+      };
+    case 'USD':
+      return {
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'USD',
+      };
+    case 'SAI':
+      return {
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
+      };
+    default:
+      throw new Error('Unsupported currency when getting request from transactions.');
+  }
 }

@@ -5,5 +5,9 @@
     "rootDir": "src"
   },
   "include": ["./src/**/*"],
-  "references": [{ "path": "../types" }]
+  "references": [
+    { "path": "../epk-signature" },
+    { "path": "../request-client.js" },
+    { "path": "../types" }
+  ]
 }

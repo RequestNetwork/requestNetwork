@@ -10,6 +10,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import 'mocha';
+import * as sinon from 'sinon';
 const mockAdapter = require('axios-mock-adapter');
 import { Request, RequestNetwork } from '../src/index';
 import * as Types from '../src/types';
@@ -90,7 +91,11 @@ const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
 };
 
 const requestParameters: RequestLogicTypes.ICreateParameters = {
-  currency: RequestLogicTypes.CURRENCY.BTC,
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.BTC,
+    value: 'BTC',
+  },
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,
@@ -408,9 +413,9 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.accept(payeeIdentity);
+    await request.accept(payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.twice;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -426,7 +431,7 @@ describe('index', () => {
 
     await request.cancel(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.twice;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -440,9 +445,9 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await request.increaseExpectedAmountRequest(3, payeeIdentity);
+    await request.increaseExpectedAmountRequest(3, payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.twice;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -458,7 +463,7 @@ describe('index', () => {
 
     await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.twice;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -494,9 +499,9 @@ describe('index', () => {
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
 
-      await request.declareSentPayment('10', 'sent payment', payeeIdentity);
+      await request.declareSentPayment('10', 'sent payment', payerIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.twice;
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -519,7 +524,7 @@ describe('index', () => {
 
       await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.twice;
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -542,7 +547,7 @@ describe('index', () => {
 
       await request.declareSentRefund('10', 'sent refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.twice;
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -563,15 +568,22 @@ describe('index', () => {
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
 
-      await request.declareReceivedRefund('10', 'received refund', payeeIdentity);
+      await request.declareReceivedRefund('10', 'received refund', payerIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.twice;
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
     it('allows to get the right balance', async () => {
+      // Use sinon clock to get a predictible timestamp
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+      clock.tick(1000);
+
       const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
-        currency: RequestLogicTypes.CURRENCY.USD,
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'USD',
+        },
         expectedAmount: '100000000000',
         payee: payeeIdentity,
         payer: payerIdentity,
@@ -604,12 +616,12 @@ describe('index', () => {
       // @ts-ignore
       expect(requestData.balance.events[0]).to.deep.equal({
         name: 'refund',
-        parameters: { amount: '10', note: 'received refund' },
+        parameters: { amount: '10', note: 'received refund', timestamp: 1 },
       });
       // @ts-ignore
       expect(requestData.balance.events[1]).to.deep.equal({
         name: 'payment',
-        parameters: { amount: '1000', note: 'received payment' },
+        parameters: { amount: '1000', note: 'received payment', timestamp: 1 },
       });
     });
 
@@ -691,6 +703,26 @@ describe('index', () => {
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
         'ecies-aes256-cbc',
+      );
+    });
+
+    it('cannot create an encrypted request without encryption parameters', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      await expect(
+        requestNetwork._createEncryptedRequest(
+          {
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: payeeIdentity,
+          },
+          [],
+        ),
+      ).to.eventually.be.rejectedWith(
+        'You must give at least one encryption parameter to create an encrypted request',
       );
     });
 

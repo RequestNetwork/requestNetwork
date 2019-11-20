@@ -3,25 +3,35 @@ import * as Types from '../../types';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
-import ERC20AddressBased from './erc20/mainnet-address-based';
-import RinkebyERC20AddressBased from './erc20/rinkeby-address-based';
+import ERC20AddressBased from './erc20/address-based';
 
 /** Register the payment network by currency and type */
+// TODO: take into account currency network and possibly value when finding supported network
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
-    [ExtensionTypes.ID
-      .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+    mainnet: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
+    },
+    testnet: {
+      [ExtensionTypes.ID
+        .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
+    },
   },
-  DAI: {
-    [ExtensionTypes.ID
-      .PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED as string]: RinkebyERC20AddressBased,
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+  ERC20: {
+    mainnet: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
+    private: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
+    rinkeby: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
   },
-  any: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
-  },
+};
+
+const anyCurrencyPaymentNetwork: Types.IPaymentNetworkModuleByType = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -33,26 +43,35 @@ export default class PaymentNetworkFactory {
    * @param advancedLogic the advanced-logic layer in charge of the extensions
    * @param currency the currency of the request
    * @param paymentNetworkCreationParameters creation parameters of payment network
+   * @param bitcoinDetectionProvider bitcoin detection provider
    * @returns the module to handle the payment network
    */
-  public static createPaymentNetwork(
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    currency: RequestLogicTypes.CURRENCY,
-    paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters,
-  ): Types.IPaymentNetwork {
-    let paymentNetworkForCurrency = supportedPaymentNetwork[currency];
-    if (!paymentNetworkForCurrency) {
-      paymentNetworkForCurrency = supportedPaymentNetwork.any;
-    }
+  public static createPaymentNetwork({
+    advancedLogic,
+    currency,
+    paymentNetworkCreationParameters,
+    bitcoinDetectionProvider,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currency: RequestLogicTypes.ICurrency;
+    paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters;
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  }): Types.IPaymentNetwork {
+    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
         `the payment network id: ${
           paymentNetworkCreationParameters.id
-        } is not supported for the currency: ${currency}`,
+        } is not supported for the currency: ${currency.type} on network ${currency.network ||
+          'mainnet'}`,
       );
     }
 
-    return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id](advancedLogic);
+    return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id]({
+      advancedLogic,
+      bitcoinDetectionProvider,
+    });
   }
 
   /**
@@ -61,12 +80,18 @@ export default class PaymentNetworkFactory {
    *
    * @param advancedLogic the advanced-logic layer in charge of the extensions
    * @param request the request
+   * @param bitcoinDetectionProvider bitcoin detection provider
    * @returns the module to handle the payment network or null if no payment network found
    */
-  public static getPaymentNetworkFromRequest(
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    request: RequestLogicTypes.IRequest,
-  ): Types.IPaymentNetwork | null {
+  public static getPaymentNetworkFromRequest({
+    advancedLogic,
+    request,
+    bitcoinDetectionProvider,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    request: RequestLogicTypes.IRequest;
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  }): Types.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
       extension => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -77,16 +102,37 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    let paymentNetworkForCurrency = supportedPaymentNetwork[currency];
-    if (!paymentNetworkForCurrency) {
-      paymentNetworkForCurrency = supportedPaymentNetwork.any;
-    }
+    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
-        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${currency}`,
+        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${
+          currency.type
+        } on network ${currency.network || 'mainnet'}`,
       );
     }
 
-    return new paymentNetworkForCurrency[paymentNetworkId](advancedLogic);
+    return new paymentNetworkForCurrency[paymentNetworkId]({
+      advancedLogic,
+      bitcoinDetectionProvider,
+    });
   }
+}
+
+/**
+ * Gets the payment networks supported for a Currency object
+ *
+ * @param currency The currency to get the supported networks for
+ */
+function supportedPaymentNetworksForCurrency(
+  currency: RequestLogicTypes.ICurrency,
+): Types.IPaymentNetworkModuleByType {
+  if (!supportedPaymentNetwork[currency.type]) {
+    return anyCurrencyPaymentNetwork;
+  }
+
+  const paymentNetwork =
+    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] || {};
+
+  return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
 }

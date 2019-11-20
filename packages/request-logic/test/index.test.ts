@@ -1,8 +1,9 @@
 import 'mocha';
 
 import MultiFormat from '@requestnetwork/multi-format';
-import { RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as chaiAsPromised from 'chai-as-promised';
 
 import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
@@ -16,9 +17,13 @@ const spies = require('chai-spies');
 const expect = chai.expect;
 
 chai.use(spies);
+chai.use(chaiAsPromised);
 
-const createParams = {
-  currency: RequestLogicTypes.CURRENCY.ETH,
+const createParams: RequestLogicTypes.ICreateParameters = {
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   expectedAmount: TestData.arbitraryExpectedAmount,
   payee: TestData.payeeRaw.identity,
   payer: TestData.payerRaw.identity,
@@ -65,6 +70,37 @@ describe('index', () => {
       }
     });
 
+    it('cannot createRequest if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
+
+      await expect(
+        requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('Expected throw');
+    });
+
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
@@ -107,17 +143,47 @@ describe('index', () => {
     it('cannot create encrypted request without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
 
-      try {
-        await requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
+      await expect(
+        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
           TestData.payeeRaw.encryptionParams,
           TestData.payerRaw.encryptionParams,
-        ]);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+        ]),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot create an encrypted request if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
+
+      await expect(
+        requestLogic.createEncryptedRequest(
+          createParamsWithExtensions,
+          TestData.payeeRaw.identity,
+          [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+        ),
+      ).to.eventually.be.rejectedWith('Expected throw');
     });
 
     it('can create en encrypted request', async () => {
@@ -162,19 +228,56 @@ describe('index', () => {
         ],
       );
     });
+
+    it('cannot create en encrypted request without encryption parameteres', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, []),
+      ).to.eventually.be.rejectedWith(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    });
   });
 
   describe('computeRequestId', () => {
     it('cannot computeRequestId without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
-      try {
-        await requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+
+      await expect(
+        requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot compute request id if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
+
+      await expect(
+        requestLogic.computeRequestId(createParamsWithExtensions, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('Expected throw');
     });
 
     it('can computeRequestId', async () => {
@@ -221,14 +324,55 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot accept as payee', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const acceptParams = {
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity, true),
+      ).to.eventually.be.rejectedWith('Signer must be the payer');
     });
   });
 
@@ -262,14 +406,55 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.cancelRequest(cancelParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.cancelRequest(cancelParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+
+    it('cannot cancel if not payee or payer', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const cancelParams = {
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.cancelRequest(cancelParams, TestData.otherIdRaw.identity, true),
+      ).to.eventually.be.rejectedWith('Signer must be the payer or the payee');
     });
   });
 
@@ -309,17 +494,59 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.increaseExpectedAmountRequest(
+      await expect(
+        requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+    it('cannot increaseExpectedAmountRequest as payee', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const increaseRequest = {
+        deltaAmount: '1000',
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.increaseExpectedAmountRequest(
           increaseRequest,
           TestData.payeeRaw.identity,
-        );
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+          true,
+        ),
+      ).to.eventually.be.rejectedWith('signer must be the payer');
     });
   });
 
@@ -359,14 +586,55 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+    it('cannot reduceExpectedAmountRequest as payer', async () => {
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const increaseRequest = {
+        deltaAmount: '1000',
+        requestId,
+      };
+      const requestLogic = new RequestLogic(transactionManager, TestData.fakeSignatureProvider);
+
+      await expect(
+        requestLogic.reduceExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity, true),
+      ).to.eventually.be.rejectedWith('signer must be the payee');
     });
   });
 
@@ -406,14 +674,66 @@ describe('index', () => {
         requestId,
       };
 
-      try {
-        await requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+    });
+    it('cannot addExtension if apply fail in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
+
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByTopic: chai.spy(),
+        getTransactionsByChannelId: chai.spy.returns(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: chai.spy(),
+      };
+      const addExtensionParams = {
+        extensionsData: ['whatever'],
+        requestId,
+      };
+      const requestLogic = new RequestLogic(
+        transactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
+
+      await expect(
+        requestLogic.addExtensionsDataRequest(addExtensionParams, TestData.payeeRaw.identity, true),
+      ).to.eventually.be.rejectedWith('Expected throw');
     });
   });
 
@@ -423,7 +743,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -500,7 +823,10 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -548,7 +874,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -646,7 +975,10 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -694,7 +1026,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -788,7 +1123,10 @@ describe('index', () => {
         result: {
           request: {
             creator: TestData.payeeRaw.identity,
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
@@ -882,7 +1220,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: 'NOT A NUMBER',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -940,7 +1281,10 @@ describe('index', () => {
       const unsignedActionCreation = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: '123400000000000000',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -982,7 +1326,10 @@ describe('index', () => {
       const unsignedActionCreation2 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '10',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1012,7 +1359,10 @@ describe('index', () => {
       const unsignedActionCreation3 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '666',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1095,7 +1445,10 @@ describe('index', () => {
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
-            currency: RequestLogicTypes.CURRENCY.ETH,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
             expectedAmount: '123400000000000000',
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -1169,7 +1522,10 @@ describe('index', () => {
       const unsignedActionCreation = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.ETH,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
           expectedAmount: '123400000000000000',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1211,7 +1567,10 @@ describe('index', () => {
       const unsignedActionCreation2 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '10',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,
@@ -1241,7 +1600,10 @@ describe('index', () => {
       const unsignedActionCreation3 = {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
-          currency: RequestLogicTypes.CURRENCY.BTC,
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
           expectedAmount: '666',
           payee: TestData.payeeRaw.identity,
           payer: TestData.payerRaw.identity,

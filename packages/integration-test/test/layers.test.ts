@@ -143,7 +143,10 @@ describe('Request system', () => {
     };
 
     const requestCreationHash: RequestLogicTypes.ICreateParameters = {
-      currency: RequestLogicTypes.CURRENCY.ETH,
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
       expectedAmount: '100000000000',
       extensionsData: [contentDataExtensionData],
       payee: payeeIdentity,
@@ -190,7 +193,10 @@ describe('Request system', () => {
     };
 
     const requestCreationHash: RequestLogicTypes.ICreateParameters = {
-      currency: RequestLogicTypes.CURRENCY.BTC,
+      currency: {
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      },
       expectedAmount: '100000000000',
       extensionsData: [pnBTCExtensionData, contentDataExtensionData],
       payee: payeeIdentity,
@@ -222,7 +228,10 @@ describe('Request system', () => {
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
     // create request
     const request1CreationHash: RequestLogicTypes.ICreateParameters = {
-      currency: RequestLogicTypes.CURRENCY.BTC,
+      currency: {
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      },
       expectedAmount: '100000000000',
       payee: payeeIdentity,
       payer: {
@@ -242,7 +251,10 @@ describe('Request system', () => {
 
     // create request 2 must be ignored
     const request2CreationHash: RequestLogicTypes.ICreateParameters = {
-      currency: RequestLogicTypes.CURRENCY.BTC,
+      currency: {
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      },
       expectedAmount: '10',
       payee: payeeIdentity,
       payer: {
@@ -299,7 +311,10 @@ describe('Request system', () => {
     });
 
     const requestCreationHash: RequestLogicTypes.ICreateParameters = {
-      currency: RequestLogicTypes.CURRENCY.ETH,
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
       expectedAmount: '12345678987654321',
       extensionsData: [contentDataExtensionData],
       payee: payeeIdentity,

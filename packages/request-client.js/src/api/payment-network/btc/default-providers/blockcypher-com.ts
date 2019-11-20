@@ -14,7 +14,7 @@ const BLOCKCYPHER_REQUEST_RETRY_DELAY = 100;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockcypher.com
  */
-export default class BlockcypherCom implements Types.IBitcoinProvider {
+export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockcypher.com public API
    *
@@ -23,7 +23,7 @@ export default class BlockcypherCom implements Types.IBitcoinProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Object containing address info
    */
-  public async getAddressInfo(
+  public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
@@ -38,9 +38,7 @@ export default class BlockcypherCom implements Types.IBitcoinProvider {
 
       // tslint:disable-next-line:no-magic-numbers
       if (res.status >= 400) {
-        throw new Error(
-          `Error ${res.status}. Bad response from server ${queryUrl}`,
-        );
+        throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
       const addressInfo = await res.json();
 

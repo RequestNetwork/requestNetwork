@@ -1,21 +1,25 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
-import BitcoinInfoRetriever from './bitcoin-info-retriever';
+import DefaultBitcoinDetectionProvider from './default-bitcoin-detection-provider';
 const bigNumber: any = require('bn.js');
 
 /**
  * Handle payment networks with BTC based address extension
  */
 export default class PaymentNetworkBTCAddressBased {
-  private extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased;
-  private bitcoinInfoRetriever: BitcoinInfoRetriever;
+  private extension: ExtensionTypes.PnAddressBased.IAddressBased;
+  private bitcoinDetectionProvider: Types.IBitcoinDetectionProvider;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(extension: ExtensionTypes.PnBitcoinAddressBased.IAddressBased) {
+  public constructor(
+    extension: ExtensionTypes.PnAddressBased.IAddressBased,
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
+  ) {
     this.extension = extension;
-    this.bitcoinInfoRetriever = new BitcoinInfoRetriever();
+    this.bitcoinDetectionProvider =
+      bitcoinDetectionProvider || new DefaultBitcoinDetectionProvider();
   }
 
   /**
@@ -25,7 +29,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnBitcoinAddressBased.ICreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -40,7 +44,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
@@ -54,7 +58,7 @@ export default class PaymentNetworkBTCAddressBased {
    * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnBitcoinAddressBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
@@ -126,6 +130,6 @@ export default class PaymentNetworkBTCAddressBased {
     eventName: Types.EVENTS_NAMES,
     networkId: number,
   ): Promise<Types.IBalanceWithEvents> {
-    return this.bitcoinInfoRetriever.getAddressInfo(networkId, address, eventName);
+    return this.bitcoinDetectionProvider.getAddressBalanceWithEvents(networkId, address, eventName);
   }
 }

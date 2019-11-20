@@ -1,8 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import Declarative from '../../../src/api/payment-network/declarative';
 
@@ -57,7 +53,10 @@ const requestMock: RequestLogicTypes.IRequest = {
     type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
     value: '',
   },
-  currency: RequestLogicTypes.CURRENCY.ETH,
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'ETH',
+  },
   events: [],
   expectedAmount: {},
   extensions: {},
@@ -73,7 +72,7 @@ const requestMock: RequestLogicTypes.IRequest = {
 describe('api/declarative', () => {
   beforeEach(() => {
     sandbox.restore();
-    declarative = new Declarative(mockAdvancedLogic);
+    declarative = new Declarative({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -162,54 +161,52 @@ describe('api/declarative', () => {
   });
 
   it('getBalance get the correct balance', async () => {
-    requestMock.extensionsData = [
-      {
-        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
-      },
-      {
-        id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
-      },
-      {
-        action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
-      },
-      {
-        action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
-      },
-      {
-        action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {
-          amount: '1000',
-          note: 'first payment',
+    requestMock.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE] = {
+      events: [
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
+          parameters: {},
+          timestamp: 10,
         },
-      },
-      {
-        action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {
-          amount: '500',
-          note: 'second payment',
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
+          parameters: {},
+          timestamp: 10,
         },
-      },
-      {
-        action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {
-          amount: '100',
-          note: 'first refund',
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+          parameters: {
+            amount: '1000',
+            note: 'first payment',
+          },
+          timestamp: 10,
         },
-      },
-      {
-        action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {
-          amount: '200',
-          note: 'second refund',
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+          parameters: {
+            amount: '500',
+            note: 'second payment',
+          },
+          timestamp: 15,
         },
-      },
-    ];
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
+          parameters: {
+            amount: '100',
+            note: 'first refund',
+          },
+          timestamp: 20,
+        },
+        {
+          name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
+          parameters: {
+            amount: '200',
+            note: 'second refund',
+          },
+          timestamp: 25,
+        },
+      ],
+    } as ExtensionTypes.IState;
 
     const getBalanceReturn = await declarative.getBalance(requestMock);
 
@@ -221,6 +218,7 @@ describe('api/declarative', () => {
           parameters: {
             amount: '1000',
             note: 'first payment',
+            timestamp: 10,
           },
         },
         {
@@ -228,6 +226,7 @@ describe('api/declarative', () => {
           parameters: {
             amount: '500',
             note: 'second payment',
+            timestamp: 15,
           },
         },
         {
@@ -235,6 +234,7 @@ describe('api/declarative', () => {
           parameters: {
             amount: '100',
             note: 'first refund',
+            timestamp: 20,
           },
         },
         {
@@ -242,6 +242,7 @@ describe('api/declarative', () => {
           parameters: {
             amount: '200',
             note: 'second refund',
+            timestamp: 25,
           },
         },
       ],

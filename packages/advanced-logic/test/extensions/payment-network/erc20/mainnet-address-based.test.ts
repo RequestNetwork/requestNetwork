@@ -1,6 +1,6 @@
 import 'mocha';
 
-import mainnetERC20AddressBasedManager from '../../../../src/extensions/payment-network/erc20/mainnet-address-based';
+import mainnetERC20AddressBasedManager from '../../../../src/extensions/payment-network/erc20/address-based';
 
 import Utils from '@requestnetwork/utils';
 

@@ -14,6 +14,8 @@ import { IEncryptionParameters } from '@requestnetwork/types/dist/encryption-typ
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
+import { stringToCurrency } from './currency';
+import { validERC20Address } from './currency/erc20';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 
@@ -27,20 +29,25 @@ export default class RequestNetwork {
 
   private contentData: ContentDataExtension;
 
+  private bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+
   /**
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
+   * @param bitcoinDetectionProvider bitcoin detection provider
    */
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     signatureProvider?: SignatureProviderTypes.ISignatureProvider,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
   ) {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
+    this.bitcoinDetectionProvider = bitcoinDetectionProvider;
   }
 
   /**
@@ -124,10 +131,11 @@ export default class RequestNetwork {
 
     let paymentNetwork: Types.IPaymentNetwork | null = null;
     if (requestAndMeta.result.request) {
-      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-        this.advancedLogic,
-        requestAndMeta.result.request,
-      );
+      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest({
+        advancedLogic: this.advancedLogic,
+        bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+        request: requestAndMeta.result.request,
+      });
     }
 
     // create the request object
@@ -198,8 +206,11 @@ export default class RequestNetwork {
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          this.advancedLogic,
-          requestFromLogic,
+          {
+            advancedLogic: this.advancedLogic,
+            bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+            request: requestFromLogic,
+          },
         );
 
         // create the request object
@@ -241,8 +252,11 @@ export default class RequestNetwork {
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          this.advancedLogic,
-          requestFromLogic,
+          {
+            advancedLogic: this.advancedLogic,
+            bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+            request: requestFromLogic,
+          },
         );
 
         // create the request object
@@ -284,17 +298,32 @@ export default class RequestNetwork {
       throw new Error('extensionsData in request parameters must be empty');
     }
 
+    // if request currency is a string, convert it to currency object
+    if (typeof requestParameters.currency === 'string') {
+      requestParameters.currency = stringToCurrency(requestParameters.currency);
+    } else {
+      // If ERC20, validate that the value is a checksum address
+      if (requestParameters.currency.type === RequestLogicTypes.CURRENCY.ERC20) {
+        if (!validERC20Address(requestParameters.currency.value)) {
+          throw new Error(
+            'The ERC20 currency address needs to be a valid Ethereum checksum address',
+          );
+        }
+      }
+    }
+
     // avoid mutation of the parameters
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
     let paymentNetwork: Types.IPaymentNetwork | null = null;
     if (paymentNetworkCreationParameters) {
-      paymentNetwork = PaymentNetworkFactory.createPaymentNetwork(
-        this.advancedLogic,
-        requestParameters.currency,
+      paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
+        advancedLogic: this.advancedLogic,
+        bitcoinDetectionProvider: this.bitcoinDetectionProvider,
+        currency: requestParameters.currency,
         paymentNetworkCreationParameters,
-      );
+      });
 
       if (paymentNetwork) {
         // create the extensions data for the payment network

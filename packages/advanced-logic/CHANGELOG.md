@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.5.0...@requestnetwork/advanced-logic@0.6.0) (2019-11-20)
+
+
+### Features
+
+* ETH payement network in advanced-logic ([#589](https://github.com/RequestNetwork/requestNetwork/issues/589)) ([7b32ce8](https://github.com/RequestNetwork/requestNetwork/commit/7b32ce84c23ee723a143d752fb93786a6c5cc813))
+
+
+
+
+
 # [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.4.3...@requestnetwork/advanced-logic@0.5.0) (2019-10-21)
 
 

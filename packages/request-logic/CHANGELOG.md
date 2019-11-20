@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.7.1...@requestnetwork/request-logic@0.8.0) (2019-11-20)
+
+
+### Bug Fixes
+
+* throw when no encryption parameters is given to create an encrypted request ([#593](https://github.com/RequestNetwork/requestNetwork/issues/593)) ([d18a894](https://github.com/RequestNetwork/requestNetwork/commit/d18a8946085920f13a43e269814fba857f24039a))
+
+
+### Features
+
+* add ERC20 currency list ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([6e0ed87](https://github.com/RequestNetwork/requestNetwork/commit/6e0ed8758ffd5edcd9a498028c2b6873c26d49ca))
+* translate currency string to object ([#581](https://github.com/RequestNetwork/requestNetwork/issues/581)) ([b220d20](https://github.com/RequestNetwork/requestNetwork/commit/b220d20ae1866e8db076718989726334b91c0f44))
+* validate role for increase & decrease ([#590](https://github.com/RequestNetwork/requestNetwork/issues/590)) ([4793782](https://github.com/RequestNetwork/requestNetwork/commit/47937828a0f42e912eda440be4e277f26aa51bdb))
+* Validation of accept, cancel and add extension data ([#599](https://github.com/RequestNetwork/requestNetwork/issues/599)) ([8f7798e](https://github.com/RequestNetwork/requestNetwork/commit/8f7798e6e71819e5201efaf73678ff5b71b52503))
+* **request-logic:** check advanced logic when creating a request ([#607](https://github.com/RequestNetwork/requestNetwork/issues/607)) ([352d2a3](https://github.com/RequestNetwork/requestNetwork/commit/352d2a3ca90a57ad43e55737d2111b6da5137e75))
+
+
+
+
+
 ## [0.7.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.7.0...@requestnetwork/request-logic@0.7.1) (2019-10-21)
 
 **Note:** Version bump only for package @requestnetwork/request-logic

@@ -1,8 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../types';
 const bigNumber: any = require('bn.js');
 
@@ -14,7 +10,7 @@ const bigNumber: any = require('bn.js');
 export default class PaymentNetworkDeclarative implements Types.IPaymentNetwork {
   private extension: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
 
-  public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
+  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     this.extension = advancedLogic.extensions.declarative;
   }
 
@@ -137,19 +133,23 @@ export default class PaymentNetworkDeclarative implements Types.IPaymentNetwork 
     // For each extension data related to the declarative payment network,
     // we check if the data is a declared received payment or refund and we modify the balance
     // Received payment increase the balance and received refund decrease the balance
-    request.extensionsData
-      .filter(data => data.id === Types.PAYMENT_NETWORK_ID.DECLARATIVE)
-      .forEach(data => {
-        if (data.action === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
-          // Declared received payments from payee is added to the balance
-          balance = balance.add(new bigNumber(data.parameters.amount));
-          events.push({ name: Types.EVENTS_NAMES.PAYMENT, parameters: data.parameters });
-        } else if (data.action === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
-          // The balance is subtracted from declared received refunds from payer
-          balance = balance.sub(new bigNumber(data.parameters.amount));
-          events.push({ name: Types.EVENTS_NAMES.REFUND, parameters: data.parameters });
-        }
-      });
+    request.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE].events.forEach(data => {
+      if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
+        const parameters = data.parameters;
+        parameters.timestamp = data.timestamp;
+
+        // Declared received payments from payee is added to the balance
+        balance = balance.add(new bigNumber(data.parameters.amount));
+        events.push({ name: Types.EVENTS_NAMES.PAYMENT, parameters });
+      } else if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
+        const parameters = data.parameters;
+        parameters.timestamp = data.timestamp;
+
+        // The balance is subtracted from declared received refunds from payer
+        balance = balance.sub(new bigNumber(data.parameters.amount));
+        events.push({ name: Types.EVENTS_NAMES.REFUND, parameters });
+      }
+    });
 
     return {
       balance: balance.toString(),

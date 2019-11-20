@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.6.2...@requestnetwork/utils@0.7.0) (2019-11-20)
+
+
+### Bug Fixes
+
+* update eth-crypto dependency ([#592](https://github.com/RequestNetwork/requestNetwork/issues/592)) ([4d5abac](https://github.com/RequestNetwork/requestNetwork/commit/4d5abac935cf01b1f9c3f4a8242ba671135f2133))
+
+
+### Features
+
+* ETH payement network in advanced-logic ([#589](https://github.com/RequestNetwork/requestNetwork/issues/589)) ([7b32ce8](https://github.com/RequestNetwork/requestNetwork/commit/7b32ce84c23ee723a143d752fb93786a6c5cc813))
+
+
+
+
+
 ## [0.6.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.6.1...@requestnetwork/utils@0.6.2) (2019-10-21)
 
 **Note:** Version bump only for package @requestnetwork/utils

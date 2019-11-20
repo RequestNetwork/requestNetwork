@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.4.4...@requestnetwork/usage-examples@0.5.0) (2019-11-20)
+
+
+### Features
+
+* translate currency string to object ([#581](https://github.com/RequestNetwork/requestNetwork/issues/581)) ([b220d20](https://github.com/RequestNetwork/requestNetwork/commit/b220d20ae1866e8db076718989726334b91c0f44))
+
+
+
+
+
 ## [0.4.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.4.3...@requestnetwork/usage-examples@0.4.4) (2019-10-21)
 
 **Note:** Version bump only for package @requestnetwork/usage-examples

@@ -1,18 +1,18 @@
 import * as Types from '../../../types';
 
-import BlockchainInfo from './providers/blockchain-info';
-import BlockcypherCom from './providers/blockcypher-com';
-import BlockstreamInfo from './providers/blockstream-info';
-import ChainSo from './providers/chain-so';
+import BlockchainInfo from './default-providers/blockchain-info';
+import BlockcypherCom from './default-providers/blockcypher-com';
+import BlockstreamInfo from './default-providers/blockstream-info';
+import ChainSo from './default-providers/chain-so';
 
 /**
- * The Bitcoin Info retriever give access to the bitcoin blockchain through several providers
+ * The default Bitcoin detection provider give access to the bitcoin blockchain through several external API's
  */
-export default class PaymentNetworkBTCBitcoinInfoRetriever {
-  public providers: Types.IBitcoinProvider[];
+export default class DefaultBitcoinDetectionProvider implements Types.IBitcoinDetectionProvider {
+  public providers: Types.IBitcoinDetectionProvider[];
 
   /**
-   * Creates an instance of PaymentNetworkBTCBitcoinInfoRetriever
+   * Creates an instance of DefaultBitcoinDetectionProvider
    */
   constructor() {
     this.providers = [
@@ -24,14 +24,14 @@ export default class PaymentNetworkBTCBitcoinInfoRetriever {
   }
 
   /**
-   * Gets BTC address info using public providers
+   * Gets BTC address balance with events
    *
    * @param bitcoinNetworkId The Bitcoin network ID: 0 (mainnet) or 3 (testnet)
    * @param address BTC address to check
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Object containing address info
    */
-  public async getAddressInfo(
+  public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
@@ -44,15 +44,23 @@ export default class PaymentNetworkBTCBitcoinInfoRetriever {
 
     // The two first calls to the providers
     infoFromProviders = await Promise.all([
-      this.providers[providerUsedIndex++].getAddressInfo(bitcoinNetworkId, address, eventName),
-      this.providers[providerUsedIndex++].getAddressInfo(bitcoinNetworkId, address, eventName),
+      this.providers[providerUsedIndex++].getAddressBalanceWithEvents(
+        bitcoinNetworkId,
+        address,
+        eventName,
+      ),
+      this.providers[providerUsedIndex++].getAddressBalanceWithEvents(
+        bitcoinNetworkId,
+        address,
+        eventName,
+      ),
     ]);
 
     let mostCommon = this.getMostCommonBalance(infoFromProviders);
     // while there are not two identical balances, we try to get the information from another provider
     while ((!mostCommon || mostCommon.count < 2) && providerUsedIndex < this.providers.length) {
       infoFromProviders.push(
-        await this.providers[providerUsedIndex++].getAddressInfo(
+        await this.providers[providerUsedIndex++].getAddressBalanceWithEvents(
           bitcoinNetworkId,
           address,
           eventName,

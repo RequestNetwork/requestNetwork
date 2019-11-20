@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.8.0...@requestnetwork/types@0.9.0) (2019-11-20)
+
+
+### Features
+
+* ETH payement network in advanced-logic ([#589](https://github.com/RequestNetwork/requestNetwork/issues/589)) ([7b32ce8](https://github.com/RequestNetwork/requestNetwork/commit/7b32ce84c23ee723a143d752fb93786a6c5cc813))
+* validate role for increase & decrease ([#590](https://github.com/RequestNetwork/requestNetwork/issues/590)) ([4793782](https://github.com/RequestNetwork/requestNetwork/commit/47937828a0f42e912eda440be4e277f26aa51bdb))
+* Validation of accept, cancel and add extension data ([#599](https://github.com/RequestNetwork/requestNetwork/issues/599)) ([8f7798e](https://github.com/RequestNetwork/requestNetwork/commit/8f7798e6e71819e5201efaf73678ff5b71b52503))
+
+
+
+
+
 # [0.8.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.7.0...@requestnetwork/types@0.8.0) (2019-10-21)
 
 

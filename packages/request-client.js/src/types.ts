@@ -23,24 +23,44 @@ export interface ITimestampBoundaries {
 }
 
 /** Interface request data */
-export interface IRequestData extends RequestLogicTypes.IRequest {
+// TODO: when upgrading typescript to 3.5+ we should use Omit instead of Pick+Exclude
+export interface IRequestData
+  extends Pick<RequestLogicTypes.IRequest, Exclude<keyof RequestLogicTypes.IRequest, 'currency'>> {
+  currency: string;
   meta: RequestLogicTypes.IReturnMeta | null;
   balance: IBalanceWithEvents | null;
   contentData: any;
+  currencyInfo: RequestLogicTypes.ICurrency;
 }
 
 /** Create request parameters */
 export interface ICreateRequestParameters {
-  requestInfo: RequestLogicTypes.ICreateParameters;
+  requestInfo: RequestLogicTypes.ICreateParameters | IRequestInfo;
   signer: IdentityTypes.IIdentity;
   paymentNetwork?: IPaymentNetworkCreateParameters;
   topics?: string[];
   contentData?: any;
 }
 
+/** Parameters to create a request. ICreateParameters with a more flexible currency */
+export interface IRequestInfo {
+  currency: string | RequestLogicTypes.ICurrency;
+  expectedAmount: RequestLogicTypes.Amount;
+  payee?: IdentityTypes.IIdentity;
+  payer?: IdentityTypes.IIdentity;
+  extensionsData?: any[];
+  timestamp?: number;
+  nonce?: number;
+}
+
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
-  [currency: string]: IPaymentNetworkModuleByType;
+  [currency: string]: ISupportedPaymentNetworkByNetwork;
+}
+
+/** Object interface to list the payment network module by network */
+export interface ISupportedPaymentNetworkByNetwork {
+  [network: string]: IPaymentNetworkModuleByType;
 }
 
 /** Object interface to list the payment network module by id */
@@ -63,13 +83,12 @@ export interface IPaymentNetwork {
 }
 
 /** Interface of the class to manage the bitcoin provider API */
-export interface IBitcoinProvider {
-  getAddressInfo: (
+export interface IBitcoinDetectionProvider {
+  getAddressBalanceWithEvents: (
     bitcoinNetworkId: number,
     address: string,
     eventName: EVENTS_NAMES,
   ) => Promise<IBalanceWithEvents>;
-  parse: (addressInfo: any, eventName: EVENTS_NAMES) => IBalanceWithEvents;
 }
 
 /** Interface for balances and the events link to the payments and refund */
@@ -95,6 +114,5 @@ export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
   ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
-  RINKEBY_ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_RINKEBY_ERC20_ADDRESS_BASED,
   DECLARATIVE = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
 }
