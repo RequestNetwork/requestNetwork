@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.5.0...@requestnetwork/integration-test@0.6.0) (2019-11-20)
+
+
+### Bug Fixes
+
+* fix nightly tests ([#602](https://github.com/RequestNetwork/requestNetwork/issues/602)) ([2fc9c84](https://github.com/RequestNetwork/requestNetwork/commit/2fc9c8481d1e99bb62123cc4c364b118cc745c5c))
+
+
+### Features
+
+* translate currency string to object ([#581](https://github.com/RequestNetwork/requestNetwork/issues/581)) ([b220d20](https://github.com/RequestNetwork/requestNetwork/commit/b220d20ae1866e8db076718989726334b91c0f44))
+
+
+
+
+
 # [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.4.3...@requestnetwork/integration-test@0.5.0) (2019-10-21)
 
 

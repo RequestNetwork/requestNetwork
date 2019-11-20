@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/multi-format",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,7 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/types": "0.8.0"
+    "@requestnetwork/types": "0.9.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

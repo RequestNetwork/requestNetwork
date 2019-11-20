@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.8.0...@requestnetwork/request-client.js@0.9.0) (2019-11-20)
+
+
+### Bug Fixes
+
+* throw when no encryption parameters is given to create an encrypted request ([#593](https://github.com/RequestNetwork/requestNetwork/issues/593)) ([d18a894](https://github.com/RequestNetwork/requestNetwork/commit/d18a8946085920f13a43e269814fba857f24039a))
+
+
+### Features
+
+* add DAI payment detection ([#574](https://github.com/RequestNetwork/requestNetwork/issues/574)) ([8d56e00](https://github.com/RequestNetwork/requestNetwork/commit/8d56e0058e40e75700e981ab3525bbefe2f05c6d))
+* add ERC20 currency list ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([6e0ed87](https://github.com/RequestNetwork/requestNetwork/commit/6e0ed8758ffd5edcd9a498028c2b6873c26d49ca))
+* custom bitcoin detection provider ([#591](https://github.com/RequestNetwork/requestNetwork/issues/591)) ([e7bde06](https://github.com/RequestNetwork/requestNetwork/commit/e7bde06d664edbb175b6e4774beab8d4415007e0))
+* request-client read currency as string ([#601](https://github.com/RequestNetwork/requestNetwork/issues/601)) ([efacfb2](https://github.com/RequestNetwork/requestNetwork/commit/efacfb2b91eb006464d4808c37fee827df2c5862))
+* translate currency string to object ([#581](https://github.com/RequestNetwork/requestNetwork/issues/581)) ([b220d20](https://github.com/RequestNetwork/requestNetwork/commit/b220d20ae1866e8db076718989726334b91c0f44))
+* validate role for increase & decrease ([#590](https://github.com/RequestNetwork/requestNetwork/issues/590)) ([4793782](https://github.com/RequestNetwork/requestNetwork/commit/47937828a0f42e912eda440be4e277f26aa51bdb))
+* Validation of accept, cancel and add extension data ([#599](https://github.com/RequestNetwork/requestNetwork/issues/599)) ([8f7798e](https://github.com/RequestNetwork/requestNetwork/commit/8f7798e6e71819e5201efaf73678ff5b71b52503))
+
+
+
+
+
 # [0.8.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.7.0...@requestnetwork/request-client.js@0.8.0) (2019-10-21)
 
 
