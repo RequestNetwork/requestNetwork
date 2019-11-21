@@ -1,4 +1,6 @@
-import { DataAccessTypes } from '@requestnetwork/types';
+import MultiFormat from '@requestnetwork/multi-format';
+import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import { assert, expect } from 'chai';
 
@@ -102,6 +104,54 @@ describe('api/request-network', () => {
       const request = await requestnetwork.fromRequestId(TestData.actionRequestId);
 
       expect(request).to.instanceOf(Request);
+    });
+
+    it('cannot get request fromRequestId with if transactions are ignored', async () => {
+      const txIgnoredByTransactionManager: TransactionTypes.IConfirmedTransaction = {
+        timestamp: 1549953337,
+        transaction: { data: 'broken transaction' },
+      };
+      const actionWrongSigner = Utils.signature.sign(TestData.data, {
+        method: SignatureTypes.METHOD.ECDSA,
+        privateKey: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      });
+
+      const txIgnoredByRequestLogic: TransactionTypes.IConfirmedTransaction = {
+        timestamp: 1549953338,
+        transaction: {
+          data: JSON.stringify(actionWrongSigner),
+        },
+      };
+      const requestId = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(actionWrongSigner),
+      );
+
+      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async getChannelsByTopic(): Promise<any> {
+          return;
+        },
+        async getTransactionsByChannelId(): Promise<any> {
+          return {
+            result: {
+              transactions: [txIgnoredByTransactionManager, txIgnoredByRequestLogic],
+            },
+          };
+        },
+        async initialize(): Promise<any> {
+          return;
+        },
+        async persistTransaction(): Promise<any> {
+          return;
+        },
+        async getChannelsByMultipleTopics(): Promise<any> {
+          return;
+        },
+      };
+
+      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      await expect(requestnetwork.fromRequestId(requestId)).to.eventually.rejectedWith(
+        `Invalid transaction(s) found: [{"reason":"Impossible to JSON parse the transaction","transaction":{"timestamp":1549953337,"transaction":{"data":"broken transaction"}}},{"reason":"Signer must be the payee or the payer","transaction":{"action":{"data":{"name":"create","parameters":{"currency":{"network":"testnet","type":"BTC","value":"BTC"},"expectedAmount":"100000000000","extensionsData":[{"action":"create","id":"pn-testnet-bitcoin-address-based","parameters":{},"version":"0.1.0"}],"payee":{"type":"ethereumAddress","value":"0x627306090abab3a6e1400e9345bc60c78a8bef57"},"payer":{"type":"ethereumAddress","value":"0xf17f52151ebef6c7334fad080c5704d77216b732"},"timestamp":1549953337},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0x8c64e65c5014ab1b8e6d4485f494bbb7a0f0f51d65da3e01016a87cef2092ad7292ec86cdd8aadbd9041dc61fd1b65f694bb7a3a9927cf770adeaa3cbdc7a34d1c"}},"timestamp":1549953338}}]`,
+      );
     });
   });
 

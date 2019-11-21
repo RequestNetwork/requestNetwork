@@ -376,7 +376,7 @@ it('cannot decrypt a request with the wrong decryption provider', async () => {
   } catch (e) {
     error = e.message;
   }
-  assert.include(error, 'No request found for the id:');
+  assert.include(error, 'Invalid transaction(s) found: [');
 
   const requests = await badRequestNetwork.fromTopic('my nice topic');
   assert.isEmpty(requests);
