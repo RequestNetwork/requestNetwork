@@ -60,7 +60,6 @@
     "keyv": "3.1.0",
     "node-fetch": "2.6.0",
     "shelljs": "0.8.3",
-    "sinon": "7.3.2",
     "web3-eth": "1.0.0-beta.37",
     "web3-utils": "1.2.1",
     "yargs": "12.0.5"
@@ -76,6 +75,7 @@
     "@types/form-data": "2.2.1",
     "@types/keyv": "3.1.0",
     "@types/mocha": "5.2.6",
+    "@types/sinon": "7.5.0",
     "@typescript-eslint/parser": "1.2.0",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
@@ -93,6 +93,7 @@
     "openzeppelin-test-helpers": "0.1.2",
     "prettier": "1.16.4",
     "shx": "0.3.2",
+    "sinon": "7.5.0",
     "solium": "1.2.2",
     "source-map-support": "0.5.13",
     "truffle": "5.0.3",
