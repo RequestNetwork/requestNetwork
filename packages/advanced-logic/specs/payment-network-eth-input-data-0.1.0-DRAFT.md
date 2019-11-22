@@ -26,7 +26,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 
 | Property                  | Type   | Description                                    | Requirement   |
 | ------------------------- | ------ | ---------------------------------------------- | ------------- |
-| **id**                    | String | constant value: "pn-eth-tx-data"               | **Mandatory** |
+| **id**                    | String | constant value: "pn-eth-input-data"            | **Mandatory** |
 | **type**                  | String | constant value: "paymentNetwork"               | **Mandatory** |
 | **version**               | String | constant value: "0.1.0"                        | **Mandatory** |
 | **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
@@ -35,7 +35,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
 | **values.salt**           | String | Salt for the request                           | Optional      |
 
-Note: to use the Rinkeby testnet just replace the id by "pn-rinkeby-eth-tx-data"
+Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
 
 ---
 
@@ -45,20 +45,22 @@ Note: to use the Rinkeby testnet just replace the id by "pn-rinkeby-eth-tx-data"
 
 #### Parameters
 
-|                               | Type   | Description                      | Requirement   |
-| ----------------------------- | ------ | -------------------------------- | ------------- |
-| **id**                        | String | Constant value: "pn-eth-tx-data" | **Mandatory** |
-| **type**                      | String | Constant value: "paymentNetwork" | **Mandatory** |
-| **version**                   | String | Constant value: "0.1.0"          | **Mandatory** |
-| **parameters**                | Object |                                  |               |
-| **parameters.paymentAddress** | String | Ethereum address for the payment | Optional      |
-| **parameters.refundAddress**  | String | Ethereum address for the refund  | Optional      |
-| **parameters.salt**           | String | Salt for the request             | **Mandatory** |
+|                               | Type   | Description                         | Requirement   |
+| ----------------------------- | ------ | ----------------------------------- | ------------- |
+| **id**                        | String | Constant value: "pn-eth-input-data" | **Mandatory** |
+| **type**                      | String | Constant value: "paymentNetwork"    | **Mandatory** |
+| **version**                   | String | Constant value: "0.1.0"             | **Mandatory** |
+| **parameters**                | Object |                                     |               |
+| **parameters.paymentAddress** | String | Ethereum address for the payment    | Optional      |
+| **parameters.refundAddress**  | String | Ethereum address for the refund     | Optional      |
+| **parameters.salt**           | String | Salt for the request                | **Mandatory** |
 
 #### Conditions
 
 This action is valid if:
 
+- The request `currency.type` must be "ETH"
+- The request `currency.network` must be "mainnet" or 'rinkeby"
 - The `salt` is not empty and long enough (8 bytes of randomness minimum).
 
 #### Warnings
@@ -78,7 +80,7 @@ A extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
-| **id**                    | "pn-eth-tx-data"                                               |
+| **id**                    | "pn-eth-input-data"                                            |
 | **type**                  | "paymentNetwork"                                               |
 | **version**               | "0.1.0"                                                        |
 | **values**                |                                                                |
@@ -107,7 +109,7 @@ the 'create' event:
 
 |                               | Type   | Description                         | Requirement   |
 | ----------------------------- | ------ | ----------------------------------- | ------------- |
-| **id**                        | String | Constant value: "pn-eth-tx-data"    | **Mandatory** |
+| **id**                        | String | Constant value: "pn-eth-input-data" | **Mandatory** |
 | **action**                    | String | Constant value: "addPaymentAddress" | **Mandatory** |
 | **parameters**                | Object |                                     |               |
 | **parameters.paymentAddress** | String | Ethereum address for the payment    | **Mandatory** |
@@ -116,7 +118,7 @@ the 'create' event:
 
 This action is valid, if:
 
-- The extension state with the id "pn-eth-tx-data" exists
+- The extension state with the id "pn-eth-input-data" exists
 - The signer is the `payee`
 - The extension property `paymentAddress` is undefined
 
@@ -146,18 +148,18 @@ the 'addPaymentAddress' event:
 
 ##### Parameters
 
-|                              | Type   | Description                        | Requirement   |
-| ---------------------------- | ------ | ---------------------------------- | ------------- |
-| **id**                       | String | Constant value: "pn-eth-tx-data"   | **Mandatory** |
-| **action**                   | String | Constant value: "addRefundAddress" | **Mandatory** |
-| **parameters**               | Object |                                    |               |
-| **parameters.refundAddress** | String | Ethereum address for the refund    | **Mandatory** |
+|                              | Type   | Description                         | Requirement   |
+| ---------------------------- | ------ | ----------------------------------- | ------------- |
+| **id**                       | String | Constant value: "pn-eth-input-data" | **Mandatory** |
+| **action**                   | String | Constant value: "addRefundAddress"  | **Mandatory** |
+| **parameters**               | Object |                                     |               |
+| **parameters.refundAddress** | String | Ethereum address for the refund     | **Mandatory** |
 
 ##### Conditions
 
 This action is valid if:
 
-- The extension state with the id "pn-eth-tx-data" exists
+- The extension state with the id "pn-eth-input-data" exists
 - The signer is the `payer`
 - The extension property `refundAddress` is undefined
 
