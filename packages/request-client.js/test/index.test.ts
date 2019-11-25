@@ -967,4 +967,80 @@ describe('index', () => {
       );
     });
   });
+
+  describe('ETH requests', () => {
+    it('can create ETH requests with given salt', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const salt = 'ea3bc7caf64110ca';
+
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt,
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+
+      expect(data).to.exist;
+      expect(data.balance).to.exist;
+      expect(data.meta).to.exist;
+      expect(data.currency).to.equal('ETH-rinkeby');
+      expect(data.extensionsData[0].parameters.salt).to.equal(salt);
+      expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+    });
+
+    it('can create ETH requests without given salt', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+
+      expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
+    });
+  });
 });
