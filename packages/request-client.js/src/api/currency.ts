@@ -65,7 +65,7 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
 
   // If a network was declared, add it to the currency object
   if (network) {
-    if (currency.network !== network) {
+    if (currency.network && currency.network !== network) {
       throw new Error(
         `You can't declare a network with currency ${value}. It's only available on the network: ${
           currency.network
