@@ -1072,7 +1072,7 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
-"@stryker-mutator/api@^2.1.0":
+"@stryker-mutator/api@^2.1.0", "@stryker-mutator/api@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@stryker-mutator/api/-/api-2.3.0.tgz#8f4010471f8cd22ceec8efe78429d39e7af12ccc"
   integrity sha512-N+XlEZAxMq4GKWt8OOn7R+124ieCiicLG3heiX2JQXNjn7uTVDfI5rSGn0oPvpwYtgeV9x6F//vzniRGhsOWIQ==
@@ -1135,18 +1135,18 @@
     multimatch "~4.0.0"
     tslib "~1.10.0"
 
-"@stryker-mutator/typescript@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@stryker-mutator/typescript/-/typescript-2.1.0.tgz#7ef27eaa01bf58648d1cfa37f2f09e486b3df281"
-  integrity sha512-ReD59cKIiWoKeh7ZdSD6dngs8i4OzUsjn2x1T+mSWK3rn9smc4FZ3X6wm3abweGOhABATzPBVrdTU/j7VWMyZw==
+"@stryker-mutator/typescript@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@stryker-mutator/typescript/-/typescript-2.3.0.tgz#1f13fb63f5dc68a29ca0d1815dc8dafc36dca4b1"
+  integrity sha512-rDF005coMvCaCWHt3pxgXf5iySPvvR7NRpY5WtqVYWEoOpbX0nhxBm4+hHbbotbdd7sUsYySa9qAkhKeDtGW/A==
   dependencies:
-    "@stryker-mutator/api" "^2.1.0"
-    "@stryker-mutator/util" "^2.1.0"
+    "@stryker-mutator/api" "^2.3.0"
+    "@stryker-mutator/util" "^2.3.0"
     lodash.flatmap "~4.5.0"
     semver "~6.3.0"
     tslib "~1.10.0"
 
-"@stryker-mutator/util@^2.1.0":
+"@stryker-mutator/util@^2.1.0", "@stryker-mutator/util@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@stryker-mutator/util/-/util-2.3.0.tgz#854bba4444bdb49471ae5dd33ad6aa271bb46b6b"
   integrity sha512-mQLkbHy6HmN+/qb1aR02TUProbhcYASDLrthHILZriwZshCnxgfwrEOOssXlOQR/QAPXjZCnSA+fKjJwpngQQA==
