@@ -1,6 +1,11 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import * as currencyCodes from 'currency-codes';
-import { getErc20Currency, getErc20Decimals, getErc20Symbol } from './currency/erc20';
+import * as isoCurrencyCodes from 'currency-codes';
+import {
+  getErc20Currency,
+  getErc20Decimals,
+  getErc20Symbol,
+  supportedERC20Tokens,
+} from './currency/erc20';
 
 // List of our supported cryptocurrencies
 const currencyList = new Map([
@@ -52,7 +57,7 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
     }
 
     // Check if it's one of ISO4217 currencies
-    if (currencyCodes.codes().includes(value)) {
+    if (isoCurrencyCodes.codes().includes(value)) {
       return {
         type: RequestLogicTypes.CURRENCY.ISO4217,
         value,
@@ -127,7 +132,7 @@ export async function getDecimalsForCurrency(
   }
   // Return the number of decimals for ISO-4217 currencies
   if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
-    const iso = currencyCodes.code(currency.value);
+    const iso = isoCurrencyCodes.code(currency.value);
     if (!iso) {
       throw new Error(`Unsupported ISO currency ${currency.value}`);
     }
@@ -144,3 +149,64 @@ export async function getDecimalsForCurrency(
   }
   return Promise.resolve(decimals);
 }
+
+/**
+ * Returns an object with all the supported currency by type
+ *
+ * @returns List of all supported currencies
+ */
+export function getAllSupportedCurrencies(): {
+  [type: string]: Array<{ name: string; symbol: string; decimals: number; address?: string }>;
+} {
+  // Creates the list of ISO currencies
+  const isoCurrencyData = require('currency-codes/data') as isoCurrencyCodes.CurrencyCodeRecord[];
+  const isoCurrencies = isoCurrencyData.map(cc => ({
+    decimals: cc.digits,
+    name: cc.currency,
+    symbol: cc.code,
+  }));
+
+  // Maps the list of ERC20 currencies (including rinkeby currencies)
+  const erc20Currencies = Object.entries(supportedERC20Tokens)
+    .map(([address, { name, symbol, decimals }]) => ({ name, symbol, decimals, address }))
+    .concat([
+      {
+        address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+        decimals: 18,
+        name: 'Central Bank Token',
+        symbol: 'CTBK-rinkeby',
+      },
+      {
+        address: '0xFab46E002BbF0b4509813474841E0716E6730136',
+        decimals: 18,
+        name: 'Faucet Token',
+        symbol: 'FAU-rinkeby',
+      },
+    ]);
+
+  return {
+    [RequestLogicTypes.CURRENCY.ETH]: [
+      {
+        decimals: 18,
+        name: 'Ether',
+        symbol: 'ETH',
+      },
+    ],
+    [RequestLogicTypes.CURRENCY.BTC]: [
+      {
+        decimals: 8,
+        name: 'Bitcoin',
+        symbol: 'BTC',
+      },
+    ],
+    [RequestLogicTypes.CURRENCY.ISO4217]: isoCurrencies,
+    [RequestLogicTypes.CURRENCY.ERC20]: erc20Currencies,
+  };
+}
+
+export default {
+  currencyToString,
+  getAllSupportedCurrencies,
+  getDecimalsForCurrency,
+  stringToCurrency,
+};

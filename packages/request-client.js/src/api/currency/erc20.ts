@@ -18,7 +18,7 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
-const supportedERC20Tokens = require('eth-contract-metadata') as ITokenMap;
+export const supportedERC20Tokens = require('eth-contract-metadata') as ITokenMap;
 
 // List of the supported rinkeby ERC20 tokens
 export const supportedRinkebyERC20 = new Map([
