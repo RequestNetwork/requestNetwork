@@ -47,7 +47,7 @@
     "wallet-address-validator": "0.2.4"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "2.1.0",
+    "@stryker-mutator/core": "2.4.0",
     "@stryker-mutator/html-reporter": "2.1.0",
     "@stryker-mutator/mocha-framework": "2.1.0",
     "@stryker-mutator/mocha-runner": "2.1.0",
