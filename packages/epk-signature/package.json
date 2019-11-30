@@ -69,7 +69,7 @@
     "typescript": "3.7.2",
     "webpack": "4.38.0",
     "webpack-bundle-analyzer": "3.3.2",
-    "webpack-cli": "3.3.6"
+    "webpack-cli": "3.3.10"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

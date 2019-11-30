@@ -70,6 +70,6 @@
     "typescript": "3.7.2",
     "webpack": "4.38.0",
     "webpack-bundle-analyzer": "3.3.2",
-    "webpack-cli": "3.3.6"
+    "webpack-cli": "3.3.10"
   }
 }
