@@ -2,20 +2,20 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import 'mocha';
 
-import ethereumInputData from '../../../../src/extensions/payment-network/ethereum/input-data';
+import erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract';
 
 import { expect } from 'chai';
 
-import * as DataEthAddPaymentAddress from '../../../utils/payment-network/ethereum/add-payment-address-data-generator';
-import * as DataEthCreate from '../../../utils/payment-network/ethereum/create-data-generator';
+import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/proxy-contract-add-payment-address-data-generator';
+import * as DataERC20Create from '../../../utils/payment-network/erc20/proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
-describe('extensions/payment-network/ethereum/input-data', () => {
+describe('extensions/payment-network/erc20/proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action', () => {
       expect(
-        ethereumInputData.createCreationAction({
+        erc20ProxyContract.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
@@ -23,7 +23,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         'extensionsdata is wrong',
       ).to.deep.equal({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -35,13 +35,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
 
     it('can create a create action with only salt', () => {
       expect(
-        ethereumInputData.createCreationAction({
+        erc20ProxyContract.createCreationAction({
           salt: 'ea3bc7caf64110ca',
         }),
         'extensionsdata is wrong',
       ).to.deep.equal({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
         parameters: {
           salt: 'ea3bc7caf64110ca',
         },
@@ -51,7 +51,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
 
     it('cannot createCreationAction with payment address not an ethereum address', () => {
       expect(() => {
-        ethereumInputData.createCreationAction({
+        erc20ProxyContract.createCreationAction({
           paymentAddress: 'not an ethereum address',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
@@ -61,7 +61,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
       expect(() => {
-        ethereumInputData.createCreationAction({
+        erc20ProxyContract.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
@@ -73,13 +73,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
       expect(
-        ethereumInputData.createAddPaymentAddressAction({
+        erc20ProxyContract.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
         'extensionsdata is wrong',
       ).to.deep.equal({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -88,7 +88,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
 
     it('cannot createAddPaymentAddressAction with payment address not an ethereum address', () => {
       expect(() => {
-        ethereumInputData.createAddPaymentAddressAction({
+        erc20ProxyContract.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
       }, 'must throw').to.throw('paymentAddress is not a valid ethereum address');
@@ -98,13 +98,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
       expect(
-        ethereumInputData.createAddRefundAddressAction({
+        erc20ProxyContract.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
         }),
         'extensionsdata is wrong',
       ).to.deep.equal({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -112,7 +112,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     });
     it('cannot createAddRefundAddressAction with payment address not an ethereum address', () => {
       expect(() => {
-        ethereumInputData.createAddRefundAddressAction({
+        erc20ProxyContract.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
       }, 'must throw').to.throw('refundAddress is not a valid ethereum address');
@@ -122,13 +122,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
-        const unknownAction = Utils.deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
+        const unknownAction = Utils.deepCopy(DataERC20AddPaymentAddress.actionAddPaymentAddress);
         unknownAction.action = 'unknown action';
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedEmpty.extensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
             unknownAction,
-            DataEthCreate.requestStateCreatedEmpty,
+            DataERC20Create.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -136,13 +136,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
 
       it('cannot applyActionToExtensions of unknown id', () => {
-        const unknownAction = Utils.deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
+        const unknownAction = Utils.deepCopy(DataERC20AddPaymentAddress.actionAddPaymentAddress);
         unknownAction.id = 'unknown id';
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedEmpty.extensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
             unknownAction,
-            DataEthCreate.requestStateCreatedEmpty,
+            DataERC20Create.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -155,23 +155,23 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     describe('applyActionToExtension/create', () => {
       it('can applyActionToExtensions of creation', () => {
         expect(
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateNoExtensions.extensions,
-            DataEthCreate.actionCreationWithPaymentAndRefund,
-            DataEthCreate.requestStateNoExtensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateNoExtensions.extensions,
+            DataERC20Create.actionCreationWithPaymentAndRefund,
+            DataERC20Create.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
           'new extension state wrong',
-        ).to.deep.equal(DataEthCreate.extensionStateWithPaymentAndRefund);
+        ).to.deep.equal(DataERC20Create.extensionStateWithPaymentAndRefund);
       });
 
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedWithPaymentAndRefund.extensions,
-            DataEthCreate.actionCreationWithPaymentAndRefund,
-            DataEthCreate.requestStateCreatedWithPaymentAndRefund,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedWithPaymentAndRefund.extensions,
+            DataERC20Create.actionCreationWithPaymentAndRefund,
+            DataERC20Create.requestStateCreatedWithPaymentAndRefund,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -187,26 +187,28 @@ describe('extensions/payment-network/ethereum/input-data', () => {
           value: 'BTC',
         };
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          erc20ProxyContract.applyActionToExtension(
             TestData.requestCreatedNoExtension.extensions,
-            DataEthCreate.actionCreationWithPaymentAndRefund,
+            DataERC20Create.actionCreationWithPaymentAndRefund,
             requestCreatedNoExtension,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('This extension can be used only on ETH request');
+        }, 'must throw').to.throw(
+          'This extension can be used only on ERC20 requests and on supported networks mainnet, rinkeby, private',
+        );
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
         const testnetPaymentAddress = Utils.deepCopy(
-          DataEthCreate.actionCreationWithPaymentAndRefund,
+          DataERC20Create.actionCreationWithPaymentAndRefund,
         );
-        testnetPaymentAddress.parameters.paymentAddress = DataEthAddPaymentAddress.invalidAddress;
+        testnetPaymentAddress.parameters.paymentAddress = DataERC20AddPaymentAddress.invalidAddress;
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateNoExtensions.extensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateNoExtensions.extensions,
             testnetPaymentAddress,
-            DataEthCreate.requestStateNoExtensions,
+            DataERC20Create.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -215,14 +217,14 @@ describe('extensions/payment-network/ethereum/input-data', () => {
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
         const testnetRefundAddress = Utils.deepCopy(
-          DataEthCreate.actionCreationWithPaymentAndRefund,
+          DataERC20Create.actionCreationWithPaymentAndRefund,
         );
-        testnetRefundAddress.parameters.refundAddress = DataEthAddPaymentAddress.invalidAddress;
+        testnetRefundAddress.parameters.refundAddress = DataERC20AddPaymentAddress.invalidAddress;
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateNoExtensions.extensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateNoExtensions.extensions,
             testnetRefundAddress,
-            DataEthCreate.requestStateNoExtensions,
+            DataERC20Create.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -233,22 +235,22 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     describe('applyActionToExtension/addPaymentAddress', () => {
       it('can applyActionToExtensions of addPaymentAddress', () => {
         expect(
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedEmpty.extensions,
-            DataEthAddPaymentAddress.actionAddPaymentAddress,
-            DataEthCreate.requestStateCreatedEmpty,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
+            DataERC20AddPaymentAddress.actionAddPaymentAddress,
+            DataERC20Create.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           ),
           'new extension state wrong',
-        ).to.deep.equal(DataEthAddPaymentAddress.extensionStateWithPaymentAfterCreation);
+        ).to.deep.equal(DataERC20AddPaymentAddress.extensionStateWithPaymentAfterCreation);
       });
       it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateNoExtensions.extensions,
-            DataEthAddPaymentAddress.actionAddPaymentAddress,
-            DataEthCreate.requestStateNoExtensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateNoExtensions.extensions,
+            DataERC20AddPaymentAddress.actionAddPaymentAddress,
+            DataERC20Create.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -257,12 +259,12 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         );
       });
       it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DataERC20Create.requestStateCreatedEmpty);
         previousState.payee = undefined;
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          erc20ProxyContract.applyActionToExtension(
             previousState.extensions,
-            DataEthAddPaymentAddress.actionAddPaymentAddress,
+            DataERC20AddPaymentAddress.actionAddPaymentAddress,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -270,11 +272,11 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }, 'must throw').to.throw(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DataERC20Create.requestStateCreatedEmpty);
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          erc20ProxyContract.applyActionToExtension(
             previousState.extensions,
-            DataEthAddPaymentAddress.actionAddPaymentAddress,
+            DataERC20AddPaymentAddress.actionAddPaymentAddress,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -283,10 +285,10 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
       it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedWithPaymentAndRefund.extensions,
-            DataEthAddPaymentAddress.actionAddPaymentAddress,
-            DataEthCreate.requestStateCreatedWithPaymentAndRefund,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedWithPaymentAndRefund.extensions,
+            DataERC20AddPaymentAddress.actionAddPaymentAddress,
+            DataERC20Create.requestStateCreatedWithPaymentAndRefund,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -294,14 +296,14 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
       it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
         const testnetPaymentAddress = Utils.deepCopy(
-          DataEthAddPaymentAddress.actionAddPaymentAddress,
+          DataERC20AddPaymentAddress.actionAddPaymentAddress,
         );
-        testnetPaymentAddress.parameters.paymentAddress = DataEthAddPaymentAddress.invalidAddress;
+        testnetPaymentAddress.parameters.paymentAddress = DataERC20AddPaymentAddress.invalidAddress;
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedEmpty.extensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
             testnetPaymentAddress,
-            DataEthCreate.requestStateCreatedEmpty,
+            DataERC20Create.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -312,22 +314,22 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     describe('applyActionToExtension/addRefundAddress', () => {
       it('can applyActionToExtensions of addRefundAddress', () => {
         expect(
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedEmpty.extensions,
-            DataEthAddPaymentAddress.actionAddRefundAddress,
-            DataEthCreate.requestStateCreatedEmpty,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
+            DataERC20AddPaymentAddress.actionAddRefundAddress,
+            DataERC20Create.requestStateCreatedEmpty,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           ),
           'new extension state wrong',
-        ).to.deep.equal(DataEthAddPaymentAddress.extensionStateWithRefundAfterCreation);
+        ).to.deep.equal(DataERC20AddPaymentAddress.extensionStateWithRefundAfterCreation);
       });
       it('cannot applyActionToExtensions of addRefundAddress without a previous state', () => {
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateNoExtensions.extensions,
-            DataEthAddPaymentAddress.actionAddRefundAddress,
-            DataEthCreate.requestStateNoExtensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateNoExtensions.extensions,
+            DataERC20AddPaymentAddress.actionAddRefundAddress,
+            DataERC20Create.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -336,12 +338,12 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         );
       });
       it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DataERC20Create.requestStateCreatedEmpty);
         previousState.payer = undefined;
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          erc20ProxyContract.applyActionToExtension(
             previousState.extensions,
-            DataEthAddPaymentAddress.actionAddRefundAddress,
+            DataERC20AddPaymentAddress.actionAddRefundAddress,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -349,11 +351,11 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }, 'must throw').to.throw(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DataERC20Create.requestStateCreatedEmpty);
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          erc20ProxyContract.applyActionToExtension(
             previousState.extensions,
-            DataEthAddPaymentAddress.actionAddRefundAddress,
+            DataERC20AddPaymentAddress.actionAddRefundAddress,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -362,10 +364,10 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
       it('cannot applyActionToExtensions of addRefundAddress with payment address already given', () => {
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedWithPaymentAndRefund.extensions,
-            DataEthAddPaymentAddress.actionAddRefundAddress,
-            DataEthCreate.requestStateCreatedWithPaymentAndRefund,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedWithPaymentAndRefund.extensions,
+            DataERC20AddPaymentAddress.actionAddRefundAddress,
+            DataERC20Create.requestStateCreatedWithPaymentAndRefund,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -373,14 +375,14 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
       it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
         const testnetPaymentAddress = Utils.deepCopy(
-          DataEthAddPaymentAddress.actionAddRefundAddress,
+          DataERC20AddPaymentAddress.actionAddRefundAddress,
         );
-        testnetPaymentAddress.parameters.refundAddress = DataEthAddPaymentAddress.invalidAddress;
+        testnetPaymentAddress.parameters.refundAddress = DataERC20AddPaymentAddress.invalidAddress;
         expect(() => {
-          ethereumInputData.applyActionToExtension(
-            DataEthCreate.requestStateCreatedEmpty.extensions,
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
             testnetPaymentAddress,
-            DataEthCreate.requestStateCreatedEmpty,
+            DataERC20Create.requestStateCreatedEmpty,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );

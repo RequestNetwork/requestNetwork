@@ -6,8 +6,8 @@ import Utils from '@requestnetwork/utils';
 
 import { expect } from 'chai';
 
-import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/add-payment-address-data-generator';
-import * as DataERC20Create from '../../../utils/payment-network/erc20/create-data-generator';
+import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/address-based-add-payment-address-data-generator';
+import * as DataERC20Create from '../../../utils/payment-network/erc20/address-based-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
