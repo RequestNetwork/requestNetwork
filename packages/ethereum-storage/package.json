@@ -73,7 +73,7 @@
     "@types/chai-as-promised": "7.1.0",
     "@types/chai-spies": "1.0.0",
     "@types/fetch-mock": "7.3.1",
-    "@types/form-data": "2.2.1",
+    "@types/form-data": "2.5.0",
     "@types/keyv": "3.1.0",
     "@types/mocha": "5.2.6",
     "@typescript-eslint/parser": "1.2.0",
