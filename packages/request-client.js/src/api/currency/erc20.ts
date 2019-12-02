@@ -1,6 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
-import { getDecimals } from '../payment-network/erc20/info-retriever';
 
 // These interfaces are declared here because they should be used only in this context
 // A Token description from the eth-contract-metadata list
@@ -81,17 +80,17 @@ export function getErc20Currency(
  * @param currency The ERC20 Currency object
  * @returns The number of decimals for the ERC20 currency
  */
-export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): Promise<number> {
+export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): number {
   if (!currency.network || currency.network === 'mainnet') {
     // Tries to get the decimals from the supported ERC20 currencies list
     const erc20Token = getMainnetErc20FromAddress(currency.value);
     if (erc20Token) {
-      return Promise.resolve(erc20Token.decimals);
+      return erc20Token.decimals;
     }
   }
 
-  // For un-supported ERC20 currencies, we get the decimals from the smart contract
-  return getDecimals(currency.value, currency.network || 'mainnet');
+  // If no supported ERC20 is found, throw error
+  throw new Error(`Unsupported ERC20 address: ${currency.value}`);
 }
 
 /**

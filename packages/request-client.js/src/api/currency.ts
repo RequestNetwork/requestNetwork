@@ -124,9 +124,7 @@ export function currencyToString(currency: RequestLogicTypes.ICurrency): string 
  * @param currency The currency
  * @returns The number of decimals
  */
-export async function getDecimalsForCurrency(
-  currency: RequestLogicTypes.ICurrency,
-): Promise<number> {
+export function getDecimalsForCurrency(currency: RequestLogicTypes.ICurrency): number {
   if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
     return getErc20Decimals(currency);
   }
@@ -136,7 +134,7 @@ export async function getDecimalsForCurrency(
     if (!iso) {
       throw new Error(`Unsupported ISO currency ${currency.value}`);
     }
-    return Promise.resolve(iso.digits);
+    return iso.digits;
   }
 
   const decimals = {
@@ -145,9 +143,9 @@ export async function getDecimalsForCurrency(
   }[currency.type];
 
   if (!decimals) {
-    throw new Error(`Currency ${currency} not implemented`);
+    throw new Error(`Currency ${currency.type} not implemented`);
   }
-  return Promise.resolve(decimals);
+  return decimals;
 }
 
 /**
