@@ -9,7 +9,7 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  * Handle payment networks with ETH input data extension
  */
 export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork {
-  private extension: ExtensionTypes.PnEthInputData.IEthInputData;
+  private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -44,7 +44,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
    * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
@@ -58,7 +58,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
    * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,

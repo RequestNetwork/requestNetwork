@@ -1,11 +1,11 @@
 import * as ContentData from './extensions/content-data-types';
 import * as PnAddressBased from './extensions/pn-any-address-based-types';
 import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
-import * as PnEthInputData from './extensions/pn-eth-input-data-types';
+import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
-export { ContentData, PnAnyDeclarative, PnAddressBased, PnEthInputData };
+export { ContentData, PnAnyDeclarative, PnAddressBased, PnReferenceBased };
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {
