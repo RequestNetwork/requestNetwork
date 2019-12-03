@@ -1,6 +1,8 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
+import ethInputDataInfoRetriever from './info-retriever';
+import PaymentReferenceCalculator from './payment-reference-calculator';
 
 const bigNumber: any = require('bn.js');
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
@@ -84,10 +86,23 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
         )}`,
       );
     }
-    const paymentAddress =
-      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA].values.paymentAddress;
-    const refundAddress =
-      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA].values.refundAddress;
+    const extensionValues: { paymentAddress: string; refundAddress: string; salt: string } =
+      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA].values;
+
+    const paymentAddress = extensionValues.paymentAddress;
+    const refundAddress = extensionValues.refundAddress;
+
+    const paymentReferencePayment = PaymentReferenceCalculator.calculate(
+      request.requestId,
+      extensionValues.salt,
+      paymentAddress,
+    );
+
+    const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
+      request.requestId,
+      extensionValues.salt,
+      refundAddress,
+    );
 
     let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
@@ -95,6 +110,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
         paymentAddress,
         Types.EVENTS_NAMES.PAYMENT,
         request.currency.network,
+        paymentReferencePayment,
       );
     }
 
@@ -104,6 +120,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
         refundAddress,
         Types.EVENTS_NAMES.REFUND,
         request.currency.network,
+        paymentReferenceRefund,
       );
     }
 
@@ -129,23 +146,29 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
+   * @param paymentReference The reference to identify the payment
    * @returns The balance
    */
   private async extractBalanceAndEvents(
     address: string,
     eventName: Types.EVENTS_NAMES,
     network: string,
+    paymentReference: string,
   ): Promise<Types.IBalanceWithEvents> {
-    // Just to use the parameters
-    if (address && eventName && network) {
-      return {
-        balance: '0',
-        events: [],
-      };
-    }
+    const infoFromRetriever = await ethInputDataInfoRetriever(
+      address,
+      eventName,
+      network,
+      paymentReference,
+    );
+
+    const balance = infoFromRetriever.events
+      .reduce((acc, event) => acc.add(new bigNumber(event.parameters.amount)), new bigNumber(0))
+      .toString();
+
     return {
-      balance: '0',
-      events: [],
+      balance,
+      events: infoFromRetriever.events,
     };
   }
 }

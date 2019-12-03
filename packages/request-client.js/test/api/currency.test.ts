@@ -58,9 +58,9 @@ describe('api/currency', () => {
   });
 
   describe('getDecimalsForCurrency', () => {
-    it('returns the correct number of decimals', async () => {
+    it('returns the correct number of decimals', () => {
       assert.equal(
-        await getDecimalsForCurrency({
+        getDecimalsForCurrency({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         }),
@@ -68,19 +68,20 @@ describe('api/currency', () => {
       );
     });
 
-    it('throws for invalid currencies', async () => {
-      assert.isRejected(
-        getDecimalsForCurrency({
-          type: 'BANANA' as RequestLogicTypes.CURRENCY,
-          value: 'SPLIT',
-        } as RequestLogicTypes.ICurrency),
+    it('throws for invalid currencies', () => {
+      assert.throws(
+        () =>
+          getDecimalsForCurrency({
+            type: 'BANANA' as RequestLogicTypes.CURRENCY,
+            value: 'SPLIT',
+          } as RequestLogicTypes.ICurrency),
         'Currency BANANA not implemented',
       );
     });
 
-    it('returns the correct number of decimals for a supported ERC20', async () => {
+    it('returns the correct number of decimals for a supported ERC20', () => {
       assert.equal(
-        await getDecimalsForCurrency({
+        getDecimalsForCurrency({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
@@ -89,14 +90,13 @@ describe('api/currency', () => {
       );
     });
 
-    it('returns the correct number of decimals for a non-supported ERC20', async () => {
-      assert.equal(
-        await getDecimalsForCurrency({
+    it('throws for a non-supported ERC20', () => {
+      assert.throws(() =>
+        getDecimalsForCurrency({
           network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 contract
         }),
-        18,
       );
     });
   });

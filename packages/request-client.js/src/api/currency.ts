@@ -4,7 +4,7 @@ import {
   getErc20Currency,
   getErc20Decimals,
   getErc20Symbol,
-  supportedERC20Tokens,
+  getSupportedERC20Tokens,
 } from './currency/erc20';
 
 // List of our supported cryptocurrencies
@@ -124,9 +124,7 @@ export function currencyToString(currency: RequestLogicTypes.ICurrency): string 
  * @param currency The currency
  * @returns The number of decimals
  */
-export async function getDecimalsForCurrency(
-  currency: RequestLogicTypes.ICurrency,
-): Promise<number> {
+export function getDecimalsForCurrency(currency: RequestLogicTypes.ICurrency): number {
   if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
     return getErc20Decimals(currency);
   }
@@ -136,7 +134,7 @@ export async function getDecimalsForCurrency(
     if (!iso) {
       throw new Error(`Unsupported ISO currency ${currency.value}`);
     }
-    return Promise.resolve(iso.digits);
+    return iso.digits;
   }
 
   const decimals = {
@@ -145,9 +143,9 @@ export async function getDecimalsForCurrency(
   }[currency.type];
 
   if (!decimals) {
-    throw new Error(`Currency ${currency} not implemented`);
+    throw new Error(`Currency ${currency.type} not implemented`);
   }
-  return Promise.resolve(decimals);
+  return decimals;
 }
 
 /**
@@ -166,23 +164,8 @@ export function getAllSupportedCurrencies(): {
     symbol: cc.code,
   }));
 
-  // Maps the list of ERC20 currencies (including rinkeby currencies)
-  const erc20Currencies = Object.entries(supportedERC20Tokens)
-    .map(([address, { name, symbol, decimals }]) => ({ name, symbol, decimals, address }))
-    .concat([
-      {
-        address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
-        decimals: 18,
-        name: 'Central Bank Token',
-        symbol: 'CTBK-rinkeby',
-      },
-      {
-        address: '0xFab46E002BbF0b4509813474841E0716E6730136',
-        decimals: 18,
-        name: 'Faucet Token',
-        symbol: 'FAU-rinkeby',
-      },
-    ]);
+  // Gets the list of ERC20 currencies
+  const erc20Currencies = getSupportedERC20Tokens();
 
   return {
     [RequestLogicTypes.CURRENCY.ETH]: [

@@ -23,7 +23,7 @@
         "--no-timeouts",
         "--require",
         "ts-node/register",
-        "${workspaceFolder}/packages/request-client.js/test/*.test.ts",
+        "${workspaceFolder}/packages/request-client.js/test/index.test.ts",
         "--colors"
       ],
       "cwd": "${workspaceFolder}/packages/request-client.js/",
