@@ -1,13 +1,14 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ERC20ProxyContract from '../../../../src/api/payment-network/erc20/proxy-contract';
-import * as Types from '../../../../src/types';
 
 import 'chai';
 import 'mocha';
 
 const chai = require('chai');
 const spies = require('chai-spies');
+const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
+chai.use(chaiAsPromised);
 chai.use(spies);
 const sandbox = chai.spy.sandbox();
 
@@ -77,6 +78,8 @@ describe('api/eth/input-data', () => {
   it('getBalance should not be implemented', async () => {
     const mockRequest = {};
 
-    await erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest);
+    await expect(erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest)).to.eventually.be.rejectedWith(
+      'Not yet implemented',
+    );
   });
 });
