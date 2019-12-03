@@ -574,7 +574,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          # This is a cron job for 'everyday at 22 hours'
+          # This is a cron job for "everyday at 22 hours"
           cron: '0 22 * * *'
           filters:
             branches:
