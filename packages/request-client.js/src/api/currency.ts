@@ -4,7 +4,7 @@ import {
   getErc20Currency,
   getErc20Decimals,
   getErc20Symbol,
-  supportedERC20Tokens,
+  getSupportedERC20Tokens,
 } from './currency/erc20';
 
 // List of our supported cryptocurrencies
@@ -164,23 +164,8 @@ export function getAllSupportedCurrencies(): {
     symbol: cc.code,
   }));
 
-  // Maps the list of ERC20 currencies (including rinkeby currencies)
-  const erc20Currencies = Object.entries(supportedERC20Tokens)
-    .map(([address, { name, symbol, decimals }]) => ({ name, symbol, decimals, address }))
-    .concat([
-      {
-        address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
-        decimals: 18,
-        name: 'Central Bank Token',
-        symbol: 'CTBK-rinkeby',
-      },
-      {
-        address: '0xFab46E002BbF0b4509813474841E0716E6730136',
-        decimals: 18,
-        name: 'Faucet Token',
-        symbol: 'FAU-rinkeby',
-      },
-    ]);
+  // Gets the list of ERC20 currencies
+  const erc20Currencies = getSupportedERC20Tokens();
 
   return {
     [RequestLogicTypes.CURRENCY.ETH]: [
