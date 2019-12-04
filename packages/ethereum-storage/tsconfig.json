@@ -5,7 +5,7 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/lib/**/*", "./artifacts/**/*"],
+  "include": ["./src/**/*", "./artifacts/**/*"],
   "references": [{ "path": "../types" }, { "path": "../utils" }],
   "files": [
     "./artifacts/RequestHashStorage/0.1.0.json",
