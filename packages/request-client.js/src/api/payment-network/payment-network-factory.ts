@@ -4,9 +4,9 @@ import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
 import ERC20AddressBased from './erc20/address-based';
+import EthInputData from './eth/input-data';
 
 /** Register the payment network by currency and type */
-// TODO: take into account currency network and possibly value when finding supported network
 const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
@@ -26,6 +26,17 @@ const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
     },
     rinkeby: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
+    },
+  },
+  ETH: {
+    mainnet: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: EthInputData,
+    },
+    private: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: EthInputData,
+    },
+    rinkeby: {
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: EthInputData,
     },
   },
 };

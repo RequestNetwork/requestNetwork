@@ -50,7 +50,7 @@ Note: to use the bitcoin testnet just replace the id by "pn-testnet-bitcoin-addr
 
 This action is valid, if:
 
-- The request `currency` must be "BTC"
+- The request `currency.type` must be "BTC"
 
 #### Warnings
 

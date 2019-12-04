@@ -1,7 +1,7 @@
 import * as Extension from '../extension-types';
 
 /** Manager of the extension */
-export interface IEthInputData extends Extension.IExtension {
+export interface IReferenceBased extends Extension.IExtension {
   createAddPaymentAddressAction: (
     creationParameters: IAddPaymentAddressParameters,
   ) => Extension.IAction;

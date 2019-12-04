@@ -2,13 +2,65 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { assert } from 'chai';
 import 'mocha';
-import { currencyToString, getDecimalsForCurrency, stringToCurrency } from '../../src/api/currency';
+import {
+  currencyToString,
+  getAllSupportedCurrencies,
+  getDecimalsForCurrency,
+  stringToCurrency,
+} from '../../src/api/currency';
 
 describe('api/currency', () => {
+  describe('getAllSupportedCurrencies', () => {
+    it('returns ETH', () => {
+      assert.deepEqual(getAllSupportedCurrencies().ETH[0], {
+        decimals: 18,
+        name: 'Ether',
+        symbol: 'ETH',
+      });
+    });
+
+    it('returns BTC', () => {
+      assert.deepEqual(getAllSupportedCurrencies().BTC[0], {
+        decimals: 8,
+        name: 'Bitcoin',
+        symbol: 'BTC',
+      });
+    });
+
+    it('returns SAI', () => {
+      assert.deepEqual(getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'SAI'), {
+        address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
+        decimals: 18,
+        name: 'Sai Stablecoin v1.0',
+        symbol: 'SAI',
+      });
+    });
+
+    it('returns CTBK', () => {
+      assert.deepEqual(
+        getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CTBK-rinkeby'),
+        {
+          address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+          decimals: 18,
+          name: 'Central Bank Token',
+          symbol: 'CTBK-rinkeby',
+        },
+      );
+    });
+
+    it('returns EUR', () => {
+      assert.deepEqual(getAllSupportedCurrencies().ISO4217.find(({ symbol }) => symbol === 'EUR'), {
+        decimals: 2,
+        name: 'Euro',
+        symbol: 'EUR',
+      });
+    });
+  });
+
   describe('getDecimalsForCurrency', () => {
-    it('returns the correct number of decimals', async () => {
+    it('returns the correct number of decimals', () => {
       assert.equal(
-        await getDecimalsForCurrency({
+        getDecimalsForCurrency({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         }),
@@ -16,19 +68,20 @@ describe('api/currency', () => {
       );
     });
 
-    it('throws for invalid currencies', async () => {
-      assert.isRejected(
-        getDecimalsForCurrency({
-          type: 'BANANA' as RequestLogicTypes.CURRENCY,
-          value: 'SPLIT',
-        } as RequestLogicTypes.ICurrency),
+    it('throws for invalid currencies', () => {
+      assert.throws(
+        () =>
+          getDecimalsForCurrency({
+            type: 'BANANA' as RequestLogicTypes.CURRENCY,
+            value: 'SPLIT',
+          } as RequestLogicTypes.ICurrency),
         'Currency BANANA not implemented',
       );
     });
 
-    it('returns the correct number of decimals for a supported ERC20', async () => {
+    it('returns the correct number of decimals for a supported ERC20', () => {
       assert.equal(
-        await getDecimalsForCurrency({
+        getDecimalsForCurrency({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
@@ -37,14 +90,13 @@ describe('api/currency', () => {
       );
     });
 
-    it('returns the correct number of decimals for a non-supported ERC20', async () => {
-      assert.equal(
-        await getDecimalsForCurrency({
+    it('throws for a non-supported ERC20', () => {
+      assert.throws(() =>
+        getDecimalsForCurrency({
           network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 contract
         }),
-        18,
       );
     });
   });

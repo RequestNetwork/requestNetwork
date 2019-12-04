@@ -74,6 +74,12 @@ export interface IPaymentNetworkCreateParameters {
   parameters: any;
 }
 
+/** Parameters to create a ETH input data request */
+export interface IEthInputDataCreationParameters
+  extends ExtensionTypes.PnAddressBased.ICreationParameters {
+  salt?: string;
+}
+
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => any;
@@ -114,5 +120,6 @@ export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
   TESTNET_BITCOIN_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
   ERC20_ADDRESS_BASED = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+  ETH_INPUT_DATA = ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   DECLARATIVE = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
 }

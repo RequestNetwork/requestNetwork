@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.6.0...@requestnetwork/advanced-logic@0.7.0) (2019-12-04)
+
+
+### Features
+
+* ETH payment detection in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([dc3b238](https://github.com/RequestNetwork/requestNetwork/commit/dc3b23827cff7d5466c27d5575515887c461c3b4))
+
+
+
+
+
 # [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.5.0...@requestnetwork/advanced-logic@0.6.0) (2019-11-20)
 
 

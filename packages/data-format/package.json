@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "publishConfig": {
     "access": "public"
   },
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "ajv": "6.8.1",
-    "tslib": "1.9.3",
+    "tslib": "1.10.0",
     "typescript": "3.7.2"
   },
   "devDependencies": {

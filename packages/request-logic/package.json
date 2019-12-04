@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "publishConfig": {
     "access": "public"
   },
@@ -41,18 +41,18 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.6.0",
-    "@requestnetwork/multi-format": "0.2.1",
-    "@requestnetwork/types": "0.9.0",
-    "@requestnetwork/utils": "0.7.0",
+    "@requestnetwork/advanced-logic": "0.7.0",
+    "@requestnetwork/multi-format": "0.2.2",
+    "@requestnetwork/types": "0.9.1",
+    "@requestnetwork/utils": "0.8.0",
     "semver": "5.6.0"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "2.1.0",
+    "@stryker-mutator/core": "2.4.0",
     "@stryker-mutator/html-reporter": "2.1.0",
     "@stryker-mutator/mocha-framework": "2.1.0",
     "@stryker-mutator/mocha-runner": "2.1.0",
-    "@stryker-mutator/typescript": "2.1.0",
+    "@stryker-mutator/typescript": "2.3.0",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
     "@types/mocha": "5.2.6",

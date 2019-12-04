@@ -1,5 +1,6 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+
+import ReferenceBased from '../reference-based';
 
 const walletAddressValidator = require('wallet-address-validator');
 
@@ -11,7 +12,7 @@ const walletAddressValidator = require('wallet-address-validator');
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-const ethInputData: ExtensionTypes.PnEthInputData.IEthInputData = {
+const ethInputData: ExtensionTypes.PnReferenceBased.IReferenceBased = {
   applyActionToExtension,
   createAddPaymentAddressAction,
   createAddRefundAddressAction,
@@ -21,11 +22,6 @@ const ethInputData: ExtensionTypes.PnEthInputData.IEthInputData = {
 
 const supportedNetworks = ['mainnet', 'rinkeby'];
 
-// Regex for "at least 16 hexadecimal numbers". Used to validate the salt
-const eightHexRegex = /[0-9a-f]{16,}/;
-
-const CURRENT_VERSION = '0.1.0';
-
 /**
  * Creates the extensionsData to create the ETH payment detection extension
  *
@@ -34,7 +30,7 @@ const CURRENT_VERSION = '0.1.0';
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
 function createCreationAction(
-  creationParameters: ExtensionTypes.PnEthInputData.ICreationParameters,
+  creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
 ): ExtensionTypes.IAction {
   if (creationParameters.paymentAddress && !isValidAddress(creationParameters.paymentAddress)) {
     throw Error('paymentAddress is not a valid ethereum address');
@@ -44,23 +40,10 @@ function createCreationAction(
     throw Error('refundAddress is not a valid ethereum address');
   }
 
-  if (!creationParameters.salt) {
-    throw Error('salt should not be empty');
-  }
-
-  if (!eightHexRegex.test(creationParameters.salt)) {
-    /* eslint-disable spellcheck/spell-checker */
-    throw Error(
-      `salt be a string of minimum 16 hexadecimal characters. Example: 'ea3bc7caf64110ca'`,
-    );
-  }
-
-  return {
-    action: ExtensionTypes.PnAddressBased.ACTION.CREATE,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-    parameters: creationParameters,
-    version: CURRENT_VERSION,
-  };
+  return ReferenceBased.createCreationAction(
+    ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    creationParameters,
+  );
 }
 
 /**
@@ -71,7 +54,7 @@ function createCreationAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddPaymentAddressAction(
-  addPaymentAddressParameters: ExtensionTypes.PnEthInputData.IAddPaymentAddressParameters,
+  addPaymentAddressParameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
 ): ExtensionTypes.IAction {
   if (
     addPaymentAddressParameters.paymentAddress &&
@@ -80,11 +63,10 @@ function createAddPaymentAddressAction(
     throw Error('paymentAddress is not a valid ethereum address');
   }
 
-  return {
-    action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-    parameters: addPaymentAddressParameters,
-  };
+  return ReferenceBased.createAddPaymentAddressAction(
+    ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    addPaymentAddressParameters,
+  );
 }
 
 /**
@@ -95,7 +77,7 @@ function createAddPaymentAddressAction(
  * @returns IAction the extensionsData to be stored in the request
  */
 function createAddRefundAddressAction(
-  addRefundAddressParameters: ExtensionTypes.PnEthInputData.IAddRefundAddressParameters,
+  addRefundAddressParameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
 ): ExtensionTypes.IAction {
   if (
     addRefundAddressParameters.refundAddress &&
@@ -104,11 +86,10 @@ function createAddRefundAddressAction(
     throw Error('refundAddress is not a valid ethereum address');
   }
 
-  return {
-    action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-    parameters: addRefundAddressParameters,
-  };
+  return ReferenceBased.createAddRefundAddressAction(
+    ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    addRefundAddressParameters,
+  );
 }
 
 /**
@@ -140,191 +121,14 @@ function applyActionToExtension(
     );
   }
 
-  const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
-
-  if (extensionAction.action === ExtensionTypes.PnEthInputData.ACTION.CREATE) {
-    if (requestState.extensions[extensionAction.id]) {
-      throw Error(`This extension has already been created`);
-    }
-
-    copiedExtensionState[extensionAction.id] = applyCreation(extensionAction, timestamp);
-
-    return copiedExtensionState;
-  }
-
-  // if the action is not "create", the state must have been created before
-  if (!requestState.extensions[extensionAction.id]) {
-    throw Error(`The extension should be created before receiving any other action`);
-  }
-
-  if (extensionAction.action === ExtensionTypes.PnEthInputData.ACTION.ADD_PAYMENT_ADDRESS) {
-    copiedExtensionState[extensionAction.id] = applyAddPaymentAddress(
-      copiedExtensionState[extensionAction.id],
-      extensionAction,
-      requestState,
-      actionSigner,
-      timestamp,
-    );
-
-    return copiedExtensionState;
-  }
-
-  if (extensionAction.action === ExtensionTypes.PnEthInputData.ACTION.ADD_REFUND_ADDRESS) {
-    copiedExtensionState[extensionAction.id] = applyAddRefundAddress(
-      copiedExtensionState[extensionAction.id],
-      extensionAction,
-      requestState,
-      actionSigner,
-      timestamp,
-    );
-
-    return copiedExtensionState;
-  }
-
-  throw Error(`Unknown action: ${extensionAction.action}`);
-}
-
-/**
- * Applies a creation
- *
- * @param isValidAddress address validator function
- * @param extensionAction action to apply
- *
- * @returns state of the extension created
- */
-function applyCreation(
-  extensionAction: ExtensionTypes.IAction,
-  timestamp: number,
-): ExtensionTypes.IState {
-  if (
-    extensionAction.parameters.paymentAddress &&
-    !isValidAddress(extensionAction.parameters.paymentAddress)
-  ) {
-    throw Error('paymentAddress is not a valid address');
-  }
-  if (
-    extensionAction.parameters.refundAddress &&
-    !isValidAddress(extensionAction.parameters.refundAddress)
-  ) {
-    throw Error('refundAddress is not a valid address');
-  }
-  return {
-    events: [
-      {
-        name: 'create',
-        parameters: {
-          paymentAddress: extensionAction.parameters.paymentAddress,
-          refundAddress: extensionAction.parameters.refundAddress,
-          salt: extensionAction.parameters.salt,
-        },
-        timestamp,
-      },
-    ],
-    id: extensionAction.id,
-    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {
-      paymentAddress: extensionAction.parameters.paymentAddress,
-      refundAddress: extensionAction.parameters.refundAddress,
-      salt: extensionAction.parameters.salt,
-    },
-    version: CURRENT_VERSION,
-  };
-}
-
-/**
- * Applies add payment address
- *
- * @param isValidAddress address validator function
- * @param extensionState previous state of the extension
- * @param extensionAction action to apply
- * @param requestState request state read-only
- * @param actionSigner identity of the signer
- *
- * @returns state of the extension updated
- */
-function applyAddPaymentAddress(
-  extensionState: ExtensionTypes.IState,
-  extensionAction: ExtensionTypes.IAction,
-  requestState: RequestLogicTypes.IRequest,
-  actionSigner: IdentityTypes.IIdentity,
-  timestamp: number,
-): ExtensionTypes.IState {
-  if (
-    extensionAction.parameters.paymentAddress &&
-    !isValidAddress(extensionAction.parameters.paymentAddress)
-  ) {
-    throw Error('paymentAddress is not a valid address');
-  }
-  if (extensionState.values.paymentAddress) {
-    throw Error(`Payment address already given`);
-  }
-  if (!requestState.payee) {
-    throw Error(`The request must have a payee`);
-  }
-  if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-    throw Error(`The signer must be the payee`);
-  }
-
-  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
-
-  // update payment address
-  copiedExtensionState.values.paymentAddress = extensionAction.parameters.paymentAddress;
-  // update events
-  copiedExtensionState.events.push({
-    name: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
-    parameters: { paymentAddress: extensionAction.parameters.paymentAddress },
+  return ReferenceBased.applyActionToExtension(
+    isValidAddress,
+    extensionsState,
+    extensionAction,
+    requestState,
+    actionSigner,
     timestamp,
-  });
-
-  return copiedExtensionState;
-}
-
-/**
- * Applies add refund address
- *
- * @param isValidAddress address validator function
- * @param extensionState previous state of the extension
- * @param extensionAction action to apply
- * @param requestState request state read-only
- * @param actionSigner identity of the signer
- *
- * @returns state of the extension updated
- */
-function applyAddRefundAddress(
-  extensionState: ExtensionTypes.IState,
-  extensionAction: ExtensionTypes.IAction,
-  requestState: RequestLogicTypes.IRequest,
-  actionSigner: IdentityTypes.IIdentity,
-  timestamp: number,
-): ExtensionTypes.IState {
-  if (
-    extensionAction.parameters.refundAddress &&
-    !isValidAddress(extensionAction.parameters.refundAddress)
-  ) {
-    throw Error('refundAddress is not a valid address');
-  }
-  if (extensionState.values.refundAddress) {
-    throw Error(`Refund address already given`);
-  }
-  if (!requestState.payer) {
-    throw Error(`The request must have a payer`);
-  }
-  if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-    throw Error(`The signer must be the payer`);
-  }
-
-  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
-
-  // update refund address
-  copiedExtensionState.values.refundAddress = extensionAction.parameters.refundAddress;
-  // update events
-  copiedExtensionState.events.push({
-    name: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
-    parameters: { refundAddress: extensionAction.parameters.refundAddress },
-    timestamp,
-  });
-
-  return copiedExtensionState;
+  );
 }
 
 /**

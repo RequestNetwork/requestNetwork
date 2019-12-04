@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.9.0...@requestnetwork/request-client.js@0.10.0) (2019-12-04)
+
+
+### Bug Fixes
+
+* use ERC20 default network ([#623](https://github.com/RequestNetwork/requestNetwork/issues/623)) ([772dd37](https://github.com/RequestNetwork/requestNetwork/commit/772dd37877497a38b9cc74a08c70a6c5aecefa2d))
+
+
+### Features
+
+* **request-client.js:** add an explanation when request not found ([#609](https://github.com/RequestNetwork/requestNetwork/issues/609)) ([3909958](https://github.com/RequestNetwork/requestNetwork/commit/39099580b65b86282d19a71ffad77f1b89767cca))
+* add ETH paymentNetwork to request-client  ([#617](https://github.com/RequestNetwork/requestNetwork/issues/617)) ([84ed64e](https://github.com/RequestNetwork/requestNetwork/commit/84ed64ebf96a296155dc2d4d5e6c538344fb881b))
+* ETH payment detection in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([dc3b238](https://github.com/RequestNetwork/requestNetwork/commit/dc3b23827cff7d5466c27d5575515887c461c3b4))
+* exposes currency utilities and list of all supported currencies ([#625](https://github.com/RequestNetwork/requestNetwork/issues/625)) ([eeac838](https://github.com/RequestNetwork/requestNetwork/commit/eeac8385025274fdada39ca3fb2182fc54d470d5))
+
+
+
+
+
 # [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.8.0...@requestnetwork/request-client.js@0.9.0) (2019-11-20)
 
 
