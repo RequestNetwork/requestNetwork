@@ -18,6 +18,7 @@ import { stringToCurrency } from './currency';
 import { validERC20Address } from './currency/erc20';
 import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
+import localUtils from './utils';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -87,6 +88,7 @@ export default class RequestNetwork {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
     );
+
     const {
       result: { requestId },
     } = await this.requestLogic.createEncryptedRequest(
@@ -129,14 +131,18 @@ export default class RequestNetwork {
       requestId,
     );
 
-    let paymentNetwork: Types.IPaymentNetwork | null = null;
-    if (requestAndMeta.result.request) {
-      paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest({
+    // if no request found, throw a human readable message:
+    if (!requestAndMeta.result.request) {
+      throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
+    }
+
+    const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+      {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
         request: requestAndMeta.result.request,
-      });
-    }
+      },
+    );
 
     // create the request object
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);

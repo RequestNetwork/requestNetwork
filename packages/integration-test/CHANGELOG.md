@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.6.0...@requestnetwork/integration-test@0.7.0) (2019-12-04)
+
+
+### Features
+
+* **request-client.js:** add an explanation when request not found ([#609](https://github.com/RequestNetwork/requestNetwork/issues/609)) ([3909958](https://github.com/RequestNetwork/requestNetwork/commit/39099580b65b86282d19a71ffad77f1b89767cca))
+
+
+
+
+
 # [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.5.0...@requestnetwork/integration-test@0.6.0) (2019-11-20)
 
 

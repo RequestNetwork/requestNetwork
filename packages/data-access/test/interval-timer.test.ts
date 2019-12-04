@@ -27,9 +27,9 @@ const flushCallStack = (): Promise<any> => {
 
 const emptyLogger = {
   debug: (_string: string): void => {},
-  error: (_string: string): void  => {},
-  info: (_string: string): void  => {},
-  warn: (_string: string): void  => {},
+  error: (_string: string): void => {},
+  info: (_string: string): void => {},
+  warn: (_string: string): void => {},
 } as LogTypes.ILogger;
 
 let intervalFunctionWithErrorCount: number;
@@ -85,7 +85,7 @@ describe('interval-timer', () => {
   });
 
   it('should periodically call the interval function provided when start() is called', async () => {
-    const callback = sinon.spy(async () => 0);
+    const callback = sinon.spy(async () => {});
 
     intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
     intervalTimer.start();
@@ -168,7 +168,7 @@ describe('interval-timer', () => {
         hasBeenRejected = true;
         throw Error('makeReject set');
       }
-      return 0;
+      return;
     });
 
     intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);

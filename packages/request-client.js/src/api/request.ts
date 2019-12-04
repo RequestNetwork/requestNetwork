@@ -4,6 +4,7 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { currencyToString } from './currency';
 import PaymentNetworkDeclarative from './payment-network/declarative';
+import localUtils from './utils';
 
 /**
  * Class representing a request.
@@ -458,7 +459,11 @@ export default class Request {
     );
 
     if (!requestAndMeta.result.request) {
-      throw new Error(`No request found for the id: ${this.requestId}`);
+      throw new Error(
+        `No request found for the id: ${this.requestId} - ${localUtils.formatGetRequestFromIdError(
+          requestAndMeta,
+        )}`,
+      );
     }
 
     if (this.paymentNetwork) {
