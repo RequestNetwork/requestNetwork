@@ -2,16 +2,35 @@
   "name": "@request-network/smart-contracts",
   "version": "0.1.0",
   "description": "Smart contracts for the Request protocol",
-  "main": "index.js",
-  "repository": "https://github.com/RequestNetwork/requestNetwork.git",
+  "keywords": [
+    "requestnetwork",
+    "smart-contracts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contract#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/src/lib/index.js",
+  "types": "dist/src/lib/index.d.ts",
   "license": "MIT",
+  "directories": {
+    "lib": "src/lib",
+    "test": "test/lib"
+  },
   "scripts": {
     "build": "truffle compile --contracts_directory=./src",
     "clean": "shx rm -rf build",
     "lint": "solium --dir src",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
-    "deploy": "truffle --contracts_directory=./src deploy",
-    "test": "truffle test --contracts_directory=./src test/*.js"
+    "deploy": "truffle --contracts_directory=./src/contracts deploy",
+    "test": "truffle test --contracts_directory=./src/contracts test/contracts/*.js"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.4.0",
