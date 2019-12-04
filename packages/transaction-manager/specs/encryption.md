@@ -27,7 +27,8 @@ The implementation must use a cryptographically strong random number generator m
 
 ### Encrypted channel
 
-An encrypted channel is a collection of encrypted data between several parties.
+An encrypted channel is a collection of encrypted 
+between several parties.
 An encrypted channel is opened by one of the parties by creating and sharing one symmetric encryption key: the channel key.
 When an encrypted channel is opened, each party can encrypt data with the same channel key.
 Parties can be added on an encrypted channel by any other parties.
@@ -50,12 +51,12 @@ The encrypted data, the encrypted keys and a hash of the data are pushed on chai
 
 | Property             | Type   | Description                                                                                                                      |
 | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| **data**             | String | First encrypted data of the channel in base64                                                                                    |
+| **encryptedData**             | String | First encrypted data of the channel in base64                                                                                    |
 | **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                       |
 | **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their multi-formatted identities |
 | **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                    |
 
-The data are encrypted with the algorithm AES-256 from the channel key generated for this channel.
+The data is encrypted with the algorithm AES-256 from the channel key generated for this channel.
 The channel key generation must be cryptographically strong.
 The encrypted data is stored in the format of a base64 string.
 
@@ -63,7 +64,7 @@ Example:
 
 ```JSON
 {
-  "data": "JOz9aOV1aYatMSAx+3CD9EyjNI/FwLp6DeA+AYk5ERnTDwwaETY7zz2NemubnGW7GGDATjSVsnCVWXuM58cihq1Bhkon2aiPHhQdpteEugkrM2Zx/kWrVlvRY8kyseB30hU7NhyiDUSLGOJ/Pmq3PjANbBi2svgADLFZ6SdYgwFkjxaO1XkvW/qvjuraFqW55/4wCd53yjWcjMcLzMgLYcTLmSns642xAjx0hAvwVPQmTVI5xOFf6PjbEN9qfRPfdQkaOuuGG2AYsVhOkSK73BULdIvx6PArfqICCtL23xmt4kCeFgd6HYQvSzSFqszqAWT1kJdiRj3sZXRtf6xcpeXDelBacHN+xD2mzdZlroVhlsjZi5s0mhemBd+C",
+  "encryptedData": "JOz9aOV1aYatMSAx+3CD9EyjNI/FwLp6DeA+AYk5ERnTDwwaETY7zz2NemubnGW7GGDATjSVsnCVWXuM58cihq1Bhkon2aiPHhQdpteEugkrM2Zx/kWrVlvRY8kyseB30hU7NhyiDUSLGOJ/Pmq3PjANbBi2svgADLFZ6SdYgwFkjxaO1XkvW/qvjuraFqW55/4wCd53yjWcjMcLzMgLYcTLmSns642xAjx0hAvwVPQmTVI5xOFf6PjbEN9qfRPfdQkaOuuGG2AYsVhOkSK73BULdIvx6PArfqICCtL23xmt4kCeFgd6HYQvSzSFqszqAWT1kJdiRj3sZXRtf6xcpeXDelBacHN+xD2mzdZlroVhlsjZi5s0mhemBd+C",
   "hash": "01865ea95812388a93162b560e01c5680f12966492dfbad8a9a104e1e79f6665fc",
   "keys":
    {
