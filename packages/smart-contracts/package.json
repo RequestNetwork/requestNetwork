@@ -25,9 +25,15 @@
     "test": "test/lib"
   },
   "scripts": {
-    "build": "truffle compile --contracts_directory=./src",
-    "clean": "shx rm -rf build",
-    "lint": "solium --dir src",
+    "build:lib": "tsc -b",
+    "build:sol": "truffle compile --contracts_directory=./src",
+    "build": "yarn run build:lib && yarn run build:sol",
+    "clean:lib": "shx rm -rf dist",
+    "clean:sol": "shx rm -rf build",
+    "clean": "yarn run clean:lib && yarn run clean:sol",
+    "lint:lib": "tslint --project . && eslint \"src/lib/**/*.ts\"",
+    "lint:sol": "solium --dir src/contracts",
+    "lint": "yarn run lint:lib && yarn run lint:sol",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "truffle --contracts_directory=./src/contracts deploy",
     "test": "truffle test --contracts_directory=./src/contracts test/contracts/*.js"
