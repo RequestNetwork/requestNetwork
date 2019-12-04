@@ -27,8 +27,7 @@ The implementation must use a cryptographically strong random number generator m
 
 ### Encrypted channel
 
-An encrypted channel is a collection of encrypted 
-between several parties.
+An encrypted channel is a collection of encrypted between several parties.
 An encrypted channel is opened by one of the parties by creating and sharing one symmetric encryption key: the channel key.
 When an encrypted channel is opened, each party can encrypt data with the same channel key.
 Parties can be added on an encrypted channel by any other parties.
