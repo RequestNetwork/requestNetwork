@@ -1,0 +1,618 @@
+{
+  "contractName": "BytesUtilsMock",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "extractBytes32Result",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        }
+      ],
+      "name": "extractBytes32",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.12+commit.7709ece9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"offset\",\"type\":\"uint256\"}],\"name\":\"extractBytes32\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"extractBytes32Result\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/test/BytesUtilsMock.sol\":\"BytesUtilsMock\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/Bytes.sol\":{\"keccak256\":\"0x464b989de612e364d4bf9eefc909741fcf377d48dcba65e37041c6f89a69ee0c\",\"urls\":[\"bzz-raw://2d83f156e05c9bb6985485c6eac9a93cbc0c6d630b4960f7f7362b163acd6991\",\"dweb:/ipfs/QmYUFasqsmpU7anqgqbwxv7LBR5r7jUJ5FLVm8DPvn9MuB\"]},\"/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/test/BytesUtilsMock.sol\":{\"keccak256\":\"0x37df36bea18f4fd0194f4aa85c6db6db90869941521e19ad655d5524f299382c\",\"urls\":[\"bzz-raw://95e99a7894974ab95819b20b567c9968a36c369702d04e26cf370dd8e5d351fe\",\"dweb:/ipfs/QmaCcxNenjNCdNyCJbMmVjBDaTLEjw547zZzTjcfM6UHTW\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610212806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063349f06931461003b578063b1e05e8a14610059575b600080fd5b61004361011e565b6040518082815260200191505060405180910390f35b61011c6004803603604081101561006f57600080fd5b810190808035906020019064010000000081111561008c57600080fd5b82018360208201111561009e57600080fd5b803590602001918460018302840111640100000000831117156100c057600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f82011690508083019250505050505050919291929080359060200190929190505050610124565b005b60005481565b61012e8282610138565b6000819055505050565b600080821015801561014e575082516020830111155b6101a3576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602b8152602001806101b3602b913960400191505060405180910390fd5b8160200183015190509291505056fe6f66667365742076616c75652073686f756c6420626520696e2074686520636f72726563742072616e6765a265627a7a72315820ac676dd5f8b1a9d30063ca861d5b7792cb1687d5d3d11ac04409d2f165bee6da64736f6c634300050c0032",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063349f06931461003b578063b1e05e8a14610059575b600080fd5b61004361011e565b6040518082815260200191505060405180910390f35b61011c6004803603604081101561006f57600080fd5b810190808035906020019064010000000081111561008c57600080fd5b82018360208201111561009e57600080fd5b803590602001918460018302840111640100000000831117156100c057600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f82011690508083019250505050505050919291929080359060200190929190505050610124565b005b60005481565b61012e8282610138565b6000819055505050565b600080821015801561014e575082516020830111155b6101a3576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602b8152602001806101b3602b913960400191505060405180910390fd5b8160200183015190509291505056fe6f66667365742076616c75652073686f756c6420626520696e2074686520636f72726563742072616e6765a265627a7a72315820ac676dd5f8b1a9d30063ca861d5b7792cb1687d5d3d11ac04409d2f165bee6da64736f6c634300050c0032",
+  "sourceMap": "50:200:5:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;50:200:5;;;;;;;",
+  "deployedSourceMap": "50:200:5:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;50:200:5;;;;;;;;;;;;;;;;;;;;;;;;78:35;;;:::i;:::-;;;;;;;;;;;;;;;;;;;117:131;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;117:131:5;;;;;;;;;;21:11:-1;8;5:28;2:2;;;46:1;43;36:12;2:2;117:131:5;;35:9:-1;28:4;12:14;8:25;5:40;2:2;;;58:1;55;48:12;2:2;117:131:5;;;;;;100:9:-1;95:1;81:12;77:20;67:8;63:35;60:50;39:11;25:12;22:29;11:107;8:2;;;131:1;128;121:12;8:2;117:131:5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;30:3:-1;22:6;14;1:33;99:1;93:3;85:6;81:16;74:27;137:4;133:9;126:4;121:3;117:14;113:30;106:37;;169:3;161:6;157:16;147:26;;117:131:5;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;78:35;;;;:::o;117:131::-;209:34;230:4;236:6;209:20;:34::i;:::-;186:20;:57;;;;117:131;;:::o;364:343:0:-;455:10;493:1;483:6;:11;;:41;;;;;513:4;:11;507:2;498:6;:11;:26;;483:41;475:97;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;688:6;684:2;680:15;674:4;670:26;664:33;658:39;;648:55;;;;:::o",
+  "source": "pragma solidity ^0.5.0;\n\nimport \"../Bytes.sol\";\n\n\ncontract BytesUtilsMock {\n  bytes32 public extractBytes32Result;\n  function extractBytes32(bytes memory data, uint offset) public {\n    extractBytes32Result = Bytes.extractBytes32(data, offset);\n  }\n}\n",
+  "sourcePath": "/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/test/BytesUtilsMock.sol",
+  "ast": {
+    "absolutePath": "/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/test/BytesUtilsMock.sol",
+    "exportedSymbols": {
+      "BytesUtilsMock": [
+        359
+      ]
+    },
+    "id": 360,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 339,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:5"
+      },
+      {
+        "absolutePath": "/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/Bytes.sol",
+        "file": "../Bytes.sol",
+        "id": 340,
+        "nodeType": "ImportDirective",
+        "scope": 360,
+        "sourceUnit": 28,
+        "src": "25:22:5",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 359,
+        "linearizedBaseContracts": [
+          359
+        ],
+        "name": "BytesUtilsMock",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 342,
+            "name": "extractBytes32Result",
+            "nodeType": "VariableDeclaration",
+            "scope": 359,
+            "src": "78:35:5",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_bytes32",
+              "typeString": "bytes32"
+            },
+            "typeName": {
+              "id": 341,
+              "name": "bytes32",
+              "nodeType": "ElementaryTypeName",
+              "src": "78:7:5",
+              "typeDescriptions": {
+                "typeIdentifier": "t_bytes32",
+                "typeString": "bytes32"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 357,
+              "nodeType": "Block",
+              "src": "180:68:5",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 355,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 349,
+                      "name": "extractBytes32Result",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 342,
+                      "src": "186:20:5",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "arguments": [
+                        {
+                          "argumentTypes": null,
+                          "id": 352,
+                          "name": "data",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 344,
+                          "src": "230:4:5",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes_memory_ptr",
+                            "typeString": "bytes memory"
+                          }
+                        },
+                        {
+                          "argumentTypes": null,
+                          "id": 353,
+                          "name": "offset",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 346,
+                          "src": "236:6:5",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes_memory_ptr",
+                            "typeString": "bytes memory"
+                          },
+                          {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 350,
+                          "name": "Bytes",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 27,
+                          "src": "209:5:5",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_contract$_Bytes_$27_$",
+                            "typeString": "type(library Bytes)"
+                          }
+                        },
+                        "id": 351,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberName": "extractBytes32",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 26,
+                        "src": "209:20:5",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_pure$_t_bytes_memory_ptr_$_t_uint256_$returns$_t_bytes32_$",
+                          "typeString": "function (bytes memory,uint256) pure returns (bytes32)"
+                        }
+                      },
+                      "id": 354,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "209:34:5",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "186:57:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 356,
+                  "nodeType": "ExpressionStatement",
+                  "src": "186:57:5"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 358,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "extractBytes32",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 347,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 344,
+                  "name": "data",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 358,
+                  "src": "141:17:5",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 343,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "141:5:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 346,
+                  "name": "offset",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 358,
+                  "src": "160:11:5",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 345,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "160:4:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "140:32:5"
+            },
+            "returnParameters": {
+              "id": 348,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "180:0:5"
+            },
+            "scope": 359,
+            "src": "117:131:5",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 360,
+        "src": "50:200:5"
+      }
+    ],
+    "src": "0:251:5"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/test/BytesUtilsMock.sol",
+    "exportedSymbols": {
+      "BytesUtilsMock": [
+        359
+      ]
+    },
+    "id": 360,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 339,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:5"
+      },
+      {
+        "absolutePath": "/Users/bertrand/Desktop/requestNetwork-private/packages/smart-contracts/src/Bytes.sol",
+        "file": "../Bytes.sol",
+        "id": 340,
+        "nodeType": "ImportDirective",
+        "scope": 360,
+        "sourceUnit": 28,
+        "src": "25:22:5",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 359,
+        "linearizedBaseContracts": [
+          359
+        ],
+        "name": "BytesUtilsMock",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 342,
+            "name": "extractBytes32Result",
+            "nodeType": "VariableDeclaration",
+            "scope": 359,
+            "src": "78:35:5",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_bytes32",
+              "typeString": "bytes32"
+            },
+            "typeName": {
+              "id": 341,
+              "name": "bytes32",
+              "nodeType": "ElementaryTypeName",
+              "src": "78:7:5",
+              "typeDescriptions": {
+                "typeIdentifier": "t_bytes32",
+                "typeString": "bytes32"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 357,
+              "nodeType": "Block",
+              "src": "180:68:5",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 355,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 349,
+                      "name": "extractBytes32Result",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 342,
+                      "src": "186:20:5",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "arguments": [
+                        {
+                          "argumentTypes": null,
+                          "id": 352,
+                          "name": "data",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 344,
+                          "src": "230:4:5",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes_memory_ptr",
+                            "typeString": "bytes memory"
+                          }
+                        },
+                        {
+                          "argumentTypes": null,
+                          "id": 353,
+                          "name": "offset",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 346,
+                          "src": "236:6:5",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes_memory_ptr",
+                            "typeString": "bytes memory"
+                          },
+                          {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 350,
+                          "name": "Bytes",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 27,
+                          "src": "209:5:5",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_contract$_Bytes_$27_$",
+                            "typeString": "type(library Bytes)"
+                          }
+                        },
+                        "id": 351,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberName": "extractBytes32",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 26,
+                        "src": "209:20:5",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_pure$_t_bytes_memory_ptr_$_t_uint256_$returns$_t_bytes32_$",
+                          "typeString": "function (bytes memory,uint256) pure returns (bytes32)"
+                        }
+                      },
+                      "id": 354,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "209:34:5",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "186:57:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 356,
+                  "nodeType": "ExpressionStatement",
+                  "src": "186:57:5"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 358,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "extractBytes32",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 347,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 344,
+                  "name": "data",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 358,
+                  "src": "141:17:5",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 343,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "141:5:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 346,
+                  "name": "offset",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 358,
+                  "src": "160:11:5",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 345,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "160:4:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "140:32:5"
+            },
+            "returnParameters": {
+              "id": 348,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "180:0:5"
+            },
+            "scope": 359,
+            "src": "117:131:5",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 360,
+        "src": "50:200:5"
+      }
+    ],
+    "src": "0:251:5"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.12+commit.7709ece9.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.0.19",
+  "updatedAt": "2019-12-04T06:27:46.624Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}

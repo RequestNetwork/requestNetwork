@@ -1,0 +1,22 @@
+{
+  "name": "@request-network/smart-contracts",
+  "version": "0.1.0",
+  "description": "Smart contracts for the Request protocol",
+  "main": "index.js",
+  "repository": "https://github.com/RequestNetwork/requestNetwork.git",
+  "license": "MIT",
+  "scripts": {
+    "build": "truffle compile --contracts_directory=./src",
+    "clean": "shx rm -rf build",
+    "lint": "solium --dir src",
+    "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "deploy": "truffle --contracts_directory=./src deploy",
+    "test": "truffle test --contracts_directory=./src test/*.js"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "2.4.0",
+    "ganache-cli": "6.7.0",
+    "shx": "0.3.2",
+    "truffle": "5.1.2"
+  }
+}

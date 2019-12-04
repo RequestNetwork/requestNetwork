@@ -3,11 +3,11 @@ import 'mocha';
 import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import EthereumBlocks from '../../src/lib/ethereum-blocks';
-import SmartContractManager from '../../src/lib/smart-contract-manager';
+import EthereumBlocks from '../src/ethereum-blocks';
+import SmartContractManager from '../src/smart-contract-manager';
 
-import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
-import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+import * as artifactsRequestHashStorageUtils from '../src/artifacts-request-hash-storage-utils';
+import * as artifactsRequestHashSubmitterUtils from '../src/artifacts-request-hash-submitter-utils';
 
 // tslint:disable:no-magic-numbers
 

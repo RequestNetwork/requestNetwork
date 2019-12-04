@@ -4,11 +4,11 @@ import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import EthereumStorage from '../../src/lib/ethereum-storage';
-import IpfsConnectionError from '../../src/lib/ipfs-connection-error';
+import EthereumStorage from '../src/ethereum-storage';
+import IpfsConnectionError from '../src/ipfs-connection-error';
 
-import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
-import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+import * as artifactsRequestHashStorageUtils from '../src/artifacts-request-hash-storage-utils';
+import * as artifactsRequestHashSubmitterUtils from '../src/artifacts-request-hash-submitter-utils';
 import { IEthereumEntriesWithLastTimestamp } from '@requestnetwork/types/src/storage-types';
 
 // tslint:disable:no-magic-numbers
