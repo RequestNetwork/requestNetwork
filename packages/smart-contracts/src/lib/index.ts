@@ -1,5 +1,5 @@
-import * as requestHashStorageArtifact from './RequestHashStorageArtifact';
-import * as requestHashSubmitterArtifact from './RequestHashSubmitterArtifact';
+import * as requestHashStorageArtifact from './requestHashStorageArtifact';
+import * as requestHashSubmitterArtifact from './requestHashSubmitterArtifact';
 
 export {
   requestHashStorageArtifact,

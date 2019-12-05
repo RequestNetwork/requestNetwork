@@ -138,16 +138,16 @@ jobs:
           at: *working_directory
       - run:
           name: 'Build ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run build:lib'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
       - run:
           name: 'Lint ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run lint:lib'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run lint'
       - run:
           name: 'Deploy contracs smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run test:lib'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run test'
       - persist_to_workspace:
           root: *working_directory
           paths:
