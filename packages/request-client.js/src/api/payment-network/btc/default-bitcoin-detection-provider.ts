@@ -35,7 +35,7 @@ export default class DefaultBitcoinDetectionProvider implements Types.IBitcoinDe
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<Types.BTCBalanceWithEvents> {
     if (this.providers.length < 2) {
       throw new Error('At least two bitcoin providers are needed');
     }
@@ -84,19 +84,19 @@ export default class DefaultBitcoinDetectionProvider implements Types.IBitcoinDe
    * @returns Object containing IBalanceWithEvents and the count
    */
   private getMostCommonBalance(
-    array: Types.IBalanceWithEvents[],
-  ): { count: number; value: Types.IBalanceWithEvents } | undefined {
+    array: Types.BTCBalanceWithEvents[],
+  ): { count: number; value: Types.BTCBalanceWithEvents } | undefined {
     // Reduce the array to an object indexed by balance with the count
     const duplicatesWithCount: {
-      [key: string]: { count: number; value: Types.IBalanceWithEvents };
+      [key: string]: { count: number; value: Types.BTCBalanceWithEvents };
     } = array
       .filter(info => info.balance !== '-1')
       .reduce(
         (
           accumulator: {
-            [key: string]: { count: number; value: Types.IBalanceWithEvents };
+            [key: string]: { count: number; value: Types.BTCBalanceWithEvents };
           },
-          elem: Types.IBalanceWithEvents,
+          elem: Types.BTCBalanceWithEvents,
         ) => {
           if (!accumulator[elem.balance]) {
             accumulator[elem.balance] = { count: 0, value: elem };

@@ -27,7 +27,7 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<Types.BTCBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/addrs/${address}`;
     try {
@@ -57,7 +57,7 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
+  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
     const balance = new bigNumber(addressInfo.total_received).toString();
 
     // Retrieves all the transaction hash of the transactions having as input the current address
@@ -65,20 +65,18 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
       .filter((tx: any) => tx.tx_output_n === -1)
       .map((tx: any) => tx.tx_hash);
 
-    const events: Types.IPaymentNetworkEvent[] = addressInfo.txrefs
+    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.txrefs
       // keep only the transaction with this address as output
       .filter((tx: any) => tx.tx_input_n === -1)
       // exclude the transactions coming from the same address
       .filter((tx: any) => !inputTxHashes.includes(tx.tx_hash))
       .map(
-        (tx: any): Types.IPaymentNetworkEvent => ({
+        (tx: any): Types.BTCPaymentNetworkEvent => ({
+          amount: tx.value.toString(),
+          block: tx.block_height,
           name: eventName,
-          parameters: {
-            amount: tx.value.toString(),
-            block: tx.block_height,
-            // timestamp - not given by this API
-            txHash: tx.tx_hash,
-          },
+          // timestamp - not given by this API
+          txHash: tx.tx_hash,
         }),
       );
 

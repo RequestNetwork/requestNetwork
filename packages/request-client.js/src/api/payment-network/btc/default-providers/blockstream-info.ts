@@ -30,7 +30,7 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<Types.BTCBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/address/${address}/txs`;
     try {
@@ -87,8 +87,8 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
-    const events: Types.IPaymentNetworkEvent[] = addressInfo.txs
+  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
+    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.txs
       // exclude the transactions coming from the same address
       .filter((tx: any) => {
         const autoVin = tx.vin.filter(
@@ -109,20 +109,18 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
       }, [])
       .filter((output: any) => output.output.scriptpubkey_address === addressInfo.address)
       .map(
-        (output: any): Types.IPaymentNetworkEvent => ({
+        (output: any): Types.BTCPaymentNetworkEvent => ({
+          amount: output.output.value.toString(),
+          block: output.blockHeight,
           name: eventName,
-          parameters: {
-            amount: output.output.value.toString(),
-            block: output.blockHeight,
-            timestamp: output.timestamp,
-            txHash: output.txHash,
-          },
+          timestamp: output.timestamp,
+          txHash: output.txHash,
         }),
       );
 
     const balance: string = events
-      .reduce((balanceAccumulator: any, event: Types.IPaymentNetworkEvent) => {
-        return balanceAccumulator.add(new bigNumber(event.parameters.amount));
+      .reduce((balanceAccumulator: any, event: Types.BTCPaymentNetworkEvent) => {
+        return balanceAccumulator.add(new bigNumber(event.amount));
       }, new bigNumber('0'))
       .toString();
 

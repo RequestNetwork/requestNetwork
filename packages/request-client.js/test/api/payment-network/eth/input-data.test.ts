@@ -108,12 +108,14 @@ describe('api/eth/input-data', () => {
     expect(balance.balance).to.be.equal('10');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
-    expect(balance.events[0].parameters.to).to.be.equal(
-      '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-    );
-    expect(balance.events[0].parameters.from).to.be.equal(
-      '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-    );
-    expect(balance.events[0].parameters.value).to.be.equal('10');
+    // TODO: add to & from to parameters?
+    // expect(balance.events[0].parameters!.to).to.be.equal(
+    //   '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+    // );
+    // expect(balance.events[0].parameters!.from).to.be.equal(
+    //   '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
+    // );
+    expect(balance.events[0].amount).to.be.equal('10');
+    expect(balance.events[0].timestamp).to.be.a('number');
   });
 });

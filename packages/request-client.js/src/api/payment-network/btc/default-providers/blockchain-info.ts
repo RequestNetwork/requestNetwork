@@ -30,7 +30,7 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
     bitcoinNetworkId: number,
     address: string,
     eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<Types.BTCBalanceWithEvents> {
     const blockchainInfoUrl = this.getBlockchainInfoUrl(bitcoinNetworkId);
 
     const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
@@ -87,11 +87,11 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.IBalanceWithEvents {
+  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
     const address = addressInfo.address;
     const balance = new bigNumber(addressInfo.total_received).toString();
 
-    const events: Types.IPaymentNetworkEvent[] = addressInfo.txs
+    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.txs
       // exclude the transactions coming from the same address
       .filter((tx: any) => {
         const selfInputs = tx.inputs.filter(
@@ -112,14 +112,12 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
       }, [])
       .filter((output: any) => output.output.addr === address)
       .map(
-        (output: any): Types.IPaymentNetworkEvent => ({
+        (output: any): Types.BTCPaymentNetworkEvent => ({
+          amount: output.output.value.toString(),
+          block: output.blockHeight,
           name: eventName,
-          parameters: {
-            amount: output.output.value.toString(),
-            block: output.blockHeight,
-            timestamp: output.timestamp,
-            txHash: output.txHash,
-          },
+          timestamp: output.timestamp,
+          txHash: output.txHash,
         }),
       );
 

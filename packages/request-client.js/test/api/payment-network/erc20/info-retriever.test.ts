@@ -4,6 +4,7 @@ import ERC20InfoRetriever from '../../../../src/api/payment-network/erc20/info-r
 
 import 'chai';
 import 'mocha';
+import { EVENTS_NAMES } from '../../../../src/types';
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -18,31 +19,33 @@ describe('api/erc20/info-retriever', () => {
     const emptyAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 
     it('can get the localhost balance of an address', async () => {
-      const balanceObject = await ERC20InfoRetriever(
+      const infoRetriever = new ERC20InfoRetriever(
         erc20LocalhostContractAddress,
         paymentAddress,
+        EVENTS_NAMES.PAYMENT,
         'private',
       );
+      const events = await infoRetriever.getTransferEvents();
 
-      expect(balanceObject.decimals).to.be.equal('18');
       // if this assert fails it means this address received another transaction
-      expect(balanceObject.tokenEvents).to.have.lengthOf(1);
-      expect(balanceObject.tokenEvents[0]).to.deep.equal({
-        from: payerAddress,
-        to: paymentAddress,
-        value: '10',
-      });
+      expect(events).to.have.lengthOf(1);
+      expect(events[0].name).to.equal(EVENTS_NAMES.PAYMENT);
+      expect(events[0].parameters!.from).to.equal(payerAddress);
+      expect(events[0].parameters!.to).to.equal(paymentAddress);
+      expect(events[0].amount).to.equal('10');
+      expect(events[0].timestamp).to.be.a('number');
     });
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
-      const balanceObject = await ERC20InfoRetriever(
+      const infoRetriever = new ERC20InfoRetriever(
         erc20LocalhostContractAddress,
         emptyAddress,
+        EVENTS_NAMES.PAYMENT,
         'private',
       );
 
-      expect(balanceObject.decimals).to.be.equal('18');
-      expect(balanceObject.tokenEvents).to.be.empty;
+      const events = await infoRetriever.getTransferEvents();
+      expect(events).to.be.empty;
     });
   });
 });
