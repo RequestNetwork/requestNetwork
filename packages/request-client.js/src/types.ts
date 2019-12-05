@@ -148,13 +148,12 @@ export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParame
 export interface IETHPaymentEventParameters {
   confirmations: number;
 }
-/** ERC20 Payment Network Event */
+/** ETH Payment Network Event */
 export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<IETHPaymentEventParameters>;
 /** ETH BalanceWithEvents */
 export type ETHBalanceWithEvents = IBalanceWithEvents<IETHPaymentEventParameters>;
 
-/** Parameters for events of ERC20 payments */
-export type IBTCPaymentEventParameters = never;
+/** Parameters for events of BTC payments */
 /** BTC Payment Network Event */
 export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
 /** BTC BalanceWithEvents */
@@ -164,7 +163,7 @@ export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters
 export interface IDeclarativePaymentEventParameters {
   note?: string;
 }
-/** ERC20 Payment Network Event */
+/** Declarative Payment Network Event */
 export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<
   IDeclarativePaymentEventParameters
 >;
