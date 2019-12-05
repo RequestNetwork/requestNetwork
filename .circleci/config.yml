@@ -506,8 +506,8 @@ jobs:
           name: 'Test integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run test:scheduled'
 
-  # Release a canary version package everytime we merge to development
-  canary-release:
+  # Release a next version package everytime we merge to master
+  next-release:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -516,10 +516,10 @@ jobs:
           at: *working_directory
       - run:
           name: 'Authenticate with registry'
-          command: echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" > ~/repo/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: 'publish'
-          command: '$(yarn bin)/lerna publish --conventional-commits --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --registry="https://npm.pkg.github.com" --yes'
+          command: '$(yarn bin)/lerna publish --conventional-commits --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --yes'
 
 workflows:
   version: 2
@@ -609,8 +609,8 @@ workflows:
             - test-utils
             - test-multi-format
 
-      # Release a canary version package everytime we merge to development
-      - canary-release:
+      # Release a next version package everytime we merge to master
+      - next-release:
           requires:
             - test-advanced-logic
             - test-data-access
@@ -631,7 +631,7 @@ workflows:
           filters:
             branches:
               only:
-                - development
+                - master
 
   nightly:
     triggers:
@@ -642,7 +642,6 @@ workflows:
             branches:
               only:
                 - master
-                - development
     jobs:
       - build
       - lint-package-json:
