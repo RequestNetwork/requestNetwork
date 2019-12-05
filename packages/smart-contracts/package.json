@@ -14,12 +14,12 @@
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
+  "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
   },
   "main": "dist/src/lib/index.js",
   "types": "dist/src/lib/index.d.ts",
-  "license": "MIT",
   "directories": {
     "lib": "src/lib",
     "test": "test/lib"
