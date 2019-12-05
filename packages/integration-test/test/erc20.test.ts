@@ -45,12 +45,13 @@ describe('ERC20 detection test-suite', function(): void {
         // if this assert fails it means this address received another transaction
         expect(events).to.have.lengthOf(1);
         const event = events[0];
-        expect(event.amount).to.equal(amount);
         expect(event.name).to.equal('payment');
+        expect(event.amount).to.equal(amount);
+        expect(event.timestamp).to.be.a('number');
         expect(event.parameters!.to).to.equal(account);
         expect(event.parameters!.from).to.be.a('string');
-        expect(event.block).to.be.a('number');
-        expect(event.timestamp).to.be.a('number');
+        expect(event.parameters!.block).to.be.a('number');
+        expect(event.parameters!.txHash).to.be.a('string');
       });
     });
   });
@@ -89,10 +90,10 @@ describe('ERC20 detection test-suite', function(): void {
     expect(balance.balance).to.be.equal('510000000000000000');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal('payment');
-    expect(balance.events[0].parameters?.to).to.be.equal(
+    expect(balance.events[0].parameters!.to).to.be.equal(
       '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
     );
-    expect(balance.events[0].parameters?.from).to.be.equal(
+    expect(balance.events[0].parameters!.from).to.be.equal(
       '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
     );
     expect(balance.events[0].amount).to.be.equal('510000000000000000');
