@@ -55,7 +55,7 @@ The encrypted data, the encrypted keys and a hash of the data are pushed on chai
 | **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their multi-formatted identities |
 | **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                    |
 
-The data is encrypted with the algorithm AES-256 from the channel key generated for this channel.
+The data are encrypted with the algorithm AES-256 from the channel key generated for this channel.
 The channel key generation must be cryptographically strong.
 The encrypted data is stored in the format of a base64 string.
 
