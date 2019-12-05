@@ -30,10 +30,12 @@ describe('api/erc20/info-retriever', () => {
       // if this assert fails it means this address received another transaction
       expect(events).to.have.lengthOf(1);
       expect(events[0].name).to.equal(EVENTS_NAMES.PAYMENT);
-      expect(events[0].parameters!.from).to.equal(payerAddress);
-      expect(events[0].parameters!.to).to.equal(paymentAddress);
       expect(events[0].amount).to.equal('10');
       expect(events[0].timestamp).to.be.a('number');
+      expect(events[0].parameters!.from).to.equal(payerAddress);
+      expect(events[0].parameters!.to).to.equal(paymentAddress);
+      expect(events[0].parameters!.block).to.be.a('number');
+      expect(events[0].parameters!.txHash).to.be.a('string');
     });
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {

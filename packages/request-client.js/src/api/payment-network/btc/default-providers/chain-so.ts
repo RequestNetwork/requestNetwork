@@ -72,10 +72,12 @@ export default class ChainSo implements Types.IBitcoinDetectionProvider {
       .map(
         (tx: any): Types.BTCPaymentNetworkEvent => ({
           amount: converterBTC.toSatoshi(tx.incoming.value).toString(),
-          block: tx.block_no,
           name: eventName,
+          parameters: {
+            block: tx.block_no,
+            txHash: tx.txid,
+          },
           timestamp: tx.time,
-          txHash: tx.txid,
         }),
       );
 

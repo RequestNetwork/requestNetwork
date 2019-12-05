@@ -1132,15 +1132,15 @@ describe('index', () => {
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('133');
-      expect(dataAfterRefresh.balance?.events[0].block).to.equal(9035772);
       expect(dataAfterRefresh.balance?.events[0].timestamp).to.equal(1575255446);
-      expect(dataAfterRefresh.balance?.events[0].txHash).to.equal('0xdfcd96b949f2b10a3e16a36ac671e10480f2c308656ae3da8fef48cbab0a54c9');
+      expect(dataAfterRefresh.balance?.events[0].parameters!.block).to.equal(9035772);
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal('0xdfcd96b949f2b10a3e16a36ac671e10480f2c308656ae3da8fef48cbab0a54c9');
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
-      expect(dataAfterRefresh.balance?.events[1].block).to.equal(9035856);
       expect(dataAfterRefresh.balance?.events[1].timestamp).to.equal(1575256669);
-      expect(dataAfterRefresh.balance?.events[1].txHash).to.equal('0x390df9c0f8f4224826eb1a16cbe5c608805f8d7f7eec9f16d863a139a5db7857');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.block).to.equal(9035856);
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal('0x390df9c0f8f4224826eb1a16cbe5c608805f8d7f7eec9f16d863a139a5db7857');
     });
   });
 });

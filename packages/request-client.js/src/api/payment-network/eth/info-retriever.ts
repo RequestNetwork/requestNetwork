@@ -43,13 +43,13 @@ export default class ETHInfoRetriever
       )
       .map(transaction => ({
         amount: transaction.value.toString(),
-        block: transaction.blockNumber,
         name: this.eventName,
         parameters: {
+          block: transaction.blockNumber,
           confirmations: transaction.confirmations,
+          txHash: transaction.hash,
         },
         timestamp: transaction.timestamp,
-        txHash: transaction.hash,
       }));
 
     return events;

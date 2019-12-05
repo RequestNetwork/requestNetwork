@@ -114,10 +114,12 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
       .map(
         (output: any): Types.BTCPaymentNetworkEvent => ({
           amount: output.output.value.toString(),
-          block: output.blockHeight,
           name: eventName,
+          parameters: {
+            block: output.blockHeight,
+            txHash: output.txHash,
+          },
           timestamp: output.timestamp,
-          txHash: output.txHash,
         }),
       );
 

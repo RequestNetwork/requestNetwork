@@ -104,11 +104,9 @@ export interface IBalanceWithEvents<TEventParameters = any> {
 /** payment network event */
 export interface IPaymentNetworkEvent<TEventParameters> {
   amount: string;
-  block?: number;
   name: EVENTS_NAMES;
   parameters?: TEventParameters;
   timestamp?: number;
-  txHash?: string;
 }
 
 /** payment network event names */
@@ -137,6 +135,8 @@ export interface IPaymentNetworkInfoRetriever<
 export interface IERC20PaymentEventParameters {
   from: string;
   to: string;
+  block?: number;
+  txHash?: string;
 }
 
 /** ERC20 Payment Network Event */
@@ -146,7 +146,9 @@ export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParame
 
 /** Parameters for events of ETH payments */
 export interface IETHPaymentEventParameters {
+  block?: number;
   confirmations: number;
+  txHash?: string;
 }
 /** ETH Payment Network Event */
 export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<IETHPaymentEventParameters>;
@@ -154,6 +156,10 @@ export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<IETHPaymentEventParame
 export type ETHBalanceWithEvents = IBalanceWithEvents<IETHPaymentEventParameters>;
 
 /** Parameters for events of BTC payments */
+export interface IBTCPaymentEventParameters {
+  block?: number;
+  txHash?: string;
+}
 /** BTC Payment Network Event */
 export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
 /** BTC BalanceWithEvents */

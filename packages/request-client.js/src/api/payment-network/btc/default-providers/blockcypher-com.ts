@@ -73,10 +73,12 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
       .map(
         (tx: any): Types.BTCPaymentNetworkEvent => ({
           amount: tx.value.toString(),
-          block: tx.block_height,
           name: eventName,
+          parameters: {
+            block: tx.block_height,
+            txHash: tx.tx_hash,
+          },
           // timestamp - not given by this API
-          txHash: tx.tx_hash,
         }),
       );
 

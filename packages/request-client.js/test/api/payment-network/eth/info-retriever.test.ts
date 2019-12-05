@@ -30,10 +30,11 @@ describe('api/eth/info-retriever', () => {
 
     expect(events[0].name).to.equal('payment');
     expect(events[0].amount).to.equal('33');
-    expect(events[0].txHash).to.equal(
+    expect(events[0].timestamp).to.be.a('number');
+    expect(events[0].parameters!.txHash).to.equal(
       '0x0de1759d8b246939e370e1d0509e3ed6f1d5f4f5b79735636c0283b64ff6f5ed',
     );
-    expect(events[0].timestamp).to.be.a('number');
+    expect(events[0].parameters!.block).to.be.a('number');
     expect(events[0].parameters!.confirmations).to.be.a('number');
   });
 
