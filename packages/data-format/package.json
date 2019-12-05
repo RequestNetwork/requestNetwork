@@ -36,8 +36,8 @@
     "clean": "shx rm -rf dist",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
-    "test:watch": "nyc mocha --watch --watch-extensions json --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
+    "test": "nyc mocha --extension ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "yarn test --watch"
   },
   "dependencies": {
     "ajv": "6.8.1",
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.6",
+    "@types/mocha": "5.2.7",
     "@types/node": "10.12.21",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
@@ -56,7 +56,7 @@
     "eslint-plugin-spellcheck": "0.0.11",
     "eslint-plugin-typescript": "0.14.0",
     "lint-staged": "8.1.3",
-    "mocha": "5.2.0",
+    "mocha": "6.2.2",
     "nyc": "13.2.0",
     "prettier": "1.16.4",
     "rimraf": "2.6.3",
