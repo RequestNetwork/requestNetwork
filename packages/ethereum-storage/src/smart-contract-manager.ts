@@ -126,6 +126,7 @@ export default class SmartContractManager {
     this.hashStorageAddress = SmartContracts.requestHashStorageArtifact.getAddress(
       this.networkName,
     );
+
     this.hashSubmitterAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
       this.networkName,
     );

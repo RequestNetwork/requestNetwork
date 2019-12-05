@@ -35,8 +35,8 @@
     "lint:sol": "solium --dir src/contracts",
     "lint": "yarn run lint:lib && yarn run lint:sol",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
-    "deploy": "truffle --contracts_directory=./src/contracts deploy",
-    "test": "truffle test --contracts_directory=./src/contracts test/contracts/*.js"
+    "deploy": "truffle --contracts_directory=./src deploy",
+    "test": "truffle test --contracts_directory=./src test/contracts/*.js"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.4.0",
