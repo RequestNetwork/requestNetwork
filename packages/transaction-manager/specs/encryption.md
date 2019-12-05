@@ -78,14 +78,14 @@ Example:
 
 | Property | Type   | Description                                                |
 | -------- | ------ | ---------------------------------------------------------- |
-| **data** | String | Encrypted data in base64                                   |
+| **encryptedData** | String | Encrypted data in base64                                   |
 | **hash** | String | Normalized Keccak256 hash of the message before encryption |
 
 Example:
 
 ```JSON
 {
-    "data": "mBVy2ENb0Edkego5c9QXcFxszKxe7iQVE22wUPHMbrC7bBm99S238BAyACa1TBDlI4SajbrWM+/MG8CkBoph4FLTvh4PsUjhnfazFI9BnMtIMhdqDAoxXUSHsvnwbEFhllqwhFCWn6pslLNu7X7UJSDgj7nQ0t1IHegBSV7ZRqdOYw3UoxAEAyVOoUwMhr/sitF2AlgMSvKas5YCD47YIm6rDNmzyBn9Ed/fAxNojMXcg386khrPs37P6Q==",
+    "encryptedData": "mBVy2ENb0Edkego5c9QXcFxszKxe7iQVE22wUPHMbrC7bBm99S238BAyACa1TBDlI4SajbrWM+/MG8CkBoph4FLTvh4PsUjhnfazFI9BnMtIMhdqDAoxXUSHsvnwbEFhllqwhFCWn6pslLNu7X7UJSDgj7nQ0t1IHegBSV7ZRqdOYw3UoxAEAyVOoUwMhr/sitF2AlgMSvKas5YCD47YIm6rDNmzyBn9Ed/fAxNojMXcg386khrPs37P6Q==",
     "hash": "018f94ee7e96fa65a761e8df9792af3f72fcf936f186fbb86881630f7d5333c8bb",
 }
 ```
