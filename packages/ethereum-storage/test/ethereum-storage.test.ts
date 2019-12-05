@@ -1,5 +1,6 @@
 import 'mocha';
 
+import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -7,8 +8,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import EthereumStorage from '../src/ethereum-storage';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
-import * as artifactsRequestHashStorageUtils from '../src/artifacts-request-hash-storage-utils';
-import * as artifactsRequestHashSubmitterUtils from '../src/artifacts-request-hash-submitter-utils';
 import { IEthereumEntriesWithLastTimestamp } from '@requestnetwork/types/src/storage-types';
 
 // tslint:disable:no-magic-numbers
@@ -56,8 +55,8 @@ const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
 const contractHashSubmitter = new eth.Contract(
-  artifactsRequestHashSubmitterUtils.getContractAbi(),
-  artifactsRequestHashSubmitterUtils.getAddress('private'),
+  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+  SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
 );
 const addressRequestHashSubmitter = contractHashSubmitter._address;
 
@@ -208,11 +207,11 @@ describe('EthereumStorage', () => {
 
       // Initialize smart contract instance
       ethereumStorageNotInitialized.smartContractManager.requestHashStorage = new eth.Contract(
-        artifactsRequestHashStorageUtils.getContractAbi(),
+        SmartContracts.requestHashStorageArtifact.getContractAbi(),
         invalidHashStorageAddress,
       );
       ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = new eth.Contract(
-        artifactsRequestHashSubmitterUtils.getContractAbi(),
+        SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
         invalidHashSubmitterAddress,
       );
 

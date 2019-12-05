@@ -1,13 +1,11 @@
 import 'mocha';
 
+import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import EthereumBlocks from '../src/ethereum-blocks';
 import SmartContractManager from '../src/smart-contract-manager';
-
-import * as artifactsRequestHashStorageUtils from '../src/artifacts-request-hash-storage-utils';
-import * as artifactsRequestHashSubmitterUtils from '../src/artifacts-request-hash-submitter-utils';
 
 // tslint:disable:no-magic-numbers
 
@@ -63,13 +61,13 @@ const otherSize = 100000;
 const otherSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(otherSize), 64);
 
 const contractHashStorage = new eth.Contract(
-  artifactsRequestHashStorageUtils.getContractAbi(),
-  artifactsRequestHashStorageUtils.getAddress('private'),
+  SmartContracts.requestHashStorageArtifact.getContractAbi(),
+  SmartContracts.requestHashStorageArtifact.getAddress('private'),
 );
 
 const contractHashSubmitter = new eth.Contract(
-  artifactsRequestHashSubmitterUtils.getContractAbi(),
-  artifactsRequestHashSubmitterUtils.getAddress('private'),
+  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+  SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
 );
 const addressRequestHashSubmitter = contractHashSubmitter._address;
 
@@ -406,7 +404,7 @@ describe('SmartContractManager', () => {
 
   it('getAddress in artifactsRequestHashStorageUtils with a invalid host network should throw an error', async () => {
     assert.throws(
-      () => artifactsRequestHashStorageUtils.getAddress('nonexistent'),
+      () => SmartContracts.requestHashStorageArtifact.getAddress('nonexistent'),
       Error,
       'No deployment for network',
     );
@@ -414,14 +412,14 @@ describe('SmartContractManager', () => {
 
   it('getAddress in artifactsRequestHashSubmitterUtils with a invalid host network should throw an error', async () => {
     assert.throws(
-      () => artifactsRequestHashSubmitterUtils.getAddress('nonexistent'),
+      () => SmartContracts.requestHashSubmitterArtifact.getAddress('nonexistent'),
       Error,
       'No deployment for network',
     );
   });
 
   it('getCreationBlockNumber in artifactsRequestHashSubmitterUtils', async () => {
-    assert.equal(artifactsRequestHashSubmitterUtils.getCreationBlockNumber('private'), 1);
+    assert.equal(SmartContracts.requestHashSubmitterArtifact.getCreationBlockNumber('private'), 1);
   });
 
   it('allows to getMetaFromEthereum() a hash', async () => {
