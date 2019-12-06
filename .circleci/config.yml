@@ -177,7 +177,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol'
       - run:
           name: 'Test smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run test:sol'
+          command: 'yarn workspace @requestnetwork/smart-contracts run test'
       - persist_to_workspace:
           root: *working_directory
           paths:
