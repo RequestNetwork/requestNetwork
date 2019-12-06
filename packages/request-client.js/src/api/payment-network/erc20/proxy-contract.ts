@@ -22,7 +22,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: Types.IERC20ProxyContractCreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
   ): ExtensionTypes.IAction {
     // If no salt is given, generate one
     const salt = paymentNetworkCreationParameters.salt || Utils.crypto.generate8randomBytes();
