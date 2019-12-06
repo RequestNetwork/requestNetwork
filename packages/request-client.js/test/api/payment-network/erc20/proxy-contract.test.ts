@@ -19,7 +19,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
     return;
   },
   extensions: {
-    proxyContractERC20: {
+    erc20ProxyContract: {
       createAddPaymentAddressAction(): any {
         return;
       },
@@ -35,7 +35,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/eth/input-data', () => {
+describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
     sandbox.restore();
     erc20ProxyContract = new ERC20ProxyContract({ advancedLogic: mockAdvancedLogic });
@@ -43,6 +43,8 @@ describe('api/eth/input-data', () => {
 
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.erc20ProxyContract, 'createCreationAction');
+
+
 
     erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
