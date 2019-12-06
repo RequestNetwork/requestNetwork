@@ -1,5 +1,3 @@
-import * as TestDataCreate from './create-data-generator';
-
 import * as TestData from '../../test-data-generator';
 
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -7,91 +5,98 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 export const arbitraryTimestamp = 1544426030;
 
 // ---------------------------------------------------------------------
-// Mock addresses for testing generic address based payment networks
+// Mock addresses for testing ETH payment networks
 export const paymentAddress = '0x627306090abaB3A6e1400e9345bC60c78a8BEf57';
 export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const invalidAddress = '0xnotandaddress';
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
 // actions
-export const actionAddPaymentAddress = {
-  action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+export const actionCreationWithPaymentAndRefund = {
+  action: 'create',
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+  parameters: {
+    paymentAddress,
+    refundAddress,
+    salt,
+  },
+  version: '0.1.0',
+};
+export const actionCreationOnlyPayment = {
+  action: 'create',
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   parameters: {
     paymentAddress,
   },
+  version: '0.1.0',
 };
-export const actionAddRefundAddress = {
-  action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+export const actionCreationOnlyRefund = {
+  action: 'create',
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   parameters: {
     refundAddress,
   },
+  version: '0.1.0',
+};
+export const actionCreationEmpty = {
+  action: 'create',
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+  parameters: {},
+  version: '0.1.0',
 };
 
 // ---------------------------------------------------------------------
 // extensions states
-export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+export const extensionStateWithPaymentAndRefund = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT as string]: {
     events: [
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
-        parameters: {},
-        timestamp: arbitraryTimestamp,
-      },
-      {
-        name: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
+        name: 'create',
         parameters: {
           paymentAddress,
+          refundAddress,
+          salt,
         },
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
+      refundAddress,
+      salt,
     },
     version: '0.1.0',
   },
 };
-
-export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+export const extensionStateCreatedEmpty = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT as string]: {
     events: [
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
+        name: 'create',
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
-      {
-        name: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        parameters: {
-          refundAddress,
-        },
-        timestamp: arbitraryTimestamp,
-      },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {
-      refundAddress,
-    },
+    values: {},
     version: '0.1.0',
   },
 };
 
 // ---------------------------------------------------------------------
 // request states
-export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest = {
+export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
   currency: {
     network: 'mainnet',
-    type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'ETH',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // SAI
   },
   events: [
     {
@@ -102,15 +107,15 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
       name: RequestLogicTypes.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
-        extensionsDataLength: 2,
+        extensionsDataLength: 0,
         isSignedRequest: false,
       },
       timestamp: arbitraryTimestamp,
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateWithPaymentAfterCreation,
-  extensionsData: [TestDataCreate.actionCreationEmpty, actionAddPaymentAddress],
+  extensions: {},
+  extensionsData: [],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
@@ -125,15 +130,15 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyThenAddRefund: RequestLogicTypes.IRequest = {
+export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
   },
   currency: {
     network: 'mainnet',
-    type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'ETH',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // SAI
   },
   events: [
     {
@@ -144,15 +149,57 @@ export const requestStateCreatedEmptyThenAddRefund: RequestLogicTypes.IRequest =
       name: RequestLogicTypes.ACTION_NAME.CREATE,
       parameters: {
         expectedAmount: '123400000000000000',
-        extensionsDataLength: 2,
+        extensionsDataLength: 1,
         isSignedRequest: false,
       },
       timestamp: arbitraryTimestamp,
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateWithRefundAfterCreation,
-  extensionsData: [TestDataCreate.actionCreationEmpty, actionAddRefundAddress],
+  extensions: extensionStateWithPaymentAndRefund,
+  extensionsData: [actionCreationWithPaymentAndRefund],
+  payee: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  payer: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payerRaw.address,
+  },
+  requestId: TestData.requestIdMock,
+  state: RequestLogicTypes.STATE.CREATED,
+  timestamp: TestData.arbitraryTimestamp,
+  version: '0.1.0',
+};
+
+export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
+  creator: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  currency: {
+    network: 'mainnet',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359', // SAI
+  },
+  events: [
+    {
+      actionSigner: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: TestData.payeeRaw.address,
+      },
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsDataLength: 1,
+        isSignedRequest: false,
+      },
+      timestamp: arbitraryTimestamp,
+    },
+  ],
+  expectedAmount: TestData.arbitraryExpectedAmount,
+  extensions: extensionStateCreatedEmpty,
+  extensionsData: [actionCreationEmpty],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,

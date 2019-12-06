@@ -99,12 +99,21 @@ export function getErc20Currency(
  * @returns The number of decimals for the ERC20 currency
  */
 export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): number {
+  let erc20Token;
+  // Get the decimals from the supported mainnet ERC20
   if (!currency.network || currency.network === 'mainnet') {
-    // Tries to get the decimals from the supported ERC20 currencies list
-    const erc20Token = getMainnetErc20FromAddress(currency.value);
-    if (erc20Token) {
-      return erc20Token.decimals;
-    }
+    erc20Token = getMainnetErc20FromAddress(currency.value);
+  }
+
+  // Get the decimals from the supported rinkeby ERC20
+  if (currency.network === 'rinkeby') {
+    erc20Token = Object.values(supportedRinkebyERC20Details).find(
+      ({ address }) => address === currency.value,
+    );
+  }
+
+  if (erc20Token) {
+    return erc20Token.decimals;
   }
 
   // If no supported ERC20 is found, throw error
