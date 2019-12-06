@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ERC20ProxyContract from '../../../../src/api/payment-network/erc20/proxy-contract';
 
 import 'chai';
@@ -44,7 +44,10 @@ describe('api/eth/input-data', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
 
-    erc20ProxyContract.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
+    erc20ProxyContract.createExtensionsDataForCreation({
+      paymentAddress: 'ethereum address',
+      salt: 'ea3bc7caf64110ca',
+    });
 
     expect(spy).to.have.been.called.once;
   });
@@ -78,8 +81,8 @@ describe('api/eth/input-data', () => {
   it('getBalance should not be implemented', async () => {
     const mockRequest = {};
 
-    await expect(erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest)).to.eventually.be.rejectedWith(
-      'Not yet implemented',
-    );
+    await expect(
+      erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest),
+    ).to.eventually.be.rejectedWith('Not yet implemented');
   });
 });

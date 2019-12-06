@@ -1,8 +1,9 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
-import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ethInputDataInfoRetriever from './info-retriever';
+
+import PaymentReferenceCalculator from './payment-reference-calculator';
 
 const bigNumber: any = require('bn.js');
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
