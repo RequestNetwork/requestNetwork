@@ -42,7 +42,7 @@ describe('api/eth/input-data', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
+    const spy = sandbox.on(mockAdvancedLogic.extensions.erc20ProxyContract, 'createCreationAction');
 
     erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
@@ -54,7 +54,7 @@ describe('api/eth/input-data', () => {
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.ethereumInputData,
+      mockAdvancedLogic.extensions.erc20ProxyContract,
       'createAddPaymentAddressAction',
     );
 
@@ -67,7 +67,7 @@ describe('api/eth/input-data', () => {
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.ethereumInputData,
+      mockAdvancedLogic.extensions.erc20ProxyContract,
       'createAddRefundAddressAction',
     );
 
