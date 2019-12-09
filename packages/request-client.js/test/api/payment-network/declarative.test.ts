@@ -214,36 +214,36 @@ describe('api/declarative', () => {
       balance: '1200', // 1000 + 500 - 100 - 200
       events: [
         {
+          amount: '1000',
           name: Types.EVENTS_NAMES.PAYMENT,
           parameters: {
-            amount: '1000',
             note: 'first payment',
-            timestamp: 10,
           },
+          timestamp: 10,
         },
         {
+          amount: '500',
           name: Types.EVENTS_NAMES.PAYMENT,
           parameters: {
-            amount: '500',
             note: 'second payment',
-            timestamp: 15,
           },
+          timestamp: 15,
         },
         {
+          amount: '100',
           name: Types.EVENTS_NAMES.REFUND,
           parameters: {
-            amount: '100',
             note: 'first refund',
-            timestamp: 20,
           },
+          timestamp: 20,
         },
         {
+          amount: '200',
           name: Types.EVENTS_NAMES.REFUND,
           parameters: {
-            amount: '200',
             note: 'second refund',
-            timestamp: 25,
           },
+          timestamp: 25,
         },
       ],
     });
