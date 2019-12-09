@@ -93,20 +93,13 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
     const paymentAddress = extensionValues.paymentAddress;
     const refundAddress = extensionValues.refundAddress;
 
-    const paymentReferencePayment = PaymentReferenceCalculator.calculate(
-      request.requestId,
-      extensionValues.salt,
-      paymentAddress,
-    );
-
-    const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
-      request.requestId,
-      extensionValues.salt,
-      refundAddress,
-    );
-
     let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
+      const paymentReferencePayment = PaymentReferenceCalculator.calculate(
+        request.requestId,
+        extensionValues.salt,
+        paymentAddress,
+      );
       payments = await this.extractBalanceAndEvents(
         paymentAddress,
         Types.EVENTS_NAMES.PAYMENT,
@@ -117,6 +110,11 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
 
     let refunds: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
+      const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
+        request.requestId,
+        extensionValues.salt,
+        refundAddress,
+      );
       refunds = await this.extractBalanceAndEvents(
         refundAddress,
         Types.EVENTS_NAMES.REFUND,
