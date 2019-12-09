@@ -1044,6 +1044,38 @@ describe('index', () => {
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
     });
 
+    it('can create ETH requests without refund address', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+
+      expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
+    });
+
     // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async function(): Promise<void> {
       // tslint:disable-next-line: no-invalid-this
