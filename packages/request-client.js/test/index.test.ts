@@ -616,13 +616,17 @@ describe('index', () => {
       expect(requestData.balance.balance).to.equal('990');
       // @ts-ignore
       expect(requestData.balance.events[0]).to.deep.equal({
+        amount: '10',
         name: 'refund',
-        parameters: { amount: '10', note: 'received refund', timestamp: 1 },
+        parameters: {  note: 'received refund' }, 
+        timestamp: 1,
       });
       // @ts-ignore
       expect(requestData.balance.events[1]).to.deep.equal({
+        amount: '1000',
         name: 'payment',
-        parameters: { amount: '1000', note: 'received payment', timestamp: 1 },
+        parameters: {  note: 'received payment' },
+        timestamp: 1,
       });
     });
 
@@ -1127,16 +1131,16 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events.length).to.equal(2);
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[0].parameters.amount).to.equal('133');
-      expect(dataAfterRefresh.balance?.events[0].parameters.block).to.equal(9035772);
-      expect(dataAfterRefresh.balance?.events[0].parameters.timestamp).to.equal(1575255446);
-      expect(dataAfterRefresh.balance?.events[0].parameters.txHash).to.equal('0xdfcd96b949f2b10a3e16a36ac671e10480f2c308656ae3da8fef48cbab0a54c9');
+      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('133');
+      expect(dataAfterRefresh.balance?.events[0].timestamp).to.equal(1575255446);
+      expect(dataAfterRefresh.balance?.events[0].parameters!.block).to.equal(9035772);
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal('0xdfcd96b949f2b10a3e16a36ac671e10480f2c308656ae3da8fef48cbab0a54c9');
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[1].parameters.amount).to.equal('5');
-      expect(dataAfterRefresh.balance?.events[1].parameters.block).to.equal(9035856);
-      expect(dataAfterRefresh.balance?.events[1].parameters.timestamp).to.equal(1575256669);
-      expect(dataAfterRefresh.balance?.events[1].parameters.txHash).to.equal('0x390df9c0f8f4224826eb1a16cbe5c608805f8d7f7eec9f16d863a139a5db7857');
+      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
+      expect(dataAfterRefresh.balance?.events[1].timestamp).to.equal(1575256669);
+      expect(dataAfterRefresh.balance?.events[1].parameters!.block).to.equal(9035856);
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal('0x390df9c0f8f4224826eb1a16cbe5c608805f8d7f7eec9f16d863a139a5db7857');
     });
   });
 });
