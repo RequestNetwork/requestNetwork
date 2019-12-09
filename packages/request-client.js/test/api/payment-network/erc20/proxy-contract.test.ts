@@ -1,12 +1,11 @@
 import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ERC20ProxyContract from '../../../../src/api/payment-network/erc20/proxy-contract';
 
-import 'chai';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as spies from 'chai-spies';
 import 'mocha';
 
-const chai = require('chai');
-const spies = require('chai-spies');
-const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 chai.use(spies);
@@ -43,8 +42,6 @@ describe('api/erc20/proxy-contract', () => {
 
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.erc20ProxyContract, 'createCreationAction');
-
-
 
     erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
