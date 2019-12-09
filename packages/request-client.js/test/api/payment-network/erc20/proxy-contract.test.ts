@@ -2,12 +2,10 @@ import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ERC20ProxyContract from '../../../../src/api/payment-network/erc20/proxy-contract';
 
 import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
 import 'mocha';
 
 const expect = chai.expect;
-chai.use(chaiAsPromised);
 chai.use(spies);
 const sandbox = chai.spy.sandbox();
 
@@ -18,7 +16,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
     return;
   },
   extensions: {
-    erc20ProxyContract: {
+    proxyContractErc20: {
       createAddPaymentAddressAction(): any {
         return;
       },
@@ -32,7 +30,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
 };
 
-// Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
@@ -41,7 +38,7 @@ describe('api/erc20/proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(mockAdvancedLogic.extensions.erc20ProxyContract, 'createCreationAction');
+    const spy = sandbox.on(mockAdvancedLogic.extensions.proxyContractErc20, 'createCreationAction');
 
     erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
@@ -51,9 +48,19 @@ describe('api/erc20/proxy-contract', () => {
     expect(spy).to.have.been.called.once;
   });
 
+  it('can createExtensionsDataForCreation without salt', async () => {
+    const spy = sandbox.on(mockAdvancedLogic.extensions.proxyContractErc20, 'createCreationAction');
+
+    erc20ProxyContract.createExtensionsDataForCreation({
+      paymentAddress: 'ethereum address',
+    });
+
+    expect(spy).to.have.been.called.once;
+  });
+
   it('can createExtensionsDataForAddPaymentInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.erc20ProxyContract,
+      mockAdvancedLogic.extensions.proxyContractErc20,
       'createAddPaymentAddressAction',
     );
 
@@ -66,7 +73,7 @@ describe('api/erc20/proxy-contract', () => {
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.erc20ProxyContract,
+      mockAdvancedLogic.extensions.proxyContractErc20,
       'createAddRefundAddressAction',
     );
 
@@ -80,8 +87,8 @@ describe('api/erc20/proxy-contract', () => {
   it('getBalance should not be implemented', async () => {
     const mockRequest = {};
 
-    await expect(
-      erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest),
-    ).to.eventually.be.rejectedWith('Not yet implemented');
+    const balance = await erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest);
+    expect(balance.balance).to.be.equal('');
+    expect(balance.events).to.have.lengthOf(0);
   });
 });

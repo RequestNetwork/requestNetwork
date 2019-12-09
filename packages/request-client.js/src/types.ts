@@ -74,9 +74,10 @@ export interface IPaymentNetworkCreateParameters {
   parameters: any;
 }
 
-/** Parameters to create a ETH input data request */
-export interface IEthInputDataCreationParameters
-  extends ExtensionTypes.PnAddressBased.ICreationParameters {
+/** Parameters to create a request with reference based payment network */
+export interface IReferenceBasedCreationParameters {
+  paymentAddress?: string;
+  refundAddress?: string;
   salt?: string;
 }
 

@@ -11,7 +11,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.erc20ProxyContract;
+    this.extension = advancedLogic.extensions.proxyContractErc20;
   }
 
   /**
@@ -22,7 +22,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
+    paymentNetworkCreationParameters: Types.IReferenceBasedCreationParameters,
   ): ExtensionTypes.IAction {
     // If no salt is given, generate one
     const salt = paymentNetworkCreationParameters.salt || Utils.crypto.generate8randomBytes();
@@ -69,6 +69,10 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @returns the balance and the payment/refund events
    */
   public async getBalance(_request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
-    throw Error('Not yet implemented');
+    // Not implemented
+    return {
+      balance: '',
+      events: [],
+    };
   }
 }

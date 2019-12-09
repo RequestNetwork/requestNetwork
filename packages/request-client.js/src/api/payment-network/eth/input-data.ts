@@ -28,7 +28,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: Types.IEthInputDataCreationParameters,
+    paymentNetworkCreationParameters: Types.IReferenceBasedCreationParameters,
   ): ExtensionTypes.IAction {
     // If no salt is given, generate one
     const salt = paymentNetworkCreationParameters.salt || Utils.crypto.generate8randomBytes();
