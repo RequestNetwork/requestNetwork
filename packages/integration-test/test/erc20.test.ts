@@ -1,8 +1,8 @@
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-invalid-this
+import { Types } from '@requestnetwork/request-client.js';
 import ERC20AddressedBased from '@requestnetwork/request-client.js/src/api/payment-network/erc20/address-based';
 import ERC20InfoRetriever from '@requestnetwork/request-client.js/src/api/payment-network/erc20/info-retriever';
-import { EVENTS_NAMES } from '@requestnetwork/request-client.js/src/types';
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { account, tokens } from './erc20-mainnet-test-data';
 
@@ -37,7 +37,7 @@ describe('ERC20 detection test-suite', function(): void {
         const infoRetriever = new ERC20InfoRetriever(
           address,
           account,
-          EVENTS_NAMES.PAYMENT,
+          Types.EVENTS_NAMES.PAYMENT,
           'mainnet',
         );
         const events = await infoRetriever.getTransferEvents();
