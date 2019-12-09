@@ -1,4 +1,3 @@
-import * as Bluebird from 'bluebird';
 import { ethers } from 'ethers';
 import * as Types from '../../../types';
 
@@ -88,7 +87,7 @@ export default class ERC20InfoRetriever
     const logs = await provider.getLogs(filter);
 
     // Clean up the Transfer logs data
-    const events = await Bluebird.map(logs, async log => {
+    const eventPromises = logs.map(async log => {
       if (!log.blockNumber) {
         throw new Error('Block number not found');
       }
@@ -107,6 +106,6 @@ export default class ERC20InfoRetriever
       };
     });
 
-    return events;
+    return Promise.all(eventPromises);
   }
 }
