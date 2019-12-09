@@ -1118,7 +1118,7 @@ describe('index', () => {
       const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+        id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
