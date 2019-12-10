@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
-
-const bigNumber: any = require('bn.js');
+import * as Types from '../../../types';
 
 // The ERC20 smart contract ABI fragment containing decimals property and Transfer event
 const erc20BalanceOfAbiFragment = [
@@ -45,54 +44,68 @@ const erc20BalanceOfAbiFragment = [
 ];
 
 /**
- * Gets a list of transfer events for an address
- *
- * @param tokenContractAddress The address of the ERC20 contract
- * @param address Address of the balance we want to check
- * @param network The Ethereum network to use
+ * Retrieves a list of transfer events for an address
  */
-async function getTransferEvents(
-  tokenContractAddress: string,
-  toAddress: string,
-  network: string,
-): Promise<{
-  decimals: string;
-  tokenEvents: Array<{ from: string; to: string; value: string }>;
-}> {
-  // Creates a local or default provider
-  const provider =
-    network === 'private'
-      ? new ethers.providers.JsonRpcProvider()
-      : ethers.getDefaultProvider(network);
+export default class ERC20InfoRetriever
+  implements Types.IPaymentNetworkInfoRetriever<Types.ERC20PaymentNetworkEvent> {
+  /**
+   * @param tokenContractAddress The address of the ERC20 contract
+   * @param address Address of the balance we want to check
+   * @param eventName Indicate if it is an address for payment or refund
+   * @param network The Ethereum network to use
+   */
+  constructor(
+    private tokenContractAddress: string,
+    private toAddress: string,
+    private eventName: Types.EVENTS_NAMES,
+    private network: string,
+  ) {}
 
-  // Setup the ERC20 contract interface
-  const contract = new ethers.Contract(tokenContractAddress, erc20BalanceOfAbiFragment, provider);
+  /**
+   * Retrieves transfer events for the current contract, address and network.
+   */
+  public async getTransferEvents(): Promise<Types.ERC20PaymentNetworkEvent[]> {
+    // Creates a local or default provider
+    const provider =
+      this.network === 'private'
+        ? new ethers.providers.JsonRpcProvider()
+        : ethers.getDefaultProvider(this.network);
 
-  // Get the amount of decimals for the ERC20
-  const decimals = new bigNumber(await contract.decimals()).toString();
+    // Setup the ERC20 contract interface
+    const contract = new ethers.Contract(
+      this.tokenContractAddress,
+      erc20BalanceOfAbiFragment,
+      provider,
+    );
 
-  // Create a filter to find all the Transfer logs for the toAddress
-  const filter = contract.filters.Transfer(null, toAddress) as ethers.providers.Filter;
-  filter.fromBlock = 0;
-  filter.toBlock = 'latest';
+    // Create a filter to find all the Transfer logs for the toAddress
+    const filter = contract.filters.Transfer(null, this.toAddress) as ethers.providers.Filter;
+    filter.fromBlock = 0;
+    filter.toBlock = 'latest';
 
-  // Get the event logs
-  const logs = await provider.getLogs(filter);
+    // Get the event logs
+    const logs = await provider.getLogs(filter);
 
-  // Clean up the Transfer logs data
-  const tokenEvents = logs.map(log => {
-    const parsedLog = contract.interface.parseLog(log);
-    return {
-      from: parsedLog.values.from,
-      to: parsedLog.values.to,
-      value: parsedLog.values.value.toString(),
-    };
-  });
+    // Clean up the Transfer logs data
+    const eventPromises = logs.map(async log => {
+      if (!log.blockNumber) {
+        throw new Error('Block number not found');
+      }
+      const block = await provider.getBlock(log.blockNumber);
+      const parsedLog = contract.interface.parseLog(log);
+      return {
+        amount: parsedLog.values.value.toString(),
+        name: this.eventName,
+        parameters: {
+          block: block.number,
+          from: parsedLog.values.from,
+          to: parsedLog.values.to,
+          txHash: log.transactionHash,
+        },
+        timestamp: block.timestamp,
+      };
+    });
 
-  return {
-    decimals,
-    tokenEvents,
-  };
+    return Promise.all(eventPromises);
+  }
 }
-
-export default getTransferEvents;

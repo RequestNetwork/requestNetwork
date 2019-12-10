@@ -1,8 +1,8 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
-import ethInputDataInfoRetriever from './info-retriever';
 
+import EthInputDataInfoRetriever from './info-retriever';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 const bigNumber: any = require('bn.js');
@@ -11,7 +11,8 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork {
+export default class PaymentNetworkETHInputData
+  implements Types.IPaymentNetwork<Types.IETHPaymentEventParameters> {
   private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
   /**
    * @param extension The advanced logic payment network extensions
@@ -74,7 +75,9 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
    * @param request the request to check
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<Types.ETHBalanceWithEvents> {
     if (!request.currency.network) {
       request.currency.network = 'mainnet';
     }
@@ -93,7 +96,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
     const paymentAddress = extensionValues.paymentAddress;
     const refundAddress = extensionValues.refundAddress;
 
-    let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
+    let payments: Types.ETHBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       const paymentReferencePayment = PaymentReferenceCalculator.calculate(
         request.requestId,
@@ -108,7 +111,7 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
       );
     }
 
-    let refunds: Types.IBalanceWithEvents = { balance: '0', events: [] };
+    let refunds: Types.ETHBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
       const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
         request.requestId,
@@ -127,9 +130,9 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
       .sub(new bigNumber(refunds.balance || 0))
       .toString();
 
-    const events: Types.IPaymentNetworkEvent[] = [...payments.events, ...refunds.events].sort(
-      (a: Types.IPaymentNetworkEvent, b: Types.IPaymentNetworkEvent) =>
-        a.parameters.timestamp - b.parameters.timestamp,
+    const events: Types.ETHPaymentNetworkEvent[] = [...payments.events, ...refunds.events].sort(
+      (a: Types.ETHPaymentNetworkEvent, b: Types.ETHPaymentNetworkEvent) =>
+        (a.timestamp || 0) - (b.timestamp || 0),
     );
 
     return {
@@ -153,21 +156,23 @@ export default class PaymentNetworkETHInputData implements Types.IPaymentNetwork
     eventName: Types.EVENTS_NAMES,
     network: string,
     paymentReference: string,
-  ): Promise<Types.IBalanceWithEvents> {
-    const infoFromRetriever = await ethInputDataInfoRetriever(
+  ): Promise<Types.ETHBalanceWithEvents> {
+    const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
       network,
       paymentReference,
     );
 
-    const balance = infoFromRetriever.events
-      .reduce((acc, event) => acc.add(new bigNumber(event.parameters.amount)), new bigNumber(0))
+    const events = await infoRetriever.getTransferEvents();
+
+    const balance = events
+      .reduce((acc, event) => acc.add(new bigNumber(event.amount)), new bigNumber(0))
       .toString();
 
     return {
       balance,
-      events: infoFromRetriever.events,
+      events,
     };
   }
 }
