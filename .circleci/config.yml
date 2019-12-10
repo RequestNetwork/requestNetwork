@@ -58,7 +58,7 @@ jobs:
           name: 'Lint request-client.js'
           command: 'yarn workspace @requestnetwork/request-client.js run lint '
       - run:
-          name: 'Deploy test contract from smart-contracts'
+          name: 'Deploy test contracts from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test request-client.js'
@@ -234,6 +234,9 @@ jobs:
       - run:
           name: 'Build request-node'
           command: 'yarn workspace @requestnetwork/request-node run build'
+      - run:
+          name: 'Build ethereum-storage'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
       - run:
           name: 'Lint request-node'
           command: 'yarn workspace @requestnetwork/request-node run lint'
