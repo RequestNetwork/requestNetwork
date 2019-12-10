@@ -178,10 +178,6 @@ jobs:
       - run:
           name: 'Test smart contracts smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run test'
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/smart-contracts/coverage/
   test-request-logic:
     docker:
       - *node_image
@@ -234,9 +230,6 @@ jobs:
       - run:
           name: 'Build request-node'
           command: 'yarn workspace @requestnetwork/request-node run build'
-      - run:
-          name: 'Build ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
       - run:
           name: 'Lint request-node'
           command: 'yarn workspace @requestnetwork/request-node run lint'
@@ -602,7 +595,6 @@ workflows:
             - test-data-format
             - test-transaction-manager
             - test-ethereum-storage
-            - test-smart-contracts
             - test-request-logic
             - test-advanced-logic
             - test-epk-signature
