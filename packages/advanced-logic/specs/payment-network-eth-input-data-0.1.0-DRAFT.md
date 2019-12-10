@@ -11,7 +11,7 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 
 This extension allows the payments and the refunds to be made in Ether on the Ethereum blockchain.
 A payment reference has to be given in input data when making the transfer to link the payment to the request.
-The payment reference is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`:
+The payment reference is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
