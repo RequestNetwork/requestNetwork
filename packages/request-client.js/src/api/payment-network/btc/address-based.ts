@@ -77,14 +77,14 @@ export default class PaymentNetworkBTCAddressBased {
     request: RequestLogicTypes.IRequest,
     paymentNetworkId: ExtensionTypes.ID,
     networkId: number,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<Types.BTCBalanceWithEvents> {
     if (!request.extensions[paymentNetworkId]) {
       throw new Error(`The request do not have the extension : ̀${paymentNetworkId}`);
     }
     const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
     const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
 
-    let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
+    let payments: Types.BTCBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       payments = await this.extractBalanceAndEvents(
         paymentAddress,
@@ -93,7 +93,7 @@ export default class PaymentNetworkBTCAddressBased {
       );
     }
 
-    let refunds: Types.IBalanceWithEvents = { balance: '0', events: [] };
+    let refunds: Types.BTCBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
       refunds = await this.extractBalanceAndEvents(
         refundAddress,
@@ -106,9 +106,8 @@ export default class PaymentNetworkBTCAddressBased {
       .sub(new bigNumber(refunds.balance || 0))
       .toString();
 
-    const events: Types.IPaymentNetworkEvent[] = [...payments.events, ...refunds.events].sort(
-      (a: Types.IPaymentNetworkEvent, b: Types.IPaymentNetworkEvent) =>
-        a.parameters.timestamp - b.parameters.timestamp,
+    const events: Types.BTCPaymentNetworkEvent[] = [...payments.events, ...refunds.events].sort(
+      (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
     );
 
     return {
@@ -129,7 +128,7 @@ export default class PaymentNetworkBTCAddressBased {
     address: string,
     eventName: Types.EVENTS_NAMES,
     networkId: number,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<Types.BTCBalanceWithEvents> {
     return this.bitcoinDetectionProvider.getAddressBalanceWithEvents(networkId, address, eventName);
   }
 }

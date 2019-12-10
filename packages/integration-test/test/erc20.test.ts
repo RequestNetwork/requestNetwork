@@ -1,5 +1,6 @@
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-invalid-this
+import { Types } from '@requestnetwork/request-client.js';
 import ERC20AddressedBased from '@requestnetwork/request-client.js/src/api/payment-network/erc20/address-based';
 import ERC20InfoRetriever from '@requestnetwork/request-client.js/src/api/payment-network/erc20/info-retriever';
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -31,19 +32,26 @@ describe('ERC20 detection test-suite', function(): void {
   this.timeout(10000);
 
   describe('check mainnet payment detection', () => {
-    Object.entries(tokens).forEach(([symbol, { address, amount, decimals }]) => {
+    Object.entries(tokens).forEach(([symbol, { address, amount }]) => {
       it(`can detect the balance of ${symbol}`, async () => {
-        const balanceObject = await ERC20InfoRetriever(address, account, 'mainnet');
+        const infoRetriever = new ERC20InfoRetriever(
+          address,
+          account,
+          Types.EVENTS_NAMES.PAYMENT,
+          'mainnet',
+        );
+        const events = await infoRetriever.getTransferEvents();
 
-        expect(balanceObject.decimals).to.be.equal(decimals);
         // if this assert fails it means this address received another transaction
-        expect(balanceObject.tokenEvents).to.have.lengthOf(1);
-        const event = balanceObject.tokenEvents[0];
-        delete event.from;
-        expect(event).to.deep.equal({
-          to: account,
-          value: amount,
-        });
+        expect(events).to.have.lengthOf(1);
+        const event = events[0];
+        expect(event.name).to.equal('payment');
+        expect(event.amount).to.equal(amount);
+        expect(event.timestamp).to.be.a('number');
+        expect(event.parameters!.to).to.equal(account);
+        expect(event.parameters!.from).to.be.a('string');
+        expect(event.parameters!.block).to.be.a('number');
+        expect(event.parameters!.txHash).to.be.a('string');
       });
     });
   });
@@ -82,12 +90,13 @@ describe('ERC20 detection test-suite', function(): void {
     expect(balance.balance).to.be.equal('510000000000000000');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal('payment');
-    expect(balance.events[0].parameters.to).to.be.equal(
+    expect(balance.events[0].parameters!.to).to.be.equal(
       '0x6A08D2C8f251AF1f17B5943f7f7Bb7078c50e29A',
     );
-    expect(balance.events[0].parameters.from).to.be.equal(
+    expect(balance.events[0].parameters!.from).to.be.equal(
       '0x708416775B69E3D3d6c634FfdF91778A161d30Bd',
     );
-    expect(balance.events[0].parameters.value).to.be.equal('510000000000000000');
+    expect(balance.events[0].amount).to.be.equal('510000000000000000');
+    expect(balance.events[0].timestamp).to.be.a('number');
   });
 });

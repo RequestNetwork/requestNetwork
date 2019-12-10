@@ -11,12 +11,6 @@ coverage
 .nyc_output
 coverage.lcov
 
-# IDE - VSCode
-.vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
 # logs
 lerna-debug.log
 yarn-error.log

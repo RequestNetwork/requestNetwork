@@ -15,8 +15,8 @@ export const actionCreationWithPaymentAndRefund = {
   action: 'create',
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
   parameters: {
-    paymentAddress: paymentAddress,
-    refundAddress: refundAddress,
+    paymentAddress,
+    refundAddress,
   },
   version: '0.1.0',
 };
@@ -24,7 +24,7 @@ export const actionCreationOnlyPayment = {
   action: 'create',
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
   parameters: {
-    paymentAddress: paymentAddress,
+    paymentAddress,
   },
   version: '0.1.0',
 };
@@ -32,7 +32,7 @@ export const actionCreationOnlyRefund = {
   action: 'create',
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
   parameters: {
-    refundAddress: refundAddress,
+    refundAddress,
   },
   version: '0.1.0',
 };
@@ -51,8 +51,8 @@ export const extensionStateWithPaymentAndRefund = {
       {
         name: 'create',
         parameters: {
-          paymentAddress: paymentAddress,
-          refundAddress: refundAddress,
+          paymentAddress,
+          refundAddress,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -60,8 +60,8 @@ export const extensionStateWithPaymentAndRefund = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      paymentAddress: paymentAddress,
-      refundAddress: refundAddress,
+      paymentAddress,
+      refundAddress,
     },
     version: '0.1.0',
   },

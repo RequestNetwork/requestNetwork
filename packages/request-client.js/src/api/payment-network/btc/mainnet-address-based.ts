@@ -12,7 +12,8 @@ const MAINNET_BITCOIN_NETWORK_ID = 0;
  *
  * @class PaymentNetworkBTCAddressBased
  */
-export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetwork {
+export default class PaymentNetworkBTCAddressBased
+  implements Types.IPaymentNetwork<Types.IBTCPaymentEventParameters> {
   private btcAddressBased: BTCAddressBased;
 
   /**
@@ -76,7 +77,9 @@ export default class PaymentNetworkBTCAddressBased implements Types.IPaymentNetw
    * @param the request to check
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<Types.BTCBalanceWithEvents> {
     return this.btcAddressBased.getBalance(
       request,
       PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
