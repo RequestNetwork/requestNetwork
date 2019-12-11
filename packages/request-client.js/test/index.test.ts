@@ -1121,7 +1121,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).to.equal('fb8cc0abeed87cb8');
+      ).to.equal('a93299ed2555d098');
 
       await request.refresh();
 
@@ -1132,15 +1132,87 @@ describe('index', () => {
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('133');
-      expect(dataAfterRefresh.balance?.events[0].timestamp).to.equal(1575255446);
-      expect(dataAfterRefresh.balance?.events[0].parameters!.block).to.equal(9035772);
-      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal('0xdfcd96b949f2b10a3e16a36ac671e10480f2c308656ae3da8fef48cbab0a54c9');
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal('0x62264de4fbbe866df28e4fad7b4d44058f1b6ec74bf7c767a14eb67198c93a4d');
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
-      expect(dataAfterRefresh.balance?.events[1].timestamp).to.equal(1575256669);
-      expect(dataAfterRefresh.balance?.events[1].parameters!.block).to.equal(9035856);
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal('0x390df9c0f8f4224826eb1a16cbe5c608805f8d7f7eec9f16d863a139a5db7857');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal('0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e');
+    });
+  });
+
+  describe('ERC20 proxy contract requests', () => {
+    it('can create ERC20 requests with given salt', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const salt = 'ea3bc7caf64110ca';
+
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          salt,
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0xFab46E002BbF0b4509813474841E0716E6730136',  // FAU
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+
+      expect(data).to.exist;
+      expect(data.balance).to.exist;
+      expect(data.meta).to.exist;
+      expect(data.currency).to.equal('FAU-rinkeby');
+      expect(data.extensionsData[0].parameters.salt).to.equal(salt);
+      expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+    });
+
+    it('can create ERC20 requests without given salt', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0xFab46E002BbF0b4509813474841E0716E6730136',  // FAU
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+
+      expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
     });
   });
 });
