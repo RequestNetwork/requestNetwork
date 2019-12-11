@@ -14,7 +14,7 @@ describe('api/eth/info-retriever', () => {
       '01000',
       '1234567890123456',
       paymentAddress,
-    ); // 21de5f63f12efd71
+    ); // 9649a1a4dd5854ed
 
     const infoRetriever = new EthInfoRetriever(
       paymentAddress,
@@ -24,7 +24,7 @@ describe('api/eth/info-retriever', () => {
     );
     const events = await infoRetriever.getTransferEvents();
 
-    // If this assertion fails, another transaction with the data `21de5f63f12efd71`
+    // If this assertion fails, another transaction with the data `9649a1a4dd5854ed`
     //  has been set to the address `0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB`
     expect(events).to.have.lengthOf(1);
 
@@ -32,7 +32,7 @@ describe('api/eth/info-retriever', () => {
     expect(events[0].amount).to.equal('33');
     expect(events[0].timestamp).to.be.a('number');
     expect(events[0].parameters!.txHash).to.equal(
-      '0x0de1759d8b246939e370e1d0509e3ed6f1d5f4f5b79735636c0283b64ff6f5ed',
+      '0x0b53c5296a7b286fef52336529f3934584fea116725d1fe4c59552e926229059',
     );
     expect(events[0].parameters!.block).to.be.a('number');
     expect(events[0].parameters!.confirmations).to.be.a('number');
