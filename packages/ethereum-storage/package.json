@@ -21,11 +21,11 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "main": "dist/src/lib/index.js",
-  "types": "dist/src/lib/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "directories": {
-    "lib": "src/lib",
-    "test": "test/lib"
+    "lib": "src",
+    "test": "test"
   },
   "files": [
     "dist"
