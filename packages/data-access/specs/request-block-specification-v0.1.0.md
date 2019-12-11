@@ -30,8 +30,8 @@ There are two ways of getting transactions:
 
 ## Transaction batching
 
-The transaction are stored and indexed in blocks.
-A block is JSON object containing two main parts:
+The transactions are stored and indexed in blocks.
+A block is a JSON object containing two main parts:
 
 - header: containing the information to index the transactions (channels and topics)
 - transactions: the transactions themselves
@@ -40,7 +40,7 @@ A block is JSON object containing two main parts:
 
 | Property              | Type   | Description                                                     |
 | --------------------- | ------ | --------------------------------------------------------------- |
-| **header.channelIds** | Object | Array of positions in transactions Array indexed by channel ids |
+| **header.channelIds** | Object | Array of positions in the array of transactions indexed by channel ids |
 | **header.topics**     | Object | Array of topics indexed by channel ids                          |
 | **header.version**    | String | Specification version _(0.1.0 here)_                            |
 | **transactions**      | Array  | Array of transactions                                           |
