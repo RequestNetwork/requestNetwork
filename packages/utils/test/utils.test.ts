@@ -87,10 +87,19 @@ describe('Utils', () => {
   });
 
   it('getCurrentTimestampInSecond()', () => {
-    const time = Math.floor(Date.now() / 1000);
+    // Setup
+    const mockDate = 1576045893373;
+    // save it for later
+    const realDate = Date;
+    // replace the now() by a mock
+    global.Date.now = () => mockDate;
+
     expect(Utils.getCurrentTimestampInSecond(), 'getCurrentTimestampInSecond() error').to.be.equal(
-      time,
+      1576045893,
     );
+
+    // Cleanup: back to the real global Date
+    global.Date = realDate;
   });
 
   describe('unique', () => {
