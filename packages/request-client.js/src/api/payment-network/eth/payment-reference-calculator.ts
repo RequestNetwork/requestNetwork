@@ -13,7 +13,7 @@ function calculate(requestId: string, salt: string, address: string): string {
   }
   // "The value is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`"
   // tslint:disable:no-magic-numbers
-  return Utils.crypto.keccak256Hash(requestId + salt + address).slice(-16);
+  return Utils.crypto.keccak256Hash((requestId + salt + address).toLowerCase()).slice(-16);
 }
 
 export default { calculate };
