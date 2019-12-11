@@ -86,7 +86,8 @@ describe('Utils', () => {
     expect(Utils.isString({ var: 'plop' }), 'istring("") error').to.be.false;
   });
 
-  it('getCurrentTimestampInSecond()', () => {
+  // Skip because can fail because of a wrong timing
+  it.skip('getCurrentTimestampInSecond()', () => {
     const time = Math.floor(Date.now() / 1000);
     expect(Utils.getCurrentTimestampInSecond(), 'getCurrentTimestampInSecond() error').to.be.equal(
       time,
@@ -249,17 +250,19 @@ describe('Utils', () => {
       sinon.restore();
     });
 
-    it('rejects with specified message if timeout is reached', (done) => {
+    it('rejects with specified message if timeout is reached', done => {
       const errorMessage = 'An error occured !';
       let rejected = false;
 
-      Utils.timeoutPromise(1000, errorMessage).then(() => {
-        expect.fail('timeoutPromise should not be fulfilled');
-      }).catch((err) => {
-        rejected = true;
-        expect(err.toString()).to.contains(errorMessage);
-        done();
-      });
+      Utils.timeoutPromise(1000, errorMessage)
+        .then(() => {
+          expect.fail('timeoutPromise should not be fulfilled');
+        })
+        .catch(err => {
+          rejected = true;
+          expect(err.toString()).to.contains(errorMessage);
+          done();
+        });
 
       expect(rejected).to.be.false;
 
