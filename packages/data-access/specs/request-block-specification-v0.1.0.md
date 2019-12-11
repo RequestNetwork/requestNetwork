@@ -21,7 +21,7 @@ The indexing of the transactions is made by two mechanisms:
 - Channel
 - Topics
 
-The channel in data-access allows to group several transactions under one string: the channel id. This channel is indexed by several strings called topics.
+The channel in data-access allows to group several transactions under one string: the channel id. This channel can be indexed by several strings called topics.
 
 There are two ways of getting transactions:
 
