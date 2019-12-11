@@ -45,7 +45,11 @@ describe('api/erc20/proxy-contract', () => {
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).to.have.been.called.with({
+      paymentAddress: 'ethereum address',
+      refundAddress: undefined,
+      salt: 'ea3bc7caf64110ca',
+    });
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
@@ -55,7 +59,8 @@ describe('api/erc20/proxy-contract', () => {
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    // Can't check parameters since salt is generated in createExtensionsDataForCreation
+    expect(spy).to.have.been.called;
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
@@ -68,7 +73,9 @@ describe('api/erc20/proxy-contract', () => {
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).to.have.been.called.with({
+      paymentAddress: 'ethereum address',
+    });
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
@@ -81,7 +88,9 @@ describe('api/erc20/proxy-contract', () => {
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).to.have.been.called.with({
+      refundAddress: 'ethereum address',
+    });
   });
 
   it('getBalance should not be implemented', async () => {
