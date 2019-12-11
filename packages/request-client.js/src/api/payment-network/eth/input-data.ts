@@ -1,6 +1,7 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
+
 import EthInputDataInfoRetriever from './info-retriever';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
@@ -28,7 +29,7 @@ export default class PaymentNetworkETHInputData
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: Types.IEthInputDataCreationParameters,
+    paymentNetworkCreationParameters: Types.IReferenceBasedCreationParameters,
   ): ExtensionTypes.IAction {
     // If no salt is given, generate one
     const salt = paymentNetworkCreationParameters.salt || Utils.crypto.generate8randomBytes();
