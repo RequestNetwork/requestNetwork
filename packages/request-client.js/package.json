@@ -34,7 +34,7 @@
     "build": "run-s build:commonjs build:umd",
     "build:commonjs": "tsc -b",
     "build:umd": "webpack",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "docs": "shx rm -rf ./docs && compodoc -p tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
