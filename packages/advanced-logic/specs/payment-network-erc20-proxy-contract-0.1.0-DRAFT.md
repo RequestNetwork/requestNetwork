@@ -12,7 +12,7 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 This extension allows the payments and the refunds to be made in ERC20 tokens on the Ethereum blockchain.
 The payment is made through a proxy contract. This proxy contract does the ERC20 token transfer on behalf of
 the user. The contract ensures a link between an ERC20 transfer and a request through a `paymentReference`.
-This `paymentReference` conists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`:
+This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`:
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
