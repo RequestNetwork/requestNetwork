@@ -3,7 +3,6 @@ import 'mocha';
 import MultiFormat from '@requestnetwork/multi-format';
 import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as chaiAsPromised from 'chai-as-promised';
 
 import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
@@ -12,12 +11,14 @@ import Version from '../src/version';
 
 const CURRENT_VERSION = Version.currentVersion;
 
-const chai = require('chai');
-const spies = require('chai-spies');
-const expect = chai.expect;
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as spies from 'chai-as-promised';
 
-chai.use(spies);
 chai.use(chaiAsPromised);
+chai.use(spies);
+const expect = chai.expect;
+const assert = chai.assert;
 
 const createParams: RequestLogicTypes.ICreateParameters = {
   currency: {
@@ -60,14 +61,9 @@ describe('index', () => {
     it('cannot createRequest without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
 
-      try {
-        await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.createRequest(createParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
 
     it('cannot createRequest if apply fails in the advanced request logic', async () => {
