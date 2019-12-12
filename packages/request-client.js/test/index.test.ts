@@ -353,7 +353,8 @@ describe('index', () => {
     expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
   });
 
-  it('works with mocked storage and payment network', async () => {
+  // Skip, this should be test in the nightly test (PROT-1067)
+  it.skip('works with mocked storage and payment network', async () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider: fakeSignatureProvider,
       useMockStorage: true,
