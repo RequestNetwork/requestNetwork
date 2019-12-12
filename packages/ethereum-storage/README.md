@@ -3,8 +3,6 @@
 `@requestnetwork/ethereum-storage` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is an implementation of the Storage layer of Request Network protocol that uses IPFS to immutably store the data and uses the Ethereum network to persist the IPFS hash of the data and make them permanently available to everyone.
 
-The package also stores the source and artifacts of the smart contract deployed on Ethereum.
-
 To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
 use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
 
@@ -46,11 +44,13 @@ await ethereumStorage.append(data);
 
 ## Smart Contract
 
-ethereum-storage source can be downloaded in order to deploy the smart contract on a local environment:
+ethereum-storage uses smart contracts to store IPFS hashes.
+
+The smart contracts can be downloaded in order to deploy them on a local environment:
 
 ```bash
 git clone https://github.com/RequestNetwork/requestNetwork.git
-cd requestNetwork/packages/ethereum-storage
+cd requestNetwork/packages/smart-contracts
 yarn install
 yarn run build
 yarn run ganache
@@ -68,7 +68,7 @@ There are 3 smart contracts:
 - `RequestOpenHashSubmitter` entry point to add hashes in `RequestHashStorage`. It gives the rules to get the right to submit hashes and collect the fees. This contract must be whitelisted in `RequestHashStorage`. The only condition for adding hash is to pay the fees.
 - `StorageFeeCollector` parent contract (not deployed) of `RequestOpenHashSubmitter`, computes the fees and send them to the burner.
 
-## Configuring the provider using Truffle and the development network
+#### Configuring the provider using Truffle and the development network
 
 When deploying the smart contracts for development you can manually set the provider host and port via env variables:
 

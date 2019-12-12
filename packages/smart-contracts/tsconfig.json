@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "resolveJsonModule": true
+  },
+  "include": ["./src/**/*", "./artifacts/**/*"],
+  "references": [{ "path": "../types" }, { "path": "../utils" }],
+  "files": [
+    "./artifacts/RequestHashStorage/0.1.0.json",
+    "./artifacts/RequestHashStorage/artifacts.json",
+    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",
+    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json"
+  ]
+}
