@@ -354,7 +354,7 @@ it('create an encrypted and unencrypted request with the same content', async ()
   assert.notExists(plainRequestData.meta!.transactionManagerMeta.encryptionMethod);
 });
 
-it.only('cannot decrypt a request with the wrong decryption provider', async () => {
+it('cannot decrypt a request with the wrong decryption provider', async () => {
   const requestNetwork = new RequestNetwork({
     decryptionProvider,
     signatureProvider,
