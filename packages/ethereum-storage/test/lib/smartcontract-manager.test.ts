@@ -14,6 +14,7 @@ import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-req
 // Extends chai for promises
 chai.use(chaiAsPromised);
 const assert = chai.assert;
+const expect = chai.expect;
 
 const web3HttpProvider = require('web3-providers-http');
 
@@ -442,12 +443,10 @@ describe('SmartContractManager', () => {
   });
 
   it('allows to getMetaFromEthereum() a hash not indexed', async () => {
-    try {
-      await smartContractManager.getMetaFromEthereum('empty');
-      assert.fail('must have exception');
-    } catch (e) {
-      assert.equal(e.message, 'contentHash not indexed on ethereum');
-    }
+    await expect(
+      smartContractManager.getMetaFromEthereum('empty'),
+      'should throw',
+    ).to.eventually.be.rejectedWith('contentHash not indexed on ethereum');
   });
 
   it('badly formatted events from web3 should throw an error', async () => {
