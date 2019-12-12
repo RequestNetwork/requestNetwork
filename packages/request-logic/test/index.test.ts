@@ -49,10 +49,10 @@ let fakeTransactionManager: TransactionTypes.ITransactionManager;
 describe('index', () => {
   beforeEach(() => {
     fakeTransactionManager = {
-      getChannelsByMultipleTopics: chai.spy(),
-      getChannelsByTopic: chai.spy(),
-      getTransactionsByChannelId: chai.spy(),
-      persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
+      getChannelsByMultipleTopics: chai.spy() as any,
+      getChannelsByTopic: chai.spy() as any,
+      getTransactionsByChannelId: chai.spy() as any,
+      persistTransaction: chai.spy.returns(fakeMetaTransactionManager) as any,
     };
   });
 
@@ -343,8 +343,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -358,7 +358,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const acceptParams = {
         requestId,
@@ -425,8 +425,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -440,7 +440,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const cancelParams = {
         requestId,
@@ -512,8 +512,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -527,7 +527,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const increaseRequest = {
         deltaAmount: '1000',
@@ -604,8 +604,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -619,7 +619,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const increaseRequest = {
         deltaAmount: '1000',
@@ -699,8 +699,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -714,7 +714,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const addExtensionParams = {
         extensionsData: ['whatever'],
@@ -797,11 +797,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -944,11 +944,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1097,11 +1097,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1186,11 +1186,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1242,11 +1242,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1418,12 +1418,12 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listAllActions;
         },
-        getTransactionsByChannelId: chai.spy(),
-        persistTransaction: chai.spy(),
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1494,12 +1494,12 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listActions;
         },
-        getTransactionsByChannelId: chai.spy(),
-        persistTransaction: chai.spy(),
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1664,9 +1664,9 @@ describe('index', () => {
         > => {
           return listAllActions;
         },
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy(),
-        persistTransaction: chai.spy(),
+        getChannelsByTopic: chai.spy() as any,
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
