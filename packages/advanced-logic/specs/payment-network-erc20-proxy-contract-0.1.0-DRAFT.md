@@ -206,7 +206,7 @@ None.
 
 ##### Results
 
-A extension state is updated with the following properties:
+An extension state is updated with the following properties:
 
 |  Property                |  Value                                                 |
 | ------------------------ | ------------------------------------------------------ |
