@@ -1,14 +1,12 @@
 import 'mocha';
 
+import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import EthereumStorage from '../../src/lib/ethereum-storage';
-import IpfsConnectionError from '../../src/lib/ipfs-connection-error';
-
-import * as artifactsRequestHashStorageUtils from '../../src/lib/artifacts-request-hash-storage-utils';
-import * as artifactsRequestHashSubmitterUtils from '../../src/lib/artifacts-request-hash-submitter-utils';
+import EthereumStorage from '../src/ethereum-storage';
+import IpfsConnectionError from '../src/ipfs-connection-error';
 
 // tslint:disable:no-magic-numbers
 
@@ -55,8 +53,8 @@ const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
 const contractHashSubmitter = new eth.Contract(
-  artifactsRequestHashSubmitterUtils.getContractAbi(),
-  artifactsRequestHashSubmitterUtils.getAddress('private'),
+  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+  SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
 );
 const addressRequestHashSubmitter = contractHashSubmitter._address;
 
@@ -207,11 +205,11 @@ describe('EthereumStorage', () => {
 
       // Initialize smart contract instance
       ethereumStorageNotInitialized.smartContractManager.requestHashStorage = new eth.Contract(
-        artifactsRequestHashStorageUtils.getContractAbi(),
+        SmartContracts.requestHashStorageArtifact.getContractAbi(),
         invalidHashStorageAddress,
       );
       ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = new eth.Contract(
-        artifactsRequestHashSubmitterUtils.getContractAbi(),
+        SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
         invalidHashSubmitterAddress,
       );
 
@@ -297,10 +295,9 @@ describe('EthereumStorage', () => {
         throw Error('fake error');
       };
 
-      await expect(
-        ethereumStorage.append(content1),
-        'should throw',
-      ).to.eventually.be.rejectedWith('Smart contract error: Error: fake error');
+      await expect(ethereumStorage.append(content1), 'should throw').to.eventually.be.rejectedWith(
+        'Smart contract error: Error: fake error',
+      );
     });
     it(`allows to save dataId's Ethereum metadata into the metadata cache when append is called`, async () => {
       await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be

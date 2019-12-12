@@ -4,8 +4,8 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import { StorageTypes } from '@requestnetwork/types';
-import EthereumMetadataCache from '../../src/lib/ethereum-metadata-cache';
-import SmartContractManager from '../../src/lib/smart-contract-manager';
+import EthereumMetadataCache from '../src/ethereum-metadata-cache';
+import SmartContractManager from '../src/smart-contract-manager';
 
 const spies = require('chai-spies');
 chai.use(spies);
