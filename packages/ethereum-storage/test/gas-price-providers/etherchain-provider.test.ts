@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import EtherchainProvider from '../../../src/lib/gas-price-providers/etherchain-provider';
+import EtherchainProvider from '../../src/gas-price-providers/etherchain-provider';
 
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';

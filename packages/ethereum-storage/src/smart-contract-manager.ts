@@ -1,8 +1,7 @@
+import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
-import * as artifactsRequestHashStorageUtils from './artifacts-request-hash-storage-utils';
-import * as artifactsRequestHashSubmitterUtils from './artifacts-request-hash-submitter-utils';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 import EthereumUtils from './ethereum-utils';
@@ -124,23 +123,28 @@ export default class SmartContractManager {
       throw Error(`The network id ${web3Connection.networkId} doesn't exist`);
     }
 
-    this.hashStorageAddress = artifactsRequestHashStorageUtils.getAddress(this.networkName);
-    this.hashSubmitterAddress = artifactsRequestHashSubmitterUtils.getAddress(this.networkName);
+    this.hashStorageAddress = SmartContracts.requestHashStorageArtifact.getAddress(
+      this.networkName,
+    );
+
+    this.hashSubmitterAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
+      this.networkName,
+    );
 
     // Initialize smart contract instance
     this.requestHashStorage = new this.eth.Contract(
-      artifactsRequestHashStorageUtils.getContractAbi(),
+      SmartContracts.requestHashStorageArtifact.getContractAbi(),
       this.hashStorageAddress,
     );
     this.requestHashSubmitter = new this.eth.Contract(
-      artifactsRequestHashSubmitterUtils.getContractAbi(),
+      SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
       this.hashSubmitterAddress,
     );
 
     this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
 
     this.creationBlockNumberHashStorage =
-      artifactsRequestHashStorageUtils.getCreationBlockNumber(this.networkName) || 0;
+      SmartContracts.requestHashStorageArtifact.getCreationBlockNumber(this.networkName) || 0;
 
     this.ethereumBlocks = new EthereumBlocks(
       this.eth,

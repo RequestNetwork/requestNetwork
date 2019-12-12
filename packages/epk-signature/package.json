@@ -34,7 +34,7 @@
     "build": "run-s build:commonjs build:umd",
     "build:commonjs": "tsc -b",
     "build:umd": "webpack",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "test": "nyc mocha --extension ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
