@@ -44,16 +44,13 @@ describe('Signature', () => {
     });
 
     it('cannot getIdentityFromSignatureParams with signature method not supported', () => {
-      try {
-        const params: any = {
-          method: 'notECDSA',
-          privateKey: otherIdRaw.privateKey,
-        };
-        Signature.getIdentityFromSignatureParams(params);
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal('signatureParams.method not supported');
-      }
+      const params: any = {
+        method: 'notECDSA',
+        privateKey: otherIdRaw.privateKey,
+      };
+      expect(() => Signature.getIdentityFromSignatureParams(params)).to.throw(
+        'signatureParams.method not supported',
+      );
     });
   });
 
@@ -104,16 +101,13 @@ describe('Signature', () => {
     });
 
     it('cannot sign with signature method not supported', () => {
-      try {
-        const params: any = {
-          method: 'notECDSA',
-          privateKey: otherIdRaw.privateKey,
-        };
-        Signature.sign(Crypto.normalizeKeccak256Hash(data), params);
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal('signatureParams.method not supported');
-      }
+      const params: any = {
+        method: 'notECDSA',
+        privateKey: otherIdRaw.privateKey,
+      };
+      expect(() => Signature.sign(Crypto.normalizeKeccak256Hash(data), params)).to.throw(
+        'signatureParams.method not supported',
+      );
     });
   });
 
@@ -156,16 +150,13 @@ describe('Signature', () => {
     });
 
     it('cannot recover with signature method not supported', () => {
-      try {
-        const params: any = {
-          method: 'notECDSA',
-          value: '0x00000000000000000000',
-        };
-        Signature.recover({ data, signature: params });
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal('signatureParams.method not supported');
-      }
+      const params: any = {
+        method: 'notECDSA',
+        value: '0x00000000000000000000',
+      };
+      expect(() => Signature.recover({ data, signature: params })).to.throw(
+        'signatureParams.method not supported',
+      );
     });
   });
 });

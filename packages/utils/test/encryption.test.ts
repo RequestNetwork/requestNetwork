@@ -1,8 +1,11 @@
-import * as chai from 'chai';
 import 'mocha';
 
-const chaiAsPromised = require('chai-as-promised');
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as spies from 'chai-as-promised';
+
 chai.use(chaiAsPromised);
+chai.use(spies);
 const expect = chai.expect;
 
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
@@ -48,17 +51,14 @@ describe('Encryption', () => {
       );
     });
 
-    it('cannot getIdentityFromEncryptionParams with encryption method not supported', () => {
-      try {
-        const params: any = {
-          method: 'notECIES',
-          publicKey: otherIdRaw.publicKey,
-        };
-        Encryption.getIdentityFromEncryptionParams(params);
-        expect(false, 'exception not thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception not right').to.equal('encryptionParams.method not supported');
-      }
+    it('cannot getIdentityFromEncryptionParams with encryption method not supported', async () => {
+      const params: any = {
+        method: 'notECIES',
+        publicKey: otherIdRaw.publicKey,
+      };
+      expect(() => Encryption.getIdentityFromEncryptionParams(params)).to.be.throw(
+        'encryptionParams.method not supported',
+      );
     });
   });
 
