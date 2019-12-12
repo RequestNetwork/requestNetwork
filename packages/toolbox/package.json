@@ -32,7 +32,7 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
