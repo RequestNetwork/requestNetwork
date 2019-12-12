@@ -8,8 +8,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import EthereumStorage from '../src/ethereum-storage';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
-import { IEthereumEntriesWithLastTimestamp } from '@requestnetwork/types/src/storage-types';
-
 // tslint:disable:no-magic-numbers
 
 // Extends chai for promises
@@ -76,7 +74,7 @@ const realSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize2), 64);
 const fakeSize2 = 0;
 const fakeSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize2), 64);
 
-// Define a mock for getPastEvents to be independant of the state of ganache instance
+// Define a mock for getPastEvents to be independent of the state of ganache instance
 const pastEventsMock = [
   {
     blockNumber: 1,
@@ -296,12 +294,10 @@ describe('EthereumStorage', () => {
       > => {
         throw Error('fake error');
       };
-      try {
-        await ethereumStorage.append(content1);
-        assert.fail('result.meta.ethereum does not exist');
-      } catch (e) {
-        assert.equal(e.message, 'Smart contract error: Error: fake error');
-      }
+
+      await expect(ethereumStorage.append(content1), 'should throw').to.eventually.be.rejectedWith(
+        'Smart contract error: Error: fake error',
+      );
     });
     it(`allows to save dataId's Ethereum metadata into the metadata cache when append is called`, async () => {
       await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be
@@ -528,7 +524,7 @@ describe('EthereumStorage', () => {
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
       ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<
-        IEthereumEntriesWithLastTimestamp
+        StorageTypes.IEthereumEntriesWithLastTimestamp
       > => {
         return {
           ethereumEntries: [
@@ -609,7 +605,7 @@ describe('EthereumStorage', () => {
 
       // Test with no meta
       ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
-        IEthereumEntriesWithLastTimestamp
+        StorageTypes.IEthereumEntriesWithLastTimestamp
       > => {
         return Promise.resolve({
           ethereumEntries: [
@@ -684,7 +680,7 @@ describe('EthereumStorage', () => {
     it('allows to read hash on IPFS with retries', async () => {
       // Mock to test IPFS read retry
       ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
-        IEthereumEntriesWithLastTimestamp
+        StorageTypes.IEthereumEntriesWithLastTimestamp
       > => {
         return Promise.resolve({
           ethereumEntries: [
