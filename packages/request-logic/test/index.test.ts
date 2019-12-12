@@ -13,12 +13,11 @@ const CURRENT_VERSION = Version.currentVersion;
 
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-as-promised';
+import * as spies from 'chai-spies';
 
 chai.use(chaiAsPromised);
 chai.use(spies);
 const expect = chai.expect;
-const assert = chai.assert;
 
 const createParams: RequestLogicTypes.ICreateParameters = {
   currency: {
