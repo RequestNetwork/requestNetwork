@@ -113,7 +113,7 @@ Note: These warnings are necessary to highlight to avoid attempts of fake paymen
 
 #### Results
 
-A extension state is created with the following properties:
+An extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
