@@ -86,12 +86,16 @@ describe('Utils', () => {
     expect(Utils.isString({ var: 'plop' }), 'istring("") error').to.be.false;
   });
 
-  // Skip because can fail because of a wrong timing
-  it.skip('getCurrentTimestampInSecond()', () => {
+  it('getCurrentTimestampInSecond()', () => {
+    sinon.useFakeTimers(Date.now());
+
     const time = Math.floor(Date.now() / 1000);
     expect(Utils.getCurrentTimestampInSecond(), 'getCurrentTimestampInSecond() error').to.be.equal(
       time,
     );
+
+    // Cleanup
+    sinon.restore();
   });
 
   describe('unique', () => {
