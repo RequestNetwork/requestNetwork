@@ -35,7 +35,7 @@
     "test:watch": "yarn test --watch",
     "start": "ts-node src/server.ts",
     "start:watch": "ts-node-dev src/server.ts",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint-staged": "lint-staged",
     "lint": "tslint --project .",
     "init-ipfs": "node init-ipfs.js"

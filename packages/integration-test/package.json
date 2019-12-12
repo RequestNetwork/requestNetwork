@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"test/**/*.ts\"",
     "lint-staged": "lint-staged",
     "test": "run-s test:node test:layers",
