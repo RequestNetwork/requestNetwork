@@ -34,7 +34,7 @@ The contract contains one function called `transferWithData` which takes 4 argum
 
 The `RequestTransfer` event is emitted when the tokens are transfered. This event contains the same 4 arguments as the `transferWithData` function.
 
-```
+```solidity
 pragma solidity 0.5.11;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
