@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.4.0",
+    "ethers": "4.0.40",
     "ganache-cli": "6.7.0",
     "lint-staged": "9.5.0",
     "shx": "0.3.2",
