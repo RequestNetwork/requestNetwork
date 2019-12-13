@@ -1,9 +1,25 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
-import proxyInfoRetriever from './proxy-info-retriever';
+import proxyInfoRetriever from './old-proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
+
+export interface IProxyContractByVersionByNetwork {
+  [version: string]: {
+    [network: string]: string;
+  };
+}
+
+const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
+  ['0.1.0']: {
+    // TODO !
+    mainnet: 'TODO',
+    // TODO !
+    private: '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4',
+    rinkeby: '0xfab46e002bbf0b4509813474841e0716e6730136',
+  },
+};
 
 /**
  * Handle payment networks with ERC20 proxy contract extension
@@ -81,35 +97,26 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
       throw new Error(`The request do not have the extension : ${paymentNetworkId}`);
     }
 
-    if (!request.currency.network) {
-      throw new Error(
-        `Payment network not supported by ERC20 payment detection: ${paymentNetworkId}`,
-      );
-    }
-
-    const proxyContractAddress = paymentNetwork.values.proxyContractAddress;
     const paymentAddress = paymentNetwork.values.paymentAddress;
     const refundAddress = paymentNetwork.values.refundAddress;
 
     let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       payments = await this.extractBalanceAndEvents(
+        request,
         paymentAddress,
         Types.EVENTS_NAMES.PAYMENT,
-        request.requestId,
-        request.currency.network,
-        proxyContractAddress,
+        paymentNetwork.version,
       );
     }
 
     let refunds: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
       refunds = await this.extractBalanceAndEvents(
-        refundAddress,
+        request,
+        paymentAddress,
         Types.EVENTS_NAMES.REFUND,
-        request.requestId,
-        request.currency.network,
-        proxyContractAddress,
+        paymentNetwork.version,
       );
     }
 
@@ -138,27 +145,34 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @returns The balance
    */
   private async extractBalanceAndEvents(
+    request: RequestLogicTypes.IRequest,
     toAddress: string,
     eventName: Types.EVENTS_NAMES,
-    requestId: string,
-    network: string,
-    proxyContractAddress: string,
+    paymentNetworkVersion: string,
   ): Promise<Types.IBalanceWithEvents> {
-    let tokenContractAddress = '';
-    // TODO - Should not be hard coded
-    if (network === 'private') {
-      tokenContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
-    } else if (network === 'rinkeby') {
-      tokenContractAddress = '0xfab46e002bbf0b4509813474841e0716e6730136';
-    } else if (network === 'mainnet') {
-      // TODO !
-      tokenContractAddress = 'TODO';
+    const network = request.currency.network;
+
+    if (!network) {
+      throw new Error(`Payment network not supported by ERC20 payment detection`);
+    }
+
+    if (!PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion]) {
+      throw new Error(`Payment network version not supported: ${paymentNetworkVersion}`);
+    }
+
+    const proxyContractAddress: string | undefined =
+      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network];
+
+    if (!proxyContractAddress) {
+      throw new Error(
+        `Network not supported for this payment network: ${request.currency.network}`,
+      );
     }
 
     return proxyInfoRetriever(
       eventName,
-      tokenContractAddress,
-      requestId,
+      request.currency.value,
+      request.requestId,
       toAddress,
       network,
       proxyContractAddress,
