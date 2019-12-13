@@ -1,16 +1,18 @@
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { assert } from 'chai';
 import 'mocha';
 import Request from '../../src/api/request';
 import * as Types from '../../src/types';
 
-const chaiAsPromised = require('chai-as-promised');
-const chai = require('chai');
-const spies = require('chai-spies');
-const expect = chai.expect;
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as spies from 'chai-spies';
+
 chai.use(spies);
 chai.use(chaiAsPromised);
+const expect = chai.expect;
+const assert = chai.assert;
+
 const sandbox = chai.spy.sandbox();
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
@@ -151,12 +153,9 @@ describe('api/request', () => {
 
     it('cannot call accept and add refund address without payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.accept(signatureIdentity, { refundAddress: bitcoinAddress });
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot add refund information without payment network');
-      }
+      await expect(
+        request.accept(signatureIdentity, { refundAddress: bitcoinAddress }),
+      ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
     });
   });
 
@@ -185,12 +184,10 @@ describe('api/request', () => {
     });
     it('cannot call cancel and add refund address without payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.cancel(signatureIdentity, { refundAddress: bitcoinAddress });
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot add refund information without payment network');
-      }
+
+      await expect(
+        request.cancel(signatureIdentity, { refundAddress: bitcoinAddress }),
+      ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
     });
   });
 
@@ -222,14 +219,11 @@ describe('api/request', () => {
 
     it('cannot call increase and add refund address without payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.increaseExpectedAmountRequest(3, signatureIdentity, {
+      await expect(
+        request.increaseExpectedAmountRequest(3, signatureIdentity, {
           refundAddress: bitcoinAddress,
-        });
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot add refund information without payment network');
-      }
+        }),
+      ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
     });
   });
 
@@ -261,14 +255,11 @@ describe('api/request', () => {
 
     it('cannot call reduce and add payment address without payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.reduceExpectedAmountRequest('1', signatureIdentity, {
+      await expect(
+        request.reduceExpectedAmountRequest('1', signatureIdentity, {
           paymentInformation: bitcoinAddress,
-        });
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot add payment information without payment network');
-      }
+        }),
+      ).to.eventually.be.rejectedWith('Cannot add payment information without payment network');
     });
   });
 
@@ -289,12 +280,9 @@ describe('api/request', () => {
 
     it('cannot add payment address without payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.addPaymentInformation({ paymentAddress: bitcoinAddress }, signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot add payment information without payment network');
-      }
+      await expect(
+        request.addPaymentInformation({ paymentAddress: bitcoinAddress }, signatureIdentity),
+      ).to.eventually.be.rejectedWith('Cannot add payment information without payment network');
     });
   });
 
@@ -315,12 +303,9 @@ describe('api/request', () => {
 
     it('cannot add payment address without payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.addRefundInformation({ refundAddress: bitcoinAddress }, signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot add refund information without payment network');
-      }
+      await expect(
+        request.addRefundInformation({ refundAddress: bitcoinAddress }, signatureIdentity),
+      ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
     });
   });
 
@@ -341,24 +326,18 @@ describe('api/request', () => {
 
     it('cannot declare sent payment if no payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.declareSentPayment('1000', 'sent', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot declare sent payment without payment network');
-      }
+      await expect(
+        request.declareSentPayment('1000', 'sent', signatureIdentity),
+      ).to.eventually.be.rejectedWith('Cannot declare sent payment without payment network');
     });
 
     it('cannot declare sent payment if payment network is not declarative', async () => {
       const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
-      try {
-        await request.declareSentPayment('1000', 'sent', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal(
-          'Cannot declare sent payment without declarative payment network',
-        );
-      }
+      await expect(
+        request.declareSentPayment('1000', 'sent', signatureIdentity),
+      ).to.eventually.be.rejectedWith(
+        'Cannot declare sent payment without declarative payment network',
+      );
     });
   });
 
@@ -379,24 +358,18 @@ describe('api/request', () => {
 
     it('cannot declare sent refund if no payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.declareSentRefund('1000', 'sent', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot declare sent refund without payment network');
-      }
+      await expect(
+        request.declareSentRefund('1000', 'sent', signatureIdentity),
+      ).to.eventually.be.rejectedWith('Cannot declare sent refund without payment network');
     });
 
     it('cannot declare sent refund if payment network is not declarative', async () => {
       const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
-      try {
-        await request.declareSentRefund('1000', 'sent', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal(
-          'Cannot declare sent refund without declarative payment network',
-        );
-      }
+      await expect(
+        request.declareSentRefund('1000', 'sent', signatureIdentity),
+      ).to.eventually.be.rejectedWith(
+        'Cannot declare sent refund without declarative payment network',
+      );
     });
   });
 
@@ -417,24 +390,18 @@ describe('api/request', () => {
 
     it('cannot declare received payment if no payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.declareReceivedPayment('1000', 'received', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot declare received payment without payment network');
-      }
+      await expect(
+        request.declareReceivedPayment('1000', 'received', signatureIdentity),
+      ).to.eventually.be.rejectedWith('Cannot declare received payment without payment network');
     });
 
     it('cannot declare received payment if payment network is not declarative', async () => {
       const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
-      try {
-        await request.declareReceivedPayment('1000', 'received', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal(
-          'Cannot declare received payment without declarative payment network',
-        );
-      }
+      await expect(
+        request.declareReceivedPayment('1000', 'received', signatureIdentity),
+      ).to.eventually.be.rejectedWith(
+        'Cannot declare received payment without declarative payment network',
+      );
     });
   });
 
@@ -455,24 +422,18 @@ describe('api/request', () => {
 
     it('cannot declare received refund if no payment network', async () => {
       const request = new Request(mockRequestLogic, '1');
-      try {
-        await request.declareReceivedRefund('1000', 'received', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal('Cannot declare received refund without payment network');
-      }
+      await expect(
+        request.declareReceivedRefund('1000', 'received', signatureIdentity),
+      ).to.eventually.be.rejectedWith('Cannot declare received refund without payment network');
     });
 
     it('cannot declare received refund if payment network is not declarative', async () => {
       const request = new Request(mockRequestLogic, '1', mockPaymentNetwork);
-      try {
-        await request.declareReceivedRefund('1000', 'received', signatureIdentity);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal(
-          'Cannot declare received refund without declarative payment network',
-        );
-      }
+      await expect(
+        request.declareReceivedRefund('1000', 'received', signatureIdentity),
+      ).to.eventually.be.rejectedWith(
+        'Cannot declare received refund without declarative payment network',
+      );
     });
   });
 

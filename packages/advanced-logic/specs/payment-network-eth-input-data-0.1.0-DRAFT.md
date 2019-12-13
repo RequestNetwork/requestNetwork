@@ -33,7 +33,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values**                | Object |                                                |               |
 | **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
-| **values.salt**           | String | Salt for the request                           | Optional      |
+| **values.salt**           | String | Salt for the request                           | **Mandatory** |
 
 Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
 

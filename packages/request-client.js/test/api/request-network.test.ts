@@ -2,9 +2,15 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { assert, expect } from 'chai';
-
 import 'mocha';
+
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+const assert = chai.assert;
+
 import RequestNetwork from '../../src/api/request-network';
 
 import Request from '../../src/api/request';
@@ -61,18 +67,12 @@ describe('api/request-network', () => {
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
 
-      try {
-        await requestnetwork.createRequest({
+      await expect(
+        requestnetwork.createRequest({
           requestInfo: { extensionsData: ['not expected'] } as any,
           signer: {} as any,
-        });
-        // tslint:disable-next-line:no-unused-expression
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message, 'exception wrong').to.equal(
-          'extensionsData in request parameters must be empty',
-        );
-      }
+        }),
+      ).to.eventually.be.rejectedWith('extensionsData in request parameters must be empty');
     });
   });
 

@@ -1,5 +1,12 @@
 import { StorageTypes } from '@requestnetwork/types';
-import { assert } from 'chai';
+
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+const assert = chai.assert;
+
 import 'mocha';
 import MockStorage from '../src/mock-storage';
 
@@ -14,12 +21,9 @@ describe('mock-storage', () => {
 
   it('cannot append no data ', async () => {
     const storage = new MockStorage();
-    try {
-      await storage.append(null as any);
-      assert.fail();
-    } catch (e) {
-      assert.equal(e.message, 'Error: no content provided');
-    }
+    await expect(storage.append(null as any)).to.eventually.be.rejectedWith(
+      'Error: no content provided',
+    );
   });
 
   it('can read data', async () => {
@@ -34,12 +38,7 @@ describe('mock-storage', () => {
 
   it('cannot read no data ', async () => {
     const storage = new MockStorage();
-    try {
-      await storage.read(null as any);
-      assert.fail();
-    } catch (e) {
-      assert.equal(e.message, 'No id provided');
-    }
+    await expect(storage.read(null as any)).to.eventually.be.rejectedWith('No id provided');
   });
 
   it('can get all data', async () => {

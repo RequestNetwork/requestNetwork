@@ -4,8 +4,12 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import Utils from '@requestnetwork/utils';
 
-import { assert } from 'chai';
-import 'mocha';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+const assert = chai.assert;
 
 const payeeIdentity: Types.Identity.IIdentity = {
   type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
@@ -370,13 +374,9 @@ it('cannot decrypt a request with the wrong decryption provider', async () => {
     [encryptionData.encryptionParams],
   );
 
-  let error = '';
-  try {
-    await badRequestNetwork.fromRequestId(request.requestId);
-  } catch (e) {
-    error = e.message;
-  }
-  assert.include(error, 'Invalid transaction(s) found: [');
+  expect(badRequestNetwork.fromRequestId(request.requestId)).to.eventually.be.rejectedWith(
+    'Invalid transaction(s) found: [',
+  );
 
   const requests = await badRequestNetwork.fromTopic('my nice topic');
   assert.isEmpty(requests);
