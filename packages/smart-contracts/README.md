@@ -39,6 +39,7 @@ The package stores the following smart contracts:
 
 **Smart contracts for advanced-logic package**
 - `TestERC20` minimal erc20 token used for tests.
+- `ERC20Proxy` smart contract used by the erc20 proxy contract payment network to store payment references of erc20 transfers
 
 #### Smart contracts local deployment
 
