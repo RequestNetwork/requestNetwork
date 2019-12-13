@@ -4,7 +4,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title ERC20Proxy
- * @notice This contract performs a ERC20 token transfer and store a reference
+ * @notice This contract performs an ERC20 token transfer and stores a reference
   */
 contract ERC20Proxy {
   // Event to declare a transfer with a reference
