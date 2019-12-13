@@ -101,7 +101,9 @@ describe('Request client using a request node', () => {
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
       id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {
-        paymentInstruction: 'Arbitrary payment instruction',
+        paymentInfo: {
+          paymentInstruction: 'Arbitrary payment instruction',
+        },
       },
     };
 
@@ -130,6 +132,11 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.balance.balance, '0');
 
     assert.exists(requestData.meta);
+
+    const paymentExtension = requestData.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE];
+    assert.exists(paymentExtension);
+    assert.equal(paymentExtension.events[0].name, 'create');
+    assert.deepEqual(paymentExtension.events[0].parameters, paymentNetwork.parameters);
 
     requestData = await request.declareSentPayment('100', 'bank transfer initiated', payerIdentity);
     assert.exists(requestData.balance);
