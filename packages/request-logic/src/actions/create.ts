@@ -101,7 +101,7 @@ function createRequest(
   }
 
   // If we're creating an older version of a request, we convert the string currency type to the new ICurrency one
-  if (Semver.lt(action.data.version, '2.0.2')) {
+  if (Semver.lt(action.data.version, '2.0.1')) {
     action.data.parameters.currency = legacyEnumToICurrencyConvert(action.data.parameters.currency);
   }
 
