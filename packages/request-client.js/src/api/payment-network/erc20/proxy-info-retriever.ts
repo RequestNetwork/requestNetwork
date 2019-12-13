@@ -41,6 +41,9 @@ const erc20proxyContractAbiFragment = [
  */
 export default class ProxyERC20InfoRetriever
   implements Types.IPaymentNetworkInfoRetriever<Types.ERC20PaymentNetworkEvent> {
+  public contractProxy: ethers.Contract;
+  public provider: ethers.providers.Provider;
+
   /**
    * @param tokenContractAddress The address of the ERC20 contract
    * @param address Address of the balance we want to check
@@ -54,27 +57,27 @@ export default class ProxyERC20InfoRetriever
     private toAddress: string,
     private eventName: Types.EVENTS_NAMES,
     private network: string,
-  ) {}
-
-  /**
-   * Retrieves transfer events for the current contract, address and network.
-   */
-  public async getTransferEvents(): Promise<Types.ERC20PaymentNetworkEvent[]> {
+  ) {
     // Creates a local or default provider
-    const provider =
+    this.provider =
       this.network === 'private'
         ? new ethers.providers.JsonRpcProvider()
         : ethers.getDefaultProvider(this.network);
 
     // Setup the ERC20 proxy contract interface
-    const contract = new ethers.Contract(
+    this.contractProxy = new ethers.Contract(
       this.proxyContractAddress,
       erc20proxyContractAbiFragment,
-      provider,
+      this.provider,
     );
+  }
 
+  /**
+   * Retrieves transfer events for the current contract, address and network.
+   */
+  public async getTransferEvents(): Promise<Types.ERC20PaymentNetworkEvent[]> {
     // Create a filter to find all the Transfer logs for the toAddress
-    const filter = contract.filters.TransferWithReference(
+    const filter = this.contractProxy.filters.TransferWithReference(
       null,
       this.toAddress,
       null,
@@ -84,13 +87,12 @@ export default class ProxyERC20InfoRetriever
     filter.toBlock = 'latest';
 
     // Get the event logs
-    const logs = await provider.getLogs(filter);
+    const logs = await this.provider.getLogs(filter);
 
     // Clean up the Transfer logs data
     const eventPromises = logs
       .map(log => {
-        const parsedLog = contract.interface.parseLog(log);
-        console.log(JSON.stringify({ parsedLog, log }));
+        const parsedLog = this.contractProxy.interface.parseLog(log);
         return { parsedLog, log };
       })
       .filter(
@@ -107,7 +109,7 @@ export default class ProxyERC20InfoRetriever
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },
-        timestamp: (await provider.getBlock(t.log.blockNumber || 0)).timestamp,
+        timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
       }));
 
     // TODO
