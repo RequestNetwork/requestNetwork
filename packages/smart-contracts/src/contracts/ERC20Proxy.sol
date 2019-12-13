@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
   */
 contract ERC20Proxy {
   // Event to declare a transfer with a reference
-  event TransferWithReference(address tokenAddress, address indexed to, uint256 amount, bytes indexed transferReference);
+  event TransferredWithReference(address tokenAddress, address to, uint256 amount, bytes indexed paymentReference);
 
   // Fallback function returns funds to the sender
   function()
@@ -22,16 +22,16 @@ contract ERC20Proxy {
   * @param _tokenAddress Address of the ERC20 token smart contract
   * @param _to Transfer recipient
   * @param _amount Amount to transfer
-  * @param _transferReference Reference of the transfer
+  * @param _paymentReference Reference of the payment related
   */
   function transferFromWithReference(
     address _tokenAddress,
     address _to,
     uint256 _amount,
-    bytes calldata _transferReference
+    bytes calldata _paymentReference
   ) external {
     ERC20 erc20 = ERC20(_tokenAddress);
     require(erc20.transferFrom(msg.sender, _to, _amount), 'transferFrom() failed');
-    emit TransferWithReference(_tokenAddress, _to, _amount, _transferReference);
+    emit TransferredWithReference(_tokenAddress, _to, _amount, _paymentReference);
   }
 }

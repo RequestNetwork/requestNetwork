@@ -33,11 +33,11 @@ contract('ERC20Proxy', function(accounts) {
     );
 
     // transferReference indexes the event log, therefore the keccak256 is stored
-    expectEvent.inLogs(logs, 'TransferWithReference', {
+    expectEvent.inLogs(logs, 'TransferredWithReference', {
       tokenAddress: testERC20.address,
       to,
       amount: '100',
-      transferReference: ethers.utils.keccak256(referenceExample),
+      paymentReference: ethers.utils.keccak256(referenceExample),
     });
   });
 
