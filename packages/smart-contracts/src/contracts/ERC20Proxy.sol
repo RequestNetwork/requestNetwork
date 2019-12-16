@@ -40,7 +40,7 @@ contract ERC20Proxy {
   {
     ERC20 erc20 = ERC20(_tokenAddress);
     require(erc20.transferFrom(msg.sender, _to, _amount), "transferFrom() failed");
-    emit TransferredWithReference(
+    emit TransferWithReference(
       _tokenAddress,
       _to,
       _amount,
