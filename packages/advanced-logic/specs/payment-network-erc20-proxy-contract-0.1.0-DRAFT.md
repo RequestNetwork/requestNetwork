@@ -56,7 +56,7 @@ TODO: Add link to the smart contract source
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
 
 
-Note: to use the Rinkeby testnet just replace the `currency.network` to `rinkeby`.
+Note: to use the Rinkeby testnet, create a request with `currency.network` as `rinkeby`.
 
 ---
 
