@@ -7,6 +7,9 @@
   },
   "include": ["./src/**/*", "./artifacts/**/*"],
   "files": [
+    "./artifacts/ERC20Proxy/artifacts.json",
+    "./artifacts/ERC20Proxy/0.1.0.json",
+    "./artifacts/RequestHashStorage/artifacts.json",
     "./artifacts/RequestHashStorage/0.1.0.json",
     "./artifacts/RequestHashStorage/artifacts.json",
     "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",

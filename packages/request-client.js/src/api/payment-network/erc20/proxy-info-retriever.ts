@@ -13,7 +13,7 @@ const erc20proxyContractAbiFragment = [
         type: 'address',
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'to',
         type: 'address',
@@ -27,7 +27,7 @@ const erc20proxyContractAbiFragment = [
       {
         indexed: true,
         internalType: 'bytes',
-        name: 'transferReference',
+        name: 'paymentReference',
         type: 'bytes',
       },
     ],
@@ -79,7 +79,7 @@ export default class ProxyERC20InfoRetriever
     // Create a filter to find all the Transfer logs for the toAddress
     const filter = this.contractProxy.filters.TransferWithReference(
       null,
-      this.toAddress,
+      null,
       null,
       '0x' + this.requestId,
     ) as ethers.providers.Filter;
@@ -98,7 +98,8 @@ export default class ProxyERC20InfoRetriever
       .filter(
         log =>
           log.parsedLog.values.tokenAddress.toLowerCase() ===
-          this.tokenContractAddress.toLowerCase(),
+            this.tokenContractAddress.toLowerCase() &&
+          log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       .map(async t => ({
         amount: t.parsedLog.values.amount.toString(),

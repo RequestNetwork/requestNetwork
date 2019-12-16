@@ -1,7 +1,7 @@
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
-const RequestERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const erc20 = artifacts.require('./TestERC20.sol');
+const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
@@ -28,11 +28,11 @@ module.exports = async function(deployer) {
     // Deploy the ERC20 contract
     const instanceTestERC20 = await deployer.deploy(erc20, 1000); // 1000 initial supply
 
-    // deploy ERC20 Proxy
-    const instanceRequestERC20Proxy = await deployer.deploy(RequestERC20Proxy);
+    // Deploy ERC20 proxy contract
+    const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
 
-    // create some event for test purpose
-    await instanceTestERC20.approve(RequestERC20Proxy.address, 110);
+    // create some events for test purpose
+    await instanceTestERC20.approve(ERC20Proxy.address, 110);
     await instanceRequestERC20Proxy.transferFromWithReference(
       instanceTestERC20.address,
       '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
