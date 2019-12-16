@@ -47,6 +47,9 @@ module.exports = async function(deployer) {
     );
     // ----------------------------------
 
+    // Deploy ERC20 proxy contract
+    await deployer.deploy(ERC20Proxy);
+
     console.log('Contracts initialized');
   } catch (e) {
     console.error(e);
