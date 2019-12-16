@@ -3,7 +3,6 @@ import 'mocha';
 import MultiFormat from '@requestnetwork/multi-format';
 import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as chaiAsPromised from 'chai-as-promised';
 
 import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
@@ -12,12 +11,13 @@ import Version from '../src/version';
 
 const CURRENT_VERSION = Version.currentVersion;
 
-const chai = require('chai');
-const spies = require('chai-spies');
-const expect = chai.expect;
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as spies from 'chai-spies';
 
-chai.use(spies);
 chai.use(chaiAsPromised);
+chai.use(spies);
+const expect = chai.expect;
 
 const createParams: RequestLogicTypes.ICreateParameters = {
   currency: {
@@ -49,10 +49,10 @@ let fakeTransactionManager: TransactionTypes.ITransactionManager;
 describe('index', () => {
   beforeEach(() => {
     fakeTransactionManager = {
-      getChannelsByMultipleTopics: chai.spy(),
-      getChannelsByTopic: chai.spy(),
-      getTransactionsByChannelId: chai.spy(),
-      persistTransaction: chai.spy.returns(fakeMetaTransactionManager),
+      getChannelsByMultipleTopics: chai.spy() as any,
+      getChannelsByTopic: chai.spy() as any,
+      getTransactionsByChannelId: chai.spy() as any,
+      persistTransaction: chai.spy.returns(fakeMetaTransactionManager) as any,
     };
   });
 
@@ -60,14 +60,9 @@ describe('index', () => {
     it('cannot createRequest without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
 
-      try {
-        await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
-        expect(false, 'must have thrown').to.be.true;
-      } catch (e) {
-        expect(e.message, 'wrong exception').to.equal(
-          'You must give a signature provider to create actions',
-        );
-      }
+      await expect(
+        requestLogic.createRequest(createParams, TestData.payeeRaw.identity),
+      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
 
     it('cannot createRequest if apply fails in the advanced request logic', async () => {
@@ -348,8 +343,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -363,7 +358,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const acceptParams = {
         requestId,
@@ -430,8 +425,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -445,7 +440,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const cancelParams = {
         requestId,
@@ -517,8 +512,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -532,7 +527,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const increaseRequest = {
         deltaAmount: '1000',
@@ -609,8 +604,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -624,7 +619,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const increaseRequest = {
         deltaAmount: '1000',
@@ -704,8 +699,8 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: chai.spy.returns(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
@@ -719,7 +714,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const addExtensionParams = {
         extensionsData: ['whatever'],
@@ -802,11 +797,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -949,11 +944,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1102,11 +1097,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1191,11 +1186,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1247,11 +1242,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy(),
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1423,12 +1418,12 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listAllActions;
         },
-        getTransactionsByChannelId: chai.spy(),
-        persistTransaction: chai.spy(),
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1499,12 +1494,12 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy(),
+        getChannelsByMultipleTopics: chai.spy() as any,
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listActions;
         },
-        getTransactionsByChannelId: chai.spy(),
-        persistTransaction: chai.spy(),
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1669,9 +1664,9 @@ describe('index', () => {
         > => {
           return listAllActions;
         },
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy(),
-        persistTransaction: chai.spy(),
+        getChannelsByTopic: chai.spy() as any,
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,

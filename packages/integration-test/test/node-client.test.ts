@@ -4,8 +4,12 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import Utils from '@requestnetwork/utils';
 
-import { assert } from 'chai';
-import 'mocha';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+const assert = chai.assert;
 
 const payeeIdentity: Types.Identity.IIdentity = {
   type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
@@ -97,7 +101,9 @@ describe('Request client using a request node', () => {
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
       id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {
-        paymentInstruction: 'Arbitrary payment instruction',
+        paymentInfo: {
+          paymentInstruction: 'Arbitrary payment instruction',
+        },
       },
     };
 
@@ -126,6 +132,11 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.balance.balance, '0');
 
     assert.exists(requestData.meta);
+
+    const paymentExtension = requestData.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE];
+    assert.exists(paymentExtension);
+    assert.equal(paymentExtension.events[0].name, 'create');
+    assert.deepEqual(paymentExtension.events[0].parameters, paymentNetwork.parameters);
 
     requestData = await request.declareSentPayment('100', 'bank transfer initiated', payerIdentity);
     assert.exists(requestData.balance);
@@ -370,13 +381,9 @@ it('cannot decrypt a request with the wrong decryption provider', async () => {
     [encryptionData.encryptionParams],
   );
 
-  let error = '';
-  try {
-    await badRequestNetwork.fromRequestId(request.requestId);
-  } catch (e) {
-    error = e.message;
-  }
-  assert.include(error, 'Invalid transaction(s) found: [');
+  expect(badRequestNetwork.fromRequestId(request.requestId)).to.eventually.be.rejectedWith(
+    'Invalid transaction(s) found: [',
+  );
 
   const requests = await badRequestNetwork.fromTopic('my nice topic');
   assert.isEmpty(requests);

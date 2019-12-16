@@ -3,7 +3,7 @@ import 'mocha';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as sinon from 'sinon';
 
-import EthereumBlocks from '../../src/lib/ethereum-blocks';
+import EthereumBlocks from '../src/ethereum-blocks';
 
 const chai = require('chai');
 const spies = require('chai-spies');

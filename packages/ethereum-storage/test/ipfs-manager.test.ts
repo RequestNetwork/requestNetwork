@@ -5,7 +5,7 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { EventEmitter } from 'events';
 import * as http from 'http';
-import IpfsManager from '../../src/lib/ipfs-manager';
+import IpfsManager from '../src/ipfs-manager';
 
 const spies = require('chai-spies');
 

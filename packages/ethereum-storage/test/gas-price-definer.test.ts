@@ -1,8 +1,8 @@
 import { StorageTypes } from '@requestnetwork/types';
-import EthereumUtils from '../../src/lib/ethereum-utils';
+import EthereumUtils from '../src/ethereum-utils';
 
-import * as config from '../../src/lib/config';
-import GasPriceDefiner from '../../src/lib/gas-price-definer';
+import * as config from '../src/config';
+import GasPriceDefiner from '../src/gas-price-definer';
 
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';

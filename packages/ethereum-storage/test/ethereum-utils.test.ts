@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { StorageTypes } from '@requestnetwork/types';
-import { getSafeGasPriceLimit } from '../../src/lib/config';
-import EthereumUtils from '../../src/lib/ethereum-utils';
+import { getSafeGasPriceLimit } from '../src/config';
+import EthereumUtils from '../src/ethereum-utils';
 
 const bigNumber: any = require('bn.js');
 

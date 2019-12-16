@@ -4,7 +4,12 @@ import ChainSo from '../../../../../src/api/payment-network/btc/default-provider
 
 import * as ChainSoData from './chain-so-data';
 
-import { expect } from 'chai';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+
 import 'mocha';
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -12,15 +17,12 @@ import 'mocha';
 describe('api/btc/providers/chainSo', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {
-      try {
-        const chainSo = new ChainSo();
-        await chainSo.getAddressBalanceWithEvents(1, 'address', Types.EVENTS_NAMES.PAYMENT);
-        expect(false, 'should throw').to.be.true;
-      } catch (e) {
-        expect(e.message).to.equal(
-          'Invalid network 0 (mainnet) or 3 (testnet) was expected but 1 was given',
-        );
-      }
+      const chainSo = new ChainSo();
+      await expect(
+        chainSo.getAddressBalanceWithEvents(1, 'address', Types.EVENTS_NAMES.PAYMENT),
+      ).to.eventually.be.rejectedWith(
+        'Invalid network 0 (mainnet) or 3 (testnet) was expected but 1 was given',
+      );
     });
   });
 
