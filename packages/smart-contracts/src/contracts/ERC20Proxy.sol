@@ -2,13 +2,19 @@ pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
+
 /**
  * @title ERC20Proxy
  * @notice This contract performs an ERC20 token transfer and stores a reference
   */
 contract ERC20Proxy {
   // Event to declare a transfer with a reference
-  event TransferredWithReference(address tokenAddress, address to, uint256 amount, bytes indexed paymentReference);
+  event TransferWithReference(
+    address tokenAddress,
+    address to,
+    uint256 amount,
+    bytes indexed paymentReference
+  );
 
   // Fallback function returns funds to the sender
   function()
@@ -29,9 +35,16 @@ contract ERC20Proxy {
     address _to,
     uint256 _amount,
     bytes calldata _paymentReference
-  ) external {
+  )
+    external 
+  {
     ERC20 erc20 = ERC20(_tokenAddress);
-    require(erc20.transferFrom(msg.sender, _to, _amount), 'transferFrom() failed');
-    emit TransferredWithReference(_tokenAddress, _to, _amount, _paymentReference);
+    require(erc20.transferFrom(msg.sender, _to, _amount), "transferFrom() failed");
+    emit TransferredWithReference(
+      _tokenAddress,
+      _to,
+      _amount,
+      _paymentReference
+    );
   }
 }
