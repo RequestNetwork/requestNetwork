@@ -12,11 +12,12 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 This extension allows the payments and the refunds to be made in ERC20 tokens on the Ethereum blockchain.
 The payment is made through a proxy contract. This proxy contract does the ERC20 token transfer on behalf of
 the user. The contract ensures a link between an ERC20 transfer and a request through a `paymentReference`.
-This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`:
+This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
 - `address` is the payment address for payments, the refund address for refunds
+- `lowercase()` transforms all characters to lowercase
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
 
@@ -25,40 +26,21 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 
 ## Contract
 
-The contract contains one function called `transferWithData` which takes 4 arguments:
+The contract contains one function called `transferFromWithReference` which takes 4 arguments:
 
 - `tokenAddress` is the address of the ERC20 contract
 - `to` is the destination address for the tokens
 - `amount` is the amount of tokens
-- `requestData` is the reference data used to track the transfer (see `paymentReference`)
+- `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
 
-The `RequestTransfer` event is emitted when the tokens are transfered. This event contains the same 4 arguments as the `transferWithData` function.
+The `TransferWithReference` event is emitted when the tokens are transfered. This event contains the same 4 arguments as the `transferFromWithReference` function.
 
-```solidity
-pragma solidity 0.5.11;
-
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-
-contract RequestErc20Proxy {
-    event RequestTransfer(address tokenAddress, address indexed to, uint256 amount, bytes indexed requestData);
-
-    function transferFromWithData(
-        address tokenAddress,
-        address to,
-        uint256 amount,
-        bytes calldata requestData
-    ) external {
-        ERC20 erc20 = ERC20(tokenAddress);
-        require(erc20.transferFrom(msg.sender, to, amount), 'transferFrom() failed');
-        emit RequestTransfer(tokenAddress, to, amount, requestData);
-    }
-}
-```
+TODO: Add link to the smart contract source
 
 | Network | Contract Address                           |
 |---------|--------------------------------------------|
 | Mainnet | TODO                                       |
-| Rinkeby | 0xbb98e42b3a103d8f1bebbd2fb88c53d04f05af6c |
+| Rinkeby | TODO                                       |
 
 ## Properties
 
@@ -69,9 +51,10 @@ contract RequestErc20Proxy {
 | **version**               | String | constant value: "0.1.0"                        | **Mandatory** |
 | **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
 | **values**                | Object |                                                |               |
+| **values.salt**           | String | Salt for the request                           | **Mandatory**      |
 | **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
-| **values.salt**           | String | Salt for the request                           | Optional      |
+
 
 Note: to use the Rinkeby testnet just replace the `currency.network` to `rinkeby`.
 
@@ -89,9 +72,10 @@ Note: to use the Rinkeby testnet just replace the `currency.network` to `rinkeby
 | **type**                      | String | Constant value: "paymentNetwork"          | **Mandatory** |
 | **version**                   | String | Constant value: "0.1.0"                   | **Mandatory** |
 | **parameters**                | Object |                                           |               |
+| **parameters.salt**           | String | Salt for the request                      | **Mandatory** |
 | **parameters.paymentAddress** | String | Ethereum address for the payment          | Optional      |
 | **parameters.refundAddress**  | String | Ethereum address for the refund           | Optional      |
-| **parameters.salt**           | String | Salt for the request                      | **Mandatory** |
+
 
 #### Conditions
 
@@ -170,7 +154,6 @@ An extension state is updated with the following properties:
 |  Property                  |  Value                                               |
 | -------------------------- | ---------------------------------------------------- |
 | **values.paymentAddress**  | `paymentAddress` from parameters                     |
-| **parameters.paymentSalt** | Salt for the payment                                 |
 | **events**                 | Add an 'paymentAddress' event (see below) at its end |
 
 the 'addPaymentAddress' event:
@@ -211,7 +194,6 @@ An extension state is updated with the following properties:
 |  Property                |  Value                                                 |
 | ------------------------ | ------------------------------------------------------ |
 | **values.refundAddress** | `refundAddress` from parameters                        |
-| **values.refundSalt**    | Salt for the refund                                    |
 | **events**               | Add an 'addRefundAddress' event (see below) at its end |
 
 The 'addRefundAddress' event:
@@ -228,14 +210,14 @@ The 'addRefundAddress' event:
 
 The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
 
-Any `RequestTransfer` events emitted from the proxy contract with the following arguments are considered as a payment:
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
 - `tokenAddress` `===` `request.currency.value`
 - `to` `===` `paymentAddress`
-- `requestData` `===` `last8Bytes(hash(requestId + salt + payment address))`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
 
-Any `RequestTransfer` events emitted from the proxy contract with the following arguments are considered as a refund:
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
 - `tokenAddress` `===` `request.currency.value`
 - `to` `===` `refundAddress`
-- `requestData` `===` `last8Bytes(hash(requestId + salt + payment address))`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
 
 The sum of payment amounts minus the sum of refund amounts is considered the balance.
