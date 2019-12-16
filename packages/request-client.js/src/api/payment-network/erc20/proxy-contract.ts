@@ -1,7 +1,7 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
-import proxyInfoRetriever from './old-proxy-info-retriever';
+import ProxyInfoRetriever from './proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
 
@@ -114,7 +114,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     if (refundAddress) {
       refunds = await this.extractBalanceAndEvents(
         request,
-        paymentAddress,
+        refundAddress,
         Types.EVENTS_NAMES.REFUND,
         paymentNetwork.version,
       );
@@ -169,13 +169,24 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
       );
     }
 
-    return proxyInfoRetriever(
-      eventName,
-      request.currency.value,
+    const infoRetriever = new ProxyInfoRetriever(
       request.requestId,
-      toAddress,
-      network,
       proxyContractAddress,
+      request.currency.value,
+      toAddress,
+      eventName,
+      network,
     );
+
+    const events = await infoRetriever.getTransferEvents();
+
+    const balance = events
+      .reduce((acc, event) => acc.add(new bigNumber(event.amount)), new bigNumber(0))
+      .toString();
+
+    return {
+      balance,
+      events,
+    };
   }
 }

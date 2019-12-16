@@ -1153,17 +1153,17 @@ describe('index', () => {
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
         id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          paymentAddress: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
+          refundAddress: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
           salt,
         },
       };
 
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
-          network: 'rinkeby',
+          network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0xFab46E002BbF0b4509813474841E0716E6730136',  // FAU
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',  // Test Erc20
         },
       });
 
@@ -1172,13 +1172,13 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
-
       const data = request.getData();
 
       expect(data).to.exist;
-      expect(data.balance).to.exist;
+      expect(data.balance?.balance).to.equal('90');
+      expect(data.balance?.events.length).to.equal(2);
       expect(data.meta).to.exist;
-      expect(data.currency).to.equal('FAU-rinkeby');
+      expect(data.currency).to.equal('unknown');
       expect(data.extensionsData[0].parameters.salt).to.equal(salt);
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
     });
@@ -1199,9 +1199,9 @@ describe('index', () => {
 
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
-          network: 'rinkeby',
+          network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0xFab46E002BbF0b4509813474841E0716E6730136',  // FAU
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40', 
         },
       });
 

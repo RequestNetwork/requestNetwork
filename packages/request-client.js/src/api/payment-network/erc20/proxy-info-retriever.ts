@@ -105,19 +105,11 @@ export default class ProxyERC20InfoRetriever
         name: this.eventName,
         parameters: {
           block: t.log.blockNumber,
-          from: 'TODO',
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },
         timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
       }));
-
-    // TODO
-    // const balance = events.reduce((balanceTempStr, event) => {
-    //   const balanceTemp = new bigNumber(balanceTempStr);
-    //   const amount = new bigNumber(event.amount);
-    //   return balanceTemp.add(amount).toString();
-    // }, '0');
 
     return Promise.all(eventPromises);
   }
