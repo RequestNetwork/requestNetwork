@@ -16,6 +16,7 @@ import { Request, RequestNetwork } from '../src/index';
 import * as Types from '../src/types';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
+
 import PaymentReferenceCalculator from '../src/api/payment-network/eth/payment-reference-calculator';
 
 const chai = require('chai');
@@ -120,353 +121,355 @@ describe('index', () => {
     sandbox.restore();
   });
 
-  it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
-    const mock = new mockAdapter(axios);
+  describe('base tests', () => {
+    it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
+      const mock = new mockAdapter(axios);
 
-    const callback = (config: any): any => {
-      expect(config.baseURL).to.equal('http://localhost:3000');
-      return [200, {}];
-    };
-    const spy = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
-    mock
-      .onGet('/getTransactionsByChannelId')
-      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
+      const callback = (config: any): any => {
+        expect(config.baseURL).to.equal('http://localhost:3000');
+        return [200, {}];
+      };
+      const spy = chai.spy(callback);
+      mock.onPost('/persistTransaction').reply(spy);
+      mock
+        .onGet('/getTransactionsByChannelId')
+        .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
-      parameters: {
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
-      },
-    };
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+        parameters: {
+          paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+        },
+      };
 
-    await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    expect(spy).to.have.been.called.once;
-  });
-
-  it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
-    const mock = new mockAdapter(axios);
-
-    const callback = (config: any): any => {
-      expect(config.baseURL).to.equal('http://localhost:3000');
-      return [200, {}];
-    };
-    const spy = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      expect(spy).to.have.been.called.once;
     });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
+      const mock = new mockAdapter(axios);
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
-      parameters: {
-        paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
-      },
-    };
+      const callback = (config: any): any => {
+        expect(config.baseURL).to.equal('http://localhost:3000');
+        return [200, {}];
+      };
+      const spy = chai.spy(callback);
+      mock.onPost('/persistTransaction').reply(spy);
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      });
 
-    await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: requestParameters,
-      signer: payeeIdentity,
-    });
-    expect(spy).to.have.been.called.once;
-  });
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-  it('uses http://localhost:3000 with signatureProvider', async () => {
-    const mock = new mockAdapter(axios);
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+        parameters: {
+          paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
+        },
+      };
 
-    const callback = (config: any): any => {
-      expect(config.baseURL).to.equal('http://localhost:3000');
-      return [200, {}];
-    };
-    const spy = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
-    });
-
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-
-    await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    expect(spy).to.have.been.called.once;
-  });
-
-  it('uses baseUrl given in parameter', async () => {
-    const baseURL = 'http://request.network/api';
-    const mock = new mockAdapter(axios);
-
-    const callback = (config: any): any => {
-      expect(config.baseURL).to.equal(baseURL);
-      return [200, {}];
-    };
-    const spy = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: requestParameters,
+        signer: payeeIdentity,
+      });
+      expect(spy).to.have.been.called.once;
     });
 
-    const requestNetwork = new RequestNetwork({
-      nodeConnectionConfig: { baseURL },
-      signatureProvider: fakeSignatureProvider,
-    });
-    await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    expect(spy).to.have.been.called.once;
-  });
+    it('uses http://localhost:3000 with signatureProvider', async () => {
+      const mock = new mockAdapter(axios);
 
-  it('allows to create a request', async () => {
-    mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const callback = (config: any): any => {
+        expect(config.baseURL).to.equal('http://localhost:3000');
+        return [200, {}];
+      };
+      const spy = chai.spy(callback);
+      mock.onPost('/persistTransaction').reply(spy);
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      });
 
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-
-    expect(request).to.be.instanceOf(Request);
-    expect(request.requestId).to.exist;
-    expect(axiosSpyGet).to.have.been.called.once;
-    expect(axiosSpyPost).to.have.been.called.once;
-
-    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
-    const requestIdLength = 66;
-    expect(request.requestId.length).to.equal(requestIdLength);
-  });
-
-  it('allows to compute a request id', async () => {
-    mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
-
-    const requestId = await requestNetwork.computeRequestId({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      expect(spy).to.have.been.called.once;
     });
 
-    expect(axiosSpyGet).to.not.have.been.called();
-    expect(axiosSpyPost).to.not.have.been.called();
+    it('uses baseUrl given in parameter', async () => {
+      const baseURL = 'http://request.network/api';
+      const mock = new mockAdapter(axios);
 
-    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
-    const requestIdLength = 66;
-    expect(requestId.length).to.equal(requestIdLength);
-  });
+      const callback = (config: any): any => {
+        expect(config.baseURL).to.equal(baseURL);
+        return [200, {}];
+      };
+      const spy = chai.spy(callback);
+      mock.onPost('/persistTransaction').reply(spy);
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      });
 
-  it('allows to compute a request id, then generate the request with the same id', async () => {
-    mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
-
-    const requestId = await requestNetwork.computeRequestId({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
-    const requestIdLength = 66;
-    expect(requestId.length).to.equal(requestIdLength);
-
-    await new Promise((resolve): any => setTimeout(resolve, 1500));
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      const requestNetwork = new RequestNetwork({
+        nodeConnectionConfig: { baseURL },
+        signatureProvider: fakeSignatureProvider,
+      });
+      await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      expect(spy).to.have.been.called.once;
     });
 
-    expect(request).to.be.instanceOf(Request);
-    expect(request.requestId).to.equal(requestId);
-    expect(axiosSpyGet).to.have.been.called.once;
-    expect(axiosSpyPost).to.have.been.called.once;
-  });
+    it('allows to create a request', async () => {
+      mockAxios();
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-  it('allows to get a request from its ID', async () => {
-    mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
 
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+
+      expect(request).to.be.instanceOf(Request);
+      expect(request.requestId).to.exist;
+      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyPost).to.have.been.called.once;
+
+      // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+      const requestIdLength = 66;
+      expect(request.requestId.length).to.equal(requestIdLength);
     });
 
-    const requestFromId = await requestNetwork.fromRequestId(request.requestId);
+    it('allows to compute a request id', async () => {
+      mockAxios();
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    expect(requestFromId.requestId).to.equal(request.requestId);
-  });
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
 
-  it('allows to refresh a request', async () => {
-    const mock = new mockAdapter(axios);
-    mock.onPost('/persistTransaction').reply(200, { result: {} });
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      const requestId = await requestNetwork.computeRequestId({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+
+      expect(axiosSpyGet).to.not.have.been.called();
+      expect(axiosSpyPost).to.not.have.been.called();
+
+      // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+      const requestIdLength = 66;
+      expect(requestId.length).to.equal(requestIdLength);
     });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+    it('allows to compute a request id, then generate the request with the same id', async () => {
+      mockAxios();
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
+
+      const requestId = await requestNetwork.computeRequestId({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+      const requestIdLength = 66;
+      expect(requestId.length).to.equal(requestIdLength);
+
+      await new Promise((resolve): any => setTimeout(resolve, 1500));
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+
+      expect(request).to.be.instanceOf(Request);
+      expect(request.requestId).to.equal(requestId);
+      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyPost).to.have.been.called.once;
     });
 
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
+    it('allows to get a request from its ID', async () => {
+      mockAxios();
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    const data = await request.refresh();
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    expect(data).to.exist;
-    expect(data.balance).to.be.null;
-    expect(data.meta).to.exist;
-    expect(axiosSpyGet).to.have.been.called.once;
-    expect(axiosSpyPost).to.have.been.called.exactly(0);
-  });
+      const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
-  it('works with mocked storage', async () => {
-    const requestNetwork = new RequestNetwork({
-      signatureProvider: fakeSignatureProvider,
-      useMockStorage: true,
-    });
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      expect(requestFromId.requestId).to.equal(request.requestId);
     });
 
-    const data = request.getData();
+    it('allows to refresh a request', async () => {
+      const mock = new mockAdapter(axios);
+      mock.onPost('/persistTransaction').reply(200, { result: {} });
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      });
 
-    expect(data).to.exist;
-    expect(data.balance).to.be.null;
-    expect(data.meta).to.exist;
-    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
-  });
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-  // Skip, this should be test in the nightly test (PROT-1067)
-  it.skip('works with mocked storage and payment network', async () => {
-    const requestNetwork = new RequestNetwork({
-      signatureProvider: fakeSignatureProvider,
-      useMockStorage: true,
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
+
+      const data = await request.refresh();
+
+      expect(data).to.exist;
+      expect(data.balance).to.be.null;
+      expect(data.meta).to.exist;
+      expect(axiosSpyGet).to.have.been.called.once;
+      expect(axiosSpyPost).to.have.been.called.exactly(0);
     });
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
-      parameters: {
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
-      },
-    };
+    it('works with mocked storage', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      const data = request.getData();
+
+      expect(data).to.exist;
+      expect(data.balance).to.be.null;
+      expect(data.meta).to.exist;
+      expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
     });
 
-    const data = request.getData();
+    // Skip, this should be test in the nightly test (PROT-1067)
+    it.skip('works with mocked storage and payment network', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
 
-    expect(data).to.exist;
-    expect(data.balance).to.exist;
-    expect(data.meta).to.exist;
-    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
-  });
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+        parameters: {
+          paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+        },
+      };
 
-  it('works with mocked storage and content data', async () => {
-    const requestNetwork = new RequestNetwork({
-      signatureProvider: fakeSignatureProvider,
-      useMockStorage: true,
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+
+      expect(data).to.exist;
+      expect(data.balance).to.exist;
+      expect(data.meta).to.exist;
+      expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
     });
 
-    const contentData = {
-      invoice: true,
-      what: 'ever',
-    };
+    it('works with mocked storage and content data', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
 
-    const request = await requestNetwork.createRequest({
-      contentData,
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      const contentData = {
+        invoice: true,
+        what: 'ever',
+      };
+
+      const request = await requestNetwork.createRequest({
+        contentData,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+
+      const data = request.getData();
+      expect(data).to.exist;
+      expect(data.balance).to.be.null;
+      expect(data.meta).to.exist;
     });
 
-    const data = request.getData();
-    expect(data).to.exist;
-    expect(data.balance).to.be.null;
-    expect(data.meta).to.exist;
-  });
+    it('allows to accept a request', async () => {
+      mockAxios();
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-  it('allows to accept a request', async () => {
-    mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
+
+      await request.accept(payerIdentity);
+
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyPost).to.have.been.called.once;
     });
 
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
+    it('allows to cancel a request', async () => {
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    await request.accept(payerIdentity);
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
-    expect(axiosSpyPost).to.have.been.called.once;
-  });
+      await request.cancel(payeeIdentity);
 
-  it('allows to cancel a request', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyPost).to.have.been.called.once;
     });
 
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
+    it('allows to increase the expected amount a request', async () => {
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    await request.cancel(payeeIdentity);
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
-    expect(axiosSpyPost).to.have.been.called.once;
-  });
+      await request.increaseExpectedAmountRequest(3, payerIdentity);
 
-  it('allows to increase the expected amount a request', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyPost).to.have.been.called.once;
     });
 
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
+    it('allows to reduce the expected amount a request', async () => {
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    await request.increaseExpectedAmountRequest(3, payerIdentity);
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
-    expect(axiosSpyPost).to.have.been.called.once;
-  });
+      await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-  it('allows to reduce the expected amount a request', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyPost).to.have.been.called.once;
     });
-
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
-
-    await request.reduceExpectedAmountRequest(3, payeeIdentity);
-
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
-    expect(axiosSpyPost).to.have.been.called.once;
   });
 
   describe('tests with declarative payments', () => {
@@ -619,7 +622,7 @@ describe('index', () => {
       expect(requestData.balance.events[0]).to.deep.equal({
         amount: '10',
         name: 'refund',
-        parameters: {  note: 'received refund' }, 
+        parameters: {  note: 'received refund' },
         timestamp: 1,
       });
       // @ts-ignore
@@ -629,33 +632,37 @@ describe('index', () => {
         parameters: {  note: 'received payment' },
         timestamp: 1,
       });
+      sinon.restore();
     });
 
     it('cannot use declarative function if payment network is not declarative', async () => {
-      const mock = new mockAdapter(axios);
-
-      const callback = (config: any): any => {
-        expect(config.baseURL).to.equal('http://localhost:3000');
-        return [200, {}];
-      };
-      const spy = chai.spy(callback);
-      mock.onPost('/persistTransaction').reply(spy);
-      mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
       });
 
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
-          paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          salt,
         },
       };
 
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
       const request = await requestNetwork.createRequest({
         paymentNetwork,
-        requestInfo: requestParameters,
+        requestInfo,
         signer: payeeIdentity,
       });
 
@@ -1147,7 +1154,6 @@ describe('index', () => {
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
-
       const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
@@ -1172,6 +1178,7 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
+
       const data = request.getData();
 
       expect(data).to.exist;
@@ -1201,7 +1208,7 @@ describe('index', () => {
         currency: {
           network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x9FBDa871d559710256a2502A2517b794B482Db40', 
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',
         },
       });
 

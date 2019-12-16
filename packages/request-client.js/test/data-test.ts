@@ -150,7 +150,7 @@ const dataSecondRequest = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: {
     currency: {
-      network: 'testnet',
+      network: 'rinkeby',
       type: RequestLogicTypes.CURRENCY.ETH,
       value: 'ETH',
     },
