@@ -3,11 +3,12 @@ pragma solidity ^0.5.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 
+
 /**
  * @title TestERC20
  *
  * @notice TestERC20 is a contract to test ERC20 detection
- */
+*/
 contract TestERC20 is ERC20, ERC20Detailed {
   constructor(uint256 initialSupply) ERC20Detailed("ERC 20", "ERC20", 18) public {
     _mint(msg.sender, initialSupply);

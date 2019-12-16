@@ -1,4 +1,3 @@
-const BigNumber = require('bn.js');
 const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
