@@ -22,6 +22,7 @@ describe('api/erc20/proxy-info-retriever', () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
         paymentReferenceMock,
         proxyContractAddress,
+        0,
         erc20LocalhostContractAddress,
         paymentAddress,
         EVENTS_NAMES.PAYMENT,
@@ -72,6 +73,7 @@ describe('api/erc20/proxy-info-retriever', () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
         paymentReferenceMock,
         proxyContractAddress,
+        0,
         erc20LocalhostContractAddress,
         paymentAddress,
         EVENTS_NAMES.PAYMENT,
