@@ -40,7 +40,7 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 | Network | Contract Address                           |
 |---------|--------------------------------------------|
 | Mainnet | TODO                                       |
-| Rinkeby | 0x528f046b4309e8ccb67e3f05a5e33fcd7e7183da |
+| Rinkeby | 0x162edb802fae75b9ee4288345735008ba51a4ec9 |
 
 ## Properties
 
