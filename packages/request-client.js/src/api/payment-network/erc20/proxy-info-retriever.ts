@@ -3,37 +3,7 @@ import * as Types from '../../../types';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'tokenAddress',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'to',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: true,
-        internalType: 'bytes',
-        name: 'paymentReference',
-        type: 'bytes',
-      },
-    ],
-    name: 'TransferWithReference',
-    type: 'event',
-  },
+  'event TransferWithReference(address tokenAddress,address to,uint256 amount,bytes indexed paymentReference)',
 ];
 
 /**
@@ -89,18 +59,21 @@ export default class ProxyERC20InfoRetriever
     // Get the event logs
     const logs = await this.provider.getLogs(filter);
 
-    // Clean up the Transfer logs data
+    // Parses, filters and creates the events from the logs of the proxy contract
     const eventPromises = logs
+      // Parses the logs
       .map(log => {
         const parsedLog = this.contractProxy.interface.parseLog(log);
         return { parsedLog, log };
       })
+      // Keeps only the log with the right token and the right destination address
       .filter(
         log =>
           log.parsedLog.values.tokenAddress.toLowerCase() ===
             this.tokenContractAddress.toLowerCase() &&
           log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
+      // Creates the balance events
       .map(async t => ({
         amount: t.parsedLog.values.amount.toString(),
         name: this.eventName,
