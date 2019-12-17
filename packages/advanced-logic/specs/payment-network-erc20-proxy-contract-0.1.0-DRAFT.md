@@ -35,12 +35,12 @@ The contract contains one function called `transferFromWithReference` which take
 
 The `TransferWithReference` event is emitted when the tokens are transfered. This event contains the same 4 arguments as the `transferFromWithReference` function.
 
-TODO: Add link to the smart contract source
+[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20Proxy.sol)
 
 | Network | Contract Address                           |
 |---------|--------------------------------------------|
 | Mainnet | TODO                                       |
-| Rinkeby | TODO                                       |
+| Rinkeby | 0x528f046b4309e8ccb67e3f05a5e33fcd7e7183da |
 
 ## Properties
 
