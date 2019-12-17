@@ -5,7 +5,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
 
-export interface IProxyContractByVersionByNetwork {
+interface IProxyContractByVersionByNetwork {
   [version: string]: {
     [network: string]: string;
   };
