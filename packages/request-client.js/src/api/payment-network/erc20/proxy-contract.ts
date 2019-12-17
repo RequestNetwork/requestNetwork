@@ -14,11 +14,9 @@ interface IProxyContractByVersionByNetwork {
 
 const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
   ['0.1.0']: {
-    // TODO !
-    mainnet: 'TODO',
-    // TODO !
-    private: '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4',
-    rinkeby: '0xfab46e002bbf0b4509813474841e0716e6730136',
+    mainnet: '0x5f821c20947ff9be22e823edc5b3c709b33121b3',
+    private: '0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4',
+    rinkeby: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
   },
 };
 
