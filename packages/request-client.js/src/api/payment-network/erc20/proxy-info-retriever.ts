@@ -7,7 +7,7 @@ const erc20proxyContractAbiFragment = [
 ];
 
 /**
- * Retrieves a list of transfer events for an address
+ * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export default class ProxyERC20InfoRetriever
   implements Types.IPaymentNetworkInfoRetriever<Types.ERC20PaymentNetworkEvent> {
@@ -15,8 +15,10 @@ export default class ProxyERC20InfoRetriever
   public provider: ethers.providers.Provider;
 
   /**
+   * @param paymentReference The reference to identify the payment
+   * @param proxyContractAddress The address of the proxy contract
    * @param tokenContractAddress The address of the ERC20 contract
-   * @param address Address of the balance we want to check
+   * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
    */
