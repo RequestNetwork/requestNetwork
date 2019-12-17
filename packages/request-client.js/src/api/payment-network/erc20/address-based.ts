@@ -1,6 +1,6 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import * as Types from '../../../types';
-import Erc20InfoRetriever from './info-retriever';
+import Erc20InfoRetriever from './address-based-info-retriever';
 
 const bigNumber: any = require('bn.js');
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];

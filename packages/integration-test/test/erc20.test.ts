@@ -2,7 +2,7 @@
 // tslint:disable: no-invalid-this
 import { Types } from '@requestnetwork/request-client.js';
 import ERC20AddressedBased from '@requestnetwork/request-client.js/src/api/payment-network/erc20/address-based';
-import ERC20InfoRetriever from '@requestnetwork/request-client.js/src/api/payment-network/erc20/info-retriever';
+import ERC20AddressBasedInfoRetriever from '@requestnetwork/request-client.js/src/api/payment-network/erc20/address-based-info-retriever';
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { account, tokens } from './erc20-mainnet-test-data';
 
@@ -34,7 +34,7 @@ describe('ERC20 detection test-suite', function(): void {
   describe('check mainnet payment detection', () => {
     Object.entries(tokens).forEach(([symbol, { address, amount }]) => {
       it(`can detect the balance of ${symbol}`, async () => {
-        const infoRetriever = new ERC20InfoRetriever(
+        const infoRetriever = new ERC20AddressBasedInfoRetriever(
           address,
           account,
           Types.EVENTS_NAMES.PAYMENT,

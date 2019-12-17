@@ -135,7 +135,7 @@ export interface IPaymentNetworkInfoRetriever<
 
 /** Parameters for events of ERC20 payments */
 export interface IERC20PaymentEventParameters {
-  from: string;
+  from?: string;
   to: string;
   block?: number;
   txHash?: string;

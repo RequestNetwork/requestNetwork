@@ -1,4 +1,4 @@
-import PaymentReferenceCalculator from '../../../../src/api/payment-network/eth/payment-reference-calculator';
+import PaymentReferenceCalculator from '../../../src/api/payment-network/payment-reference-calculator';
 
 import 'chai';
 import { expect } from 'chai';

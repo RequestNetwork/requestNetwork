@@ -1,5 +1,5 @@
 import EthInfoRetriever from '../../../../src/api/payment-network/eth/info-retriever';
-import PaymentReferenceCalculator from '../../../../src/api/payment-network/eth/payment-reference-calculator';
+import PaymentReferenceCalculator from '../../../../src/api/payment-network/payment-reference-calculator';
 import * as Types from '../../../../src/types';
 
 import { expect } from 'chai';

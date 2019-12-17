@@ -16,7 +16,8 @@ import { Request, RequestNetwork } from '../src/index';
 import * as Types from '../src/types';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
-import PaymentReferenceCalculator from '../src/api/payment-network/eth/payment-reference-calculator';
+
+import PaymentReferenceCalculator from '../src/api/payment-network/payment-reference-calculator';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -619,7 +620,7 @@ describe('index', () => {
       expect(requestData.balance.events[0]).to.deep.equal({
         amount: '10',
         name: 'refund',
-        parameters: {  note: 'received refund' }, 
+        parameters: {  note: 'received refund' },
         timestamp: 1,
       });
       // @ts-ignore
@@ -629,33 +630,37 @@ describe('index', () => {
         parameters: {  note: 'received payment' },
         timestamp: 1,
       });
+      sinon.restore();
     });
 
     it('cannot use declarative function if payment network is not declarative', async () => {
-      const mock = new mockAdapter(axios);
-
-      const callback = (config: any): any => {
-        expect(config.baseURL).to.equal('http://localhost:3000');
-        return [200, {}];
-      };
-      const spy = chai.spy(callback);
-      mock.onPost('/persistTransaction').reply(spy);
-      mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
       });
 
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
-          paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          salt,
         },
       };
 
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
       const request = await requestNetwork.createRequest({
         paymentNetwork,
-        requestInfo: requestParameters,
+        requestInfo,
         signer: payeeIdentity,
       });
 
@@ -1147,23 +1152,22 @@ describe('index', () => {
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
-
       const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
         id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          paymentAddress: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
+          refundAddress: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
           salt,
         },
       };
 
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
-          network: 'rinkeby',
+          network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0xFab46E002BbF0b4509813474841E0716E6730136',  // FAU
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',  // Test Erc20
         },
       });
 
@@ -1176,9 +1180,10 @@ describe('index', () => {
       const data = request.getData();
 
       expect(data).to.exist;
-      expect(data.balance).to.exist;
+      expect(data.balance?.balance).to.equal('90');
+      expect(data.balance?.events.length).to.equal(2);
       expect(data.meta).to.exist;
-      expect(data.currency).to.equal('FAU-rinkeby');
+      expect(data.currency).to.equal('unknown');
       expect(data.extensionsData[0].parameters.salt).to.equal(salt);
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
     });
@@ -1199,9 +1204,9 @@ describe('index', () => {
 
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
-          network: 'rinkeby',
+          network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0xFab46E002BbF0b4509813474841E0716E6730136',  // FAU
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',
         },
       });
 
