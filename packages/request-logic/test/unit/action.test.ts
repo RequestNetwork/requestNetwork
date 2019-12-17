@@ -11,7 +11,7 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import Action from '../../src/action';
-
+import CreateAction from '../../src/actions/create';
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
@@ -139,5 +139,30 @@ describe('Action', () => {
     expect(Action.getVersionFromAction(signedAction), 'getVersionFromAction() error').to.be.equal(
       CURRENT_VERSION,
     );
+  });
+});
+
+describe('actions retrocompatibility', () => {
+  it('old format requestId match', async () => {
+    const actionData = {
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
+      parameters: {
+        currency: 'ETH',
+        expectedAmount: '123400000000000000',
+        payee: TestData.payeeRaw.identity,
+        timestamp: 1,
+      },
+      version: '2.0.1',
+    };
+
+    const action = await Action.createAction(
+      actionData,
+      TestData.payeeRaw.identity,
+      TestData.fakeSignatureProvider,
+    );
+
+    const request = CreateAction.createRequest(action, 2);
+
+    expect(Action.getRequestId(action)).equals(request.requestId);
   });
 });
