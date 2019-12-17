@@ -17,7 +17,7 @@ import * as Types from '../src/types';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
-import PaymentReferenceCalculator from '../src/api/payment-network/eth/payment-reference-calculator';
+import PaymentReferenceCalculator from '../src/api/payment-network/payment-reference-calculator';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -1146,7 +1146,7 @@ describe('index', () => {
     });
   });
 
-  describe('ERC20 proxy contract requests', () => {
+  describe.only('ERC20 proxy contract requests', () => {
     it('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,

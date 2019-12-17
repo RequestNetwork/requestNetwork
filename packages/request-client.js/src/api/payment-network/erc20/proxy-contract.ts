@@ -1,6 +1,7 @@
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../../../types';
+import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
@@ -99,11 +100,13 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
 
     const paymentAddress = paymentNetwork.values.paymentAddress;
     const refundAddress = paymentNetwork.values.refundAddress;
+    const salt = paymentNetwork.values.salt;
 
     let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       payments = await this.extractBalanceAndEvents(
         request,
+        salt,
         paymentAddress,
         Types.EVENTS_NAMES.PAYMENT,
         paymentNetwork.version,
@@ -114,6 +117,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     if (refundAddress) {
       refunds = await this.extractBalanceAndEvents(
         request,
+        salt,
         refundAddress,
         Types.EVENTS_NAMES.REFUND,
         paymentNetwork.version,
@@ -146,6 +150,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    */
   private async extractBalanceAndEvents(
     request: RequestLogicTypes.IRequest,
+    salt: string,
     toAddress: string,
     eventName: Types.EVENTS_NAMES,
     paymentNetworkVersion: string,
@@ -169,8 +174,14 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
       );
     }
 
-    const infoRetriever = new ProxyInfoRetriever(
+    const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
+      salt,
+      toAddress,
+    );
+
+    const infoRetriever = new ProxyInfoRetriever(
+      paymentReference,
       proxyContractAddress,
       request.currency.value,
       toAddress,

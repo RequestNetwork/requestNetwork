@@ -37,13 +37,13 @@ module.exports = async function(deployer) {
       instanceTestERC20.address,
       '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
       100,
-      '0x01b4659ef6931fbf0eb693795aa02f80f66713ce3f1064cca3ca0e1a8985823245',
+      '0x152191b6ec81c20c',
     );
     await instanceRequestERC20Proxy.transferFromWithReference(
       instanceTestERC20.address,
       '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
       10,
-      '0x01b4659ef6931fbf0eb693795aa02f80f66713ce3f1064cca3ca0e1a8985823245',
+      '0x0690ebf9d9f17132',
     );
     // ----------------------------------
 

@@ -51,7 +51,7 @@ export default class ProxyERC20InfoRetriever
    * @param network The Ethereum network to use
    */
   constructor(
-    private requestId: string,
+    private paymentReference: string,
     private proxyContractAddress: string,
     private tokenContractAddress: string,
     private toAddress: string,
@@ -81,7 +81,7 @@ export default class ProxyERC20InfoRetriever
       null,
       null,
       null,
-      '0x' + this.requestId,
+      '0x' + this.paymentReference,
     ) as ethers.providers.Filter;
     filter.fromBlock = 0;
     filter.toBlock = 'latest';

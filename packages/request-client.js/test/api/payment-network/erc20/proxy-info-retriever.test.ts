@@ -11,7 +11,7 @@ const expect = chai.expect;
 
 const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const proxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4';
-const requestIdMock = '0111111111111111111111111111111111111111111111111';
+const paymentReferenceMock = '0x0111111111111111111111111111111111111111111111111';
 
 /* tslint:disable:no-unused-expression */
 describe('api/erc20/proxy-info-retriever', () => {
@@ -20,7 +20,7 @@ describe('api/erc20/proxy-info-retriever', () => {
 
     it('can get the localhost balance of an address', async () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
-        requestIdMock,
+        paymentReferenceMock,
         proxyContractAddress,
         erc20LocalhostContractAddress,
         paymentAddress,
@@ -70,7 +70,7 @@ describe('api/erc20/proxy-info-retriever', () => {
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
-        requestIdMock,
+        paymentReferenceMock,
         proxyContractAddress,
         erc20LocalhostContractAddress,
         paymentAddress,
