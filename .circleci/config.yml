@@ -3,7 +3,7 @@ version: 2.1
 references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
-  image_name: &image_name 'circleci/python:3.7'
+  image_name: &image_name "circleci/python:3.7"
   node_image: &node_image
     image: circleci/node:10
   ipfs_image: &ipfs_image
@@ -11,10 +11,10 @@ references:
   ganache_image: &ganache_image
     image: trufflesuite/ganache-cli:v6.3.0
     command:
-      - '-l'
-      - '90000000'
-      - '-m'
-      - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+      - "-l"
+      - "90000000"
+      - "-m"
+      - "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 
 orbs:
   gcp-gcr: circleci/gcp-gcr@0.3.0
@@ -28,8 +28,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: 'Yarn install'
-          command: 'yarn install'
+          name: "Yarn install"
+          command: "yarn install --frozen-lockfile"
       - persist_to_workspace:
           root: *working_directory
           paths: .
@@ -41,8 +41,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'lint package.json files'
-          command: 'yarn run packageJsonLint'
+          name: "lint package.json files"
+          command: "yarn run packageJsonLint"
   test-request-client:
     docker:
       - *node_image
@@ -52,17 +52,17 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run build:commonjs'
+          name: "Build request-client.js"
+          command: "yarn workspace @requestnetwork/request-client.js run build:commonjs"
       - run:
-          name: 'Lint request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run lint '
+          name: "Lint request-client.js"
+          command: "yarn workspace @requestnetwork/request-client.js run lint "
       - run:
-          name: 'Deploy test contracts from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          name: "Deploy test contracts from smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run deploy"
       - run:
-          name: 'Test request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run test'
+          name: "Test request-client.js"
+          command: "yarn workspace @requestnetwork/request-client.js run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -75,14 +75,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build data-access'
-          command: 'yarn workspace @requestnetwork/data-access run build'
+          name: "Build data-access"
+          command: "yarn workspace @requestnetwork/data-access run build"
       - run:
-          name: 'Lint data-access'
-          command: 'yarn workspace @requestnetwork/data-access run lint '
+          name: "Lint data-access"
+          command: "yarn workspace @requestnetwork/data-access run lint "
       - run:
-          name: 'Test data-access'
-          command: 'yarn workspace @requestnetwork/data-access run test'
+          name: "Test data-access"
+          command: "yarn workspace @requestnetwork/data-access run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -95,14 +95,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build data-format'
-          command: 'yarn workspace @requestnetwork/data-format run build'
+          name: "Build data-format"
+          command: "yarn workspace @requestnetwork/data-format run build"
       - run:
-          name: 'Lint data-format'
-          command: 'yarn workspace @requestnetwork/data-format run lint'
+          name: "Lint data-format"
+          command: "yarn workspace @requestnetwork/data-format run lint"
       - run:
-          name: 'Test data-format'
-          command: 'yarn workspace @requestnetwork/data-format run test'
+          name: "Test data-format"
+          command: "yarn workspace @requestnetwork/data-format run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -115,14 +115,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run build'
+          name: "Build transaction-manager"
+          command: "yarn workspace @requestnetwork/transaction-manager run build"
       - run:
-          name: 'Lint transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run lint'
+          name: "Lint transaction-manager"
+          command: "yarn workspace @requestnetwork/transaction-manager run lint"
       - run:
-          name: 'Test transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run test'
+          name: "Test transaction-manager"
+          command: "yarn workspace @requestnetwork/transaction-manager run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -137,17 +137,17 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
+          name: "Build ethereum-storage"
+          command: "yarn workspace @requestnetwork/ethereum-storage run build"
       - run:
-          name: 'Lint ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run lint'
+          name: "Lint ethereum-storage"
+          command: "yarn workspace @requestnetwork/ethereum-storage run lint"
       - run:
-          name: 'Deploy contracs smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          name: "Deploy contracs smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run deploy"
       - run:
-          name: 'Test ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run test'
+          name: "Test ethereum-storage"
+          command: "yarn workspace @requestnetwork/ethereum-storage run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -161,23 +161,23 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run build:lib'
+          name: "Build smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run build:lib"
       - run:
-          name: 'Lint smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run lint:lib'
+          name: "Lint smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run lint:lib"
       - run:
-          name: 'Deploy contracs smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          name: "Deploy contracs smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run deploy"
       - run:
-          name: 'Build smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run build:sol'
+          name: "Build smart contracts smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run build:sol"
       - run:
-          name: 'Lint smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol'
+          name: "Lint smart contracts smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run lint:sol"
       - run:
-          name: 'Test smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run test'
+          name: "Test smart contracts smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run test"
   test-request-logic:
     docker:
       - *node_image
@@ -186,14 +186,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run build'
+          name: "Build request-logic"
+          command: "yarn workspace @requestnetwork/request-logic run build"
       - run:
-          name: 'Lint request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run lint'
+          name: "Lint request-logic"
+          command: "yarn workspace @requestnetwork/request-logic run lint"
       - run:
-          name: 'Test request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run test'
+          name: "Test request-logic"
+          command: "yarn workspace @requestnetwork/request-logic run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -206,14 +206,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run build'
+          name: "Build advanced-logic"
+          command: "yarn workspace @requestnetwork/advanced-logic run build"
       - run:
-          name: 'Lint advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run lint'
+          name: "Lint advanced-logic"
+          command: "yarn workspace @requestnetwork/advanced-logic run lint"
       - run:
-          name: 'Test advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run test'
+          name: "Test advanced-logic"
+          command: "yarn workspace @requestnetwork/advanced-logic run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -228,17 +228,17 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build request-node'
-          command: 'yarn workspace @requestnetwork/request-node run build'
+          name: "Build request-node"
+          command: "yarn workspace @requestnetwork/request-node run build"
       - run:
-          name: 'Lint request-node'
-          command: 'yarn workspace @requestnetwork/request-node run lint'
+          name: "Lint request-node"
+          command: "yarn workspace @requestnetwork/request-node run lint"
       - run:
-          name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          name: "Deploy test contract from smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run deploy"
       - run:
-          name: 'Test request-node'
-          command: 'yarn workspace @requestnetwork/request-node run test'
+          name: "Test request-node"
+          command: "yarn workspace @requestnetwork/request-node run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -251,11 +251,11 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build types'
-          command: 'yarn workspace @requestnetwork/types run build'
+          name: "Build types"
+          command: "yarn workspace @requestnetwork/types run build"
       - run:
-          name: 'Lint types'
-          command: 'yarn workspace @requestnetwork/types run lint'
+          name: "Lint types"
+          command: "yarn workspace @requestnetwork/types run lint"
   test-utils:
     docker:
       - *node_image
@@ -264,14 +264,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build utils'
-          command: 'yarn workspace @requestnetwork/utils run build'
+          name: "Build utils"
+          command: "yarn workspace @requestnetwork/utils run build"
       - run:
-          name: 'Lint utils'
-          command: 'yarn workspace @requestnetwork/utils run lint'
+          name: "Lint utils"
+          command: "yarn workspace @requestnetwork/utils run lint"
       - run:
-          name: 'Test utils'
-          command: 'yarn workspace @requestnetwork/utils run test'
+          name: "Test utils"
+          command: "yarn workspace @requestnetwork/utils run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -284,14 +284,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run build'
+          name: "Build epk-signature"
+          command: "yarn workspace @requestnetwork/epk-signature run build"
       - run:
-          name: 'Lint epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run lint'
+          name: "Lint epk-signature"
+          command: "yarn workspace @requestnetwork/epk-signature run lint"
       - run:
-          name: 'Test epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run test'
+          name: "Test epk-signature"
+          command: "yarn workspace @requestnetwork/epk-signature run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -304,14 +304,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run build'
+          name: "Build epk-decryption"
+          command: "yarn workspace @requestnetwork/epk-decryption run build"
       - run:
-          name: 'Lint epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run lint'
+          name: "Lint epk-decryption"
+          command: "yarn workspace @requestnetwork/epk-decryption run lint"
       - run:
-          name: 'Test epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run test'
+          name: "Test epk-decryption"
+          command: "yarn workspace @requestnetwork/epk-decryption run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -324,14 +324,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run build'
+          name: "Build web3-signature"
+          command: "yarn workspace @requestnetwork/web3-signature run build"
       - run:
-          name: 'Lint web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run lint'
+          name: "Lint web3-signature"
+          command: "yarn workspace @requestnetwork/web3-signature run lint"
       - run:
-          name: 'Test web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run test'
+          name: "Test web3-signature"
+          command: "yarn workspace @requestnetwork/web3-signature run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -346,20 +346,20 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run build'
+          name: "Build integration-test"
+          command: "yarn workspace @requestnetwork/integration-test run build"
       - run:
-          name: 'Lint integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run lint'
+          name: "Lint integration-test"
+          command: "yarn workspace @requestnetwork/integration-test run lint"
       - run:
-          name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          name: "Deploy test contract from smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run deploy"
       - run:
-          name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
+          name: "Start request-node"
+          command: "yarn workspace @requestnetwork/request-node run start"
           background: true
       - run:
-          name: 'Waiting for Request Node to be ready'
+          name: "Waiting for Request Node to be ready"
           command: |
             for i in `seq 1 10`;
             do
@@ -369,8 +369,8 @@ jobs:
             done
             echo Failed waiting for Node initialization && exit 1
       - run:
-          name: 'Test integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run test'
+          name: "Test integration-test"
+          command: "yarn workspace @requestnetwork/integration-test run test"
   test-usage-examples:
     docker:
       - *node_image
@@ -379,14 +379,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build usage-examples'
-          command: 'yarn workspace @requestnetwork/usage-examples run build'
+          name: "Build usage-examples"
+          command: "yarn workspace @requestnetwork/usage-examples run build"
       - run:
-          name: 'Lint usage-examples'
-          command: 'yarn workspace @requestnetwork/usage-examples run lint'
+          name: "Lint usage-examples"
+          command: "yarn workspace @requestnetwork/usage-examples run lint"
       - run:
-          name: 'Execute usage-examples'
-          command: 'yarn workspace @requestnetwork/usage-examples run start'
+          name: "Execute usage-examples"
+          command: "yarn workspace @requestnetwork/usage-examples run start"
   test-toolbox:
     docker:
       - *node_image
@@ -395,11 +395,11 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build toolbox'
-          command: 'yarn workspace @requestnetwork/toolbox run build'
+          name: "Build toolbox"
+          command: "yarn workspace @requestnetwork/toolbox run build"
       - run:
-          name: 'Lint toolbox'
-          command: 'yarn workspace @requestnetwork/toolbox run lint'
+          name: "Lint toolbox"
+          command: "yarn workspace @requestnetwork/toolbox run lint"
   test-multi-format:
     docker:
       - *node_image
@@ -408,14 +408,14 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run build'
+          name: "Build multi-format"
+          command: "yarn workspace @requestnetwork/multi-format run build"
       - run:
-          name: 'Lint multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run lint'
+          name: "Lint multi-format"
+          command: "yarn workspace @requestnetwork/multi-format run lint"
       - run:
-          name: 'Test multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run test'
+          name: "Test multi-format"
+          command: "yarn workspace @requestnetwork/multi-format run test"
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -428,8 +428,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Publish Coverage'
-          command: 'yarn publish-coverage'
+          name: "Publish Coverage"
+          command: "yarn publish-coverage"
   push-request-network-image:
     executor: gcp/default
     steps:
@@ -438,7 +438,7 @@ jobs:
       - gcp/install
       - gcp/initialize
       - run:
-          name: 'gcloud docker auth'
+          name: "gcloud docker auth"
           command: gcloud auth configure-docker  --project $GOOGLE_PROJECT_ID --quiet
       - gcp-gcr/build-image:
           image: request-network
@@ -464,8 +464,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build prototype-estimator'
-          command: 'yarn workspace @requestnetwork/prototype-estimator run build'
+          name: "Build prototype-estimator"
+          command: "yarn workspace @requestnetwork/prototype-estimator run build"
   test-nightly:
     docker:
       - *node_image
@@ -476,17 +476,17 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run build'
+          name: "Build integration-test"
+          command: "yarn workspace @requestnetwork/integration-test run build"
       - run:
-          name: 'Lint integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run lint'
+          name: "Lint integration-test"
+          command: "yarn workspace @requestnetwork/integration-test run lint"
       - run:
-          name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          name: "Deploy test contract from smart-contracts"
+          command: "yarn workspace @requestnetwork/smart-contracts run deploy"
       - run:
-          name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
+          name: "Start request-node"
+          command: "yarn workspace @requestnetwork/request-node run start"
           background: true
       - run:
           name: Waiting for Request Node to be ready
@@ -499,8 +499,8 @@ jobs:
             done
             echo Failed waiting for Node initialization && exit 1
       - run:
-          name: 'Test integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run test:scheduled'
+          name: "Test integration-test"
+          command: "yarn workspace @requestnetwork/integration-test run test:scheduled"
 
   # Release a next version package everytime we merge to master
   next-release:
@@ -511,11 +511,11 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Authenticate with registry'
+          name: "Authenticate with registry"
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
-          name: 'publish'
-          command: '$(yarn bin)/lerna publish --conventional-commits --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --yes'
+          name: "publish"
+          command: "$(yarn bin)/lerna publish --conventional-commits --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --yes"
 
 workflows:
   version: 2
@@ -632,7 +632,7 @@ workflows:
     triggers:
       - schedule:
           # This is a cron job for "everyday at 22 hours"
-          cron: '0 22 * * *'
+          cron: "0 22 * * *"
           filters:
             branches:
               only:
