@@ -100,11 +100,6 @@ function createRequest(
     );
   }
 
-  // If we're creating an older version of a request, we convert the string currency type to the new ICurrency one
-  if (Semver.lt(action.data.version, '2.0.1')) {
-    action.data.parameters.currency = legacyEnumToICurrencyConvert(action.data.parameters.currency);
-  }
-
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
   // Copy to not modify the action itself
@@ -113,6 +108,11 @@ function createRequest(
   request.requestId = Action.getRequestId(action);
   request.version = Action.getVersionFromAction(action);
   request.events = [generateEvent(action, timestamp, signer)];
+
+  // If we're creating an older version of a request, we convert the string currency type to the new ICurrency one
+  if (Semver.lt(action.data.version, '2.0.2')) {
+    request.currency = legacyEnumToICurrencyConvert(action.data.parameters.currency);
+  }
 
   const signerRole = Action.getRoleInAction(signer, action);
   if (signerRole === RequestLogicTypes.ROLE.PAYEE) {
