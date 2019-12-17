@@ -19,6 +19,7 @@ contract ERC20Proxy {
   // Fallback function returns funds to the sender
   function()
     external
+    payable
   {
     revert("not payable fallback");
   }
