@@ -22,14 +22,30 @@ module.exports = async function(deployer) {
 
     // Whitelist the requestSubmitter in requestHashDeclaration
     const instanceRequestHashStorage = await RequestHashStorage.deployed();
-    instanceRequestHashStorage.addWhitelisted(RequestOpenHashSubmitter.address);
+    await instanceRequestHashStorage.addWhitelisted(RequestOpenHashSubmitter.address);
     console.log('requestSubmitter Whitelisted in requestHashDeclaration');
 
     // Deploy the ERC20 contract
-    await deployer.deploy(erc20, 1000); // 1000 initial supply
+    const instanceTestERC20 = await deployer.deploy(erc20, 1000); // 1000 initial supply
 
     // Deploy ERC20 proxy contract
-    await deployer.deploy(ERC20Proxy);
+    const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
+
+    // create some events for test purpose
+    await instanceTestERC20.approve(ERC20Proxy.address, 110);
+    await instanceRequestERC20Proxy.transferFromWithReference(
+      instanceTestERC20.address,
+      '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
+      100,
+      '0x152191b6ec81c20c',
+    );
+    await instanceRequestERC20Proxy.transferFromWithReference(
+      instanceTestERC20.address,
+      '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+      10,
+      '0x0690ebf9d9f17132',
+    );
+    // ----------------------------------
 
     console.log('Contracts initialized');
   } catch (e) {

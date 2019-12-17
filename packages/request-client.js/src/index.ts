@@ -1,5 +1,5 @@
 import Currency from './api/currency';
-import PaymentReferenceCalculator from './api/payment-network/eth/payment-reference-calculator';
+import PaymentReferenceCalculator from './api/payment-network/payment-reference-calculator';
 import Request from './api/request';
 import Utils from './api/utils';
 import { default as RequestNetwork } from './http-request-network';

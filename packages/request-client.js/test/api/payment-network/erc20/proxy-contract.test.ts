@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes } from '@requestnetwork/types';
 import ERC20ProxyContract from '../../../../src/api/payment-network/erc20/proxy-contract';
 
 import * as chai from 'chai';
@@ -91,13 +91,5 @@ describe('api/erc20/proxy-contract', () => {
     expect(spy).to.have.been.called.with({
       refundAddress: 'ethereum address',
     });
-  });
-
-  it('getBalance should not be implemented', async () => {
-    const mockRequest = {};
-
-    const balance = await erc20ProxyContract.getBalance(mockRequest as RequestLogicTypes.IRequest);
-    expect(balance.balance).to.be.equal('');
-    expect(balance.events).to.have.lengthOf(0);
   });
 });
