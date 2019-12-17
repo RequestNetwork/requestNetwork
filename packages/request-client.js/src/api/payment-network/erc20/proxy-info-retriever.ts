@@ -17,6 +17,7 @@ export default class ProxyERC20InfoRetriever
   /**
    * @param paymentReference The reference to identify the payment
    * @param proxyContractAddress The address of the proxy contract
+   * @param proxyCreationBlockNumber The block that created the proxy contract
    * @param tokenContractAddress The address of the ERC20 contract
    * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
@@ -25,6 +26,7 @@ export default class ProxyERC20InfoRetriever
   constructor(
     private paymentReference: string,
     private proxyContractAddress: string,
+    private proxyCreationBlockNumber: number,
     private tokenContractAddress: string,
     private toAddress: string,
     private eventName: Types.EVENTS_NAMES,
@@ -55,7 +57,7 @@ export default class ProxyERC20InfoRetriever
       null,
       '0x' + this.paymentReference,
     ) as ethers.providers.Filter;
-    filter.fromBlock = 0;
+    filter.fromBlock = this.proxyCreationBlockNumber;
     filter.toBlock = 'latest';
 
     // Get the event logs

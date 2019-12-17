@@ -8,15 +8,24 @@ const bigNumber: any = require('bn.js');
 
 interface IProxyContractByVersionByNetwork {
   [version: string]: {
-    [network: string]: string;
+    [network: string]: { address: string; creationBlockNumber: number };
   };
 }
 
 const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
   ['0.1.0']: {
-    mainnet: '0x5f821c20947ff9be22e823edc5b3c709b33121b3',
-    private: '0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4',
-    rinkeby: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
+    mainnet: {
+      address: '0x5f821c20947ff9be22e823edc5b3c709b33121b3',
+      creationBlockNumber: 9119380,
+    },
+    private: {
+      address: '0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4',
+      creationBlockNumber: 0,
+    },
+    rinkeby: {
+      address: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
+      creationBlockNumber: 5628198,
+    },
   },
 };
 
@@ -164,7 +173,10 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     }
 
     const proxyContractAddress: string | undefined =
-      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network];
+      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network].address;
+    const proxyCreationBlockNumber: number =
+      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network]
+        .creationBlockNumber;
 
     if (!proxyContractAddress) {
       throw new Error(
@@ -181,6 +193,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     const infoRetriever = new ProxyInfoRetriever(
       paymentReference,
       proxyContractAddress,
+      proxyCreationBlockNumber,
       request.currency.value,
       toAddress,
       eventName,
