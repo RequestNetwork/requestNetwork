@@ -93,7 +93,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     const paymentNetwork = request.extensions[paymentNetworkId];
 
     if (!paymentNetwork) {
-      throw new Error(`The request do not have the extension : ${paymentNetworkId}`);
+      throw new Error(`The request do not have the extension: ${paymentNetworkId}`);
     }
 
     const paymentAddress = paymentNetwork.values.paymentAddress;
@@ -144,7 +144,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    * @param tokenContractAddress the address of the token contract
-   * @returns The balance
+   * @returns The balance and events
    */
   private async extractBalanceAndEvents(
     request: RequestLogicTypes.IRequest,
