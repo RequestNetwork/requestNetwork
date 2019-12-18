@@ -1,6 +1,9 @@
 {
   "name": "@requestnetwork/smart-contracts",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Smart contracts for the Request protocol.",
   "keywords": [
     "requestnetwork",
@@ -24,6 +27,9 @@
     "lib": "src/lib",
     "test": "test/lib"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build:lib": "tsc -b",
     "build:sol": "truffle compile --contracts_directory=./src",

@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.8.0...@requestnetwork/request-logic@0.8.2) (2019-12-18)
+
+
+### Bug Fixes
+
+* backward compatibility issue + removing test failing for external reason ([#93](https://github.com/RequestNetwork/requestNetwork/issues/93)) ([9a405dc](https://github.com/RequestNetwork/requestNetwork/commit/9a405dcc66b36a9a4a4b885dea2cd50abaad2725))
+* fix old version id mismatch issue ([#98](https://github.com/RequestNetwork/requestNetwork/issues/98)) ([c4d3f29](https://github.com/RequestNetwork/requestNetwork/commit/c4d3f291b7667f426a4a95cac7d65db90d13921b))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Bug Fixes
+
+* rollback legacy request currency renaming from DAI to SAI ([#622](https://github.com/RequestNetwork/requestNetwork/issues/622)) ([2882811](https://github.com/RequestNetwork/requestNetwork/commit/28828117f6490ada05180f2607098d3ebada681a))
+
+
+
+
+
 ## [0.8.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.8.0...@requestnetwork/request-logic@0.8.1) (2019-12-04)
 
 

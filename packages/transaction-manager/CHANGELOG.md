@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.8.1...@requestnetwork/transaction-manager@0.8.3) (2019-12-18)
+
+
+
+# 0.10.0 (2019-12-04)
+
+**Note:** Version bump only for package @requestnetwork/transaction-manager
+
+
+
+
+
 ## [0.8.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.8.1...@requestnetwork/transaction-manager@0.8.2) (2019-12-04)
 
 **Note:** Version bump only for package @requestnetwork/transaction-manager
