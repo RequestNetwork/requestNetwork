@@ -1147,7 +1147,7 @@ describe('index', () => {
     });
   });
 
-  describe('ERC20 addressed based requests', () => {
+  describe('ERC20 address based requests', () => {
     it('can create ERC20 address based requests', async () => {
       const testErc20TokenAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
