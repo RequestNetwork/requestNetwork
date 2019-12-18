@@ -1193,30 +1193,7 @@ describe('index', () => {
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
 
       const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-      const erc20abiFragment = [
-        {
-          constant: false,
-          inputs: [
-              {
-                  name: '_to',
-                  type: 'address',
-              },
-              {
-                  name: '_value',
-                  type: 'uint256',
-              },
-          ],
-          name: 'transfer',
-          outputs: [
-              {
-                  name: '',
-                  type: 'bool',
-              },
-          ],
-          payable: false,
-          stateMutability: 'nonpayable',
-          type: 'function',
-      }];
+      const erc20abiFragment = ['function transfer(address _to, uint _value) returns (bool transfer)'];
 
       // Setup the ERC20 contract interface
       const contract = new ethers.Contract(
