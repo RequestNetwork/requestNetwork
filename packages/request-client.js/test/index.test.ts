@@ -9,6 +9,7 @@ import {
   SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { ethers } from 'ethers';
 import 'mocha';
 import * as sinon from 'sinon';
 const mockAdapter = require('axios-mock-adapter');
@@ -1143,6 +1144,119 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal('0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e');
+    });
+  });
+
+  describe('ERC20 addressed based requests', () => {
+    it('can create ERC20 address based requests', async () => {
+      const testErc20TokenAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
+
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+      // generate address randomly to avoid collisions
+      const paymentAddress = '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+      const refundAddress = '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+
+      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+        id: Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+        parameters: {
+          paymentAddress,
+          refundAddress,
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'private',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: testErc20TokenAddress,
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      let data = request.getData();
+
+      expect(data).to.exist;
+      expect(data.balance?.balance).to.equal('0');
+      expect(data.balance?.events.length).to.equal(0);
+      expect(data.meta).to.exist;
+      expect(data.currency).to.equal('unknown');
+      expect(data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress).to.equal(paymentAddress);
+      expect(data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress).to.equal(refundAddress);
+      expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+
+      const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+      const erc20abiFragment = [
+        {
+          constant: false,
+          inputs: [
+              {
+                  name: '_to',
+                  type: 'address',
+              },
+              {
+                  name: '_value',
+                  type: 'uint256',
+              },
+          ],
+          name: 'transfer',
+          outputs: [
+              {
+                  name: '',
+                  type: 'bool',
+              },
+          ],
+          payable: false,
+          stateMutability: 'nonpayable',
+          type: 'function',
+      }];
+
+      // Setup the ERC20 contract interface
+      const contract = new ethers.Contract(
+        testErc20TokenAddress,
+        erc20abiFragment,
+        provider.getSigner(0),
+      );
+
+      // check payment
+      await contract.transfer(paymentAddress, 2);
+      data = await request.refresh();
+      expect(data.balance?.balance).to.equal('2');
+      expect(data.balance?.events.length).to.equal(1);
+      expect(data.balance?.events[0].amount).to.equal('2');
+      expect(data.balance?.events[0].name).to.equal('payment');
+      expect(data.balance?.events[0].timestamp).to.exist;
+      expect(data.balance?.events[0].parameters.block).to.exist;
+      expect(data.balance?.events[0].parameters.from.length).to.equal(42);
+      expect(data.balance?.events[0].parameters.to.toLowerCase()).to.equal(paymentAddress);
+      expect(data.balance?.events[0].parameters.txHash.length).to.equal(66);
+
+      // check refund
+      await contract.transfer(refundAddress, 1);
+      data = await request.refresh();
+      expect(data.balance?.balance).to.equal('1');
+      expect(data.balance?.events.length).to.equal(2);
+      expect(data.balance?.events[0].amount).to.equal('2');
+      expect(data.balance?.events[0].name).to.equal('payment');
+      expect(data.balance?.events[0].timestamp).to.exist;
+      expect(data.balance?.events[0].parameters.block).to.exist;
+      expect(data.balance?.events[0].parameters.from.length).to.equal(42);
+      expect(data.balance?.events[0].parameters.to.toLowerCase()).to.equal(paymentAddress);
+      expect(data.balance?.events[0].parameters.txHash.length).to.equal(66);
+      expect(data.balance?.events[1].amount).to.equal('1');
+      expect(data.balance?.events[1].name).to.equal('refund');
+      expect(data.balance?.events[1].timestamp).to.exist;
+      expect(data.balance?.events[1].parameters.block).to.exist;
+      expect(data.balance?.events[1].parameters.from.length).to.equal(42);
+      expect(data.balance?.events[1].parameters.to.toLowerCase()).to.equal(refundAddress);
+      expect(data.balance?.events[1].parameters.txHash.length).to.equal(66);
     });
   });
 
