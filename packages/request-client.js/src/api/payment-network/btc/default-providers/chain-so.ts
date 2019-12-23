@@ -30,7 +30,7 @@ export default class ChainSo implements Types.IBitcoinDetectionProvider {
     eventName: Types.EVENTS_NAMES,
   ): Promise<Types.BTCBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
-    const queryUrl = `${baseUrl}/${address}`;
+    const queryUrl = `${baseUrl}${address}`;
 
     try {
       const res = await Utils.retry(async () => fetch(queryUrl), {
