@@ -24,13 +24,13 @@ import localUtils from './utils';
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
  */
 export default class RequestNetwork {
+  public bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
   private contentData: ContentDataExtension;
-
-  public bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
 
   /**
    * @param dataAccess instance of data-access layer

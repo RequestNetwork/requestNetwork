@@ -14,7 +14,7 @@ signatureProvider.addSignatureParameters({
   method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
 });
-describe('BTC detection test-suite', function(): void {
+describe('BTC detection test-suite', () => {
 
   it('Can create a BTC testnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
@@ -34,7 +34,6 @@ describe('BTC detection test-suite', function(): void {
 
     expect(request.getData().balance?.balance).to.be.equal('50500000');
   });
-
 
   it('Can create a BTC mainnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
