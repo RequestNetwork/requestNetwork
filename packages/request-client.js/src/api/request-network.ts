@@ -30,7 +30,7 @@ export default class RequestNetwork {
 
   private contentData: ContentDataExtension;
 
-  private bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  public bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
 
   /**
    * @param dataAccess instance of data-access layer

@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 const axios = require('axios');
 
 import {
@@ -115,6 +116,24 @@ function mockAxios(): any {
   return mock;
 }
 
+const mockBTCProvider = {
+  getAddressBalanceWithEvents: (): Promise<Types.IBalanceWithEvents<Types.IBTCPaymentEventParameters>> => {
+    return Promise.resolve({
+      balance: '666743',
+      events: [
+        {
+          amount: '666743',
+          name: Types.EVENTS_NAMES.PAYMENT,
+          parameters: {
+            block: 561874,
+            txHash: "4024936746a0994cf5cdf9c8b55e03b288a251ad172682e8e94b7806a4e3dace"
+          }
+        }
+      ]
+    });
+  }
+}
+
 // Integration tests
 /* tslint:disable:no-unused-expression */
 describe('index', () => {
@@ -122,7 +141,7 @@ describe('index', () => {
     sandbox.restore();
   });
 
-  it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
+  it('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
     const mock = new mockAdapter(axios);
 
     const callback = (config: any): any => {
@@ -137,6 +156,8 @@ describe('index', () => {
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
+    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
+  
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
       id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
@@ -152,7 +173,7 @@ describe('index', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  it.skip('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
+  it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
     const mock = new mockAdapter(axios);
 
     const callback = (config: any): any => {
@@ -166,6 +187,8 @@ describe('index', () => {
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
       id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
@@ -355,12 +378,13 @@ describe('index', () => {
     expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
   });
 
-  // Skip, this should be test in the nightly test (PROT-1067)
-  it.skip('works with mocked storage and payment network', async () => {
+  it('works with mocked storage and mocked payment network', async () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider: fakeSignatureProvider,
       useMockStorage: true,
     });
+
+    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
       id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
