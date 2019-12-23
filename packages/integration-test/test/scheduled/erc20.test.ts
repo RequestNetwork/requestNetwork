@@ -29,8 +29,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 };
 
 describe('ERC20 detection test-suite', function(): void {
-  this.timeout(10000);
-
   describe('check mainnet payment detection', () => {
     Object.entries(tokens).forEach(([symbol, { address, amount }]) => {
       it(`can detect the balance of ${symbol}`, async () => {
