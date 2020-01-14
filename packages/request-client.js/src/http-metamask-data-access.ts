@@ -31,6 +31,7 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
   private axiosConfig: AxiosRequestConfig;
 
   private submitterContract: ethers.Contract;
+  private provider: ethers.providers.JsonRpcProvider;
 
   /**
    * Creates an instance of HttpDataAccess.
@@ -46,7 +47,7 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
 
     // Creates a local or default provider
     // TODO !
-    const provider =
+    this.provider =
       // this.network === 'private' ?
       new ethers.providers.JsonRpcProvider({ url: 'http://localhost:8545', allowInsecure: true });
     // : ethers.getDefaultProvider(this.network);
@@ -58,7 +59,7 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
         'function submitHash(string _hash, bytes _feesParameters) payable external',
         'function getFeesAmount(uint256 _contentSize) public view returns(uint256)',
       ],
-      provider.getSigner(),
+      this.provider.getSigner(),
     );
   }
 
@@ -108,12 +109,13 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
       ethers.utils.hexZeroPad(ethers.utils.hexlify(parseInt(ipfsSize, 10)), 32), { value: fee },
     );
 
+    const ethBlock = await this.provider.getBlock(tx.blockNumber);
+
     // create the storage meta from the transaction receipt
     const storageMeta = {
       blockConfirmation: tx.confirmations,
       blockNumber: tx.blockNumber,
-      // as it is a cache data It is fine to have an approximation here
-      blockTimestamp: Utils.getCurrentTimestampInSecond(),
+      blockTimestamp: ethBlock.timestamp,
       fee,
       // TODO !
       networkName: 'private',
@@ -253,13 +255,14 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
     // Create a IReturnGetTransactions object to be merged later with the one from the node
     return Object.keys(this.cache[channelId] || []).reduce(
       (accumulator: DataAccessTypes.IReturnGetTransactions, location: string) => {
+        const cache = this.cache[channelId][location];
+
         // For each cached block for the channel, we return the transaction if they are in the time boundaries
         if (this.cache[channelId][location] && (
           !timestampBoundaries ||
-          ((timestampBoundaries.from === undefined || timestampBoundaries.from <= timestampBoundaries) &&
-            (timestampBoundaries.to === undefined || timestampBoundaries.to >= timestampBoundaries))
+          ((timestampBoundaries.from === undefined || timestampBoundaries.from <= cache?.storageMeta.blockTimestamp) &&
+            (timestampBoundaries.to === undefined || timestampBoundaries.to >= cache?.storageMeta.blockTimestamp))
         ) ) {
-          const cache = this.cache[channelId][location];
           accumulator.meta.storageMeta.push(cache?.storageMeta);
           accumulator.meta.transactionsStorageLocation.push(location);
           // cache?.block.transactions will always contain one transaction
