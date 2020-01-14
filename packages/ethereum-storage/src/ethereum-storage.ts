@@ -226,6 +226,48 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   }
 
   /**
+   * Append content into the storage: add the content to ipfs and the hash on Ethereum
+   * @param content Content to add into the storage
+   * @returns Promise resolving id used to retrieve the content
+   */
+  public async _ipfsAdd(data: string): Promise<StorageTypes.IIpfsMeta> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
+
+    if (!data) {
+      throw Error('No data provided');
+    }
+
+    // TODO: check block
+    console.log('################################################### TODO');
+    console.log('################################################### TODO');
+    console.log('################################################### TODO');
+    // this.smartContractManager;
+
+    // Add content to IPFS and get the hash back
+    let ipfsHash;
+    try {
+      ipfsHash = await this.ipfsManager.add(data);
+    } catch (error) {
+      throw Error(`Ipfs add request error: ${error}`);
+    }
+
+    // Get content length from ipfs
+    let ipfsSize;
+    try {
+      ipfsSize = (await this.ipfsManager.getContentLength(ipfsHash)).toString();
+    } catch (error) {
+      throw Error(`Ipfs get length request error: ${error}`);
+    }
+
+    return {
+      ipfsHash,
+      ipfsSize,
+    };
+  }
+
+  /**
    * Read content from the storage
    * @param Id Id used to retrieve content
    * @returns Promise resolving content from id

@@ -2,6 +2,7 @@ import { Block } from '@requestnetwork/data-access';
 import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
+import { ethers } from 'ethers';
 
 // Maximum number of retries to attempt when http requests to the Node fail
 const HTTP_REQUEST_MAX_RETRY = 3;
@@ -12,12 +13,24 @@ const HTTP_REQUEST_RETRY_DELAY = 100;
 /**
  * Exposes a Data-Access module over HTTP
  */
-export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
+export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAccess {
+  /**
+   * Cache block persisted directly (in case the node did not have the time to retrieve it)
+   * (public for easier testing)
+   */
+  public cache: {
+    [channelId: string]: {
+      [ipfsHash: string]: { block: DataAccessTypes.IBlock; storageMeta: any } | null;
+    };
+  } = {};
+
   /**
    * Configuration that will be sent to axios for each request.
    * We can also create a AxiosInstance with axios.create() but it dramatically complicates testing.
    */
   private axiosConfig: AxiosRequestConfig;
+
+  private submitterContract: ethers.Contract;
 
   /**
    * Creates an instance of HttpDataAccess.
@@ -29,6 +42,23 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         baseURL: 'http://localhost:3000',
       },
       nodeConnectionConfig,
+    );
+
+    // Creates a local or default provider
+    // TODO !
+    const provider =
+      // this.network === 'private' ?
+      new ethers.providers.JsonRpcProvider({ url: 'http://localhost:8545', allowInsecure: true });
+    // : ethers.getDefaultProvider(this.network);
+
+    this.submitterContract = new ethers.Contract(
+      // TODO !
+      '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+      [
+        'function submitHash(string _hash, bytes _feesParameters) payable external',
+        'function getFeesAmount(uint256 _contentSize) public view returns(uint256)',
+      ],
+      provider.getSigner(),
     );
   }
 
@@ -56,14 +86,55 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     // We don't use the node to persist the transaction, but we will Do it ourselves
 
     // create a block and add the transaction in it
-    const updatedBlock = Block.pushTransaction(
+    const block: DataAccessTypes.IBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
       transactionData,
       channelId,
       topics,
     );
 
-    return data;
+    // store on ipfs the block and the the ipfs hash and size
+    const {
+      data: { ipfsHash, ipfsSize },
+    } = await axios.post('/ipfsAdd', { data: block }, this.axiosConfig);
+
+    // get the fee require to submit the hash
+    const fee = await this.submitterContract.getFeesAmount(ipfsSize);
+
+    // submit the hash to ethereum
+    const tx = await this.submitterContract.submitHash(
+      ipfsHash,
+      // tslint:disable:no-magic-numbers
+      ethers.utils.hexZeroPad(ethers.utils.hexlify(parseInt(ipfsSize, 10)), 32), { value: fee },
+    );
+
+    // create the storage meta from the transaction receipt
+    const storageMeta = {
+      blockConfirmation: tx.confirmations,
+      blockNumber: tx.blockNumber,
+      // as it is a cache data It is fine to have an approximation here
+      blockTimestamp: Utils.getCurrentTimestampInSecond(),
+      fee,
+      // TODO !
+      networkName: 'private',
+      smartContractAddress: tx.to,
+      transactionHash: tx.hash,
+    };
+
+    // Add the block to the cache
+    if (!this.cache[channelId]) {
+      this.cache[channelId] = {};
+    }
+    this.cache[channelId][ipfsHash] = {block, storageMeta};
+
+    return {
+      meta: {
+        storageMeta,
+        topics: topics || [],
+        transactionStorageLocation: ipfsHash,
+      },
+      result: {},
+    };
   }
 
   /**
@@ -90,7 +161,21 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       },
     )();
 
-    return data;
+    // get the transactions from the cache
+    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getTransactionsCachedAndCleanCache(channelId, data.meta.transactionsStorageLocation, timestampBoundaries);
+
+    // merge cache and data from the node
+    return {
+      meta: {
+        storageMeta: data.meta.storageMeta.concat(transactionsCached.meta.storageMeta),
+        transactionsStorageLocation: data.meta.transactionsStorageLocation.concat(
+          transactionsCached.meta.transactionsStorageLocation,
+        ),
+      },
+      result: {
+        transactions: data.result.transactions.concat(transactionsCached.result.transactions),
+      },
+    };
   }
 
   /**
@@ -145,5 +230,47 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     )();
 
     return data;
+  }
+
+  /**
+   * Gets the transactions cached and remove the ones that have been retrieved from the node
+   * (public for easier testing)
+   *
+   * @param channelId The channel id to search for
+   * @param storageLocationFromNode location retrieved from the node
+   * @param timestampBoundaries filter timestamp boundaries
+   */
+  public getTransactionsCachedAndCleanCache(
+    channelId: string,
+    storageLocationFromNode: string[],
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
+  ): DataAccessTypes.IReturnGetTransactions {
+    // Remove cache found by the node
+    for (const location of storageLocationFromNode) {
+      this.cache[channelId][location] = null;
+    }
+
+    // Create a IReturnGetTransactions object to be merged later with the one from the node
+    return Object.keys(this.cache[channelId] || []).reduce(
+      (accumulator: DataAccessTypes.IReturnGetTransactions, location: string) => {
+        // For each cached block for the channel, we return the transaction if they are in the time boundaries
+        if (this.cache[channelId][location] && (
+          !timestampBoundaries ||
+          ((timestampBoundaries.from === undefined || timestampBoundaries.from <= timestampBoundaries) &&
+            (timestampBoundaries.to === undefined || timestampBoundaries.to >= timestampBoundaries))
+        ) ) {
+          const cache = this.cache[channelId][location];
+          accumulator.meta.storageMeta.push(cache?.storageMeta);
+          accumulator.meta.transactionsStorageLocation.push(location);
+          // cache?.block.transactions will always contain one transaction
+          accumulator.result.transactions.push({transaction: cache?.block.transactions[0] as DataAccessTypes.ITransaction, timestamp: cache?.storageMeta.blockTimestamp});
+        }
+        return accumulator;
+      },
+      {
+        meta: { storageMeta: [], transactionsStorageLocation: [] },
+        result: { transactions: [] },
+      },
+    );
   }
 }

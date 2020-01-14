@@ -10,11 +10,12 @@ import Utils from '@requestnetwork/utils';
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
 import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
+import ipfsAdd from './request/ipfsAdd';
 import persistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
 const NOT_FOUND_MESSAGE =
-  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic';
+  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd';
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
 
@@ -28,6 +29,7 @@ class RequestNode {
    * This attribute is left public for mocking purpose
    */
   public dataAccess: DataAccess;
+  public ethereumStorage: StorageTypes.IStorage;
 
   private express: any;
   private initialized: boolean;
@@ -60,6 +62,8 @@ class RequestNode {
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
     const transactionIndex = new TransactionIndex(store);
+
+    this.ethereumStorage = ethereumStorage;
 
     this.dataAccess = new DataAccess(ethereumStorage, {
       logger: this.logger,
@@ -149,6 +153,15 @@ class RequestNode {
     router.get('/readyz', (_, serverResponse: any) => {
       if (this.initialized) {
         return serverResponse.status(httpStatus.OK).send('OK');
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
+
+    // Route for ipfs-add request
+    router.post('/ipfsAdd', (clientRequest: any, serverResponse: any) => {
+      if (this.initialized) {
+        return ipfsAdd(clientRequest, serverResponse, this.ethereumStorage, this.logger);
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }

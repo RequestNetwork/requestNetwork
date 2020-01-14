@@ -6,6 +6,7 @@ import {
 import { AxiosRequestConfig } from 'axios';
 import RequestNetwork from './api/request-network';
 import HttpDataAccess from './http-data-access';
+import HttpMetamaskDataAccess from './http-metamask-data-access';
 import MockDataAccess from './mock-data-access';
 import MockStorage from './mock-storage';
 
@@ -24,6 +25,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
     {
       decryptionProvider,
       nodeConnectionConfig,
+      persistFromLocal,
       signatureProvider,
       useMockStorage,
     }: {
@@ -31,16 +33,22 @@ export default class HttpRequestNetwork extends RequestNetwork {
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
+      persistFromLocal?: boolean;
     } = {
       nodeConnectionConfig: {},
+      persistFromLocal: false,
       useMockStorage: false,
     },
   ) {
-    // useMockStorage === true => use mock data-access
-    // useMockStorage === false => use http data-access
     const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
-      ? new MockDataAccess(new MockStorage())
-      : new HttpDataAccess(nodeConnectionConfig);
+      ? // useMockStorage === true => use mock data-access
+        new MockDataAccess(new MockStorage())
+      : // useMockStorage === false
+      persistFromLocal
+      ? // persistFromLocal === true => use http-metamask-data-access
+        new HttpMetamaskDataAccess(nodeConnectionConfig)
+      : // persistFromLocal === false => use http-data-access
+        new HttpDataAccess(nodeConnectionConfig);
 
     super(dataAccess, signatureProvider, decryptionProvider);
   }

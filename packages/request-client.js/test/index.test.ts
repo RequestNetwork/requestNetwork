@@ -126,13 +126,13 @@ const mockBTCProvider = {
           name: Types.EVENTS_NAMES.PAYMENT,
           parameters: {
             block: 561874,
-            txHash: "4024936746a0994cf5cdf9c8b55e03b288a251ad172682e8e94b7806a4e3dace"
-          }
-        }
-      ]
+            txHash: '4024936746a0994cf5cdf9c8b55e03b288a251ad172682e8e94b7806a4e3dace',
+          },
+        },
+      ],
     });
-  }
-}
+  },
+};
 
 // Integration tests
 /* tslint:disable:no-unused-expression */
@@ -157,7 +157,7 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
-  
+
     const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
       id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
