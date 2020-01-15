@@ -1,4 +1,6 @@
+import { Block } from '@requestnetwork/data-access';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
+
 import * as httpStatus from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
 
@@ -33,6 +35,9 @@ export default async function ipfsAdd(
     serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
+      // check that the data are actually a data-access block
+      Block.parseBlock(clientRequest.body.data);
+
       dataAccessResponse = await ethereumStorage._ipfsAdd(JSON.stringify(clientRequest.body.data));
 
       // Log the request time

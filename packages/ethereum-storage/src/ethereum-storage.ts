@@ -239,11 +239,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       throw Error('No data provided');
     }
 
-    // TODO: check block
-    console.log('################################################### TODO');
-    console.log('################################################### TODO');
-    console.log('################################################### TODO');
-    // this.smartContractManager;
+    // Add a small check to at least having JSON data added
+    try {
+      JSON.parse(data);
+    } catch (error) {
+      throw Error(`data not JSON parsable: ${error}`);
+    }
 
     // Add content to IPFS and get the hash back
     let ipfsHash;
