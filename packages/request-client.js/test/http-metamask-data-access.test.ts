@@ -38,7 +38,7 @@ block2 = Block.pushTransaction(block2, { data: 'data22' }, 'channel2');
 
 /* tslint:disable:no-unused-expression */
 describe('HttpMetamaskDataAccess', () => {
-  describe('getChacheAndClean()', () => {
+  describe('getCacheAndClean()', () => {
     it('get transaction from cache and clean the one added', async () => {
       const httpMMDataAccess = new HttpMetamaskDataAccess();
 
