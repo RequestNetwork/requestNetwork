@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 const artifactsERC20Proxy = require('../../artifacts/ERC20Proxy/artifacts.json');
 const ARTIFACTS_VERSION: string = artifactsERC20Proxy.lastVersion;
 
@@ -8,13 +6,12 @@ const ARTIFACTS_VERSION: string = artifactsERC20Proxy.lastVersion;
  * @returns the abi of the artifact as a json object
  */
 export function getContractAbi(): any {
-  const artifactFilename: string =
-  artifactsERC20Proxy[ARTIFACTS_VERSION].artifact;
+  const artifactFilename: string = artifactsERC20Proxy[ARTIFACTS_VERSION].artifact;
 
-  const artifact = require(path.join(
-    '../../artifacts/ERC20Proxy/',
-    artifactFilename,
-  ));
+  const artifact = require(`../../artifacts/ERC20Proxy/${artifactFilename.replace(
+    /\.[^/.]+$/,
+    '',
+  )}.json`);
 
   // Check the abi exists inside the artifact file
   if (!artifact.abi) {
@@ -53,8 +50,7 @@ export function getCreationBlockNumber(networkName: string): number {
 function getDeploymentInformation(
   networkName: string,
 ): { address: string; creationBlockNumber: number } {
-  const deploymentInformation =
-  artifactsERC20Proxy[ARTIFACTS_VERSION].deployment[networkName];
+  const deploymentInformation = artifactsERC20Proxy[ARTIFACTS_VERSION].deployment[networkName];
 
   // Check the artifact has been deployed into the specified network
   if (!deploymentInformation) {
