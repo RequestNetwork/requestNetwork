@@ -43,16 +43,16 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
     {
       nodeConnectionConfig,
       web3,
-      urlProvider,
+      ethereumProviderUrl,
     }: {
       nodeConnectionConfig?: AxiosRequestConfig;
       web3?: any;
-      urlProvider?: string;
+      ethereumProviderUrl?: string;
     } = {
       nodeConnectionConfig: {},
     },
   ) {
-    urlProvider = urlProvider ? urlProvider : 'http://localhost:8545';
+    ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 
     this.axiosConfig = Object.assign(
       {
@@ -64,7 +64,7 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
     // Creates a local or default provider
     this.provider = web3
       ? new ethers.providers.Web3Provider(web3.currentProvider)
-      : new ethers.providers.JsonRpcProvider({ url: urlProvider });
+      : new ethers.providers.JsonRpcProvider({ url: ethereumProviderUrl });
   }
 
   /**
@@ -123,7 +123,7 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
     const tx = await this.submitterContract.submitHash(
       ipfsHash,
       // tslint:disable:no-magic-numbers
-      ethers.utils.hexZeroPad(ethers.utils.hexlify(parseInt(ipfsSize, 10)), 32),
+      ethers.utils.hexZeroPad(ethers.utils.hexlify(ipfsSize), 32),
       { value: fee },
     );
 
@@ -181,7 +181,7 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
     )();
 
     // get the transactions from the cache
-    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getTransactionsCachedAndCleanCache(
+    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getCachedTransactionsAndCleanCache(
       channelId,
       data.meta.transactionsStorageLocation,
       timestampBoundaries,
@@ -263,7 +263,7 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
    * @param storageLocationFromNode location retrieved from the node
    * @param timestampBoundaries filter timestamp boundaries
    */
-  public getTransactionsCachedAndCleanCache(
+  public getCachedTransactionsAndCleanCache(
     channelId: string,
     storageLocationFromNode: string[],
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,

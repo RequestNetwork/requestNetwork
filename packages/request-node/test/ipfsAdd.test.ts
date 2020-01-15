@@ -1,6 +1,5 @@
 import 'mocha';
 
-import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -41,37 +40,32 @@ describe('ipfsAdd', () => {
         },
       ],
     });
-    const serverResponse = await request(server)
+    await request(server)
       .post('/ipfsAdd')
       .send({ data: blockString })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
-
-    expect(
-      serverResponse.body.ipfsHash,
-      'ipfsHash request result should always be empty',
-    ).to.be.equal('QmaViWwahWwCU7DgYBLYwfvBuEU9bj3F3rmLDoAS5ujqXX');
-    expect(
-      serverResponse.body.ipfsSize,
-      'ipfsSize request result should always be empty',
-    ).to.be.equal('1026');
+      .expect(httpStatus.OK)
+      .expect({
+        ipfsHash: 'QmaViWwahWwCU7DgYBLYwfvBuEU9bj3F3rmLDoAS5ujqXX',
+        ipfsSize: 1026,
+      });
   });
 
-  it('responds with status 422 to requests with no value', async () => {
+  it('responds with status 400 to requests with no value', async () => {
     await request(server)
       .post('/ipfsAdd')
       .send({})
       .set('Accept', 'application/json')
-      .expect(httpStatus.UNPROCESSABLE_ENTITY);
+      .expect(httpStatus.BAD_REQUEST);
   });
 
-  it('responds with status 500 to requests with badly formatted value', async () => {
+  it('responds with status 400 to requests with badly formatted value', async () => {
     await request(server)
       .post('/ipfsAdd')
       .send({
         data: 'not parsable',
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
+      .expect(httpStatus.BAD_REQUEST);
   });
 });

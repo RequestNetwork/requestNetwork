@@ -24,7 +24,7 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     return {
       ipfsHash: hash,
-      ipfsSize: content.length.toString(),
+      ipfsSize: content.length,
     };
   }
 

@@ -227,6 +227,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
   /**
    * Append content into the storage: add the content to ipfs and the hash on Ethereum
+   * To be Used only in case of persisting data outside the storage
+   *
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
    */
@@ -257,7 +259,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // Get content length from ipfs
     let ipfsSize;
     try {
-      ipfsSize = (await this.ipfsManager.getContentLength(ipfsHash)).toString();
+      ipfsSize = await this.ipfsManager.getContentLength(ipfsHash);
     } catch (error) {
       throw Error(`Ipfs get length request error: ${error}`);
     }

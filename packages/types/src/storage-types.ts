@@ -144,7 +144,7 @@ export interface IIpfsObject {
 /** interface of ipfs meta */
 export interface IIpfsMeta {
   ipfsHash: string;
-  ipfsSize: string;
+  ipfsSize: number;
 }
 
 /** Configuration for the pinRequest method */

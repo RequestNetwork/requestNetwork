@@ -32,12 +32,16 @@ export default async function ipfsAdd(
   // transactionData: data of the transaction
   // topics (optional): arbitrary strings that reference the transaction
   if (!clientRequest.body || !clientRequest.body.data) {
-    serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
+    serverResponse.status(httpStatus.BAD_REQUEST).send('Incorrect data');
   } else {
     try {
       // check that the data are actually a data-access block
       Block.parseBlock(clientRequest.body.data);
+    } catch (error) {
+      return serverResponse.status(httpStatus.BAD_REQUEST).send('data must be a block');
+    }
 
+    try {
       dataAccessResponse = await ethereumStorage._ipfsAdd(JSON.stringify(clientRequest.body.data));
 
       // Log the request time

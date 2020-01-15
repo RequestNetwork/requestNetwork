@@ -179,15 +179,15 @@ describe('index', () => {
       return [200, {ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY'}];
     };
 
-    const spy = chai.spy();
+    const spyPersistTransaction = chai.spy();
     const spyIpfsAdd = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
+    mock.onPost('/persistTransaction').reply(spyPersistTransaction);
     mock.onPost('/ipfsAdd').reply(spyIpfsAdd);
     mock
       .onGet('/getTransactionsByChannelId')
       .reply(200, { meta: {storageMeta: [], transactionsStorageLocation: []}, result: { transactions: [] } });
 
-    const requestNetwork = new RequestNetwork({ urlProvider: 'http://localhost:8545', persistFromLocal: true, signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({ ethereumProviderUrl: 'http://localhost:8545', persistFromLocal: true, signatureProvider: fakeSignatureProvider });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
@@ -203,7 +203,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    expect(spy).to.not.have.been.called;
+    expect(spyPersistTransaction).to.not.have.been.called;
     expect(spyIpfsAdd).to.have.been.called.once;
   });
 

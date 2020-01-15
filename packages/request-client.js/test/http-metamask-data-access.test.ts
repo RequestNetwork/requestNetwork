@@ -1,19 +1,9 @@
-import {
-  DataAccessTypes,
-  //   DecryptionProviderTypes,
-  //   EncryptionTypes,
-  //   IdentityTypes,
-  //   RequestLogicTypes,
-  //   SignatureProviderTypes,
-  //   SignatureTypes,
-} from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 import { Block } from '@requestnetwork/data-access';
 
-// import Utils from '@requestnetwork/utils';
 import 'mocha';
 import HttpMetamaskDataAccess from '../src/http-metamask-data-access';
-// import * as Types from '../src/types';
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -50,7 +40,7 @@ describe('HttpMetamaskDataAccess', () => {
         },
       };
 
-      const cacheCleaned = httpMMDataAccess.getTransactionsCachedAndCleanCache('channel1', [
+      const cacheCleaned = httpMMDataAccess.getCachedTransactionsAndCleanCache('channel1', [
         'location1',
       ]);
 
