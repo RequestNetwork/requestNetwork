@@ -1,5 +1,3 @@
-// import * as path from 'path';
-
 const artifactsRequestOpenHashSubmitter = require('../../artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json');
 const ARTIFACTS_OPEN_STORAGE_LAST_VERSION: string = artifactsRequestOpenHashSubmitter.lastVersion;
 
