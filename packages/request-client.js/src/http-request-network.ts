@@ -6,7 +6,7 @@ import {
 import { AxiosRequestConfig } from 'axios';
 import RequestNetwork from './api/request-network';
 import HttpDataAccess from './http-data-access';
-import HttpMetamaskDataAccess from './http-metamask-data-access';
+import HttpMetaMaskDataAccess from './http-metamask-data-access';
 import MockDataAccess from './mock-data-access';
 import MockStorage from './mock-storage';
 
@@ -50,7 +50,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : // useMockStorage === false
       persistFromLocal
       ? // persistFromLocal === true => use http-metamask-data-access
-        new HttpMetamaskDataAccess({ nodeConnectionConfig, web3, urlProvider })
+        new HttpMetaMaskDataAccess({ nodeConnectionConfig, web3, urlProvider })
       : // persistFromLocal === false => use http-data-access
         new HttpDataAccess(nodeConnectionConfig);
 

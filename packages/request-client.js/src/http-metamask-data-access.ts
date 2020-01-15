@@ -14,7 +14,7 @@ const HTTP_REQUEST_RETRY_DELAY = 100;
 /**
  * Exposes a Data-Access module over HTTP
  */
-export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAccess {
+export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Cache block persisted directly (in case the node did not have the time to retrieve it)
    * (public for easier testing)
