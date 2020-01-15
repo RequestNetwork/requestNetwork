@@ -1,4 +1,5 @@
 import { Block } from '@requestnetwork/data-access';
+import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -30,14 +31,29 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
    */
   private axiosConfig: AxiosRequestConfig;
 
-  private submitterContract: ethers.Contract;
-  private provider: ethers.providers.JsonRpcProvider;
+  private submitterContract: ethers.Contract | undefined;
+  private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
+  private networkName: string = '';
 
   /**
    * Creates an instance of HttpDataAccess.
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
-  constructor(nodeConnectionConfig: AxiosRequestConfig = {}) {
+  constructor(
+    {
+      nodeConnectionConfig,
+      web3,
+      urlProvider,
+    }: {
+      nodeConnectionConfig?: AxiosRequestConfig;
+      web3?: any;
+      urlProvider?: string;
+    } = {
+      nodeConnectionConfig: {},
+    },
+  ) {
+    urlProvider = urlProvider ? urlProvider : 'http://localhost:8545';
+
     this.axiosConfig = Object.assign(
       {
         baseURL: 'http://localhost:3000',
@@ -46,21 +62,9 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
     );
 
     // Creates a local or default provider
-    // TODO !
-    this.provider =
-      // this.network === 'private' ?
-      new ethers.providers.JsonRpcProvider({ url: 'http://localhost:8545', allowInsecure: true });
-    // : ethers.getDefaultProvider(this.network);
-
-    this.submitterContract = new ethers.Contract(
-      // TODO !
-      '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
-      [
-        'function submitHash(string _hash, bytes _feesParameters) payable external',
-        'function getFeesAmount(uint256 _contentSize) public view returns(uint256)',
-      ],
-      this.provider.getSigner(),
-    );
+    this.provider = web3
+      ? new ethers.providers.Web3Provider(web3.currentProvider)
+      : new ethers.providers.JsonRpcProvider({ url: urlProvider });
   }
 
   /**
@@ -84,6 +88,19 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    if (!this.submitterContract) {
+      const network = await this.provider.getNetwork();
+
+      this.networkName =
+        network.chainId === 1 ? 'mainnet' : network.chainId === 4 ? 'rinkeby' : 'private';
+
+      this.submitterContract = new ethers.Contract(
+        requestHashSubmitterArtifact.getAddress(this.networkName),
+        requestHashSubmitterArtifact.getContractAbi(),
+        this.provider.getSigner(),
+      );
+    }
+
     // We don't use the node to persist the transaction, but we will Do it ourselves
 
     // create a block and add the transaction in it
@@ -106,7 +123,8 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
     const tx = await this.submitterContract.submitHash(
       ipfsHash,
       // tslint:disable:no-magic-numbers
-      ethers.utils.hexZeroPad(ethers.utils.hexlify(parseInt(ipfsSize, 10)), 32), { value: fee },
+      ethers.utils.hexZeroPad(ethers.utils.hexlify(parseInt(ipfsSize, 10)), 32),
+      { value: fee },
     );
 
     const ethBlock = await this.provider.getBlock(tx.blockNumber);
@@ -117,8 +135,7 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
       blockNumber: tx.blockNumber,
       blockTimestamp: ethBlock.timestamp,
       fee,
-      // TODO !
-      networkName: 'private',
+      networkName: this.networkName,
       smartContractAddress: tx.to,
       transactionHash: tx.hash,
     };
@@ -127,7 +144,7 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
     if (!this.cache[channelId]) {
       this.cache[channelId] = {};
     }
-    this.cache[channelId][ipfsHash] = {block, storageMeta};
+    this.cache[channelId][ipfsHash] = { block, storageMeta };
 
     return {
       meta: {
@@ -164,7 +181,11 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
     )();
 
     // get the transactions from the cache
-    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getTransactionsCachedAndCleanCache(channelId, data.meta.transactionsStorageLocation, timestampBoundaries);
+    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getTransactionsCachedAndCleanCache(
+      channelId,
+      data.meta.transactionsStorageLocation,
+      timestampBoundaries,
+    );
 
     // merge cache and data from the node
     return {
@@ -258,15 +279,21 @@ export default class HttpMetamaskDataAccess implements DataAccessTypes.IDataAcce
         const cache = this.cache[channelId][location];
 
         // For each cached block for the channel, we return the transaction if they are in the time boundaries
-        if (this.cache[channelId][location] && (
-          !timestampBoundaries ||
-          ((timestampBoundaries.from === undefined || timestampBoundaries.from <= cache?.storageMeta.blockTimestamp) &&
-            (timestampBoundaries.to === undefined || timestampBoundaries.to >= cache?.storageMeta.blockTimestamp))
-        ) ) {
+        if (
+          this.cache[channelId][location] &&
+          (!timestampBoundaries ||
+            ((timestampBoundaries.from === undefined ||
+              timestampBoundaries.from <= cache?.storageMeta.blockTimestamp) &&
+              (timestampBoundaries.to === undefined ||
+                timestampBoundaries.to >= cache?.storageMeta.blockTimestamp)))
+        ) {
           accumulator.meta.storageMeta.push(cache?.storageMeta);
           accumulator.meta.transactionsStorageLocation.push(location);
           // cache?.block.transactions will always contain one transaction
-          accumulator.result.transactions.push({transaction: cache?.block.transactions[0] as DataAccessTypes.ITransaction, timestamp: cache?.storageMeta.blockTimestamp});
+          accumulator.result.transactions.push({
+            timestamp: cache?.storageMeta.blockTimestamp,
+            transaction: cache?.block.transactions[0] as DataAccessTypes.ITransaction,
+          });
         }
         return accumulator;
       },

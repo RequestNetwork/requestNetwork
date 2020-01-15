@@ -28,12 +28,16 @@ export default class HttpRequestNetwork extends RequestNetwork {
       persistFromLocal,
       signatureProvider,
       useMockStorage,
+      web3,
+      urlProvider,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
       persistFromLocal?: boolean;
+      web3?: any;
+      urlProvider?: string;
     } = {
       nodeConnectionConfig: {},
       persistFromLocal: false,
@@ -46,7 +50,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : // useMockStorage === false
       persistFromLocal
       ? // persistFromLocal === true => use http-metamask-data-access
-        new HttpMetamaskDataAccess(nodeConnectionConfig)
+        new HttpMetamaskDataAccess({ nodeConnectionConfig, web3, urlProvider })
       : // persistFromLocal === false => use http-data-access
         new HttpDataAccess(nodeConnectionConfig);
 

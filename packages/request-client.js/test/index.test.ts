@@ -173,6 +173,40 @@ describe('index', () => {
     expect(spy).to.have.been.called.once;
   });
 
+  it('uses http://localhost:3000 with persist from local', async () => {
+    const mock = new mockAdapter(axios);
+    const callback = (): any => {
+      return [200, {ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY'}];
+    };
+
+    const spy = chai.spy();
+    const spyIpfsAdd = chai.spy(callback);
+    mock.onPost('/persistTransaction').reply(spy);
+    mock.onPost('/ipfsAdd').reply(spyIpfsAdd);
+    mock
+      .onGet('/getTransactionsByChannelId')
+      .reply(200, { meta: {storageMeta: [], transactionsStorageLocation: []}, result: { transactions: [] } });
+
+    const requestNetwork = new RequestNetwork({ urlProvider: 'http://localhost:8545', persistFromLocal: true, signatureProvider: fakeSignatureProvider });
+
+    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
+
+    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
+      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      parameters: {
+        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
+      },
+    };
+
+    await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+    expect(spy).to.not.have.been.called;
+    expect(spyIpfsAdd).to.have.been.called.once;
+  });
+
   it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
     const mock = new mockAdapter(axios);
 
