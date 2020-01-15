@@ -33,7 +33,7 @@ let encryptionDataPayer: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
-describe.skip('Request system', () => {
+describe('Request system', () => {
   beforeEach(async () => {
     // Storage setup
     provider = new web3Eth.providers.HttpProvider('http://localhost:8545');
