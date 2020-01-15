@@ -261,7 +261,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     try {
       ipfsSize = await this.ipfsManager.getContentLength(ipfsHash);
     } catch (error) {
-      throw Error(`Ipfs get length request error: ${error}`);
+      throw new Error(`Ipfs get length request error: ${error}`);
     }
 
     return {
