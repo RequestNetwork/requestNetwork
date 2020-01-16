@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.5.0...@requestnetwork/usage-examples@0.5.3) (2020-01-16)
+
+
+### Bug Fixes
+
+* backward compatibility issue + removing test failing for external reason ([#93](https://github.com/RequestNetwork/requestNetwork/issues/93)) ([9a405dc](https://github.com/RequestNetwork/requestNetwork/commit/9a405dcc66b36a9a4a4b885dea2cd50abaad2725))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 ## [0.5.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.5.0...@requestnetwork/usage-examples@0.5.2) (2019-12-18)
 
 
