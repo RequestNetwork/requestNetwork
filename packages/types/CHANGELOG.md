@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.9.0...@requestnetwork/types@0.11.0) (2020-01-16)
+
+
+### Features
+
+* **advanced-logic:** add ERC20 proxy contract payment network ([#74](https://github.com/RequestNetwork/requestNetwork/issues/74)) ([031a374](https://github.com/RequestNetwork/requestNetwork/commit/031a3742d2dddc0324e75b7853287d252bf43c6c))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.10.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.9.0...@requestnetwork/types@0.10.0) (2019-12-18)
 
 
