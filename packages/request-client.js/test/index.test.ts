@@ -117,7 +117,9 @@ function mockAxios(): any {
 }
 
 const mockBTCProvider = {
-  getAddressBalanceWithEvents: (): Promise<Types.IBalanceWithEvents<Types.IBTCPaymentEventParameters>> => {
+  getAddressBalanceWithEvents: (): Promise<
+    Types.IBalanceWithEvents<Types.IBTCPaymentEventParameters>
+  > => {
     return Promise.resolve({
       balance: '666743',
       events: [
@@ -176,18 +178,23 @@ describe('index', () => {
   it('uses http://localhost:3000 with persist from local', async () => {
     const mock = new mockAdapter(axios);
     const callback = (): any => {
-      return [200, {ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY'}];
+      return [200, { ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY' }];
     };
 
     const spyPersistTransaction = chai.spy();
     const spyIpfsAdd = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spyPersistTransaction);
     mock.onPost('/ipfsAdd').reply(spyIpfsAdd);
-    mock
-      .onGet('/getTransactionsByChannelId')
-      .reply(200, { meta: {storageMeta: [], transactionsStorageLocation: []}, result: { transactions: [] } });
+    mock.onGet('/getTransactionsByChannelId').reply(200, {
+      meta: { storageMeta: [], transactionsStorageLocation: [] },
+      result: { transactions: [] },
+    });
 
-    const requestNetwork = new RequestNetwork({ ethereumProviderUrl: 'http://localhost:8545', persistFromLocal: true, signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      ethereumProviderUrl: 'http://localhost:8545',
+      useLocalEthereumBroadcast: true,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
@@ -679,14 +686,14 @@ describe('index', () => {
       expect(requestData.balance.events[0]).to.deep.equal({
         amount: '10',
         name: 'refund',
-        parameters: {  note: 'received refund' },
+        parameters: { note: 'received refund' },
         timestamp: 1,
       });
       // @ts-ignore
       expect(requestData.balance.events[1]).to.deep.equal({
         amount: '1000',
         name: 'payment',
-        parameters: {  note: 'received payment' },
+        parameters: { note: 'received payment' },
         timestamp: 1,
       });
       sinon.restore();
@@ -1197,11 +1204,15 @@ describe('index', () => {
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('133');
-      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal('0x62264de4fbbe866df28e4fad7b4d44058f1b6ec74bf7c767a14eb67198c93a4d');
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+        '0x62264de4fbbe866df28e4fad7b4d44058f1b6ec74bf7c767a14eb67198c93a4d',
+      );
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal('0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+        '0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e',
+      );
     });
   });
 
@@ -1214,8 +1225,10 @@ describe('index', () => {
         useMockStorage: true,
       });
       // generate address randomly to avoid collisions
-      const paymentAddress = '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
-      const refundAddress = '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+      const paymentAddress =
+        '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+      const refundAddress =
+        '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
 
       const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
         id: Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
@@ -1246,12 +1259,18 @@ describe('index', () => {
       expect(data.balance?.events.length).to.equal(0);
       expect(data.meta).to.exist;
       expect(data.currency).to.equal('unknown');
-      expect(data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress).to.equal(paymentAddress);
-      expect(data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress).to.equal(refundAddress);
+      expect(
+        data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress,
+      ).to.equal(paymentAddress);
+      expect(
+        data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
+      ).to.equal(refundAddress);
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
 
       const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-      const erc20abiFragment = ['function transfer(address _to, uint _value) returns (bool transfer)'];
+      const erc20abiFragment = [
+        'function transfer(address _to, uint _value) returns (bool transfer)',
+      ];
 
       // Setup the ERC20 contract interface
       const contract = new ethers.Contract(
@@ -1316,7 +1335,7 @@ describe('index', () => {
         currency: {
           network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',  // Test Erc20
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // Test Erc20
         },
       });
 

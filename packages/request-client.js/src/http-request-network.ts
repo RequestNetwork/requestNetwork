@@ -20,15 +20,15 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * @param options.nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    * @param options.useMockStorage When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
-   * @param options.persistFromLocal When true, persisting use the node only for IPFS but persisting on ethereum through local provider (given in ethereumProviderUrl).
-   * @param options.ethereumProviderUrl Url of the Ethereum provider use to persist transactions if persistFromLocal is true.
+   * @param options.useLocalEthereumBroadcast When true, persisting use the node only for IPFS but persisting on ethereum through local provider (given in ethereumProviderUrl).
+   * @param options.ethereumProviderUrl Url of the Ethereum provider use to persist transactions if useLocalEthereumBroadcast is true.
    *
    */
   constructor(
     {
       decryptionProvider,
       nodeConnectionConfig,
-      persistFromLocal,
+      useLocalEthereumBroadcast,
       signatureProvider,
       useMockStorage,
       web3,
@@ -38,12 +38,12 @@ export default class HttpRequestNetwork extends RequestNetwork {
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
-      persistFromLocal?: boolean;
+      useLocalEthereumBroadcast?: boolean;
       web3?: any;
       ethereumProviderUrl?: string;
     } = {
       nodeConnectionConfig: {},
-      persistFromLocal: false,
+      useLocalEthereumBroadcast: false,
       useMockStorage: false,
     },
   ) {
@@ -51,10 +51,10 @@ export default class HttpRequestNetwork extends RequestNetwork {
       ? // useMockStorage === true => use mock data-access
         new MockDataAccess(new MockStorage())
       : // useMockStorage === false
-      persistFromLocal
-      ? // persistFromLocal === true => use http-metamask-data-access
+      useLocalEthereumBroadcast
+      ? // useLocalEthereumBroadcast === true => use http-metamask-data-access
         new HttpMetaMaskDataAccess({ nodeConnectionConfig, web3, ethereumProviderUrl })
-      : // persistFromLocal === false => use http-data-access
+      : // useLocalEthereumBroadcast === false => use http-data-access
         new HttpDataAccess(nodeConnectionConfig);
 
     super(dataAccess, signatureProvider, decryptionProvider);

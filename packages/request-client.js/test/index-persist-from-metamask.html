@@ -91,7 +91,7 @@
         const requestNetwork = new RequestNetwork.RequestNetwork({
           signatureProvider,
           // this is a test using the mock storage instead of a real request node
-          persistFromLocal: true,
+          useLocalEthereumBroadcast: true,
           web3: window.web3,
         });
 
