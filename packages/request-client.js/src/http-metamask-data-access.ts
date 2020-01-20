@@ -111,12 +111,12 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
       topics,
     );
 
-    // store on ipfs the block and the the ipfs hash and size
+    // store the block on ipfs and get the the ipfs hash and size
     const {
       data: { ipfsHash, ipfsSize },
     } = await axios.post('/ipfsAdd', { data: block }, this.axiosConfig);
 
-    // get the fee require to submit the hash
+    // get the fee required to submit the hash
     const fee = await this.submitterContract.getFeesAmount(ipfsSize);
 
     // submit the hash to ethereum
@@ -256,7 +256,7 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
   }
 
   /**
-   * Gets the transactions cached and remove the ones that have been retrieved from the node
+   * Gets the cached transactions and remove the ones that have been retrieved from the node
    * (public for easier testing)
    *
    * @param channelId The channel id to search for
