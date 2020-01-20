@@ -4,6 +4,7 @@ import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
+import HttpDataAccess from './http-data-access';
 
 // Maximum number of retries to attempt when http requests to the Node fail
 const HTTP_REQUEST_MAX_RETRY = 3;
@@ -14,7 +15,7 @@ const HTTP_REQUEST_RETRY_DELAY = 100;
 /**
  * Exposes a Data-Access module over HTTP
  */
-export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAccess {
+export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   /**
    * Cache block persisted directly (in case the node did not have the time to retrieve it)
    * (public for easier testing)
@@ -24,12 +25,6 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
       [ipfsHash: string]: { block: DataAccessTypes.IBlock; storageMeta: any } | null;
     };
   } = {};
-
-  /**
-   * Configuration that will be sent to axios for each request.
-   * We can also create a AxiosInstance with axios.create() but it dramatically complicates testing.
-   */
-  private axiosConfig: AxiosRequestConfig;
 
   private submitterContract: ethers.Contract | undefined;
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
@@ -52,14 +47,9 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
       nodeConnectionConfig: {},
     },
   ) {
-    ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
+    super(nodeConnectionConfig);
 
-    this.axiosConfig = Object.assign(
-      {
-        baseURL: 'http://localhost:3000',
-      },
-      nodeConnectionConfig,
-    );
+    ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 
     // Creates a local or default provider
     this.provider = web3
@@ -199,60 +189,6 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
         transactions: data.result.transactions.concat(transactionsCached.result.transactions),
       },
     };
-  }
-
-  /**
-   * Gets all the transactions of channel indexed by topic from the node through HTTP.
-   *
-   * @param topic topic to search for
-   * @param updatedBetween filter timestamp boundaries
-   */
-  public async getChannelsByTopic(
-    topic: string,
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getChannelsByTopic',
-          Object.assign(this.axiosConfig, {
-            params: { topic, updatedBetween },
-          }),
-        ),
-      {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
-  }
-
-  /**
-   * Gets all the transactions of channel indexed by multiple topics from the node through HTTP.
-   *
-   * @param topics topics to search for
-   * @param updatedBetween filter timestamp boundaries
-   */
-  public async getChannelsByMultipleTopics(
-    topics: string[],
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getChannelsByMultipleTopics',
-          Object.assign(this.axiosConfig, {
-            params: { topics, updatedBetween },
-          }),
-        ),
-      {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
   }
 
   /**
