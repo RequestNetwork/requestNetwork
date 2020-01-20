@@ -78,7 +78,7 @@ export default class HttpMetaMaskDataAccess implements DataAccessTypes.IDataAcce
   }
 
   /**
-   * Persists a new transaction on a node through HTTP.
+   * Persists a new transaction using the node only for IPFS but persisting on ethereum through local provider
    *
    * @param transactionData The transaction data
    * @param topics The topics used to index the transaction

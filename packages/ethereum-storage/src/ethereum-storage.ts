@@ -226,8 +226,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   }
 
   /**
-   * Append content into the storage: add the content to ipfs and the hash on Ethereum
-   * To be used only in case of persisting data outside the storage
+   * Add the content to ipfs
+   * To be used only in case of persisting the hash on ethereum outside the storage
    *
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
