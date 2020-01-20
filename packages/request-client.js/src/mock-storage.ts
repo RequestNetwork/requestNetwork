@@ -12,6 +12,22 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
+  public async _ipfsAdd(content: string): Promise<StorageTypes.IIpfsMeta> {
+    if (!content) {
+      throw Error('Error: no content provided');
+    }
+    const hash = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(content));
+
+    const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
+
+    this.data[hash] = { content, timestamp: nowTimestampInSec };
+
+    return {
+      ipfsHash: hash,
+      ipfsSize: content.length,
+    };
+  }
+
   public async append(content: string): Promise<StorageTypes.IEntry> {
     if (!content) {
       throw Error('Error: no content provided');
