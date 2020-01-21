@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 const artifactsRequestOpenHashSubmitter = require('../../artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json');
 const ARTIFACTS_OPEN_STORAGE_LAST_VERSION: string = artifactsRequestOpenHashSubmitter.lastVersion;
 
@@ -11,10 +9,10 @@ export function getContractAbi(): any {
   const artifactFilename: string =
     artifactsRequestOpenHashSubmitter[ARTIFACTS_OPEN_STORAGE_LAST_VERSION].artifact;
 
-  const artifact = require(path.join(
-    '../../artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/',
-    artifactFilename,
-  ));
+  const artifact = require(`../../artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/${artifactFilename.replace(
+    /\.[^/.]+$/,
+    '',
+  )}.json`);
 
   // Check the abi exists inside the artifact file
   if (!artifact.abi) {

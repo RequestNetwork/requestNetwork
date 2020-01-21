@@ -1,4 +1,3 @@
-import * as path from 'path';
 const artifacts = require('../../artifacts/RequestHashStorage/artifacts.json');
 const ARTIFACTS_VERSION: string = artifacts.lastVersion;
 
@@ -8,7 +7,11 @@ const ARTIFACTS_VERSION: string = artifacts.lastVersion;
  */
 export function getContractAbi(): any {
   const artifactFilename: string = artifacts[ARTIFACTS_VERSION].artifact;
-  const artifact = require(path.join('../../artifacts/RequestHashStorage/', artifactFilename));
+
+  const artifact = require(`../../artifacts/RequestHashStorage/${artifactFilename.replace(
+    /\.[^/.]+$/,
+    '',
+  )}.json`);
 
   // Check the abi exists inside the artifact file
   if (!artifact.abi) {

@@ -7,6 +7,7 @@ export interface IStorage {
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
+  _ipfsAdd: (data: string) => Promise<IIpfsMeta>;
 }
 
 /** An extensible template that declares a generic meta */
@@ -138,6 +139,12 @@ export interface IIpfsObject {
   ipfsLinks: any[];
   ipfsSize: number;
   content: string;
+}
+
+/** interface of ipfs meta */
+export interface IIpfsMeta {
+  ipfsHash: string;
+  ipfsSize: number;
 }
 
 /** Configuration for the pinRequest method */
