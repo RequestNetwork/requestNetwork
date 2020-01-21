@@ -12,28 +12,28 @@ import * as Types from '../../../../src/types';
 import DefaultBitcoinDetectionProvider from '../../../../src/api/payment-network/btc/default-bitcoin-detection-provider';
 
 const btcProviderMock0: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.IBalanceWithEvents> => ({
+  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
     balance: '0',
     events: [],
   }),
 };
 
 const btcProviderMock1: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.IBalanceWithEvents> => ({
+  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
     balance: '1',
     events: [],
   }),
 };
 
 const btcProviderMock2: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.IBalanceWithEvents> => ({
+  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
     balance: '2',
     events: [],
   }),
 };
 
 const btcProviderMockMinus1: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.IBalanceWithEvents> => ({
+  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
     balance: '-1',
     events: [],
   }),

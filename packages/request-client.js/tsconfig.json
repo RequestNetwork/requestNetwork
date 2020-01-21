@@ -12,6 +12,7 @@
     { "path": "../epk-signature" },
     { "path": "../multi-format" },
     { "path": "../request-logic" },
+    { "path": "../smart-contracts" },
     { "path": "../transaction-manager" },
     { "path": "../types" }
   ]

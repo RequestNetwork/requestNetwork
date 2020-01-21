@@ -78,7 +78,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }),
         'extensionsdata is wrong',
       ).to.deep.equal({
-        action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
+        action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -103,7 +103,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }),
         'extensionsdata is wrong',
       ).to.deep.equal({
-        action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
+        action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',

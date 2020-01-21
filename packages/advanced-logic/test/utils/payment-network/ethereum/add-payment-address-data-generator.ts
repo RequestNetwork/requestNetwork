@@ -15,14 +15,14 @@ export const invalidAddress = '0xnotandaddress';
 export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
-  action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
+  action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
-  action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
+  action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {
     refundAddress,
@@ -35,12 +35,12 @@ export const extensionStateWithPaymentAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
+        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
+        name: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         parameters: {
           paymentAddress,
         },
@@ -60,12 +60,12 @@ export const extensionStateWithRefundAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
+        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
+        name: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         parameters: {
           refundAddress,
         },

@@ -11,7 +11,7 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 
 This extension allows the payments and the refunds to be made in Ether on the Ethereum blockchain.
 A payment reference has to be given in input data when making the transfer to link the payment to the request.
-The payment reference is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`:
+The payment reference is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
@@ -33,7 +33,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values**                | Object |                                                |               |
 | **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
-| **values.salt**           | String | Salt for the request                           | Optional      |
+| **values.salt**           | String | Salt for the request                           | **Mandatory** |
 
 Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
 

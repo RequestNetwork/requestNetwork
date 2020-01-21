@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.7](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.5.4...@requestnetwork/request-node@0.5.7) (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+**Note:** Version bump only for package @requestnetwork/request-node
+
+
+
+
+
+## [0.5.6](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.5.4...@requestnetwork/request-node@0.5.6) (2019-12-18)
+
+
+
+# 0.10.0 (2019-12-04)
+
+**Note:** Version bump only for package @requestnetwork/request-node
+
+
+
+
+
 ## [0.5.5](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.5.4...@requestnetwork/request-node@0.5.5) (2019-12-04)
 
 **Note:** Version bump only for package @requestnetwork/request-node

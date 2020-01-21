@@ -1,0 +1,55 @@
+{
+  "name": "@requestnetwork/smart-contracts",
+  "version": "0.3.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Smart contracts for the Request protocol.",
+  "keywords": [
+    "requestnetwork",
+    "smart-contracts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contract#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/src/lib/index.js",
+  "types": "dist/src/lib/index.d.ts",
+  "directories": {
+    "lib": "src/lib",
+    "test": "test/lib"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:lib": "tsc -b",
+    "build:sol": "truffle compile --contracts_directory=./src",
+    "build": "yarn run build:lib && yarn run build:sol",
+    "clean:lib": "shx rm -rf dist",
+    "clean:sol": "shx rm -rf build",
+    "clean": "yarn run clean:lib && yarn run clean:sol",
+    "lint:lib": "tslint --project . && eslint \"src/lib/**/*.ts\"",
+    "lint:sol": "solium --dir src/contracts",
+    "lint": "yarn run lint:lib && yarn run lint:sol",
+    "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "deploy": "truffle --contracts_directory=./src deploy",
+    "test": "truffle test --contracts_directory=./src test/contracts/*.js"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "2.4.0",
+    "ethers": "4.0.38",
+    "ganache-cli": "6.7.0",
+    "lint-staged": "9.5.0",
+    "shx": "0.3.2",
+    "truffle": "5.1.2"
+  }
+}

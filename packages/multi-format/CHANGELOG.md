@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/multi-format@0.2.1...@requestnetwork/multi-format@0.2.4) (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+**Note:** Version bump only for package @requestnetwork/multi-format
+
+
+
+
+
+## [0.2.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/multi-format@0.2.1...@requestnetwork/multi-format@0.2.3) (2019-12-18)
+
+
+
+# 0.10.0 (2019-12-04)
+
+**Note:** Version bump only for package @requestnetwork/multi-format
+
+
+
+
+
 ## [0.2.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/multi-format@0.2.1...@requestnetwork/multi-format@0.2.2) (2019-12-04)
 
 **Note:** Version bump only for package @requestnetwork/multi-format

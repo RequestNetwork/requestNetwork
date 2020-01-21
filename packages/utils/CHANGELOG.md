@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.10.0) (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Features
+
+* add ETH paymentNetwork to request-client  ([#617](https://github.com/RequestNetwork/requestNetwork/issues/617)) ([84ed64e](https://github.com/RequestNetwork/requestNetwork/commit/84ed64ebf96a296155dc2d4d5e6c538344fb881b))
+
+
+
+
+
+# [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.9.0) (2019-12-18)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Features
+
+* add ETH paymentNetwork to request-client  ([#617](https://github.com/RequestNetwork/requestNetwork/issues/617)) ([84ed64e](https://github.com/RequestNetwork/requestNetwork/commit/84ed64ebf96a296155dc2d4d5e6c538344fb881b))
+
+
+
+
+
 # [0.8.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.8.0) (2019-12-04)
 
 

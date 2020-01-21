@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>@requestnetwork/request-client.js Test Page</title>
-    <script src="..\dist\requestnetwork.min.js"></script>
+    <script src="..\..\request-client.js\dist\requestnetwork.min.js"></script>
     <script src="..\..\epk-signature\dist\epk-signature.min.js"></script>
   </head>
   <body>
@@ -18,6 +18,7 @@
             currency: {
               type: RequestNetwork.Types.RequestLogic.CURRENCY.BTC,
               value: 'BTC',
+              network: 'testnet',
             },
             expectedAmount: '100000000000',
             payee: {

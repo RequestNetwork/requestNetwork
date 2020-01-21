@@ -43,7 +43,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
     {
       action: 'create',
       id: 'pn-testnet-bitcoin-address-based',
-      parameters: {},
+      parameters: { paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v' },
       version: '0.1.0',
     },
   ],
@@ -150,7 +150,7 @@ const dataSecondRequest = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: {
     currency: {
-      network: 'testnet',
+      network: 'rinkeby',
       type: RequestLogicTypes.CURRENCY.ETH,
       value: 'ETH',
     },

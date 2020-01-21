@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/advanced-logic",
-  "version": "0.7.0",
+  "version": "0.9.0",
   "publishConfig": {
     "access": "public"
   },
@@ -32,16 +32,16 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "stryker": "stryker run",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
-    "test:watch": "nyc mocha --watch --watch-extensions ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\""
+    "test": "nyc mocha --extension ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.9.1",
-    "@requestnetwork/utils": "0.8.0",
+    "@requestnetwork/types": "0.11.0",
+    "@requestnetwork/utils": "0.10.0",
     "@types/node": "11.9.0",
     "lodash": "4.17.13",
     "wallet-address-validator": "0.2.4"
@@ -55,15 +55,15 @@
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
     "@types/lodash": "4.14.120",
-    "@types/mocha": "5.2.6",
+    "@types/mocha": "5.2.7",
     "@typescript-eslint/parser": "1.2.0",
     "chai": "4.2.0",
     "chai-spies": "1.0.0",
     "eslint": "5.13.0",
-    "eslint-plugin-spellcheck": "0.0.11",
+    "eslint-plugin-spellcheck": "0.0.14",
     "eslint-plugin-typescript": "0.14.0",
     "lint-staged": "8.1.3",
-    "mocha": "5.2.0",
+    "mocha": "6.2.2",
     "nyc": "13.2.0",
     "prettier": "1.16.4",
     "shx": "0.3.2",
