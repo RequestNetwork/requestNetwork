@@ -92,6 +92,7 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
+  _ipfsAdd: chai.spy(),
   append: chai.spy(
     async (): Promise<any> => {
       return appendResult;
@@ -488,6 +489,7 @@ describe('data-access', () => {
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
+      _ipfsAdd: chai.spy(),
       append: chai.spy(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
       initialize: chai.spy(),
@@ -586,6 +588,7 @@ describe('data-access', () => {
 
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
+      _ipfsAdd: chai.spy(),
       append: chai.spy.returns(appendResult),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
       initialize: chai.spy(),
