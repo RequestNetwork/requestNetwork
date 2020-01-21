@@ -4309,10 +4309,10 @@ escodegen@~1.9.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-plugin-spellcheck@0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-spellcheck/-/eslint-plugin-spellcheck-0.0.11.tgz#f3fcff70a0446e1f04eacd5ebaa8cab23e691b4a"
-  integrity sha512-P8NCB9Y9u3PLSdW5PeVY6kcBR/WkP/FB3toik5ahaGc13s+Di+Op+ItinB89Z+61+IrXQX//qeGh1mgCGrp7LA==
+eslint-plugin-spellcheck@0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-spellcheck/-/eslint-plugin-spellcheck-0.0.14.tgz#8910ae9daa05993a99802b7467ae68aa07edd1d6"
+  integrity sha512-bjhLw5H67/kTv3g8NYrqLk0MMIFchLqzgBaGOKi3rQQflGaXoP8/rtmHDWOXX5AJCwIj7+OVqe5JM0GB+5vWFg==
   dependencies:
     globals "^11.3.0"
     hunspell-spellchecker "^1.0.2"
