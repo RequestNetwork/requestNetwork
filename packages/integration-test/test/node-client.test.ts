@@ -182,6 +182,7 @@ describe('Request client using a request node', () => {
       expectedAmount: '1000',
       payee: payeeIdentity,
       payer: payerIdentity,
+      timestamp: Utils.getCurrentTimestampInSecond(),
     };
 
     const request2: Request = await requestNetwork.createRequest({

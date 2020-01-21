@@ -18,6 +18,10 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
+  public async _ipfsAdd(): Promise<never> {
+    throw Error('will never be used');
+  }
+
   public async append(content: string): Promise<StorageTypes.IEntry> {
     if (!content) {
       throw Error('Error: no content provided');

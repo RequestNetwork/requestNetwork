@@ -16,7 +16,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * Configuration that will be sent to axios for each request.
    * We can also create a AxiosInstance with axios.create() but it dramatically complicates testing.
    */
-  private axiosConfig: AxiosRequestConfig;
+  protected axiosConfig: AxiosRequestConfig;
 
   /**
    * Creates an instance of HttpDataAccess.
