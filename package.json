@@ -16,7 +16,7 @@
   "scripts": {
     "build": "lerna run build",
     "clean": "lerna run clean",
-    "build:tsc": "tsc -b packages/advanced-logic packages/data-access packages/data-format packages/epk-decryption packages/epk-signature packages/ethereum-storage packages/integration-test packages/multi-format packages/prototype-estimator packages/request-client.js packages/request-logic packages/request-node packages/smart-contracts packages/toolbox packages/transaction-manager packages/types packages/usage-examples packages/utils packages/web3-signature",
+    "build:tsc": "tsc -b packages/advanced-logic packages/data-access packages/data-format packages/epk-decryption packages/epk-signature packages/ethereum-storage packages/integration-test packages/multi-format packages/prototype-estimator packages/request-client.js packages/request-logic packages/request-node packages/smart-contracts packages/toolbox packages/transaction-manager packages/types packages/usage-examples packages/utils packages/web3-signature  packages/local-storage",
     "lint": "lerna run lint",
     "lint-staged": "lerna run lint-staged",
     "lerna": "lerna",

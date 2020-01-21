@@ -31,11 +31,18 @@ export default class TimestampByLocationTransactionIndex {
    */
   public async pushTimestampByLocation(dataId: string, timestamp: number): Promise<void> {
     if (!(await this.timestampByLocation.get(dataId))) {
-      await this.timestampByLocation!.set(dataId, timestamp);
+      await this.timestampByLocation.set(dataId, timestamp);
     }
-    const lastTransactionTimestamp = await this.getLastTransactionTimestamp();
-    if (!lastTransactionTimestamp || timestamp > lastTransactionTimestamp) {
-      await this.setLastTransactionTimestamp(timestamp);
+
+    // if not cache
+    if (!dataId.includes('cache')) {
+      const lastTransactionTimestamp = await this.getLastTransactionTimestamp();
+      if (!lastTransactionTimestamp || timestamp > lastTransactionTimestamp) {
+        await this.setLastTransactionTimestamp(timestamp);
+      }
+
+      // remove the cache if exist
+      await this.timestampByLocation.delete(`cache:${dataId}`);
     }
   }
 

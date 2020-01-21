@@ -69,6 +69,10 @@ export default class LocationByTopicTransactionIndex {
     for (const id of Object.keys(blockHeader.channelIds)) {
       const existingLocationIds: Set<string> =
         (await this.storageLocationByChannelId.get(id)) || new Set([]);
+
+      // remove the cache if exist
+      existingLocationIds.delete(`cache:${storageLocation}`);
+
       await this.storageLocationByChannelId.set(id, existingLocationIds.add(storageLocation));
     }
 

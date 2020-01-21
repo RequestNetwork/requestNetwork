@@ -30,6 +30,11 @@ export interface IDataAccessOptions {
    * Defaults to DEFAULT_INTERVAL_TIME.
    */
   synchronizationIntervalTime?: number;
+
+  /**
+   * Cache storage
+   */
+  cache?: StorageTypes.IStorage;
 }
 
 /**
@@ -43,6 +48,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   protected isInitialized: boolean = false;
   // Storage layer
   private storage: StorageTypes.IStorage;
+  // Cache storage
+  private cache: StorageTypes.IStorage | null;
 
   // The function used to synchronize with the storage should be called periodically
   // This object allows to handle the periodical call of the function
@@ -78,6 +85,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       ...options,
     };
     this.storage = storage;
+    this.cache = options.cache || null;
     this.lastSyncStorageTimestamp = 0;
     this.synchronizationTimer = new IntervalTimer(
       (): Promise<void> => this.synchronizeNewDataIds(),
@@ -161,8 +169,25 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       channelId,
       topics,
     );
-    // get the topic of the data in storage
-    const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
+
+    let resultAppend;
+    if (this.cache) {
+      // Store the data
+      resultAppend = await this.cache.append(JSON.stringify(updatedBlock));
+
+      // Store the data to the real storage
+      this.storage.append(JSON.stringify(updatedBlock)).then(async resultOfRealAppend => {
+        // adds this transaction to the index, to enable retrieving it later.
+        this.transactionIndex.addTransaction(
+          resultOfRealAppend.id,
+          updatedBlock.header,
+          resultOfRealAppend.meta.timestamp,
+        );
+      });
+    } else {
+      // Store the data to the real storage
+      resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
+    }
 
     // adds this transaction to the index, to enable retrieving it later.
     await this.transactionIndex.addTransaction(
@@ -202,6 +227,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       channelId,
       timestampBoundaries,
     );
+
     // Gets the block and meta from the storage location
     const blockWithMetaList = await this.getBlockAndMetaFromStorageLocation(storageLocationList);
 
@@ -464,7 +490,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // Gets blocks indexed by topic
     return Promise.all(
       storageLocationList.map(async location => {
-        const resultRead = await this.storage.read(location);
+        const resultRead =
+          !location.startsWith('Qm') && this.cache
+            ? await this.cache.read(location)
+            : await this.storage.read(location);
 
         return {
           block: JSON.parse(resultRead.content),

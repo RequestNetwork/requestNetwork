@@ -92,7 +92,11 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
-  append: chai.spy.returns(appendResult),
+  append: chai.spy(
+    async (): Promise<any> => {
+      return appendResult;
+    },
+  ),
   getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
   initialize: chai.spy(),
   read: (param: string): any => {
@@ -337,6 +341,73 @@ describe('data-access', () => {
       const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
         arbitraryTopic1,
       ]);
+
+      /* tslint:disable:object-literal-sort-keys  */
+      /* tslint:disable:object-literal-key-quotes  */
+      expect(defaultFakeStorage.append).to.have.been.called.with(
+        JSON.stringify({
+          header: {
+            channelIds: {
+              [arbitraryId1]: [0],
+            },
+            topics: {
+              [arbitraryId1]: [arbitraryTopic1],
+            },
+            version: '0.1.0',
+          },
+          transactions: [
+            {
+              data: '{"attribut1":"plop","attribut2":"value"}',
+            },
+          ],
+        }),
+      );
+      expect(result, 'result wrong').to.deep.equal({
+        meta: {
+          storageMeta: { timestamp: 1 },
+          topics: [arbitraryTopic1],
+          transactionStorageLocation: dataIdBlock2tx,
+        },
+        result: {},
+      });
+    });
+
+    it('can persistTransaction() with cache', async () => {
+      const cacheStorage: StorageTypes.IStorage = {
+        append: chai.spy.returns(appendResult),
+        getData: chai.spy(),
+        initialize: chai.spy(),
+        read: chai.spy(),
+        readMany: chai.spy(),
+      };
+
+      const dataAccess = new DataAccess(defaultFakeStorage, { cache: cacheStorage });
+      await dataAccess.initialize();
+
+      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+        arbitraryTopic1,
+      ]);
+
+      /* tslint:disable:object-literal-sort-keys  */
+      /* tslint:disable:object-literal-key-quotes  */
+      expect(cacheStorage.append).to.have.been.called.with(
+        JSON.stringify({
+          header: {
+            channelIds: {
+              [arbitraryId1]: [0],
+            },
+            topics: {
+              [arbitraryId1]: [arbitraryTopic1],
+            },
+            version: '0.1.0',
+          },
+          transactions: [
+            {
+              data: '{"attribut1":"plop","attribut2":"value"}',
+            },
+          ],
+        }),
+      );
 
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */

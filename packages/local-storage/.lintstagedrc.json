@@ -1,0 +1,4 @@
+{
+  "src/lib/**/*.ts": ["tslint --project . --fix", "prettier --single-quote --write", "git add"],
+  "test/contracts/*.js": ["eslint --fix", "prettier --single-quote --write", "git add"]
+}

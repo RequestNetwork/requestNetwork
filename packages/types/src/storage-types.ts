@@ -43,6 +43,8 @@ export interface IEntryMetadata {
     /** Size in bytes of the file on ipfs */
     size: number;
   };
+  /** meta about local storing */
+  local?: ILocalMetadata;
   /** timestamp of the data */
   timestamp: number;
 }
@@ -89,6 +91,11 @@ export interface IEthereumMetadata {
   gasFee?: string;
 }
 
+/** Local storage meta data */
+export interface ILocalMetadata {
+  location: string;
+}
+
 /** Ethereum network id */
 export enum EthereumNetwork {
   PRIVATE = 0,
@@ -128,6 +135,9 @@ export enum IpfsGatewayProtocol {
 export enum StorageSystemType {
   /** Ethereum and IPFS */
   ETHEREUM_IPFS = 'ethereumIpfs',
+
+  /** Storage in local, only used for node caching for the moment */
+  LOCAL = 'local',
 
   /** Mock storage, in memory. Used for local development. Should not be used in production */
   IN_MEMORY_MOCK = 'inMemoryMock',

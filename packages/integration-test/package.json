@@ -43,6 +43,7 @@
     "@requestnetwork/epk-decryption": "0.3.6",
     "@requestnetwork/epk-signature": "0.5.7",
     "@requestnetwork/ethereum-storage": "0.4.8",
+    "@requestnetwork/local-storage": "0.1.0",
     "@requestnetwork/multi-format": "0.2.4",
     "@requestnetwork/request-client.js": "0.12.0",
     "@requestnetwork/request-logic": "0.8.3",
@@ -62,5 +63,8 @@
     "tslint": "5.12.1",
     "typescript": "3.7.2",
     "web3-eth": "1.0.0-beta.37"
+  },
+  "dependencies": {
+    "base32-decode": "^1.0.0"
   }
 }

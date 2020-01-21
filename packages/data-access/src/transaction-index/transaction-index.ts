@@ -53,6 +53,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
     if (!this.locationByTopic) {
       throw new Error('TransactionIndex must be initialized');
     }
+
     // topic the dataId with block topic
     await this.locationByTopic.pushStorageLocationIndexedWithBlockTopics(dataId, header);
 

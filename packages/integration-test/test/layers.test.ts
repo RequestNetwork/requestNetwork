@@ -7,6 +7,7 @@ import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
+import { LocalStorage } from '@requestnetwork/local-storage';
 import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -30,6 +31,8 @@ let encryptionDataPayee: any;
 let payerSignatureInfo: SignatureTypes.ISignatureParameters;
 let payerIdentity: IdentityTypes.IIdentity;
 let encryptionDataPayer: any;
+let decryptionProvider: any;
+let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
@@ -71,7 +74,7 @@ describe('Request system', () => {
       value: '0x5aeda56215b167893e80b4fe645ba6d5bab767de',
     };
 
-    const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
+    signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
     signatureProvider.addSignatureParameters(payerSignatureInfo);
 
     encryptionDataPayee = {
@@ -112,7 +115,7 @@ describe('Request system', () => {
     };
 
     // Decryption provider setup
-    const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
+    decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
       encryptionDataPayee.decryptionParams,
     );
     decryptionProvider.addDecryptionParameters(encryptionDataPayer.decryptionParams);
@@ -172,6 +175,75 @@ describe('Request system', () => {
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
+    assert.exists(request);
+  });
+
+  it('can create a request with cache', async () => {
+    const localStorage: StorageTypes.IStorage = new LocalStorage('localhost');
+
+    const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
+      host: 'localhost',
+      port: 5001,
+      protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
+      timeout: 10000,
+    };
+    const web3Connection: StorageTypes.IWeb3Connection = {
+      networkId: StorageTypes.EthereumNetwork.PRIVATE,
+      web3Provider: provider,
+    };
+    const ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
+
+    // Data access setup
+    dataAccess = new DataAccess(ethereumStorage, { cache: localStorage });
+    await dataAccess.initialize();
+
+    // Transaction manager setup
+    const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
+
+    // Advanced Logic setup
+    advancedLogic = new AdvancedLogic();
+
+    // Logic setup
+    requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
+
+    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+      content: { this: 'could', be: 'an', invoice: true },
+    });
+
+    const payer = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    };
+
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      expectedAmount: '100000000000',
+      extensionsData: [contentDataExtensionData],
+      payee: payeeIdentity,
+      payer,
+    };
+
+    const topics = [
+      Utils.crypto.normalizeKeccak256Hash(payeeIdentity),
+      Utils.crypto.normalizeKeccak256Hash(payer),
+    ];
+
+    const resultCreation = await requestLogic.createRequest(
+      requestCreationHash,
+      payeeIdentity,
+      topics,
+    );
+
+    assert.exists(resultCreation);
+
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    assert.equal(resultCreation.result.requestId.length, requestIdLength);
+
+    const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
     assert.exists(request);
   });
 

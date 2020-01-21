@@ -9,6 +9,7 @@
     { "path": "../request-client.js" },
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
+    { "path": "../local-storage" },
     { "path": "../epk-decryption" },
     { "path": "../epk-signature" },
     { "path": "../multi-format" },
