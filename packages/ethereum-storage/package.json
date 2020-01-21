@@ -76,7 +76,7 @@
     "fetch-mock": "7.3.3",
     "lint-staged": "8.1.3",
     "mocha": "6.2.2",
-    "nyc": "13.2.0",
+    "nyc": "15.0.0",
     "openzeppelin-solidity": "2.1.2",
     "openzeppelin-test-helpers": "0.1.2",
     "prettier": "1.16.4",
