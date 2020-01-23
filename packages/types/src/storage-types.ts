@@ -1,13 +1,15 @@
+import { EventEmitter } from 'events';
+
 const bigNumber: any = require('bn.js');
 
 /** Interface of the storage */
 export interface IStorage {
   initialize: () => Promise<void>;
-  append: (data: string) => Promise<IEntry>;
+  append: (data: string) => Promise<IAppendResult>;
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
-  _ipfsAdd: (data: string) => Promise<IIpfsMeta>;
+  _ipfsAdd?: (data: string) => Promise<IIpfsMeta>;
 }
 
 /** An extensible template that declares a generic meta */
@@ -19,6 +21,13 @@ export interface IWithMeta<META> {
 export interface ITimestampBoundaries {
   from?: number;
   to?: number;
+}
+
+/** Result of the append (IEntry + EventEmitter) */
+export interface IAppendResult extends EventEmitter {
+  id: string;
+  content: string;
+  meta: IEntryMetadata;
 }
 
 /** One entry on the storage layer */
@@ -44,8 +53,15 @@ export interface IEntryMetadata {
     /** Size in bytes of the file on ipfs */
     size: number;
   };
+  /** meta about local storing */
+  local?: ILocalMetadata;
   /** timestamp of the data */
   timestamp: number;
+}
+
+/** Local storage meta data */
+export interface ILocalMetadata {
+  location: string;
 }
 
 /** One entry on the ethereum smart contract */
@@ -129,6 +145,9 @@ export enum IpfsGatewayProtocol {
 export enum StorageSystemType {
   /** Ethereum and IPFS */
   ETHEREUM_IPFS = 'ethereumIpfs',
+
+  /** Storage in local, only used for node caching for the moment */
+  LOCAL = 'local',
 
   /** Mock storage, in memory. Used for local development. Should not be used in production */
   IN_MEMORY_MOCK = 'inMemoryMock',

@@ -1,12 +1,14 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
+import { EventEmitter } from 'events';
 import {
   getIpfsExpectedBootstrapNodes,
   getMaxConcurrency,
   getMaxIpfsReadRetry,
   getPinRequestConfig,
 } from './config';
+
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsConnectionError from './ipfs-connection-error';
 import IpfsManager from './ipfs-manager';
@@ -57,6 +59,11 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public maxIpfsReadRetry: number = getMaxIpfsReadRetry();
 
   /**
+   * If true the append() will return before the ethereum transaction is mined and trigger an event when it is
+   */
+  private enableFastAppend: boolean = false;
+
+  /**
    * Logger instance
    */
   private logger: LogTypes.ILogger;
@@ -74,12 +81,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection,
     web3Connection?: StorageTypes.IWeb3Connection,
     {
+      enableFastAppend,
       getLastBlockNumberDelay,
       logger,
       maxConcurrency,
       maxRetries,
       retryDelay,
     }: {
+      enableFastAppend?: boolean;
       getLastBlockNumberDelay?: number;
       logger?: LogTypes.ILogger;
       maxConcurrency?: number;
@@ -88,6 +97,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     } = {},
     metadataStore?: Keyv.Store<any>,
   ) {
+    this.enableFastAppend = enableFastAppend === undefined ? false : enableFastAppend;
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
@@ -172,7 +182,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param content Content to add into the storage
    * @returns Promise resolving id used to retrieve the content
    */
-  public async append(content: string): Promise<StorageTypes.IEntry> {
+  public async append(content: string): Promise<StorageTypes.IAppendResult> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
     }
@@ -182,7 +192,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // Add content to IPFS and get the hash back
-    let ipfsHash;
+    let ipfsHash: string;
     try {
       ipfsHash = await this.ipfsManager.add(content);
     } catch (error) {
@@ -190,39 +200,66 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // Get content length from ipfs
-    let contentSize;
+    let contentSize: number;
     try {
       contentSize = await this.ipfsManager.getContentLength(ipfsHash);
     } catch (error) {
       throw Error(`Ipfs get length request error: ${error}`);
     }
 
-    const feesParameters: StorageTypes.IFeesParameters = { contentSize };
-
-    // Add content hash to ethereum
-    let ethereumMetadata;
-    try {
-      ethereumMetadata = await this.smartContractManager.addHashAndSizeToEthereum(
-        ipfsHash,
-        feesParameters,
-      );
-    } catch (error) {
-      throw Error(`Smart contract error: ${error}`);
-    }
-
-    // Save the metadata of the new ipfsHash into the Ethereum metadata cache
-    await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
-
-    return {
+    const result: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
       content,
       id: ipfsHash,
       meta: {
-        ethereum: ethereumMetadata,
         ipfs: { size: contentSize },
         storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-        timestamp: ethereumMetadata.blockTimestamp,
+        timestamp: Utils.getCurrentTimestampInSecond(),
       },
-    };
+    });
+
+    const feesParameters: StorageTypes.IFeesParameters = { contentSize };
+
+    if (this.enableFastAppend) {
+      this.smartContractManager
+        .addHashAndSizeToEthereum(ipfsHash, feesParameters)
+        .then(async (ethereumMetadata: StorageTypes.IEthereumMetadata) => {
+          const resultAfterBroadCast: StorageTypes.IEntry = {
+            content,
+            id: ipfsHash,
+            meta: {
+              ethereum: ethereumMetadata,
+              ipfs: { size: contentSize },
+              storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+              timestamp: ethereumMetadata.blockTimestamp,
+            },
+          };
+          // Save the metadata of the new ipfsHash into the Ethereum metadata cache
+          await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
+
+          result.emit('confirmed', resultAfterBroadCast);
+        });
+      return result;
+    } else {
+      const ethereumMetadata: StorageTypes.IEthereumMetadata = await this.smartContractManager.addHashAndSizeToEthereum(
+        ipfsHash,
+        feesParameters,
+      );
+
+      const resultAfterBroadCast: StorageTypes.IEntry = {
+        content,
+        id: ipfsHash,
+        meta: {
+          ethereum: ethereumMetadata,
+          ipfs: { size: contentSize },
+          storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+          timestamp: ethereumMetadata.blockTimestamp,
+        },
+      };
+      // Save the metadata of the new ipfsHash into the Ethereum metadata cache
+      await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
+
+      return Object.assign(new EventEmitter(), resultAfterBroadCast);
+    }
   }
 
   /**

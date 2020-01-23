@@ -137,4 +137,5 @@ export interface ITransactionIndex {
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,
   ): Promise<string[]>;
+  updateTimestamp(dataId: string, timestamp: number): Promise<void>;
 }
