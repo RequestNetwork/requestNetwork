@@ -363,6 +363,10 @@ describe('Request system', () => {
     const timestampReduce1 =
       resultReduce1.meta.transactionManagerMeta.dataAccessMeta.storageMeta.timestamp;
 
+    // wait a bit
+    // tslint:disable-next-line:no-magic-numbers
+    await new Promise((r: any): any => setTimeout(r, 1000));
+
     // cancel request
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
       requestId: requestId1,
