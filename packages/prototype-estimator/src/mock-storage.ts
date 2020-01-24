@@ -3,6 +3,7 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { EventEmitter } from 'events';
 
 /**
  * Storage layer implemented with in-memory hashmap, to be used for testing.
@@ -22,7 +23,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     throw Error('will never be used');
   }
 
-  public async append(content: string): Promise<StorageTypes.IEntry> {
+  public async append(content: string): Promise<StorageTypes.IAppendResult> {
     if (!content) {
       throw Error('Error: no content provided');
     }
@@ -31,14 +32,14 @@ export default class MockStorage implements StorageTypes.IStorage {
     const timestamp = Utils.getCurrentTimestampInSecond();
     this.data[hash] = { content, timestamp };
 
-    return {
+    return Object.assign(new EventEmitter(), {
       content: '',
       id: hash,
       meta: {
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp,
       },
-    };
+    });
   }
 
   public async read(id: string): Promise<StorageTypes.IEntry> {

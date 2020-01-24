@@ -30,7 +30,6 @@ class RequestNode {
    */
   public dataAccess: DataAccess;
   public ethereumStorage: StorageTypes.IStorage;
-  public cacheEthereumStorage: StorageTypes.IStorage;
 
   private express: any;
   private initialized: boolean;
@@ -55,19 +54,14 @@ class RequestNode {
       : undefined;
 
     // Use ethereum storage for the storage layer
-    const { cacheEthereumStorage, ethereumStorage } = getEthereumStorage(
-      getMnemonic(),
-      this.logger,
-      store,
-    );
+    const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, store);
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
     const transactionIndex = new TransactionIndex(store);
 
-    this.cacheEthereumStorage = cacheEthereumStorage;
     this.ethereumStorage = ethereumStorage;
 
-    this.dataAccess = new DataAccess(cacheEthereumStorage, {
+    this.dataAccess = new DataAccess(ethereumStorage, {
       logger: this.logger,
       transactionIndex,
     });

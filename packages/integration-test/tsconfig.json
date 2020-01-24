@@ -8,7 +8,6 @@
     { "path": "../advanced-logic" },
     { "path": "../request-client.js" },
     { "path": "../data-access" },
-    { "path": "../cache-ethereum-storage" },
     { "path": "../ethereum-storage" },
     { "path": "../epk-decryption" },
     { "path": "../epk-signature" },

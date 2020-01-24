@@ -3,7 +3,6 @@ import 'mocha';
 const web3Eth = require('web3-eth');
 
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { CacheEthereumStorage } from '@requestnetwork/cache-ethereum-storage';
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
@@ -50,7 +49,7 @@ describe('Request system', () => {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
       web3Provider: provider,
     };
-    const ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
+    const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
 
     // Data access setup
     dataAccess = new DataAccess(ethereumStorage);
@@ -189,17 +188,10 @@ describe('Request system', () => {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
       web3Provider: provider,
     };
-    const ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection, {
-      enableFastAppend: true,
-    });
-
-    const cacheEthereumStorage: StorageTypes.IStorage = new CacheEthereumStorage(
-      ethereumStorage,
-      'localhost',
-    );
+    const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
 
     // Data access setup
-    dataAccess = new DataAccess(cacheEthereumStorage);
+    dataAccess = new DataAccess(ethereumStorage);
     await dataAccess.initialize();
 
     // Transaction manager setup

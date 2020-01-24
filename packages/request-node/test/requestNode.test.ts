@@ -32,7 +32,7 @@ describe('requestNode server', () => {
     server.close();
   });
 
-  it('responds with status 404 to unimplemented requests', async () => {
+  it('responds with status 404 to unimplemented requests', () => {
     request(server)
       .post('/')
       .end((_err, res) => {

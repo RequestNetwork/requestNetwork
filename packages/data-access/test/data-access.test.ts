@@ -1,6 +1,8 @@
 import 'mocha';
 import * as sinon from 'sinon';
 
+import { EventEmitter } from 'events';
+
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const spies = require('chai-spies');
@@ -74,13 +76,13 @@ const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   lastTimestamp: 0,
 };
 
-const appendResult: StorageTypes.IEntry = {
+const appendResult: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
+  content: '',
+  id: dataIdBlock2tx,
   meta: {
     timestamp: 1,
   },
-  id: dataIdBlock2tx,
-  content: '',
-};
+});
 
 const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   entries: [],

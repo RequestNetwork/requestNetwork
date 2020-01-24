@@ -59,9 +59,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public maxIpfsReadRetry: number = getMaxIpfsReadRetry();
 
   /**
-   * If true the append() will return before the ethereum transaction is mined and trigger an event when it is
+   * Timestamp of the dataId not mined on ethereum yet
    */
-  private enableFastAppend: boolean = false;
+  private buffer: { [id: string]: number | undefined };
+
+  /**
+   * Url where can be reached the data hosted by this storage
+   */
+  private locationBufferUrl: string;
 
   /**
    * Logger instance
@@ -78,17 +83,16 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param metadataStore a Keyv store to persist the metadata in ethereumMetadataCache
    */
   public constructor(
+    locationBufferUrl: string,
     ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection,
     web3Connection?: StorageTypes.IWeb3Connection,
     {
-      enableFastAppend,
       getLastBlockNumberDelay,
       logger,
       maxConcurrency,
       maxRetries,
       retryDelay,
     }: {
-      enableFastAppend?: boolean;
       getLastBlockNumberDelay?: number;
       logger?: LogTypes.ILogger;
       maxConcurrency?: number;
@@ -97,7 +101,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     } = {},
     metadataStore?: Keyv.Store<any>,
   ) {
-    this.enableFastAppend = !!enableFastAppend;
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
@@ -112,6 +115,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.smartContractManager,
       metadataStore,
     );
+    this.buffer = {};
+    this.locationBufferUrl = locationBufferUrl;
   }
 
   /**
@@ -207,59 +212,45 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       throw Error(`Ipfs get length request error: ${error}`);
     }
 
+    const timestamp = Utils.getCurrentTimestampInSecond();
     const result: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
       content,
       id: ipfsHash,
       meta: {
         ipfs: { size: contentSize },
-        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-        timestamp: Utils.getCurrentTimestampInSecond(),
+        local: { location: this.locationBufferUrl },
+        storageType: StorageTypes.StorageSystemType.LOCAL,
+        timestamp,
       },
     });
+    // store in the buffer the timestamp
+    this.buffer[ipfsHash] = timestamp;
 
     const feesParameters: StorageTypes.IFeesParameters = { contentSize };
 
-    if (this.enableFastAppend) {
-      this.smartContractManager
-        .addHashAndSizeToEthereum(ipfsHash, feesParameters)
-        .then(async (ethereumMetadata: StorageTypes.IEthereumMetadata) => {
-          const resultAfterBroadCast: StorageTypes.IEntry = {
-            content,
-            id: ipfsHash,
-            meta: {
-              ethereum: ethereumMetadata,
-              ipfs: { size: contentSize },
-              storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-              timestamp: ethereumMetadata.blockTimestamp,
-            },
-          };
-          // Save the metadata of the new ipfsHash into the Ethereum metadata cache
-          await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
+    this.smartContractManager
+      .addHashAndSizeToEthereum(ipfsHash, feesParameters)
+      .then(async (ethereumMetadata: StorageTypes.IEthereumMetadata) => {
+        const resultAfterBroadCast: StorageTypes.IEntry = {
+          content,
+          id: ipfsHash,
+          meta: {
+            ethereum: ethereumMetadata,
+            ipfs: { size: contentSize },
+            storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+            timestamp: ethereumMetadata.blockTimestamp,
+          },
+        };
+        // Save the metadata of the new ipfsHash into the Ethereum metadata cache
+        await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
 
-          result.emit('confirmed', resultAfterBroadCast);
-        });
-      return result;
-    } else {
-      const ethereumMetadata: StorageTypes.IEthereumMetadata = await this.smartContractManager.addHashAndSizeToEthereum(
-        ipfsHash,
-        feesParameters,
-      );
+        result.emit('confirmed', resultAfterBroadCast);
+      })
+      .catch(error => {
+        result.emit('error', error);
+      });
 
-      const resultAfterBroadCast: StorageTypes.IEntry = {
-        content,
-        id: ipfsHash,
-        meta: {
-          ethereum: ethereumMetadata,
-          ipfs: { size: contentSize },
-          storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-          timestamp: ethereumMetadata.blockTimestamp,
-        },
-      };
-      // Save the metadata of the new ipfsHash into the Ethereum metadata cache
-      await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
-
-      return Object.assign(new EventEmitter(), resultAfterBroadCast);
-    }
+    return result;
   }
 
   /**
@@ -322,29 +313,49 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // Get Ethereum metadata
     let ethereumMetadata;
+    let bufferTimestamp: number | undefined;
+    let ipfsObject;
     try {
+      // Check if the data as been added on ethereum
       ethereumMetadata = await this.ethereumMetadataCache.getDataIdMeta(id);
+
+      // Clear buffer if needed
+      if (this.buffer[id]) {
+        this.buffer[id] = undefined;
+      }
     } catch (error) {
-      throw Error(`Ethereum meta read request error: ${error}`);
+      // if not found, check the buffer
+      bufferTimestamp = this.buffer[id];
+      if (!bufferTimestamp) {
+        throw Error('No content found from this id');
+      }
     }
 
     // Send ipfs request
-    let ipfsObject;
     try {
       ipfsObject = await this.ipfsManager.read(id);
     } catch (error) {
       throw Error(`Ipfs read request error: ${error}`);
     }
 
+    const meta = ethereumMetadata
+      ? {
+          ethereum: ethereumMetadata,
+          ipfs: { size: ipfsObject.ipfsSize },
+          storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+          timestamp: ethereumMetadata.blockTimestamp,
+        }
+      : {
+          ipfs: { size: ipfsObject.ipfsSize },
+          local: { location: this.locationBufferUrl },
+          storageType: StorageTypes.StorageSystemType.LOCAL,
+          timestamp: bufferTimestamp || 0,
+        };
+
     return {
       content: ipfsObject.content,
       id,
-      meta: {
-        ethereum: ethereumMetadata,
-        ipfs: { size: ipfsObject.ipfsSize },
-        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-        timestamp: ethereumMetadata.blockTimestamp,
-      },
+      meta,
     };
   }
 

@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.5.5",
-    "@requestnetwork/cache-ethereum-storage": "0.1.0",
     "@requestnetwork/ethereum-storage": "0.4.8",
     "@requestnetwork/types": "0.11.0",
     "@requestnetwork/utils": "0.10.0",

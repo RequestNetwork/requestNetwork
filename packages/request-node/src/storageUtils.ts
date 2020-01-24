@@ -1,4 +1,3 @@
-import { CacheEthereumStorage } from '@requestnetwork/cache-ethereum-storage';
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
@@ -18,7 +17,7 @@ export function getEthereumStorage(
   mnemonic: string,
   logger: LogTypes.ILogger,
   metadataStore?: KeyvFile,
-): { cacheEthereumStorage: CacheEthereumStorage; ethereumStorage: EthereumStorage } {
+): EthereumStorage {
   // Initializes IPFS gateway connection object
   const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
     host: config.getIpfsHost(),
@@ -35,11 +34,12 @@ export function getEthereumStorage(
     web3Provider: provider,
   };
 
-  const ethereumStorage = new EthereumStorage(
+  return new EthereumStorage(
+    // TODO replace by the node location
+    'TODO',
     ipfsGatewayConnection,
     web3Connection,
     {
-      enableFastAppend: true,
       getLastBlockNumberDelay: config.getLastBlockNumberDelay(),
       logger,
       maxConcurrency: config.getStorageConcurrency(),
@@ -47,8 +47,4 @@ export function getEthereumStorage(
     },
     metadataStore,
   );
-
-  const cacheEthereumStorage = new CacheEthereumStorage(ethereumStorage, 'TODO', logger);
-
-  return { cacheEthereumStorage, ethereumStorage };
 }

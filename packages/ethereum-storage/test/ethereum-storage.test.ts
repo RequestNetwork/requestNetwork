@@ -1,9 +1,13 @@
 import 'mocha';
 
+import * as sinon from 'sinon';
+
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import { EventEmitter } from 'events';
 
 import EthereumStorage from '../src/ethereum-storage';
 import IpfsConnectionError from '../src/ipfs-connection-error';
@@ -134,6 +138,7 @@ describe('EthereumStorage', () => {
   describe('initialize', () => {
     it('cannot use functions when not initialized', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        'localhost',
         ipfsGatewayConnection,
         web3Connection,
       );
@@ -150,6 +155,7 @@ describe('EthereumStorage', () => {
 
     it('cannot initialize if ipfs node not reachable', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        'localhost',
         invalidHostIpfsGatewayConnection,
         web3Connection,
       );
@@ -159,6 +165,7 @@ describe('EthereumStorage', () => {
     });
     it('cannot initialize if ipfs node not in the right network', async () => {
       const ethereumStorageWithIpfsBootstrapNodesWrong: EthereumStorage = new EthereumStorage(
+        'localhost',
         ipfsGatewayConnection,
         web3Connection,
       );
@@ -174,6 +181,7 @@ describe('EthereumStorage', () => {
     });
     it('cannot initialize if ethereum node not reachable', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        'localhost',
         ipfsGatewayConnection,
         invalidHostWeb3Connection,
       );
@@ -184,6 +192,7 @@ describe('EthereumStorage', () => {
 
     it('cannot initialize if ethereum node not listening', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        'localhost',
         ipfsGatewayConnection,
         web3Connection,
       );
@@ -196,6 +205,7 @@ describe('EthereumStorage', () => {
     });
     it('cannot initialize if contracts are not deployed', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+        'localhost',
         ipfsGatewayConnection,
         web3Connection,
       );
@@ -221,7 +231,7 @@ describe('EthereumStorage', () => {
 
   describe('append/read/getData', () => {
     beforeEach(async () => {
-      ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
+      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
       await ethereumStorage.initialize();
 
       ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
@@ -247,36 +257,35 @@ describe('EthereumStorage', () => {
     });
 
     it('allows to append a file', async () => {
+      sinon.useFakeTimers();
+      const timestamp = Utils.getCurrentTimestampInSecond();
       const result = await ethereumStorage.append(content1);
 
-      if (!result.meta.ethereum) {
-        assert.fail('result.meta.ethereum does not exist');
-        return;
-      }
-
-      const resultExpected: StorageTypes.IEntry = {
+      const resultExpected: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
         content: content1,
         id: hash1,
         meta: {
-          ethereum: {
-            blockConfirmation: 10,
-            blockNumber: 10,
-            blockTimestamp: 1545816416,
-            cost: '110',
-            fee: '100',
-            gasFee: '10',
-            networkName: 'private',
-            smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-            transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
-          },
+          // ethereum: {
+          //   blockConfirmation: 10,
+          //   blockNumber: 10,
+          //   blockTimestamp: 1545816416,
+          //   cost: '110',
+          //   fee: '100',
+          //   gasFee: '10',
+          //   networkName: 'private',
+          //   smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+          //   transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+          // },
           ipfs: {
             size: realSize1,
           },
-          storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-          timestamp: 1545816416,
+          local: { location: 'localhost' },
+          storageType: StorageTypes.StorageSystemType.LOCAL,
+          timestamp,
         },
-      };
+      });
       assert.deepEqual(result, resultExpected);
+      sinon.restore();
     });
 
     it('cannot append if ipfs add fail', async () => {
@@ -288,16 +297,23 @@ describe('EthereumStorage', () => {
       );
     });
 
-    it('throws when append and addHashAndSizeToEthereum throws', async () => {
+    it('throws when append and addHashAndSizeToEthereum throws', done => {
       ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
         StorageTypes.IEthereumMetadata
       > => {
         throw Error('fake error');
       };
 
-      await expect(ethereumStorage.append(content1), 'should throw').to.eventually.be.rejectedWith(
-        'Smart contract error: Error: fake error',
-      );
+      ethereumStorage.append(content1).then(result => {
+        result
+          .on('confirmed', () => {
+            expect(false, 'addHashAndSizeToEthereum must have thrown').to.equal(true);
+          })
+          .on('error', error => {
+            expect(error.message).to.equal('fake error');
+            done();
+          });
+      });
     });
     it(`allows to save dataId's Ethereum metadata into the metadata cache when append is called`, async () => {
       await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be
@@ -335,10 +351,14 @@ describe('EthereumStorage', () => {
 
       const result2 = await ethereumStorage.append(content1);
 
-      await assert.notDeepEqual(result1, result2);
-      await expect(
-        ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1),
-      ).to.eventually.deep.equal(result1.meta.ethereum);
+      result1.on('confirmed', resultConfirmed1 => {
+        result2.on('confirmed', async resultConfirmed2 => {
+          await assert.notDeepEqual(resultConfirmed1, resultConfirmed2);
+          await expect(
+            ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1),
+          ).to.eventually.deep.equal(resultConfirmed1.meta.ethereum);
+        });
+      });
     });
 
     it('allows to read a file', async () => {
@@ -385,7 +405,7 @@ describe('EthereumStorage', () => {
         throw Error('expected error');
       };
       await expect(ethereumStorage.read(content1)).to.eventually.rejectedWith(
-        `Ethereum meta read request error: Error: expected error`,
+        `No content found from this id`,
       );
     });
 
