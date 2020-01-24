@@ -31,7 +31,7 @@ export default class TimestampByLocationTransactionIndex {
    */
   public async pushTimestampByLocation(dataId: string, timestamp: number): Promise<void> {
     if (!(await this.timestampByLocation.get(dataId))) {
-      await this.timestampByLocation!.set(dataId, timestamp);
+      await this.timestampByLocation.set(dataId, timestamp);
     }
     const lastTransactionTimestamp = await this.getLastTransactionTimestamp();
     if (!lastTransactionTimestamp || timestamp > lastTransactionTimestamp) {
@@ -46,7 +46,7 @@ export default class TimestampByLocationTransactionIndex {
    * @param timestamp timestamp of the block
    */
   public async updateTimestampByLocation(dataId: string, timestamp: number): Promise<void> {
-    await this.timestampByLocation!.set(dataId, timestamp);
+    await this.timestampByLocation.set(dataId, timestamp);
 
     const lastTransactionTimestamp = await this.getLastTransactionTimestamp();
     if (!lastTransactionTimestamp || timestamp > lastTransactionTimestamp) {

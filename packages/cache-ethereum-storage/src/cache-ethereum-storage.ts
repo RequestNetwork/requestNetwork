@@ -21,9 +21,6 @@ export default class CacheEthereumStorage implements StorageTypes.IStorage {
    */
   private locationUrl: string;
 
-  /**
-   * Url where can be reached the data hosted by this storage
-   */
   private ethereumStorage: StorageTypes.IStorage;
 
   private isInitialized: boolean = false;

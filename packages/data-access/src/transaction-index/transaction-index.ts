@@ -67,6 +67,9 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
    * @param timestamp the timestamp of the transaction
    */
   public async updateTimestamp(dataId: string, timestamp: number): Promise<void> {
+    if (!this.timestampByLocation) {
+      throw new Error('TransactionIndex must be initialized');
+    }
     // update the timestamp in the index
     await this.timestampByLocation.updateTimestampByLocation(dataId, timestamp);
   }

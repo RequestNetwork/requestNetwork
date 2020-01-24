@@ -97,7 +97,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     } = {},
     metadataStore?: Keyv.Store<any>,
   ) {
-    this.enableFastAppend = enableFastAppend === undefined ? false : enableFastAppend;
+    this.enableFastAppend = !!enableFastAppend;
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
