@@ -313,7 +313,7 @@ describe('Request system', () => {
         type: RequestLogicTypes.CURRENCY.BTC,
         value: 'BTC',
       },
-      expectedAmount: '100000000000',
+      expectedAmount: '200000000000',
       payee: payeeIdentity,
       payer: {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -356,6 +356,11 @@ describe('Request system', () => {
       deltaAmount: '10000000000',
       requestId: requestId1,
     };
+
+    // wait a bit
+    // tslint:disable-next-line:no-magic-numbers
+    await new Promise((r: any): any => setTimeout(r, 1000));
+
     const resultReduce1 = await requestLogic.reduceExpectedAmountRequest(
       request1ReduceHash,
       payeeIdentity,
@@ -387,7 +392,7 @@ describe('Request system', () => {
     request1 = fromTopicSecondSearch.result.requests[0];
     assert.equal(request1.requestId, requestId1);
     assert.equal(request1.state, RequestLogicTypes.STATE.CANCELED);
-    assert.equal(request1.expectedAmount, '90000000000');
+    assert.equal(request1.expectedAmount, '190000000000');
   });
 
   it('can create and update an encrypted request', async () => {
