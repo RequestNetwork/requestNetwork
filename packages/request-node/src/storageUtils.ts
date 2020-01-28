@@ -35,8 +35,7 @@ export function getEthereumStorage(
   };
 
   return new EthereumStorage(
-    // TODO replace by the node location
-    'TODO',
+    config.getServerExternalUrl(),
     ipfsGatewayConnection,
     web3Connection,
     {

@@ -35,7 +35,11 @@ const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   timeout: 1000,
 };
 
-const ethereumStorage = new EthereumStorage(ipfsGatewayConnection, web3Connection);
+const ethereumStorage = new EthereumStorage(
+  'url.Ethereum.storage',
+  ipfsGatewayConnection,
+  web3Connection,
+);
 
 const data = 'Some data';
 
