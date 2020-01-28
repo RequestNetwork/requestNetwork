@@ -329,15 +329,50 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
-      .filter(action => action !== null);
+      .filter(action => action !== null)
+      .sort((a: any, b: any) => a.timestamp - b.timestamp);
+
     let ignoredTransactions: any[] = [];
 
+    // ignored the transactions pending older than confirmed ones
+    let confirmedFound = false;
+    const actionsTimestampedWithoutOldPending = actions
+      .reverse()
+      .filter(action => {
+        if (!action) {
+          return false;
+        }
+
+        // Have we already found confirmed transaction
+        confirmedFound =
+          confirmedFound || action.state === TransactionTypes.TransactionState.CONFIRMED;
+
+        // keep the transaction if confirmed or pending but no confirmed found before
+        if (
+          action.state === TransactionTypes.TransactionState.CONFIRMED ||
+          (action.state === TransactionTypes.TransactionState.PENDING && !confirmedFound)
+        ) {
+          return true;
+        } else {
+          // Keeps the transaction ignored
+          ignoredTransactions.push({
+            reason: 'Confirmed transaction newer than this pending transaction',
+            transaction: action,
+          });
+        }
+      })
+      .reverse();
+
     // array of transaction without duplicates to avoid replay attack
-    const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
-      actions
+    const actionsTimestampedWithoutDuplicates = Utils.uniqueByProperty(
+      actionsTimestampedWithoutOldPending
         .map((t: any) => {
           try {
-            return { action: JSON.parse(t.transaction.data), timestamp: t.timestamp };
+            return {
+              action: JSON.parse(t.transaction.data),
+              state: t.state,
+              timestamp: t.timestamp,
+            };
           } catch (e) {
             // We ignore the transaction.data that cannot be parsed
             ignoredTransactions.push({
@@ -352,7 +387,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
     // Keeps the transaction ignored
     ignoredTransactions = ignoredTransactions.concat(
-      actionsConfirmedWithoutDuplicates.duplicates.map(tx => {
+      actionsTimestampedWithoutDuplicates.duplicates.map(tx => {
         return {
           reason: 'Duplicated transaction',
           transaction: tx,
@@ -361,7 +396,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     const { request, ignoredTransactionsByApplication } = await this.computeRequestFromTransactions(
-      actionsConfirmedWithoutDuplicates.uniqueItems,
+      actionsTimestampedWithoutDuplicates.uniqueItems,
     );
     ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
@@ -463,13 +498,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @returns the request and the ignoredTransactions
    */
   private async computeRequestFromTransactions(
-    transactions: TransactionTypes.IConfirmedTransaction[],
+    transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
     request: RequestLogicTypes.IRequest | null;
     ignoredTransactionsByApplication: any[];
   }> {
     const ignoredTransactionsByApplication: any[] = [];
-
     // second parameter is null, because the first action must be a creation (no state expected)
     const request = transactions.reduce((requestState: any, actionConfirmed: any) => {
       try {
@@ -507,7 +541,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       async channelId => {
         let ignoredTransactions: any[] = [];
 
-        const actionsConfirmedWithoutDuplicates = Utils.uniqueByProperty(
+        const actionsTimestampedWithoutDuplicates = Utils.uniqueByProperty(
           transactionsByChannel[channelId]
             // filter the actions ignored by the previous layers
             .filter(action => action !== null)
@@ -529,7 +563,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
         // Keeps the ignored transactions
         ignoredTransactions = ignoredTransactions.concat(
-          actionsConfirmedWithoutDuplicates.duplicates.map(tx => ({
+          actionsTimestampedWithoutDuplicates.duplicates.map(tx => ({
             reason: 'Duplicated transaction',
             transaction: tx,
           })),
@@ -540,7 +574,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           request,
           ignoredTransactionsByApplication,
         } = await this.computeRequestFromTransactions(
-          actionsConfirmedWithoutDuplicates.uniqueItems,
+          actionsTimestampedWithoutDuplicates.uniqueItems,
         );
         ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 

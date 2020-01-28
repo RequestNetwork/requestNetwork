@@ -20,6 +20,12 @@ export interface IDataAccess {
   ): Promise<IReturnGetChannelsByTopic>;
 }
 
+/** Enum of state possible for an action */
+export enum TransactionState {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+}
+
 /** Restrict the get data research to two timestamp */
 export interface ITimestampBoundaries {
   from?: number;
@@ -51,7 +57,7 @@ export interface IReturnGetTransactions {
     storageMeta?: any;
   };
   /** result of the execution */
-  result: { transactions: IConfirmedTransaction[] };
+  result: { transactions: ITimestampedTransaction[] };
 }
 
 /** return interface for getChannelsByTopic */
@@ -84,7 +90,7 @@ export interface IBlockHeader {
 
 /** Transactions group by channel ids */
 export interface ITransactionsByChannelIds {
-  [key: string]: IConfirmedTransaction[];
+  [key: string]: ITimestampedTransaction[];
 }
 
 /** Channel ids, to connect the transactions to a channel */
@@ -110,7 +116,8 @@ export interface ITransaction {
 }
 
 /** Transaction confirmed */
-export interface IConfirmedTransaction {
+export interface ITimestampedTransaction {
+  state: TransactionState;
   transaction: ITransaction;
   timestamp: number;
 }
