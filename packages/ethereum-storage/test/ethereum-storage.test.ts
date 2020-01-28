@@ -307,7 +307,7 @@ describe('EthereumStorage', () => {
       ethereumStorage.append(content1).then(result => {
         result
           .on('confirmed', () => {
-            expect(false, 'addHashAndSizeToEthereum must have thrown').to.equal(true);
+            assert.fail('addHashAndSizeToEthereum must have thrown');
           })
           .on('error', error => {
             expect(error.message).to.equal('fake error');
