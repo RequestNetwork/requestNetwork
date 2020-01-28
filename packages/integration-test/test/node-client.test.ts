@@ -6,7 +6,6 @@ import Utils from '@requestnetwork/utils';
 
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as sinon from 'sinon';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -333,10 +332,9 @@ describe('Request client using a request node', () => {
   });
 
   it('create an encrypted and unencrypted request with the same content', async () => {
-    sinon.useFakeTimers();
     const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
 
-    const timestamp = Utils.getCurrentTimestampInSecond();
+    const timestamp = Date.now();
 
     // Create an encrypted request
     const encryptedRequest = await requestNetwork._createEncryptedRequest(
@@ -358,7 +356,6 @@ describe('Request client using a request node', () => {
       },
       signer: payeeIdentity,
     });
-
     assert.equal(encryptedRequest.requestId, plainRequest.requestId);
 
     const encryptedRequestData = encryptedRequest.getData();
@@ -367,18 +364,18 @@ describe('Request client using a request node', () => {
     assert.notDeepEqual(encryptedRequestData, plainRequestData);
 
     assert.equal(
-      encryptedRequestData.meta!.transactionManagerMeta!.encryptionMethod,
+      plainRequestData.meta!.transactionManagerMeta!.encryptionMethod,
       'ecies-aes256-cbc',
     );
-    assert.isNull(encryptedRequestData.meta!.transactionManagerMeta.ignoredTransactions![0]);
+    assert.isNull(plainRequestData.meta!.transactionManagerMeta.ignoredTransactions![0]);
     assert.equal(
-      encryptedRequestData.meta!.transactionManagerMeta.ignoredTransactions![1].reason,
+      plainRequestData.meta!.transactionManagerMeta.ignoredTransactions![1].reason,
       'Clear transactions are not allowed in encrypted channel',
     );
-    sinon.restore();
   });
 
   it('cannot decrypt a request with the wrong decryption provider', async () => {
+    const timestamp = Date.now();
     const myRandomTopic = `topic ${Utils.getCurrentTimestampInSecond()}`;
     const requestNetwork = new RequestNetwork({
       decryptionProvider,
@@ -392,14 +389,18 @@ describe('Request client using a request node', () => {
 
     const request = await requestNetwork._createEncryptedRequest(
       {
-        requestInfo: requestCreationHashBTC,
+        requestInfo: {
+          ...requestCreationHashBTC,
+          ...{ timestamp },
+        },
         signer: payeeIdentity,
         topics: [myRandomTopic],
       },
       [encryptionData.encryptionParams],
     );
 
-    expect(badRequestNetwork.fromRequestId(request.requestId)).to.eventually.be.rejectedWith(
+    // console.log(JSON.stringify(await badRequestNetwork.fromRequestId(request.requestId)));
+    expect(badRequestNetwork.fromRequestId(request.requestId)).to.eventually.rejectedWith(
       'Invalid transaction(s) found: [',
     );
     const requests = await badRequestNetwork.fromTopic(myRandomTopic);
