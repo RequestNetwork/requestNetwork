@@ -31,8 +31,8 @@
     "coveralls": "3.0.3",
     "husky": "3.0.5",
     "lerna": "3.16.4",
-    "npm-package-json-lint": "4.0.3",
-    "nyc": "14.1.1",
+    "npm-package-json-lint": "4.5.0",
+    "nyc": "15.0.0",
     "remap-istanbul": "0.13.0",
     "typescript": "3.7.2"
   }
