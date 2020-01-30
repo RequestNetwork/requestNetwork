@@ -254,7 +254,7 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--persistTransactionTimeout` Defines the delay in seconds to wait before sending a timeout when creating or updating a request
   - Default value: 600
   - Environment variable name: `$PERSIST_TRANSACTION_TIMEOUT`
-- `--externalBufferUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted on ethereum)
+- `--externalUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted on ethereum)
   - Environment variable name: `$EXTERNAL_URL`
 
 #### Mnemonic
