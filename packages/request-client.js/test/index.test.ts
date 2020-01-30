@@ -110,9 +110,9 @@ const requestParameters: RequestLogicTypes.ICreateParameters = {
 function mockAxios(): any {
   const mock = new mockAdapter(axios);
   mock.onPost('/persistTransaction').reply(200, { result: {} });
-  mock
-    .onGet('/getTransactionsByChannelId')
-    .reply(200, { result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] } });
+  mock.onGet('/getTransactionsByChannelId').reply(200, {
+    result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
+  });
   return mock;
 }
 
@@ -138,7 +138,7 @@ const mockBTCProvider = {
 
 // Integration tests
 /* tslint:disable:no-unused-expression */
-describe('index', () => {
+describe.only('index', () => {
   afterEach(() => {
     sandbox.restore();
   });
@@ -154,7 +154,7 @@ describe('index', () => {
     mock.onPost('/persistTransaction').reply(spy);
     mock
       .onGet('/getTransactionsByChannelId')
-      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
+      .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -175,15 +175,15 @@ describe('index', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  it('uses http://localhost:3000 with persist from local', async () => {
+  it.only('uses http://localhost:3000 with persist from local', async () => {
     const mock = new mockAdapter(axios);
     const callback = (): any => {
       return [200, { ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY' }];
     };
-
-    const spyPersistTransaction = chai.spy();
+    // const spyPersistTransaction = chai.spy();
     const spyIpfsAdd = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spyPersistTransaction);
+    // mock.onPost('/persistTransaction').reply(spyPersistTransaction);
+    mock.onPost('/persistTransaction').reply(200, { meta: {}, result: {} });
     mock.onPost('/ipfsAdd').reply(spyIpfsAdd);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       meta: { storageMeta: [], transactionsStorageLocation: [] },
@@ -210,7 +210,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    expect(spyPersistTransaction).to.not.have.been.called;
+    // expect(spyPersistTransaction).to.not.have.been.called;
     expect(spyIpfsAdd).to.have.been.called.once;
   });
 
@@ -224,7 +224,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      result: { transactions: [TestDataRealBTC.timestampedTransaction] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -256,7 +256,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -279,7 +279,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({
@@ -380,7 +380,7 @@ describe('index', () => {
     const mock = new mockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -482,9 +482,20 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
+    await expect(request.accept(payerIdentity)).to.eventually.be.rejectedWith(
+      'request is expected (maybe transactions are still pending)',
+    );
+
+    // after confirmation
+    const mock = new mockAdapter(axios);
+    mock.onPost('/persistTransaction').reply(200, { result: {} });
+    mock.onGet('/getTransactionsByChannelId').reply(200, {
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsDataConfirmed] },
+    });
+
     await request.accept(payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -547,7 +558,7 @@ describe('index', () => {
       const spy = chai.spy(callback);
       mock.onPost('/persistTransaction').reply(spy);
       mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: { transactions: [TestData.transactionConfirmedWithDeclarative] },
+        result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
       });
     });
 

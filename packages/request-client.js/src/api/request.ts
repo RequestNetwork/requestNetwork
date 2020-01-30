@@ -29,6 +29,12 @@ export default class Request {
   private requestData: RequestLogicTypes.IRequest | null = null;
 
   /**
+   * Pending data of the request (see request-logic)
+   */
+  // TODO modify any to a real type
+  private pendingData: any | null = null;
+
+  /**
    * Content data parsed from the extensions data
    */
   private contentData: any | null = null;
@@ -88,7 +94,11 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
+    try {
+      await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -120,7 +130,11 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
+    try {
+      await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -153,7 +167,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -188,7 +207,11 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity, true);
+    try {
+      await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -219,7 +242,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -250,7 +278,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -291,7 +324,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -335,7 +373,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -379,7 +422,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -423,7 +471,12 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+
+    try {
+      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    } catch (error) {
+      throw new Error(`${error.message} (maybe transactions are still pending)`);
+    }
 
     // refresh the local request data and return it
     return this.refresh();
@@ -440,9 +493,11 @@ export default class Request {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
-      currency: requestData.currency ? currencyToString(requestData.currency) : 'unknown',
-      currencyInfo: requestData.currency,
+      currency:
+        requestData && requestData.currency ? currencyToString(requestData.currency) : 'unknown',
+      currencyInfo: requestData && requestData.currency,
       meta: this.requestMeta,
+      pending: this.pendingData,
     };
 
     return result;
@@ -458,7 +513,7 @@ export default class Request {
       this.requestId,
     );
 
-    if (!requestAndMeta.result.request) {
+    if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(
         `No request found for the id: ${this.requestId} - ${localUtils.formatGetRequestFromIdError(
           requestAndMeta,
@@ -467,14 +522,19 @@ export default class Request {
     }
 
     if (this.paymentNetwork) {
-      this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
+      this.balance = await this.paymentNetwork.getBalance(
+        requestAndMeta.result.request || requestAndMeta.result.pending,
+      );
     }
 
     if (this.contentDataExtension) {
-      this.contentData = await this.contentDataExtension.getContent(requestAndMeta.result.request);
+      this.contentData = await this.contentDataExtension.getContent(
+        requestAndMeta.result.request || requestAndMeta.result.pending,
+      );
     }
 
     this.requestData = requestAndMeta.result.request;
+    this.pendingData = requestAndMeta.result.pending;
     this.requestMeta = requestAndMeta.meta;
 
     return this.getData();

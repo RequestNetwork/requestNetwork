@@ -121,15 +121,23 @@ export const actionWithDeclarative: RequestLogicTypes.IAction = Utils.signature.
   payee.signatureParams,
 );
 
-export const transactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransaction: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(action) },
 };
-export const transactionConfirmedWithoutExtensionsData: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransactionWithoutExtensionsData: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
 };
-export const transactionConfirmedWithDeclarative: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.CONFIRMED,
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
+};
+export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(actionWithDeclarative) },
 };
@@ -141,7 +149,8 @@ export const anotherCreationAction: RequestLogicTypes.IAction = Utils.signature.
   payer.signatureParams,
 );
 
-export const anotherCreationTransactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+export const anotherCreationTransactionConfirmed: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(anotherCreationAction) },
 };
@@ -167,7 +176,8 @@ export const actionCreationSecondRequest: RequestLogicTypes.IAction = Utils.sign
   payee.signatureParams,
 );
 
-export const transactionConfirmedSecondRequest: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransactionSecondRequest: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(actionCreationSecondRequest) },
 };

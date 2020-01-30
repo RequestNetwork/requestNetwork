@@ -201,7 +201,15 @@ describe('data-access', () => {
           storageMeta: [{ timestamp: 10 }],
           transactionsStorageLocation: [dataIdBlock2tx],
         },
-        result: { transactions: [{ transaction: transactionMock1, timestamp: 10 }] },
+        result: {
+          transactions: [
+            {
+              state: DataAccessTypes.TransactionState.PENDING,
+              timestamp: 10,
+              transaction: transactionMock1,
+            },
+          ],
+        },
       });
     });
 
@@ -252,7 +260,15 @@ describe('data-access', () => {
           transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
         },
         result: {
-          transactions: { [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 10 }] },
+          transactions: {
+            [arbitraryId1]: [
+              {
+                state: DataAccessTypes.TransactionState.PENDING,
+                timestamp: 10,
+                transaction: transactionMock1,
+              },
+            ],
+          },
         },
       });
     });
@@ -309,8 +325,20 @@ describe('data-access', () => {
       });
       expect(ret.result, 'result meta wrong').to.deep.equal({
         transactions: {
-          [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 10 }],
-          [arbitraryId2]: [{ transaction: transactionMock2, timestamp: 10 }],
+          [arbitraryId1]: [
+            {
+              state: DataAccessTypes.TransactionState.PENDING,
+              timestamp: 10,
+              transaction: transactionMock1,
+            },
+          ],
+          [arbitraryId2]: [
+            {
+              state: DataAccessTypes.TransactionState.PENDING,
+              timestamp: 10,
+              transaction: transactionMock2,
+            },
+          ],
         },
       });
     });
@@ -490,7 +518,15 @@ describe('data-access', () => {
         transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
       },
       result: {
-        transactions: { [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 1 }] },
+        transactions: {
+          [arbitraryId1]: [
+            {
+              state: DataAccessTypes.TransactionState.PENDING,
+              transaction: transactionMock1,
+              timestamp: 1,
+            },
+          ],
+        },
       },
     });
 
@@ -510,8 +546,20 @@ describe('data-access', () => {
       },
       result: {
         transactions: {
-          [arbitraryId1]: [{ transaction: transactionMock1, timestamp: 1 }],
-          [arbitraryId2]: [{ transaction: transactionMock2, timestamp: 1 }],
+          [arbitraryId1]: [
+            {
+              state: DataAccessTypes.TransactionState.PENDING,
+              transaction: transactionMock1,
+              timestamp: 1,
+            },
+          ],
+          [arbitraryId2]: [
+            {
+              state: DataAccessTypes.TransactionState.PENDING,
+              transaction: transactionMock2,
+              timestamp: 1,
+            },
+          ],
         },
       },
     });

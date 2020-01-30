@@ -56,7 +56,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       requestId,
       hashedTopics,
     );
-
     return {
       meta: { transactionManagerMeta: resultPersistTx.meta },
       result: { requestId },
@@ -395,9 +394,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }),
     );
 
-    const { request, ignoredTransactionsByApplication } = await this.computeRequestFromTransactions(
-      actionsTimestampedWithoutDuplicates.uniqueItems,
-    );
+    const {
+      pending,
+      request,
+      ignoredTransactionsByApplication,
+    } = await this.computeRequestFromTransactions(actionsTimestampedWithoutDuplicates.uniqueItems);
     ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
     return {
@@ -405,7 +406,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         ignoredTransactions,
         transactionManagerMeta: resultGetTx.meta,
       },
-      result: { request },
+      result: { request, pending },
     };
   }
 
@@ -501,26 +502,74 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
     request: RequestLogicTypes.IRequest | null;
+    // TODO modify any to a type
+    pending: any;
     ignoredTransactionsByApplication: any[];
   }> {
     const ignoredTransactionsByApplication: any[] = [];
     // second parameter is null, because the first action must be a creation (no state expected)
-    const request = transactions.reduce((requestState: any, actionConfirmed: any) => {
-      try {
-        return RequestLogicCore.applyActionToRequest(
-          requestState,
-          actionConfirmed.action,
-          actionConfirmed.timestamp,
-          this.advancedLogic,
-        );
-      } catch (e) {
-        // if an error occurs while applying we ignore the action
-        ignoredTransactionsByApplication.push({ reason: e.message, transaction: actionConfirmed });
-        return requestState;
-      }
-    }, null);
+    const requestStateConfirmed = transactions
+      .filter(action => action.state === TransactionTypes.TransactionState.CONFIRMED)
+      .reduce((requestState: any, actionConfirmed: any) => {
+        try {
+          return RequestLogicCore.applyActionToRequest(
+            requestState,
+            actionConfirmed.action,
+            actionConfirmed.timestamp,
+            this.advancedLogic,
+          );
+        } catch (e) {
+          // if an error occurs while applying we ignore the action
+          ignoredTransactionsByApplication.push({
+            reason: e.message,
+            transaction: actionConfirmed,
+          });
+          return requestState;
+        }
+      }, null);
 
-    return { ignoredTransactionsByApplication, request };
+    const requestStatePending = transactions
+      .filter(action => action.state === TransactionTypes.TransactionState.PENDING)
+      .reduce((requestState: any, actionConfirmed: any) => {
+        try {
+          return RequestLogicCore.applyActionToRequest(
+            requestState,
+            actionConfirmed.action,
+            actionConfirmed.timestamp,
+            this.advancedLogic,
+          );
+        } catch (e) {
+          // if an error occurs while applying we ignore the action
+          ignoredTransactionsByApplication.push({
+            reason: e.message,
+            transaction: actionConfirmed,
+          });
+          return requestState;
+        }
+      }, requestStateConfirmed);
+
+    // Compute the diff between the confirmed and pending request
+    let pending: any = {};
+    if (!requestStateConfirmed) {
+      pending = requestStatePending;
+    } else if (requestStatePending) {
+      for (const key in requestStatePending) {
+        if (requestStatePending.hasOwnProperty(key)) {
+          // TODO: Should find a better way to do that
+          if (
+            Utils.crypto.normalizeKeccak256Hash(requestStatePending[key]).value !==
+            Utils.crypto.normalizeKeccak256Hash(requestStateConfirmed[key]).value
+          ) {
+            pending[key] = requestStatePending[key];
+          }
+        }
+      }
+    }
+    return {
+      ignoredTransactionsByApplication,
+      pending,
+      request: requestStateConfirmed,
+    };
   }
 
   /**

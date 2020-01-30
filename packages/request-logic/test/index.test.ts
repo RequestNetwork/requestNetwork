@@ -872,7 +872,7 @@ describe('index', () => {
       });
     });
 
-    it('can getRequestFromId old pending transaction', async () => {
+    it('can getRequestFromId ignore old pending transaction', async () => {
       const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -931,6 +931,144 @@ describe('index', () => {
             },
             {
               state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 3,
+              transaction: { data: JSON.stringify(rxReduce) },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+          listActions,
+        persistTransaction: chai.spy() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const request = await requestLogic.getRequestFromId(requestId);
+
+      expect(request, 'request result is wrong').to.deep.equal({
+        meta: {
+          ignoredTransactions: [
+            {
+              reason: 'Confirmed transaction newer than this pending transaction',
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: {
+                  data:
+                    '{"data":{"name":"accept","parameters":{"requestId":"01847a35486b464e653f3b1fb6be27649b11b1cb171bfd2fade1292d5aeb706e59"},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0x3b7bb4b69d95b0c243cb49c3371f622207c6b8d2d8b506e211b49282b9f51e310605b19207d84a3106a37d900b11eb2ea56f5c04afb79017cd045156d4476dbb1c"}}',
+                },
+              },
+            },
+          ],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+                timestamp: 1,
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 3,
+              },
+            ],
+            expectedAmount: '123399999999999000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: RequestLogicTypes.STATE.CREATED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
+          },
+        },
+      });
+    });
+
+    it.only('can getRequestFromId with pending transaction', async () => {
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = { ignoredTransactions: [] };
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
+            },
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
               timestamp: 3,
               transaction: { data: JSON.stringify(rxReduce) },
             },

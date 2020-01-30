@@ -132,7 +132,7 @@ export default class RequestNetwork {
     );
 
     // if no request found, throw a human readable message:
-    if (!requestAndMeta.result.request) {
+    if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
@@ -140,7 +140,7 @@ export default class RequestNetwork {
       {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        request: requestAndMeta.result.request,
+        request: requestAndMeta.result.request || requestAndMeta.result.pending,
       },
     );
 

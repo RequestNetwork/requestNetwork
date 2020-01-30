@@ -85,7 +85,8 @@ export interface IReturnCreateRequest extends IRequestLogicReturn {
 
 /** return of the function getFirstRequestFromTopic */
 export interface IReturnGetRequestFromId extends IRequestLogicReturn {
-  result: { request: IRequest | null };
+  // TODO replace any by a better type
+  result: { request: IRequest | null; pending: any | null };
 }
 
 /** return of the function getRequestsByTopic */
