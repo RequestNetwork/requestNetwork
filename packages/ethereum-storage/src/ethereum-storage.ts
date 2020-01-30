@@ -64,9 +64,9 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   private buffer: { [id: string]: number | undefined };
 
   /**
-   * Url where can be reached the data hosted by this storage
+   * Url where can be reached the data buffered by this storage
    */
-  private locationBufferUrl: string;
+  private externalBufferUrl: string;
 
   /**
    * Logger instance
@@ -83,7 +83,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param metadataStore a Keyv store to persist the metadata in ethereumMetadataCache
    */
   public constructor(
-    locationBufferUrl: string,
+    externalBufferUrl: string,
     ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection,
     web3Connection?: StorageTypes.IWeb3Connection,
     {
@@ -116,7 +116,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       metadataStore,
     );
     this.buffer = {};
-    this.locationBufferUrl = locationBufferUrl;
+    this.externalBufferUrl = externalBufferUrl;
   }
 
   /**
@@ -218,7 +218,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       id: ipfsHash,
       meta: {
         ipfs: { size: contentSize },
-        local: { location: this.locationBufferUrl },
+        local: { location: this.externalBufferUrl },
         storageType: StorageTypes.StorageSystemType.LOCAL,
         timestamp,
       },
@@ -231,7 +231,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     this.smartContractManager
       .addHashAndSizeToEthereum(ipfsHash, feesParameters)
       .then(async (ethereumMetadata: StorageTypes.IEthereumMetadata) => {
-        const resultAfterBroadCast: StorageTypes.IEntry = {
+        const resultAfterBroadcast: StorageTypes.IEntry = {
           content,
           id: ipfsHash,
           meta: {
@@ -244,7 +244,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         // Save the metadata of the new ipfsHash into the Ethereum metadata cache
         await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
 
-        result.emit('confirmed', resultAfterBroadCast);
+        result.emit('confirmed', resultAfterBroadcast);
       })
       .catch(error => {
         result.emit('error', error);
@@ -347,7 +347,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         }
       : {
           ipfs: { size: ipfsObject.ipfsSize },
-          local: { location: this.locationBufferUrl },
+          local: { location: this.externalBufferUrl },
           storageType: StorageTypes.StorageSystemType.LOCAL,
           timestamp: bufferTimestamp || 0,
         };

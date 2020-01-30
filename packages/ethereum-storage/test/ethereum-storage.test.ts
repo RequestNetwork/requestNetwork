@@ -265,17 +265,6 @@ describe('EthereumStorage', () => {
         content: content1,
         id: hash1,
         meta: {
-          // ethereum: {
-          //   blockConfirmation: 10,
-          //   blockNumber: 10,
-          //   blockTimestamp: 1545816416,
-          //   cost: '110',
-          //   fee: '100',
-          //   gasFee: '10',
-          //   networkName: 'private',
-          //   smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          //   transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
-          // },
           ipfs: {
             size: realSize1,
           },

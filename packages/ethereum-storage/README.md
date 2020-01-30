@@ -36,7 +36,8 @@ const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
 };
 
 const ethereumStorage = new EthereumStorage(
-  'url.Ethereum.storage',
+  // Give an external url of the storage (use to indicate where the buffer data are stored)
+  'url.buffer.ethereum.storage',
   ipfsGatewayConnection,
   web3Connection,
 );
