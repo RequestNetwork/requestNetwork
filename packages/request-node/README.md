@@ -241,7 +241,7 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
   - Default value: `'200'`
   - Environment variable name: `$STORAGE_MAX_CONCURRENCY`
-- `--initializationStorageFilePath` Path to a file to persist the ethereum metadata and transaction index for faster
+- `--initializationStorageFilePath` Path to a file to persist the ethereum metadata and transaction index for faster initialization
   - Environment variable name: `$INITIALIZATION_STORAGE_FILE_PATH`
 - `--logLevel` The maximum level of messages we will log
   - Environment variable name: `$LOG_LEVEL`
@@ -254,7 +254,7 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--persistTransactionTimeout` Defines the delay in seconds to wait before sending a timeout when creating or updating a request
   - Default value: 600
   - Environment variable name: `$PERSIST_TRANSACTION_TIMEOUT`
-- `--externalUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted)
+- `--externalBufferUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted on ethereum)
   - Environment variable name: `$EXTERNAL_URL`
 
 #### Mnemonic

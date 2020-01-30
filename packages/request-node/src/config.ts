@@ -31,7 +31,7 @@ const defaultValues: any = {
     mode: modeType.human,
   },
   server: {
-    externalUrl: 'localhost',
+    externalBufferUrl: 'localhost',
     headers: '{}',
     port: 3000,
   },
@@ -45,7 +45,9 @@ const defaultValues: any = {
  * @returns the external url
  */
 export function getServerExternalUrl(): string {
-  return argv.externalUrl || process.env.EXTERNAL_URL || defaultValues.server.externalUrl;
+  return (
+    argv.externalBufferUrl || process.env.EXTERNAL_URL || defaultValues.server.externalBufferUrl
+  );
 }
 
 /**
@@ -262,8 +264,8 @@ export function getHelpMessage(): string {
         headers (${
           defaultValues.server.headers
         })\t\t\t\tCustom headers to send with the API responses
-        externalUrl (${
-          defaultValues.server.externalUrl
+        externalBufferUrl (${
+          defaultValues.server.externalBufferUrl
         })\t\t\t\tExternal url of the node (used to identified where the buffer data are stored before being broadcasted)
 
       ETHEREUM OPTIONS
