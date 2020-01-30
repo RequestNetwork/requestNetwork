@@ -91,7 +91,7 @@ export interface IReturnGetRequestFromId extends IRequestLogicReturn {
 
 /** return of the function getRequestsByTopic */
 export interface IReturnGetRequestsByTopic extends IRequestLogicReturn {
-  result: { requests: IRequest[] };
+  result: { requests: Array<{ request: IRequest | null; pending: any | null }> };
 }
 
 /** Interface of a request logic action */

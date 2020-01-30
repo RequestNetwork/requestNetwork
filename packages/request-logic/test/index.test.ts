@@ -824,6 +824,7 @@ describe('index', () => {
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -970,6 +971,7 @@ describe('index', () => {
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -1010,7 +1012,7 @@ describe('index', () => {
       });
     });
 
-    it.only('can getRequestFromId with pending transaction', async () => {
+    it('can getRequestFromId with pending transaction', async () => {
       const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -1087,27 +1089,46 @@ describe('index', () => {
         fakeTransactionManagerGet,
         TestData.fakeSignatureProvider,
       );
-
       const request = await requestLogic.getRequestFromId(requestId);
 
       expect(request, 'request result is wrong').to.deep.equal({
         meta: {
-          ignoredTransactions: [
-            {
-              reason: 'Confirmed transaction newer than this pending transaction',
-              transaction: {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 2,
-                transaction: {
-                  data:
-                    '{"data":{"name":"accept","parameters":{"requestId":"01847a35486b464e653f3b1fb6be27649b11b1cb171bfd2fade1292d5aeb706e59"},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0x3b7bb4b69d95b0c243cb49c3371f622207c6b8d2d8b506e211b49282b9f51e310605b19207d84a3106a37d900b11eb2ea56f5c04afb79017cd045156d4476dbb1c"}}',
-                },
-              },
-            },
-          ],
+          ignoredTransactions: [],
           transactionManagerMeta: meta,
         },
         result: {
+          pending: {
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+                timestamp: 1,
+              },
+              {
+                actionSigner: TestData.payerRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+                parameters: {
+                  extensionsDataLength: 0,
+                },
+                timestamp: 2,
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 3,
+              },
+            ],
+            expectedAmount: '123399999999999000',
+          },
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -1126,21 +1147,20 @@ describe('index', () => {
                 timestamp: 1,
               },
               {
-                actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                actionSigner: TestData.payerRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
                 parameters: {
-                  deltaAmount: '1000',
                   extensionsDataLength: 0,
                 },
-                timestamp: 3,
+                timestamp: 2,
               },
             ],
-            expectedAmount: '123399999999999000',
+            expectedAmount: '123400000000000000',
             extensions: {},
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
             requestId,
-            state: RequestLogicTypes.STATE.CREATED,
+            state: RequestLogicTypes.STATE.ACCEPTED,
             timestamp: 1544426030,
             version: CURRENT_VERSION,
           },
@@ -1260,6 +1280,7 @@ describe('index', () => {
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -1412,6 +1433,7 @@ describe('index', () => {
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -1738,6 +1760,199 @@ describe('index', () => {
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
       expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+    });
+
+    it('can getRequestsByTopic with pending transactions', async () => {
+      const unsignedActionCreation = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: '123400000000000000',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation),
+      );
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: newRequestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId: newRequestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const unsignedActionCreation2 = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
+          expectedAmount: '10',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544411111,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate2: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation2,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId2 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2),
+      );
+
+      const actionCancel2: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: newRequestId2,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const unsignedActionCreation3 = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
+          expectedAmount: '666',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544433333,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate3: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation3,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId3 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3),
+      );
+
+      const meta = {
+        dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
+        ignoredTransactions: {},
+      };
+      const listAllActions: Promise<
+        TransactionTypes.IReturnGetTransactionsByChannels
+      > = Promise.resolve({
+        meta,
+        result: {
+          transactions: {
+            [requestId]: [
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 0,
+                transaction: { data: JSON.stringify(actionCreate) },
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionAccept) },
+              },
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 3,
+                transaction: { data: JSON.stringify(rxReduce) },
+              },
+            ],
+            [newRequestId2]: [
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 1,
+                transaction: { data: JSON.stringify(actionCreate2) },
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionCancel2) },
+              },
+            ],
+            [newRequestId3]: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 4,
+                transaction: { data: JSON.stringify(actionCreate3) },
+              },
+            ],
+          },
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+          return listAllActions;
+        },
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
+
+      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+
+      const firstRequest = requests.result.requests[0];
+      expect(firstRequest.pending, 'first pending wrong').to.be.null;
+      expect(
+        firstRequest.request!.expectedAmount,
+        'first request expectedAmount wrong',
+      ).to.deep.equal('123399999999999000');
+      expect(firstRequest.request!.state, 'first request state wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CREATED,
+      );
+
+      const secondRequest = requests.result.requests[1];
+      expect(secondRequest.request!.state, 'second pending wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CREATED,
+      );
+      expect(secondRequest.pending!.state, 'second pending wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CANCELED,
+      );
+
+      const thirdRequest = requests.result.requests[2];
+      expect(thirdRequest.request, 'third pending wrong').to.be.null;
+      expect(thirdRequest.pending!.state, 'third pending wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CREATED,
+      );
     });
 
     it('should ignore the transaction none parsable and the rejected action', async () => {
