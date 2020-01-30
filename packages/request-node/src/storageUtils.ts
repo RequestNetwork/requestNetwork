@@ -35,6 +35,7 @@ export function getEthereumStorage(
   };
 
   return new EthereumStorage(
+    config.getServerExternalUrl(),
     ipfsGatewayConnection,
     web3Connection,
     {

@@ -31,6 +31,7 @@ const defaultValues: any = {
     mode: modeType.human,
   },
   server: {
+    externalUrl: 'localhost',
     headers: '{}',
     port: 3000,
   },
@@ -38,6 +39,14 @@ const defaultValues: any = {
     mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
   },
 };
+
+/**
+ * Get the external url of the node (used to identified where the buffer data are stored before being broadcasted)
+ * @returns the external url
+ */
+export function getServerExternalUrl(): string {
+  return argv.externalUrl || process.env.EXTERNAL_URL || defaultValues.server.externalUrl;
+}
 
 /**
  * Get the port from command line argument, environment variables or default values to allow user to connect to the server
@@ -253,6 +262,9 @@ export function getHelpMessage(): string {
         headers (${
           defaultValues.server.headers
         })\t\t\t\tCustom headers to send with the API responses
+        externalUrl (${
+          defaultValues.server.externalUrl
+        })\t\t\t\tExternal url of the node (used to identified where the buffer data are stored before being broadcasted)
 
       ETHEREUM OPTIONS
         networkId (${

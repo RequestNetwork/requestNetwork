@@ -161,8 +161,18 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       channelId,
       topics,
     );
+
     // get the topic of the data in storage
     const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
+
+    // Store the data to the real storage
+    resultAppend.on('confirmed', (resultAppendConfirmed: StorageTypes.IAppendResult) => {
+      // update the timestamp with the confirmed one
+      this.transactionIndex.updateTimestamp(
+        resultAppendConfirmed.id,
+        resultAppendConfirmed.meta.timestamp,
+      );
+    });
 
     // adds this transaction to the index, to enable retrieving it later.
     await this.transactionIndex.addTransaction(

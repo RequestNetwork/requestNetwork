@@ -41,6 +41,12 @@ export default async function ipfsAdd(
       return serverResponse.status(httpStatus.BAD_REQUEST).send('data must be a block');
     }
 
+    if (!ethereumStorage._ipfsAdd) {
+      return serverResponse
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send('The node do not support this feature');
+    }
+
     try {
       dataAccessResponse = await ethereumStorage._ipfsAdd(JSON.stringify(clientRequest.body.data));
 

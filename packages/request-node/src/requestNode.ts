@@ -54,11 +54,7 @@ class RequestNode {
       : undefined;
 
     // Use ethereum storage for the storage layer
-    const ethereumStorage: StorageTypes.IStorage = getEthereumStorage(
-      getMnemonic(),
-      this.logger,
-      store,
-    );
+    const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, store);
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
     const transactionIndex = new TransactionIndex(store);
