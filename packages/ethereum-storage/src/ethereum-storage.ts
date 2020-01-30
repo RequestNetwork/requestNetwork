@@ -231,7 +231,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     this.smartContractManager
       .addHashAndSizeToEthereum(ipfsHash, feesParameters)
       .then(async (ethereumMetadata: StorageTypes.IEthereumMetadata) => {
-        const resultAfterBroadCast: StorageTypes.IEntry = {
+        const resultAfterBroadcast: StorageTypes.IEntry = {
           content,
           id: ipfsHash,
           meta: {
