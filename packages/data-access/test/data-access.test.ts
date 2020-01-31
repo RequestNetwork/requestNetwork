@@ -70,7 +70,7 @@ const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
     {
       content: JSON.stringify(blockWith2tx),
       id: dataIdBlock2tx,
-      meta: { timestamp: 10 },
+      meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
     },
   ],
   lastTimestamp: 0,
@@ -80,6 +80,7 @@ const appendResult: StorageTypes.IAppendResult = Object.assign(new EventEmitter(
   content: '',
   id: dataIdBlock2tx,
   meta: {
+    state: StorageTypes.ContentState.PENDING,
     timestamp: 1,
   },
 });
@@ -152,7 +153,7 @@ describe('data-access', () => {
           const dataIdBlock2txFake: StorageTypes.IEntry = {
             content: JSON.stringify(blockWith2tx),
             id: '1',
-            meta: { timestamp: 1 },
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -179,7 +180,7 @@ describe('data-access', () => {
           const dataIdBlock2txFake: StorageTypes.IEntry = {
             content: JSON.stringify(blockWith2tx),
             id: '1',
-            meta: { timestamp: 10 },
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -198,13 +199,18 @@ describe('data-access', () => {
         'result with arbitraryId1 wrong',
       ).to.deep.equal({
         meta: {
-          storageMeta: [{ timestamp: 10 }],
+          storageMeta: [
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              timestamp: 10,
+            },
+          ],
           transactionsStorageLocation: [dataIdBlock2tx],
         },
         result: {
           transactions: [
             {
-              state: DataAccessTypes.TransactionState.PENDING,
+              state: DataAccessTypes.TransactionState.CONFIRMED,
               timestamp: 10,
               transaction: transactionMock1,
             },
@@ -237,7 +243,7 @@ describe('data-access', () => {
           const dataIdBlock2txFake: StorageTypes.IEntry = {
             content: JSON.stringify(blockWith2tx),
             id: '1',
-            meta: { timestamp: 10 },
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -256,14 +262,21 @@ describe('data-access', () => {
         'result with arbitraryTopic1 wrong',
       ).to.deep.equal({
         meta: {
-          storageMeta: { [arbitraryId1]: [{ timestamp: 10 }] },
+          storageMeta: {
+            [arbitraryId1]: [
+              {
+                state: DataAccessTypes.TransactionState.CONFIRMED,
+                timestamp: 10,
+              },
+            ],
+          },
           transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
         },
         result: {
           transactions: {
             [arbitraryId1]: [
               {
-                state: DataAccessTypes.TransactionState.PENDING,
+                state: DataAccessTypes.TransactionState.CONFIRMED,
                 timestamp: 10,
                 transaction: transactionMock1,
               },
@@ -297,7 +310,7 @@ describe('data-access', () => {
           const dataIdBlock2txFake: StorageTypes.IEntry = {
             content: JSON.stringify(blockWith2tx),
             id: '1',
-            meta: { timestamp: 10 },
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
           };
           const result: any = {
             dataIdBlock2tx: dataIdBlock2txFake,
@@ -317,7 +330,20 @@ describe('data-access', () => {
       });
 
       expect(ret.meta, 'meta wrong').to.deep.equal({
-        storageMeta: { [arbitraryId1]: [{ timestamp: 10 }], [arbitraryId2]: [{ timestamp: 10 }] },
+        storageMeta: {
+          [arbitraryId1]: [
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              timestamp: 10,
+            },
+          ],
+          [arbitraryId2]: [
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              timestamp: 10,
+            },
+          ],
+        },
         transactionsStorageLocation: {
           [arbitraryId1]: [dataIdBlock2tx],
           [arbitraryId2]: [dataIdBlock2tx],
@@ -327,14 +353,14 @@ describe('data-access', () => {
         transactions: {
           [arbitraryId1]: [
             {
-              state: DataAccessTypes.TransactionState.PENDING,
+              state: DataAccessTypes.TransactionState.CONFIRMED,
               timestamp: 10,
               transaction: transactionMock1,
             },
           ],
           [arbitraryId2]: [
             {
-              state: DataAccessTypes.TransactionState.PENDING,
+              state: DataAccessTypes.TransactionState.CONFIRMED,
               timestamp: 10,
               transaction: transactionMock2,
             },
@@ -391,7 +417,10 @@ describe('data-access', () => {
       );
       expect(result, 'result wrong').to.deep.equal({
         meta: {
-          storageMeta: { timestamp: 1 },
+          storageMeta: {
+            state: DataAccessTypes.TransactionState.PENDING,
+            timestamp: 1,
+          },
           topics: [arbitraryTopic1],
           transactionStorageLocation: dataIdBlock2tx,
         },
@@ -441,7 +470,7 @@ describe('data-access', () => {
         {
           content: JSON.stringify(blockWithoutHeader),
           id: 'whatever',
-          meta: { timestamp: 10 },
+          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
         },
       ],
       lastTimestamp: 0,
@@ -483,7 +512,7 @@ describe('data-access', () => {
         const dataIdBlock2txFake: StorageTypes.IEntry = {
           content: JSON.stringify(blockWith2tx),
           id: '1',
-          meta: { timestamp: 1 },
+          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,
@@ -514,14 +543,16 @@ describe('data-access', () => {
       'result with arbitraryTopic1 wrong',
     ).to.deep.equal({
       meta: {
-        storageMeta: { [arbitraryId1]: [{ timestamp: 1 }] },
+        storageMeta: {
+          [arbitraryId1]: [{ state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 }],
+        },
         transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
       },
       result: {
         transactions: {
           [arbitraryId1]: [
             {
-              state: DataAccessTypes.TransactionState.PENDING,
+              state: DataAccessTypes.TransactionState.CONFIRMED,
               transaction: transactionMock1,
               timestamp: 1,
             },
@@ -536,8 +567,8 @@ describe('data-access', () => {
     ).to.deep.equal({
       meta: {
         storageMeta: {
-          [arbitraryId1]: [{ timestamp: 1 }],
-          [arbitraryId2]: [{ timestamp: 1 }],
+          [arbitraryId1]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
+          [arbitraryId2]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
         },
         transactionsStorageLocation: {
           [arbitraryId1]: [dataIdBlock2tx],
@@ -548,14 +579,14 @@ describe('data-access', () => {
         transactions: {
           [arbitraryId1]: [
             {
-              state: DataAccessTypes.TransactionState.PENDING,
+              state: DataAccessTypes.TransactionState.CONFIRMED,
               transaction: transactionMock1,
               timestamp: 1,
             },
           ],
           [arbitraryId2]: [
             {
-              state: DataAccessTypes.TransactionState.PENDING,
+              state: DataAccessTypes.TransactionState.CONFIRMED,
               transaction: transactionMock2,
               timestamp: 1,
             },
@@ -586,7 +617,7 @@ describe('data-access', () => {
         const dataIdBlock2txFake: StorageTypes.IEntry = {
           content: JSON.stringify(blockWith2tx),
           id: '1',
-          meta: { timestamp: 1 },
+          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,
