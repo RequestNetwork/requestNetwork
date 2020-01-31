@@ -510,9 +510,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       Utils.unique(transactionPositions).uniqueItems.map(
         // Get the transaction from their position and add the timestamp
         (position: number) => ({
-          state: meta.ethereum
-            ? DataAccessTypes.TransactionState.CONFIRMED
-            : DataAccessTypes.TransactionState.PENDING,
+          state:
+            meta.state === StorageTypes.ContentState.CONFIRMED
+              ? DataAccessTypes.TransactionState.CONFIRMED
+              : DataAccessTypes.TransactionState.PENDING,
           timestamp: meta.timestamp,
           transaction: block.transactions[position],
         }),

@@ -7,7 +7,9 @@ import { EventEmitter } from 'events';
  * Storage layer implemented with in-memory hashmap, to be used for testing.
  */
 export default class MockStorage implements StorageTypes.IStorage {
-  private data: { [key: string]: { content: string; timestamp: number } } = {};
+  private data: {
+    [key: string]: { state: StorageTypes.ContentState; content: string; timestamp: number };
+  } = {};
 
   public async initialize(): Promise<void> {
     return;
@@ -21,7 +23,11 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
-    this.data[hash] = { content, timestamp: nowTimestampInSec };
+    this.data[hash] = {
+      content,
+      state: StorageTypes.ContentState.PENDING,
+      timestamp: nowTimestampInSec,
+    };
 
     return {
       ipfsHash: hash,
@@ -37,16 +43,31 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
-    this.data[hash] = { content, timestamp: nowTimestampInSec };
+    this.data[hash] = {
+      content,
+      state: StorageTypes.ContentState.PENDING,
+      timestamp: nowTimestampInSec,
+    };
 
-    return Object.assign(new EventEmitter(), {
+    const resultData = {
       content,
       id: hash,
       meta: {
+        state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: nowTimestampInSec,
       },
-    });
+    };
+    const result = Object.assign(new EventEmitter(), resultData);
+
+    // emit confirmed
+    setTimeout(() => {
+      this.data[hash].state = StorageTypes.ContentState.CONFIRMED;
+      result.emit('confirmed', resultData);
+      // tslint:disable-next-line:no-magic-numbers
+    }, 100);
+
+    return result;
   }
 
   public async read(id: string): Promise<StorageTypes.IEntry> {
@@ -57,6 +78,7 @@ export default class MockStorage implements StorageTypes.IStorage {
       content: this.data[id].content,
       id,
       meta: {
+        state: this.data[id].state,
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp: this.data[id].timestamp,
       },
@@ -68,10 +90,11 @@ export default class MockStorage implements StorageTypes.IStorage {
   }
 
   public async getData(): Promise<StorageTypes.IEntriesWithLastTimestamp> {
-    const entries = Object.entries(this.data).map(([id, { content, timestamp }]) => ({
+    const entries = Object.entries(this.data).map(([id, { content, state, timestamp }]) => ({
       content,
       id,
       meta: {
+        state,
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
         timestamp,
       },

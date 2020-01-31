@@ -489,18 +489,27 @@ export default class Request {
    */
   public getData(): Types.IRequestData {
     const requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
-    const result: Types.IRequestData = {
+
+    let currency: string;
+    let currencyInfo: RequestLogicTypes.ICurrency;
+    if (requestData) {
+      currency = requestData.currency ? currencyToString(requestData.currency) : 'unknown';
+      currencyInfo = requestData.currency;
+    } else {
+      const pendingData: RequestLogicTypes.IRequest = Utils.deepCopy(this.pendingData);
+      currency = pendingData.currency ? currencyToString(pendingData.currency) : 'unknown';
+      currencyInfo = pendingData.currency;
+    }
+
+    return {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
-      currency:
-        requestData && requestData.currency ? currencyToString(requestData.currency) : 'unknown',
-      currencyInfo: requestData && requestData.currency,
+      currency,
+      currencyInfo,
       meta: this.requestMeta,
       pending: this.pendingData,
     };
-
-    return result;
   }
 
   /**
@@ -520,7 +529,6 @@ export default class Request {
         )}`,
       );
     }
-
     if (this.paymentNetwork) {
       this.balance = await this.paymentNetwork.getBalance(
         requestAndMeta.result.request || requestAndMeta.result.pending,

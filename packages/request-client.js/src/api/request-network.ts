@@ -210,19 +210,24 @@ export default class RequestNetwork {
     );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
-      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
+      async (requestFromLogic: {
+        request: RequestLogicTypes.IRequest | null;
+        pending: any;
+      }): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic,
+            request: requestFromLogic.request || requestFromLogic.pending,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.requestId,
+          requestFromLogic.request
+            ? requestFromLogic.request.requestId
+            : requestFromLogic.pending.requestId,
           paymentNetwork,
           this.contentData,
         );
@@ -256,19 +261,24 @@ export default class RequestNetwork {
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
-      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
+      async (requestFromLogic: {
+        request: RequestLogicTypes.IRequest | null;
+        pending: any;
+      }): Promise<Request> => {
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic,
+            request: requestFromLogic.request || requestFromLogic.pending,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.requestId,
+          requestFromLogic.request
+            ? requestFromLogic.request.requestId
+            : requestFromLogic.pending.requestId,
           paymentNetwork,
           this.contentData,
         );
