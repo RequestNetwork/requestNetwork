@@ -607,6 +607,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             meta: {
               ethereum: ethereumMetadata,
               ipfs: { size: ipfsObject.ipfsSize },
+              state: StorageTypes.ContentState.CONFIRMED,
               storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
               timestamp: ethereumMetadata.blockTimestamp,
             },
