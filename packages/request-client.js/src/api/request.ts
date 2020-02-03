@@ -530,12 +530,14 @@ export default class Request {
       );
     }
     if (this.paymentNetwork) {
+      // TODO: PROT-1131 - add a pending balance
       this.balance = await this.paymentNetwork.getBalance(
         requestAndMeta.result.request || requestAndMeta.result.pending,
       );
     }
 
     if (this.contentDataExtension) {
+      // TODO: PROT-1131 - add a pending content
       this.contentData = await this.contentDataExtension.getContent(
         requestAndMeta.result.request || requestAndMeta.result.pending,
       );
