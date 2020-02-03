@@ -412,7 +412,6 @@ describe('index', () => {
     });
 
     const data = request.getData();
-
     expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;

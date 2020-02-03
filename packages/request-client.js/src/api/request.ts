@@ -488,27 +488,23 @@ export default class Request {
    * @returns The updated request data
    */
   public getData(): Types.IRequestData {
-    const requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
+    let requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
 
-    let currency: string;
-    let currencyInfo: RequestLogicTypes.ICurrency;
-    if (requestData) {
-      currency = requestData.currency ? currencyToString(requestData.currency) : 'unknown';
-      currencyInfo = requestData.currency;
-    } else {
-      const pendingData: RequestLogicTypes.IRequest = Utils.deepCopy(this.pendingData);
-      currency = pendingData.currency ? currencyToString(pendingData.currency) : 'unknown';
-      currencyInfo = pendingData.currency;
+    let pending = Utils.deepCopy(this.pendingData);
+    if (!requestData) {
+      requestData = pending;
+      requestData.state = RequestLogicTypes.STATE.PENDING;
+      pending = { state: this.pendingData.state };
     }
 
     return {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
-      currency,
-      currencyInfo,
+      currency: requestData.currency ? currencyToString(requestData.currency) : 'unknown',
+      currencyInfo: requestData.currency,
       meta: this.requestMeta,
-      pending: this.pendingData,
+      pending,
     };
   }
 

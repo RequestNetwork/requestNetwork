@@ -257,6 +257,8 @@ export enum CURRENCY {
 
 /** States of a request */
 export enum STATE {
+  // use for upper layer (trick to avoid headache with retyping request in upper layer)
+  PENDING = 'pending',
   CREATED = 'created',
   ACCEPTED = 'accepted',
   CANCELED = 'canceled',
