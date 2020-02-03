@@ -230,11 +230,15 @@ describe('Request client using a request node', () => {
 
   it('can create an encrypted request and get it back unencrypted', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const timestamp = Date.now();
 
     // Create an encrypted request
     const request = await requestNetwork._createEncryptedRequest(
       {
-        requestInfo: requestCreationHashBTC,
+        requestInfo: {
+          ...requestCreationHashBTC,
+          ...{ timestamp },
+        },
         signer: payeeIdentity,
       },
       [encryptionData.encryptionParams],
@@ -269,11 +273,15 @@ describe('Request client using a request node', () => {
 
   it('can create an encrypted request, modify it and get it back unencrypted', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const timestamp = Date.now();
 
     // Create an encrypted request
     const request = await requestNetwork._createEncryptedRequest(
       {
-        requestInfo: requestCreationHashBTC,
+        requestInfo: {
+          ...requestCreationHashBTC,
+          ...{ timestamp },
+        },
         signer: payeeIdentity,
       },
       [encryptionData.encryptionParams],
