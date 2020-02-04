@@ -14,9 +14,9 @@ module.exports = {
         src: 'img/logo.svg',
       },
       links: [
+	{ to: 'docs/intro/getting-started', label: 'Get started', position: 'left'},
         { to: 'docs/protocol/0-introduction', label: 'Protocol', position: 'left' },
         { to: 'docs/api/getting-started-with-request-api', label: 'REST API', position: 'left' },
-        { to: 'create', label: 'Tutorials', position: 'left' },
         { to: 'whitepaper', label: 'Whitepaper', position: 'left' },
         {
           href: 'https://github.com/requestnetwork/requestnetwork',
@@ -63,11 +63,11 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/RequestNetwork/',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              href: 'https://twitter.com/RequestNetwork',
             },
           ],
         },
@@ -85,7 +85,6 @@ module.exports = {
         },
         docs2: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/facebook/docusaurus/edit/master/website/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
