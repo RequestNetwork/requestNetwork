@@ -1,0 +1,132 @@
+/* *
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: rgb(33, 175, 144);
+  --ifm-color-primary-darker: rgb(31, 165, 136);
+  --ifm-color-primary-darkest: rgb(26, 136, 112);
+  --ifm-color-primary-light: rgb(70, 203, 174);
+  --ifm-color-primary-lighter: rgb(102, 212, 189);
+  --ifm-color-primary-lightest: rgb(146, 224, 208);
+  --ifm-code-font-size: 95%;
+}
+
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body {
+  color: rgb(59, 69, 78);
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  text-rendering: optimizelegibility;
+  -moz-osx-font-smoothing: grayscale;
+  outline-color: rgb(59, 69, 78);
+  outline-style: none;
+  outline-width: 0px;
+  overflow-wrap: break-word;
+}
+
+h2 {
+  position: relative;
+  margin: 73px 0px 24px;
+}
+
+h2::before {
+  top: -32px;
+  left: 0px;
+  width: 100%;
+  height: 1px;
+  content: ' ';
+  position: absolute;
+  background-color: rgb(230, 236, 241);
+}
+
+.docusaurus-highlight-code-line {
+  background-color: rgb(72, 77, 91);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+.menu__link--sublist {
+  font-weight: 700;
+}
+
+.page-ref {
+  border: 1px solid rgb(230, 236, 241);
+  margin: 32px 0px;
+  display: flex;
+  padding: 16px;
+  position: relative;
+  place-self: stretch;
+  box-shadow: rgba(116, 129, 141, 0.1) 0px 3px 8px 0px;
+  align-items: center;
+  border-radius: 3px;
+  flex-direction: row;
+  text-decoration: none;
+  -moz-box-align: center;
+  break-inside: avoid;
+  -moz-box-orient: horizontal;
+  transition: border 250ms ease 0s;
+  -moz-box-direction: normal;
+}
+
+.page-ref .arrow {
+  color: rgb(0, 204, 142);
+  font-size: 24px;
+}
+
+.page-ref .title {
+  flex: 1 1 0%;
+  margin: 0px;
+  display: block;
+  padding: 0 16px;
+  font-size: 16px;
+  font-family: Content-font, Roboto, sans-serif;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgb(0, 204, 142);
+}
+
+.page-ref .path {
+  flex: 0 0 auto;
+  margin: 0px;
+  display: block;
+  padding: 0;
+  max-width: 40%;
+  color: rgb(157, 170, 182);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.625;
+}
+
+.hint {
+  width: 100%;
+  margin: 32px 0px;
+  display: block;
+  padding: 24px 24px calc(0.1px) 50px;
+  position: relative;
+  border-left: 4px solid;
+  border-radius: 3px;
+  background-color: rgb(245, 247, 249);
+}
+
+.hint.hint-info {
+  border-color: rgb(56, 132, 255);
+}
+
+.hint.hint-warning {
+  border-color: rgb(247, 125, 5);
+}
+
+.hint .content {
+  color: inherit;
+  margin: 0px 0px 24px;
+  position: relative;
+}
