@@ -157,7 +157,7 @@ describe('api/request-network', () => {
     });
   });
 
-  describe.skip('fromIdentity', () => {
+  describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByTopic(topic: string): Promise<any> {
@@ -184,6 +184,7 @@ describe('api/request-network', () => {
           if (channelId === TestData.actionRequestId) {
             transactions = [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: TestData.arbitraryTimestamp,
                 transaction: {
                   data: JSON.stringify(TestData.action),
@@ -227,7 +228,7 @@ describe('api/request-network', () => {
     });
   });
 
-  describe.skip('fromTopic', () => {
+  describe('fromTopic', () => {
     it('can get requests with payment network fromTopic', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByTopic(): Promise<any> {
@@ -280,8 +281,8 @@ describe('api/request-network', () => {
     });
   });
 
-  describe.skip('fromMultipleIdentities', () => {
-    it('can get requests with payment network fromIdentity', async () => {
+  describe('fromMultipleIdentities', () => {
+    it('can get requests with payment network from multiple Identities', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByMultipleTopics(topics: [string]): Promise<any> {
           expect(topics).to.deep.equals([
@@ -307,6 +308,7 @@ describe('api/request-network', () => {
           if (channelId === TestData.actionRequestId) {
             transactions = [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: TestData.arbitraryTimestamp,
                 transaction: {
                   data: JSON.stringify(TestData.action),
@@ -354,7 +356,7 @@ describe('api/request-network', () => {
     });
   });
 
-  describe.skip('fromMultipleTopics', () => {
+  describe('fromMultipleTopics', () => {
     it('can get requests with payment network fromMultipleTopics', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByMultipleTopics(): Promise<any> {
