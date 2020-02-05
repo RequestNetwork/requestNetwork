@@ -136,7 +136,7 @@ export default class RequestNetwork {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
-    // get the request state, if nothing confirm take it from pending (usefull for the payment network)
+    // get the request state, if nothing confirm take it from pending (useful for the payment network)
     const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
       ? requestAndMeta.result.request
       : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
@@ -219,7 +219,7 @@ export default class RequestNetwork {
         request: RequestLogicTypes.IRequest | null;
         pending: RequestLogicTypes.IPendingRequest | null;
       }): Promise<Request> => {
-        // get the request state, if nothing confirm take it from pending (usefull for the payment network)
+        // get the request state, if nothing confirm take it from pending (useful for the payment network)
         const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
@@ -273,7 +273,7 @@ export default class RequestNetwork {
         request: RequestLogicTypes.IRequest | null;
         pending: RequestLogicTypes.IPendingRequest | null;
       }): Promise<Request> => {
-        // get the request state, if nothing confirm take it from pending (usefull for the payment network)
+        // get the request state, if nothing confirm take it from pending (useful for the payment network)
         const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
