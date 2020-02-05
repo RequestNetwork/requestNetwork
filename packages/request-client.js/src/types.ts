@@ -29,8 +29,7 @@ export interface IRequestData extends Omit<RequestLogicTypes.IRequest, 'currency
   balance: IBalanceWithEvents<any> | null;
   contentData: any;
   currencyInfo: RequestLogicTypes.ICurrency;
-  // TODO better typing
-  pending: any;
+  pending: RequestLogicTypes.IPendingRequest | null;
 }
 
 /** Create request parameters */

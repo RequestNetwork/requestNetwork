@@ -273,9 +273,9 @@ const requestData = request.getData();
 
 #### Pending state of a request
 
-Requests has a `pending` attribute containing all the change that are in transactions still pending:
+Requests have a `pending` attribute containing all the changes from transactions still pending.
 
-In this example, the request is already created but the `accept` and an `increaseExpectedAmount` are still pending in the storage (e.g: the ethereum transaction is not mined yet)
+In this example, the request is already created but the `accept` and an `increaseExpectedAmount` actions are still pending in the storage (e.g: the ethereum transaction is not mined yet)
 
 ```javascript
 {

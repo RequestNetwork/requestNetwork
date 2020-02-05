@@ -136,11 +136,16 @@ export default class RequestNetwork {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
+    // get the request state, if nothing confirm take it from pending (usefull for the payment network)
+    const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
+      ? requestAndMeta.result.request
+      : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
+
     const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
       {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        request: requestAndMeta.result.request || requestAndMeta.result.pending,
+        request: requestState,
       },
     );
 
@@ -212,22 +217,25 @@ export default class RequestNetwork {
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: {
         request: RequestLogicTypes.IRequest | null;
-        pending: any;
+        pending: RequestLogicTypes.IPendingRequest | null;
       }): Promise<Request> => {
+        // get the request state, if nothing confirm take it from pending (usefull for the payment network)
+        const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
+          ? requestFromLogic.request
+          : (requestFromLogic.pending as RequestLogicTypes.IRequest);
+
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic.request || requestFromLogic.pending,
+            request: requestState,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.request
-            ? requestFromLogic.request.requestId
-            : requestFromLogic.pending.requestId,
+          requestState.requestId,
           paymentNetwork,
           this.contentData,
         );
@@ -263,22 +271,25 @@ export default class RequestNetwork {
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: {
         request: RequestLogicTypes.IRequest | null;
-        pending: any;
+        pending: RequestLogicTypes.IPendingRequest | null;
       }): Promise<Request> => {
+        // get the request state, if nothing confirm take it from pending (usefull for the payment network)
+        const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
+          ? requestFromLogic.request
+          : (requestFromLogic.pending as RequestLogicTypes.IRequest);
+
         const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic.request || requestFromLogic.pending,
+            request: requestState,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.request
-            ? requestFromLogic.request.requestId
-            : requestFromLogic.pending.requestId,
+          requestState.requestId,
           paymentNetwork,
           this.contentData,
         );

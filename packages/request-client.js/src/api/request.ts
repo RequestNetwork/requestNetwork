@@ -31,8 +31,7 @@ export default class Request {
   /**
    * Pending data of the request (see request-logic)
    */
-  // TODO modify any to a real type
-  private pendingData: any | null = null;
+  private pendingData: RequestLogicTypes.IPendingRequest | null = null;
 
   /**
    * Content data parsed from the extensions data
@@ -494,7 +493,7 @@ export default class Request {
     if (!requestData) {
       requestData = pending;
       requestData.state = RequestLogicTypes.STATE.PENDING;
-      pending = { state: this.pendingData.state };
+      pending = { state: this.pendingData!.state };
     }
 
     return {
@@ -525,11 +524,9 @@ export default class Request {
         )}`,
       );
     }
-    if (this.paymentNetwork) {
+    if (this.paymentNetwork && requestAndMeta.result.request) {
       // TODO: PROT-1131 - add a pending balance
-      this.balance = await this.paymentNetwork.getBalance(
-        requestAndMeta.result.request || requestAndMeta.result.pending,
-      );
+      this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
     }
 
     if (this.contentDataExtension) {
