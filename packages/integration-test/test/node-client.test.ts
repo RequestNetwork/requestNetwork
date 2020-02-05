@@ -87,16 +87,16 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.state, Types.RequestLogic.STATE.PENDING);
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.pending.state, Types.RequestLogic.STATE.CREATED);
+    assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
 
     // Reduce the amount and get the data
     await request.reduceExpectedAmountRequest('200', payeeIdentity);
     requestData = request.getData();
     assert.equal(requestData.expectedAmount, '1000');
     assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
-    assert.equal(requestData.balance, null);
+    assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.pending.expectedAmount, '800');
+    assert.equal(requestData.pending!.expectedAmount, '800');
   });
 
   it('can create a request with declarative payment network and content data', async () => {
@@ -131,10 +131,9 @@ describe('Request client using a request node', () => {
     let requestData = request.getData();
     assert.equal(requestData.expectedAmount, '1000');
     assert.equal(requestData.state, Types.RequestLogic.STATE.PENDING);
-    assert.exists(requestData.balance);
-    assert.equal(requestData.balance!.balance, '0');
+    assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.pending.state, Types.RequestLogic.STATE.CREATED);
+    assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
 
     const extension = requestData.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE];
     assert.exists(extension);
@@ -255,7 +254,7 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.state, Types.RequestLogic.STATE.PENDING);
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.pending.state, Types.RequestLogic.STATE.CREATED);
+    assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
     assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
 
     // Fetch the created request by its id
@@ -297,7 +296,7 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.state, Types.RequestLogic.STATE.PENDING);
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.pending.state, Types.RequestLogic.STATE.CREATED);
+    assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
     assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
 
     // Fetch the created request by its id
@@ -459,9 +458,8 @@ describe('ERC20 localhost request creation and detection test', () => {
     const requestData = request.getData();
     assert.equal(requestData.expectedAmount, '10');
     assert.equal(requestData.state, Types.RequestLogic.STATE.PENDING);
-    assert.notEqual(requestData.balance, null);
-    assert.equal(requestData.balance!.balance, '10');
+    assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.pending.state, Types.RequestLogic.STATE.CREATED);
+    assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
   });
 });
