@@ -14,7 +14,7 @@ module.exports = {
         src: 'img/logo.svg',
       },
       links: [
-	{ to: 'docs/intro/getting-started', label: 'Get started', position: 'left'},
+        { to: 'docs/intro/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'docs/protocol/0-introduction', label: 'Protocol', position: 'left' },
         { to: 'docs/api/getting-started-with-request-api', label: 'REST API', position: 'left' },
         { to: 'whitepaper', label: 'Whitepaper', position: 'left' },
@@ -75,6 +75,7 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
     },
   },
+  themes: ['@docusaurus/theme-live-codeblock'],
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -84,6 +85,9 @@ module.exports = {
           editUrl: 'https://github.com/facebook/docusaurus/edit/master/website/',
         },
         docs2: {
+          sidebarPath: require.resolve('./sidebars.js'),
+        },
+        intro: {
           sidebarPath: require.resolve('./sidebars.js'),
         },
         theme: {

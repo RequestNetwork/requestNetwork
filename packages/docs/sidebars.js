@@ -14,6 +14,7 @@ const docsPath = 'docs';
 module.exports = {
   docs: makeSidebar('protocol'),
   docs2: makeSidebar('api'),
+  intro: makeSidebar('intro'),
 };
 console.dir(module.exports, { depth: null });
 
