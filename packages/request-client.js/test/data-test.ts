@@ -137,7 +137,6 @@ export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTy
   transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
 };
 export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
-  // TODO
   state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(actionWithDeclarative) },
