@@ -1,9 +1,9 @@
+import { DeclarativePaymentNetwork } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { currencyToString } from './currency';
-import PaymentNetworkDeclarative from './payment-network/declarative';
 import localUtils from './utils';
 
 /**

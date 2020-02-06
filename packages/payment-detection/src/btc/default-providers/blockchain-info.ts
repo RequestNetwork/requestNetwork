@@ -1,7 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-
 const bigNumber: any = require('bn.js');
 
 /* eslint-disable spellcheck/spell-checker */

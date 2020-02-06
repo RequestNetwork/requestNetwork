@@ -1,4 +1,5 @@
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
@@ -17,7 +18,6 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { stringToCurrency } from './currency';
 import { validERC20Address } from './currency/erc20';
-import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 import localUtils from './utils';
 

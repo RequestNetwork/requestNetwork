@@ -15,38 +15,38 @@ import EthInputData from './eth/input-data';
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: BTCAddressedBased,
     },
     testnet: {
-      [ExtensionTypes.ID
-        .PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: TestnetBTCAddressedBased,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: TestnetBTCAddressedBased,
     },
   },
   ERC20: {
     mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT as string]: ERC20ProxyContract,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
     },
     private: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT as string]: ERC20ProxyContract,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
     },
     rinkeby: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: ERC20AddressBased,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT as string]: ERC20ProxyContract,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
     },
   },
   ETH: {
     mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
     },
     private: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
     },
     rinkeby: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
     },
   },
+  ISO4217: {},
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
@@ -68,7 +68,7 @@ export default class PaymentNetworkFactory {
   public static createPaymentNetwork({
     advancedLogic,
     currency,
-    paymentNetworkCreationParameters,
+    paymentNetworkId,
     bitcoinDetectionProvider,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
@@ -78,16 +78,15 @@ export default class PaymentNetworkFactory {
   }): PaymentTypes.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
-    if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
+    if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
-        `the payment network id: ${
-          paymentNetworkCreationParameters.id
-        } is not supported for the currency: ${currency.type} on network ${currency.network ||
-          'mainnet'}`,
+        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${
+          currency.type
+        } on network ${currency.network || 'mainnet'}`,
       );
     }
 
-    return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id]({
+    return new paymentNetworkForCurrency[paymentNetworkId]({
       advancedLogic,
       bitcoinDetectionProvider,
     });
