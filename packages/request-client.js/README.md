@@ -298,10 +298,6 @@ In this example, the request is already created but the `accept` and an `increas
     expectedAmount: "1200",
     events: [
       {
-        name: "create",
-        ...
-      },
-      {
         name: "accept",
         ...
       },

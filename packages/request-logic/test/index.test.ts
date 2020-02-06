@@ -1101,24 +1101,6 @@ describe('index', () => {
             events: [
               {
                 actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.CREATE,
-                parameters: {
-                  expectedAmount: '123400000000000000',
-                  extensionsDataLength: 0,
-                  isSignedRequest: false,
-                },
-                timestamp: 1,
-              },
-              {
-                actionSigner: TestData.payerRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-                parameters: {
-                  extensionsDataLength: 0,
-                },
-                timestamp: 2,
-              },
-              {
-                actionSigner: TestData.payeeRaw.identity,
                 name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
                 parameters: {
                   deltaAmount: '1000',

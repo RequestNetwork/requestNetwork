@@ -683,7 +683,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             if (!pending) {
               pending = {};
             }
-            pending[key] = requestStatePending[key];
+            // tslint:disable-next-line:prefer-conditional-expression
+            if (key === 'events') {
+              // keep only the new events in pending
+              pending[key] = requestStatePending[key].slice(requestStateConfirmed[key].length);
+            } else {
+              pending[key] = requestStatePending[key];
+            }
           }
         }
       }
