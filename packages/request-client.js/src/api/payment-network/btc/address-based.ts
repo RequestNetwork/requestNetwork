@@ -1,5 +1,5 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import * as Types from '../../../types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+
 import DefaultBitcoinDetectionProvider from './default-bitcoin-detection-provider';
 const bigNumber: any = require('bn.js');
 
@@ -8,14 +8,14 @@ const bigNumber: any = require('bn.js');
  */
 export default class PaymentNetworkBTCAddressBased {
   private extension: ExtensionTypes.PnAddressBased.IAddressBased;
-  private bitcoinDetectionProvider: Types.IBitcoinDetectionProvider;
+  private bitcoinDetectionProvider: PaymentTypes.IBitcoinDetectionProvider;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor(
     extension: ExtensionTypes.PnAddressBased.IAddressBased,
-    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider,
   ) {
     this.extension = extension;
     this.bitcoinDetectionProvider =
@@ -77,27 +77,27 @@ export default class PaymentNetworkBTCAddressBased {
     request: RequestLogicTypes.IRequest,
     paymentNetworkId: ExtensionTypes.ID,
     networkId: number,
-  ): Promise<Types.BTCBalanceWithEvents> {
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     if (!request.extensions[paymentNetworkId]) {
       throw new Error(`The request do not have the extension : ̀${paymentNetworkId}`);
     }
     const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
     const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
 
-    let payments: Types.BTCBalanceWithEvents = { balance: '0', events: [] };
+    let payments: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       payments = await this.extractBalanceAndEvents(
         paymentAddress,
-        Types.EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
         networkId,
       );
     }
 
-    let refunds: Types.BTCBalanceWithEvents = { balance: '0', events: [] };
+    let refunds: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
       refunds = await this.extractBalanceAndEvents(
         refundAddress,
-        Types.EVENTS_NAMES.REFUND,
+        PaymentTypes.EVENTS_NAMES.REFUND,
         networkId,
       );
     }
@@ -106,9 +106,10 @@ export default class PaymentNetworkBTCAddressBased {
       .sub(new bigNumber(refunds.balance || 0))
       .toString();
 
-    const events: Types.BTCPaymentNetworkEvent[] = [...payments.events, ...refunds.events].sort(
-      (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
-    );
+    const events: PaymentTypes.BTCPaymentNetworkEvent[] = [
+      ...payments.events,
+      ...refunds.events,
+    ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
     return {
       balance,
@@ -126,9 +127,9 @@ export default class PaymentNetworkBTCAddressBased {
    */
   private async extractBalanceAndEvents(
     address: string,
-    eventName: Types.EVENTS_NAMES,
+    eventName: PaymentTypes.EVENTS_NAMES,
     networkId: number,
-  ): Promise<Types.BTCBalanceWithEvents> {
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     return this.bitcoinDetectionProvider.getAddressBalanceWithEvents(networkId, address, eventName);
   }
 }

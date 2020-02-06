@@ -1,5 +1,9 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import * as Types from '../../../types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import BTCAddressBased from './address-based';
 
@@ -13,7 +17,7 @@ const TESTNET_BITCOIN_NETWORK_ID = 3;
  * @class PaymentNetworkBTCAddressBased
  */
 export default class PaymentNetworkBTCAddressBased
-  implements Types.IPaymentNetwork<Types.IBTCPaymentEventParameters> {
+  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IBTCPaymentEventParameters> {
   private btcAddressBased: BTCAddressBased;
 
   /**
@@ -24,7 +28,7 @@ export default class PaymentNetworkBTCAddressBased
     bitcoinDetectionProvider,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
   }) {
     this.btcAddressBased = new BTCAddressBased(
       advancedLogic.extensions.addressBasedTestnetBtc,
@@ -79,7 +83,7 @@ export default class PaymentNetworkBTCAddressBased
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
-  ): Promise<Types.BTCBalanceWithEvents> {
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     return this.btcAddressBased.getBalance(
       request,
       PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,

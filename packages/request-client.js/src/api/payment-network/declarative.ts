@@ -1,5 +1,9 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import * as Types from '../../types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 const bigNumber: any = require('bn.js');
 
 /**
@@ -8,7 +12,7 @@ const bigNumber: any = require('bn.js');
  * @class PaymentNetworkDeclarative
  */
 export default class PaymentNetworkDeclarative
-  implements Types.IPaymentNetwork<Types.IDeclarativePaymentEventParameters> {
+  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
   private extension: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
 
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
@@ -129,21 +133,21 @@ export default class PaymentNetworkDeclarative
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
-  ): Promise<Types.DeclarativeBalanceWithEvents> {
+  ): Promise<PaymentTypes.DeclarativeBalanceWithEvents> {
     let balance = new bigNumber(0);
-    const events: Types.DeclarativePaymentNetworkEvent[] = [];
+    const events: PaymentTypes.DeclarativePaymentNetworkEvent[] = [];
 
     // For each extension data related to the declarative payment network,
     // we check if the data is a declared received payment or refund and we modify the balance
     // Received payment increase the balance and received refund decrease the balance
-    request.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE].events.forEach(data => {
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE].events.forEach(data => {
       const parameters = data.parameters;
       if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
         // Declared received payments from payee is added to the balance
         balance = balance.add(new bigNumber(parameters.amount));
         events.push({
           amount: parameters.amount,
-          name: Types.EVENTS_NAMES.PAYMENT,
+          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: parameters.note,
           },
@@ -156,7 +160,7 @@ export default class PaymentNetworkDeclarative
         balance = balance.sub(new bigNumber(parameters.amount));
         events.push({
           amount: parameters.amount,
-          name: Types.EVENTS_NAMES.REFUND,
+          name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: parameters.note,
           },

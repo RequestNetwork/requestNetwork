@@ -1,6 +1,6 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-import * as Types from '../../../../types';
 const bigNumber: any = require('bn.js');
 
 /* eslint-disable spellcheck/spell-checker */
@@ -14,7 +14,7 @@ const BLOCKCYPHER_REQUEST_RETRY_DELAY = 100;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockcypher.com
  */
-export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
+export default class BlockcypherCom implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockcypher.com public API
    *
@@ -26,8 +26,8 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
   public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
-    eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.BTCBalanceWithEvents> {
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/addrs/${address}`;
     try {
@@ -57,7 +57,10 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
+  public parse(
+    addressInfo: any,
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): PaymentTypes.BTCBalanceWithEvents {
     const balance = new bigNumber(addressInfo.total_received).toString();
 
     // Retrieves all the transaction hash of the transactions having as input the current address
@@ -65,13 +68,13 @@ export default class BlockcypherCom implements Types.IBitcoinDetectionProvider {
       .filter((tx: any) => tx.tx_output_n === -1)
       .map((tx: any) => tx.tx_hash);
 
-    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.txrefs
+    const events: PaymentTypes.BTCPaymentNetworkEvent[] = addressInfo.txrefs
       // keep only the transaction with this address as output
       .filter((tx: any) => tx.tx_input_n === -1)
       // exclude the transactions coming from the same address
       .filter((tx: any) => !inputTxHashes.includes(tx.tx_hash))
       .map(
-        (tx: any): Types.BTCPaymentNetworkEvent => ({
+        (tx: any): PaymentTypes.BTCPaymentNetworkEvent => ({
           amount: tx.value.toString(),
           name: eventName,
           parameters: {

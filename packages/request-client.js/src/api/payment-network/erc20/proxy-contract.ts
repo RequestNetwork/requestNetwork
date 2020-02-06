@@ -1,6 +1,10 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as Types from '../../../types';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
@@ -32,7 +36,7 @@ const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNet
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentNetwork {
+export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IPaymentNetwork {
   private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
   /**
    * @param extension The advanced logic payment network extensions
@@ -49,7 +53,7 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @returns The extensionData object
    */
   public createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: Types.IReferenceBasedCreationParameters,
+    paymentNetworkCreationParameters: PaymentTypes.IReferenceBasedCreationParameters,
   ): ExtensionTypes.IAction {
     // If no salt is given, generate one
     const salt = paymentNetworkCreationParameters.salt || Utils.crypto.generate8randomBytes();
@@ -97,7 +101,9 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
    * @param tokenContractAddress the address of the token contract
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(request: RequestLogicTypes.IRequest): Promise<Types.IBalanceWithEvents> {
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.IBalanceWithEvents> {
     const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
     const paymentNetwork = request.extensions[paymentNetworkId];
 
@@ -109,24 +115,24 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     const refundAddress = paymentNetwork.values.refundAddress;
     const salt = paymentNetwork.values.salt;
 
-    let payments: Types.IBalanceWithEvents = { balance: '0', events: [] };
+    let payments: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       payments = await this.extractBalanceAndEvents(
         request,
         salt,
         paymentAddress,
-        Types.EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentNetwork.version,
       );
     }
 
-    let refunds: Types.IBalanceWithEvents = { balance: '0', events: [] };
+    let refunds: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
     if (refundAddress) {
       refunds = await this.extractBalanceAndEvents(
         request,
         salt,
         refundAddress,
-        Types.EVENTS_NAMES.REFUND,
+        PaymentTypes.EVENTS_NAMES.REFUND,
         paymentNetwork.version,
       );
     }
@@ -135,9 +141,10 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
       .sub(new bigNumber(refunds.balance || 0))
       .toString();
 
-    const events: Types.ERC20PaymentNetworkEvent[] = [...payments.events, ...refunds.events].sort(
-      (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
-    );
+    const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
+      ...payments.events,
+      ...refunds.events,
+    ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
     return {
       balance,
@@ -159,9 +166,9 @@ export default class PaymentNetworkERC20ProxyContract implements Types.IPaymentN
     request: RequestLogicTypes.IRequest,
     salt: string,
     toAddress: string,
-    eventName: Types.EVENTS_NAMES,
+    eventName: PaymentTypes.EVENTS_NAMES,
     paymentNetworkVersion: string,
-  ): Promise<Types.IBalanceWithEvents> {
+  ): Promise<PaymentTypes.IBalanceWithEvents> {
     const network = request.currency.network;
 
     if (!network) {

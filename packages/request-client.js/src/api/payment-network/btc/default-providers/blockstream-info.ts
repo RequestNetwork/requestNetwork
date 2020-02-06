@@ -1,6 +1,6 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-import * as Types from '../../../../types';
 const bigNumber: any = require('bn.js');
 
 /* eslint-disable spellcheck/spell-checker */
@@ -17,7 +17,7 @@ const TXS_PER_PAGE = 25;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockstream.info
  */
-export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider {
+export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockstream.info public API
    *
@@ -29,8 +29,8 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
   public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
-    eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.BTCBalanceWithEvents> {
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/address/${address}/txs`;
     try {
@@ -87,8 +87,11 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
-    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.txs
+  public parse(
+    addressInfo: any,
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): PaymentTypes.BTCBalanceWithEvents {
+    const events: PaymentTypes.BTCPaymentNetworkEvent[] = addressInfo.txs
       // exclude the transactions coming from the same address
       .filter((tx: any) => {
         const autoVin = tx.vin.filter(
@@ -109,7 +112,7 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
       }, [])
       .filter((output: any) => output.output.scriptpubkey_address === addressInfo.address)
       .map(
-        (output: any): Types.BTCPaymentNetworkEvent => ({
+        (output: any): PaymentTypes.BTCPaymentNetworkEvent => ({
           amount: output.output.value.toString(),
           name: eventName,
           parameters: {
@@ -121,7 +124,7 @@ export default class BlockstreamInfo implements Types.IBitcoinDetectionProvider 
       );
 
     const balance: string = events
-      .reduce((balanceAccumulator: any, event: Types.BTCPaymentNetworkEvent) => {
+      .reduce((balanceAccumulator: any, event: PaymentTypes.BTCPaymentNetworkEvent) => {
         return balanceAccumulator.add(new bigNumber(event.amount));
       }, new bigNumber('0'))
       .toString();

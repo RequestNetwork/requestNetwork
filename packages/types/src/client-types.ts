@@ -18,10 +18,10 @@ export interface IRequestData extends Omit<RequestLogic.IRequest, 'currency'> {
 }
 
 /** Create request parameters */
-export interface ICreateRequestParameters<TPaymentParameters = any> {
+export interface ICreateRequestParameters {
   requestInfo: RequestLogic.ICreateParameters | IRequestInfo;
   signer: Identity.IIdentity;
-  paymentNetwork?: Payment.IPaymentNetworkCreateParameters<TPaymentParameters>;
+  paymentNetwork?: Payment.IPaymentNetworkCreateParameters;
   topics?: string[];
   contentData?: any;
 }
