@@ -1,7 +1,8 @@
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-invalid-this
-import ERC20AddressedBased from '@requestnetwork/request-client.js/src/api/payment-network/erc20/address-based';
-import ERC20AddressBasedInfoRetriever from '@requestnetwork/request-client.js/src/api/payment-network/erc20/address-based-info-retriever';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
+import ERC20AddressBasedInfoRetriever from '@requestnetwork/payment-detection/src/erc20/address-based-info-retriever';
+
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -59,7 +60,7 @@ describe('ERC20 detection test-suite', () => {
   });
 
   it('can getBalance on a mainnet request', async () => {
-    const erc20AddressedBased = new ERC20AddressedBased({
+    const erc20AddressedBased = new Erc20PaymentNetwork.AddressBased({
       advancedLogic: mockAdvancedLogic,
     });
     const mockRequest = {

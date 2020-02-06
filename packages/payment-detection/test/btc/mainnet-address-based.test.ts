@@ -1,6 +1,6 @@
 import { AdvancedLogicTypes } from '@requestnetwork/types';
 
-import BTCAddressedBased from '../../../../src/api/payment-network/btc/mainnet-address-based';
+import BTCAddressedBased from '../../src/btc/mainnet-address-based';
 
 import 'chai';
 import 'mocha';

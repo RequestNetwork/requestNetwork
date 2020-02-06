@@ -19,7 +19,7 @@ import { Request, RequestNetwork } from '../src/index';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
-import PaymentReferenceCalculator from '../src/api/payment-network/payment-reference-calculator';
+import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
 const chai = require('chai');
 const spies = require('chai-spies');

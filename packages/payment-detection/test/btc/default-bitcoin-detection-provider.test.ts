@@ -9,7 +9,7 @@ chai.use(chaiAsPromised);
 
 import { PaymentTypes } from '@requestnetwork/types';
 
-import DefaultBitcoinDetectionProvider from '../../../../src/api/payment-network/btc/default-bitcoin-detection-provider';
+import DefaultBitcoinDetectionProvider from '../../src/btc/default-bitcoin-detection-provider';
 
 const btcProviderMock0: PaymentTypes.IBitcoinDetectionProvider = {
   getAddressBalanceWithEvents: async (): Promise<PaymentTypes.BTCBalanceWithEvents> => ({
