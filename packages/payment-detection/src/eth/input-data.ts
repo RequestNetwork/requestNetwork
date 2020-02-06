@@ -6,7 +6,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
-import * as Types from '../types';
 
 import EthInputDataInfoRetriever from './info-retriever';
 

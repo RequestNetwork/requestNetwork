@@ -68,7 +68,7 @@ export default class PaymentNetworkFactory {
   public static createPaymentNetwork({
     advancedLogic,
     currency,
-    paymentNetworkId,
+    paymentNetworkCreationParameters,
     bitcoinDetectionProvider,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
@@ -78,15 +78,15 @@ export default class PaymentNetworkFactory {
   }): PaymentTypes.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
-    if (!paymentNetworkForCurrency[paymentNetworkId]) {
+    if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
-        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${
+        `the payment network id: ${paymentNetworkCreationParameters} is not supported for the currency: ${
           currency.type
         } on network ${currency.network || 'mainnet'}`,
       );
     }
 
-    return new paymentNetworkForCurrency[paymentNetworkId]({
+    return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id]({
       advancedLogic,
       bitcoinDetectionProvider,
     });

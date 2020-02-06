@@ -1,4 +1,4 @@
-import { DeclarativePaymentNetwork } from '@requestnetwork/payment-detection';
+import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
