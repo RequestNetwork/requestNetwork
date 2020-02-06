@@ -140,7 +140,6 @@ export default class RequestNetwork {
     const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
       ? requestAndMeta.result.request
       : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
-
     const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
       {
         advancedLogic: this.advancedLogic,
@@ -153,7 +152,7 @@ export default class RequestNetwork {
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
 
     // refresh the local request data
-    await request.refresh();
+    await request.refresh(requestAndMeta);
 
     return request;
   }

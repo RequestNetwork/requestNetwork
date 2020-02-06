@@ -93,11 +93,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -129,11 +125,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -167,11 +159,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -206,11 +194,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -242,11 +226,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -278,11 +258,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -324,11 +300,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -373,11 +345,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -422,11 +390,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -471,11 +435,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    try {
-      await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
-    } catch (error) {
-      throw new Error(`${error.message} (maybe transactions are still pending)`);
-    }
+    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
     return this.refresh();
@@ -510,12 +470,15 @@ export default class Request {
   /**
    * Refresh the request data and balance from the network (check if new events happened - e.g: accept, payments etc..) and return these data
    *
+   * @param requestAndMeta return from getRequestFromId to avoid asking twice
    * @returns Refreshed request data
    */
-  public async refresh(): Promise<Types.IRequestData> {
-    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
-      this.requestId,
-    );
+  public async refresh(
+    requestAndMeta?: RequestLogicTypes.IReturnGetRequestFromId,
+  ): Promise<Types.IRequestData> {
+    if (!requestAndMeta) {
+      requestAndMeta = await this.requestLogic.getRequestFromId(this.requestId);
+    }
 
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(

@@ -325,61 +325,24 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestFromId(
     requestId: string,
   ): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
-    const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
-    const actions = resultGetTx.result.transactions
-      // filter the actions ignored by the previous layers
-      .filter(action => action !== null)
-      .sort((a: any, b: any) => a.timestamp - b.timestamp);
-
-    // tslint:disable-next-line:prefer-const
-    let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
-
-    // array of transaction without duplicates to avoid replay attack
-    const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
-      keptTransactions
-        .map((t: any) => {
-          try {
-            return {
-              action: JSON.parse(t.transaction.data),
-              state: t.state,
-              timestamp: t.timestamp,
-            };
-          } catch (e) {
-            // We ignore the transaction.data that cannot be parsed
-            ignoredTransactions.push({
-              reason: 'JSON parsing error',
-              transaction: t,
-            });
-            return;
-          }
-        })
-        .filter((elem: any) => elem !== undefined),
-      'action',
-    );
-
-    // Keeps the transaction ignored
-    ignoredTransactions = ignoredTransactions.concat(
-      timestampedActionsWithoutDuplicates.duplicates.map(tx => {
-        return {
-          reason: 'Duplicated transaction',
-          transaction: tx,
-        };
-      }),
-    );
-
     const {
-      pending,
-      request,
-      ignoredTransactionsByApplication,
-    } = await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
-    ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
+      ignoredTransactions,
+      requestStateConfirmed,
+      requestStatePending,
+      transactionManagerMeta,
+    } = await this.computeRequestFromRequestId(requestId);
+
+    const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
+      requestStateConfirmed,
+      requestStatePending,
+    );
 
     return {
       meta: {
         ignoredTransactions,
-        transactionManagerMeta: resultGetTx.meta,
+        transactionManagerMeta,
       },
-      result: { request, pending },
+      result: { request: requestStateConfirmed, pending },
     };
   }
 
@@ -466,6 +429,77 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
+   * Interprets a request from requestId
+   *
+   * @param requestId the requestId of the request to retrieve
+   * @returns the request, the request pending and the ignoredTransactions
+   */
+  private async computeRequestFromRequestId(
+    requestId: RequestLogicTypes.RequestId,
+  ): Promise<{
+    requestStateConfirmed: RequestLogicTypes.IRequest | null;
+    requestStatePending: RequestLogicTypes.IRequest | null;
+    ignoredTransactions: any[];
+    transactionManagerMeta: any;
+  }> {
+    const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
+    const actions = resultGetTx.result.transactions
+      // filter the actions ignored by the previous layers
+      .filter(action => action !== null)
+      .sort((a: any, b: any) => a.timestamp - b.timestamp);
+
+    // tslint:disable-next-line:prefer-const
+    let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
+
+    // array of transaction without duplicates to avoid replay attack
+    const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
+      keptTransactions
+        .map((t: any) => {
+          try {
+            return {
+              action: JSON.parse(t.transaction.data),
+              state: t.state,
+              timestamp: t.timestamp,
+            };
+          } catch (e) {
+            // We ignore the transaction.data that cannot be parsed
+            ignoredTransactions.push({
+              reason: 'JSON parsing error',
+              transaction: t,
+            });
+            return;
+          }
+        })
+        .filter((elem: any) => elem !== undefined),
+      'action',
+    );
+
+    // Keeps the transaction ignored
+    ignoredTransactions = ignoredTransactions.concat(
+      timestampedActionsWithoutDuplicates.duplicates.map(tx => {
+        return {
+          reason: 'Duplicated transaction',
+          transaction: tx,
+        };
+      }),
+    );
+
+    const {
+      requestStateConfirmed,
+      requestStatePending,
+      ignoredTransactionsByApplication,
+    } = await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
+    ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
+
+    return {
+      ignoredTransactions,
+      requestStateConfirmed,
+      requestStatePending,
+      transactionManagerMeta: resultGetTx.meta,
+    };
+  }
+
+  /**
    * Interprets a request from transactions
    *
    * @param transactions transactions to compute the request from
@@ -474,8 +508,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private async computeRequestFromTransactions(
     transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
-    request: RequestLogicTypes.IRequest | null;
-    pending: RequestLogicTypes.IPendingRequest | null;
+    requestStateConfirmed: RequestLogicTypes.IRequest | null;
+    requestStatePending: RequestLogicTypes.IRequest | null;
     ignoredTransactionsByApplication: any[];
   }> {
     const ignoredTransactionsByApplication: any[] = [];
@@ -520,15 +554,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         }
       }, requestStateConfirmed);
 
-    const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
-      requestStateConfirmed,
-      requestStatePending,
-    );
-
     return {
       ignoredTransactionsByApplication,
-      pending,
-      request: requestStateConfirmed,
+      requestStateConfirmed,
+      requestStatePending,
     };
   }
 
@@ -587,18 +616,23 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
         // Computes the request from the transactions
         const {
-          request,
-          pending,
+          requestStateConfirmed,
+          requestStatePending,
           ignoredTransactionsByApplication,
         } = await this.computeRequestFromTransactions(
           timestampedActionsWithoutDuplicates.uniqueItems,
         );
         ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
+        const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
+          requestStateConfirmed,
+          requestStatePending,
+        );
+
         return {
           ignoredTransactions,
           pending,
-          request,
+          request: requestStateConfirmed,
           transactionManagerMeta: transactionManagerMeta[channelId],
         };
       },
@@ -648,13 +682,29 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: RequestLogicTypes.RequestId,
     action: RequestLogicTypes.IAction,
   ): Promise<void> {
-    const request = await this.getRequestFromId(requestId);
-    RequestLogicCore.applyActionToRequest(
-      request.result.request,
-      action,
-      Date.now(),
-      this.advancedLogic,
+    const { requestStateConfirmed, requestStatePending } = await this.computeRequestFromRequestId(
+      requestId,
     );
+
+    try {
+      // Check if the action works with the request state
+      RequestLogicCore.applyActionToRequest(
+        requestStateConfirmed,
+        action,
+        Date.now(),
+        this.advancedLogic,
+      );
+    } catch (error) {
+      // Check if the action works with the pending state
+      if (requestStatePending) {
+        RequestLogicCore.applyActionToRequest(
+          requestStatePending,
+          action,
+          Date.now(),
+          this.advancedLogic,
+        );
+      }
+    }
   }
 
   /**

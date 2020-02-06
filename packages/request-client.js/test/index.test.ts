@@ -481,10 +481,6 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    await expect(request.accept(payerIdentity)).to.eventually.be.rejectedWith(
-      'request is expected (maybe transactions are still pending)',
-    );
-
     // after confirmation
     const mock = new mockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
@@ -494,7 +490,7 @@ describe('index', () => {
 
     await request.accept(payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(4);
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 

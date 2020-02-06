@@ -101,6 +101,7 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+
       const request = await requestnetwork.fromRequestId(TestData.actionRequestId);
 
       expect(request).to.instanceOf(Request);
