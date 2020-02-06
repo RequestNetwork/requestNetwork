@@ -1,10 +1,10 @@
 // tslint:disable: no-invalid-this
 // tslint:disable: no-magic-numbers
-import ProxyERC20InfoRetriever from '../../../../src/api/payment-network/erc20/proxy-info-retriever';
+import { PaymentTypes } from '@requestnetwork/types';
+import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 
 import 'chai';
 import 'mocha';
-import { EVENTS_NAMES } from '../../../../src/types';
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -25,7 +25,7 @@ describe('api/erc20/proxy-info-retriever', () => {
         0,
         erc20LocalhostContractAddress,
         paymentAddress,
-        EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
       );
 
@@ -61,7 +61,7 @@ describe('api/erc20/proxy-info-retriever', () => {
 
       // if this assert fails it means this address received another transaction
       expect(events).to.have.lengthOf(1);
-      expect(events[0].name).to.equal(EVENTS_NAMES.PAYMENT);
+      expect(events[0].name).to.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
       expect(events[0].amount).to.equal('1');
       expect(events[0].timestamp).to.be.a('number');
       expect(events[0].parameters!.to).to.equal(paymentAddress);
@@ -76,7 +76,7 @@ describe('api/erc20/proxy-info-retriever', () => {
         0,
         erc20LocalhostContractAddress,
         paymentAddress,
-        EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
       );
 

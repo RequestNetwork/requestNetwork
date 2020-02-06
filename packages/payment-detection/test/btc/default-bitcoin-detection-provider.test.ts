@@ -7,33 +7,33 @@ const expect = chai.expect;
 chai.use(spies);
 chai.use(chaiAsPromised);
 
-import * as Types from '../../../../src/types';
+import { PaymentTypes } from '@requestnetwork/types';
 
-import DefaultBitcoinDetectionProvider from '../../../../src/api/payment-network/btc/default-bitcoin-detection-provider';
+import DefaultBitcoinDetectionProvider from '../../src/btc/default-bitcoin-detection-provider';
 
-const btcProviderMock0: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
+const btcProviderMock0: PaymentTypes.IBitcoinDetectionProvider = {
+  getAddressBalanceWithEvents: async (): Promise<PaymentTypes.BTCBalanceWithEvents> => ({
     balance: '0',
     events: [],
   }),
 };
 
-const btcProviderMock1: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
+const btcProviderMock1: PaymentTypes.IBitcoinDetectionProvider = {
+  getAddressBalanceWithEvents: async (): Promise<PaymentTypes.BTCBalanceWithEvents> => ({
     balance: '1',
     events: [],
   }),
 };
 
-const btcProviderMock2: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
+const btcProviderMock2: PaymentTypes.IBitcoinDetectionProvider = {
+  getAddressBalanceWithEvents: async (): Promise<PaymentTypes.BTCBalanceWithEvents> => ({
     balance: '2',
     events: [],
   }),
 };
 
-const btcProviderMockMinus1: Types.IBitcoinDetectionProvider = {
-  getAddressBalanceWithEvents: async (): Promise<Types.BTCBalanceWithEvents> => ({
+const btcProviderMockMinus1: PaymentTypes.IBitcoinDetectionProvider = {
+  getAddressBalanceWithEvents: async (): Promise<PaymentTypes.BTCBalanceWithEvents> => ({
     balance: '-1',
     events: [],
   }),
@@ -48,7 +48,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
       btcRetriever.providers = [btcProviderMock1, btcProviderMock1];
 
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
     });
 
@@ -57,12 +57,12 @@ describe('api/btc/bitcoin-info-retriever', () => {
 
       btcRetriever.providers = [btcProviderMockMinus1, btcProviderMock1, btcProviderMock1];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [btcProviderMock1, btcProviderMockMinus1, btcProviderMock1];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
     });
 
@@ -71,12 +71,12 @@ describe('api/btc/bitcoin-info-retriever', () => {
 
       btcRetriever.providers = [btcProviderMock0, btcProviderMock1, btcProviderMock1];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [btcProviderMock1, btcProviderMock0, btcProviderMock1];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
     });
 
@@ -90,7 +90,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [
@@ -100,7 +100,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [
@@ -110,7 +110,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [
@@ -120,7 +120,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
     });
 
@@ -134,7 +134,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [
@@ -144,7 +144,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
       btcRetriever.providers = [
@@ -154,7 +154,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
         btcProviderMock1,
       ];
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
     });
 
@@ -163,7 +163,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
       btcRetriever.providers = [btcProviderMockMinus1, btcProviderMockMinus1];
 
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.rejectedWith('Error getting the balance from the bitcoin providers');
     });
 
@@ -172,7 +172,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
       btcRetriever.providers = [btcProviderMock1, btcProviderMock0];
 
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.rejectedWith('Error getting the balance from the bitcoin providers');
     });
 
@@ -181,7 +181,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
       btcRetriever.providers = [btcProviderMock1, btcProviderMock2, btcProviderMock0];
 
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.rejectedWith('Error getting the balance from the bitcoin providers');
     });
 
@@ -194,7 +194,7 @@ describe('api/btc/bitcoin-info-retriever', () => {
       ];
 
       await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', Types.EVENTS_NAMES.PAYMENT),
+        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.rejectedWith('Error getting the balance from the bitcoin providers');
     });
   });

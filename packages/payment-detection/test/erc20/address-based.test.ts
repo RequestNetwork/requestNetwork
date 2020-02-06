@@ -1,6 +1,10 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import ERC20AddressedBased from '../../../../src/api/payment-network/erc20/address-based';
-import * as Types from '../../../../src/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
+import ERC20AddressedBased from '../../src/erc20/address-based';
 
 import 'chai';
 import 'mocha';
@@ -106,7 +110,7 @@ describe('api/erc20/address-based', () => {
 
     expect(balance.balance).to.be.equal('10');
     expect(balance.events).to.have.lengthOf(1);
-    expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].name).to.be.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
     expect(balance.events[0].amount).to.be.equal('10');
     expect(balance.events[0].timestamp).to.be.a('number');
     expect(balance.events[0].parameters!.to).to.be.equal(

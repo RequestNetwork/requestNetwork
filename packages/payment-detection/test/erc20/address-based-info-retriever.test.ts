@@ -1,10 +1,10 @@
 // tslint:disable: no-invalid-this
 // tslint:disable: no-magic-numbers
-import ERC20InfoRetriever from '../../../../src/api/payment-network/erc20/address-based-info-retriever';
+import { PaymentTypes } from '@requestnetwork/types';
+import ERC20InfoRetriever from '../../src/erc20/address-based-info-retriever';
 
 import 'chai';
 import 'mocha';
-import { EVENTS_NAMES } from '../../../../src/types';
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -22,14 +22,14 @@ describe('api/erc20/address-based-info-retriever', () => {
       const infoRetriever = new ERC20InfoRetriever(
         erc20LocalhostContractAddress,
         paymentAddress,
-        EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
       );
       const events = await infoRetriever.getTransferEvents();
 
       // if this assert fails it means this address received another transaction
       expect(events).to.have.lengthOf(1);
-      expect(events[0].name).to.equal(EVENTS_NAMES.PAYMENT);
+      expect(events[0].name).to.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
       expect(events[0].amount).to.equal('10');
       expect(events[0].timestamp).to.be.a('number');
       expect(events[0].parameters!.from).to.equal(payerAddress);
@@ -42,7 +42,7 @@ describe('api/erc20/address-based-info-retriever', () => {
       const infoRetriever = new ERC20InfoRetriever(
         erc20LocalhostContractAddress,
         emptyAddress,
-        EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
       );
 

@@ -1,5 +1,5 @@
 import { AdvancedLogicTypes } from '@requestnetwork/types';
-import ERC20ProxyContract from '../../../../src/api/payment-network/erc20/proxy-contract';
+import ERC20ProxyContract from '../../src/erc20/proxy-contract';
 
 import * as chai from 'chai';
 import * as spies from 'chai-spies';
