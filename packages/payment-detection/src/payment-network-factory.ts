@@ -80,9 +80,10 @@ export default class PaymentNetworkFactory {
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
-        `the payment network id: ${paymentNetworkCreationParameters} is not supported for the currency: ${
-          currency.type
-        } on network ${currency.network || 'mainnet'}`,
+        `the payment network id: ${
+          paymentNetworkCreationParameters.id
+        } is not supported for the currency: ${currency.type} on network ${currency.network ||
+          'mainnet'}`,
       );
     }
 
