@@ -14,15 +14,15 @@ module.exports = {
         src: 'img/logo.svg',
       },
       links: [
-        { to: 'docs/intro/0-getting-started', label: 'Get started', position: 'left' },
-        { to: 'docs/protocol/0-introduction', label: 'Protocol', position: 'left' },
-        { to: 'docs/api/getting-started-with-request-api', label: 'REST API', position: 'left' },
-        { to: 'whitepaper', label: 'Whitepaper', position: 'left' },
+        { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
+	{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
+        { to: 'docs/API/0-intro', label: 'REST API', position: 'left' },
         {
           href: 'https://github.com/requestnetwork/requestnetwork',
           label: 'GitHub',
           position: 'right',
         },
+	//{ to: 'whitepaper', label: 'Whitepaper', position: 'left' },
       ],
     },
     footer: {
@@ -84,10 +84,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/facebook/docusaurus/edit/master/website/',
         },
-        docs2: {
-          sidebarPath: require.resolve('./sidebars.js'),
-        },
-        intro: {
+        introSideBar: {
           sidebarPath: require.resolve('./sidebars.js'),
         },
         theme: {

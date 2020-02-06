@@ -13,8 +13,7 @@ const docsPath = 'docs';
 
 module.exports = {
   docs: makeSidebar('protocol'),
-  docs2: makeSidebar('api'),
-  intro: makeSidebar('intro'),
+  introSideBar: makeSidebar('guides'),
 };
 console.dir(module.exports, { depth: null });
 
@@ -28,7 +27,7 @@ function makeSidebar(dir) {
         label: toTitleCase(file.name),
         items: makeSidebar(path.join(dir, file.name)),
       });
-    } else if (file.name.endsWith('.md')) {
+    } else if (file.name.endsWith('.js') || file.name.endsWith('.md')) {
       sidebar.push(path.join(dir, file.name.slice(0, -3)));
     }
     return sidebar;
