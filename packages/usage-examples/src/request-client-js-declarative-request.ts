@@ -32,8 +32,8 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
   payer: payerIdentity,
 };
 
-const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
     // eslint-disable-next-line spellcheck/spell-checker
     paymentInformation: { IBAN: 'FR89370400440532013000', BIC: 'SABAIE2D' },
