@@ -1,11 +1,11 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import * as Types from '../../../types';
 
 /**
  * Gets a list of transfer events for an address and payment reference
  */
 export default class ETHInfoRetriever
-  implements Types.IPaymentNetworkInfoRetriever<Types.ETHPaymentNetworkEvent> {
+  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   /**
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
@@ -15,13 +15,13 @@ export default class ETHInfoRetriever
    */
   constructor(
     private toAddress: string,
-    private eventName: Types.EVENTS_NAMES,
+    private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
     private paymentReference: string,
     private etherscanApiKey?: string,
   ) {}
 
-  public async getTransferEvents(): Promise<Types.ETHPaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     if (this.network === 'private') {
       throw new Error(
         'ETH input data info-retriever works with etherscan and cannot work on a local network',

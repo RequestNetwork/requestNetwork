@@ -1,4 +1,4 @@
-import * as Types from '../../../types';
+import { PaymentTypes } from '@requestnetwork/types';
 
 import BlockchainInfo from './default-providers/blockchain-info';
 import BlockcypherCom from './default-providers/blockcypher-com';
@@ -8,8 +8,9 @@ import ChainSo from './default-providers/chain-so';
 /**
  * The default Bitcoin detection provider give access to the bitcoin blockchain through several external API's
  */
-export default class DefaultBitcoinDetectionProvider implements Types.IBitcoinDetectionProvider {
-  public providers: Types.IBitcoinDetectionProvider[];
+export default class DefaultBitcoinDetectionProvider
+  implements PaymentTypes.IBitcoinDetectionProvider {
+  public providers: PaymentTypes.IBitcoinDetectionProvider[];
 
   /**
    * Creates an instance of DefaultBitcoinDetectionProvider
@@ -34,8 +35,8 @@ export default class DefaultBitcoinDetectionProvider implements Types.IBitcoinDe
   public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
-    eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.BTCBalanceWithEvents> {
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     if (this.providers.length < 2) {
       throw new Error('At least two bitcoin providers are needed');
     }
@@ -84,19 +85,19 @@ export default class DefaultBitcoinDetectionProvider implements Types.IBitcoinDe
    * @returns Object containing IBalanceWithEvents and the count
    */
   private getMostCommonBalance(
-    array: Types.BTCBalanceWithEvents[],
-  ): { count: number; value: Types.BTCBalanceWithEvents } | undefined {
+    array: PaymentTypes.BTCBalanceWithEvents[],
+  ): { count: number; value: PaymentTypes.BTCBalanceWithEvents } | undefined {
     // Reduce the array to an object indexed by balance with the count
     const duplicatesWithCount: {
-      [key: string]: { count: number; value: Types.BTCBalanceWithEvents };
+      [key: string]: { count: number; value: PaymentTypes.BTCBalanceWithEvents };
     } = array
       .filter(info => info.balance !== '-1')
       .reduce(
         (
           accumulator: {
-            [key: string]: { count: number; value: Types.BTCBalanceWithEvents };
+            [key: string]: { count: number; value: PaymentTypes.BTCBalanceWithEvents };
           },
-          elem: Types.BTCBalanceWithEvents,
+          elem: PaymentTypes.BTCBalanceWithEvents,
         ) => {
           if (!accumulator[elem.balance]) {
             accumulator[elem.balance] = { count: 0, value: elem };

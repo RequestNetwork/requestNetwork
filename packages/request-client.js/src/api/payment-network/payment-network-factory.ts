@@ -1,5 +1,9 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import * as Types from '../../types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
@@ -8,7 +12,7 @@ import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
 
 /** Register the payment network by currency and type */
-const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
+const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: BTCAddressedBased,
@@ -45,7 +49,7 @@ const supportedPaymentNetwork: Types.ISupportedPaymentNetworkByCurrency = {
   },
 };
 
-const anyCurrencyPaymentNetwork: Types.IPaymentNetworkModuleByType = {
+const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
 };
 
@@ -69,9 +73,9 @@ export default class PaymentNetworkFactory {
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currency: RequestLogicTypes.ICurrency;
-    paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters;
-    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
-  }): Types.IPaymentNetwork {
+    paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters;
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
+  }): PaymentTypes.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
@@ -105,8 +109,8 @@ export default class PaymentNetworkFactory {
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     request: RequestLogicTypes.IRequest;
-    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
-  }): Types.IPaymentNetwork | null {
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
+  }): PaymentTypes.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
       extension => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -141,7 +145,7 @@ export default class PaymentNetworkFactory {
  */
 function supportedPaymentNetworksForCurrency(
   currency: RequestLogicTypes.ICurrency,
-): Types.IPaymentNetworkModuleByType {
+): PaymentTypes.IPaymentNetworkModuleByType {
   if (!supportedPaymentNetwork[currency.type]) {
     return anyCurrencyPaymentNetwork;
   }
