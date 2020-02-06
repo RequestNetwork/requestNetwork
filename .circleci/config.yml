@@ -420,6 +420,26 @@ jobs:
           root: *working_directory
           paths:
             - packages/multi-format/coverage/
+  test-payment-detection:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build payment-detection'
+          command: 'yarn workspace @requestnetwork/payment-detection run build'
+      - run:
+          name: 'Lint payment-detection'
+          command: 'yarn workspace @requestnetwork/payment-detection run lint'
+      - run:
+          name: 'Test payment-detection'
+          command: 'yarn workspace @requestnetwork/payment-detection run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/payment-detection/coverage/
   publish-coverage:
     docker:
       - *node_image

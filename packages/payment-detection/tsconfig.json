@@ -5,15 +5,5 @@
     "rootDir": "src"
   },
   "include": ["./src/**/*"],
-  "references": [
-    { "path": "../advanced-logic" },
-    { "path": "../data-access" },
-    { "path": "../data-format" },
-    { "path": "../epk-signature" },
-    { "path": "../multi-format" },
-    { "path": "../request-logic" },
-    { "path": "../smart-contracts" },
-    { "path": "../transaction-manager" },
-    { "path": "../types" }
-  ]
+  "references": [{ "path": "../types" }, { "path": "../utils" }]
 }
