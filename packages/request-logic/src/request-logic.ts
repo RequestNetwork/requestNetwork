@@ -81,7 +81,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
     if (encryptionParams.length === 0) {
       throw new Error(
-        'You must give at least one encryption parameter to create an encrypted request',
+        'You must provide at least one encryption parameter to create an encrypted request',
       );
     }
 
@@ -119,7 +119,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<RequestLogicTypes.RequestId> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
 
     const action = await RequestLogicCore.formatCreate(
@@ -149,7 +151,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
     const action = await RequestLogicCore.formatAccept(
       requestParameters,
@@ -186,7 +190,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
     const action = await RequestLogicCore.formatCancel(
       requestParameters,
@@ -222,7 +228,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
     const action = await RequestLogicCore.formatIncreaseExpectedAmount(
       requestParameters,
@@ -258,7 +266,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
     const action = await RequestLogicCore.formatReduceExpectedAmount(
       requestParameters,
@@ -294,7 +304,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     validate: boolean = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturn> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
 
     const action = await RequestLogicCore.formatAddExtensionsData(
@@ -434,7 +446,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: RequestLogicTypes.RequestId;
   }> {
     if (!this.signatureProvider) {
-      throw new Error('You must give a signature provider to create actions');
+      throw new Error(
+        'You must initialize the RequestNetwork instance with a signature provider to create actions',
+      );
     }
 
     const action = await RequestLogicCore.formatCreate(
