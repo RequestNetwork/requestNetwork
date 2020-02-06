@@ -370,7 +370,7 @@ describe('Request system', () => {
 
     // wait a bit
     // tslint:disable-next-line:no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 1000));
+    await new Promise((r: any): any => setTimeout(r, 1100));
 
     // cancel request
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
