@@ -1,4 +1,4 @@
-import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -20,7 +20,7 @@ export default class Request {
   public readonly requestId: RequestLogicTypes.RequestId;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
-  private paymentNetwork: Types.IPaymentNetwork | null = null;
+  private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
 
   /**
@@ -41,7 +41,7 @@ export default class Request {
   /**
    * Balance and payments/refund events
    */
-  private balance: Types.IBalanceWithEvents | null = null;
+  private balance: PaymentTypes.IBalanceWithEvents | null = null;
 
   /**
    * Creates an instance of Request
@@ -54,7 +54,7 @@ export default class Request {
   constructor(
     requestLogic: RequestLogicTypes.IRequestLogic,
     requestId: RequestLogicTypes.RequestId,
-    paymentNetwork?: Types.IPaymentNetwork | null,
+    paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
   ) {
     this.requestLogic = requestLogic;
