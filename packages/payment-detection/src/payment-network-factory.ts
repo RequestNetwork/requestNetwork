@@ -46,7 +46,6 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
     },
   },
-  ISO4217: {},
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
