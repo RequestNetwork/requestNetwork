@@ -5,12 +5,13 @@ import {
   AdvancedLogicTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
+  EncryptionTypes,
   IdentityTypes,
+  PaymentTypes,
   RequestLogicTypes,
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { IEncryptionParameters } from '@requestnetwork/types/dist/encryption-types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -23,8 +24,7 @@ import localUtils from './utils';
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
  */
-export default class RequestNetwork {
-  public bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  public bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
@@ -42,7 +42,7 @@ export default class RequestNetwork {
     dataAccess: DataAccessTypes.IDataAccess,
     signatureProvider?: SignatureProviderTypes.ISignatureProvider,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
-    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider,
   ) {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
@@ -83,7 +83,7 @@ export default class RequestNetwork {
    */
   public async _createEncryptedRequest(
     parameters: Types.ICreateRequestParameters,
-    encryptionParams: IEncryptionParameters[],
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
   ): Promise<Request> {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
@@ -136,7 +136,7 @@ export default class RequestNetwork {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
-    const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+    const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
       {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
@@ -211,7 +211,7 @@ export default class RequestNetwork {
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
-        const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
@@ -257,7 +257,7 @@ export default class RequestNetwork {
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
-        const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
@@ -293,7 +293,7 @@ export default class RequestNetwork {
   ): Promise<{
     requestParameters: RequestLogicTypes.ICreateParameters;
     topics: any[];
-    paymentNetwork: Types.IPaymentNetwork | null;
+    paymentNetwork: PaymentTypes.IPaymentNetwork | null;
   }> {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
@@ -322,7 +322,7 @@ export default class RequestNetwork {
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
-    let paymentNetwork: Types.IPaymentNetwork | null = null;
+    let paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
     if (paymentNetworkCreationParameters) {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
         advancedLogic: this.advancedLogic,
