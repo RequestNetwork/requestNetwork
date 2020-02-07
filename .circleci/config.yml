@@ -430,32 +430,6 @@ jobs:
       - run:
           name: 'Publish Coverage'
           command: 'yarn publish-coverage'
-  push-request-network-image:
-    executor: gcp/default
-    steps:
-      - checkout
-      - setup_remote_docker
-      - gcp/install
-      - gcp/initialize
-      - run:
-          name: 'gcloud docker auth'
-          command: gcloud auth configure-docker  --project $GOOGLE_PROJECT_ID --quiet
-      - gcp-gcr/build-image:
-          image: request-network
-          registry-url: eu.gcr.io
-          tag: ${CIRCLE_SHA1:0:7}
-      - gcp-gcr/push-image:
-          image: request-network
-          registry-url: eu.gcr.io
-          tag: ${CIRCLE_SHA1:0:7}
-      - run:
-          name: Add Tag to image
-          command: |
-            export BRANCH_TAG_NAME=$(echo ${CIRCLE_BRANCH} | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
-            gcloud container images add-tag  \
-              eu.gcr.io/${GOOGLE_PROJECT_ID}/request-network:${CIRCLE_SHA1:0:7} \
-              eu.gcr.io/${GOOGLE_PROJECT_ID}/request-network:${BRANCH_TAG_NAME} \
-              --quiet
   test-prototype-estimator:
     docker:
       - *node_image
@@ -519,9 +493,6 @@ jobs:
 
 workflows:
   version: 2
-  push-request-network-image:
-    jobs:
-      - push-request-network-image
   build-and-test:
     jobs:
       - build
