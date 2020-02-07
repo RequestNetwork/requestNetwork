@@ -1,5 +1,4 @@
-import * as Types from '../../../../../src/types';
-
+import { PaymentTypes } from '@requestnetwork/types';
 import BlockCypherCom from '../../../../../src/api/payment-network/btc/default-providers/blockcypher-com';
 
 import * as BlockCypherComData from './blockcypher-com-data';
@@ -18,8 +17,8 @@ describe('api/btc/providers/blockCypherCom', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {
       const blockCypherCom = new BlockCypherCom();
-      await expect(
-        blockCypherCom.getAddressBalanceWithEvents(1, 'address', Types.EVENTS_NAMES.PAYMENT),
+      expect(
+        blockCypherCom.getAddressBalanceWithEvents(1, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).to.eventually.be.rejectedWith(
         'Invalid network 0 (mainnet) or 3 (testnet) was expected but 1 was given',
       );
@@ -31,7 +30,7 @@ describe('api/btc/providers/blockCypherCom', () => {
       const blockCypherCom = new BlockCypherCom();
       const parsedData = blockCypherCom.parse(
         BlockCypherComData.exampleAddressInfo,
-        Types.EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
       );
       expect(parsedData.balance, 'balance wrong').to.equal('50500000');
       expect(parsedData.events, 'balance wrong').to.deep.equal([

@@ -44,7 +44,6 @@
     "@requestnetwork/epk-signature": "0.5.7",
     "@requestnetwork/ethereum-storage": "0.4.8",
     "@requestnetwork/multi-format": "0.2.4",
-    "@requestnetwork/payment-detection": "0.12.0",
     "@requestnetwork/request-client.js": "0.12.0",
     "@requestnetwork/request-logic": "0.8.3",
     "@requestnetwork/transaction-manager": "0.8.4",

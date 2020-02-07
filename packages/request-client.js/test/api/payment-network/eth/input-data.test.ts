@@ -1,6 +1,10 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import EthInputData from '../../../../src/api/payment-network/eth/input-data';
-import * as Types from '../../../../src/types';
 
 import 'chai';
 import 'mocha';
@@ -74,7 +78,7 @@ describe('api/eth/input-data', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  //TODO: unskip
+  // TODO: unskip
   it.skip('can getBalance on a localhost request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
@@ -107,7 +111,7 @@ describe('api/eth/input-data', () => {
 
     expect(balance.balance).to.be.equal('10');
     expect(balance.events).to.have.lengthOf(1);
-    expect(balance.events[0].name).to.be.equal(Types.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].name).to.be.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
     // TODO: add to & from to parameters?
     // expect(balance.events[0].parameters!.to).to.be.equal(
     //   '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
