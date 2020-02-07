@@ -444,6 +444,30 @@ jobs:
           root: *working_directory
           paths:
             - packages/payment-detection/coverage/
+  test-payment-processor:
+    docker:
+      - *node_image
+      - *ganache_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build payment-processor'
+          command: 'yarn workspace @requestnetwork/payment-processor run build'
+      - run:
+          name: 'Lint payment-processor'
+          command: 'yarn workspace @requestnetwork/payment-processor run lint'
+      - run:
+          name: 'Deploy test contracts from smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run:
+          name: 'Test payment-processor'
+          command: 'yarn workspace @requestnetwork/payment-processor run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/payment-detection/coverage/
   publish-coverage:
     docker:
       - *node_image
@@ -617,6 +641,9 @@ workflows:
       - test-payment-detection:
           requires:
             - build
+      - test-payment-processor:
+          requires:
+            - build
 
       # Publish the code coverage
       - publish-coverage:
@@ -635,6 +662,7 @@ workflows:
             - test-utils
             - test-multi-format
             - test-payment-detection
+            - test-payment-processor
 
       # Release a next version package everytime we merge to master
       - next-release:
@@ -656,6 +684,7 @@ workflows:
             - test-utils
             - test-web3-signature
             - test-payment-detection
+            - test-payment-processor
           context: protocol-release
           filters:
             branches:
