@@ -1,11 +1,10 @@
 import { ethers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ClientTypes } from '@requestnetwork/types';
+import { getPaymentNetworkExtension } from './utils';
 
 export const getBtcPaymentUrl = (request: ClientTypes.IRequestData): string => {
-  const pn = Object.values(request.extensions).find(
-    x => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
-  );
+  const pn = getPaymentNetworkExtension(request);
   return `bitcoin:${pn?.values.paymentAddress}?amount=${ethers.utils.formatUnits(
     request.expectedAmount,
     8,

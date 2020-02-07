@@ -1,26 +1,22 @@
 import { ContractTransaction, Signer } from 'ethers';
+import { bigNumberify } from 'ethers/utils';
 
-import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+
+import { getRequestPaymentValues, validateRequest } from './utils';
 
 export const payEthInputDataRequest = async (
   request: ClientTypes.IRequestData,
   signer: Signer,
 ): Promise<ContractTransaction> => {
-  const { values } = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
-  if (!values || !values.salt || !values.paymentAddress) {
-    throw new Error('request cannot be processed, or is not an ETH INPUT DATA request');
-  }
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
 
-  const paymentReference = PaymentReferenceCalculator.calculate(
-    request.requestId,
-    values.salt,
-    values.paymentAddress,
-  );
+  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
+
   const tx = await signer.sendTransaction({
     data: `0x${paymentReference}`,
-    to: values.paymentAddress,
-    value: request.expectedAmount,
+    to: paymentAddress,
+    value: bigNumberify(request.expectedAmount),
   });
   return tx;
 };
