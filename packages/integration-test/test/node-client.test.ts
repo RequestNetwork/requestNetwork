@@ -2,7 +2,7 @@ import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryp
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { PaymentTypes, IdentityTypes } from '@requestnetwork/types';
+import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import * as chai from 'chai';
