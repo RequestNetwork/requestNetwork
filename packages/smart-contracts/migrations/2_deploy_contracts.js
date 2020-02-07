@@ -30,6 +30,7 @@ module.exports = async function(deployer) {
 
     // Deploy ERC20 proxy contract
     const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
+    console.log('ERC20Proxy Contract deployed: ' + ERC20Proxy.address);
 
     // create some events for test purpose
     await instanceTestERC20.approve(ERC20Proxy.address, 110);
@@ -48,6 +49,12 @@ module.exports = async function(deployer) {
     // ----------------------------------
 
     console.log('Contracts initialized');
+    console.log(`
+      RequestHashStorage:       ${RequestHashStorage.address}
+      RequestOpenHashSubmitter: ${RequestOpenHashSubmitter.address}
+      TestERC20:                ${erc20.address}
+      ERC20Proxy:               ${ERC20Proxy.address}
+    `);
   } catch (e) {
     console.error(e);
   }
