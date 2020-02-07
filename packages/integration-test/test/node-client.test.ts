@@ -2,6 +2,7 @@ import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryp
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
+import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import * as chai from 'chai';
@@ -11,12 +12,12 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const assert = chai.assert;
 
-const payeeIdentity: Types.Identity.IIdentity = {
-  type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+const payeeIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
 };
-const payerIdentity: Types.Identity.IIdentity = {
-  type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+const payerIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
 };
 
@@ -98,8 +99,8 @@ describe('Request client using a request node', () => {
   it('can create a request with declarative payment network and content data', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {
         paymentInfo: {
           paymentInstruction: 'Arbitrary payment instruction',
@@ -133,7 +134,7 @@ describe('Request client using a request node', () => {
 
     assert.exists(requestData.meta);
 
-    const paymentExtension = requestData.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE];
+    const paymentExtension = requestData.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE];
     assert.exists(paymentExtension);
     assert.equal(paymentExtension.events[0].name, 'create');
     assert.deepEqual(paymentExtension.events[0].parameters, paymentNetwork.parameters);
@@ -409,8 +410,8 @@ describe('Request client using a request node', () => {
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
-  const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-    id: Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+  const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+    id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
     parameters: {
       paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
     },

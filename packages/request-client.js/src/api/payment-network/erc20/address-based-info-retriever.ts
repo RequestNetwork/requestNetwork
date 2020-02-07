@@ -1,5 +1,5 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import * as Types from '../../../types';
 
 // The ERC20 smart contract ABI fragment containing decimals property and Transfer event
 const erc20BalanceOfAbiFragment = [
@@ -47,7 +47,7 @@ const erc20BalanceOfAbiFragment = [
  * Retrieves a list of transfer events for an address
  */
 export default class ERC20InfoRetriever
-  implements Types.IPaymentNetworkInfoRetriever<Types.ERC20PaymentNetworkEvent> {
+  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
   /**
    * @param tokenContractAddress The address of the ERC20 contract
    * @param address Address of the balance we want to check
@@ -57,14 +57,14 @@ export default class ERC20InfoRetriever
   constructor(
     private tokenContractAddress: string,
     private toAddress: string,
-    private eventName: Types.EVENTS_NAMES,
+    private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
   ) {}
 
   /**
    * Retrieves transfer events for the current contract, address and network.
    */
-  public async getTransferEvents(): Promise<Types.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Creates a local or default provider
     const provider =
       this.network === 'private'

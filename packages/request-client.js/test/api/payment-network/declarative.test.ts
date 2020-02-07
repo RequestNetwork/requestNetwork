@@ -1,4 +1,9 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import Declarative from '../../../src/api/payment-network/declarative';
 
@@ -161,7 +166,7 @@ describe('api/declarative', () => {
   });
 
   it('getBalance get the correct balance', async () => {
-    requestMock.extensions[Types.PAYMENT_NETWORK_ID.DECLARATIVE] = {
+    requestMock.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE] = {
       events: [
         {
           name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
@@ -215,7 +220,7 @@ describe('api/declarative', () => {
       events: [
         {
           amount: '1000',
-          name: Types.EVENTS_NAMES.PAYMENT,
+          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: 'first payment',
           },
@@ -223,7 +228,7 @@ describe('api/declarative', () => {
         },
         {
           amount: '500',
-          name: Types.EVENTS_NAMES.PAYMENT,
+          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: 'second payment',
           },
@@ -231,7 +236,7 @@ describe('api/declarative', () => {
         },
         {
           amount: '100',
-          name: Types.EVENTS_NAMES.REFUND,
+          name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: 'first refund',
           },
@@ -239,7 +244,7 @@ describe('api/declarative', () => {
         },
         {
           amount: '200',
-          name: Types.EVENTS_NAMES.REFUND,
+          name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: 'second refund',
           },

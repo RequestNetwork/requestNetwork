@@ -1,5 +1,4 @@
-import * as Types from '../../../../../src/types';
-
+import { PaymentTypes } from '@requestnetwork/types';
 import Blockstream from '../../../../../src/api/payment-network/btc/default-providers/blockstream-info';
 
 import * as BlockstreamData from './blockstream-info-data';
@@ -18,8 +17,12 @@ describe('api/btc/providers/blockstream', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {
       const blockstreamData = new Blockstream();
-      await expect(
-        blockstreamData.getAddressBalanceWithEvents(1, 'address', Types.EVENTS_NAMES.PAYMENT),
+      expect(
+        blockstreamData.getAddressBalanceWithEvents(
+          1,
+          'address',
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+        ),
       ).to.eventually.be.rejectedWith(
         'Invalid network 0 (mainnet) or 3 (testnet) was expected but 1 was given',
       );
@@ -31,7 +34,7 @@ describe('api/btc/providers/blockstream', () => {
       const blockstreamData = new Blockstream();
       const parsedData = blockstreamData.parse(
         { txs: BlockstreamData.exampleAddressInfo, address: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v' },
-        Types.EVENTS_NAMES.PAYMENT,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
       );
       expect(parsedData.balance, 'balance wrong').to.equal('50500000');
 

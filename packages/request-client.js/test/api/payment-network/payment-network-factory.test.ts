@@ -9,7 +9,7 @@ import 'mocha';
 
 import PaymentNetworkFactory from '../../../src/api/payment-network/payment-network-factory';
 
-import * as Types from '../../../src/types';
+import { PaymentTypes } from '@requestnetwork/types';
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -23,8 +23,8 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/payment-network/payment-network-factory', () => {
   describe('createPaymentNetwork', () => {
     it('can createPaymentNetwork', async () => {
-      const paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      const paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
         parameters: {
           paymentAddress: 'bitcoin address here',
         },
@@ -44,8 +44,8 @@ describe('api/payment-network/payment-network-factory', () => {
     });
 
     it('can createPaymentNetwork with any currency', async () => {
-      const paymentNetworkCreationParameters: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {
           paymentAddress: 'bitcoin address here',
         },

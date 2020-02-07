@@ -1,6 +1,6 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import EthInfoRetriever from '../../../../src/api/payment-network/eth/info-retriever';
 import PaymentReferenceCalculator from '../../../../src/api/payment-network/payment-reference-calculator';
-import * as Types from '../../../../src/types';
 
 import { expect } from 'chai';
 import 'mocha';
@@ -18,7 +18,7 @@ describe('api/eth/info-retriever', () => {
 
     const infoRetriever = new EthInfoRetriever(
       paymentAddress,
-      Types.EVENTS_NAMES.PAYMENT,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
       'mainnet',
       paymentReference,
     );
@@ -41,7 +41,7 @@ describe('api/eth/info-retriever', () => {
   it('throws when trying to use it in local', async () => {
     const infoRetreiver = new EthInfoRetriever(
       '0x01',
-      Types.EVENTS_NAMES.PAYMENT,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
       'private',
       '12345',
     );

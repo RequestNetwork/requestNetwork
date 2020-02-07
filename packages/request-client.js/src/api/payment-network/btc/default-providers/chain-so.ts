@@ -1,6 +1,6 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-import * as Types from '../../../../types';
 const converterBTC = require('satoshi-bitcoin');
 const bigNumber: any = require('bn.js');
 
@@ -15,7 +15,7 @@ const CHAINSO_REQUEST_RETRY_DELAY = 100;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of chain.so
  */
-export default class ChainSo implements Types.IBitcoinDetectionProvider {
+export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using chain.so public API
    *
@@ -27,8 +27,8 @@ export default class ChainSo implements Types.IBitcoinDetectionProvider {
   public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
-    eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.BTCBalanceWithEvents> {
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}${address}`;
 
@@ -63,14 +63,17 @@ export default class ChainSo implements Types.IBitcoinDetectionProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
-    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.data.txs
+  public parse(
+    addressInfo: any,
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): PaymentTypes.BTCBalanceWithEvents {
+    const events: PaymentTypes.BTCPaymentNetworkEvent[] = addressInfo.data.txs
       // keep only the transaction with value incoming to the address
       .filter((tx: any) => tx.incoming !== undefined)
       // delete transactions that are from this address
       .filter((tx: any) => tx.outgoing === undefined)
       .map(
-        (tx: any): Types.BTCPaymentNetworkEvent => ({
+        (tx: any): PaymentTypes.BTCPaymentNetworkEvent => ({
           amount: converterBTC.toSatoshi(tx.incoming.value).toString(),
           name: eventName,
           parameters: {
@@ -83,7 +86,7 @@ export default class ChainSo implements Types.IBitcoinDetectionProvider {
 
     // Compute the balance making the sum of all the transactions amount
     const balance: string = events
-      .reduce((balanceAccumulator: any, event: Types.BTCPaymentNetworkEvent) => {
+      .reduce((balanceAccumulator: any, event: PaymentTypes.BTCPaymentNetworkEvent) => {
         return balanceAccumulator.add(new bigNumber(event.amount));
       }, new bigNumber('0'))
       .toString();

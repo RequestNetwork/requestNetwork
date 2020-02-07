@@ -1,6 +1,7 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-import * as Types from '../../../../types';
+
 const bigNumber: any = require('bn.js');
 
 /* eslint-disable spellcheck/spell-checker */
@@ -17,7 +18,7 @@ const TXS_PER_PAGE = 50;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockchain.info
  */
-export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
+export default class BlockchainInfo implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockchain.info public API
    *
@@ -29,8 +30,8 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
   public async getAddressBalanceWithEvents(
     bitcoinNetworkId: number,
     address: string,
-    eventName: Types.EVENTS_NAMES,
-  ): Promise<Types.BTCBalanceWithEvents> {
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     const blockchainInfoUrl = this.getBlockchainInfoUrl(bitcoinNetworkId);
 
     const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
@@ -87,11 +88,14 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
    * @param eventName Indicates if it is an address for payment or refund
    * @returns Balance with events
    */
-  public parse(addressInfo: any, eventName: Types.EVENTS_NAMES): Types.BTCBalanceWithEvents {
+  public parse(
+    addressInfo: any,
+    eventName: PaymentTypes.EVENTS_NAMES,
+  ): PaymentTypes.BTCBalanceWithEvents {
     const address = addressInfo.address;
     const balance = new bigNumber(addressInfo.total_received).toString();
 
-    const events: Types.BTCPaymentNetworkEvent[] = addressInfo.txs
+    const events: PaymentTypes.BTCPaymentNetworkEvent[] = addressInfo.txs
       // exclude the transactions coming from the same address
       .filter((tx: any) => {
         const selfInputs = tx.inputs.filter(
@@ -112,7 +116,7 @@ export default class BlockchainInfo implements Types.IBitcoinDetectionProvider {
       }, [])
       .filter((output: any) => output.output.addr === address)
       .map(
-        (output: any): Types.BTCPaymentNetworkEvent => ({
+        (output: any): PaymentTypes.BTCPaymentNetworkEvent => ({
           amount: output.output.value.toString(),
           name: eventName,
           parameters: {

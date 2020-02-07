@@ -47,8 +47,8 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
   payer: payerIdentity,
 };
 
-const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
     // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '1LEMZPBit6tTtjXfaEfz4yYmTuctHWoMV',

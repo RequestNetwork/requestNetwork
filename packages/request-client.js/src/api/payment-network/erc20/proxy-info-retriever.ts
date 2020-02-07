@@ -1,5 +1,5 @@
+import { PaymentTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import * as Types from '../../../types';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
@@ -10,7 +10,7 @@ const erc20proxyContractAbiFragment = [
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export default class ProxyERC20InfoRetriever
-  implements Types.IPaymentNetworkInfoRetriever<Types.ERC20PaymentNetworkEvent> {
+  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
   public contractProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -29,7 +29,7 @@ export default class ProxyERC20InfoRetriever
     private proxyCreationBlockNumber: number,
     private tokenContractAddress: string,
     private toAddress: string,
-    private eventName: Types.EVENTS_NAMES,
+    private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
   ) {
     // Creates a local or default provider
@@ -49,7 +49,7 @@ export default class ProxyERC20InfoRetriever
   /**
    * Retrieves transfer events for the current contract, address and network.
    */
-  public async getTransferEvents(): Promise<Types.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Create a filter to find all the Transfer logs for the toAddress
     const filter = this.contractProxy.filters.TransferWithReference(
       null,
