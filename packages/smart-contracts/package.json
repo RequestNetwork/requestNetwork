@@ -50,6 +50,7 @@
     "ganache-cli": "6.7.0",
     "lint-staged": "9.5.0",
     "openzeppelin-solidity": "2.1.2",
+    "openzeppelin-test-helpers": "0.1.2",
     "shx": "0.3.2",
     "truffle": "5.1.2"
   }
