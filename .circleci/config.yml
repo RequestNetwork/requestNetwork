@@ -512,6 +512,9 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
+          name: 'Build all'
+          command: 'yarn clean && yarn build'
+      - run:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
@@ -627,7 +630,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - release-test
 
   nightly:
     triggers:
