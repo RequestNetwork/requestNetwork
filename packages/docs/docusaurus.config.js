@@ -3,7 +3,7 @@ module.exports = {
   tagline: 'Technical documentation',
   url: 'https://docs.request.network',
   baseUrl: '/',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/cropped-favicon-32x32.png',
   organizationName: 'requestNetwork', // Usually your GitHub org/user name.
   projectName: 'documentation', // Usually your repo name.
   themeConfig: {

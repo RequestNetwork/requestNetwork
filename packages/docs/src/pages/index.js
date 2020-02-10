@@ -56,7 +56,7 @@ function Home() {
       title={`Hello from ${siteConfig.title}`}
       description="Description will go into a meta tag in <head />"
     >
-      <header className={classnames('hero hero--primary', styles.heroBanner)}>
+      <header className={classnames('hero hero-banner', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
@@ -66,7 +66,7 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted,
               )}
-              to={useBaseUrl('docs/intro/getting-started')}
+              to={useBaseUrl('docs/guides/0-getting-started')}
             >
               Get Started
             </Link>
