@@ -1,16 +1,22 @@
 import { ContractTransaction, Signer } from 'ethers';
+import { Web3Provider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
 
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { getRequestPaymentValues, validateRequest } from './utils';
+import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from './utils';
 
-export const payEthInputDataRequest = async (
+/**
+ * processes the transaction to pay an ETH request.
+ * @param request the request to pay
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ */
+export async function payEthInputDataRequest(
   request: ClientTypes.IRequestData,
-  signer: Signer,
-): Promise<ContractTransaction> => {
+  signerOrProvider: Web3Provider | Signer = getProvider(),
+): Promise<ContractTransaction> {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
-
+  const signer = getSigner(signerOrProvider);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
   const tx = await signer.sendTransaction({
@@ -19,8 +25,11 @@ export const payEthInputDataRequest = async (
     value: bigNumberify(request.expectedAmount),
   });
   return tx;
-};
+}
 
-export const getEthPaymentUrl = (_request: ClientTypes.IRequestData): string => {
+/**
+ * Not implemented yet.
+ */
+export function getEthPaymentUrl(_request: ClientTypes.IRequestData): string {
   return '';
-};
+}

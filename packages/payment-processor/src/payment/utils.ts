@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
+import { ethers, Signer } from 'ethers';
+import { BaseProvider, EtherscanProvider, Web3Provider } from 'ethers/providers';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import {
@@ -9,25 +9,70 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-export const getProvider = (): Web3Provider => {
+/**
+ * Utility to get the default window.ethereum provider, or throws an error.
+ */
+export function getProvider(): Web3Provider {
   const win = window as any;
   if (!win.ethereum) {
     throw new Error('ethereum not found, you must pass your own web3 provider');
   }
   return new ethers.providers.Web3Provider(win.ethereum);
-};
+}
 
-export const getPaymentNetworkExtension = (
+/**
+ * Utility to get a network provider, depending on the request's currency network.
+ * Will throw an error if the network isn't mainnet or rinkeby
+ *
+ * @param request
+ */
+export function getNetworkProvider(request: ClientTypes.IRequestData): BaseProvider {
+  if (request.currencyInfo.network === 'mainnet') {
+    return new EtherscanProvider();
+  }
+  if (request.currencyInfo.network === 'rinkeby') {
+    return new EtherscanProvider('rinkeby');
+  }
+  throw new Error('unsupported network');
+}
+
+/**
+ * Utility to return a signer from a provider.
+ * @param signerOrProvider the provider, or signer. If Signer, it will simply be returned directly
+ * @param address optionnally, the address to retrieve the signer for.
+ */
+export function getSigner(signerOrProvider?: BaseProvider | Signer, address?: string): Signer {
+  if (!signerOrProvider) {
+    signerOrProvider = getProvider();
+  }
+  if (signerOrProvider instanceof Signer) {
+    return signerOrProvider;
+  }
+  if (signerOrProvider instanceof Web3Provider) {
+    return signerOrProvider.getSigner(address);
+  }
+  throw new Error('cannot get signer');
+}
+
+/**
+ * Utility to return the payment network extension of a Request.
+ * @param request
+ */
+export function getPaymentNetworkExtension(
   request: ClientTypes.IRequestData,
-): ExtensionTypes.IState | undefined => {
+): ExtensionTypes.IState | undefined {
   return Object.values(request.extensions).find(
     x => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
   );
-};
+}
 
-export const getRequestPaymentValues = (
+/**
+ * Utility to access the payment address and reference of a Request.
+ * @param request
+ */
+export function getRequestPaymentValues(
   request: ClientTypes.IRequestData,
-): { paymentAddress: string; paymentReference: string } => {
+): { paymentAddress: string; paymentReference: string } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
@@ -39,17 +84,23 @@ export const getRequestPaymentValues = (
     paymentAddress,
   );
   return { paymentAddress, paymentReference };
-};
+}
 
 const { ERC20_PROXY_CONTRACT, ETH_INPUT_DATA } = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
 };
-export const validateRequest = (
+
+/**
+ * Utility to validate a request depending on the expected paymentNetwork.
+ * @param request
+ * @param paymentNetworkId
+ */
+export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-): void => {
+): void {
   const extension = request.extensions[paymentNetworkId];
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
   if (
@@ -63,4 +114,4 @@ export const validateRequest = (
   ) {
     throw new Error(`request cannot be processed, or is not an ${paymentNetworkId} request`);
   }
-};
+}

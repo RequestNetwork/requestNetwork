@@ -1,5 +1,5 @@
-import { ContractTransaction } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
+import { ContractTransaction, Signer } from 'ethers';
+import { BaseProvider, Web3Provider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
@@ -7,7 +7,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getBtcPaymentUrl } from './btc-address-based';
 import { getErc20Balance, getErc20PaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
 import { getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
-import { getProvider } from './utils';
+import { getNetworkProvider, getProvider, getSigner } from './utils';
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
   return Object.values(request.extensions).find(x => x.type === 'payment-network')?.id;
@@ -22,12 +22,19 @@ export class UnsupportedNetworkError extends Error {
   }
 }
 
-export const payRequest = async (
+/**
+ * Processes a transaction to pay a Request.
+ * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
+ *
+ * @throws UnsupportedNetworkError if network isn't supported
+ * @param request the request to pay.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ */
+export async function payRequest(
   request: ClientTypes.IRequestData,
-  address: string,
-  provider: Web3Provider = getProvider(),
-): Promise<ContractTransaction> => {
-  const signer = provider.getSigner(address);
+  signerOrProvider: BaseProvider | Signer = getProvider(),
+): Promise<ContractTransaction> {
+  const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
@@ -37,20 +44,29 @@ export const payRequest = async (
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
-};
+}
 
-export const hasSufficientFunds = async (
+/**
+ * Verifies the address has enough funds to pay the request. For ERC20
+ * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
+ *
+ * @throws UnsupportedNetworkError if network isn't supported
+ * @param request the request to verify.
+ * @param address the address holding the funds
+ * @param provider the Web3 provider. Defaults to Etherscan.
+ */
+export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
-  provider: Web3Provider = getProvider(),
-): Promise<boolean> => {
+  provider: BaseProvider = getNetworkProvider(request),
+): Promise<boolean> {
   const ethBalance = await provider.getBalance(address);
 
   const paymentNetwork = getPaymentNetwork(request);
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      const balance = await getErc20Balance(request.currencyInfo.value, address, provider);
+      const balance = await getErc20Balance(request, address, provider);
       // check ETH for gas, and token for funds transfer
       return ethBalance.gt(0) && balance.gt(bigNumberify(request.expectedAmount || 0));
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
@@ -58,9 +74,17 @@ export const hasSufficientFunds = async (
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
-};
+}
 
-export const getPaymentUrl = (request: ClientTypes.IRequestData): string => {
+/**
+ * Get a payment URL, if applicable to the payment network, for a request.
+ * BTC: BIP21.
+ * ERC20: EIP-681. (warning, not widely used, always verify it is supported by wallets you target)
+ * ETH: not implemented.
+ * @throws UnsupportedNetworkError if the network is not supported.
+ * @param request the request to pay
+ */
+export function getPaymentUrl(request: ClientTypes.IRequestData): string {
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
@@ -73,4 +97,4 @@ export const getPaymentUrl = (request: ClientTypes.IRequestData): string => {
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
-};
+}

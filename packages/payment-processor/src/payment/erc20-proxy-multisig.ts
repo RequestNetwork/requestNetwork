@@ -2,24 +2,30 @@ import { ContractTransaction, utils } from 'ethers';
 import { Web3Provider } from 'ethers/providers';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes } from '@requestnetwork/types';
+import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20ContractFactory } from '../contracts/ERC20ContractFactory';
 import { Erc20ProxyContractFactory } from '../contracts/Erc20ProxyContractFactory';
 import { MultisigContractFactory } from '../contracts/MultisigContractFactory';
-import { getProvider, getRequestPaymentValues } from './utils';
+import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from './utils';
 
-export const approveErc20WithMultisig = async (
+/**
+ * Processes the approval transaction of the targetted ERC20, through a multisig contract.
+ * @param request
+ * @param multisigAddress multisig contract for which to approve the ERC20
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ */
+export async function approveErc20WithMultisig(
   request: ClientTypes.IRequestData,
-  account: string,
   multisigAddress: string,
-  provider: Web3Provider = getProvider(),
-): Promise<ContractTransaction> => {
-  const signer = provider.getSigner(account);
+  signerOrProvider: Web3Provider = getProvider(),
+): Promise<ContractTransaction> {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  const signer = getSigner(signerOrProvider);
 
   const multisigContract = MultisigContractFactory.connect(multisigAddress, signer);
   const tokenAddress = request.currencyInfo.value;
-  const erc20interface = ERC20ContractFactory.connect(tokenAddress, provider).interface;
+  const erc20interface = ERC20ContractFactory.connect(tokenAddress, signer).interface;
   const encodedApproveCall = erc20interface.functions.approve.encode([
     erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
     utils
@@ -29,20 +35,25 @@ export const approveErc20WithMultisig = async (
       .sub(1),
   ]);
   return multisigContract.submitTransaction(tokenAddress, 0, encodedApproveCall);
-};
-
-export const payErc20WithMultisig = async (
+}
+/**
+ * Pay an ERC20 request using a Multisig contract.
+ * @param request request to pay
+ * @param multisigAddress multisig contract used to pay the request.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ */
+export async function payErc20WithMultisig(
   request: ClientTypes.IRequestData,
-  account: string,
   multisigAddress: string,
-  provider: Web3Provider = getProvider(),
-): Promise<ContractTransaction> => {
-  const signer = provider.getSigner(account);
+  signerOrProvider: Web3Provider = getProvider(),
+): Promise<ContractTransaction> {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  const signer = getSigner(signerOrProvider);
 
   const multisigContract = MultisigContractFactory.connect(multisigAddress, signer);
   const tokenAddress = request.currencyInfo.value;
   const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
-  const erc20ProxyInterface = Erc20ProxyContractFactory.connect(proxyAddress, provider).interface;
+  const erc20ProxyInterface = Erc20ProxyContractFactory.connect(proxyAddress, signer).interface;
 
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const encodedApproveCall = erc20ProxyInterface.functions.transferFromWithReference.encode([
@@ -52,4 +63,4 @@ export const payErc20WithMultisig = async (
     `0x${paymentReference}`,
   ]);
   return multisigContract.submitTransaction(multisigAddress, 0, encodedApproveCall);
-};
+}
