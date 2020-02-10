@@ -61,7 +61,7 @@ export async function hasErc20Approval(
 }
 
 /**
- * Processes the approval transaction of the targetted ERC20.
+ * Processes the approval transaction of the targeted ERC20.
  * @param request request to pay
  * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.

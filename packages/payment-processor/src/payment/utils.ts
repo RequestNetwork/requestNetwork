@@ -39,7 +39,7 @@ export function getNetworkProvider(request: ClientTypes.IRequestData): BaseProvi
 /**
  * Utility to return a signer from a provider.
  * @param signerOrProvider the provider, or signer. If Signer, it will simply be returned directly
- * @param address optionnally, the address to retrieve the signer for.
+ * @param address optionally, the address to retrieve the signer for.
  */
 export function getSigner(signerOrProvider?: BaseProvider | Signer, address?: string): Signer {
   if (!signerOrProvider) {

@@ -10,7 +10,7 @@ import { MultisigContractFactory } from '../contracts/MultisigContractFactory';
 import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from './utils';
 
 /**
- * Processes the approval transaction of the targetted ERC20, through a multisig contract.
+ * Processes the approval transaction of the targeted ERC20, through a multisig contract.
  * @param request
  * @param multisigAddress multisig contract for which to approve the ERC20
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
