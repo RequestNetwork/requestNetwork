@@ -5,7 +5,7 @@ sidebar_label: Currencies
 description: How currencies are represented on the Request Network.
 ---
 
-import Hint from '../../../src/components/hint.js';
+import Hint from '../../src/components/hint.js';
 
 <Hint style="warning">
 
