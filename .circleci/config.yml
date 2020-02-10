@@ -512,6 +512,9 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
+          name: 'Build all'
+          command: 'yarn clean && yarn build'
+      - run:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
@@ -614,6 +617,7 @@ workflows:
             - test-epk-decryption
             - test-epk-signature
             - test-ethereum-storage
+            - test-integration-test
             - test-smart-contracts
             - test-multi-format
             - test-request-client
