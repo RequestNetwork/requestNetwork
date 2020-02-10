@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ERC20AddressedBased from '../../../../src/api/payment-network/erc20/address-based';
+import EthInputData from '../../src/eth/input-data';
 
 import 'chai';
 import 'mocha';
@@ -15,14 +15,14 @@ const expect = chai.expect;
 chai.use(spies);
 const sandbox = chai.spy.sandbox();
 
-let erc20AddressedBased: ERC20AddressedBased;
+let ethInputData: EthInputData;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
   extensions: {
-    addressBasedErc20: {
+    ethereumInputData: {
       createAddPaymentAddressAction(): any {
         return;
       },
@@ -38,27 +38,27 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
-describe('api/erc20/address-based', () => {
+describe('api/eth/input-data', () => {
   beforeEach(() => {
     sandbox.restore();
-    erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });
+    ethInputData = new EthInputData({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(mockAdvancedLogic.extensions.addressBasedErc20, 'createCreationAction');
+    const spy = sandbox.on(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
 
-    erc20AddressedBased.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
+    ethInputData.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
 
     expect(spy).to.have.been.called.once;
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.addressBasedErc20,
+      mockAdvancedLogic.extensions.ethereumInputData,
       'createAddPaymentAddressAction',
     );
 
-    erc20AddressedBased.createExtensionsDataForAddPaymentInformation({
+    ethInputData.createExtensionsDataForAddPaymentInformation({
       paymentAddress: 'ethereum address',
     });
 
@@ -67,24 +67,25 @@ describe('api/erc20/address-based', () => {
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.addressBasedErc20,
+      mockAdvancedLogic.extensions.ethereumInputData,
       'createAddRefundAddressAction',
     );
 
-    erc20AddressedBased.createExtensionsDataForAddRefundInformation({
+    ethInputData.createExtensionsDataForAddRefundInformation({
       refundAddress: 'ethereum address',
     });
 
     expect(spy).to.have.been.called.once;
   });
 
-  it('can getBalance on a localhost request', async () => {
+  // TODO: unskip
+  it.skip('can getBalance on a localhost request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
       currency: {
         network: 'private',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 token
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
       },
       events: [],
       expectedAmount: '0',
@@ -106,20 +107,19 @@ describe('api/erc20/address-based', () => {
       version: '0.2',
     };
 
-    const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
+    const balance = await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest);
 
     expect(balance.balance).to.be.equal('10');
     expect(balance.events).to.have.lengthOf(1);
     expect(balance.events[0].name).to.be.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    // TODO: add to & from to parameters?
+    // expect(balance.events[0].parameters!.to).to.be.equal(
+    //   '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+    // );
+    // expect(balance.events[0].parameters!.from).to.be.equal(
+    //   '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
+    // );
     expect(balance.events[0].amount).to.be.equal('10');
     expect(balance.events[0].timestamp).to.be.a('number');
-    expect(balance.events[0].parameters!.to).to.be.equal(
-      '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-    );
-    expect(balance.events[0].parameters!.from).to.be.equal(
-      '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-    );
-    expect(balance.events[0].parameters!.block).to.be.a('number');
-    expect(balance.events[0].parameters!.txHash).to.be.a('string');
   });
 });

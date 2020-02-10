@@ -1,7 +1,7 @@
 // tslint:disable: no-invalid-this
 // tslint:disable: no-magic-numbers
 import { PaymentTypes } from '@requestnetwork/types';
-import ProxyERC20InfoRetriever from '../../../../src/api/payment-network/erc20/proxy-info-retriever';
+import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 
 import 'chai';
 import 'mocha';

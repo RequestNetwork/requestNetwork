@@ -1,13 +1,12 @@
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
+  IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import Declarative from '../../../src/api/payment-network/declarative';
-
-import * as Types from '../../../src/types';
+import Declarative from '../src/declarative';
 
 import 'chai';
 import 'mocha';
@@ -55,7 +54,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 
 const requestMock: RequestLogicTypes.IRequest = {
   creator: {
-    type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '',
   },
   currency: {

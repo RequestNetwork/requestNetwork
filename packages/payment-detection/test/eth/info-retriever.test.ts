@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import EthInfoRetriever from '../../../../src/api/payment-network/eth/info-retriever';
-import PaymentReferenceCalculator from '../../../../src/api/payment-network/payment-reference-calculator';
+import EthInfoRetriever from '../../src/eth/info-retriever';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 
 import { expect } from 'chai';
 import 'mocha';
