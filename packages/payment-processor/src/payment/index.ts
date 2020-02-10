@@ -1,5 +1,5 @@
 import { ContractTransaction, Signer } from 'ethers';
-import { BaseProvider, Web3Provider } from 'ethers/providers';
+import { BaseProvider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
