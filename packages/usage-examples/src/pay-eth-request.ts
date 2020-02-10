@@ -14,7 +14,7 @@ const requestNetwork = new RequestNetwork();
 
   const request = await requestNetwork.fromRequestId('REQUEST_ID');
   const requestData = request.getData();
-  if (!(await hasSufficientFunds(requestData, account, wallet.provider))) {
+  if (!(await hasSufficientFunds(requestData, account))) {
     throw new Error('You do not have enough funds to pay this request');
   }
   const tx = await payRequest(requestData, wallet);

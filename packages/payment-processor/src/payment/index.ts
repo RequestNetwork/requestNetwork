@@ -1,5 +1,5 @@
 import { ContractTransaction, Signer } from 'ethers';
-import { BaseProvider } from 'ethers/providers';
+import { Provider, Web3Provider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
@@ -32,7 +32,7 @@ export class UnsupportedNetworkError extends Error {
  */
 export async function payRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: BaseProvider | Signer = getProvider(),
+  signerOrProvider: Web3Provider | Signer = getProvider(),
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
@@ -58,7 +58,7 @@ export async function payRequest(
 export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
-  provider: BaseProvider = getNetworkProvider(request),
+  provider: Provider = getNetworkProvider(request),
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(address);
 

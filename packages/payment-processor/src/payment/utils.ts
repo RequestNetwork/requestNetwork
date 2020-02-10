@@ -1,5 +1,5 @@
 import { ethers, Signer } from 'ethers';
-import { BaseProvider, EtherscanProvider, Web3Provider } from 'ethers/providers';
+import { EtherscanProvider, Provider, Web3Provider } from 'ethers/providers';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import {
@@ -26,7 +26,7 @@ export function getProvider(): Web3Provider {
  *
  * @param request
  */
-export function getNetworkProvider(request: ClientTypes.IRequestData): BaseProvider {
+export function getNetworkProvider(request: ClientTypes.IRequestData): Provider {
   if (request.currencyInfo.network === 'mainnet') {
     return new EtherscanProvider();
   }
@@ -41,7 +41,7 @@ export function getNetworkProvider(request: ClientTypes.IRequestData): BaseProvi
  * @param signerOrProvider the provider, or signer. If Signer, it will simply be returned directly
  * @param address optionally, the address to retrieve the signer for.
  */
-export function getSigner(signerOrProvider?: BaseProvider | Signer, address?: string): Signer {
+export function getSigner(signerOrProvider?: Provider | Signer, address?: string): Signer {
   if (!signerOrProvider) {
     signerOrProvider = getProvider();
   }
