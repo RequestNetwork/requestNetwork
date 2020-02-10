@@ -89,7 +89,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('getErc20Balance', () => {
   it('should read the balance', async () => {
-    const balance = await getErc20Balance(erc20ContractAddress, wallet.address, provider);
+    const balance = await getErc20Balance(validRequest, wallet.address, provider);
     chai.assert.isTrue(balance.gte('100'));
   });
 });
@@ -152,17 +152,13 @@ describe('payErc20ProxyRequest', () => {
     // get the balance to compare after payment
 
     const balanceEthBefore = await wallet.getBalance();
-    const balanceErc20Before = await getErc20Balance(
-      erc20ContractAddress,
-      wallet.address,
-      provider,
-    );
+    const balanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
 
     const tx = await payErc20ProxyRequest(validRequest, wallet);
     const confirmedTx = await tx.wait(1);
 
     const balanceEthAfter = await wallet.getBalance();
-    const balanceErc20After = await getErc20Balance(erc20ContractAddress, wallet.address, provider);
+    const balanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
 
     expect(confirmedTx.status).to.eq(1);
     expect(tx.hash).not.to.be.undefined;
