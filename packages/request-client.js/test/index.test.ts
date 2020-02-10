@@ -799,7 +799,7 @@ describe('index', () => {
           [],
         ),
       ).to.eventually.be.rejectedWith(
-        'You must give at least one encryption parameter to create an encrypted request',
+        'You must provide at least one encryption parameter to create an encrypted request',
       );
     });
 
