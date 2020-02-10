@@ -5,6 +5,7 @@ keywords: Request payment library, request payment page
 ---
 
 
+
 # Introduction
 
 We will develop a basic page that allows users to:
@@ -23,13 +24,13 @@ Prerequisites:
 * TODO
 
 ```jsx live
-import React from "react";
+// import React from "react";
+
 import { ethers } from "ethers";
 import { Web3Provider } from "ethers/providers";
 import { useWeb3React, Web3ReactProvider } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { RequestNetwork } from "@requestnetwork/request-client.js";
-
 import { payRequest, hasSufficientFunds } from "pay-with-request";
 
 const requestNetwork = new RequestNetwork({

@@ -8,19 +8,18 @@ import styles from './styles.module.css';
 
 const features = [
   {
-    title: <>REST API</>,
+	  title: <>Option 1: Portal REST API</>,
     imageUrl: 'img/undraw_docusaurus_mountain.svg',
     description: (
       <>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at justo ut odio vestibulum
-        molestie.
+	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure.
       </>
     ),
   },
   {
-    title: <>Request Client library</>,
+	  title: <>Option 2: JS library client</>,
     imageUrl: 'img/undraw_docusaurus_tree.svg',
-    description: <>Aliquam sed velit quis justo ullamcorper eleifend a vitae urna.</>,
+    description: <>Incerase security by managing your identiity keys without hosting any infrastructure.</>,
   },
   {
     title: <>Host your own node</>,
@@ -86,6 +85,11 @@ function Home() {
             </div>
           </section>
         )}
+				<section>
+					<div>
+						<a href="/docs/guides/0-getting-started">Start the guide and discover Request and options step-by-step</a>
+					</div>
+				</section>
       </main>
     </Layout>
   );
