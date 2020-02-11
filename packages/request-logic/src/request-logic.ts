@@ -687,7 +687,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     try {
-      // Check if the action works with the request state
+      // Check if the action doesn't fail with the request state
       RequestLogicCore.applyActionToRequest(
         requestStateConfirmed,
         action,
