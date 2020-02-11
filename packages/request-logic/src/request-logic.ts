@@ -432,7 +432,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * Interprets a request from requestId
    *
    * @param requestId the requestId of the request to compute
-   * @returns the request, the request pending and the ignoredTransactions
+   * @returns the request, the pending state of the request and the ignored transactions
    */
   private async computeRequestFromRequestId(
     requestId: RequestLogicTypes.RequestId,
