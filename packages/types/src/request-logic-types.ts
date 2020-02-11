@@ -140,32 +140,8 @@ export interface IRequest {
   nonce?: number;
 }
 
-/** Pending request in request logic */
-export interface IPendingRequest {
-  version?: string;
-  /** request identifier */
-  requestId?: RequestId;
-  /** identity of the request creator (the one who initiates it) */
-  creator?: Identity.IIdentity;
-  currency?: ICurrency;
-  state?: STATE;
-  expectedAmount?: Amount;
-  payee?: Identity.IIdentity;
-  payer?: Identity.IIdentity;
-  /** Extensions states */
-  extensions?: IExtensionStates;
-  /** Extensions raw data */
-  extensionsData?: any[];
-  events?: IEvent[];
-  /** timestamp of the request creation in seconds
-   * Note: this precision is enough in a blockchain context
-   * Note: as it is a user given parameter, the only consensus on this date it between the payer and payee
-   * Note: The timestamp is used also do differentiate two identical requests (because the requestId is the hash of the creation action)
-   */
-  timestamp?: number;
-  /** arbitrary number to differentiate several identical requests with the same timestamp */
-  nonce?: number;
-}
+/** Pending data of a request in request logic */
+export type IPendingRequest = Partial<IRequest>;
 
 /** Extensions state indexed by their Id */
 export interface IExtensionStates {
