@@ -327,14 +327,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   ): Promise<RequestLogicTypes.IReturnGetRequestFromId> {
     const {
       ignoredTransactions,
-      requestStateConfirmed,
-      requestStatePending,
+      confirmedRequestState,
+      pendingRequestState,
       transactionManagerMeta,
     } = await this.computeRequestFromRequestId(requestId);
 
     const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
-      requestStateConfirmed,
-      requestStatePending,
+      confirmedRequestState,
+      pendingRequestState,
     );
 
     return {
@@ -342,7 +342,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         ignoredTransactions,
         transactionManagerMeta,
       },
-      result: { request: requestStateConfirmed, pending },
+      result: { request: confirmedRequestState, pending },
     };
   }
 
@@ -437,8 +437,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private async computeRequestFromRequestId(
     requestId: RequestLogicTypes.RequestId,
   ): Promise<{
-    requestStateConfirmed: RequestLogicTypes.IRequest | null;
-    requestStatePending: RequestLogicTypes.IRequest | null;
+    confirmedRequestState: RequestLogicTypes.IRequest | null;
+    pendingRequestState: RequestLogicTypes.IRequest | null;
     ignoredTransactions: any[];
     transactionManagerMeta: any;
   }> {
@@ -485,16 +485,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     const {
-      requestStateConfirmed,
-      requestStatePending,
+      confirmedRequestState,
+      pendingRequestState,
       ignoredTransactionsByApplication,
     } = await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
     ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
     return {
+      confirmedRequestState,
       ignoredTransactions,
-      requestStateConfirmed,
-      requestStatePending,
+      pendingRequestState,
       transactionManagerMeta: resultGetTx.meta,
     };
   }
@@ -508,13 +508,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private async computeRequestFromTransactions(
     transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
-    requestStateConfirmed: RequestLogicTypes.IRequest | null;
-    requestStatePending: RequestLogicTypes.IRequest | null;
+    confirmedRequestState: RequestLogicTypes.IRequest | null;
+    pendingRequestState: RequestLogicTypes.IRequest | null;
     ignoredTransactionsByApplication: any[];
   }> {
     const ignoredTransactionsByApplication: any[] = [];
     // second parameter is null, because the first action must be a creation (no state expected)
-    const requestStateConfirmed = transactions
+    const confirmedRequestState = transactions
       .filter(action => action.state === TransactionTypes.TransactionState.CONFIRMED)
       .reduce((requestState: any, actionConfirmed: any) => {
         try {
@@ -534,7 +534,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         }
       }, null);
 
-    const requestStatePending = transactions
+    const pendingRequestState = transactions
       .filter(action => action.state === TransactionTypes.TransactionState.PENDING)
       .reduce((requestState: any, actionConfirmed: any) => {
         try {
@@ -552,12 +552,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           });
           return requestState;
         }
-      }, requestStateConfirmed);
+      }, confirmedRequestState);
 
     return {
+      confirmedRequestState,
       ignoredTransactionsByApplication,
-      requestStateConfirmed,
-      requestStatePending,
+      pendingRequestState,
     };
   }
 
@@ -616,8 +616,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
         // Computes the request from the transactions
         const {
-          requestStateConfirmed,
-          requestStatePending,
+          confirmedRequestState,
+          pendingRequestState,
           ignoredTransactionsByApplication,
         } = await this.computeRequestFromTransactions(
           timestampedActionsWithoutDuplicates.uniqueItems,
@@ -625,14 +625,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
         const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
-          requestStateConfirmed,
-          requestStatePending,
+          confirmedRequestState,
+          pendingRequestState,
         );
 
         return {
           ignoredTransactions,
           pending,
-          request: requestStateConfirmed,
+          request: confirmedRequestState,
           transactionManagerMeta: transactionManagerMeta[channelId],
         };
       },
@@ -682,23 +682,23 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: RequestLogicTypes.RequestId,
     action: RequestLogicTypes.IAction,
   ): Promise<void> {
-    const { requestStateConfirmed, requestStatePending } = await this.computeRequestFromRequestId(
+    const { confirmedRequestState, pendingRequestState } = await this.computeRequestFromRequestId(
       requestId,
     );
 
     try {
       // Check if the action works with the request state
       RequestLogicCore.applyActionToRequest(
-        requestStateConfirmed,
+        confirmedRequestState,
         action,
         Date.now(),
         this.advancedLogic,
       );
     } catch (error) {
       // Check if the action works with the pending state
-      if (requestStatePending) {
+      if (pendingRequestState) {
         RequestLogicCore.applyActionToRequest(
-          requestStatePending,
+          pendingRequestState,
           action,
           Date.now(),
           this.advancedLogic,
@@ -710,25 +710,25 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Computes the diff between the confirmed and pending request
    *
-   * @param requestStateConfirmed the confirmed request state
-   * @param requestStatePending the pending request state
+   * @param confirmedRequestState the confirmed request state
+   * @param pendingRequestState the pending request state
    * @returns an object with the pending state attributes that are different from the confirmed one
    */
   private computeDiffBetweenPendingAndConfirmedRequestState(
-    requestStateConfirmed: any,
-    requestStatePending: any,
+    confirmedRequestState: any,
+    pendingRequestState: any,
   ): RequestLogicTypes.IPendingRequest | null {
     // Compute the diff between the confirmed and pending request
     let pending: any = null;
-    if (!requestStateConfirmed) {
-      pending = requestStatePending;
-    } else if (requestStatePending) {
-      for (const key in requestStatePending) {
-        if (requestStatePending.hasOwnProperty(key)) {
+    if (!confirmedRequestState) {
+      pending = pendingRequestState;
+    } else if (pendingRequestState) {
+      for (const key in pendingRequestState) {
+        if (pendingRequestState.hasOwnProperty(key)) {
           // TODO: Should find a better way to do that
           if (
-            Utils.crypto.normalizeKeccak256Hash(requestStatePending[key]).value !==
-            Utils.crypto.normalizeKeccak256Hash(requestStateConfirmed[key]).value
+            Utils.crypto.normalizeKeccak256Hash(pendingRequestState[key]).value !==
+            Utils.crypto.normalizeKeccak256Hash(confirmedRequestState[key]).value
           ) {
             if (!pending) {
               pending = {};
@@ -736,9 +736,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             // tslint:disable-next-line:prefer-conditional-expression
             if (key === 'events') {
               // keep only the new events in pending
-              pending[key] = requestStatePending[key].slice(requestStateConfirmed[key].length);
+              pending[key] = pendingRequestState[key].slice(confirmedRequestState[key].length);
             } else {
-              pending[key] = requestStatePending[key];
+              pending[key] = pendingRequestState[key];
             }
           }
         }
