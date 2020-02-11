@@ -42,7 +42,7 @@
   "dependencies": {
     "@requestnetwork/types": "0.11.0",
     "bn.js": "4.11.8",
-    "eth-crypto": "1.5.0"
+    "eth-crypto": "1.5.1"
   },
   "devDependencies": {
     "@types/bn.js": "4.11.5",

@@ -1274,7 +1274,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bn.js@^4.11.3":
+"@types/bn.js@4.11.6", "@types/bn.js@^4.11.3":
   version "4.11.6"
   resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-4.11.6.tgz#c306c70d9358aaea33cd4eda092a742b9505967c"
   integrity sha512-pqr857jrp2kPuO9uRjZ3PwnJTjoQy+fcdxvBTvHm6dkmEL9q+hDD/2j/0ELOBPtPnS8LjCX0gI9nbl8lVkadpg==
@@ -4579,19 +4579,19 @@ eth-contract-metadata@1.11.0:
   resolved "https://registry.yarnpkg.com/eth-contract-metadata/-/eth-contract-metadata-1.11.0.tgz#4d23a8208d5d53be9d4c0696ed8492b505c6bca1"
   integrity sha512-Bbvio71M+lH+qXd8XXddpTc8hhjL9m4fNPOxmZFIX8z0/VooUdwV8YmmDAbkU5WVioZi+Jp1XaoO7VwzXnDboA==
 
-eth-crypto@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/eth-crypto/-/eth-crypto-1.5.0.tgz#f3ec292c87c10980cff358b6f15d8a330214622f"
-  integrity sha512-BSTlT/dnyB8it3MBDf1X/RCwVjbah44KYgPZNxIBpXRr7jEIXe1eF8h6ShXT+a3mpCb7SWd9aczhSB4KioCSZw==
+eth-crypto@1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/eth-crypto/-/eth-crypto-1.5.1.tgz#6e1f975e18eb1ed7a113e89c84b06ea96e16d413"
+  integrity sha512-1+xtHSlqy1fJrHwWpSOXuRCN+4+8jTBSy7mWkboMv28p+o41ZWFn8Tn09vqK96DrrurWjikndt5AfGC4roCxzA==
   dependencies:
-    "@types/bn.js" "4.11.5"
+    "@types/bn.js" "4.11.6"
     babel-runtime "6.26.0"
     eccrypto "1.1.2"
     eth-lib "0.2.8"
-    ethereumjs-tx "2.1.1"
-    ethereumjs-util "6.1.0"
-    ethers "4.0.37"
-    secp256k1 "3.7.1"
+    ethereumjs-tx "2.1.2"
+    ethereumjs-util "6.2.0"
+    ethers "4.0.42"
+    secp256k1 "3.8.0"
 
 eth-ens-namehash@2.0.8:
   version "2.0.8"
@@ -4644,17 +4644,17 @@ eth-lib@^0.1.26:
     ws "^3.0.0"
     xhr-request-promise "^0.1.2"
 
-ethereumjs-common@^1.3.1:
+ethereumjs-common@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/ethereumjs-common/-/ethereumjs-common-1.5.0.tgz#d3e82fc7c47c0cef95047f431a99485abc9bb1cd"
   integrity sha512-SZOjgK1356hIY7MRj3/ma5qtfr/4B5BL+G4rP/XSMYr2z1H5el4RX5GReYCKmQmYI/nSBmRnwrZ17IfHuG0viQ==
 
-ethereumjs-tx@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/ethereumjs-tx/-/ethereumjs-tx-2.1.1.tgz#7d204e2b319156c9bc6cec67e9529424a26e8ccc"
-  integrity sha512-QtVriNqowCFA19X9BCRPMgdVNJ0/gMBS91TQb1DfrhsbR748g4STwxZptFAwfqehMyrF8rDwB23w87PQwru0wA==
+ethereumjs-tx@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/ethereumjs-tx/-/ethereumjs-tx-2.1.2.tgz#5dfe7688bf177b45c9a23f86cf9104d47ea35fed"
+  integrity sha512-zZEK1onCeiORb0wyCXUvg94Ve5It/K6GD1K+26KfFKodiBiS6d9lfCXlUKGBBdQ+bv7Day+JK0tj1K+BeNFRAw==
   dependencies:
-    ethereumjs-common "^1.3.1"
+    ethereumjs-common "^1.5.0"
     ethereumjs-util "^6.0.0"
 
 ethereumjs-util@6.1.0:
@@ -4670,7 +4670,7 @@ ethereumjs-util@6.1.0:
     safe-buffer "^5.1.1"
     secp256k1 "^3.0.1"
 
-ethereumjs-util@^6.0.0:
+ethereumjs-util@6.2.0, ethereumjs-util@^6.0.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.2.0.tgz#23ec79b2488a7d041242f01e25f24e5ad0357960"
   integrity sha512-vb0XN9J2QGdZGIEKG2vXM+kUdEivUfU6Wmi5y0cg+LRhDYKnXIZ/Lz7XjFbHRR9VIKq2lVGLzGBkA++y2nOdOQ==
@@ -4715,15 +4715,14 @@ ethers@4.0.0-beta.3:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.37:
-  version "4.0.37"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.37.tgz#dfa70d59498663878c5e4a977d14356660ca5b90"
-  integrity sha512-B7bDdyQ45A5lPr6k2HOkEKMtYOuqlfy+nNf8glnRvWidkDQnToKw1bv7UyrwlbsIgY2mE03UxTVtouXcT6Vvcw==
+ethers@4.0.42:
+  version "4.0.42"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.42.tgz#7def83a1f770b84d44cf1c2dfc58b7fd29d1d45d"
+  integrity sha512-2gmmt5x683Xz4QwGDBVJhrdXevVAEr5fnXPGDPou2AKB+zklrirGpl0w1SHBn7Wa9hbL2z6MvP3n7k8Yss2MFg==
   dependencies:
-    "@types/node" "^10.3.2"
     aes-js "3.0.0"
     bn.js "^4.4.0"
-    elliptic "6.3.3"
+    elliptic "6.5.2"
     hash.js "1.1.3"
     js-sha3 "0.5.7"
     scrypt-js "2.0.4"
@@ -8457,11 +8456,6 @@ node-fetch-npm@^2.0.2:
     json-parse-better-errors "^1.0.0"
     safe-buffer "^5.1.1"
 
-node-fetch@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.3.0.tgz#1a1d940bbfb916a1d3e0219f037e89e71f8c5fa5"
-  integrity sha512-MOd8pV3fxENbryESLgVIeaGKrdl+uaYhCSSVkjeOb/31/njTpcis5aWfdqgNlHIrKOLRbMnfPINPOML2CIFeXA==
-
 node-fetch@2.6.0, node-fetch@^2.3.0, node-fetch@^2.5.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
@@ -10376,7 +10370,7 @@ secp256k1@3.7.1:
     nan "^2.14.0"
     safe-buffer "^5.1.2"
 
-secp256k1@^3.0.1:
+secp256k1@3.8.0, secp256k1@^3.0.1:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-3.8.0.tgz#28f59f4b01dbee9575f56a47034b7d2e3b3b352d"
   integrity sha512-k5ke5avRZbtl9Tqx/SA7CbY3NF6Ro+Sj9cZxezFzuBlLDmyqPiL8hJJ+EmzD8Ig4LUDByHJ3/iPOVoRixs/hmw==

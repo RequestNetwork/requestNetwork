@@ -1,12 +1,12 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import {
   IdentityTypes,
+  PaymentTypes,
   RequestLogicTypes,
   SignatureTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as Types from '../src/types';
 
 export const arbitraryTimestamp = 1549953337;
 
@@ -186,8 +186,8 @@ export const actionRequestIdSecondRequest = MultiFormat.serialize(
   Utils.crypto.normalizeKeccak256Hash(actionCreationSecondRequest),
 );
 
-export const declarativePaymentNetwork: Types.IPaymentNetworkCreateParameters = {
-  id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+export const declarativePaymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+  id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
     paymentInformation: {
       BIC: 'SABAIE2D',

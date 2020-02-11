@@ -2,9 +2,15 @@ FROM node:10-alpine
 
 WORKDIR /app
 
-COPY . .
+RUN apk add --virtual .build-deps git python g++ bash make
 
-RUN apk add --no-cache --virtual .build-deps git python g++ bash make && \
-    yarn && \
-    yarn build && \
-    apk del .build-deps
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn
+
+COPY . .
+RUN yarn
+RUN yarn build
+
+RUN apk del .build-deps
