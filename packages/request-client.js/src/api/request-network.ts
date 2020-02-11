@@ -133,15 +133,19 @@ export default class RequestNetwork {
     );
 
     // if no request found, throw a human readable message:
-    if (!requestAndMeta.result.request) {
+    if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
+    // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
+    const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
+      ? requestAndMeta.result.request
+      : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
     const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
       {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        request: requestAndMeta.result.request,
+        request: requestState,
       },
     );
 
@@ -149,7 +153,7 @@ export default class RequestNetwork {
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
 
     // refresh the local request data
-    await request.refresh();
+    await request.refresh(requestAndMeta);
 
     return request;
   }
@@ -211,19 +215,27 @@ export default class RequestNetwork {
     );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
-      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
+      async (requestFromLogic: {
+        request: RequestLogicTypes.IRequest | null;
+        pending: RequestLogicTypes.IPendingRequest | null;
+      }): Promise<Request> => {
+        // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
+        const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
+          ? requestFromLogic.request
+          : (requestFromLogic.pending as RequestLogicTypes.IRequest);
+
         const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic,
+            request: requestState,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.requestId,
+          requestState.requestId,
           paymentNetwork,
           this.contentData,
         );
@@ -257,19 +269,27 @@ export default class RequestNetwork {
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
-      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
+      async (requestFromLogic: {
+        request: RequestLogicTypes.IRequest | null;
+        pending: RequestLogicTypes.IPendingRequest | null;
+      }): Promise<Request> => {
+        // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
+        const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
+          ? requestFromLogic.request
+          : (requestFromLogic.pending as RequestLogicTypes.IRequest);
+
         const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic,
+            request: requestState,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.requestId,
+          requestState.requestId,
           paymentNetwork,
           this.contentData,
         );

@@ -110,9 +110,9 @@ const requestParameters: RequestLogicTypes.ICreateParameters = {
 function mockAxios(): any {
   const mock = new mockAdapter(axios);
   mock.onPost('/persistTransaction').reply(200, { result: {} });
-  mock
-    .onGet('/getTransactionsByChannelId')
-    .reply(200, { result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] } });
+  mock.onGet('/getTransactionsByChannelId').reply(200, {
+    result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
+  });
   return mock;
 }
 
@@ -154,7 +154,7 @@ describe('index', () => {
     mock.onPost('/persistTransaction').reply(spy);
     mock
       .onGet('/getTransactionsByChannelId')
-      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
+      .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -180,10 +180,10 @@ describe('index', () => {
     const callback = (): any => {
       return [200, { ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY' }];
     };
-
-    const spyPersistTransaction = chai.spy();
+    // const spyPersistTransaction = chai.spy();
     const spyIpfsAdd = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spyPersistTransaction);
+    // mock.onPost('/persistTransaction').reply(spyPersistTransaction);
+    mock.onPost('/persistTransaction').reply(200, { meta: {}, result: {} });
     mock.onPost('/ipfsAdd').reply(spyIpfsAdd);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       meta: { storageMeta: [], transactionsStorageLocation: [] },
@@ -192,8 +192,8 @@ describe('index', () => {
 
     const requestNetwork = new RequestNetwork({
       ethereumProviderUrl: 'http://localhost:8545',
-      useLocalEthereumBroadcast: true,
       signatureProvider: fakeSignatureProvider,
+      useLocalEthereumBroadcast: true,
     });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
@@ -210,7 +210,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    expect(spyPersistTransaction).to.not.have.been.called;
+    // expect(spyPersistTransaction).to.not.have.been.called;
     expect(spyIpfsAdd).to.have.been.called.once;
   });
 
@@ -224,7 +224,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      result: { transactions: [TestDataRealBTC.timestampedTransaction] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -256,7 +256,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -279,7 +279,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({
@@ -350,7 +350,7 @@ describe('index', () => {
     const requestIdLength = 66;
     expect(requestId.length).to.equal(requestIdLength);
 
-    await new Promise((resolve): any => setTimeout(resolve, 1500));
+    await new Promise((resolve): any => setTimeout(resolve, 150));
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
@@ -380,7 +380,7 @@ describe('index', () => {
     const mock = new mockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -412,11 +412,10 @@ describe('index', () => {
     });
 
     const data = request.getData();
-
     expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
-    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
   });
 
   it('works with mocked storage and mocked payment network', async () => {
@@ -443,9 +442,9 @@ describe('index', () => {
     const data = request.getData();
 
     expect(data).to.exist;
-    expect(data.balance).to.exist;
-    expect(data.meta).to.exist;
-    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+    expect(data.balance).to.null;
+    expect(data.meta).to.be.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
   });
 
   it('works with mocked storage and content data', async () => {
@@ -481,6 +480,13 @@ describe('index', () => {
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
+
+    // after confirmation
+    const mock = new mockAdapter(axios);
+    mock.onPost('/persistTransaction').reply(200, { result: {} });
+    mock.onGet('/getTransactionsByChannelId').reply(200, {
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsDataConfirmed] },
+    });
 
     await request.accept(payerIdentity);
 
@@ -547,7 +553,7 @@ describe('index', () => {
       const spy = chai.spy(callback);
       mock.onPost('/persistTransaction').reply(spy);
       mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: { transactions: [TestData.transactionConfirmedWithDeclarative] },
+        result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
       });
     });
 
@@ -646,7 +652,6 @@ describe('index', () => {
     it('allows to get the right balance', async () => {
       // Use sinon clock to get a predictible timestamp
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
-      clock.tick(1000);
 
       const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
         currency: {
@@ -673,13 +678,21 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
+      clock.tick(150);
       await request.declareSentPayment('1', 'sent payment', payerIdentity);
+
+      clock.tick(150);
       await request.declareReceivedRefund('10', 'received refund', payerIdentity);
 
+      clock.tick(150);
       await request.declareSentRefund('100', 'sent refund', payeeIdentity);
+
+      clock.tick(150);
       await request.declareReceivedPayment('1000', 'received payment', payeeIdentity);
 
-      const requestData = request.getData();
+      clock.tick(150);
+      const requestData = await request.refresh();
+
       // @ts-ignore
       expect(requestData.balance.balance).to.equal('990');
       // @ts-ignore
@@ -687,14 +700,14 @@ describe('index', () => {
         amount: '10',
         name: 'refund',
         parameters: { note: 'received refund' },
-        timestamp: 1,
+        timestamp: 0,
       });
       // @ts-ignore
       expect(requestData.balance.events[1]).to.deep.equal({
         amount: '1000',
         name: 'payment',
         parameters: { note: 'received payment' },
-        timestamp: 1,
+        timestamp: 0,
       });
       sinon.restore();
     });
@@ -903,6 +916,8 @@ describe('index', () => {
     });
 
     it('creates an encrypted request and accept it', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -926,11 +941,16 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.accept(payerIdentity);
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      sinon.restore();
     });
 
     it('creates an encrypted request and cancel it', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -954,11 +974,15 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.cancel(payeeIdentity);
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.CANCELED);
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.CANCELED);
+      sinon.restore();
     });
 
     it('creates an encrypted request, increase and decrease the amount', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -982,12 +1006,14 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.increaseExpectedAmountRequest(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         payerIdentity,
       );
 
-      expect(fetchedRequest.getData().expectedAmount).to.equal(
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).expectedAmount).to.equal(
         String(TestData.parametersWithoutExtensionsData.expectedAmount * 2),
       );
 
@@ -996,10 +1022,13 @@ describe('index', () => {
         payeeIdentity,
       );
 
-      expect(fetchedRequest.getData().expectedAmount).to.equal('0');
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).expectedAmount).to.equal('0');
+      sinon.restore();
     });
 
     it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -1024,29 +1053,36 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.accept(payerIdentity);
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
       await fetchedRequest.declareSentPayment(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         'PAID',
         payerIdentity,
       );
-      expect(fetchedRequest.getData().balance!.balance).to.equal('0');
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).balance!.balance).to.equal('0');
 
       await fetchedRequest.declareReceivedPayment(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         'payment received',
         payeeIdentity,
       );
-      expect(fetchedRequest.getData().balance!.balance).to.equal(
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).balance!.balance).to.equal(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
+      sinon.restore();
     });
   });
 
   describe('ETH requests', () => {
     it('can create ETH requests with given salt', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
@@ -1077,7 +1113,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       expect(data).to.exist;
       expect(data.balance).to.exist;
@@ -1085,9 +1122,12 @@ describe('index', () => {
       expect(data.currency).to.equal('ETH-rinkeby');
       expect(data.extensionsData[0].parameters.salt).to.equal(salt);
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+      sinon.restore();
     });
 
     it('can create ETH requests without given salt', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
@@ -1115,12 +1155,16 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
+      sinon.restore();
     });
 
     it('can create ETH requests without refund address', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
@@ -1147,13 +1191,17 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
+      sinon.restore();
     });
 
     // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async function(): Promise<void> {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       // tslint:disable-next-line: no-invalid-this
       this.timeout(10000);
       const requestNetwork = new RequestNetwork({
@@ -1184,7 +1232,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       // Payment reference should be fixed
       expect(
@@ -1195,9 +1244,8 @@ describe('index', () => {
         ),
       ).to.equal('a93299ed2555d098');
 
-      await request.refresh();
-
-      const dataAfterRefresh = request.getData();
+      clock.tick(150);
+      const dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).to.equal('138');
       expect(dataAfterRefresh.balance?.events.length).to.equal(2);
@@ -1213,6 +1261,7 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
         '0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e',
       );
+      sinon.restore();
     });
   });
 
@@ -1252,7 +1301,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      let data = request.getData();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      let data = await request.refresh();
 
       expect(data).to.exist;
       expect(data.balance?.balance).to.equal('0');
@@ -1278,9 +1328,9 @@ describe('index', () => {
         erc20abiFragment,
         provider.getSigner(0),
       );
-
       // check payment
       await contract.transfer(paymentAddress, 2);
+
       data = await request.refresh();
       expect(data.balance?.balance).to.equal('2');
       expect(data.balance?.events.length).to.equal(1);
@@ -1294,6 +1344,7 @@ describe('index', () => {
 
       // check refund
       await contract.transfer(refundAddress, 1);
+
       data = await request.refresh();
       expect(data.balance?.balance).to.equal('1');
       expect(data.balance?.events.length).to.equal(2);
@@ -1345,7 +1396,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const data = await request.refresh();
 
       expect(data).to.exist;
       expect(data.balance?.balance).to.equal('90');
@@ -1384,7 +1436,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
     });

@@ -85,7 +85,7 @@ describe('api/request-network', () => {
         async getTransactionsByChannelId(): Promise<any> {
           return {
             result: {
-              transactions: [TestData.transactionConfirmed],
+              transactions: [TestData.timestampedTransaction],
             },
           };
         },
@@ -101,13 +101,15 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+
       const request = await requestnetwork.fromRequestId(TestData.actionRequestId);
 
       expect(request).to.instanceOf(Request);
     });
 
     it('cannot get request fromRequestId with if transactions are ignored', async () => {
-      const txIgnoredByTransactionManager: TransactionTypes.IConfirmedTransaction = {
+      const txIgnoredByTransactionManager: TransactionTypes.ITimestampedTransaction = {
+        state: DataAccessTypes.TransactionState.PENDING,
         timestamp: 1549953337,
         transaction: { data: 'broken transaction' },
       };
@@ -116,7 +118,8 @@ describe('api/request-network', () => {
         privateKey: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       });
 
-      const txIgnoredByRequestLogic: TransactionTypes.IConfirmedTransaction = {
+      const txIgnoredByRequestLogic: TransactionTypes.ITimestampedTransaction = {
+        state: DataAccessTypes.TransactionState.PENDING,
         timestamp: 1549953338,
         transaction: {
           data: JSON.stringify(actionWrongSigner),
@@ -150,7 +153,7 @@ describe('api/request-network', () => {
 
       const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
       await expect(requestnetwork.fromRequestId(requestId)).to.eventually.rejectedWith(
-        `Invalid transaction(s) found: [{"reason":"Impossible to JSON parse the transaction","transaction":{"timestamp":1549953337,"transaction":{"data":"broken transaction"}}},{"reason":"Signer must be the payee or the payer","transaction":{"action":{"data":{"name":"create","parameters":{"currency":{"network":"testnet","type":"BTC","value":"BTC"},"expectedAmount":"100000000000","extensionsData":[{"action":"create","id":"pn-testnet-bitcoin-address-based","parameters":{"paymentAddress":"mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v"},"version":"0.1.0"}],"payee":{"type":"ethereumAddress","value":"0x627306090abab3a6e1400e9345bc60c78a8bef57"},"payer":{"type":"ethereumAddress","value":"0xf17f52151ebef6c7334fad080c5704d77216b732"},"timestamp":1549953337},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0xf3b62e61d8e0cb32bb2a85e8a4b4f7c6345a30e7328900551be0a5f8c2570a870ce984364fc4beb357ef5a181dbefb8dfd1da03bd6542ed9d77e2762a0c636271b"}},"timestamp":1549953338}}]`,
+        `Invalid transaction(s) found: [{"reason":"Impossible to JSON parse the transaction","transaction":{"state":"pending","timestamp":1549953337,"transaction":{"data":"broken transaction"}}},{"reason":"Signer must be the payee or the payer","transaction":{"action":{"data":{"name":"create","parameters":{"currency":{"network":"testnet","type":"BTC","value":"BTC"},"expectedAmount":"100000000000","extensionsData":[{"action":"create","id":"pn-testnet-bitcoin-address-based","parameters":{"paymentAddress":"mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v"},"version":"0.1.0"}],"payee":{"type":"ethereumAddress","value":"0x627306090abab3a6e1400e9345bc60c78a8bef57"},"payer":{"type":"ethereumAddress","value":"0xf17f52151ebef6c7334fad080c5704d77216b732"},"timestamp":1549953337},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0xf3b62e61d8e0cb32bb2a85e8a4b4f7c6345a30e7328900551be0a5f8c2570a870ce984364fc4beb357ef5a181dbefb8dfd1da03bd6542ed9d77e2762a0c636271b"}},"state":"pending","timestamp":1549953338}}]`,
       );
     });
   });
@@ -169,9 +172,9 @@ describe('api/request-network', () => {
             },
             result: {
               transactions: {
-                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestId]: [TestData.timestampedTransaction],
                 [TestData.actionRequestIdSecondRequest]: [
-                  TestData.transactionConfirmedSecondRequest,
+                  TestData.timestampedTransactionSecondRequest,
                 ],
               },
             },
@@ -182,6 +185,7 @@ describe('api/request-network', () => {
           if (channelId === TestData.actionRequestId) {
             transactions = [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: TestData.arbitraryTimestamp,
                 transaction: {
                   data: JSON.stringify(TestData.action),
@@ -190,7 +194,7 @@ describe('api/request-network', () => {
             ];
           }
           if (channelId === TestData.actionRequestIdSecondRequest) {
-            transactions = [TestData.transactionConfirmedSecondRequest];
+            transactions = [TestData.timestampedTransactionSecondRequest];
           }
           return {
             result: {
@@ -236,9 +240,9 @@ describe('api/request-network', () => {
             },
             result: {
               transactions: {
-                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestId]: [TestData.timestampedTransaction],
                 [TestData.actionRequestIdSecondRequest]: [
-                  TestData.transactionConfirmedSecondRequest,
+                  TestData.timestampedTransactionSecondRequest,
                 ],
               },
             },
@@ -247,10 +251,10 @@ describe('api/request-network', () => {
         async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
           if (channelId === TestData.actionRequestId) {
-            transactions = [TestData.transactionConfirmed];
+            transactions = [TestData.timestampedTransaction];
           }
           if (channelId === TestData.actionRequestIdSecondRequest) {
-            transactions = [TestData.transactionConfirmedSecondRequest];
+            transactions = [TestData.timestampedTransactionSecondRequest];
           }
           return {
             result: {
@@ -279,7 +283,7 @@ describe('api/request-network', () => {
   });
 
   describe('fromMultipleIdentities', () => {
-    it('can get requests with payment network fromIdentity', async () => {
+    it('can get requests with payment network from multiple Identities', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         async getChannelsByMultipleTopics(topics: [string]): Promise<any> {
           expect(topics).to.deep.equals([
@@ -292,9 +296,9 @@ describe('api/request-network', () => {
             },
             result: {
               transactions: {
-                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestId]: [TestData.timestampedTransaction],
                 [TestData.actionRequestIdSecondRequest]: [
-                  TestData.transactionConfirmedSecondRequest,
+                  TestData.timestampedTransactionSecondRequest,
                 ],
               },
             },
@@ -305,6 +309,7 @@ describe('api/request-network', () => {
           if (channelId === TestData.actionRequestId) {
             transactions = [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: TestData.arbitraryTimestamp,
                 transaction: {
                   data: JSON.stringify(TestData.action),
@@ -313,7 +318,7 @@ describe('api/request-network', () => {
             ];
           }
           if (channelId === TestData.actionRequestIdSecondRequest) {
-            transactions = [TestData.transactionConfirmedSecondRequest];
+            transactions = [TestData.timestampedTransactionSecondRequest];
           }
           return {
             result: {
@@ -363,9 +368,9 @@ describe('api/request-network', () => {
             },
             result: {
               transactions: {
-                [TestData.actionRequestId]: [TestData.transactionConfirmed],
+                [TestData.actionRequestId]: [TestData.timestampedTransaction],
                 [TestData.actionRequestIdSecondRequest]: [
-                  TestData.transactionConfirmedSecondRequest,
+                  TestData.timestampedTransactionSecondRequest,
                 ],
               },
             },
@@ -374,10 +379,10 @@ describe('api/request-network', () => {
         async getTransactionsByChannelId(channelId: string): Promise<any> {
           let transactions: any[] = [];
           if (channelId === TestData.actionRequestId) {
-            transactions = [TestData.transactionConfirmed];
+            transactions = [TestData.timestampedTransaction];
           }
           if (channelId === TestData.actionRequestIdSecondRequest) {
-            transactions = [TestData.transactionConfirmedSecondRequest];
+            transactions = [TestData.timestampedTransactionSecondRequest];
           }
           return {
             result: {

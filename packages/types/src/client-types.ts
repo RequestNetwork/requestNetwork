@@ -15,6 +15,7 @@ export interface IRequestData extends Omit<RequestLogic.IRequest, 'currency'> {
   balance: Payment.IBalanceWithEvents<any> | null;
   contentData: any;
   currencyInfo: RequestLogic.ICurrency;
+  pending: RequestLogic.IPendingRequest | null;
 }
 
 /** Create request parameters */

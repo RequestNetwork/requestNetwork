@@ -264,11 +264,67 @@ const requestData = request.getData();
   meta, // see "Metadata of a request"
   balance,
   contentData,
+  pending, // see "Pending state of a request"
 }
 */
 ```
 
 `requestData.request`: [IRequestData](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L17)
+
+#### Pending state of a request
+
+Requests have a `pending` attribute containing all the changes from transactions still pending.
+
+In this example, the request is already created but the `accept` and an `increaseExpectedAmount` actions are still pending in the storage (e.g: the ethereum transaction is not mined yet)
+
+```javascript
+{
+  ...
+  state: "created",
+  currency: "BTC",
+  expectedAmount: "1000",
+  payee: {...},
+  payer: {...},
+  requestId:
+    "01061052b398b00e08b5fd6e0403a3c83a1fd6b47c21ae57a219866d54d64d74d1",
+  events: [
+    {
+      name: "create",
+      ...
+    }
+  ],
+  pending: {
+    state: "accepted",
+    expectedAmount: "1200",
+    events: [
+      {
+        name: "accept",
+        ...
+      },
+      {
+        name: "increaseExpectedAmount",
+        ...
+      }
+    ]
+  }
+}
+```
+
+In the next example, the creation is still pending:
+
+```javascript
+{
+  currency: "BTC",
+  expectedAmount: "1000",
+  payee: {...},
+  payer: {...},
+  requestId:
+    "01061052b398b00e08b5fd6e0403a3c83a1fd6b47c21ae57a219866d54d64d74d1",
+  state: "pending",
+  currencyInfo: { type: "BTC", value: "BTC" },
+  pending: { state: "created" }
+}
+```
 
 #### Metadata of a request
 

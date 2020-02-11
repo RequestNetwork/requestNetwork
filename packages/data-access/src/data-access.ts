@@ -217,7 +217,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // Get the transactions (and the meta) indexed by channelIds in the blocks found
     const transactionsAndMetaPerBlocks: Array<{
-      transactions: DataAccessTypes.IConfirmedTransaction[];
+      transactions: DataAccessTypes.ITimestampedTransaction[];
       transactionsStorageLocation: string[];
       storageMeta: string[];
     }> =
@@ -500,16 +500,20 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     location: string,
     meta: StorageTypes.IEntryMetadata,
   ): {
-    transactions: DataAccessTypes.IConfirmedTransaction[];
+    transactions: DataAccessTypes.ITimestampedTransaction[];
     transactionsStorageLocation: string[];
     storageMeta: string[];
   } {
     // Gets the transaction from the positions
-    const transactions: DataAccessTypes.IConfirmedTransaction[] =
+    const transactions: DataAccessTypes.ITimestampedTransaction[] =
       // first remove de duplicates
       Utils.unique(transactionPositions).uniqueItems.map(
         // Get the transaction from their position and add the timestamp
         (position: number) => ({
+          state:
+            meta.state === StorageTypes.ContentState.CONFIRMED
+              ? DataAccessTypes.TransactionState.CONFIRMED
+              : DataAccessTypes.TransactionState.PENDING,
           timestamp: meta.timestamp,
           transaction: block.transactions[position],
         }),

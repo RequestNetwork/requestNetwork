@@ -40,7 +40,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
     return { meta: {}, result: {} };
   },
   async getRequestFromId(): Promise<any> {
-    return { meta: {}, result: { request: { requestId: '1' } } };
+    return { meta: {}, result: { request: { requestId: '1' }, pending: null } };
   },
   async getRequestsByTopic(): Promise<any> {
     return {
@@ -467,6 +467,7 @@ describe('api/request', () => {
           return {
             meta: {},
             result: {
+              pending: {},
               request: {},
             },
           };

@@ -52,7 +52,8 @@ export const data = {
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
 
-export const transactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransaction: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(action) },
 };

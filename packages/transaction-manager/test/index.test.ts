@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 
 const expect = chai.expect;
 
-import { DataAccessTypes, EncryptionTypes } from '@requestnetwork/types';
+import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 
 import { TransactionManager } from '../src/index';
 import TransactionsFactory from '../src/transactions-factory';
@@ -25,8 +25,16 @@ const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 const data2 = '{"or": "can", "be":false}';
 
-const tx: DataAccessTypes.IConfirmedTransaction = { transaction: { data }, timestamp: 1 };
-const tx2: DataAccessTypes.IConfirmedTransaction = { transaction: { data: data2 }, timestamp: 1 };
+const tx: DataAccessTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
+  timestamp: 1,
+  transaction: { data },
+};
+const tx2: DataAccessTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
+  timestamp: 1,
+  transaction: { data: data2 },
+};
 
 const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
 const channelId = MultiFormat.serialize(dataHash);
@@ -124,7 +132,13 @@ describe('index', () => {
             transactionsStorageLocation: ['fakeDataId1'],
           },
           result: {
-            transactions: [{ transaction: encryptedTx, timestamp: 1 }],
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
           },
         };
 
@@ -194,7 +208,13 @@ describe('index', () => {
             transactionsStorageLocation: ['fakeDataId1'],
           },
           result: {
-            transactions: [{ transaction: encryptedTx, timestamp: 1 }],
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
           },
         };
 
@@ -239,7 +259,8 @@ describe('index', () => {
     });
 
     it('can getTransactionsByChannelId() with channelId not matching the first transaction hash', async () => {
-      const txWrongHash: DataAccessTypes.IConfirmedTransaction = {
+      const txWrongHash: DataAccessTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { data: '{"wrong": "hash"}' },
       };
@@ -280,7 +301,8 @@ describe('index', () => {
     });
 
     it('can getTransactionsByChannelId() the first transaction data not parsable', async () => {
-      const txWrongHash: DataAccessTypes.IConfirmedTransaction = {
+      const txWrongHash: DataAccessTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { data: 'Not parsable' },
       };
@@ -328,7 +350,15 @@ describe('index', () => {
       ]);
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
         meta: { transactionsStorageLocation: ['fakeDataId1'] },
-        result: { transactions: [{ transaction: encryptedTx, timestamp: 1 }] },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: encryptedTx,
+            },
+          ],
+        },
       };
 
       fakeDataAccess = {
@@ -353,7 +383,15 @@ describe('index', () => {
           encryptionMethod: 'ecies-aes256-cbc',
           ignoredTransactions: [null],
         },
-        result: { transactions: [{ transaction: { data }, timestamp: 1 }] },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+          ],
+        },
       });
     });
 
@@ -365,7 +403,15 @@ describe('index', () => {
       ]);
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
         meta: { transactionsStorageLocation: ['fakeDataId1'] },
-        result: { transactions: [{ transaction: encryptedTx, timestamp: 1 }] },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: encryptedTx,
+            },
+          ],
+        },
       };
 
       fakeDataAccess = {
@@ -387,7 +433,11 @@ describe('index', () => {
           ignoredTransactions: [
             {
               reason: 'No decryption provider given',
-              transaction: { transaction: encryptedTx, timestamp: 1 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
             },
           ],
         },
@@ -409,8 +459,16 @@ describe('index', () => {
         },
         result: {
           transactions: [
-            { transaction: encryptedTx, timestamp: 1 },
-            { transaction: encryptedTx2, timestamp: 2 },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: encryptedTx,
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: encryptedTx2,
+            },
           ],
         },
       };
@@ -442,12 +500,23 @@ describe('index', () => {
             {
               reason:
                 'the properties "encryptionMethod" and "keys" have been already given for this channel',
-              transaction: { transaction: encryptedTx2, timestamp: 2 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx2,
+              },
             },
           ],
         },
         result: {
-          transactions: [{ transaction: { data }, timestamp: 1 }, null],
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            null,
+          ],
         },
       });
     });
@@ -469,8 +538,16 @@ describe('index', () => {
         },
         result: {
           transactions: [
-            { transaction: encryptedTxFakeHash, timestamp: 1 },
-            { transaction: encryptedTx, timestamp: 2 },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: encryptedTxFakeHash,
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: encryptedTx,
+            },
           ],
         },
       };
@@ -500,13 +577,24 @@ describe('index', () => {
           ignoredTransactions: [
             {
               reason: 'The given hash does not match the hash of the decrypted data',
-              transaction: { transaction: encryptedTxFakeHash, timestamp: 1 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTxFakeHash,
+              },
             },
             null,
           ],
         },
         result: {
-          transactions: [null, { transaction: { data }, timestamp: 2 }],
+          transactions: [
+            null,
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: { data },
+            },
+          ],
         },
       });
     });
@@ -522,8 +610,16 @@ describe('index', () => {
         },
         result: {
           transactions: [
-            { transaction: encryptedTx, timestamp: 1 },
-            { transaction: { data: data2 }, timestamp: 2 },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: encryptedTx,
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: { data: data2 },
+            },
           ],
         },
       };
@@ -554,12 +650,23 @@ describe('index', () => {
             null,
             {
               reason: `Clear transactions are not allowed in encrypted channel`,
-              transaction: { transaction: { data: data2 }, timestamp: 2 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: data2 },
+              },
             },
           ],
         },
         result: {
-          transactions: [{ transaction: { data }, timestamp: 1 }, null],
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            null,
+          ],
         },
       });
     });
@@ -577,8 +684,16 @@ describe('index', () => {
         },
         result: {
           transactions: [
-            { transaction: encryptedTx, timestamp: 1 },
-            { transaction: { data: data2 }, timestamp: 2 },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: encryptedTx,
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: { data: data2 },
+            },
           ],
         },
       };
@@ -608,12 +723,20 @@ describe('index', () => {
           ignoredTransactions: [
             {
               reason: 'Impossible to decrypt the channel key from this transaction ()',
-              transaction: { transaction: encryptedTx, timestamp: 1 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
             },
             {
               reason:
                 'as first transaction, the hash of the transaction do not match the channelId',
-              transaction: { transaction: { data: data2 }, timestamp: 2 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: data2 },
+              },
             },
           ],
         },
@@ -634,8 +757,16 @@ describe('index', () => {
         },
         result: {
           transactions: [
-            { transaction: { data }, timestamp: 1 },
-            { transaction: encryptedTx, timestamp: 2 },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: encryptedTx,
+            },
           ],
         },
       };
@@ -665,12 +796,23 @@ describe('index', () => {
             null,
             {
               reason: 'Encrypted transactions are not allowed in clear channel',
-              transaction: { transaction: encryptedTx, timestamp: 2 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx,
+              },
             },
           ],
         },
         result: {
-          transactions: [{ transaction: { data }, timestamp: 1 }, null],
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            null,
+          ],
         },
       });
     });
@@ -709,7 +851,13 @@ describe('index', () => {
         },
         result: {
           transactions: {
-            [channelId]: [{ transaction: encryptedTx, timestamp: 1 }],
+            [channelId]: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
           },
         },
       };
@@ -757,7 +905,13 @@ describe('index', () => {
         },
         result: {
           transactions: {
-            [channelId]: [{ transaction: encryptedTx, timestamp: 1 }],
+            [channelId]: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
           },
         },
       };
@@ -784,7 +938,11 @@ describe('index', () => {
           [channelId]: [
             {
               reason: 'No decryption provider given',
-              transaction: { transaction: encryptedTx, timestamp: 1 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
             },
           ],
         },
@@ -808,8 +966,16 @@ describe('index', () => {
         result: {
           transactions: {
             [channelId]: [
-              { transaction: encryptedTx, timestamp: 1 },
-              { transaction: { data }, timestamp: 2 },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data },
+              },
             ],
           },
         },
@@ -828,7 +994,14 @@ describe('index', () => {
 
       expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
         transactions: {
-          [channelId]: [null, { transaction: { data }, timestamp: 2 }],
+          [channelId]: [
+            null,
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: { data },
+            },
+          ],
         },
       });
       expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
@@ -837,7 +1010,11 @@ describe('index', () => {
           [channelId]: [
             {
               reason: 'No decryption provider given',
-              transaction: { transaction: encryptedTx, timestamp: 1 },
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
             },
             null,
           ],
@@ -847,7 +1024,8 @@ describe('index', () => {
     });
 
     it('can get channels indexed by topics with channelId not matching the first transaction hash', async () => {
-      const txWrongHash: DataAccessTypes.IConfirmedTransaction = {
+      const txWrongHash: DataAccessTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { data: '{"wrong": "hash"}' },
       };
@@ -908,8 +1086,20 @@ describe('index', () => {
         },
         result: {
           transactions: {
-            [channelId]: [{ transaction: encryptedTx, timestamp: 1 }],
-            [channelId2]: [{ transaction: { data: data2 }, timestamp: 1 }],
+            [channelId]: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
+            [channelId2]: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: { data: data2 },
+              },
+            ],
           },
         },
       };

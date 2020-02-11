@@ -269,6 +269,7 @@ describe('EthereumStorage', () => {
             size: realSize1,
           },
           local: { location: 'localhost' },
+          state: StorageTypes.ContentState.PENDING,
           storageType: StorageTypes.StorageSystemType.LOCAL,
           timestamp,
         },

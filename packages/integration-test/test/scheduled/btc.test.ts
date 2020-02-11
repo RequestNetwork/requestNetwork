@@ -1,7 +1,7 @@
 /* eslint-disable spellcheck/spell-checker */
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork } from '@requestnetwork/request-client.js';
-import {  PaymentTypes, SignatureTypes} from '@requestnetwork/types';
+import { PaymentTypes, SignatureTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import { payee, requestData, testnetRequestData } from './btc-test-data';
 
@@ -16,7 +16,6 @@ signatureProvider.addSignatureParameters({
   privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
 });
 describe('BTC detection test-suite', () => {
-
   it('Can create a BTC testnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
