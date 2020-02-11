@@ -13,6 +13,8 @@
     "./artifacts/RequestHashStorage/0.1.0.json",
     "./artifacts/RequestHashStorage/artifacts.json",
     "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",
-    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json"
+    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json",
+    "./artifacts/ETHProxy/artifacts.json",
+    "./artifacts/ETHProxy/0.1.0.json"
   ]
 }
