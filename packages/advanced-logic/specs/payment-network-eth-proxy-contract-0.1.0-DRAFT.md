@@ -89,7 +89,7 @@ This action must trigger the warnings:
 | "paymentAddress is given by the payer"  | If `signer` is the payer **and** `paymentAddress` is given  |
 | "refundAddress is given by the payee"   | If `signer` is the payee **and** `refundAddress` is given   |
 
-Note: These warnings are necessary to highlight to avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
+Note: These warnings are necessary to highlight attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
 
 #### Results
 
