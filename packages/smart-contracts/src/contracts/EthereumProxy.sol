@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 
 /**
  * @title EthereumProxy
- * @notice This contract performs an ethereum transfer and stores a reference
+ * @notice This contract performs an Ethereum transfer and stores a reference
  */
 contract EthereumProxy {
   // Event to declare a transfer with a reference
@@ -15,7 +15,7 @@ contract EthereumProxy {
   }
 
   /**
-  * @notice Performs an ethereum transfer with a reference
+  * @notice Performs an Ethereum transfer with a reference
   * @param _to Transfer recipient
   * @param _paymentReference Reference of the payment related
   */
