@@ -42,7 +42,7 @@ export default class PaymentNetworkEthereumProxyContract implements PaymentTypes
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.proxyContractEthereum;
+    this.extension = advancedLogic.extensions.proxyContractEth;
   }
 
   /**

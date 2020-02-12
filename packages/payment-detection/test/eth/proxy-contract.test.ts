@@ -16,7 +16,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
     return;
   },
   extensions: {
-    proxyContractEthereum: {
+    proxyContractEth: {
       createAddPaymentAddressAction(): any {
         return;
       },
@@ -38,10 +38,7 @@ describe('api/eth/proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(
-      mockAdvancedLogic.extensions.proxyContractEthereum,
-      'createCreationAction',
-    );
+    const spy = sandbox.on(mockAdvancedLogic.extensions.proxyContractEth, 'createCreationAction');
 
     ethProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
@@ -56,10 +53,7 @@ describe('api/eth/proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    const spy = sandbox.on(
-      mockAdvancedLogic.extensions.proxyContractEthereum,
-      'createCreationAction',
-    );
+    const spy = sandbox.on(mockAdvancedLogic.extensions.proxyContractEth, 'createCreationAction');
 
     ethProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
@@ -71,7 +65,7 @@ describe('api/eth/proxy-contract', () => {
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.proxyContractEthereum,
+      mockAdvancedLogic.extensions.proxyContractEth,
       'createAddPaymentAddressAction',
     );
 
@@ -86,7 +80,7 @@ describe('api/eth/proxy-contract', () => {
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
     const spy = sandbox.on(
-      mockAdvancedLogic.extensions.proxyContractEthereum,
+      mockAdvancedLogic.extensions.proxyContractEth,
       'createAddRefundAddressAction',
     );
 
