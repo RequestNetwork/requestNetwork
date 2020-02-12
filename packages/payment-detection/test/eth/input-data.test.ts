@@ -1,8 +1,5 @@
 import {
   AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
 } from '@requestnetwork/types';
 import EthInputData from '../../src/eth/input-data';
 
@@ -76,50 +73,5 @@ describe('api/eth/input-data', () => {
     });
 
     expect(spy).to.have.been.called.once;
-  });
-
-  // TODO: unskip
-  it.skip('can getBalance on a localhost request', async () => {
-    const mockRequest = {
-      creator: { type: '', value: '0x2' },
-      currency: {
-        network: 'private',
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      },
-      events: [],
-      expectedAmount: '0',
-      extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
-          events: [],
-          id: '0',
-          type: 'none',
-          values: {
-            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-          },
-          version: '0',
-        },
-      },
-      extensionsData: [],
-      requestId: '0x1',
-      state: 'Good',
-      timestamp: 0,
-      version: '0.2',
-    };
-
-    const balance = await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest);
-
-    expect(balance.balance).to.be.equal('10');
-    expect(balance.events).to.have.lengthOf(1);
-    expect(balance.events[0].name).to.be.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
-    // TODO: add to & from to parameters?
-    // expect(balance.events[0].parameters!.to).to.be.equal(
-    //   '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-    // );
-    // expect(balance.events[0].parameters!.from).to.be.equal(
-    //   '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-    // );
-    expect(balance.events[0].amount).to.be.equal('10');
-    expect(balance.events[0].timestamp).to.be.a('number');
   });
 });

@@ -10,6 +10,7 @@ import Declarative from './declarative';
 import ERC20AddressBased from './erc20/address-based';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
+import EthProxyContract from './eth/proxy-contract';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
@@ -38,12 +39,15 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
   ETH: {
     mainnet: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_PROXY_CONTRACT]: EthProxyContract,
     },
     private: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_PROXY_CONTRACT]: EthProxyContract,
     },
     rinkeby: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_PROXY_CONTRACT]: EthProxyContract,
     },
   },
 };
