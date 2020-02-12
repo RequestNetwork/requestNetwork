@@ -467,7 +467,7 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths:
-            - packages/payment-detection/coverage/
+            - packages/payment-processor/coverage/
   publish-coverage:
     docker:
       - *node_image
