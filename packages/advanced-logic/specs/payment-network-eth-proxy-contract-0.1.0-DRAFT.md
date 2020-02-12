@@ -10,7 +10,7 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 ## Description
 
 This extension allows the payments and the refunds to be made in Ethereum tokens on the Ethereum blockchain.
-The payment is made through a proxy contract. This proxy contract does the Ethereum token transfer on behalf of
+The payment is made through a proxy contract. This proxy contract performs the transfer of ethers on behalf of
 the user. The contract ensures a link between an Ethereum transfer and a request through a `paymentReference`.
 This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
