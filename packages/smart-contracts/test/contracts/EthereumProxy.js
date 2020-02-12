@@ -33,7 +33,7 @@ contract('EthereumProxy', function(accounts) {
     });
   });
 
-  it('allows to transfer tokens', async function() {
+  it('allows to transfer ethers', async function() {
     const fromOldBalance = await provider.getBalance(from);
     const toOldBalance = await provider.getBalance(to);
 

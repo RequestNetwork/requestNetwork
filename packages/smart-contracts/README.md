@@ -41,7 +41,7 @@ The package stores the following smart contracts:
 
 - `TestERC20` minimal erc20 token used for tests.
 - `ERC20Proxy` smart contract used by the erc20 proxy contract payment network to store payment references of erc20 transfers
-- `EthereumProxy` smart contract used by the ethereum proxy contract payment network to store payment references of ethereum transfers
+- `EthereumProxy` smart contract used by the ethereum proxy contract payment network to store payment references of Ethereum transfers
 
 #### Smart contracts local deployment
 
