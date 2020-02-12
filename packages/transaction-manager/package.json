@@ -60,7 +60,7 @@
     "prettier": "1.16.4",
     "shx": "0.3.2",
     "source-map-support": "0.5.13",
-    "ts-node": "8.5.4",
+    "ts-node": "8.6.2",
     "tslint": "5.12.1",
     "typescript": "3.7.2"
   },
