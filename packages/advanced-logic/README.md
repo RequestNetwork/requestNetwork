@@ -11,7 +11,7 @@ npm install @requestnetwork/advanced-logic
 
 ## Specifications
 
-Specifications of Advanced Logic can be found [here](/packages/advanced-logic/specs/advanced-logic-specs-0.1.0-DRAFT.md)
+Specifications of Advanced Logic can be found [here](/packages/advanced-logic/specs/advanced-logic-specs-0.1.0.md)
 
 ## Implemented Extensions
 
@@ -19,7 +19,7 @@ Specifications of Advanced Logic can be found [here](/packages/advanced-logic/sp
 
 This extension allows linking content data to the request. The content data can be used to give extra information about the request. You can find examples of content data format [here](/packages/data-format).
 
-Specifications of Content Data can be found [here](/packages/advanced-logic/specs/content-data-0.1.0-DRAFT.md)
+Specifications of Content Data can be found [here](/packages/advanced-logic/specs/content-data-0.1.0.md)
 
 ### Declarative payments
 
@@ -28,7 +28,7 @@ The payments and refunds are documented by the payer and the payee of the reques
 
 This extension do not ensure payment detection, only a consensus is made between the payer and the payee.
 
-Specifications of Declarative payments can be found [here](/packages/advanced-logic/specs/payment-network-any-declarative-0.1.0-DRAFT.md)
+Specifications of Declarative payments can be found [here](/packages/advanced-logic/specs/payment-network-any-declarative-0.1.0.md)
 
 ### Address based bitcoin payments
 
@@ -36,7 +36,7 @@ This extension allows the payments and the refunds to be made on the Bitcoin blo
 
 Note: this extension can be used with the bitcoin mainnet and testnet.
 
-Specifications of Address based bitcoin payments can be found [here](/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0-DRAFT.md)
+Specifications of Address based bitcoin payments can be found [here](/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0.md)
 
 ## Contributing
 
