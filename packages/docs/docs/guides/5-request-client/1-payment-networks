@@ -16,9 +16,3 @@ Payment networks allow developers to:
 * Declare other kinds of payments completion
 
 Request is blockchain agnostic, payment methods that are suppored for automated payment dection are: Bitcoin, Ether and ERC20. If you miss your favorite blockchain, you can either get in touch with the team or *learn how to do it yourself*
-
-# REMOVE: Reference from previous docs
-Detection made programatically:
-Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request. Every transaction hitting this address will be consider as a payment. Eventually, the payer can provide a BTC address for the refunds. Note that the addresses must be used for one and only one request otherwise one transaction will be considered as a payment for more than one request. (see Bitcoin)
-Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED ('pn-testnet-bitcoin-address-based'): Same as previous but for the bitcoin testnet. (for test purpose) (see Bitcoin)
-Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED ('pn-erc20-address-based'): handle ERC20 payments to an unique Ethereum address associated with the request. Every transaction hitting this address will be consider as a payment. Eventually, the payer can provide an unique Ethereum address for the refunds. Note that the addresses must be used for one and only one request otherwise one transaction will be considered as a payment for more than one request. (see ERC20)

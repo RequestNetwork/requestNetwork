@@ -29,10 +29,35 @@ You have two API keys, use the Test one for all these tutorials.
 ## Create your first request
 
 ```jsx live
-const API_KEY = 'REPLACE-ME';
-// Obviously we are missing the live interpretor here
+function hereYouGo() {
+		requestId = 43;
+		return(<a href="https://pay.request.network/">{requestId}TODO-Share this payment link</a>);
+}
+```
+```jsx live
+function createFirstRequest() {
+	const axios = require('axios')
 
-// TODO: code to create a request
+	const API_KEY = 'YOUR_API_KEY';
+	const requestParams = {
+		"currency": "BTC",
+		"expectedAmount": "100000000",
+			"payment": {
+					"type": "bitcoin-testnet",
+					"value": "mgcZRSj6ngfKBUHr2DGBqCfHSSYBDSbjph"
+			},
+	};
+
+	const request = await axios.post('https://api.request.network/requests', requestParams, {
+			headers: { Authorization: API_KEY }
+	})
+
+	requestId = request.data.requestId;
+	return(<div>
+					Request created with ID: {requestId}
+				</div>
+				<a href="https://pay.request.network/{requestId}">Share this payment link</a>);
+}
 ```
 
 ## Check that it worked
@@ -41,6 +66,14 @@ You can check that the request was created by heading towards [the list of reque
 
 By clicking on the request row, you can also cross-check the request details.
 
-You can see that the status is Pending: your request has not been paid yet. We will deal with payment detection [later]().
+You can see that the status is Pending: the request has not been paid yet. We will deal with payment detection [later]().
 
-<!--TODO-->
+## Wrap-up
+
+The request created is the proof that some money has been requested by a user, and its pending status the proof that the money is still due.
+
+In the next steps, we will see how to transform such a basic creation into seamless financial workflows:
+
+* For the payer who can pay in one click, because we have all the information he needs
+
+* For the requester to keep track of his due payments

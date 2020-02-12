@@ -15,7 +15,8 @@ module.exports = {
       },
       links: [
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
-	{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
+        { to: 'docs/others/integration-options', label: 'Integration', position: 'left' },
+				{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
         { to: 'docs/API/0-intro', label: 'REST API', position: 'left' },
         {
           href: 'https://github.com/requestnetwork/requestnetwork',
