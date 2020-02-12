@@ -36,7 +36,7 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "stryker": "stryker run",
-    "test": "nyc mocha --extension ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test": "nyc mocha --extension ts --require source-map-support/register \"test/**/*.ts\"",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
@@ -67,6 +67,7 @@
     "nyc": "15.0.0",
     "prettier": "1.16.4",
     "shx": "0.3.2",
+    "ts-node": "8.5.4",
     "tslint": "5.12.1",
     "typescript": "3.7.2"
   },

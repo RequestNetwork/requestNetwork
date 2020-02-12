@@ -32,10 +32,10 @@
     "lint-staged": "lint-staged",
     "test": "run-s test:node test:layers",
     "test:scheduled": "run-s test:erc20 test:btc",
-    "test:layers": "mocha --timeout=10000 --extension ts --require ts-node/register \"test/layers.test.ts\"",
-    "test:node": "mocha --timeout=10000 --extension ts --require ts-node/register \"test/node-client.test.ts\"",
-    "test:erc20": "mocha --timeout=10000 --extension ts --require ts-node/register \"test/scheduled/erc20.test.ts\"",
-    "test:btc": "mocha --timeout=10000 --extension ts --require ts-node/register \"test/scheduled/btc.test.ts\""
+    "test:layers": "mocha --timeout=10000 --extension ts \"test/layers.test.ts\"",
+    "test:node": "mocha --timeout=10000 --extension ts \"test/node-client.test.ts\"",
+    "test:erc20": "mocha --timeout=10000 --extension ts \"test/scheduled/erc20.test.ts\"",
+    "test:btc": "mocha --timeout=10000 --extension ts \"test/scheduled/btc.test.ts\""
   },
   "devDependencies": {
     "@requestnetwork/advanced-logic": "0.9.0",
