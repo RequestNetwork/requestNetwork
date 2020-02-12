@@ -49,6 +49,7 @@ export enum ID {
   PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
   PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
   PAYMENT_NETWORK_ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
+  PAYMENT_NETWORK_ETH_PROXY_CONTRACT = 'pn-eth-proxy-contract',
   PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
 }
