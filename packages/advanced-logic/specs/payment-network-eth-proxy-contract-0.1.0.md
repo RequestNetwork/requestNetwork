@@ -31,7 +31,7 @@ The contract contains one function called `transferWithReference` which takes 2 
 - `to` is the destination address
 - `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
 
-The `TransferWithReference` event is emitted when the tokens are transfered. This event contains the same 2 arguments as the `transferWithReference` function plus the `amount` of ethereum sent.
+The `TransferWithReference` event is emitted when the Ether is transfered. This event contains the same 2 arguments as the `transferWithReference` function plus the `amount` of ethereum sent.
 
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/EthereumProxy.sol)
 
