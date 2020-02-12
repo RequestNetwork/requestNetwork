@@ -65,6 +65,7 @@ const validRequest: ClientTypes.IRequestData = {
   meta: {
     transactionManagerMeta: {},
   },
+  pending: null,
   requestId: 'abcd',
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
