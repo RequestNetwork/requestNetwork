@@ -8,4 +8,4 @@ It contains client-side payment methods for:
 
 ### Basic Usage
 
-see [ERC20](/packages/usage-examples/src/pay-erc20-request.ts) and [ETH](/packages/usage-exampels/src/pay-eth-reqeust.ts) usage examples.
+see [ERC20](/packages/usage-examples/src/pay-erc20-request.ts) and [ETH](/packages/usage-examples/src/pay-eth-request.ts) usage examples.
