@@ -1,6 +1,5 @@
 ---
-title: Getting Started with Request
-sidebar_label: Getting Started
+title: Get Started with Request
 keywords:
 ---
 
