@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Payment detection using ethers.",
+  "description": "Payment processing using ethers.",
   "keywords": [
     "requestnetwork"
   ],

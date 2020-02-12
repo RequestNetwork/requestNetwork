@@ -66,7 +66,7 @@ const validRequest: ClientTypes.IRequestData = {
 };
 
 describe('getBtcPaymentUrl', () => {
-  it('can get an BTC url', () => {
+  it('can get a BTC url', () => {
     expect(getBtcPaymentUrl(validRequest)).to.eq(
       'bitcoin:1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX?amount=0.1',
     );

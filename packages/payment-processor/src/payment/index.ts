@@ -80,7 +80,7 @@ export async function hasSufficientFunds(
 /**
  * Get a payment URL, if applicable to the payment network, for a request.
  * BTC: BIP21.
- * ERC20: EIP-681. (warning, not widely used, always verify it is supported by wallets you target)
+ * ERC20: EIP-681. (Warning, not widely used. Some wallets may not be able to pay.)
  * ETH: not implemented.
  * @throws UnsupportedNetworkError if the network is not supported.
  * @param request the request to pay

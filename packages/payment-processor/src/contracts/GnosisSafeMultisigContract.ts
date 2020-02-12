@@ -7,7 +7,7 @@ import { Listener, Provider } from 'ethers/providers';
 import { Arrayish, BigNumber, BigNumberish, Interface } from 'ethers/utils';
 import { TransactionOverrides, TypedEventDescription, TypedFunctionDescription } from '.';
 
-interface MultisigContractInterface extends Interface {
+interface IGnosisSafeMultisigContractInterface extends Interface {
   functions: {
     owners: TypedFunctionDescription<{ encode([]: [BigNumberish]): string }>;
 
@@ -135,18 +135,21 @@ interface MultisigContractInterface extends Interface {
   };
 }
 
-export abstract class MultisigContract extends Contract {
-  abstract connect(signerOrProvider: Signer | Provider | string): MultisigContract;
-  abstract attach(addressOrName: string): MultisigContract;
-  abstract deployed(): Promise<MultisigContract>;
+export abstract class GnosisSafeMultisigContract extends Contract {
+  abstract connect(signerOrProvider: Signer | Provider | string): GnosisSafeMultisigContract;
+  abstract attach(addressOrName: string): GnosisSafeMultisigContract;
+  abstract deployed(): Promise<GnosisSafeMultisigContract>;
 
-  abstract on(event: EventFilter | string, listener: Listener): MultisigContract;
-  abstract once(event: EventFilter | string, listener: Listener): MultisigContract;
-  abstract addListener(eventName: EventFilter | string, listener: Listener): MultisigContract;
-  abstract removeAllListeners(eventName: EventFilter | string): MultisigContract;
-  abstract removeListener(eventName: any, listener: Listener): MultisigContract;
+  abstract on(event: EventFilter | string, listener: Listener): GnosisSafeMultisigContract;
+  abstract once(event: EventFilter | string, listener: Listener): GnosisSafeMultisigContract;
+  abstract addListener(
+    eventName: EventFilter | string,
+    listener: Listener,
+  ): GnosisSafeMultisigContract;
+  abstract removeAllListeners(eventName: EventFilter | string): GnosisSafeMultisigContract;
+  abstract removeListener(eventName: any, listener: Listener): GnosisSafeMultisigContract;
 
-  abstract interface: MultisigContractInterface;
+  abstract interface: IGnosisSafeMultisigContractInterface;
 
   abstract functions: {
     owners(arg0: BigNumberish): Promise<string>;

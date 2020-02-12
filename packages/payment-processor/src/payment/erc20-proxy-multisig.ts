@@ -6,11 +6,11 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20ContractFactory } from '../contracts/ERC20ContractFactory';
 import { Erc20ProxyContractFactory } from '../contracts/Erc20ProxyContractFactory';
-import { MultisigContractFactory } from '../contracts/MultisigContractFactory';
+import { GnosisSafeMultisigContractFactory } from '../contracts/GnosisSafeMultisigContractFactory';
 import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from './utils';
 
 /**
- * Processes the approval transaction of the targeted ERC20, through a multisig contract.
+ * Processes the approval transaction of the targeted ERC20, through a GnosisSafe multisig contract.
  * @param request
  * @param multisigAddress multisig contract for which to approve the ERC20
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
@@ -23,7 +23,7 @@ export async function approveErc20WithMultisig(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
-  const multisigContract = MultisigContractFactory.connect(multisigAddress, signer);
+  const multisigContract = GnosisSafeMultisigContractFactory.connect(multisigAddress, signer);
   const tokenAddress = request.currencyInfo.value;
   const erc20interface = ERC20ContractFactory.connect(tokenAddress, signer).interface;
   const encodedApproveCall = erc20interface.functions.approve.encode([
@@ -50,7 +50,7 @@ export async function payErc20WithMultisig(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
-  const multisigContract = MultisigContractFactory.connect(multisigAddress, signer);
+  const multisigContract = GnosisSafeMultisigContractFactory.connect(multisigAddress, signer);
   const tokenAddress = request.currencyInfo.value;
   const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
   const erc20ProxyInterface = Erc20ProxyContractFactory.connect(proxyAddress, signer).interface;

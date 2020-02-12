@@ -5,11 +5,11 @@
 import { Contract, Signer } from 'ethers';
 import { Provider } from 'ethers/providers';
 
-import { MultisigContract } from './MultisigContract';
+import { GnosisSafeMultisigContract } from './GnosisSafeMultisigContract';
 
-export class MultisigContractFactory {
-  static connect(address: string, signerOrProvider: Signer | Provider): MultisigContract {
-    return new Contract(address, _abi, signerOrProvider) as MultisigContract;
+export class GnosisSafeMultisigContractFactory {
+  static connect(address: string, signerOrProvider: Signer | Provider): GnosisSafeMultisigContract {
+    return new Contract(address, _abi, signerOrProvider) as GnosisSafeMultisigContract;
   }
 }
 

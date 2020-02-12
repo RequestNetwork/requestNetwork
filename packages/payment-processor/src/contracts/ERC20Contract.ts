@@ -7,7 +7,7 @@ import { Listener, Provider } from 'ethers/providers';
 import { BigNumber, BigNumberish, Interface } from 'ethers/utils';
 import { TransactionOverrides, TypedEventDescription, TypedFunctionDescription } from '.';
 
-interface ERC20ContractInterface extends Interface {
+interface IERC20ContractInterface extends Interface {
   functions: {
     name: TypedFunctionDescription<{ encode([]: []): string }>;
 
@@ -98,7 +98,7 @@ export abstract class ERC20Contract extends Contract {
   abstract removeAllListeners(eventName: EventFilter | string): ERC20Contract;
   abstract removeListener(eventName: any, listener: Listener): ERC20Contract;
 
-  abstract interface: ERC20ContractInterface;
+  abstract interface: IERC20ContractInterface;
 
   abstract functions: {
     name(): Promise<string>;

@@ -7,7 +7,7 @@ import { Listener, Provider } from 'ethers/providers';
 import { Arrayish, BigNumber, BigNumberish, Interface } from 'ethers/utils';
 import { TransactionOverrides, TypedEventDescription, TypedFunctionDescription } from '.';
 
-interface Erc20ProxyInterface extends Interface {
+interface IErc20ProxyInterface extends Interface {
   functions: {
     transferFromWithReference: TypedFunctionDescription<{
       encode([_tokenAddress, _to, _amount, _paymentReference]: [
@@ -42,7 +42,7 @@ export abstract class Erc20Proxy extends Contract {
   abstract removeAllListeners(eventName: EventFilter | string): Erc20Proxy;
   abstract removeListener(eventName: any, listener: Listener): Erc20Proxy;
 
-  abstract interface: Erc20ProxyInterface;
+  abstract interface: IErc20ProxyInterface;
 
   abstract functions: {
     transferFromWithReference(
