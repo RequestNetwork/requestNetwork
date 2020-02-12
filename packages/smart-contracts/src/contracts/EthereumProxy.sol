@@ -14,7 +14,7 @@ contract EthereumProxy {
     }
 
     /**
-    * @notice Performs an ethreeum transfer with a reference
+    * @notice Performs an ethereum transfer with a reference
     * @param _to Transfer recipient
     * @param _paymentReference Reference of the payment related
     */
