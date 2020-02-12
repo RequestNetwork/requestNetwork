@@ -1,16 +1,16 @@
-# Payment Network - Bitcoin - Address based
+# Payment Network - ERC-20 - Address based
 
-You can be interested in this document if:
+You may be interested in this document if:
 
 - you want to create your own implementation of the Request protocol
 - you are curious enough to dive and see what is under the hood of the Request protocol
 
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0-DRAFT.md)).
+Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
 
 ## Description
 
-This extension allows the payments and the refunds to be made on the Bitcoin blockchain.
-One address for the payment and one for the refund must be created and used exclusively for **one and only one** request.
+This extension allows the payments and the refunds to be made on ERC-20 tokens on the Ethereum blockchain.
+One new address for the payment and one for the refund must be created and used exclusively for **one and only one** request.
 
 As a payment network, this extension allows to deduce a payment `balance` for the request. (see
 [Interpretation](#Interpretation))
@@ -19,15 +19,15 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 
 | Property                  | Type   | Description                                    | Requirement   |
 | ------------------------- | ------ | ---------------------------------------------- | ------------- |
-| **id**                    | String | constant value: "pn-btc-address-based"         | **Mandatory** |
+| **id**                    | String | constant value: "pn-erc20-address-based"       | **Mandatory** |
 | **type**                  | String | constant value: "paymentNetwork"               | **Mandatory** |
 | **version**               | String | constant value: "0.1.0"                        | **Mandatory** |
 | **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
 | **values**                | Object |                                                |               |
-| **values.paymentAddress** | String | Bitcoin address for the payment                | Optional      |
-| **values.refundAddress**  | String | Bitcoin address for the refund                 | Optional      |
+| **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
+| **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
 
-Note: to use the bitcoin testnet just replace the id by "pn-testnet-bitcoin-address-based"
+Note: to use the Rinkeby testnet just replace the id by "pn-rinkeby-erc20-address-based"
 
 ---
 
@@ -37,20 +37,20 @@ Note: to use the bitcoin testnet just replace the id by "pn-testnet-bitcoin-addr
 
 #### Parameters
 
-|                               | Type   | Description                            | Requirement   |
-| ----------------------------- | ------ | -------------------------------------- | ------------- |
-| **id**                        | String | constant value: "pn-btc-address-based" | **Mandatory** |
-| **type**                      | String | constant value: "paymentNetwork"       | **Mandatory** |
-| **version**                   | String | constant value: "0.1.0"                | **Mandatory** |
-| **parameters**                | Object |                                        |               |
-| **parameters.paymentAddress** | String | Bitcoin address for the payment        | Optional      |
-| **parameters.refundAddress**  | String | Bitcoin address for the refund         | Optional      |
+|                               | Type   | Description                              | Requirement   |
+| ----------------------------- | ------ | ---------------------------------------- | ------------- |
+| **id**                        | String | constant value: "pn-erc20-address-based" | **Mandatory** |
+| **type**                      | String | constant value: "paymentNetwork"         | **Mandatory** |
+| **version**                   | String | constant value: "0.1.0"                  | **Mandatory** |
+| **parameters**                | Object |                                          |               |
+| **parameters.paymentAddress** | String | Ethereum address for the payment         | Optional      |
+| **parameters.refundAddress**  | String | Ethereum address for the refund          | Optional      |
 
 #### Conditions
 
-This action is valid, if:
+This action is valid if:
 
-- The request `currency.type` must be "BTC"
+- The request `currency` must be an ERC-20 from our list of valid ERC-20 (TODO: add link).
 
 #### Warnings
 
@@ -61,7 +61,7 @@ This action must trigger the warnings:
 | "paymentAddress is given by the payer"  | if `signer` is the payer **and** `paymentAddress` is given  |
 | "refundAddress is given by the payee"   | if `signer` is the payee **and** `refundAddress` is given   |
 
-Note: These warnings are necessary to highlight to avoid attempt of fake payments and refunds. For example, a payer could create a request given as the payment address one of his own address. A system could interpret a transaction to this address as payment while the payee does not receive anything.
+Note: These warnings are necessary to highlight to avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
 
 #### Results
 
@@ -69,7 +69,7 @@ A extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
-| **id**                    | "pn-btc-address-based"                                         |
+| **id**                    | "pn-erc20-address-based"                                       |
 | **type**                  | "paymentNetwork"                                               |
 | **version**               | "0.1.0"                                                        |
 | **values**                |                                                                |
@@ -94,18 +94,18 @@ the 'create' event:
 
 ##### Parameters
 
-|                               | Type   | Description                            | Requirement   |
-| ----------------------------- | ------ | -------------------------------------- | ------------- |
-| **id**                        | String | constant value: "pn-btc-address-based" | **Mandatory** |
-| **action**                    | String | constant value: "addPaymentAddress"    | **Mandatory** |
-| **parameters**                | Object |                                        |               |
-| **parameters.paymentAddress** | String | Bitcoin address for the payment        | **Mandatory** |
+|                               | Type   | Description                              | Requirement   |
+| ----------------------------- | ------ | ---------------------------------------- | ------------- |
+| **id**                        | String | constant value: "pn-erc20-address-based" | **Mandatory** |
+| **action**                    | String | constant value: "addPaymentAddress"      | **Mandatory** |
+| **parameters**                | Object |                                          |               |
+| **parameters.paymentAddress** | String | Ethereum address for the payment         | **Mandatory** |
 
 ##### Conditions
 
 This action is valid, if:
 
-- The extension state with the id "pn-btc-address-based" exists
+- The extension state with the id "pn-erc20-address-based" exists
 - The signer is the `payee`
 - The extension property `paymentAddress` is undefined
 
@@ -134,18 +134,18 @@ the 'addPaymentAddress' event:
 
 ##### Parameters
 
-|                              | Type   | Description                            | Requirement   |
-| ---------------------------- | ------ | -------------------------------------- | ------------- |
-| **id**                       | String | constant value: "pn-btc-address-based" | **Mandatory** |
-| **action**                   | String | constant value: "addRefundAddress"     | **Mandatory** |
-| **parameters**               | Object |                                        |               |
-| **parameters.refundAddress** | String | Bitcoin address for the refund         | **Mandatory** |
+|                              | Type   | Description                              | Requirement   |
+| ---------------------------- | ------ | ---------------------------------------- | ------------- |
+| **id**                       | String | constant value: "pn-erc20-address-based" | **Mandatory** |
+| **action**                   | String | constant value: "addRefundAddress"       | **Mandatory** |
+| **parameters**               | Object |                                          |               |
+| **parameters.refundAddress** | String | Ethereum address for the refund          | **Mandatory** |
 
 ##### Conditions
 
-This action is valid, if:
+This action is valid if:
 
-- The extension state with the id "pn-btc-address-based" exists
+- The extension state with the id "pn-erc20-address-based" exists
 - The signer is the `payer`
 - The extension property `refundAddress` is undefined
 
@@ -175,5 +175,5 @@ The 'addRefundAddress' event:
 ## Interpretation
 
 The `balance` starts from `0`.
-Any bitcoin transaction reaching the address `addPaymentAddress` is considered as payment. The `balance` is increased by the amount of the transaction.
-Any bitcoin transaction reaching the address `addRefundAddress` is considered as a refund. The `balance` is reduced by the amount of the transaction.
+Any transaction from the request `currency` ERC-20 contract destined to the `addPaymentAddress` is considered as a payment. The `balance` is increased by the sum of the amounts of the transactions.
+Any ERC-20 transaction reaching the address `addRefundAddress` is considered as a refund. The `balance` is reduced by the sum of the amounts of the transactions.
