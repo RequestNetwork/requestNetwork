@@ -7,7 +7,7 @@ import { Listener, Provider } from 'ethers/providers';
 import { Arrayish, BigNumber, BigNumberish, Interface } from 'ethers/utils';
 import { TransactionOverrides, TypedEventDescription, TypedFunctionDescription } from '.';
 
-interface IErc20ProxyInterface extends Interface {
+interface Erc20ProxyContractInterface extends Interface {
   functions: {
     transferFromWithReference: TypedFunctionDescription<{
       encode([_tokenAddress, _to, _amount, _paymentReference]: [
@@ -31,18 +31,18 @@ interface IErc20ProxyInterface extends Interface {
   };
 }
 
-export abstract class Erc20Proxy extends Contract {
-  abstract connect(signerOrProvider: Signer | Provider | string): Erc20Proxy;
-  abstract attach(addressOrName: string): Erc20Proxy;
-  abstract deployed(): Promise<Erc20Proxy>;
+export abstract class Erc20ProxyContract extends Contract {
+  abstract connect(signerOrProvider: Signer | Provider | string): Erc20ProxyContract;
+  abstract attach(addressOrName: string): Erc20ProxyContract;
+  abstract deployed(): Promise<Erc20ProxyContract>;
 
-  abstract on(event: EventFilter | string, listener: Listener): Erc20Proxy;
-  abstract once(event: EventFilter | string, listener: Listener): Erc20Proxy;
-  abstract addListener(eventName: EventFilter | string, listener: Listener): Erc20Proxy;
-  abstract removeAllListeners(eventName: EventFilter | string): Erc20Proxy;
-  abstract removeListener(eventName: any, listener: Listener): Erc20Proxy;
+  abstract on(event: EventFilter | string, listener: Listener): Erc20ProxyContract;
+  abstract once(event: EventFilter | string, listener: Listener): Erc20ProxyContract;
+  abstract addListener(eventName: EventFilter | string, listener: Listener): Erc20ProxyContract;
+  abstract removeAllListeners(eventName: EventFilter | string): Erc20ProxyContract;
+  abstract removeListener(eventName: any, listener: Listener): Erc20ProxyContract;
 
-  abstract interface: IErc20ProxyInterface;
+  abstract interface: Erc20ProxyContractInterface;
 
   abstract functions: {
     transferFromWithReference(

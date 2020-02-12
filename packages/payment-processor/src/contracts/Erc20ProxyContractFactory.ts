@@ -5,11 +5,11 @@
 import { Contract, Signer } from 'ethers';
 import { Provider } from 'ethers/providers';
 
-import { Erc20Proxy } from './Erc20ProxyContract';
+import { Erc20ProxyContract } from './Erc20ProxyContract';
 
 export class Erc20ProxyContractFactory {
-  static connect(address: string, signerOrProvider: Signer | Provider): Erc20Proxy {
-    return new Contract(address, _abi, signerOrProvider) as Erc20Proxy;
+  static connect(address: string, signerOrProvider: Signer | Provider): Erc20ProxyContract {
+    return new Contract(address, _abi, signerOrProvider) as Erc20ProxyContract;
   }
 }
 

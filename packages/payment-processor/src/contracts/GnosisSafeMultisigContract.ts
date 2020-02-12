@@ -7,7 +7,7 @@ import { Listener, Provider } from 'ethers/providers';
 import { Arrayish, BigNumber, BigNumberish, Interface } from 'ethers/utils';
 import { TransactionOverrides, TypedEventDescription, TypedFunctionDescription } from '.';
 
-interface IGnosisSafeMultisigContractInterface extends Interface {
+interface GnosisSafeMultisigContractInterface extends Interface {
   functions: {
     owners: TypedFunctionDescription<{ encode([]: [BigNumberish]): string }>;
 
@@ -149,7 +149,7 @@ export abstract class GnosisSafeMultisigContract extends Contract {
   abstract removeAllListeners(eventName: EventFilter | string): GnosisSafeMultisigContract;
   abstract removeListener(eventName: any, listener: Listener): GnosisSafeMultisigContract;
 
-  abstract interface: IGnosisSafeMultisigContractInterface;
+  abstract interface: GnosisSafeMultisigContractInterface;
 
   abstract functions: {
     owners(arg0: BigNumberish): Promise<string>;
