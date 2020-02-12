@@ -1,10 +1,16 @@
 import { ContractTransaction, Signer } from 'ethers';
 import { Web3Provider } from 'ethers/providers';
-import { bigNumberify } from 'ethers/utils';
+import { BigNumberish } from 'ethers/utils';
 
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from './utils';
+import {
+  getAmountToPay,
+  getProvider,
+  getRequestPaymentValues,
+  getSigner,
+  validateRequest,
+} from './utils';
 
 /**
  * processes the transaction to pay an ETH request.
@@ -14,15 +20,18 @@ import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from
 export async function payEthInputDataRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  amount?: BigNumberish,
 ): Promise<ContractTransaction> {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
   const signer = getSigner(signerOrProvider);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
+  const amountToPay = getAmountToPay(request, amount);
+
   const tx = await signer.sendTransaction({
     data: `0x${paymentReference}`,
     to: paymentAddress,
-    value: bigNumberify(request.expectedAmount),
+    value: amountToPay,
   });
   return tx;
 }

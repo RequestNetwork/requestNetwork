@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
-import { bigNumberify } from 'ethers/utils';
+import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
@@ -33,14 +33,15 @@ export class UnsupportedNetworkError extends Error {
 export async function payRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  amount?: BigNumberish,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return payErc20ProxyRequest(request, signer);
+      return payErc20ProxyRequest(request, signer, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      return payEthInputDataRequest(request, signer);
+      return payEthInputDataRequest(request, signer, amount);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }

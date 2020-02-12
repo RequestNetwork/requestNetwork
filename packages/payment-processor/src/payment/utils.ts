@@ -1,5 +1,6 @@
 import { ethers, Signer } from 'ethers';
 import { EtherscanProvider, Provider, Web3Provider } from 'ethers/providers';
+import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import {
@@ -114,4 +115,23 @@ export function validateRequest(
   ) {
     throw new Error(`request cannot be processed, or is not an ${paymentNetworkId} request`);
   }
+}
+
+/**
+ * Computes the amount to pay.
+ * If `amount` is specified, it will return it.
+ * Otherwise, it will return the amount left to pay in the request.
+ *
+ * @param request the request to pay
+ * @param amount the optional amount to pay.
+ */
+export function getAmountToPay(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+): BigNumber {
+  const amountToPay =
+    amount === undefined
+      ? bigNumberify(request.expectedAmount).sub(request.balance?.balance || 0)
+      : bigNumberify(amount);
+  return amountToPay;
 }
