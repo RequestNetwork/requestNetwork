@@ -36,8 +36,8 @@ function Home() {
       </header>
       <main>
 				<div className="container">Welcome to the request Docs! <Link to={useBaseUrl('docs/guides/0-getting-started')}>Follow the guide to get started</Link> with Request or have a broader look at the <Link to={useBaseUrl('docs/others/integration-options')}>possible designs</Link>:
+					<IntegrationOptions showDetails={false}/>
 				</div>
-				<IntegrationOptions />
       </main>
     </Layout>
   );

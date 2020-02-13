@@ -4,7 +4,7 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './integration-options.css';
+import styles from './styles.module.css';
 
 const features = [
   {
@@ -54,61 +54,46 @@ const features = [
 function Feature({ showDetails, imageUrl, title, description, details }) {
   const imgUrl = useBaseUrl(imageUrl);
   return (
-    <div className={classnames('col col--4', styles.feature)}>
+    <div className={classnames(styles.integrationOption, (!showDetails ?  styles.colOption : "" ))}>
       {imgUrl && (
-        <div className="text--center">
-          <img className={styles.featureImage} src={imgUrl} alt={title} />
+				<div className={classnames('text--center', styles.integrationOptionImage)}>
+          <img className={classnames(styles.integrationOptionIllustration)} src={imgUrl} alt={title} />
         </div>
       )}
-      <h3>{title}</h3>
-      <p>{description}</p>
-			<DetailedFeature showDetails={showDetails} details={details} />
-    </div>
+			<div className={classnames(styles.integrationOptionText)}>
+				<h3>{title}</h3>
+				<p>{description}</p>
+				{showDetails && (
+					<div className={classnames(styles.integrationOption)}>
+						<p>{details}</p>
+					</div>
+				)}
+			</div>
+		</div>
   );
 }
 
-function DetailedFeature({ showDetails, details }) {
-	if (showDetails) {
-		return (
-			<div className={classnames('col col--4', styles.feature)}>
-				<p>{details}</p>
-			</div>
-		);
-	}
-	else {
-		return (<></>);
-	}
-}
-
-function Home({details = false}) {
+function IntegrationOptions({showDetails = false}) {
 	const later = <div className="container">
 						TODO: design a nice page with appealing images and links to relevant docs and guides. On the homepage: quick ref for each option. On the integration page: get into the details including with pros and cons 
 		</div>
-	//const later = "<span> TODO: design a nice page with appealing images and links to relevant docs and guides. On the homepage: quick ref for each option. On the integration page: get into the details including with pros and cons </span>";
 
-	const disclaimer = (details ? later : "");
+	const disclaimer = (showDetails ? later : "");
 			
 
   return (
-		<options>
+		<>
 				{disclaimer}
         {features && features.length && (
-          <section className={styles.features}>
-            <div className="container">
-              <div className="row">
+          <section className={showDetails ? styles.integrationOptions : styles.homeIntegrationOptions }>
                 {features.map((props, idx) => (
-									<>
-										<DetailedFeature key={idx} {...props} />
-										<Feature showDetails={details} key={idx} {...props} />
-									</>
+									<Feature showDetails={showDetails} key={idx} {...props} />
                 ))}
-              </div>
-            </div>
           </section>
         )}
 			<span>TODO: adding details like testimonies here would be nice.</span>
-		</options>
+		</>
   );
 }
 
-export default Home;
+export default IntegrationOptions;

@@ -1,0 +1,65 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 966px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.integrationOptions {
+  display: flex;
+	flex-direction: column;
+}
+
+.homeIntegrationOptions {
+  display: flex;
+	flex-direction: row;
+}
+
+.integrationOption {
+  display: flex;
+	flex-wrap: nowrap;
+  align-items: stretch;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.colOption {
+	flex-direction: column;
+}
+
+.integrationOption:nth-child(odd) {
+	flex-direction: row;
+}
+.integrationOption:nth-child(even) {
+	flex-direction: row-reverse;
+}
+
+.integrationOptionIllustration{
+  width: 80%;
+}
+
+.integrationOptionImage {
+	margin: 0;
+	max-width: 20em;
+}
+
+.integrationOptionText {
+	flex-grow: 1;
+}
