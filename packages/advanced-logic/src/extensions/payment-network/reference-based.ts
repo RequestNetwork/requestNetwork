@@ -12,8 +12,6 @@ export default {
   createCreationAction,
 };
 
-const CURRENT_VERSION = '0.1.0';
-
 // Regex for "at least 16 hexadecimal numbers". Used to validate the salt
 const eightHexRegex = /[0-9a-f]{16,}/;
 
@@ -27,6 +25,7 @@ const eightHexRegex = /[0-9a-f]{16,}/;
 function createCreationAction(
   extensionId: ExtensionTypes.ID,
   creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
+  version: string,
 ): ExtensionTypes.IAction {
   if (!creationParameters.salt) {
     throw Error('salt should not be empty');
@@ -43,7 +42,7 @@ function createCreationAction(
     action: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
     id: extensionId,
     parameters: creationParameters,
-    version: CURRENT_VERSION,
+    version,
   };
 }
 
@@ -165,6 +164,9 @@ function applyCreation(
   extensionAction: ExtensionTypes.IAction,
   timestamp: number,
 ): ExtensionTypes.IState {
+  if (!extensionAction.version) {
+    throw Error('version is missing');
+  }
   if (
     extensionAction.parameters.paymentAddress &&
     !isValidAddress(extensionAction.parameters.paymentAddress)
@@ -196,7 +198,7 @@ function applyCreation(
       refundAddress: extensionAction.parameters.refundAddress,
       salt: extensionAction.parameters.salt,
     },
-    version: CURRENT_VERSION,
+    version: extensionAction.version,
   };
 }
 
