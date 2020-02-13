@@ -12,4 +12,4 @@ The way you decide to interact with the network will determine the responsibilit
 
 import IntegrationOptions from '../../src/components/integration-options';
 
-<IntegrationOptions />
+<IntegrationOptions details={true} />

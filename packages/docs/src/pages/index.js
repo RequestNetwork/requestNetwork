@@ -14,8 +14,8 @@ function Home() {
   const { siteConfig = {} } = context;
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
+      title={`${siteConfig.title}`}
+      description="Request integration guide"
     >
       <header className={classnames('hero hero-banner', styles.heroBanner)}>
         <div className="container">
@@ -35,12 +35,9 @@ function Home() {
         </div>
       </header>
       <main>
+				<div className="container">Welcome to the request Docs! <Link to={useBaseUrl('docs/guides/0-getting-started')}>Follow the guide to get started</Link> with Request or have a broader look at the <Link to={useBaseUrl('docs/others/integration-options')}>possible designs</Link>:
+				</div>
 				<IntegrationOptions />
-				<section>
-					<div>
-						<a href="/docs/guides/0-getting-started">Start the guide and discover Request and options step-by-step</a>
-					</div>
-				</section>
       </main>
     </Layout>
   );

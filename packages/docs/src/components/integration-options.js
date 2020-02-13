@@ -8,8 +8,8 @@ import styles from './integration-options.css';
 
 const features = [
   {
-	  title: <>Option 1: Portal REST API</>,
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
+		title: <>Portal REST API</>,
+    imageUrl: 'img/ReQ-01.png',
     description: (
       <>
 	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure.
@@ -17,13 +17,13 @@ const features = [
     ),
   },
   {
-	  title: <>Option 2: JS library client</>,
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
+		title: <>JS library client</>,
+    imageUrl: 'img/REQ-07-hands-02.png',
     description: <>Incerase security by managing your identiity keys without hosting any infrastructure.</>,
   },
   {
     title: <>Host your own node</>,
-    imageUrl: 'img/undraw_docusaurus_react.svg',
+    imageUrl: 'img/REQ-05-patterns-02.png',
     description: (
       <>
         Praesent risus dui, dignissim ut dignissim nec, facilisis eget dui. Aenean quis dui odio.
@@ -48,11 +48,18 @@ function Feature({ imageUrl, title, description }) {
   );
 }
 
-function Home() {
+function Home({details = false}) {
+	const later = <div className="container">
+						TODO: design a nice page with appealing images and links to relevant docs and guides. On the homepage: quick ref for each option. On the integration page: get into the details including with pros and cons 
+		</div>
+	//const later = "<span> TODO: design a nice page with appealing images and links to relevant docs and guides. On the homepage: quick ref for each option. On the integration page: get into the details including with pros and cons </span>";
+
+	const disclaimer = (details ? later : "");
+			
+
   return (
 		<options>
-			<span>TODO: design a nice page with appealing images and links to relevant docs and guides. On the homepage: quick ref for each option. On the integration page: get into the details including with pros and cons</span>
-
+				{disclaimer}
         {features && features.length && (
           <section className={styles.features}>
             <div className="container">
