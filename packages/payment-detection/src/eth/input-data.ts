@@ -19,21 +19,24 @@ interface IProxyContractByVersionByNetwork {
   };
 }
 
-const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
-  ['0.2.0']: {
-    mainnet: {
-      address: 'TODO',
-      creationBlockNumber: 0,
-    },
-    private: {
-      address: '0xf204a4ef082f5c04bb89f7d5e6568b796096735a',
-      creationBlockNumber: 0,
-    },
-    rinkeby: {
-      address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
-      creationBlockNumber: 5955681,
-    },
+const firstVersion = {
+  mainnet: {
+    address: '0x37a8f5f64f2a84f2377481537f04d2a59c9f59b6',
+    creationBlockNumber: 9466832,
   },
+  private: {
+    address: '0xf204a4ef082f5c04bb89f7d5e6568b796096735a',
+    creationBlockNumber: 0,
+  },
+  rinkeby: {
+    address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
+    creationBlockNumber: 5955681,
+  },
+};
+
+const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
+  ['0.1.0']: firstVersion,
+  ['0.2.0']: firstVersion,
 };
 
 /**
