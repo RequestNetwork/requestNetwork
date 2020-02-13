@@ -1242,25 +1242,19 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).to.equal('a93299ed2555d098');
+      ).to.equal('2c69812e6bf5b1e3');
 
       clock.tick(150);
       const dataAfterRefresh = await request.refresh();
-
-      expect(dataAfterRefresh.balance?.balance).to.equal('138');
-      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+      expect(dataAfterRefresh.balance?.balance).to.equal('12300000000');
+      expect(dataAfterRefresh.balance?.events.length).to.equal(1);
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('133');
+      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0x62264de4fbbe866df28e4fad7b4d44058f1b6ec74bf7c767a14eb67198c93a4d',
+        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
       );
 
-      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e',
-      );
       sinon.restore();
     });
   });

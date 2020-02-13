@@ -4,6 +4,8 @@ import ReferenceBased from '../reference-based';
 
 const walletAddressValidator = require('wallet-address-validator');
 
+const CURRENT_VERSION = '0.2.0';
+
 /**
  * Implementation of the payment network to pay in ETH based on input data.
  * With this extension, one request can have two Ethereum addresses (one for payment and one for refund) and a specific value to give as input data
@@ -43,6 +45,7 @@ function createCreationAction(
   return ReferenceBased.createCreationAction(
     ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     creationParameters,
+    CURRENT_VERSION,
   );
 }
 
