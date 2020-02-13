@@ -5,7 +5,7 @@ You may be interested in this document if:
 - you want to create your own implementation of the Request protocol
 - you are curious enough to dive and see what is under the hood of the Request protocol
 
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.2.0.md)).
+Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
 
 ## Description
 
