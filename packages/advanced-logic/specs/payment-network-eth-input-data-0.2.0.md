@@ -12,7 +12,7 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 This extension allows the payments and the refunds to be made in Ether on the Ethereum blockchain.
 A payment reference has to be given when making the transfer to link the payment to the request.
 
-There is two ways to add a payment reference to a transfer:
+There are two ways to add a payment reference to a transfer:
 
 1. add the reference to the input data of the transfer
 2. call the ethereum proxy smart contract (see [Contract](#Contract))
