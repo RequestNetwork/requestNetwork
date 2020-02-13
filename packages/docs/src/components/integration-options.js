@@ -15,11 +15,23 @@ const features = [
 	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure.
       </>
     ),
+    details: (
+      <>
+	Pros:
+	Cons:
+      </>
+    ),
   },
   {
 		title: <>JS library client</>,
     imageUrl: 'img/REQ-07-hands-02.png',
     description: <>Incerase security by managing your identiity keys without hosting any infrastructure.</>,
+    details: (
+      <>
+	Pros:
+	Cons:
+      </>
+    ),
   },
   {
     title: <>Host your own node</>,
@@ -30,10 +42,16 @@ const features = [
         Integer tempus sapien a felis efficitur, sit amet facilisis erat pulvinar.
       </>
     ),
+    details: (
+      <>
+	Pros:
+	Cons:
+      </>
+    ),
   },
 ];
 
-function Feature({ imageUrl, title, description }) {
+function Feature({ showDetails, imageUrl, title, description, details }) {
   const imgUrl = useBaseUrl(imageUrl);
   return (
     <div className={classnames('col col--4', styles.feature)}>
@@ -44,8 +62,22 @@ function Feature({ imageUrl, title, description }) {
       )}
       <h3>{title}</h3>
       <p>{description}</p>
+			<DetailedFeature showDetails={showDetails} details={details} />
     </div>
   );
+}
+
+function DetailedFeature({ showDetails, details }) {
+	if (showDetails) {
+		return (
+			<div className={classnames('col col--4', styles.feature)}>
+				<p>{details}</p>
+			</div>
+		);
+	}
+	else {
+		return (<></>);
+	}
 }
 
 function Home({details = false}) {
@@ -65,7 +97,10 @@ function Home({details = false}) {
             <div className="container">
               <div className="row">
                 {features.map((props, idx) => (
-                  <Feature key={idx} {...props} />
+									<>
+										<DetailedFeature key={idx} {...props} />
+										<Feature showDetails={details} key={idx} {...props} />
+									</>
                 ))}
               </div>
             </div>
