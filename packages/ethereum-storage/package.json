@@ -35,8 +35,8 @@
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --timeout=5000 --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
-    "test:watch": "nyc mocha --watch --watch-extensions ts --timeout=5000 --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test": "nyc mocha --timeout=5000 --require source-map-support/register \"test/**/*.ts\"",
+    "test:watch": "nyc mocha --watch --watch-extensions ts --timeout=5000 --require source-map-support/register \"test/**/*.ts\"",
     "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
@@ -82,7 +82,7 @@
     "sinon": "7.5.0",
     "solium": "1.2.2",
     "source-map-support": "0.5.13",
-    "ts-node": "8.5.4",
+    "ts-node": "8.6.2",
     "tslint": "5.12.1",
     "typescript": "3.7.2",
     "web3-providers-http": "1.2.1"

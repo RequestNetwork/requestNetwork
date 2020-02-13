@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "prettier": "1.16.4",
-    "ts-node": "8.5.4",
+    "ts-node": "8.6.2",
     "typescript": "3.7.2"
   }
 }

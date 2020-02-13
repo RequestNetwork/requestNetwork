@@ -36,7 +36,7 @@
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "test": "nyc mocha --extension ts --require ts-node/register --require source-map-support/register \"test/**/*.ts\"",
+    "test": "nyc mocha --extension ts --require source-map-support/register \"test/**/*.ts\"",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
@@ -61,7 +61,7 @@
     "prettier": "1.16.4",
     "rimraf": "2.6.3",
     "shx": "0.3.2",
-    "ts-node": "8.5.4",
+    "ts-node": "8.6.2",
     "tslint": "5.12.1"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
