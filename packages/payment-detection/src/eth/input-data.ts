@@ -13,13 +13,15 @@ import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 const bigNumber: any = require('bn.js');
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
+// interface of the object indexing the proxy contract addresses
 interface IProxyContractByVersionByNetwork {
   [version: string]: {
     [network: string]: { address: string; creationBlockNumber: number };
   };
 }
 
-const firstVersion = {
+// the versions 0.1.0 and 0.2.0 have the same contracts
+const contractsVersions010and020 = {
   mainnet: {
     address: '0x37a8f5f64f2a84f2377481537f04d2a59c9f59b6',
     creationBlockNumber: 9466832,
@@ -34,9 +36,9 @@ const firstVersion = {
   },
 };
 
-const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
-  ['0.1.0']: firstVersion,
-  ['0.2.0']: firstVersion,
+const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractByVersionByNetwork = {
+  ['0.1.0']: contractsVersions010and020,
+  ['0.2.0']: contractsVersions010and020,
 };
 
 /**
@@ -202,19 +204,17 @@ export default class PaymentNetworkETHInputData
     paymentReference: string,
     paymentNetworkVersion: string,
   ): Promise<PaymentTypes.ETHBalanceWithEvents> {
-    if (!PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion]) {
-      throw new Error(`Payment network version not supported: ${paymentNetworkVersion}`);
+    if (
+      !PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion] ||
+      !PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion][network]
+    ) {
+      throw new Error(`Payment network not supported: ${paymentNetworkVersion} & ${network}`);
     }
 
     const proxyContractAddress: string | undefined =
-      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network].address;
+      PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion][network].address;
     const proxyCreationBlockNumber: number =
-      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network]
-        .creationBlockNumber;
-
-    if (!proxyContractAddress) {
-      throw new Error(`Network not supported for this payment network: ${network}`);
-    }
+      PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion][network].creationBlockNumber;
 
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
