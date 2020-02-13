@@ -8,9 +8,33 @@ import Utils from '@requestnetwork/utils';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 
 import EthInputDataInfoRetriever from './info-retriever';
+import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+
+interface IProxyContractByVersionByNetwork {
+  [version: string]: {
+    [network: string]: { address: string; creationBlockNumber: number };
+  };
+}
+
+const PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
+  ['0.2.0']: {
+    mainnet: {
+      address: 'TODO',
+      creationBlockNumber: 0,
+    },
+    private: {
+      address: '0xf204a4ef082f5c04bb89f7d5e6568b796096735a',
+      creationBlockNumber: 0,
+    },
+    rinkeby: {
+      address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
+      creationBlockNumber: 5955681,
+    },
+  },
+};
 
 /**
  * Handle payment networks with ETH input data extension
@@ -94,17 +118,24 @@ export default class PaymentNetworkETHInputData
         )}`,
       );
     }
-    const extensionValues: { paymentAddress: string; refundAddress: string; salt: string } =
-      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA].values;
+    const paymentNetwork = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA];
 
-    const paymentAddress = extensionValues.paymentAddress;
-    const refundAddress = extensionValues.refundAddress;
+    if (!paymentNetwork) {
+      throw new Error(
+        `The request do not have the extension: ${
+          ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
+        }`,
+      );
+    }
+
+    const paymentAddress = paymentNetwork.values.paymentAddress;
+    const refundAddress = paymentNetwork.values.refundAddress;
 
     let payments: PaymentTypes.ETHBalanceWithEvents = { balance: '0', events: [] };
     if (paymentAddress) {
       const paymentReferencePayment = PaymentReferenceCalculator.calculate(
         request.requestId,
-        extensionValues.salt,
+        paymentNetwork.values.salt,
         paymentAddress,
       );
       payments = await this.extractBalanceAndEvents(
@@ -112,6 +143,7 @@ export default class PaymentNetworkETHInputData
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         request.currency.network,
         paymentReferencePayment,
+        paymentNetwork.version,
       );
     }
 
@@ -119,7 +151,7 @@ export default class PaymentNetworkETHInputData
     if (refundAddress) {
       const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
         request.requestId,
-        extensionValues.salt,
+        paymentNetwork.values.salt,
         refundAddress,
       );
       refunds = await this.extractBalanceAndEvents(
@@ -127,6 +159,7 @@ export default class PaymentNetworkETHInputData
         PaymentTypes.EVENTS_NAMES.REFUND,
         request.currency.network,
         paymentReferenceRefund,
+        paymentNetwork.version,
       );
     }
 
@@ -156,6 +189,7 @@ export default class PaymentNetworkETHInputData
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    * @param paymentReference The reference to identify the payment
+   * @param paymentNetworkVersion the version of the payment network
    * @returns The balance
    */
   private async extractBalanceAndEvents(
@@ -163,7 +197,22 @@ export default class PaymentNetworkETHInputData
     eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
     paymentReference: string,
+    paymentNetworkVersion: string,
   ): Promise<PaymentTypes.ETHBalanceWithEvents> {
+    if (!PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion]) {
+      throw new Error(`Payment network version not supported: ${paymentNetworkVersion}`);
+    }
+
+    const proxyContractAddress: string | undefined =
+      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network].address;
+    const proxyCreationBlockNumber: number =
+      PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network]
+        .creationBlockNumber;
+
+    if (!proxyContractAddress) {
+      throw new Error(`Network not supported for this payment network: ${network}`);
+    }
+
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
@@ -171,8 +220,25 @@ export default class PaymentNetworkETHInputData
       paymentReference,
     );
 
-    const events = await infoRetriever.getTransferEvents();
+    const eventsInputData = await infoRetriever.getTransferEvents();
 
+    const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
+      paymentReference,
+      proxyContractAddress,
+      proxyCreationBlockNumber,
+      address,
+      eventName,
+      network,
+    );
+
+    const eventsFromProxy = await proxyInfoRetriever.getTransferEvents();
+
+    const events = eventsInputData
+      .concat(eventsFromProxy)
+      .sort(
+        (a: PaymentTypes.ETHPaymentNetworkEvent, b: PaymentTypes.ETHPaymentNetworkEvent) =>
+          (a.timestamp || 0) - (b.timestamp || 0),
+      );
     const balance = events
       .reduce((acc, event) => acc.add(new bigNumber(event.amount)), new bigNumber(0))
       .toString();
