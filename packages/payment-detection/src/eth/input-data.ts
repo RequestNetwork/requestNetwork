@@ -127,7 +127,7 @@ export default class PaymentNetworkETHInputData
 
     if (!paymentNetwork) {
       throw new Error(
-        `The request do not have the extension: ${
+        `The request does not have the extension: ${
           ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
         }`,
       );
