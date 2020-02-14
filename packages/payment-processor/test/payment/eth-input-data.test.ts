@@ -15,7 +15,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
+import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
 // tslint:disable: no-unused-expression
@@ -122,9 +122,8 @@ describe('payEthInputDataRequest', () => {
 
 describe('getEthPaymentUrl', () => {
   it('can get an ETH url', () => {
-    // expect(getEthPaymentUrl(validRequest)).to.eq(
-    //   'ethereum:0xf17f52151EbEF6C7334FAD080c5704D77216b732?value=1&data=86dfbccad783599a',
-    // );
-    expect(getEthPaymentUrl(validRequest)).to.eq('');
+    expect(_getEthPaymentUrl(validRequest)).to.eq(
+      'ethereum:0xf17f52151EbEF6C7334FAD080c5704D77216b732?value=1&data=86dfbccad783599a',
+    );
   });
 });

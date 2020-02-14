@@ -109,7 +109,7 @@ export async function getErc20Balance(
  *
  * @param request
  */
-export function getErc20PaymentUrl(request: ClientTypes.IRequestData): string {
+export function _getErc20PaymentUrl(request: ClientTypes.IRequestData): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const contractAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);

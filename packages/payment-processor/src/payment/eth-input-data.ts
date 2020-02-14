@@ -37,8 +37,17 @@ export async function payEthInputDataRequest(
 }
 
 /**
- * Not implemented yet.
+ * processes the transaction to pay an ETH request.
+ * @param request the request to pay
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
-export function getEthPaymentUrl(_request: ClientTypes.IRequestData): string {
-  return '';
+export function _getEthPaymentUrl(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+): string {
+  const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
+  const amountToPay = getAmountToPay(request, amount);
+
+  // tslint:disable-next-line: no-console
+  return `ethereum:${paymentAddress}?value=${amountToPay}&data=${paymentReference}`;
 }

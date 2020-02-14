@@ -1,5 +1,5 @@
-import { ethers, Signer } from 'ethers';
-import { EtherscanProvider, Provider, Web3Provider } from 'ethers/providers';
+import { ethers, Signer, getDefaultProvider } from 'ethers';
+import { Provider, Web3Provider } from 'ethers/providers';
 import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
@@ -29,10 +29,10 @@ export function getProvider(): Web3Provider {
  */
 export function getNetworkProvider(request: ClientTypes.IRequestData): Provider {
   if (request.currencyInfo.network === 'mainnet') {
-    return new EtherscanProvider();
+    return getDefaultProvider();
   }
   if (request.currencyInfo.network === 'rinkeby') {
-    return new EtherscanProvider('rinkeby');
+    return getDefaultProvider('rinkeby');
   }
   throw new Error('unsupported network');
 }
@@ -62,6 +62,7 @@ export function getSigner(signerOrProvider?: Provider | Signer, address?: string
 export function getPaymentNetworkExtension(
   request: ClientTypes.IRequestData,
 ): ExtensionTypes.IState | undefined {
+  // tslint:disable-next-line: typedef
   return Object.values(request.extensions).find(
     x => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
   );

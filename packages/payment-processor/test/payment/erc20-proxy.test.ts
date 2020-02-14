@@ -18,7 +18,7 @@ import Utils from '@requestnetwork/utils';
 import {
   approveErc20,
   getErc20Balance,
-  getErc20PaymentUrl,
+  _getErc20PaymentUrl,
   hasErc20Approval,
   payErc20ProxyRequest,
 } from '../../src/payment/erc20-proxy';
@@ -175,7 +175,7 @@ describe('payErc20ProxyRequest', () => {
 
 describe('getErc20PaymentUrl', () => {
   it('can get an ERC20 url', () => {
-    expect(getErc20PaymentUrl(validRequest)).to.eq(
+    expect(_getErc20PaymentUrl(validRequest)).to.eq(
       'ethereum:0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4/transferFromWithReference?address=0x9FBDa871d559710256a2502A2517b794B482Db40&address=0xf17f52151EbEF6C7334FAD080c5704D77216b732&uint256=100&bytes=86dfbccad783599a',
     );
   });

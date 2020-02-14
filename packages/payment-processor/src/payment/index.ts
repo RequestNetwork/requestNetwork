@@ -5,11 +5,12 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
-import { getErc20Balance, getErc20PaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
-import { getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
+import { getErc20Balance, payErc20ProxyRequest, _getErc20PaymentUrl } from './erc20-proxy';
+import { payEthInputDataRequest, _getEthPaymentUrl } from './eth-input-data';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
+  // tslint:disable-next-line: typedef
   return Object.values(request.extensions).find(x => x.type === 'payment-network')?.id;
 };
 
@@ -81,17 +82,17 @@ export async function hasSufficientFunds(
  * Get a payment URL, if applicable to the payment network, for a request.
  * BTC: BIP21.
  * ERC20: EIP-681. (Warning, not widely used. Some wallets may not be able to pay.)
- * ETH: not implemented.
+ * ETH: EIP-681. (Warning, not widely used. Some wallets may not be able to pay.)
  * @throws UnsupportedNetworkError if the network is not supported.
  * @param request the request to pay
  */
-export function getPaymentUrl(request: ClientTypes.IRequestData): string {
+export function _getPaymentUrl(request: ClientTypes.IRequestData): string {
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return getErc20PaymentUrl(request);
+      return _getErc20PaymentUrl(request);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      return getEthPaymentUrl(request);
+      return _getEthPaymentUrl(request);
     case ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED:
     case ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED:
       return getBtcPaymentUrl(request);
