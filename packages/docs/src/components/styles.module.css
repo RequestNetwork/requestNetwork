@@ -56,8 +56,13 @@
 }
 
 .integrationOptionImage {
-	margin: 0;
+	margin-bottom: 12px;
 	max-width: 20em;
+}
+
+integrationOptionDescription {
+	padding-right: 24px;
+	color: #8c8c8c;
 }
 
 .integrationOptionText {

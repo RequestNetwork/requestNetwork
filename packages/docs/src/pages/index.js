@@ -37,6 +37,11 @@ function Home() {
       <main>
 				<div className="container">Welcome to the request Docs! <Link to={useBaseUrl('docs/guides/0-getting-started')}>Follow the guide to get started</Link> with Request or have a broader look at the <Link to={useBaseUrl('docs/others/integration-options')}>possible designs</Link>:
 					<IntegrationOptions showDetails={false}/>
+					<p>Other resources: </p>
+					<ul>
+						<li>Request website</li>
+						<li>Request Slack hub</li>
+					</ul>
 				</div>
       </main>
     </Layout>
