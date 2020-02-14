@@ -5,8 +5,8 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
-import { getErc20Balance, payErc20ProxyRequest, _getErc20PaymentUrl } from './erc20-proxy';
-import { payEthInputDataRequest, _getEthPaymentUrl } from './eth-input-data';
+import { _getErc20PaymentUrl, getErc20Balance, payErc20ProxyRequest } from './erc20-proxy';
+import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
@@ -30,6 +30,7 @@ export class UnsupportedNetworkError extends Error {
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
  */
 export async function payRequest(
   request: ClientTypes.IRequestData,
@@ -85,17 +86,18 @@ export async function hasSufficientFunds(
  * ETH: EIP-681. (Warning, not widely used. Some wallets may not be able to pay.)
  * @throws UnsupportedNetworkError if the network is not supported.
  * @param request the request to pay
+ * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function _getPaymentUrl(request: ClientTypes.IRequestData): string {
+export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNumberish): string {
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return _getErc20PaymentUrl(request);
+      return _getErc20PaymentUrl(request, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      return _getEthPaymentUrl(request);
+      return _getEthPaymentUrl(request, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED:
     case ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED:
-      return getBtcPaymentUrl(request);
+      return getBtcPaymentUrl(request, amount);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }

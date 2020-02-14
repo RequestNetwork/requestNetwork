@@ -16,6 +16,7 @@ import {
  * processes the transaction to pay an ETH request.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
  */
 export async function payEthInputDataRequest(
   request: ClientTypes.IRequestData,
@@ -40,6 +41,7 @@ export async function payEthInputDataRequest(
  * processes the transaction to pay an ETH request.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function _getEthPaymentUrl(
   request: ClientTypes.IRequestData,

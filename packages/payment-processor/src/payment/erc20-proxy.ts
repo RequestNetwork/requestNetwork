@@ -20,6 +20,7 @@ import {
  * Processes a transaction to pay an ERC20 Request.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
  */
 export async function payErc20ProxyRequest(
   request: ClientTypes.IRequestData,
@@ -108,11 +109,16 @@ export async function getErc20Balance(
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
  * @param request
+ * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function _getErc20PaymentUrl(request: ClientTypes.IRequestData): string {
+export function _getErc20PaymentUrl(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const contractAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
-  const parameters = `transferFromWithReference?address=${request.currencyInfo.value}&address=${paymentAddress}&uint256=${request.expectedAmount}&bytes=${paymentReference}`;
+  const amountToPay = getAmountToPay(request, amount);
+  const parameters = `transferFromWithReference?address=${request.currencyInfo.value}&address=${paymentAddress}&uint256=${amountToPay}&bytes=${paymentReference}`;
   return `ethereum:${contractAddress}/${parameters}`;
 }
