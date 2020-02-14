@@ -54,7 +54,7 @@ const features = [
 function Feature({ showDetails, imageUrl, title, description, details }) {
   const imgUrl = useBaseUrl(imageUrl);
   return (
-    <div className={classnames(styles.integrationOption, (!showDetails ?  styles.colOption : "" ))}>
+    <div className={classnames(styles.integrationOption, (!showDetails ?  styles.colOption : styles.rowOption ))}>
       {imgUrl && (
 				<div className={classnames('text--center', styles.integrationOptionImage)}>
           <img className={classnames(styles.integrationOptionIllustration)} src={imgUrl} alt={title} />

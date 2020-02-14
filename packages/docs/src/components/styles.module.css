@@ -44,10 +44,10 @@
 	flex-direction: column;
 }
 
-.integrationOption:nth-child(odd) {
+.rowOption:nth-child(odd) {
 	flex-direction: row;
 }
-.integrationOption:nth-child(even) {
+.rowOption:nth-child(even) {
 	flex-direction: row-reverse;
 }
 
