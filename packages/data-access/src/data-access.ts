@@ -3,6 +3,7 @@ import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import * as Bluebird from 'bluebird';
+import { EventEmitter } from 'events';
 
 import Block from './block';
 import IntervalTimer from './interval-timer';
@@ -165,6 +166,15 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // get the topic of the data in storage
     const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
 
+    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
+      meta: {
+        storageMeta: resultAppend.meta,
+        topics,
+        transactionStorageLocation: resultAppend.id,
+      },
+      result: {},
+    });
+
     // Store the data to the real storage
     resultAppend.on('confirmed', (resultAppendConfirmed: StorageTypes.IAppendResult) => {
       // update the timestamp with the confirmed one
@@ -172,6 +182,17 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         resultAppendConfirmed.id,
         resultAppendConfirmed.meta.timestamp,
       );
+
+      const resultAfterConfirmation = {
+        meta: {
+          storageMeta: resultAppendConfirmed.meta,
+          topics,
+          transactionStorageLocation: resultAppendConfirmed.id,
+        },
+        result: {},
+      };
+
+      result.emit('confirmed', resultAfterConfirmation);
     });
 
     // adds this transaction to the index, to enable retrieving it later.
@@ -181,14 +202,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       resultAppend.meta.timestamp,
     );
 
-    return {
-      meta: {
-        storageMeta: resultAppend.meta,
-        topics,
-        transactionStorageLocation: resultAppend.id,
-      },
-      result: {},
-    };
+    return result;
   }
 
   /**

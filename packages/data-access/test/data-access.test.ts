@@ -415,16 +415,32 @@ describe('data-access', () => {
           ],
         }),
       );
-      expect(result, 'result wrong').to.deep.equal({
-        meta: {
-          storageMeta: {
-            state: DataAccessTypes.TransactionState.PENDING,
-            timestamp: 1,
+      expect(result, 'result wrong').to.deep.equal(
+        Object.assign(new EventEmitter(), {
+          meta: {
+            storageMeta: {
+              state: DataAccessTypes.TransactionState.PENDING,
+              timestamp: 1,
+            },
+            topics: [arbitraryTopic1],
+            transactionStorageLocation: dataIdBlock2tx,
           },
-          topics: [arbitraryTopic1],
-          transactionStorageLocation: dataIdBlock2tx,
-        },
-        result: {},
+          result: {},
+        }),
+      );
+
+      result.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            storageMeta: {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+            },
+            topics: [arbitraryTopic1],
+            transactionStorageLocation: dataIdBlock2tx,
+          },
+          result: {},
+        });
       });
     });
 
