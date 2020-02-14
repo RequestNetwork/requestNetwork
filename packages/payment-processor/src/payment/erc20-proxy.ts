@@ -20,7 +20,7 @@ import {
  * Processes a transaction to pay an ERC20 Request.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
+ * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export async function payErc20ProxyRequest(
   request: ClientTypes.IRequestData,
@@ -109,7 +109,7 @@ export async function getErc20Balance(
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
  * @param request
- * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
+ * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function _getErc20PaymentUrl(
   request: ClientTypes.IRequestData,

@@ -30,7 +30,7 @@ export class UnsupportedNetworkError extends Error {
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
+ * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export async function payRequest(
   request: ClientTypes.IRequestData,
@@ -86,7 +86,7 @@ export async function hasSufficientFunds(
  * ETH: EIP-681. (Warning, not widely used. Some wallets may not be able to pay.)
  * @throws UnsupportedNetworkError if the network is not supported.
  * @param request the request to pay
- * @param amount optionnally, the amount to pay. Defaults to remaining amount of the request.
+ * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNumberish): string {
   const paymentNetwork = getPaymentNetwork(request);
