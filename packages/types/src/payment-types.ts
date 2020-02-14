@@ -99,7 +99,7 @@ export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParame
 /** Parameters for events of ETH payments */
 export interface IETHPaymentEventParameters {
   block?: number;
-  confirmations: number;
+  confirmations?: number;
   txHash?: string;
 }
 /** ETH Payment Network Event */

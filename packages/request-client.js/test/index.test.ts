@@ -1203,7 +1203,7 @@ describe('index', () => {
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
       // tslint:disable-next-line: no-invalid-this
-      this.timeout(10000);
+      this.timeout(20000);
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
@@ -1246,8 +1246,9 @@ describe('index', () => {
 
       clock.tick(150);
       const dataAfterRefresh = await request.refresh();
-      expect(dataAfterRefresh.balance?.balance).to.equal('12300000000');
-      expect(dataAfterRefresh.balance?.events.length).to.equal(1);
+
+      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
@@ -1255,6 +1256,11 @@ describe('index', () => {
         '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
       );
 
+      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+      );
       sinon.restore();
     });
   });
