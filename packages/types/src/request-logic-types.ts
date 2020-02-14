@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 import * as Encryption from './encryption-types';
 import * as Extension from './extension-types';
 import * as Identity from './identity-types';
@@ -26,27 +28,27 @@ export interface IRequestLogic {
     requestParameters: IAcceptParameters,
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
-  ) => Promise<IRequestLogicReturn>;
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   cancelRequest: (
     requestParameters: ICancelParameters,
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
-  ) => Promise<IRequestLogicReturn>;
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   increaseExpectedAmountRequest: (
     requestParameters: IIncreaseExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
-  ) => Promise<IRequestLogicReturn>;
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   reduceExpectedAmountRequest: (
     requestParameters: IReduceExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
-  ) => Promise<IRequestLogicReturn>;
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   addExtensionsDataRequest: (
     requestParameters: IAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
-  ) => Promise<IRequestLogicReturn>;
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   getRequestFromId: (topic: string) => Promise<IReturnGetRequestFromId>;
   getRequestsByTopic: (
     topic: any,
@@ -72,6 +74,14 @@ export interface IRequestLogicReturn {
   meta: IReturnMeta;
 }
 
+/** return of IRequestLogic functions with events */
+export interface IRequestLogicReturnWithConfirmation extends EventEmitter {
+  /** result of the execution */
+  result?: any;
+  /** meta information */
+  meta: IReturnMeta;
+}
+
 /** meta data given by the layer below (transaction manager) */
 export interface IReturnMeta {
   transactionManagerMeta: any;
@@ -79,7 +89,7 @@ export interface IReturnMeta {
 }
 
 /** return of the function createRequest */
-export interface IReturnCreateRequest extends IRequestLogicReturn {
+export interface IReturnCreateRequest extends IRequestLogicReturnWithConfirmation {
   result: { requestId: RequestId };
 }
 
