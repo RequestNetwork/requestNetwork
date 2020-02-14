@@ -1,3 +1,4 @@
+import * as SmartContracts from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -13,32 +14,15 @@ import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 const bigNumber: any = require('bn.js');
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
-// interface of the object indexing the proxy contract addresses
-interface IProxyContractByVersionByNetwork {
-  [version: string]: {
-    [network: string]: { address: string; creationBlockNumber: number };
-  };
+// interface of the object indexing the proxy contract version
+interface IProxyContractVersion {
+  [version: string]: string;
 }
 
 // the versions 0.1.0 and 0.2.0 have the same contracts
-const contractsVersions010and020 = {
-  mainnet: {
-    address: '0x37a8f5f64f2a84f2377481537f04d2a59c9f59b6',
-    creationBlockNumber: 9466832,
-  },
-  private: {
-    address: '0xf204a4ef082f5c04bb89f7d5e6568b796096735a',
-    creationBlockNumber: 0,
-  },
-  rinkeby: {
-    address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
-    creationBlockNumber: 5955681,
-  },
-};
-
-const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractByVersionByNetwork = {
-  ['0.1.0']: contractsVersions010and020,
-  ['0.2.0']: contractsVersions010and020,
+const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
+  ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.1.0',
 };
 
 /**
@@ -204,17 +188,15 @@ export default class PaymentNetworkETHInputData
     paymentReference: string,
     paymentNetworkVersion: string,
   ): Promise<PaymentTypes.ETHBalanceWithEvents> {
-    if (
-      !PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion] ||
-      !PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion][network]
-    ) {
-      throw new Error(`Payment network not supported: ${paymentNetworkVersion} & ${network}`);
-    }
-
-    const proxyContractAddress: string | undefined =
-      PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion][network].address;
-    const proxyCreationBlockNumber: number =
-      PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion][network].creationBlockNumber;
+    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
+    const proxyContractAddress = SmartContracts.ethereumProxyArtifact.getAddress(
+      network,
+      contractVersion,
+    );
+    const proxyCreationBlockNumber = SmartContracts.ethereumProxyArtifact.getCreationBlockNumber(
+      network,
+      contractVersion,
+    );
 
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
