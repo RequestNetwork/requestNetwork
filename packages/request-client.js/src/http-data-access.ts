@@ -2,6 +2,8 @@ import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
+import { EventEmitter } from 'events';
+
 // Maximum number of retries to attempt when http requests to the Node fail
 const HTTP_REQUEST_MAX_RETRY = 3;
 
@@ -64,7 +66,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       },
       this.axiosConfig,
     );
-    return data;
+
+    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+      new EventEmitter(),
+      data,
+    );
+
+    // TODO: create the confirm mechanism with a request node
+    // result.on('confirmed', () => {});
+
+    return result;
   }
 
   /**
