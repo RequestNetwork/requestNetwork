@@ -7,6 +7,8 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
+import { EventEmitter } from 'events';
+
 import ChannelParser from './channel-parser';
 import TransactionsFactory from './transactions-factory';
 
@@ -111,13 +113,30 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       topics.concat([hash]),
     );
 
-    return {
+    const result: TransactionTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
       meta: {
         dataAccessMeta: persistResult.meta,
         encryptionMethod: channelEncryptionMethod,
       },
       result: {},
-    };
+    });
+
+    persistResult.on(
+      'confirmed',
+      (resultPersistTransaction: DataAccessTypes.IReturnPersistTransaction) => {
+        const resultAfterConfirmation = {
+          meta: {
+            dataAccessMeta: resultPersistTransaction.meta,
+            encryptionMethod: channelEncryptionMethod,
+          },
+          result: {},
+        };
+
+        result.emit('confirmed', resultAfterConfirmation);
+      },
+    );
+
+    return result;
   }
 
   /**
