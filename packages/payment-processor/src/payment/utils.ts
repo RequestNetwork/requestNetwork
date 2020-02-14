@@ -1,4 +1,4 @@
-import { ethers, Signer, getDefaultProvider } from 'ethers';
+import { ethers, getDefaultProvider, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
 import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
 
@@ -134,5 +134,12 @@ export function getAmountToPay(
     amount === undefined
       ? bigNumberify(request.expectedAmount).sub(request.balance?.balance || 0)
       : bigNumberify(amount);
+
+  if (amountToPay.lt(0)) {
+    throw new Error('cannot pay a negative amount');
+  }
+  if (amountToPay.isZero()) {
+    throw new Error('cannot pay a null amount');
+  }
   return amountToPay;
 }

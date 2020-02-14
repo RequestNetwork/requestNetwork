@@ -26,7 +26,7 @@ describe('getAmountToPay', () => {
     ).to.deep.eq(bigNumberify('600000'));
   });
 
-  it('returns the givent amount if defined', () => {
+  it('returns the given amount if defined', () => {
     expect(
       getAmountToPay(
         {
@@ -38,5 +38,41 @@ describe('getAmountToPay', () => {
         '3000',
       ),
     ).to.deep.eq(bigNumberify('3000'));
+  });
+
+  it('fails on a negative amount', () => {
+    expect(() =>
+      getAmountToPay(
+        {
+          balance: {
+            balance: '400000',
+          },
+          expectedAmount: '1000000',
+        } as any,
+        '-3000',
+      ),
+    ).to.throw('cannot pay a negative amount');
+  });
+
+  it('fails on a negative remaining amount', () => {
+    expect(() =>
+      getAmountToPay({
+        balance: {
+          balance: '1400000',
+        },
+        expectedAmount: '1000000',
+      } as any),
+    ).to.throw('cannot pay a negative amount');
+  });
+
+  it('fails on a paid request', () => {
+    expect(() =>
+      getAmountToPay({
+        balance: {
+          balance: '1000000',
+        },
+        expectedAmount: '1000000',
+      } as any),
+    ).to.throw('cannot pay a null amount');
   });
 });
