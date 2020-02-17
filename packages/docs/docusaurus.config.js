@@ -6,6 +6,7 @@ module.exports = {
   favicon: 'img/cropped-favicon-32x32.png',
   organizationName: 'requestNetwork', // Usually your GitHub org/user name.
   projectName: 'documentation', // Usually your repo name.
+	plugins: ['axios'],
   themeConfig: {
     navbar: {
       title: 'Request docs',
@@ -17,7 +18,7 @@ module.exports = {
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'docs/others/integration-options', label: 'Integration', position: 'left' },
 				{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
-        { to: 'docs/API/0-intro', label: 'REST API', position: 'left' },
+        { href: 'https://api-docs.request.network/', label: 'REST API docs', position: 'left' },
         {
           href: 'https://github.com/requestnetwork/requestnetwork',
           label: 'GitHub',
