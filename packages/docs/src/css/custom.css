@@ -17,6 +17,8 @@
 
 	--ifm-navbar-background-color: #00261b;
 	--ifm-navbar-link-color: #ffffff;
+
+	--ifm-container-width: 1280px;
 }
 
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');

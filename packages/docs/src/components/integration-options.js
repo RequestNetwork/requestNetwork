@@ -8,7 +8,7 @@ import styles from './styles.module.css';
 
 const options = [
   {
-		title: <>Portal REST API</>,
+		title: <>Fully managed solution, over REST API</>,
     imageUrl: 'img/ReQ-01.png',
     description: (
       <>
@@ -31,13 +31,13 @@ const options = [
     ),
   },
   {
-		title: <>JavaScript client library</>,
+		title: <>Decentralized network usage, with managed hosting</>,
     imageUrl: 'img/REQ-07-hands-02.png',
-    description: <>Decentralized option where you manage identity, encryption and network interactions on your dapp without hosting a node yourself</>,
+    description: <>Manage identities, encryption and network interactions yourself but let us host the Request node.</>,
     details: (
       <>
 				<p>
-					You can see the documentation on the <Link to="https://v2-docs-js-lib.request.network/index.html">TODO-Request Client documentation</Link> or <Link to="/docs/guides/5-request-client/0-intro">follow the guide</Link>.
+					You can see the documentation on the <Link to="https://v2-docs-js-lib.request.network/index.html">TODO-Request JavaScript Client documentation</Link> or <Link to="/docs/guides/5-request-client/0-intro">follow the guide</Link>.
 				</p>
 
 				<p>
@@ -50,7 +50,7 @@ const options = [
     ),
   },
   {
-    title: <>Host your own node</>,
+    title: <>Fully decentralized with self-hosting</>,
     imageUrl: 'img/REQ-05-patterns-02.png',
     description: (
       <>
@@ -80,7 +80,7 @@ function IntegrationOption({ showDetails, imageUrl, title, description, details 
       )}
 			<div className={classnames(styles.integrationOptionText)}>
 				<h3>{title}</h3>
-				<integrationOptionDescription>{description}</integrationOptionDescription>
+				<div className="IntegrationOptionDescription">{description}</div>
 				{showDetails && (
 					<div className={classnames(styles.integrationOption)}>
 						<p>{details}</p>

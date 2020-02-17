@@ -36,7 +36,7 @@
   display: flex;
 	flex-wrap: nowrap;
   align-items: stretch;
-  padding: 2rem 0;
+  padding: 2rem 1rem;
   width: 100%;
 }
 
@@ -51,13 +51,10 @@
 	flex-direction: row-reverse;
 }
 
-.integrationOptionIllustration{
-  width: 80%;
-}
-
 .integrationOptionImage {
 	margin-bottom: 12px;
-	max-width: 20em;
+	max-width: 26;
+	flex: 2;
 }
 
 integrationOptionDescription {
@@ -66,5 +63,5 @@ integrationOptionDescription {
 }
 
 .integrationOptionText {
-	flex-grow: 1;
+	flex: 3;
 }

@@ -83,7 +83,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/facebook/docusaurus/edit/master/website/',
+          editUrl: 'https://github.com/RequestNetwork/requestNetwork/packages/docs',
         },
         introSideBar: {
           sidebarPath: require.resolve('./sidebars.js'),
