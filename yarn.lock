@@ -11723,7 +11723,7 @@ ts-node-dev@1.0.0-pre.39:
     ts-node "*"
     tsconfig "^7.0.0"
 
-ts-node@*, ts-node@8.6.2:
+ts-node@*:
   version "8.6.2"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.6.2.tgz#7419a01391a818fbafa6f826a33c1a13e9464e35"
   integrity sha512-4mZEbofxGqLL2RImpe3zMJukvEvcO1XP8bj8ozBPySdCUXEcU5cIRwR0aM3R+VoZq7iXc8N86NC0FspGRqP4gg==
