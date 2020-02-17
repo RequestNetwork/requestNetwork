@@ -113,6 +113,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       topics.concat([hash]),
     );
 
+    // Create the return result with EventEmitter
     const result: TransactionTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
       meta: {
         dataAccessMeta: persistResult.meta,
@@ -121,6 +122,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       result: {},
     });
 
+    // When receive the confirmation from data-access propagate to the higher layer
     persistResult.on(
       'confirmed',
       (resultPersistTransaction: DataAccessTypes.IReturnPersistTransaction) => {
@@ -132,6 +134,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
           result: {},
         };
 
+        // propagate the confirmation
         result.emit('confirmed', resultAfterConfirmation);
       },
     );

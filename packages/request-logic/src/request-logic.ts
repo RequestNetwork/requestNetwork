@@ -64,6 +64,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       result: { requestId },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
@@ -120,6 +121,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       result: { requestId },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
@@ -197,6 +199,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       meta: { transactionManagerMeta: resultPersistTx.meta },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
@@ -245,6 +248,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       meta: { transactionManagerMeta: resultPersistTx.meta },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
@@ -293,6 +297,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       meta: { transactionManagerMeta: resultPersistTx.meta },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
@@ -341,6 +346,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       meta: { transactionManagerMeta: resultPersistTx.meta },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
@@ -390,6 +396,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       meta: { transactionManagerMeta: resultPersistTx.meta },
     });
 
+    // When receive the confirmation from transaction manager propagate it
     resultPersistTx.on(
       'confirmed',
       (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {

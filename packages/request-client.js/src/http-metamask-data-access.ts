@@ -146,6 +146,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       result: {},
     });
 
+    // When the ethereum transaction is mined, emit an event 'confirmed'
     tx.wait().then((txConfirmed: any) => {
       // create the storage meta from the transaction receipt
       const storageMetaConfirmed = {
@@ -158,6 +159,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
         transactionHash: txConfirmed.hash,
       };
 
+      // emit the event to tell the request transaction is confirmed
       result.emit('confirmed', {
         meta: {
           storageMeta: storageMetaConfirmed,
