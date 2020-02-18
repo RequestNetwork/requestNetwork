@@ -4,9 +4,9 @@ import { Web3Provider } from 'ethers/providers';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { ERC20ContractFactory } from '../contracts/ERC20ContractFactory';
-import { Erc20ProxyContractFactory } from '../contracts/Erc20ProxyContractFactory';
-import { GnosisSafeMultisigContractFactory } from '../contracts/GnosisSafeMultisigContractFactory';
+import { ERC20Contract } from '../contracts/Erc20Contract';
+import { Erc20ProxyContract } from '../contracts/Erc20ProxyContract';
+import { GnosisSafeMultisigContract } from '../contracts/GnosisSafeMultisigContract';
 import { getProvider, getRequestPaymentValues, getSigner, validateRequest } from './utils';
 
 /**
@@ -23,9 +23,9 @@ export async function approveErc20WithMultisig(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
-  const multisigContract = GnosisSafeMultisigContractFactory.connect(multisigAddress, signer);
+  const multisigContract = GnosisSafeMultisigContract.connect(multisigAddress, signer);
   const tokenAddress = request.currencyInfo.value;
-  const erc20interface = ERC20ContractFactory.connect(tokenAddress, signer).interface;
+  const erc20interface = ERC20Contract.connect(tokenAddress, signer).interface;
   const encodedApproveCall = erc20interface.functions.approve.encode([
     erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
     utils
@@ -50,10 +50,10 @@ export async function payErc20WithMultisig(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
-  const multisigContract = GnosisSafeMultisigContractFactory.connect(multisigAddress, signer);
+  const multisigContract = GnosisSafeMultisigContract.connect(multisigAddress, signer);
   const tokenAddress = request.currencyInfo.value;
   const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
-  const erc20ProxyInterface = Erc20ProxyContractFactory.connect(proxyAddress, signer).interface;
+  const erc20ProxyInterface = Erc20ProxyContract.connect(proxyAddress, signer).interface;
 
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const encodedApproveCall = erc20ProxyInterface.functions.transferFromWithReference.encode([

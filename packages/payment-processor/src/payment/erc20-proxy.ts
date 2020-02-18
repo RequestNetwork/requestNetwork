@@ -5,8 +5,8 @@ import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { ERC20ContractFactory } from '../contracts/ERC20ContractFactory';
-import { Erc20ProxyContractFactory } from '../contracts/Erc20ProxyContractFactory';
+import { ERC20Contract } from '../contracts/Erc20Contract';
+import { Erc20ProxyContract } from '../contracts/Erc20ProxyContract';
 import {
   getAmountToPay,
   getNetworkProvider,
@@ -31,7 +31,7 @@ export async function payErc20ProxyRequest(
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const signer = getSigner(signerOrProvider);
 
-  const proxyContract = Erc20ProxyContractFactory.connect(
+  const proxyContract = Erc20ProxyContract.connect(
     erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
     signer,
   );
@@ -58,7 +58,7 @@ export async function hasErc20Approval(
   account: string,
   provider: Provider = getNetworkProvider(request),
 ): Promise<boolean> {
-  const erc20Contract = ERC20ContractFactory.connect(request.currencyInfo.value, provider);
+  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
   const allowance = await erc20Contract.allowance(
     account,
     erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
@@ -77,7 +77,7 @@ export async function approveErc20(
   signerOrProvider: Web3Provider | Signer = getProvider(),
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
-  const erc20Contract = ERC20ContractFactory.connect(request.currencyInfo.value, signer);
+  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, signer);
 
   const tx = await erc20Contract.approve(
     erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
@@ -100,7 +100,7 @@ export async function getErc20Balance(
   address: string,
   provider: Provider = getNetworkProvider(request),
 ): Promise<BigNumber> {
-  const erc20Contract = ERC20ContractFactory.connect(request.currencyInfo.value, provider);
+  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
   return erc20Contract.balanceOf(address);
 }
 
