@@ -1,6 +1,6 @@
-import { ContractTransaction, Signer } from 'ethers';
+import { ContractTransaction, Signer, utils } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
+import { BigNumber, BigNumberish } from 'ethers/utils';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -27,24 +27,45 @@ export async function payErc20ProxyRequest(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
 ): Promise<ContractTransaction> {
+  const encodedTx = encodePayErc20Request(request, signerOrProvider, amount);
+  const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction({
+    data: encodedTx,
+    to: proxyAddress,
+    value: 0,
+  });
+  return tx;
+}
+
+/**
+ * Pay an ERC20 request using a Multisig contract.
+ * @param request request to pay
+ * @param multisigAddress multisig contract used to pay the request.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ */
+export function encodePayErc20Request(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: Web3Provider | Signer = getProvider(),
+  amount?: BigNumberish,
+): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
-  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const signer = getSigner(signerOrProvider);
 
-  const proxyContract = Erc20ProxyContract.connect(
-    erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
-    signer,
-  );
+  const tokenAddress = request.currencyInfo.value;
+  const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
 
+  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
 
-  const tx = await proxyContract.transferFromWithReference(
-    request.currencyInfo.value,
+  const proxyContract = Erc20ProxyContract.connect(proxyAddress, signer);
+  return proxyContract.interface.functions.transferFromWithReference.encode([
+    tokenAddress,
     paymentAddress,
     amountToPay,
-    '0x' + paymentReference,
-  );
-  return tx;
+    `0x${paymentReference}`,
+  ]);
 }
 
 /**
@@ -77,16 +98,41 @@ export async function approveErc20(
   signerOrProvider: Web3Provider | Signer = getProvider(),
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, signer);
+  const tokenAddress = request.currencyInfo.value;
 
-  const tx = await erc20Contract.approve(
+  const encodedTx = encodeApproveErc20(request, signerOrProvider);
+  const tx = await signer.sendTransaction({
+    data: encodedTx,
+    to: tokenAddress,
+    value: 0,
+  });
+  return tx;
+}
+
+/**
+ * Processes the approval transaction of the targeted ERC20, for multisig contracts.
+ * @param request
+ * @param multisigAddress multisig contract for which to approve the ERC20
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ */
+export function encodeApproveErc20(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: Web3Provider | Signer = getProvider(),
+): string {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  const signer = getSigner(signerOrProvider);
+
+  const tokenAddress = request.currencyInfo.value;
+  const erc20interface = ERC20Contract.connect(tokenAddress, signer).interface;
+  const encodedApproveCall = erc20interface.functions.approve.encode([
     erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
-    bigNumberify(2)
+    utils
+      .bigNumberify(2)
       // tslint:disable-next-line: no-magic-numbers
       .pow(256)
       .sub(1),
-  );
-  return tx;
+  ]);
+  return encodedApproveCall;
 }
 
 /**
