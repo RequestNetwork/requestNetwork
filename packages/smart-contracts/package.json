@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.4.0",
-    "ethers": "4.0.43",
+    "ethers": "4.0.45",
     "ganache-cli": "6.7.0",
     "lint-staged": "9.5.0",
     "openzeppelin-solidity": "2.1.2",

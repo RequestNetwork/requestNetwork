@@ -39,7 +39,7 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
-    "test": "nyc mocha --require source-map-support/register --require amd-loader \"test/**/*.ts\"",
+    "test": "nyc mocha --require source-map-support/register --timeout 5000 --require amd-loader \"test/**/*.ts\"",
     "test:watch": "nyc mocha --watch --watch-extensions ts --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "dependencies": {
@@ -58,7 +58,7 @@
     "bn.js": "4.11.8",
     "currency-codes": "1.5.1",
     "eth-contract-metadata": "1.11.0",
-    "ethers": "4.0.43"
+    "ethers": "4.0.45"
   },
   "devDependencies": {
     "@compodoc/compodoc": "1.1.10",
