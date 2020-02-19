@@ -19,7 +19,6 @@ function getDest(module) {
   'data-format',
   'epk-signature',
   'ethereum-storage',
-  'payment-detection',
   'payment-processor',
   'request-client.js',
   'request-logic',

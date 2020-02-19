@@ -1,7 +1,8 @@
 import { expect } from 'chai';
+import { BaseProvider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
 
-import { getAmountToPay } from '../../src/payment/utils';
+import { getAmountToPay, getNetworkProvider, getProvider } from '../../src/payment/utils';
 
 describe('getAmountToPay', () => {
   it('returns the expectedAmount if balance is 0', () => {
@@ -74,5 +75,42 @@ describe('getAmountToPay', () => {
         expectedAmount: '1000000',
       } as any),
     ).to.throw('cannot pay a null amount');
+  });
+});
+
+describe('getProvider', () => {
+  it('fails if ethereum not defined', () => {
+    expect(() => getProvider()).to.throw(
+      'ethereum not found, you must pass your own web3 provider',
+    );
+  });
+});
+
+describe('getNetworkProvider', () => {
+  it('returns a provider for mainnet', () => {
+    const request: any = {
+      currencyInfo: {
+        network: 'mainnet',
+      },
+    };
+    expect(getNetworkProvider(request)).to.be.instanceOf(BaseProvider);
+  });
+
+  it('returns a provider for rinkeby', () => {
+    const request: any = {
+      currencyInfo: {
+        network: 'mainnet',
+      },
+    };
+    expect(getNetworkProvider(request)).to.be.instanceOf(BaseProvider);
+  });
+
+  it('fails for other network', () => {
+    const request: any = {
+      currencyInfo: {
+        network: 'ropsten',
+      },
+    };
+    expect(() => getNetworkProvider(request)).to.throw('unsupported network');
   });
 });
