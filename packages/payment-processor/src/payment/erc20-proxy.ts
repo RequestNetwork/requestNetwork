@@ -97,10 +97,9 @@ export async function approveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
 ): Promise<ContractTransaction> {
+  const encodedTx = encodeApproveErc20(request, signerOrProvider);
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-
-  const encodedTx = encodeApproveErc20(request, signerOrProvider);
   const tx = await signer.sendTransaction({
     data: encodedTx,
     to: tokenAddress,
