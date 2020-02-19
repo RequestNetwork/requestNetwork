@@ -14,11 +14,10 @@ import {
  * Utility to get the default window.ethereum provider, or throws an error.
  */
 export function getProvider(): Web3Provider {
-  const win = window as any;
-  if (!win.ethereum) {
-    throw new Error('ethereum not found, you must pass your own web3 provider');
+  if (typeof window !== 'undefined' && 'ethereum' in window) {
+    return new ethers.providers.Web3Provider((window as any).ethereum);
   }
-  return new ethers.providers.Web3Provider(win.ethereum);
+  throw new Error('ethereum not found, you must pass your own web3 provider');
 }
 
 /**
