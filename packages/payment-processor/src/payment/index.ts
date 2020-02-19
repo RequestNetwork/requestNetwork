@@ -61,18 +61,25 @@ export async function payRequest(
 export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
-  provider: Provider = getNetworkProvider(request),
+  provider?: Provider,
 ): Promise<boolean> {
-  const ethBalance = await provider.getBalance(address);
-
   const paymentNetwork = getPaymentNetwork(request);
 
+  let ethBalance;
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
+      if (!provider) {
+        provider = getNetworkProvider(request);
+      }
+      ethBalance = await provider.getBalance(address);
       const balance = await getErc20Balance(request, address, provider);
       // check ETH for gas, and token for funds transfer
       return ethBalance.gt(0) && balance.gt(bigNumberify(request.expectedAmount || 0));
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
+      if (!provider) {
+        provider = getNetworkProvider(request);
+      }
+      ethBalance = await provider.getBalance(address);
       return ethBalance.gt(bigNumberify(request.expectedAmount || 0));
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
