@@ -3,4 +3,5 @@
   "rules": {
     "no-console": false,
     "no-floating-promises": false
+  }
 }

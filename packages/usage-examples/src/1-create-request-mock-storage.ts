@@ -1,13 +1,12 @@
 /**
- * Creating a Request using mock storage
- * =====================================
+ * # Creating a Request using mock storage
  *
  * This is an example of the simplest way to create a test Request, using a fake/mock storage.
  * The request will be stored in memory and cleared as soon as the script is finished running.
  */
 
 /**
- * IMPORTS
+ * ## Imports
  *
  * First we import the 2 packages we will need to create the request:
  */
@@ -17,7 +16,7 @@ import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signatu
 import * as RequestNetwork from '@requestnetwork/request-client.js';
 
 /**
- * IDENTITY
+ * ## Identity
  *
  * To create a request we need to declare the identities of the parties involved.
  * Identities are the unique identifier of a request user. They are not payment addresses, only unique addresses that identify a person/entity.
@@ -36,7 +35,7 @@ const payerIdentity = {
 };
 
 /**
- * SIGNATURE PROVIDER
+ * ## Signature Provider
  *
  * The ethereum private key signature provider allow a user to pass in their private ethereum key to sign a request.
  * The signature is a proof of who created the request and of it's integrity (that no data changed after it was signed).
@@ -53,7 +52,7 @@ const payeeSignatureInfo = {
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
 /**
- * REQUEST INFORMATION
+ * ## Request Information
  *
  * In the next section of code we declare the request information.
  */
@@ -61,7 +60,7 @@ const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignature
 // The main request info, with the currency, amount (in the smallest denominator), payee identity and payer identity
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
   currency: 'REQ',
-  expectedAmount: 1e18,
+  expectedAmount: '1000000000000000000', // 1 REQ
   payee: payeeIdentity,
   payer: payerIdentity,
 };
@@ -72,7 +71,7 @@ const createParams = {
 };
 
 /**
- * REQUEST CREATION
+ * ## Request Creation
  *
  * Time for action!
  */
