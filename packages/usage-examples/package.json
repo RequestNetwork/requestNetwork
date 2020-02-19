@@ -25,7 +25,8 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "start": "ts-node src/request-client-js.ts src/request-client-js-declarative-request.ts && ts-node src/request-client-js-erc20-request.ts && ts-node src/request-logic-clear-request.ts && ts-node src/request-logic-encrypted-request.ts",
-    "prepare": "yarn run build"
+    "prepare": "yarn run build",
+    "md": "node scripts/code2md/index.js"
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.5.5",
@@ -36,7 +37,9 @@
     "@requestnetwork/request-logic": "0.8.3",
     "@requestnetwork/transaction-manager": "0.8.4",
     "@requestnetwork/types": "0.11.0",
-    "@requestnetwork/utils": "0.10.0"
+    "@requestnetwork/utils": "0.10.0",
+    "minimist": "^1.2.0",
+    "mkdirp": "^1.0.3"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "1.2.0",
