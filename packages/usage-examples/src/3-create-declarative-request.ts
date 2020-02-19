@@ -1,13 +1,12 @@
 /**
- * Creating a declarative Request using a public gateway.
- * ======================================================
+ * # Creating a declarative Request using a local Request Node
  *
- * In this example we will create a declarative request, meaning there is no manual payment detection, the payment information update is manual.
+ * In this example we will create a declarative request, meaning there is no automatic payment detection, the payment information update is manual.
  * The request will be created at a node running locally (https://docs.request.network/request-protocol/getting-started-1/deploy-a-request-node).
  */
 
 /**
- * IMPORTS
+ * ## Imports
  *
  * First we import the 2 packages we will need to create the request:
  */
@@ -17,7 +16,7 @@ import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signatu
 import * as RequestNetwork from '@requestnetwork/request-client.js';
 
 /**
- * IDENTITY
+ * ## Identity
  *
  * To create a request we need to declare the identities of the parties involved.
  * Identities are the unique identifier of a request user. They are not payment addresses, only unique addresses that identify a person/entity.
@@ -36,7 +35,7 @@ const payerIdentity = {
 };
 
 /**
- * SIGNATURE PROVIDER
+ * ## Signature Provider
  *
  * The ethereum private key signature provider allow a user to pass in their private ethereum key to sign a request.
  * The signature is a proof of who created the request and of it's integrity (that no data changed after it was signed).
@@ -53,35 +52,37 @@ const payeeSignatureInfo = {
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
 /**
- * PAYMENT NETWORK
+ * ## Payment Network
  *
  * In this section we declare a payment network.
- * It allows us to declare how we will detect and update the payment status for this request.
+ * It allows us to declare how we will detect and update the payment status for the request.
  *
  * For this request, we will use a declarative payment network. It allows the payer to declare it paid the request,
  * and the payee to confirm the payment was received. It's a simple, manual way of updating the request.
  *
  * To create the payment network we declare the network ID (from one of the available here: https://docs.request.network/request-protocol/payment-detection)
- * and the payment address where we want the payer to send the money to.
+ * and the payment information to where we want the payer to send the money to.
  */
 const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
-    paymentAddress: '1LEMZPBit6tTtjXfaEfz4yYmTuctHWoMV',
+    paymentInformation: {
+      BIC: 'SABAIE2D',
+      IBAN: 'FR 8937 0400 4405 3201 3000',
+    },
   },
 };
 
 /**
- * REQUEST INFORMATION
+ * ## Request Information
  *
  * In the next section of code we declare the request information.
  */
 
 // The main request info, with the currency, amount (in the smallest denominator), payee identity and payer identity
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
-  currency: 'BTC',
-  expectedAmount: 1e8,
+  currency: 'EUR',
+  expectedAmount: '42000',
   payee: payeeIdentity,
   payer: payerIdentity,
 };
@@ -93,18 +94,18 @@ const createParams = {
 };
 
 /**
- * REQUEST CREATION
+ * ## Request Creation
  *
  * Time for action!
  */
 
 // We initialize the RequestNetwork class with the signature provider and the gateway address
 const requestNetwork = new RequestNetwork.RequestNetwork({
+  nodeConnectionConfig: { baseURL: 'http://localhost:3000' },
   signatureProvider,
-  nodeConnectionConfig: { baseURL: 'https://gateway-rinkeby.request.network' },
 });
 
 requestNetwork.createRequest(createParams).then(request => {
-  console.log('clear request:');
+  console.log('Request created:');
   console.log(request.requestId);
 });

@@ -1,8 +1,9 @@
 /**
- * # Creating a Request using a public gateway.
+ * Creating an Ethereum Request using a local Request Node
+ * ============================================
  *
- * This is an example of the simplest way to create a Request, using the public request test gateway.
- * On this example we will create a request on the rinkeby network, for testing purposes.
+ * In this example we will create a request with automatic payment detection. The currency, and the Payment Network, used in this example will be ETH.
+ * The request will be created at a node running locally (https://docs.request.network/request-protocol/getting-started-1/deploy-a-request-node).
  */
 
 /**
@@ -52,6 +53,25 @@ const payeeSignatureInfo = {
 const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
 
 /**
+ * ## Payment Network
+ *
+ * In this section we declare a payment network.
+ * It allows us to declare how we will detect and update the payment status for the request.
+ *
+ * For this request, we will use the ETH Input Data payment network. This payment network allows automatic detection of an Ethereum request payment.
+ * For this detection to work, the payer will send some data with the ETH payment transaction, that will allow us to link the payment to the request.
+ *
+ * To create the payment network we declare the network ID (from one of the available here: https://docs.request.network/request-protocol/payment-detection)
+ * and the payment address where we want the payer to send the money to.
+ */
+const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+  parameters: {
+    paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+  },
+};
+
+/**
  * ## Request Information
  *
  * In the next section of code we declare the request information.
@@ -59,13 +79,14 @@ const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignature
 
 // The main request info, with the currency, amount (in the smallest denominator), payee identity and payer identity
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
-  currency: 'REQ',
-  expectedAmount: '1000000000000000000', // 1 REQ
+  currency: 'ETH',
+  expectedAmount: '2000000000000000000', // 2 ETH
   payee: payeeIdentity,
   payer: payerIdentity,
 };
 
 const createParams = {
+  paymentNetwork,
   requestInfo,
   signer: payeeIdentity,
 };
@@ -78,7 +99,7 @@ const createParams = {
 
 // We initialize the RequestNetwork class with the signature provider and the gateway address
 const requestNetwork = new RequestNetwork.RequestNetwork({
-  nodeConnectionConfig: { baseURL: 'https://gateway-rinkeby.request.network' },
+  nodeConnectionConfig: { baseURL: 'http://localhost:3000' },
   signatureProvider,
 });
 
