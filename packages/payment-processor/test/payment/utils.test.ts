@@ -1,8 +1,14 @@
 import { expect } from 'chai';
+import { Wallet } from 'ethers';
 import { BaseProvider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
 
-import { getAmountToPay, getNetworkProvider, getProvider } from '../../src/payment/utils';
+import {
+  getAmountToPay,
+  getNetworkProvider,
+  getProvider,
+  getSigner,
+} from '../../src/payment/utils';
 
 describe('getAmountToPay', () => {
   it('returns the expectedAmount if balance is 0', () => {
@@ -99,7 +105,7 @@ describe('getNetworkProvider', () => {
   it('returns a provider for rinkeby', () => {
     const request: any = {
       currencyInfo: {
-        network: 'mainnet',
+        network: 'rinkeby',
       },
     };
     expect(getNetworkProvider(request)).to.be.instanceOf(BaseProvider);
@@ -112,5 +118,16 @@ describe('getNetworkProvider', () => {
       },
     };
     expect(() => getNetworkProvider(request)).to.throw('unsupported network');
+  });
+});
+
+describe('getSigner', () => {
+  it('should return the instance if signer is passed', () => {
+    const wallet = Wallet.createRandom();
+    expect(getSigner(wallet)).to.eq(wallet);
+  });
+
+  it('should throw an error if the provider is not supported', () => {
+    expect(() => getSigner({} as any)).to.throw('cannot get signer');
   });
 });

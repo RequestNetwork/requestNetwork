@@ -15,8 +15,7 @@ import {
  */
 export function getProvider(): Web3Provider {
   if (typeof window !== 'undefined' && 'ethereum' in window) {
-    const win = window as any;
-    return new ethers.providers.Web3Provider(win.ethereum);
+    return new ethers.providers.Web3Provider((window as any).ethereum);
   }
   throw new Error('ethereum not found, you must pass your own web3 provider');
 }
