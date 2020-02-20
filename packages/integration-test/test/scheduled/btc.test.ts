@@ -32,7 +32,9 @@ describe('BTC detection test-suite', () => {
       signer: payee.identity,
     });
 
-    expect(request.getData().balance?.balance).to.be.equal('50500000');
+    // tslint:disable-next-line:no-magic-numbers
+    await new Promise((resolve: any): any => setTimeout(resolve, 1500));
+    expect((await request.refresh()).balance?.balance).to.be.equal('50500000');
   });
 
   it('Can create a BTC mainnet payment provider request and detect the payment', async () => {
@@ -51,6 +53,8 @@ describe('BTC detection test-suite', () => {
       signer: payee.identity,
     });
 
-    expect(request.getData().balance?.balance).to.be.equal('666743');
+    // tslint:disable-next-line:no-magic-numbers
+    await new Promise((resolve: any): any => setTimeout(resolve, 1500));
+    expect((await request.refresh()).balance?.balance).to.be.equal('666743');
   });
 });

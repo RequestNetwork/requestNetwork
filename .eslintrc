@@ -19,6 +19,7 @@
           "aes",
           "aes256cbc",
           "api",
+          "arrayish",
           "arg",
           "args",
           "argv",

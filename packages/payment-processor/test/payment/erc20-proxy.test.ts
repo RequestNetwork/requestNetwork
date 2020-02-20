@@ -16,9 +16,9 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import {
+  _getErc20PaymentUrl,
   approveErc20,
   getErc20Balance,
-  _getErc20PaymentUrl,
   hasErc20Approval,
   payErc20ProxyRequest,
 } from '../../src/payment/erc20-proxy';
