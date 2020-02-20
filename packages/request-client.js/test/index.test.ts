@@ -212,7 +212,6 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    // expect(spyPersistTransaction).to.not.have.been.called;
     expect(spyIpfsAdd).to.have.been.called.once;
 
     await new Promise((resolve): any => request.on('confirmed', resolve));
