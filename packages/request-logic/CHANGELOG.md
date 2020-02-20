@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.8.0...@requestnetwork/request-logic@0.9.0) (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+
+
+### Reverts
+
+* bump semver from 5.6.0 to 7.1.1 ([dec266f](https://github.com/RequestNetwork/requestNetwork/commit/dec266f3e174e039d181be3d1a6e2961df072cc6))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+### Bug Fixes
+
+* backward compatibility issue + removing test failing for external reason ([#93](https://github.com/RequestNetwork/requestNetwork/issues/93)) ([9a405dc](https://github.com/RequestNetwork/requestNetwork/commit/9a405dcc66b36a9a4a4b885dea2cd50abaad2725))
+* fix old version id mismatch issue ([#98](https://github.com/RequestNetwork/requestNetwork/issues/98)) ([c4d3f29](https://github.com/RequestNetwork/requestNetwork/commit/c4d3f291b7667f426a4a95cac7d65db90d13921b))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Bug Fixes
+
+* rollback legacy request currency renaming from DAI to SAI ([#622](https://github.com/RequestNetwork/requestNetwork/issues/622)) ([2882811](https://github.com/RequestNetwork/requestNetwork/commit/28828117f6490ada05180f2607098d3ebada681a))
+
+
+
+
+
 ## [0.8.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.8.0...@requestnetwork/request-logic@0.8.3) (2020-01-16)
 
 
