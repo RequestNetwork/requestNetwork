@@ -59,11 +59,9 @@ const options = [
     ),
     details: (
       <>
-				<p>
-					You decide of how requests hashes are pushed to Ethereum and how to store and access details (encrypted or not).
-				</p>
-	Pros:
-	Cons:
+        You decide of how requests hashes are pushed to Ethereum and how to store and access details (encrypted or not).
+        Pros:
+        Cons:
       </>
     ),
   },
@@ -80,11 +78,9 @@ function IntegrationOption({ showDetails, imageUrl, title, description, details 
       )}
 			<div className={classnames(styles.integrationOptionText)}>
 				<h3>{title}</h3>
-				<div className="IntegrationOptionDescription">{description}</div>
+				<div className={classnames(styles.integrationOptionDescription)}>{description}</div>
 				{showDetails && (
-					<div className={classnames(styles.integrationOption)}>
-						<p>{details}</p>
-					</div>
+          <p>{details}</p>
 				)}
 			</div>
 		</div>

@@ -27,7 +27,6 @@ Once your account is created, you are able to:
 - Access your API keys, by clicking on your account and then Settings.
 
 
-TODO-Change me because there is the identity as clear text on the homepage
 <img alt="Getthing the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
 
 
@@ -35,10 +34,10 @@ You have two API keys, use the Test one to follow this guide.
 
 ## Request identity
 
-User's identity is important to identify the senders and recipients of requests. Identity is the way a user can be sure of the authenticity of the invoice he is asked to pay. 
-With decentralized integration options (cf. [the Request client](docs/guides/5-Request-client/0-intro.md), end users manage their private keys, but the Portal simplifies life for them.
+Senders and recipients of money transfer requests need a way to trust each other. The identity is how we certify the debtor about the authenticity of the request sender, limiting frauds like SCAM for example.
+With decentralized integration options (cf. [the Request client](/docs/guides/5-Request-client/0-intro), end users manage their private keys, but the Portal simplifies their life.
 
-This simplification should be handled with great care, the Request Portal API is not suited for critical environments where a lot of money or public reputation is at stake.
+This simplification should be applied with great care, we do not recommend using the Request Portal API for critical cases where a lot of money or public reputation is at stake. If you want full control over the security of your finance, you should handle your keys, and the same applies to your users. Have a look at [the integration options](/docs/others/integration-options) to take the best decision.
 
 # Action
 ## How to list the requests associated to your identity

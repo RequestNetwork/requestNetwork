@@ -53,12 +53,12 @@
 
 .integrationOptionImage {
 	margin-bottom: 12px;
-	max-width: 26;
 	flex: 2;
 }
 
-integrationOptionDescription {
+.integrationOptionDescription {
 	padding-right: 24px;
+  margin-bottom: 24px;
 	color: #8c8c8c;
 }
 
