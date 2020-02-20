@@ -74,7 +74,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // TODO: create the confirm mechanism with a request node
-    // result.on('confirmed', () => {});
+    setTimeout(() => {
+      result.emit('confirmed', { data });
+      // tslint:disable-next-line:no-magic-numbers
+    }, 2000);
 
     return result;
   }

@@ -16,6 +16,9 @@ export interface IRequestData extends Omit<RequestLogic.IRequest, 'currency'> {
   contentData: any;
   currencyInfo: RequestLogic.ICurrency;
   pending: RequestLogic.IPendingRequest | null;
+
+  on: (type: any, listener: any) => this;
+  emit: (type: any, ...args: any[]) => boolean;
 }
 
 /** Create request parameters */

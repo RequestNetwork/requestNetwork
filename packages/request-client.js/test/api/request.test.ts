@@ -1,5 +1,7 @@
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
+import { EventEmitter } from 'events';
+
 import 'mocha';
 import Request from '../../src/api/request';
 
@@ -25,19 +27,19 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
     return;
   },
   async acceptRequest(): Promise<any> {
-    return { meta: {} };
+    return Object.assign(new EventEmitter(), { meta: {} });
   },
   async cancelRequest(): Promise<any> {
-    return { meta: {} };
+    return Object.assign(new EventEmitter(), { meta: {} });
   },
   async increaseExpectedAmountRequest(): Promise<any> {
-    return { meta: {} };
+    return Object.assign(new EventEmitter(), { meta: {} });
   },
   async reduceExpectedAmountRequest(): Promise<any> {
-    return { meta: {} };
+    return Object.assign(new EventEmitter(), { meta: {} });
   },
   async addExtensionsDataRequest(): Promise<any> {
-    return { meta: {}, result: {} };
+    return Object.assign(new EventEmitter(), { meta: {} });
   },
   async getRequestFromId(): Promise<any> {
     return { meta: {}, result: { request: { requestId: '1' }, pending: null } };

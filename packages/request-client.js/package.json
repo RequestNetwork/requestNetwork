@@ -39,7 +39,7 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
-    "test": "nyc mocha --require source-map-support/register --require amd-loader \"test/**/*.ts\"",
+    "test": "nyc mocha --timeout 4000 --require source-map-support/register --require amd-loader \"test/**/*.ts\"",
     "test:watch": "nyc mocha --watch --watch-extensions ts --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "dependencies": {

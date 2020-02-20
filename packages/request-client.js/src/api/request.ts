@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -13,7 +15,7 @@ import localUtils from './utils';
  *
  * Requests should be created with `RequestNetwork.createRequest()`.
  */
-export default class Request {
+export default class Request extends EventEmitter {
   /**
    * Unique ID of the request
    */
@@ -62,6 +64,8 @@ export default class Request {
     paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
   ) {
+    super();
+
     this.requestLogic = requestLogic;
     this.requestId = requestId;
     this.contentDataExtension = contentDataExtension || null;
@@ -93,10 +97,16 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
+    const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    acceptResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -125,10 +135,16 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
+    const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    cancelResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -159,10 +175,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
+    const increaseExpectedResult = await this.requestLogic.increaseExpectedAmountRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    increaseExpectedResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -194,10 +220,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.reduceExpectedAmountRequest(parameters, signerIdentity, true);
+    const reduceExpectedResult = await this.requestLogic.reduceExpectedAmountRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    reduceExpectedResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -226,10 +262,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    addExtensionResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -258,10 +304,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    addExtensionResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -300,10 +356,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    addExtensionResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -345,10 +411,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    addExtensionResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -390,10 +466,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    addExtensionResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -435,10 +521,20 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
+    const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
+      parameters,
+      signerIdentity,
+      true,
+    );
 
-    // refresh the local request data and return it
-    return this.refresh();
+    // refresh the local request data
+    const requestData = await this.refresh();
+
+    addExtensionResult.on('confirmed', async () => {
+      requestData.emit('confirmed', await this.refresh());
+    });
+
+    return requestData;
   }
 
   /**
@@ -456,7 +552,7 @@ export default class Request {
       pending = { state: this.pendingData!.state };
     }
 
-    return {
+    return Object.assign(new EventEmitter(), {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
@@ -464,7 +560,7 @@ export default class Request {
       currencyInfo: requestData.currency,
       meta: this.requestMeta,
       pending,
-    };
+    });
   }
 
   /**
