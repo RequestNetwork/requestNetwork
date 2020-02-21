@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start",
+    "prestart": "aurelius 'docs/**/*'",
     "build": "docusaurus build",
+    "prebuild": "aurelius 'docs/**/*'",
     "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy"
+    "preswizzle": "aurelius 'docs/**/*'",
+    "deploy": "docusaurus deploy",
+    "predeploy": "aurelius 'docs/**/*'"
   },
   "dependencies": {
     "@docusaurus/core": "^2.0.0-alpha.40",
@@ -28,5 +32,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "aurelius": "^0.1.2"
   }
 }

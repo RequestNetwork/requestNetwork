@@ -63,6 +63,18 @@ h2::before {
   font-weight: 700;
 }
 
+.navbar__brand {
+  min-width: 150px;
+}
+
+.navbar .navbar__items {
+  flex: 4 0 0;
+}
+
+.navbar__items.navbar__items--right {
+  flex: 1 0 0;
+}
+
 .page-ref {
   border: 1px solid rgb(230, 236, 241);
   margin: 32px 0px;
