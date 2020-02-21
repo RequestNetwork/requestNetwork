@@ -1,16 +1,11 @@
 ---
 title: Create your first Request
 sidebar_label: First request creation
-keywords:
+keywords: Request creation, API
 
-description: >-
-  This API Is currently in Beta, its specification may change in the future. We
-  do not recommend production usage yet.
 ---
 
-<!--TODO: keywords-->
-
-import Hint from '../../src/components/hint.js';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Get an outlook of the Request network in a matter of minutes with the API.
 
@@ -18,61 +13,50 @@ Get an outlook of the Request network in a matter of minutes with the API.
 
 Head towards [the Request dashboard](https://dashboard.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
 
-Once your account is created, you should be able to:
 
-- Create a request, which is useful for manual testing for example
-- List requests you sent or received, useful for debugging
-- Access your API key, by clicking on your account and then Settings.
+<img alt="Getthing the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
 
-You have two API keys, use the Test one for all these tutorials.
+More info about the Request Portal [in the next section](/guides/3-API/0-portal-intro).
 
 ## Create your first request
 
-```jsx live
-function hereYouGo() {
-		requestId = 43;
-		return(<a href="https://pay.request.network/">{requestId}TODO-Share this payment link</a>);
-}
+To create a payment request or invoice, you must create a basic Request object which outlines some information such as the receiving payment address, which payment network is being used, the currency and the amount expected. 
+
+```jsx
+const axios = require('axios')
+
+const API_KEY = 'YOUR_API_KEY';
+const requestParams = {
+  "currency": "BTC",
+  "expectedAmount": "100000000",
+  "payment": {
+    "type": "bitcoin-testnet",
+    "value": "mgcZRSj6ngfKBUHr2DGBqCfHSSYBDSbjph"
+  },
+};
+
+const request = await axios.post('https://api.request.network/requests', requestParams, {
+  headers: { Authorization: API_KEY }
+})
+
+console.log(request.data);
 ```
-```jsx live
-function createFirstRequest() {
-	const axios = require('axios')
 
-	const API_KEY = 'YOUR_API_KEY';
-	const requestParams = {
-		"currency": "BTC",
-		"expectedAmount": "100000000",
-			"payment": {
-					"type": "bitcoin-testnet",
-					"value": "mgcZRSj6ngfKBUHr2DGBqCfHSSYBDSbjph"
-			},
-	};
-
-	const request = await axios.post('https://api.request.network/requests', requestParams, {
-			headers: { Authorization: API_KEY }
-	})
-
-	requestId = request.data.requestId;
-	return(<div>
-					Request created with ID: {requestId}
-				</div>
-				<a href="https://pay.request.network/{requestId}">Share this payment link</a>);
-}
-```
+The `data` object contains a `requestId` field that you can use for other API calls. 
 
 ## Check that it worked
 
 You can check that the request was created by heading towards [the list of requests in your dashboard](https://dashboard.request.network/dashboard). The request should be listed on top of the list.
 
-By clicking on the request row, you can also cross-check the request details.
+By clicking on the request row, you can see the details.
 
 You can see that the status is Pending: the request has not been paid yet. We will deal with payment detection [later]().
 
 ## Wrap-up
 
-The request created is the proof that some money has been requested by a user, and its pending status the proof that the money is still due.
+The request created is the proof that some money has been requested by an entity, and its pending status the proof that the money is still due.
 
-In the next steps, we will see how to transform such a basic creation into seamless financial workflows:
+In the next sections, you will also see how to transform such a basic creation into seamless financial workflows:
 
 * For the payer who can pay in one click, because we have all the information he needs
 
