@@ -1,4 +1,4 @@
-import { DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes, MultiFormatTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
@@ -9,6 +9,12 @@ const HTTP_REQUEST_MAX_RETRY = 3;
 
 // Delay between retry in ms
 const HTTP_REQUEST_RETRY_DELAY = 100;
+
+// Maximum number of retries to attempt when http requests to the Node fail
+const GET_CONFIRMATION_MAX_RETRY = 500;
+
+// Delay between retry in ms
+const GET_CONFIRMATION_RETRY_DELAY = 3000;
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -67,17 +73,33 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       this.axiosConfig,
     );
 
+    const transactionHash: MultiFormatTypes.HashTypes.IHash = Utils.crypto.normalizeKeccak256Hash(
+      transactionData,
+    );
+
     // Create the return result with EventEmitter
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
       new EventEmitter(),
       data,
     );
 
-    // TODO: create the confirm mechanism with a request node
-    setTimeout(() => {
-      result.emit('confirmed', { data });
-      // tslint:disable-next-line:no-magic-numbers
-    }, 2000);
+    // Try to get the confirmation
+    Utils.retry(
+      async () =>
+        axios.get(
+          '/getConfirmedTransaction',
+          Object.assign(this.axiosConfig, {
+            params: { transactionHash },
+          }),
+        ),
+      {
+        maxRetries: GET_CONFIRMATION_MAX_RETRY,
+        retryDelay: GET_CONFIRMATION_RETRY_DELAY,
+      },
+    )().then((resultConfirmed: DataAccessTypes.IReturnPersistTransaction) => {
+      // when found, emit the event 'confirmed'
+      result.emit('confirmed', resultConfirmed);
+    });
 
     return result;
   }

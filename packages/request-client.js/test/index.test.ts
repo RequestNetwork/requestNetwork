@@ -113,6 +113,7 @@ function mockAxios(): any {
   mock.onGet('/getTransactionsByChannelId').reply(200, {
     result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
   });
+  mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
   return mock;
 }
 
@@ -155,6 +156,7 @@ describe('index', () => {
     mock
       .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -166,7 +168,6 @@ describe('index', () => {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
     };
-
     const request = await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -229,6 +230,7 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestDataRealBTC.timestampedTransaction] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -263,6 +265,7 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -286,6 +289,7 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
       nodeConnectionConfig: { baseURL },
@@ -314,7 +318,7 @@ describe('index', () => {
 
     expect(request).to.be.instanceOf(Request);
     expect(request.requestId).to.exist;
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
@@ -367,7 +371,7 @@ describe('index', () => {
 
     expect(request).to.be.instanceOf(Request);
     expect(request.requestId).to.equal(requestId);
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
 
     await new Promise((resolve): any => request.on('confirmed', resolve));
@@ -394,6 +398,7 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
@@ -513,19 +518,10 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    // after confirmation
-    const mock = new mockAdapter(axios);
-    mock.onPost('/persistTransaction').reply(200, { result: {} });
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsDataConfirmed] },
-    });
-
     await request.accept(payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
-
-    await new Promise((resolve): any => request.on('confirmed', resolve));
   });
 
   it('allows to cancel a request', async () => {
@@ -540,10 +536,8 @@ describe('index', () => {
 
     await request.cancel(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
-
-    await new Promise((resolve): any => request.on('confirmed', resolve));
   });
 
   it('allows to increase the expected amount a request', async () => {
@@ -558,10 +552,8 @@ describe('index', () => {
 
     await request.increaseExpectedAmountRequest(3, payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
-
-    await new Promise((resolve): any => request.on('confirmed', resolve));
   });
 
   it('allows to reduce the expected amount a request', async () => {
@@ -576,10 +568,8 @@ describe('index', () => {
 
     await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
-
-    await new Promise((resolve): any => request.on('confirmed', resolve));
   });
 
   describe('tests with declarative payments', () => {
@@ -595,6 +585,7 @@ describe('index', () => {
       mock.onGet('/getTransactionsByChannelId').reply(200, {
         result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
       });
+      mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
     });
 
     it('allows to declare a sent payment', async () => {
@@ -617,7 +608,7 @@ describe('index', () => {
 
       await request.declareSentPayment('10', 'sent payment', payerIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -641,7 +632,7 @@ describe('index', () => {
 
       await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -665,7 +656,7 @@ describe('index', () => {
 
       await request.declareSentRefund('10', 'sent refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -689,7 +680,7 @@ describe('index', () => {
 
       await request.declareReceivedRefund('10', 'received refund', payerIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
