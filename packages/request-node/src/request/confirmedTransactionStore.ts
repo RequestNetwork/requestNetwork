@@ -29,12 +29,12 @@ export default class ConfirmedTransactionStore {
     serverResponse: any,
     logger: LogTypes.ILogger,
   ): Promise<void> {
-    if (!clientRequest.body.transactionHash) {
+    if (!clientRequest.query.transactionHash) {
       serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
     } else {
       try {
         const result: DataAccessTypes.IReturnPersistTransaction | undefined = await this.store.get(
-          clientRequest.body.transactionHash,
+          clientRequest.query.transactionHash,
         );
 
         if (result) {

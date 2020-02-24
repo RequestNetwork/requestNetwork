@@ -37,8 +37,8 @@ describe('getConfirmedTransaction', () => {
       .expect(httpStatus.OK);
 
     await request(server)
-      .post('/getConfirmedTransaction')
-      .send({ transactionHash })
+      .get('/getConfirmedTransaction')
+      .query({ transactionHash })
       .set('Accept', 'application/json')
       .expect(httpStatus.NOT_FOUND);
 
@@ -46,8 +46,8 @@ describe('getConfirmedTransaction', () => {
     await new Promise((resolve): any => setTimeout(resolve, 5000));
 
     const serverResponse = await request(server)
-      .post('/getConfirmedTransaction')
-      .send({ transactionHash })
+      .get('/getConfirmedTransaction')
+      .query({ transactionHash })
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
@@ -63,8 +63,8 @@ describe('getConfirmedTransaction', () => {
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)
-      .post('/getConfirmedTransaction')
-      .send({})
+      .get('/getConfirmedTransaction')
+      .query({})
       .set('Accept', 'application/json')
       .expect(httpStatus.UNPROCESSABLE_ENTITY);
   });
