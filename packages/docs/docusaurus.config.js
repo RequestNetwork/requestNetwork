@@ -20,7 +20,7 @@ module.exports = {
 				{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
         { href: 'https://api-docs.request.network/', label: 'REST API docs', position: 'left' },
         {
-          href: 'https://github.com/requestnetwork/requestnetwork',
+          href: 'https://github.com/RequestNetwork',
           label: 'GitHub',
           position: 'right',
         },
@@ -34,11 +34,15 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
+              label: 'TODO Portal API',
               to: 'docs/0-introduction',
             },
             {
-              label: 'Second Doc',
+              label: 'TODO Request Client library',
+              to: 'docs/doc2',
+            },
+            {
+              label: 'TODO Request Node',
               to: 'docs/doc2',
             },
           ],
@@ -47,12 +51,16 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'RequestHub on Slack',
+              href: 'https://requesthub.slack.com',
+            },
+            {
+              label: 'GitHub',
+              href: 'https://github.com/RequestNetwork/',
             },
             {
               label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              href: 'https://discordapp.com/invite/6aGhs6v',
             },
           ],
         },
@@ -61,11 +69,7 @@ module.exports = {
           items: [
             {
               label: 'Blog',
-              to: 'blog',
-            },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/RequestNetwork/',
+              href: 'https://request.network/en/blog/',
             },
             {
               label: 'Twitter',
