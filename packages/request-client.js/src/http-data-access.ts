@@ -1,4 +1,4 @@
-import { DataAccessTypes, MultiFormatTypes } from '@requestnetwork/types';
+import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
@@ -73,9 +73,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       this.axiosConfig,
     );
 
-    const transactionHash: MultiFormatTypes.HashTypes.IHash = Utils.crypto.normalizeKeccak256Hash(
-      transactionData,
-    );
+    const transactionHash: string = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
 
     // Create the return result with EventEmitter
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
@@ -85,20 +83,21 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
 
     // Try to get the confirmation
     Utils.retry(
-      async () =>
-        axios.get(
+      async () => {
+        return axios.get(
           '/getConfirmedTransaction',
           Object.assign(this.axiosConfig, {
             params: { transactionHash },
           }),
-        ),
+        );
+      },
       {
         maxRetries: GET_CONFIRMATION_MAX_RETRY,
         retryDelay: GET_CONFIRMATION_RETRY_DELAY,
       },
-    )().then((resultConfirmed: DataAccessTypes.IReturnPersistTransaction) => {
+    )().then((resultConfirmed: any) => {
       // when found, emit the event 'confirmed'
-      result.emit('confirmed', resultConfirmed);
+      result.emit('confirmed', resultConfirmed.data);
     });
 
     return result;
