@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "1.0.18",
-    "@types/bluebird": "3.5.27",
+    "@types/bluebird": "3.5.29",
     "@types/chai": "4.1.7",
     "@types/chai-as-promised": "7.1.0",
     "@types/chai-spies": "1.0.0",

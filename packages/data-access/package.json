@@ -52,7 +52,7 @@
     "@stryker-mutator/mocha-framework": "2.1.0",
     "@stryker-mutator/mocha-runner": "2.1.0",
     "@stryker-mutator/typescript": "2.3.0",
-    "@types/bluebird": "3.5.27",
+    "@types/bluebird": "3.5.29",
     "@types/chai": "4.1.7",
     "@types/chai-spies": "1.0.0",
     "@types/keyv": "3.1.0",
