@@ -61,6 +61,6 @@ export default class ConfirmedTransactionStore {
     transactionHash: string,
     result: DataAccessTypes.IReturnPersistTransaction,
   ): Promise<void> {
-    this.store.set(transactionHash, result);
+    await this.store.set(transactionHash, result);
   }
 }

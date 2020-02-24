@@ -6,6 +6,9 @@ import { getPersistTransactionTimeout } from '../config';
 
 import ConfirmedTransactionStore from './confirmedTransactionStore';
 
+/**
+ * Class to persist transaction though data-access layer
+ */
 export default class PersistTransaction {
   private confirmedTransactionStore: ConfirmedTransactionStore;
 
@@ -62,8 +65,8 @@ export default class PersistTransaction {
         );
 
         // when the transaction is confirmed, store the information to be serve when requested
-        dataAccessResponse.on('confirmed', dataAccessConfirmedResponse => {
-          this.confirmedTransactionStore.addConfirmedTransaction(
+        dataAccessResponse.on('confirmed', async dataAccessConfirmedResponse => {
+          await this.confirmedTransactionStore.addConfirmedTransaction(
             transactionHash.value,
             dataAccessConfirmedResponse,
           );
