@@ -95,12 +95,12 @@ export interface IReturnCreateRequest extends IRequestLogicReturnWithConfirmatio
 
 /** return of the function getFirstRequestFromTopic */
 export interface IReturnGetRequestFromId extends IRequestLogicReturn {
-  result: { request: IRequest | null; pending: any | null };
+  result: { request: IRequest | null; pending: IPendingRequest | null };
 }
 
 /** return of the function getRequestsByTopic */
 export interface IReturnGetRequestsByTopic extends IRequestLogicReturn {
-  result: { requests: Array<{ request: IRequest | null; pending: any | null }> };
+  result: { requests: Array<{ request: IRequest | null; pending: IPendingRequest | null }> };
 }
 
 /** Interface of a request logic action */

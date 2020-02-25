@@ -1,9 +1,5 @@
 import DataFormat from '@requestnetwork/data-format';
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 // Extension ID for this class: content data
 const CONTENT_DATA_ID = ExtensionTypes.ID.CONTENT_DATA;
@@ -49,8 +45,10 @@ export default class ContentDataExtension {
    * @param request The request of which we want the content
    * @returns The content
    */
-  public getContent(request: RequestLogicTypes.IRequest): any {
-    if (request.extensions[CONTENT_DATA_ID]) {
+  public getContent(
+    request: RequestLogicTypes.IRequest | RequestLogicTypes.IPendingRequest | null,
+  ): any {
+    if (request && request.extensions && request.extensions[CONTENT_DATA_ID]) {
       return request.extensions[CONTENT_DATA_ID].values.content;
     }
     return null;
