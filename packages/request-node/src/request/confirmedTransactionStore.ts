@@ -4,14 +4,14 @@ import * as httpStatus from 'http-status-codes';
 import * as Keyv from 'keyv';
 
 /**
- * Class for storing confirmed transaction information
+ * Class for storing confirmed transactions information
  * This class allow to store and serve the information when a transaction is confirmed
  */
 export default class ConfirmedTransactionStore {
   public store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
 
   /**
-   * Confirmed transaction store constructor
+   * Confirmed transactions store constructor
    */
   constructor() {
     this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction>();

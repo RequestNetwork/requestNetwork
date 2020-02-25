@@ -7,7 +7,7 @@ import { getPersistTransactionTimeout } from '../config';
 import ConfirmedTransactionStore from './confirmedTransactionStore';
 
 /**
- * Class to persist transaction though data-access layer
+ * Class to persist transactions though the data-access layer
  */
 export default class PersistTransaction {
   private confirmedTransactionStore: ConfirmedTransactionStore;
