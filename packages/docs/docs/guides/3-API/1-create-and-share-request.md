@@ -1,11 +1,10 @@
 ---
 title: Request API - Let's play
-sidebar_label: API - Let's play
-keywords:
+keywords: ERC20, DAI, Request, Portal, API
 
 ---
 
-# Create a request in DAI
+## Create a request in DAI
 
 Description of the use case, with personas, Rinkeby etc.
 
@@ -17,13 +16,13 @@ function justAnotherDAIRequest() {
 
 You can check the request details in the [dashboard](https://dashboard.request.network/)
 
-# How is the request paid?
+## How is the request paid?
 
 First it has to be shared, explain the options with a decent UX and security.
 
 Provide the payment page URL, ask to test.
 
-# Wrap-up: request a payment form
+## Wrap-up: request a payment form
 
 ```jsx live
 function requestPaymentForm() {

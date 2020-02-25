@@ -8,7 +8,7 @@ import styles from './styles.module.css';
 
 const options = [
   {
-		title: <>Fully managed solution, over REST API</>,
+		title: "Fully managed solution, over REST API",
     imageUrl: 'img/ReQ-01.png',
     description: (
       <>
@@ -31,7 +31,7 @@ const options = [
     ),
   },
   {
-		title: <>Decentralized network usage, with managed hosting</>,
+		title: "Decentralized network usage, with managed hosting",
     imageUrl: 'img/REQ-07-hands-02.png',
     description: <>Manage identities, encryption and network interactions yourself but let us host the Request node.</>,
     details: (
@@ -50,7 +50,7 @@ const options = [
     ),
   },
   {
-    title: <>Fully decentralized with self-hosting</>,
+    title: "Fully decentralized with self-hosting",
     imageUrl: 'img/REQ-05-patterns-02.png',
     description: (
       <>
@@ -77,7 +77,18 @@ function IntegrationOption({ showDetails, imageUrl, title, description, details 
         </div>
       )}
 			<div className={classnames(styles.integrationOptionText)}>
-				<h3>{title}</h3>
+        {showDetails && (
+          <>
+            <a class="anchor" id={title.toString().toLowerCase().split(" ").join("-")} >
+            </a>
+            <h3>{title}</h3>
+          </>
+        )}
+        {!showDetails && (
+          <Link to={"/docs/others/integration-options#" + title.toString().toLowerCase().split(" ").join("-")} >
+            <h3>{title}</h3>
+          </Link>
+        )}
 				<div className={classnames(styles.integrationOptionDescription)}>{description}</div>
 				{showDetails && (
           <p>{details}</p>
