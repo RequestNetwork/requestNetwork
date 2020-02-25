@@ -5,6 +5,19 @@ keywords: Request Client, Payment networks
 
 ---
 
+## Other currencies 
+_VRO: this should be modified/added at the end of this section_
+
+If you don't see a currency you would like to create request with, there is two options:
+- Create a declarative request (see [declarative request](TODO))
+- Contact us for your currency requirements: **Join the Request Hub** [**here**](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
+- Contribute to the protocol creating a dedicated payment network for this currency, by:
+  - Writing the specification (following the [advanced logic specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/advanced-logic-specs-0.1.0.md) and get inspired by the [others payment networks](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/specs))
+  - Developing the new payment network in the [advanced-logic package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/src/extensions/payment-network).
+  - Developing the payment detection in the payment [payment-detection package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/payment-detection).
+  - (OPTIONAL) Developing the payment processing in the [payment-processor package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/payment-detection)
+
+
 # TODO
 
 When a user creates and sends a request, he can expect to receive the correct amount of money. But how does he keep track of the payments due and received?
