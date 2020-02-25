@@ -17,9 +17,12 @@
     "@docusaurus/preset-classic": "^2.0.0-alpha.40",
     "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.39",
     "classnames": "^2.2.6",
-    "docusaurus": "^1.14.4",
+    "core-js": "^3.6.4",
+    "mobx": "^5.15.4",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "react-dom": "^16.8.4",
+    "redoc": "^2.0.0-rc.23",
+    "styled-components": "^5.0.1"
   },
   "browserslist": {
     "production": [
