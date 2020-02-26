@@ -31,7 +31,9 @@ export default class ConfirmedTransactionStore {
     logger: LogTypes.ILogger,
   ): Promise<void> {
     if (!clientRequest.query.transactionHash) {
-      serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
+      serverResponse
+        .status(httpStatus.UNPROCESSABLE_ENTITY)
+        .send('transactionHash missing in the query');
     } else {
       try {
         const result: DataAccessTypes.IReturnPersistTransaction | undefined = await this.store.get(
