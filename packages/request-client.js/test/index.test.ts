@@ -161,10 +161,8 @@ describe('index', () => {
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
-      parameters: {
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
-      },
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
     };
 
     await requestNetwork.createRequest({
