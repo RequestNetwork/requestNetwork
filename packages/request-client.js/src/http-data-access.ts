@@ -10,10 +10,10 @@ const HTTP_REQUEST_MAX_RETRY = 3;
 // Delay between retry in ms
 const HTTP_REQUEST_RETRY_DELAY = 100;
 
-// Maximum number of retries to attempt when http requests to the Node fail
+// Maximum number of retries to get the confirmation of a persistTransaction
 const GET_CONFIRMATION_MAX_RETRY = 500;
 
-// Delay between retry in ms
+// Delay between retry in ms to get the confirmation of a persistTransaction
 const GET_CONFIRMATION_RETRY_DELAY = 3000;
 
 /**
