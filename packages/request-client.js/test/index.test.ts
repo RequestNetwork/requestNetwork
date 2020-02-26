@@ -432,7 +432,7 @@ describe('index', () => {
     const data = request.getData();
     expect(data).to.exist;
     expect(data.balance).to.null;
-    expect(data.meta).to.be.exist;
+    expect(data.meta).to.exist;
     expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
     expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
