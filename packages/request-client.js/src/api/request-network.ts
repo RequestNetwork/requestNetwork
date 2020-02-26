@@ -69,14 +69,14 @@ export default class RequestNetwork {
       topics,
     );
 
-    const requestId = createResult.result.requestId;
-
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
-
-    createResult.on('confirmed', async () => {
-      request.emit('confirmed', await request.refresh());
-    });
+    const request = new Request(
+      this.requestLogic,
+      createResult.result.requestId,
+      paymentNetwork,
+      this.contentData,
+      createResult,
+    );
 
     // refresh the local request data
     await request.refresh();
@@ -106,14 +106,14 @@ export default class RequestNetwork {
       topics,
     );
 
-    const requestId = createResult.result.requestId;
-
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
-
-    createResult.on('confirmed', async () => {
-      request.emit('confirmed', await request.refresh());
-    });
+    const request = new Request(
+      this.requestLogic,
+      createResult.result.requestId,
+      paymentNetwork,
+      this.contentData,
+      createResult,
+    );
 
     // refresh the local request data
     await request.refresh();

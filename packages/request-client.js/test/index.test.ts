@@ -175,7 +175,7 @@ describe('index', () => {
     });
     expect(spy).to.have.been.called.once;
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with persist from local', async () => {
@@ -215,7 +215,7 @@ describe('index', () => {
     });
     expect(spyIpfsAdd).to.have.been.called.once;
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
@@ -250,7 +250,7 @@ describe('index', () => {
     });
     expect(spy).to.have.been.called.once;
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with signatureProvider', async () => {
@@ -301,7 +301,7 @@ describe('index', () => {
     });
     expect(spy).to.have.been.called.once;
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('allows to create a request', async () => {
@@ -325,7 +325,7 @@ describe('index', () => {
     const requestIdLength = 66;
     expect(request.requestId.length).to.equal(requestIdLength);
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('allows to compute a request id', async () => {
@@ -374,7 +374,7 @@ describe('index', () => {
     expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('allows to get a request from its ID', async () => {
@@ -385,7 +385,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
 
     const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
@@ -405,7 +405,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
@@ -504,7 +504,7 @@ describe('index', () => {
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
   });
 
   it('allows to accept a request', async () => {
@@ -601,7 +601,7 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
-      await new Promise((resolve): any => request.on('confirmed', resolve));
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
@@ -625,7 +625,7 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
-      await new Promise((resolve): any => request.on('confirmed', resolve));
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
@@ -649,7 +649,7 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
-      await new Promise((resolve): any => request.on('confirmed', resolve));
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
@@ -673,7 +673,7 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
-      await new Promise((resolve): any => request.on('confirmed', resolve));
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
@@ -709,7 +709,7 @@ describe('index', () => {
         requestInfo: requestParametersUSD,
         signer: payeeIdentity,
       });
-      await new Promise((resolve): any => request.on('confirmed', resolve));
+      await request.waitForConfirmation();
 
       let declareResult = await request.declareSentPayment('1', 'sent payment', payerIdentity);
       await new Promise((resolve): any => declareResult.on('confirmed', resolve));
@@ -777,7 +777,7 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
-      await new Promise((resolve): any => request.on('confirmed', resolve));
+      await request.waitForConfirmation();
 
       await expect(
         request.declareReceivedRefund('10', 'received refund', payeeIdentity),

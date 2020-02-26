@@ -15,7 +15,7 @@ import localUtils from './utils';
  *
  * Requests should be created with `RequestNetwork.createRequest()`.
  */
-export default class Request extends EventEmitter {
+export default class Request {
   /**
    * Unique ID of the request
    */
@@ -24,6 +24,7 @@ export default class Request extends EventEmitter {
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
+  private emitter: EventEmitter;
 
   /**
    * Data of the request (see request-logic)
@@ -63,13 +64,43 @@ export default class Request extends EventEmitter {
     requestId: RequestLogicTypes.RequestId,
     paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
+    requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest,
   ) {
-    super();
-
     this.requestLogic = requestLogic;
     this.requestId = requestId;
     this.contentDataExtension = contentDataExtension || null;
     this.paymentNetwork = paymentNetwork || null;
+    this.emitter = new EventEmitter();
+
+    if (requestLogicCreateResult) {
+      requestLogicCreateResult.on('confirmed', async () => {
+        this.emitter.emit('confirmed', await this.refresh());
+      });
+    }
+  }
+
+  /**
+   * Listen the confirmation of the creation
+   *
+   * @param type only "confirmed" event for now
+   * @param callback callback to call when confirmed event is risen
+   * @returns this
+   */
+  public on<K extends keyof Types.IRequestEvents>(
+    event: K,
+    listener: Types.IRequestEvents[K],
+  ): this {
+    this.emitter.on(event, listener);
+    return this;
+  }
+
+  /**
+   * Wait for the confirmation
+   *
+   * @returns the request data
+   */
+  public waitForConfirmation(): Promise<Types.IRequestData> {
+    return new Promise((resolve): any => this.on('confirmed', resolve));
   }
 
   /**
