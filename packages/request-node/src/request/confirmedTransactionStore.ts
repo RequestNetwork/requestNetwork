@@ -5,7 +5,8 @@ import * as Keyv from 'keyv';
 
 /**
  * Class for storing confirmed transactions information
- * This class allow to store and serve the information when a transaction is confirmed
+ * When 'confirmed' event is receive from a 'persistTransaction', the event data are stored.
+ * The client can call the getConfirmed entry point, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
   public store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
