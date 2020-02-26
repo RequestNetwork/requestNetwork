@@ -111,13 +111,12 @@ export const dataWithDeclarative = {
   version: '2.0.2',
 };
 
-export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
-export const actionWithoutExtensionsData: RequestLogicTypes.IAction = Utils.signature.sign(
-  dataWithoutExtensionsData,
+export const action: RequestLogicTypes.IAction = Utils.signature.sign(
+  dataWithDeclarative,
   payee.signatureParams,
 );
-export const actionWithDeclarative: RequestLogicTypes.IAction = Utils.signature.sign(
-  dataWithDeclarative,
+export const actionWithoutExtensionsData: RequestLogicTypes.IAction = Utils.signature.sign(
+  dataWithoutExtensionsData,
   payee.signatureParams,
 );
 
@@ -139,7 +138,7 @@ export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTy
 export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(actionWithDeclarative) },
+  transaction: { data: JSON.stringify(action) },
 };
 
 export const actionRequestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
