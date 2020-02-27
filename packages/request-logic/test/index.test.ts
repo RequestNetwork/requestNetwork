@@ -351,6 +351,7 @@ describe('index', () => {
             result: {
               transactions: [
                 {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
                   timestamp: 1,
                   transaction: { data: JSON.stringify(actionCreate) },
                 },
@@ -433,6 +434,7 @@ describe('index', () => {
             result: {
               transactions: [
                 {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
                   timestamp: 1,
                   transaction: { data: JSON.stringify(actionCreate) },
                 },
@@ -520,6 +522,7 @@ describe('index', () => {
             result: {
               transactions: [
                 {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
                   timestamp: 1,
                   transaction: { data: JSON.stringify(actionCreate) },
                 },
@@ -612,6 +615,7 @@ describe('index', () => {
             result: {
               transactions: [
                 {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
                   timestamp: 1,
                   transaction: { data: JSON.stringify(actionCreate) },
                 },
@@ -707,6 +711,7 @@ describe('index', () => {
             result: {
               transactions: [
                 {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
                   timestamp: 1,
                   transaction: { data: JSON.stringify(actionCreate) },
                 },
@@ -781,14 +786,17 @@ describe('index', () => {
         result: {
           transactions: [
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 1,
               transaction: { data: JSON.stringify(actionCreate) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 2,
               transaction: { data: JSON.stringify(actionAccept) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 3,
               transaction: { data: JSON.stringify(rxReduce) },
             },
@@ -816,6 +824,7 @@ describe('index', () => {
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -852,6 +861,283 @@ describe('index', () => {
               },
             ],
             expectedAmount: '123399999999999000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: RequestLogicTypes.STATE.ACCEPTED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
+          },
+        },
+      });
+    });
+
+    it('can getRequestFromId ignore old pending transaction', async () => {
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = { ignoredTransactions: [] };
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
+            },
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 3,
+              transaction: { data: JSON.stringify(rxReduce) },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+          listActions,
+        persistTransaction: chai.spy() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const request = await requestLogic.getRequestFromId(requestId);
+
+      expect(request, 'request result is wrong').to.deep.equal({
+        meta: {
+          ignoredTransactions: [
+            {
+              reason: 'Confirmed transaction newer than this pending transaction',
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: {
+                  data:
+                    '{"data":{"name":"accept","parameters":{"requestId":"01847a35486b464e653f3b1fb6be27649b11b1cb171bfd2fade1292d5aeb706e59"},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0x3b7bb4b69d95b0c243cb49c3371f622207c6b8d2d8b506e211b49282b9f51e310605b19207d84a3106a37d900b11eb2ea56f5c04afb79017cd045156d4476dbb1c"}}',
+                },
+              },
+            },
+          ],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          pending: null,
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+                timestamp: 1,
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 3,
+              },
+            ],
+            expectedAmount: '123399999999999000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: RequestLogicTypes.STATE.CREATED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
+          },
+        },
+      });
+    });
+
+    it('can getRequestFromId with pending transaction', async () => {
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = { ignoredTransactions: [] };
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
+            },
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 3,
+              transaction: { data: JSON.stringify(rxReduce) },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: chai.spy() as any,
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+          listActions,
+        persistTransaction: chai.spy() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+      const request = await requestLogic.getRequestFromId(requestId);
+
+      expect(request, 'request result is wrong').to.deep.equal({
+        meta: {
+          ignoredTransactions: [],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          pending: {
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 3,
+              },
+            ],
+            expectedAmount: '123399999999999000',
+          },
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+                timestamp: 1,
+              },
+              {
+                actionSigner: TestData.payerRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+                parameters: {
+                  extensionsDataLength: 0,
+                },
+                timestamp: 2,
+              },
+            ],
+            expectedAmount: '123400000000000000',
             extensions: {},
             payee: TestData.payeeRaw.identity,
             payer: TestData.payerRaw.identity,
@@ -924,18 +1210,22 @@ describe('index', () => {
         result: {
           transactions: [
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 1,
               transaction: { data: JSON.stringify(actionCreate) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 2,
               transaction: { data: JSON.stringify(actionAccept) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 3,
               transaction: { data: JSON.stringify(actionReduce) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 4,
               transaction: { data: JSON.stringify(actionReduce2) },
             },
@@ -962,12 +1252,17 @@ describe('index', () => {
           ignoredTransactions: [
             {
               reason: 'Duplicated transaction',
-              transaction: { action: actionReduce2, timestamp: 4 },
+              transaction: {
+                action: actionReduce2,
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 4,
+              },
             },
           ],
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -1077,18 +1372,22 @@ describe('index', () => {
         result: {
           transactions: [
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 1,
               transaction: { data: JSON.stringify(actionCreate) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 2,
               transaction: { data: JSON.stringify(actionAccept) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 3,
               transaction: { data: JSON.stringify(actionReduce) },
             },
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 4,
               transaction: { data: JSON.stringify(actionReduce2) },
             },
@@ -1116,6 +1415,7 @@ describe('index', () => {
           transactionManagerMeta: meta,
         },
         result: {
+          pending: null,
           request: {
             creator: TestData.payeeRaw.identity,
             currency: {
@@ -1175,6 +1475,7 @@ describe('index', () => {
 
     it('should ignored the corrupted data (not parsable JSON)', async () => {
       const transactionNotParsable = {
+        state: TransactionTypes.TransactionState.CONFIRMED,
         timestamp: 2,
         transaction: { data: '{NOT parsable}' },
       };
@@ -1234,6 +1535,7 @@ describe('index', () => {
         result: {
           transactions: [
             {
+              state: TransactionTypes.TransactionState.CONFIRMED,
               timestamp: 2,
               transaction: { data: JSON.stringify(actionCorrupted) },
             },
@@ -1264,6 +1566,7 @@ describe('index', () => {
         reason: 'action.parameters.expectedAmount must be a string representing a positive integer',
         transaction: {
           action: actionCorrupted,
+          state: TransactionTypes.TransactionState.CONFIRMED,
           timestamp: 2,
         },
       });
@@ -1385,30 +1688,36 @@ describe('index', () => {
           transactions: {
             [requestId]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 0,
                 transaction: { data: JSON.stringify(actionCreate) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: JSON.stringify(actionAccept) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 3,
                 transaction: { data: JSON.stringify(rxReduce) },
               },
             ],
             [newRequestId2]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 1,
                 transaction: { data: JSON.stringify(actionCreate2) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: JSON.stringify(actionCancel2) },
               },
             ],
             [newRequestId3]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 4,
                 transaction: { data: JSON.stringify(actionCreate3) },
               },
@@ -1433,6 +1742,199 @@ describe('index', () => {
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
       expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+    });
+
+    it('can getRequestsByTopic with pending transactions', async () => {
+      const unsignedActionCreation = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: '123400000000000000',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation),
+      );
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId: newRequestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const rxReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId: newRequestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const unsignedActionCreation2 = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
+          expectedAmount: '10',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544411111,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate2: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation2,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId2 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation2),
+      );
+
+      const actionCancel2: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CANCEL,
+          parameters: {
+            requestId: newRequestId2,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const unsignedActionCreation3 = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          },
+          expectedAmount: '666',
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544433333,
+        },
+        version: CURRENT_VERSION,
+      };
+      const actionCreate3: RequestLogicTypes.IAction = Utils.signature.sign(
+        unsignedActionCreation3,
+        TestData.payeeRaw.signatureParams,
+      );
+      const newRequestId3 = MultiFormat.serialize(
+        Utils.crypto.normalizeKeccak256Hash(unsignedActionCreation3),
+      );
+
+      const meta = {
+        dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
+        ignoredTransactions: {},
+      };
+      const listAllActions: Promise<
+        TransactionTypes.IReturnGetTransactionsByChannels
+      > = Promise.resolve({
+        meta,
+        result: {
+          transactions: {
+            [requestId]: [
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 0,
+                transaction: { data: JSON.stringify(actionCreate) },
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionAccept) },
+              },
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 3,
+                transaction: { data: JSON.stringify(rxReduce) },
+              },
+            ],
+            [newRequestId2]: [
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 1,
+                transaction: { data: JSON.stringify(actionCreate2) },
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionCancel2) },
+              },
+            ],
+            [newRequestId3]: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 4,
+                transaction: { data: JSON.stringify(actionCreate3) },
+              },
+            ],
+          },
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+          return listAllActions;
+        },
+        getTransactionsByChannelId: chai.spy() as any,
+        persistTransaction: chai.spy() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
+
+      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+
+      const firstRequest = requests.result.requests[0];
+      expect(firstRequest.pending, 'first pending wrong').to.be.null;
+      expect(
+        firstRequest.request!.expectedAmount,
+        'first request expectedAmount wrong',
+      ).to.deep.equal('123399999999999000');
+      expect(firstRequest.request!.state, 'first request state wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CREATED,
+      );
+
+      const secondRequest = requests.result.requests[1];
+      expect(secondRequest.request!.state, 'second pending wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CREATED,
+      );
+      expect(secondRequest.pending!.state, 'second pending wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CANCELED,
+      );
+
+      const thirdRequest = requests.result.requests[2];
+      expect(thirdRequest.request, 'third pending wrong').to.be.null;
+      expect(thirdRequest.pending!.state, 'third pending wrong').to.deep.equal(
+        RequestLogicTypes.STATE.CREATED,
+      );
     });
 
     it('should ignore the transaction none parsable and the rejected action', async () => {
@@ -1477,14 +1979,17 @@ describe('index', () => {
           transactions: {
             [requestId]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: JSON.stringify(actionCreate) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: 'Not a json' },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: JSON.stringify(acceptNotValid) },
               },
@@ -1626,30 +2131,36 @@ describe('index', () => {
           transactions: {
             [requestId]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 0,
                 transaction: { data: JSON.stringify(actionCreate) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: JSON.stringify(actionAccept) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 3,
                 transaction: { data: JSON.stringify(rxReduce) },
               },
             ],
             [newRequestId2]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 1,
                 transaction: { data: JSON.stringify(actionCreate2) },
               },
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
                 transaction: { data: JSON.stringify(actionCancel2) },
               },
             ],
             [newRequestId3]: [
               {
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 4,
                 transaction: { data: JSON.stringify(actionCreate3) },
               },

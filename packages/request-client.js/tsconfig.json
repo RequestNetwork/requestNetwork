@@ -14,6 +14,7 @@
     { "path": "../request-logic" },
     { "path": "../smart-contracts" },
     { "path": "../transaction-manager" },
+    { "path": "../payment-detection" },
     { "path": "../types" }
   ]
 }

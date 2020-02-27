@@ -1,4 +1,4 @@
-import { DataAccessTypes } from '@requestnetwork/types';
+import { DataAccessTypes, TransactionTypes } from '@requestnetwork/types';
 
 import { Block } from '@requestnetwork/data-access';
 
@@ -50,7 +50,13 @@ describe('HttpMetamaskDataAccess', () => {
           transactionsStorageLocation: ['location2'],
         },
         result: {
-          transactions: [{ transaction: { data: 'data11' }, timestamp: 20 }],
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 20,
+              transaction: { data: 'data11' },
+            },
+          ],
         },
       });
 

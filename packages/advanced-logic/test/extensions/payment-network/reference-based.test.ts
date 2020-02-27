@@ -21,11 +21,15 @@ describe('extensions/payment-network/reference-based', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund', () => {
       expect(
-        referenceBasedManager.createCreationAction(PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED, {
-          paymentAddress: DataCreate.paymentAddress,
-          refundAddress: DataCreate.refundAddress,
-          salt: DataCreate.salt,
-        }),
+        referenceBasedManager.createCreationAction(
+          PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+          {
+            paymentAddress: DataCreate.paymentAddress,
+            refundAddress: DataCreate.refundAddress,
+            salt: DataCreate.salt,
+          },
+          '0.1.0',
+        ),
         'extensionsdata is wrong',
       ).to.deep.equal(DataCreate.actionCreationWithPaymentAndRefund);
     });
@@ -34,10 +38,14 @@ describe('extensions/payment-network/reference-based', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       expect(
         Utils.deepCopy(
-          referenceBasedManager.createCreationAction(PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED, {
-            paymentAddress: DataCreate.paymentAddress,
-            salt: DataCreate.salt,
-          }),
+          referenceBasedManager.createCreationAction(
+            PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+            {
+              paymentAddress: DataCreate.paymentAddress,
+              salt: DataCreate.salt,
+            },
+            '0.1.0',
+          ),
         ),
         'extensionsdata is wrong',
       ).to.deep.equal(DataCreate.actionCreationOnlyPayment);
@@ -46,10 +54,14 @@ describe('extensions/payment-network/reference-based', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       expect(
         Utils.deepCopy(
-          referenceBasedManager.createCreationAction(PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED, {
-            refundAddress: DataCreate.refundAddress,
-            salt: DataCreate.salt,
-          }),
+          referenceBasedManager.createCreationAction(
+            PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+            {
+              refundAddress: DataCreate.refundAddress,
+              salt: DataCreate.salt,
+            },
+            '0.1.0',
+          ),
         ),
         'extensionsdata is wrong',
       ).to.deep.equal(DataCreate.actionCreationOnlyRefund);
@@ -58,9 +70,13 @@ describe('extensions/payment-network/reference-based', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       expect(
         Utils.deepCopy(
-          referenceBasedManager.createCreationAction(PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED, {
-            salt: DataCreate.salt,
-          }),
+          referenceBasedManager.createCreationAction(
+            PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+            {
+              salt: DataCreate.salt,
+            },
+            '0.1.0',
+          ),
         ),
         'extensionsdata is wrong',
       ).to.deep.equal(DataCreate.actionCreationEmpty);
@@ -70,14 +86,19 @@ describe('extensions/payment-network/reference-based', () => {
         referenceBasedManager.createCreationAction(
           PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
           {} as ExtensionTypes.PnReferenceBased.ICreationParameters,
+          '0.1.0',
         );
       }, 'must throw').to.throw('salt should not be empty');
     });
     it('prevent createCreationAction with invalid salt', () => {
       expect(() => {
-        referenceBasedManager.createCreationAction(PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED, {
-          salt: DataCreate.invalidSalt,
-        });
+        referenceBasedManager.createCreationAction(
+          PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+          {
+            salt: DataCreate.invalidSalt,
+          },
+          '0.1.0',
+        );
       }, 'must throw').to.throw(
         `The salt must be a string of minimum 16 hexadecimal characters. Example: 'ea3bc7caf64110ca'`,
       );

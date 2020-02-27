@@ -17,8 +17,16 @@ let channelParser: ChannelParser;
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 const data2 = '{"or": "can", "be":false}';
 
-const tx: TransactionTypes.IConfirmedTransaction = { transaction: { data }, timestamp: 1 };
-const tx2: TransactionTypes.IConfirmedTransaction = { transaction: { data: data2 }, timestamp: 1 };
+const tx: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
+  timestamp: 1,
+  transaction: { data },
+};
+const tx2: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
+  timestamp: 1,
+  transaction: { data: data2 },
+};
 
 const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
 const channelId = MultiFormat.serialize(dataHash);
@@ -51,7 +59,8 @@ describe('channel-parser', () => {
       expect(ret.transactions, 'transactions wrong').to.be.deep.equal([null, tx2]);
     });
     it('can clean a clear channel with a transaction data not parsable', async () => {
-      const txNotParsable: TransactionTypes.IConfirmedTransaction = {
+      const txNotParsable: TransactionTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { data: 'not parsable' },
       };
@@ -68,7 +77,8 @@ describe('channel-parser', () => {
       expect(ret.transactions, 'transactions wrong').to.be.deep.equal([tx, null]);
     });
     it('can clean a clear channel with a transaction not well formated', async () => {
-      const txNotFormatted: TransactionTypes.IConfirmedTransaction = {
+      const txNotFormatted: TransactionTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { noData: 'here' } as any,
       };
@@ -90,12 +100,20 @@ describe('channel-parser', () => {
         data,
         [TestData.idRaw1.encryptionParams],
       );
-      const confirmedTx = { transaction: encryptedParsedTx, timestamp: 1 };
+      const confirmedTx = {
+        state: TransactionTypes.TransactionState.PENDING,
+        timestamp: 1,
+        transaction: encryptedParsedTx,
+      };
       const ret = await channelParser.decryptAndCleanChannel(channelId, [confirmedTx]);
 
       expect(ret.ignoredTransactions, 'ignoredTransactions wrong').to.be.deep.equal([null]);
       expect(ret.transactions, 'transactions wrong').to.be.deep.equal([
-        { transaction: { data }, timestamp: 1 },
+        {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 1,
+          transaction: { data },
+        },
       ]);
     });
   });
@@ -116,7 +134,8 @@ describe('channel-parser', () => {
     });
 
     it('can get channel type on a clear channel with a transaction data not parsable', async () => {
-      const txNotParsable: TransactionTypes.IConfirmedTransaction = {
+      const txNotParsable: TransactionTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { data: 'not parsable' },
       };
@@ -128,7 +147,8 @@ describe('channel-parser', () => {
     });
 
     it('can get channel type on a clear channel with a transaction not well formated', async () => {
-      const txNotFormatted: TransactionTypes.IConfirmedTransaction = {
+      const txNotFormatted: TransactionTypes.ITimestampedTransaction = {
+        state: TransactionTypes.TransactionState.PENDING,
         timestamp: 1,
         transaction: { noData: 'here' } as any,
       };
@@ -145,7 +165,11 @@ describe('channel-parser', () => {
         data,
         [TestData.idRaw1.encryptionParams],
       );
-      const confirmedTx = { transaction: encryptedParsedTx, timestamp: 1 };
+      const confirmedTx = {
+        state: TransactionTypes.TransactionState.PENDING,
+        timestamp: 1,
+        transaction: encryptedParsedTx,
+      };
       const ret = await channelParser.getChannelTypeAndChannelKey(channelId, [confirmedTx]);
 
       expect(ret.channelKey, 'channelKey wrong').to.be.not.undefined;

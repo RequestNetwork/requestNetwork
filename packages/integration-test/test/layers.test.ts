@@ -370,7 +370,7 @@ describe('Request system', () => {
 
     // wait a bit
     // tslint:disable-next-line:no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 1000));
+    await new Promise((r: any): any => setTimeout(r, 1100));
 
     // cancel request
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
@@ -382,17 +382,17 @@ describe('Request system', () => {
     assert.equal(fromTopic.result.requests.length, 2);
     let request1 = fromTopic.result.requests[0];
     const request2 = fromTopic.result.requests[1];
-    assert.equal(request1.requestId, requestId1);
-    assert.equal(request2.requestId, requestId2);
+    assert.equal(request1.request!.requestId, requestId1);
+    assert.equal(request2.request!.requestId, requestId2);
 
     const fromTopicSecondSearch = await requestLogic.getRequestsByTopic(topics1[0], {
       from: timestampReduce1,
     });
     assert.equal(fromTopicSecondSearch.result.requests.length, 1);
     request1 = fromTopicSecondSearch.result.requests[0];
-    assert.equal(request1.requestId, requestId1);
-    assert.equal(request1.state, RequestLogicTypes.STATE.CANCELED);
-    assert.equal(request1.expectedAmount, '190000000000');
+    assert.equal(request1.request!.requestId, requestId1);
+    assert.equal(request1.request!.state, RequestLogicTypes.STATE.CANCELED);
+    assert.equal(request1.request!.expectedAmount, '190000000000');
   });
 
   it('can create and update an encrypted request', async () => {
@@ -433,9 +433,10 @@ describe('Request system', () => {
 
     assert.exists(request.result);
     assert.equal(request.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
-    assert.exists(request.result.request);
-    assert.equal(request.result.request!.expectedAmount, '12345678987654321');
-    assert.equal(request.result.request!.state, 'created');
+    assert.isNull(request.result.request);
+    assert.exists(request.result.pending);
+    assert.equal(request.result.pending!.expectedAmount, '12345678987654321');
+    assert.equal(request.result.pending!.state, 'created');
 
     // reduce the expected amount by payee
     const resultReduce = await requestLogic.reduceExpectedAmountRequest(
@@ -454,8 +455,11 @@ describe('Request system', () => {
       'ecies-aes256-cbc',
     );
     assert.exists(requestAfterReduce.result.request);
-    assert.equal(requestAfterReduce.result.request!.expectedAmount, '12345678000000000');
+    assert.equal(requestAfterReduce.result.request!.expectedAmount, '12345678987654321');
     assert.equal(requestAfterReduce.result.request!.state, 'created');
+
+    assert.exists(requestAfterReduce.result.pending);
+    assert.equal(requestAfterReduce.result.pending!.expectedAmount, '12345678000000000');
 
     // accept the request by payer
     const resultAccept = await requestLogic.acceptRequest(
@@ -474,7 +478,10 @@ describe('Request system', () => {
       'ecies-aes256-cbc',
     );
     assert.exists(requestAfterAccept.result.request);
-    assert.equal(requestAfterAccept.result.request!.state, 'accepted');
+    assert.equal(requestAfterAccept.result.request!.state, 'created');
+
+    assert.exists(requestAfterAccept.result.pending);
+    assert.equal(requestAfterAccept.result.pending!.state, 'accepted');
 
     // increase amount of the request by payer
     const resultIncrease = await requestLogic.increaseExpectedAmountRequest(
@@ -495,7 +502,10 @@ describe('Request system', () => {
       'ecies-aes256-cbc',
     );
     assert.exists(requestAfterIncrease.result.request);
-    assert.equal(requestAfterIncrease.result.request!.expectedAmount, '12345678000000111');
+    assert.equal(requestAfterIncrease.result.request!.expectedAmount, '12345678000000000');
+
+    assert.exists(requestAfterIncrease.result.pending);
+    assert.equal(requestAfterIncrease.result.pending!.expectedAmount, '12345678000000111');
 
     // cancel the request by payee
     const resultCancel = await requestLogic.cancelRequest(
@@ -514,7 +524,10 @@ describe('Request system', () => {
       'ecies-aes256-cbc',
     );
     assert.exists(requestAfterCancel.result.request);
-    assert.equal(requestAfterCancel.result.request!.state, 'canceled');
+    assert.equal(requestAfterCancel.result.request!.state, 'accepted');
+
+    assert.exists(requestAfterCancel.result.pending);
+    assert.equal(requestAfterCancel.result.pending!.state, 'canceled');
 
     // check that the data are encrypted:
     const dataAccessData = await dataAccess.getTransactionsByChannelId(

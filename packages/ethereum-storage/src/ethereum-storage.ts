@@ -219,6 +219,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       meta: {
         ipfs: { size: contentSize },
         local: { location: this.externalBufferUrl },
+        state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.LOCAL,
         timestamp,
       },
@@ -237,6 +238,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           meta: {
             ethereum: ethereumMetadata,
             ipfs: { size: contentSize },
+            state: StorageTypes.ContentState.CONFIRMED,
             storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
             timestamp: ethereumMetadata.blockTimestamp,
           },
@@ -342,12 +344,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       ? {
           ethereum: ethereumMetadata,
           ipfs: { size: ipfsObject.ipfsSize },
+          state: StorageTypes.ContentState.CONFIRMED,
           storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
           timestamp: ethereumMetadata.blockTimestamp,
         }
       : {
           ipfs: { size: ipfsObject.ipfsSize },
           local: { location: this.externalBufferUrl },
+          state: StorageTypes.ContentState.PENDING,
           storageType: StorageTypes.StorageSystemType.LOCAL,
           timestamp: bufferTimestamp || 0,
         };
@@ -603,6 +607,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             meta: {
               ethereum: ethereumMetadata,
               ipfs: { size: ipfsObject.ipfsSize },
+              state: StorageTypes.ContentState.CONFIRMED,
               storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
               timestamp: ethereumMetadata.blockTimestamp,
             },

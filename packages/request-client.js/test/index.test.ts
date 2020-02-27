@@ -5,6 +5,7 @@ import {
   DecryptionProviderTypes,
   EncryptionTypes,
   IdentityTypes,
+  PaymentTypes,
   RequestLogicTypes,
   SignatureProviderTypes,
   SignatureTypes,
@@ -15,11 +16,10 @@ import 'mocha';
 import * as sinon from 'sinon';
 const mockAdapter = require('axios-mock-adapter');
 import { Request, RequestNetwork } from '../src/index';
-import * as Types from '../src/types';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
-import PaymentReferenceCalculator from '../src/api/payment-network/payment-reference-calculator';
+import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -61,15 +61,15 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
 const encryptionData = {
   decryptionParams: {
     key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
-    method: Types.Encryption.METHOD.ECIES,
+    method: EncryptionTypes.METHOD.ECIES,
   },
   encryptionParams: {
     key:
       '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
-    method: Types.Encryption.METHOD.ECIES,
+    method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {
-    type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
   },
 };
@@ -110,22 +110,22 @@ const requestParameters: RequestLogicTypes.ICreateParameters = {
 function mockAxios(): any {
   const mock = new mockAdapter(axios);
   mock.onPost('/persistTransaction').reply(200, { result: {} });
-  mock
-    .onGet('/getTransactionsByChannelId')
-    .reply(200, { result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] } });
+  mock.onGet('/getTransactionsByChannelId').reply(200, {
+    result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
+  });
   return mock;
 }
 
 const mockBTCProvider = {
   getAddressBalanceWithEvents: (): Promise<
-    Types.IBalanceWithEvents<Types.IBTCPaymentEventParameters>
+    PaymentTypes.IBalanceWithEvents<PaymentTypes.IBTCPaymentEventParameters>
   > => {
     return Promise.resolve({
       balance: '666743',
       events: [
         {
           amount: '666743',
-          name: Types.EVENTS_NAMES.PAYMENT,
+          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             block: 561874,
             txHash: '4024936746a0994cf5cdf9c8b55e03b288a251ad172682e8e94b7806a4e3dace',
@@ -154,17 +154,15 @@ describe('index', () => {
     mock.onPost('/persistTransaction').reply(spy);
     mock
       .onGet('/getTransactionsByChannelId')
-      .reply(200, { result: { transactions: [TestData.transactionConfirmed] } });
+      .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
-      parameters: {
-        paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
-      },
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
     };
 
     await requestNetwork.createRequest({
@@ -180,10 +178,10 @@ describe('index', () => {
     const callback = (): any => {
       return [200, { ipfsSize: 100, ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY' }];
     };
-
-    const spyPersistTransaction = chai.spy();
+    // const spyPersistTransaction = chai.spy();
     const spyIpfsAdd = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spyPersistTransaction);
+    // mock.onPost('/persistTransaction').reply(spyPersistTransaction);
+    mock.onPost('/persistTransaction').reply(200, { meta: {}, result: {} });
     mock.onPost('/ipfsAdd').reply(spyIpfsAdd);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       meta: { storageMeta: [], transactionsStorageLocation: [] },
@@ -192,14 +190,14 @@ describe('index', () => {
 
     const requestNetwork = new RequestNetwork({
       ethereumProviderUrl: 'http://localhost:8545',
-      useLocalEthereumBroadcast: true,
       signatureProvider: fakeSignatureProvider,
+      useLocalEthereumBroadcast: true,
     });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -210,7 +208,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    expect(spyPersistTransaction).to.not.have.been.called;
+    // expect(spyPersistTransaction).to.not.have.been.called;
     expect(spyIpfsAdd).to.have.been.called.once;
   });
 
@@ -224,15 +222,15 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestDataRealBTC.transactionConfirmed] },
+      result: { transactions: [TestDataRealBTC.timestampedTransaction] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
       },
@@ -256,7 +254,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -279,7 +277,7 @@ describe('index', () => {
     const spy = chai.spy(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({
@@ -350,7 +348,7 @@ describe('index', () => {
     const requestIdLength = 66;
     expect(requestId.length).to.equal(requestIdLength);
 
-    await new Promise((resolve): any => setTimeout(resolve, 1500));
+    await new Promise((resolve): any => setTimeout(resolve, 150));
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
@@ -380,7 +378,7 @@ describe('index', () => {
     const mock = new mockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.transactionConfirmedWithoutExtensionsData] },
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -412,11 +410,10 @@ describe('index', () => {
     });
 
     const data = request.getData();
-
     expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
-    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
   });
 
   it('works with mocked storage and mocked payment network', async () => {
@@ -427,8 +424,8 @@ describe('index', () => {
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
-    const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-      id: Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -443,9 +440,9 @@ describe('index', () => {
     const data = request.getData();
 
     expect(data).to.exist;
-    expect(data.balance).to.exist;
-    expect(data.meta).to.exist;
-    expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+    expect(data.balance).to.null;
+    expect(data.meta).to.be.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
   });
 
   it('works with mocked storage and content data', async () => {
@@ -481,6 +478,13 @@ describe('index', () => {
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
+
+    // after confirmation
+    const mock = new mockAdapter(axios);
+    mock.onPost('/persistTransaction').reply(200, { result: {} });
+    mock.onGet('/getTransactionsByChannelId').reply(200, {
+      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsDataConfirmed] },
+    });
 
     await request.accept(payerIdentity);
 
@@ -547,15 +551,15 @@ describe('index', () => {
       const spy = chai.spy(callback);
       mock.onPost('/persistTransaction').reply(spy);
       mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: { transactions: [TestData.transactionConfirmedWithDeclarative] },
+        result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
       });
     });
 
     it('allows to declare a sent payment', async () => {
       const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {},
       };
 
@@ -577,8 +581,8 @@ describe('index', () => {
     it('allows to declare a received payment', async () => {
       const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {},
       };
 
@@ -600,8 +604,8 @@ describe('index', () => {
     it('allows to declare a sent refund', async () => {
       const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {},
       };
 
@@ -623,8 +627,8 @@ describe('index', () => {
     it('allows to declare a received refund', async () => {
       const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {},
       };
 
@@ -646,7 +650,6 @@ describe('index', () => {
     it('allows to get the right balance', async () => {
       // Use sinon clock to get a predictible timestamp
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
-      clock.tick(1000);
 
       const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
         currency: {
@@ -662,8 +665,8 @@ describe('index', () => {
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {},
       };
 
@@ -673,13 +676,21 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
+      clock.tick(150);
       await request.declareSentPayment('1', 'sent payment', payerIdentity);
+
+      clock.tick(150);
       await request.declareReceivedRefund('10', 'received refund', payerIdentity);
 
+      clock.tick(150);
       await request.declareSentRefund('100', 'sent refund', payeeIdentity);
+
+      clock.tick(150);
       await request.declareReceivedPayment('1000', 'received payment', payeeIdentity);
 
-      const requestData = request.getData();
+      clock.tick(150);
+      const requestData = await request.refresh();
+
       // @ts-ignore
       expect(requestData.balance.balance).to.equal('990');
       // @ts-ignore
@@ -687,14 +698,14 @@ describe('index', () => {
         amount: '10',
         name: 'refund',
         parameters: { note: 'received refund' },
-        timestamp: 1,
+        timestamp: 0,
       });
       // @ts-ignore
       expect(requestData.balance.events[1]).to.deep.equal({
         amount: '1000',
         name: 'payment',
         parameters: { note: 'received payment' },
-        timestamp: 1,
+        timestamp: 0,
       });
       sinon.restore();
     });
@@ -707,8 +718,8 @@ describe('index', () => {
 
       const salt = 'ea3bc7caf64110ca';
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -903,6 +914,8 @@ describe('index', () => {
     });
 
     it('creates an encrypted request and accept it', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -926,11 +939,16 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.accept(payerIdentity);
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      sinon.restore();
     });
 
     it('creates an encrypted request and cancel it', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -954,11 +972,15 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.cancel(payeeIdentity);
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.CANCELED);
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.CANCELED);
+      sinon.restore();
     });
 
     it('creates an encrypted request, increase and decrease the amount', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -982,12 +1004,14 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.increaseExpectedAmountRequest(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         payerIdentity,
       );
 
-      expect(fetchedRequest.getData().expectedAmount).to.equal(
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).expectedAmount).to.equal(
         String(TestData.parametersWithoutExtensionsData.expectedAmount * 2),
       );
 
@@ -996,10 +1020,13 @@ describe('index', () => {
         payeeIdentity,
       );
 
-      expect(fetchedRequest.getData().expectedAmount).to.equal('0');
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).expectedAmount).to.equal('0');
+      sinon.restore();
     });
 
     it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -1024,29 +1051,36 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
+      clock.tick(150);
       await fetchedRequest.accept(payerIdentity);
-      expect(fetchedRequest.getData().state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
       await fetchedRequest.declareSentPayment(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         'PAID',
         payerIdentity,
       );
-      expect(fetchedRequest.getData().balance!.balance).to.equal('0');
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).balance!.balance).to.equal('0');
 
       await fetchedRequest.declareReceivedPayment(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         'payment received',
         payeeIdentity,
       );
-      expect(fetchedRequest.getData().balance!.balance).to.equal(
+      clock.tick(150);
+      expect((await fetchedRequest.refresh()).balance!.balance).to.equal(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
+      sinon.restore();
     });
   });
 
   describe('ETH requests', () => {
     it('can create ETH requests with given salt', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
@@ -1054,8 +1088,8 @@ describe('index', () => {
 
       const salt = 'ea3bc7caf64110ca';
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1077,7 +1111,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       expect(data).to.exist;
       expect(data.balance).to.exist;
@@ -1085,16 +1120,19 @@ describe('index', () => {
       expect(data.currency).to.equal('ETH-rinkeby');
       expect(data.extensionsData[0].parameters.salt).to.equal(salt);
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
+      sinon.restore();
     });
 
     it('can create ETH requests without given salt', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1115,19 +1153,23 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
+      sinon.restore();
     });
 
     it('can create ETH requests without refund address', async () => {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         },
@@ -1147,22 +1189,26 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
+      sinon.restore();
     });
 
     // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async function(): Promise<void> {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
       // tslint:disable-next-line: no-invalid-this
-      this.timeout(10000);
+      this.timeout(20000);
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1184,7 +1230,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      clock.tick(150);
+      const data = await request.refresh();
 
       // Payment reference should be fixed
       expect(
@@ -1193,26 +1240,26 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).to.equal('a93299ed2555d098');
+      ).to.equal('2c69812e6bf5b1e3');
 
-      await request.refresh();
+      clock.tick(150);
+      const dataAfterRefresh = await request.refresh();
 
-      const dataAfterRefresh = request.getData();
-
-      expect(dataAfterRefresh.balance?.balance).to.equal('138');
+      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
       expect(dataAfterRefresh.balance?.events.length).to.equal(2);
 
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('133');
+      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0x62264de4fbbe866df28e4fad7b4d44058f1b6ec74bf7c767a14eb67198c93a4d',
+        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
       );
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('5');
+      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x74d5dafdfaa023583d8bb6993a873babd403a05b2286e556e2617801b130cb8e',
+        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
       );
+      sinon.restore();
     });
   });
 
@@ -1230,8 +1277,8 @@ describe('index', () => {
       const refundAddress =
         '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
         parameters: {
           paymentAddress,
           refundAddress,
@@ -1252,7 +1299,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      let data = request.getData();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      let data = await request.refresh();
 
       expect(data).to.exist;
       expect(data.balance?.balance).to.equal('0');
@@ -1260,10 +1308,10 @@ describe('index', () => {
       expect(data.meta).to.exist;
       expect(data.currency).to.equal('unknown');
       expect(
-        data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress,
+        data.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress,
       ).to.equal(paymentAddress);
       expect(
-        data.extensions[Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
+        data.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
       ).to.equal(refundAddress);
       expect(data.expectedAmount).to.equal(requestParameters.expectedAmount);
 
@@ -1278,9 +1326,9 @@ describe('index', () => {
         erc20abiFragment,
         provider.getSigner(0),
       );
-
       // check payment
       await contract.transfer(paymentAddress, 2);
+
       data = await request.refresh();
       expect(data.balance?.balance).to.equal('2');
       expect(data.balance?.events.length).to.equal(1);
@@ -1294,6 +1342,7 @@ describe('index', () => {
 
       // check refund
       await contract.transfer(refundAddress, 1);
+
       data = await request.refresh();
       expect(data.balance?.balance).to.equal('1');
       expect(data.balance?.events.length).to.equal(2);
@@ -1322,8 +1371,8 @@ describe('index', () => {
       });
       const salt = 'ea3bc7caf64110ca';
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
           refundAddress: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
@@ -1345,7 +1394,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const data = await request.refresh();
 
       expect(data).to.exist;
       expect(data.balance?.balance).to.equal('90');
@@ -1362,8 +1412,8 @@ describe('index', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: Types.IPaymentNetworkCreateParameters = {
-        id: Types.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1384,7 +1434,8 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      const data = request.getData();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).to.equal(16);
     });
