@@ -12,7 +12,7 @@ const options = [
     imageUrl: 'img/ReQ-01.png',
     description: (
       <>
-	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure.
+	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure, and with a fast data access(TODO need to detail that below).
       </>
     ),
     details: (
