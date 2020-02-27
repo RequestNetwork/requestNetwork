@@ -1,22 +1,23 @@
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
+  EncryptionTypes,
   IdentityTypes,
+  PaymentTypes,
   RequestLogicTypes,
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { IEncryptionParameters } from '@requestnetwork/types/dist/encryption-types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { stringToCurrency } from './currency';
 import { validERC20Address } from './currency/erc20';
-import PaymentNetworkFactory from './payment-network/payment-network-factory';
 import Request from './request';
 import localUtils from './utils';
 
@@ -24,7 +25,7 @@ import localUtils from './utils';
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
  */
 export default class RequestNetwork {
-  public bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider;
+  public bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
@@ -42,7 +43,7 @@ export default class RequestNetwork {
     dataAccess: DataAccessTypes.IDataAccess,
     signatureProvider?: SignatureProviderTypes.ISignatureProvider,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
-    bitcoinDetectionProvider?: Types.IBitcoinDetectionProvider,
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider,
   ) {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
@@ -83,7 +84,7 @@ export default class RequestNetwork {
    */
   public async _createEncryptedRequest(
     parameters: Types.ICreateRequestParameters,
-    encryptionParams: IEncryptionParameters[],
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
   ): Promise<Request> {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
@@ -132,15 +133,19 @@ export default class RequestNetwork {
     );
 
     // if no request found, throw a human readable message:
-    if (!requestAndMeta.result.request) {
+    if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
-    const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+    // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
+    const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
+      ? requestAndMeta.result.request
+      : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
+    const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
       {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        request: requestAndMeta.result.request,
+        request: requestState,
       },
     );
 
@@ -148,7 +153,7 @@ export default class RequestNetwork {
     const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
 
     // refresh the local request data
-    await request.refresh();
+    await request.refresh(requestAndMeta);
 
     return request;
   }
@@ -210,19 +215,27 @@ export default class RequestNetwork {
     );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
-      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
-        const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+      async (requestFromLogic: {
+        request: RequestLogicTypes.IRequest | null;
+        pending: RequestLogicTypes.IPendingRequest | null;
+      }): Promise<Request> => {
+        // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
+        const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
+          ? requestFromLogic.request
+          : (requestFromLogic.pending as RequestLogicTypes.IRequest);
+
+        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic,
+            request: requestState,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.requestId,
+          requestState.requestId,
           paymentNetwork,
           this.contentData,
         );
@@ -256,19 +269,27 @@ export default class RequestNetwork {
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
-      async (requestFromLogic: RequestLogicTypes.IRequest): Promise<Request> => {
-        const paymentNetwork: Types.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+      async (requestFromLogic: {
+        request: RequestLogicTypes.IRequest | null;
+        pending: RequestLogicTypes.IPendingRequest | null;
+      }): Promise<Request> => {
+        // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
+        const requestState: RequestLogicTypes.IRequest = requestFromLogic.request
+          ? requestFromLogic.request
+          : (requestFromLogic.pending as RequestLogicTypes.IRequest);
+
+        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-            request: requestFromLogic,
+            request: requestState,
           },
         );
 
         // create the request object
         const request = new Request(
           this.requestLogic,
-          requestFromLogic.requestId,
+          requestState.requestId,
           paymentNetwork,
           this.contentData,
         );
@@ -293,7 +314,7 @@ export default class RequestNetwork {
   ): Promise<{
     requestParameters: RequestLogicTypes.ICreateParameters;
     topics: any[];
-    paymentNetwork: Types.IPaymentNetwork | null;
+    paymentNetwork: PaymentTypes.IPaymentNetwork | null;
   }> {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
@@ -322,7 +343,7 @@ export default class RequestNetwork {
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
-    let paymentNetwork: Types.IPaymentNetwork | null = null;
+    let paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
     if (paymentNetworkCreationParameters) {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
         advancedLogic: this.advancedLogic,

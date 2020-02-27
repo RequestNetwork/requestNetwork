@@ -29,7 +29,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 
@@ -45,7 +45,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         parameters: {
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 

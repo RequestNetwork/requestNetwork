@@ -27,8 +27,8 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
   payer: payerIdentity,
 };
 
-const paymentNetwork: RequestNetwork.Types.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
     // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',

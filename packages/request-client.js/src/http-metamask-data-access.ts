@@ -227,6 +227,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
           accumulator.meta.transactionsStorageLocation.push(location);
           // cache?.block.transactions will always contain one transaction
           accumulator.result.transactions.push({
+            state: DataAccessTypes.TransactionState.PENDING,
             timestamp: cache?.storageMeta.blockTimestamp,
             transaction: cache?.block.transactions[0] as DataAccessTypes.ITransaction,
           });

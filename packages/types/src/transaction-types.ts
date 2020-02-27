@@ -53,7 +53,7 @@ export interface IReturnGetTransactions {
     ignoredTransactions: Array<IIgnoredTransaction | null>;
   };
   /** result of the execution */
-  result: { transactions: Array<IConfirmedTransaction | null> };
+  result: { transactions: Array<ITimestampedTransaction | null> };
 }
 
 /** return interface for getTransactionsByChannelId  */
@@ -68,7 +68,7 @@ export interface IReturnGetTransactionsByChannels {
     ignoredTransactions: { [key: string]: Array<IIgnoredTransaction | null> };
   };
   /** result of the execution */
-  result: { transactions: { [key: string]: Array<IConfirmedTransaction | null> } };
+  result: { transactions: { [key: string]: Array<ITimestampedTransaction | null> } };
 }
 
 /** Persisted Transaction in data-access */
@@ -83,8 +83,15 @@ export interface IPersistedTransaction {
   encryptionMethod?: string;
 }
 
+/** Enum of state possible for an action */
+export enum TransactionState {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+}
+
 /** Transaction confirmed */
-export interface IConfirmedTransaction {
+export interface ITimestampedTransaction {
+  state: TransactionState;
   transaction: IPersistedTransaction;
   timestamp: number;
 }
@@ -94,7 +101,7 @@ export type ITransactionData = string;
 
 /** Ignored transaction */
 export interface IIgnoredTransaction {
-  transaction: IConfirmedTransaction;
+  transaction: ITimestampedTransaction;
   reason: string;
 }
 

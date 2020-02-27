@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.8.1...@requestnetwork/transaction-manager@0.9.0) (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 ## [0.8.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.8.1...@requestnetwork/transaction-manager@0.8.4) (2020-01-16)
 
 
