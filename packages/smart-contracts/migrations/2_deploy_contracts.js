@@ -2,6 +2,7 @@ const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
 const erc20 = artifacts.require('./TestERC20.sol');
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
+const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
@@ -30,6 +31,7 @@ module.exports = async function(deployer) {
 
     // Deploy ERC20 proxy contract
     const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
+    console.log('ERC20Proxy Contract deployed: ' + ERC20Proxy.address);
 
     // create some events for test purpose
     await instanceTestERC20.approve(ERC20Proxy.address, 110);
@@ -47,7 +49,18 @@ module.exports = async function(deployer) {
     );
     // ----------------------------------
 
+    // Deploy Ethereym proxy contract
+    const instanceRequestEthereumProxy = await deployer.deploy(EthereumProxy);
+    console.log('EthereumProxy Contract deployed: ' + EthereumProxy.address);
+
     console.log('Contracts initialized');
+    console.log(`
+      RequestHashStorage:       ${RequestHashStorage.address}
+      RequestOpenHashSubmitter: ${RequestOpenHashSubmitter.address}
+      TestERC20:                ${erc20.address}
+      ERC20Proxy:               ${ERC20Proxy.address}
+      EthereumProxy:            ${EthereumProxy.address}
+    `);
   } catch (e) {
     console.error(e);
   }

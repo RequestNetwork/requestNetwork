@@ -2,6 +2,8 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 
 import ReferenceBased from '../reference-based';
 
+const CURRENT_VERSION = '0.1.0';
+
 const walletAddressValidator = require('wallet-address-validator');
 
 /**
@@ -43,6 +45,7 @@ function createCreationAction(
   return ReferenceBased.createCreationAction(
     ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
     creationParameters,
+    CURRENT_VERSION,
   );
 }
 

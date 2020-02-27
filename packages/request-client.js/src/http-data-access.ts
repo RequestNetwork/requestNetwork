@@ -64,7 +64,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       },
       this.axiosConfig,
     );
-
     return data;
   }
 

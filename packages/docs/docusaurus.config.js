@@ -18,7 +18,7 @@ module.exports = {
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'docs/others/integration-options', label: 'Integration', position: 'left' },
 				{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
-        { href: 'https://api-docs.request.network/', label: 'REST API docs', position: 'left' },
+        { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
           href: 'https://github.com/RequestNetwork',
           label: 'GitHub',

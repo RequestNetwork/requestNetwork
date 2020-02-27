@@ -1,12 +1,12 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import {
   IdentityTypes,
+  PaymentTypes,
   RequestLogicTypes,
   SignatureTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as Types from '../src/types';
 
 export const arbitraryTimestamp = 1549953337;
 
@@ -111,27 +111,34 @@ export const dataWithDeclarative = {
   version: '2.0.2',
 };
 
-export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);
+export const action: RequestLogicTypes.IAction = Utils.signature.sign(
+  dataWithDeclarative,
+  payee.signatureParams,
+);
 export const actionWithoutExtensionsData: RequestLogicTypes.IAction = Utils.signature.sign(
   dataWithoutExtensionsData,
   payee.signatureParams,
 );
-export const actionWithDeclarative: RequestLogicTypes.IAction = Utils.signature.sign(
-  dataWithDeclarative,
-  payee.signatureParams,
-);
 
-export const transactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransaction: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(action) },
 };
-export const transactionConfirmedWithoutExtensionsData: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransactionWithoutExtensionsData: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
 };
-export const transactionConfirmedWithDeclarative: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(actionWithDeclarative) },
+  transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
+};
+export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.CONFIRMED,
+  timestamp: arbitraryTimestamp,
+  transaction: { data: JSON.stringify(action) },
 };
 
 export const actionRequestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
@@ -141,7 +148,8 @@ export const anotherCreationAction: RequestLogicTypes.IAction = Utils.signature.
   payer.signatureParams,
 );
 
-export const anotherCreationTransactionConfirmed: TransactionTypes.IConfirmedTransaction = {
+export const anotherCreationTransactionConfirmed: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(anotherCreationAction) },
 };
@@ -167,7 +175,8 @@ export const actionCreationSecondRequest: RequestLogicTypes.IAction = Utils.sign
   payee.signatureParams,
 );
 
-export const transactionConfirmedSecondRequest: TransactionTypes.IConfirmedTransaction = {
+export const timestampedTransactionSecondRequest: TransactionTypes.ITimestampedTransaction = {
+  state: TransactionTypes.TransactionState.PENDING,
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(actionCreationSecondRequest) },
 };
@@ -176,8 +185,8 @@ export const actionRequestIdSecondRequest = MultiFormat.serialize(
   Utils.crypto.normalizeKeccak256Hash(actionCreationSecondRequest),
 );
 
-export const declarativePaymentNetwork: Types.IPaymentNetworkCreateParameters = {
-  id: Types.PAYMENT_NETWORK_ID.DECLARATIVE,
+export const declarativePaymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+  id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
     paymentInformation: {
       BIC: 'SABAIE2D',

@@ -1,8 +1,7 @@
-import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import 'mocha';
 import Request from '../../src/api/request';
-import * as Types from '../../src/types';
 
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -41,7 +40,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
     return { meta: {}, result: {} };
   },
   async getRequestFromId(): Promise<any> {
-    return { meta: {}, result: { request: { requestId: '1' } } };
+    return { meta: {}, result: { request: { requestId: '1' }, pending: null } };
   },
   async getRequestsByTopic(): Promise<any> {
     return {
@@ -61,7 +60,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   },
 };
 
-const mockPaymentNetwork: Types.IPaymentNetwork = {
+const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },
@@ -76,7 +75,7 @@ const mockPaymentNetwork: Types.IPaymentNetwork = {
   },
 };
 
-const mockDeclarativePaymentNetwork: Types.IPaymentNetwork = {
+const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },
@@ -101,7 +100,7 @@ const mockDeclarativePaymentNetwork: Types.IPaymentNetwork = {
   async getBalance(): Promise<any> {
     return;
   },
-} as Types.IPaymentNetwork;
+} as PaymentTypes.IPaymentNetwork;
 
 const signatureIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -468,6 +467,7 @@ describe('api/request', () => {
           return {
             meta: {},
             result: {
+              pending: {},
               request: {},
             },
           };

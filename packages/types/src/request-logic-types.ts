@@ -85,12 +85,13 @@ export interface IReturnCreateRequest extends IRequestLogicReturn {
 
 /** return of the function getFirstRequestFromTopic */
 export interface IReturnGetRequestFromId extends IRequestLogicReturn {
-  result: { request: IRequest | null };
+  // TODO replace any by a better type
+  result: { request: IRequest | null; pending: any | null };
 }
 
 /** return of the function getRequestsByTopic */
 export interface IReturnGetRequestsByTopic extends IRequestLogicReturn {
-  result: { requests: IRequest[] };
+  result: { requests: Array<{ request: IRequest | null; pending: any | null }> };
 }
 
 /** Interface of a request logic action */
@@ -138,6 +139,9 @@ export interface IRequest {
   /** arbitrary number to differentiate several identical requests with the same timestamp */
   nonce?: number;
 }
+
+/** Pending data of a request in request logic */
+export type IPendingRequest = Partial<IRequest>;
 
 /** Extensions state indexed by their Id */
 export interface IExtensionStates {
@@ -256,6 +260,8 @@ export enum CURRENCY {
 
 /** States of a request */
 export enum STATE {
+  // use for upper layer (trick to avoid headache with retyping request in upper layer)
+  PENDING = 'pending',
   CREATED = 'created',
   ACCEPTED = 'accepted',
   CANCELED = 'canceled',

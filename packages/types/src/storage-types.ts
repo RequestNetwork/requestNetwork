@@ -53,6 +53,8 @@ export interface IEntryMetadata {
     /** Size in bytes of the file on ipfs */
     size: number;
   };
+  /** Enum of state possible for data */
+  state: ContentState;
   /** meta about local storing */
   local?: ILocalMetadata;
   /** timestamp of the data */
@@ -190,4 +192,10 @@ export interface IGasPriceProvider {
 export interface IIpfsErrorHandlingConfiguration {
   delayBetweenRetries: number;
   maxRetries: number;
+}
+
+/** Enum of state possible for data */
+export enum ContentState {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
 }
