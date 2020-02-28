@@ -95,10 +95,21 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         maxRetries: GET_CONFIRMATION_MAX_RETRY,
         retryDelay: GET_CONFIRMATION_RETRY_DELAY,
       },
-    )().then((resultConfirmed: any) => {
-      // when found, emit the event 'confirmed'
-      result.emit('confirmed', resultConfirmed.data);
-    });
+    )()
+      .then((resultConfirmed: any) => {
+        // when found, emit the event 'confirmed'
+        result.emit('confirmed', resultConfirmed.data);
+      })
+      .catch((e: any) => {
+        // tslint:disable-next-line:no-magic-numbers
+        if (e.response.status === 404) {
+          throw new Error(
+            `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
+          );
+        } else {
+          throw new Error(e.message);
+        }
+      });
 
     return result;
   }

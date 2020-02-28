@@ -90,7 +90,7 @@ describe('Request client using a request node', () => {
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
 
-    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
+    requestData = await request.waitForConfirmation();
     assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
     assert.isNull(requestData.pending);
 
@@ -148,7 +148,7 @@ describe('Request client using a request node', () => {
     assert.equal(extension.events[0].name, 'create');
     assert.deepEqual(extension.events[0].parameters, paymentNetwork.parameters);
 
-    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
+    requestData = await request.waitForConfirmation();
     assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
     assert.isNull(requestData.pending);
 
