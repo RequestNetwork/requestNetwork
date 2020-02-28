@@ -14,6 +14,7 @@ const docsPath = 'docs';
 module.exports = {
   docs: makeSidebar('protocol'),
   introSideBar: makeSidebar('guides'),
+  clientAPI: makeSidebar('client'),
 };
 console.dir(module.exports, { depth: null });
 

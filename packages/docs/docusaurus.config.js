@@ -17,14 +17,14 @@ module.exports = {
       links: [
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'docs/others/integration-options', label: 'Integration', position: 'left' },
-				{ href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol', position: 'left' },
+				{ to: 'docs/client/index', label: 'Request-client.js API', position: 'left' },
         { to: 'portal', label: 'Portal REST API', position: 'left' },
+        { href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol Specs', position: 'left' },
         {
           href: 'https://github.com/RequestNetwork',
           label: 'GitHub',
           position: 'right',
         },
-	//{ to: 'whitepaper', label: 'Whitepaper', position: 'left' },
       ],
     },
     footer: {
