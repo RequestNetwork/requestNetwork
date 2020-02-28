@@ -1,6 +1,6 @@
 ---
 title: How the protocol works
-keywords: Request protocol, IPFS, Ethereum, batching
+keywords: [Request protocol, IPFS, Ethereum, batching]
 
 ---
 

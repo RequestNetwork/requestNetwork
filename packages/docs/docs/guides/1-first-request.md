@@ -1,7 +1,7 @@
 ---
 title: Create your first Request
 sidebar_label: First request creation
-keywords: Request creation, API
+keywords: [Request creation, API]
 
 ---
 

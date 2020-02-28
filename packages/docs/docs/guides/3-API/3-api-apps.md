@@ -1,6 +1,6 @@
 ---
 title: API Apps
-keywords: Request, Apps, API
+keywords: [Request, Apps, API]
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: How payment networks work
 sidebar_label: Payment networks
-keywords: Request Client, Payment networks
+keywords: [Request Client, Payment networks]
 
 ---
 

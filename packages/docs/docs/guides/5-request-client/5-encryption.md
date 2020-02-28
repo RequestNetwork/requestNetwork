@@ -1,7 +1,7 @@
 ---
 
 title: Handling encryption with the JS library
-keywords: Request, new currency, test network, missing currency, testnet
+keywords: [Request, new currency, test network, missing currency, testnet]
 ---
 
 A request can be encrypted. To manipulate encrypted request you need a Decryption Provider, e.g:

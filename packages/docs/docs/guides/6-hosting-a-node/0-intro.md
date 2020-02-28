@@ -1,6 +1,6 @@
 ---
 title: Introduction to Request Node hosting
-keywords: Request node
+keywords: [Request node]
 
 ---
 

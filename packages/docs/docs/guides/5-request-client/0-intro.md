@@ -1,7 +1,7 @@
 ---
 title: Request Client introduction
 sidebar_label: Request Client step by step
-keywords: Request Client, JS Library
+keywords: [Request Client, JS Library]
 
 ---
 

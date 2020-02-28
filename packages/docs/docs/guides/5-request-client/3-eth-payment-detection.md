@@ -1,6 +1,6 @@
 ---
 title: ETH Payment detection
-keywords: Request Client, ETH payment detection, Ether, Ethereum
+keywords: [Request Client, ETH payment detection, Ether, Ethereum]
 
 ---
 

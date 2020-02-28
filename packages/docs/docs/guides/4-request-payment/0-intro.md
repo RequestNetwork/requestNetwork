@@ -1,6 +1,6 @@
 ---
 title: Pay a request
-keywords: Request payment library
+keywords: [Request payment library]
 
 ---
 

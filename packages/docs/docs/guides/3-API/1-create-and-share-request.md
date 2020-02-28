@@ -1,6 +1,6 @@
 ---
 title: Request API - Let's play
-keywords: ERC20, DAI, Request, Portal, API
+keywords: [ERC20, DAI, Request, Portal, API]
 
 ---
 

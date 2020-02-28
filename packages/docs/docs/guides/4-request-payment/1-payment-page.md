@@ -1,6 +1,6 @@
 ---
 title: Payment page
-keywords: Request payment library, request payment page
+keywords: [Request payment library, request payment page]
 
 ---
 
