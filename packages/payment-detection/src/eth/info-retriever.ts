@@ -18,7 +18,7 @@ export default class ETHInfoRetriever
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
     private paymentReference: string,
-    private etherscanApiKey?: string,
+    private etherscanApiKey: string = 'TCVQQU5V39TAS1V6HF61P9K7IJZVEHH1D9',
   ) {}
 
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
