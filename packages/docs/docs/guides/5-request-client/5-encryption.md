@@ -52,7 +52,7 @@ const invoice = await requestNetwork._createEncryptedRequest(
 );
 ```
 
-Note: your decryption provider must be able to decrypt the request. Otherwise an error will be trigger after the creation.
+Note: your decryption provider must be able to decrypt the request. Otherwise an error will be triggered after the creation.
 
 ## Get invoice information from its request ID
 
