@@ -55,6 +55,8 @@ const validRequest: ClientTypes.IRequestData = {
     value: erc20ContractAddress,
   },
 
+  // tslint:disable-next-line:typedef
+  emit: () => true,
   events: [],
   expectedAmount: '100',
   extensions: {
@@ -73,6 +75,7 @@ const validRequest: ClientTypes.IRequestData = {
   meta: {
     transactionManagerMeta: {},
   },
+  on: () => null as any,
   pending: null,
   requestId: 'abcd',
   state: RequestLogicTypes.STATE.CREATED,

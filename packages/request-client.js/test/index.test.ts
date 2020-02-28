@@ -15,7 +15,7 @@ import { ethers } from 'ethers';
 import 'mocha';
 import * as sinon from 'sinon';
 const mockAdapter = require('axios-mock-adapter');
-import { Request, RequestNetwork } from '../src/index';
+import { Request, RequestNetwork, Types } from '../src/index';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
@@ -113,6 +113,7 @@ function mockAxios(): any {
   mock.onGet('/getTransactionsByChannelId').reply(200, {
     result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
   });
+  mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
   return mock;
 }
 
@@ -155,6 +156,7 @@ describe('index', () => {
     mock
       .onGet('/getTransactionsByChannelId')
       .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -164,13 +166,14 @@ describe('index', () => {
       id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {},
     };
-
-    await requestNetwork.createRequest({
+    const request = await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
+
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with persist from local', async () => {
@@ -203,13 +206,14 @@ describe('index', () => {
       },
     };
 
-    await requestNetwork.createRequest({
+    const request = await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
-    // expect(spyPersistTransaction).to.not.have.been.called;
     expect(spyIpfsAdd).to.have.been.called.once;
+
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
@@ -224,6 +228,7 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestDataRealBTC.timestampedTransaction] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -236,12 +241,14 @@ describe('index', () => {
       },
     };
 
-    await requestNetwork.createRequest({
+    const request = await requestNetwork.createRequest({
       paymentNetwork,
       requestInfo: requestParameters,
       signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
+
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with signatureProvider', async () => {
@@ -256,6 +263,7 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -279,16 +287,19 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
       nodeConnectionConfig: { baseURL },
       signatureProvider: fakeSignatureProvider,
     });
-    await requestNetwork.createRequest({
+    const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
     expect(spy).to.have.been.called.once;
+
+    await request.waitForConfirmation();
   });
 
   it('allows to create a request', async () => {
@@ -305,12 +316,14 @@ describe('index', () => {
 
     expect(request).to.be.instanceOf(Request);
     expect(request.requestId).to.exist;
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
     expect(request.requestId.length).to.equal(requestIdLength);
+
+    await request.waitForConfirmation();
   });
 
   it('allows to compute a request id', async () => {
@@ -356,8 +369,10 @@ describe('index', () => {
 
     expect(request).to.be.instanceOf(Request);
     expect(request.requestId).to.equal(requestId);
-    expect(axiosSpyGet).to.have.been.called.once;
+    expect(axiosSpyGet).to.have.been.called.exactly(3);
     expect(axiosSpyPost).to.have.been.called.once;
+
+    await request.waitForConfirmation();
   });
 
   it('allows to get a request from its ID', async () => {
@@ -368,6 +383,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
@@ -380,12 +396,14 @@ describe('index', () => {
     mock.onGet('/getTransactionsByChannelId').reply(200, {
       result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
     });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
@@ -411,9 +429,17 @@ describe('index', () => {
 
     const data = request.getData();
     expect(data).to.exist;
-    expect(data.balance).to.be.null;
+    expect(data.balance).to.null;
     expect(data.meta).to.exist;
     expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+
+    const dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+      request.on('confirmed', resolve),
+    );
+    expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(dataConfirmed.pending).to.null;
   });
 
   it('works with mocked storage and mocked payment network', async () => {
@@ -438,11 +464,20 @@ describe('index', () => {
     });
 
     const data = request.getData();
-
     expect(data).to.exist;
     expect(data.balance).to.null;
     expect(data.meta).to.be.exist;
     expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+
+    const dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+      request.on('confirmed', resolve),
+    );
+    expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(dataConfirmed.pending).to.null;
+    expect(dataConfirmed.balance?.balance).equal('666743');
+    expect(dataConfirmed.balance?.events.length).equal(1);
   });
 
   it('works with mocked storage and content data', async () => {
@@ -466,6 +501,8 @@ describe('index', () => {
     expect(data).to.exist;
     expect(data.balance).to.be.null;
     expect(data.meta).to.exist;
+
+    await request.waitForConfirmation();
   });
 
   it('allows to accept a request', async () => {
@@ -479,16 +516,9 @@ describe('index', () => {
     const axiosSpyGet = sandbox.on(axios, 'get');
     const axiosSpyPost = sandbox.on(axios, 'post');
 
-    // after confirmation
-    const mock = new mockAdapter(axios);
-    mock.onPost('/persistTransaction').reply(200, { result: {} });
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.timestampedTransactionWithoutExtensionsDataConfirmed] },
-    });
-
     await request.accept(payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -504,7 +534,7 @@ describe('index', () => {
 
     await request.cancel(payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -520,7 +550,7 @@ describe('index', () => {
 
     await request.increaseExpectedAmountRequest(3, payerIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -536,7 +566,7 @@ describe('index', () => {
 
     await request.reduceExpectedAmountRequest(3, payeeIdentity);
 
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
+    expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
@@ -553,6 +583,7 @@ describe('index', () => {
       mock.onGet('/getTransactionsByChannelId').reply(200, {
         result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
       });
+      mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
     });
 
     it('allows to declare a sent payment', async () => {
@@ -568,13 +599,14 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
 
       await request.declareSentPayment('10', 'sent payment', payerIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -591,13 +623,14 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
 
       await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -614,13 +647,14 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
 
       await request.declareSentRefund('10', 'sent refund', payeeIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
@@ -637,20 +671,18 @@ describe('index', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: payeeIdentity,
       });
+      await request.waitForConfirmation();
 
       const axiosSpyGet = sandbox.on(axios, 'get');
       const axiosSpyPost = sandbox.on(axios, 'post');
 
       await request.declareReceivedRefund('10', 'received refund', payerIdentity);
 
-      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyGet).to.have.been.called.exactly(4);
       expect(axiosSpyPost).to.have.been.called.once;
     });
 
     it('allows to get the right balance', async () => {
-      // Use sinon clock to get a predictible timestamp
-      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
-
       const requestParametersUSD: RequestLogicTypes.ICreateParameters = {
         currency: {
           type: RequestLogicTypes.CURRENCY.ISO4217,
@@ -675,39 +707,42 @@ describe('index', () => {
         requestInfo: requestParametersUSD,
         signer: payeeIdentity,
       });
+      await request.waitForConfirmation();
 
-      clock.tick(150);
-      await request.declareSentPayment('1', 'sent payment', payerIdentity);
+      let declareResult = await request.declareSentPayment('1', 'sent payment', payerIdentity);
+      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      clock.tick(150);
-      await request.declareReceivedRefund('10', 'received refund', payerIdentity);
+      declareResult = await request.declareReceivedRefund('10', 'received refund', payerIdentity);
+      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      clock.tick(150);
-      await request.declareSentRefund('100', 'sent refund', payeeIdentity);
+      declareResult = await request.declareSentRefund('100', 'sent refund', payeeIdentity);
+      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      clock.tick(150);
-      await request.declareReceivedPayment('1000', 'received payment', payeeIdentity);
+      declareResult = await request.declareReceivedPayment(
+        '1000',
+        'received payment',
+        payeeIdentity,
+      );
+      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      clock.tick(150);
+      declareResult = await request.addPaymentInformation('payment info added', payeeIdentity);
+      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
+      declareResult = await request.addRefundInformation('refund info added', payerIdentity);
+      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
+
       const requestData = await request.refresh();
 
       // @ts-ignore
-      expect(requestData.balance.balance).to.equal('990');
+      expect(requestData.balance?.balance).to.equal('990');
       // @ts-ignore
-      expect(requestData.balance.events[0]).to.deep.equal({
-        amount: '10',
-        name: 'refund',
-        parameters: { note: 'received refund' },
-        timestamp: 0,
-      });
+      expect(requestData.balance?.events[0].name).to.equal('refund');
+      expect(requestData.balance?.events[0].amount).to.equal('10');
+      expect(requestData.balance?.events[0].parameters).to.deep.equal({ note: 'received refund' });
+
       // @ts-ignore
-      expect(requestData.balance.events[1]).to.deep.equal({
-        amount: '1000',
-        name: 'payment',
-        parameters: { note: 'received payment' },
-        timestamp: 0,
-      });
-      sinon.restore();
+      expect(requestData.balance?.events[1].name).to.equal('payment');
+      expect(requestData.balance?.events[1].amount).to.equal('1000');
+      expect(requestData.balance?.events[1].parameters).to.deep.equal({ note: 'received payment' });
     });
 
     it('cannot use declarative function if payment network is not declarative', async () => {
@@ -740,6 +775,7 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
+      await request.waitForConfirmation();
 
       await expect(
         request.declareReceivedRefund('10', 'received refund', payeeIdentity),
@@ -914,8 +950,6 @@ describe('index', () => {
     });
 
     it('creates an encrypted request and accept it', async () => {
-      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
-
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -939,12 +973,16 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
-      clock.tick(150);
-      await fetchedRequest.accept(payerIdentity);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const acceptResult = await fetchedRequest.accept(payerIdentity);
+      expect(acceptResult.state).to.equal(RequestLogicTypes.STATE.CREATED);
+      expect(acceptResult.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
-      clock.tick(150);
-      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
-      sinon.restore();
+      const dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+        acceptResult.on('confirmed', resolve),
+      );
+      expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      expect(dataConfirmed.pending).to.be.null;
     });
 
     it('creates an encrypted request and cancel it', async () => {
@@ -1026,7 +1064,6 @@ describe('index', () => {
     });
 
     it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
-      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: fakeSignatureProvider,
@@ -1051,29 +1088,35 @@ describe('index', () => {
         'ecies-aes256-cbc',
       );
 
-      clock.tick(150);
-      await fetchedRequest.accept(payerIdentity);
-      clock.tick(150);
-      expect((await fetchedRequest.refresh()).state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      const acceptResult = await fetchedRequest.accept(payerIdentity);
 
-      await fetchedRequest.declareSentPayment(
+      let dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+        acceptResult.on('confirmed', resolve),
+      );
+      expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+
+      const declareSentPaymentResult = await fetchedRequest.declareSentPayment(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         'PAID',
         payerIdentity,
       );
-      clock.tick(150);
-      expect((await fetchedRequest.refresh()).balance!.balance).to.equal('0');
+      dataConfirmed = await new Promise((resolve): any =>
+        declareSentPaymentResult.on('confirmed', resolve),
+      );
+      expect(dataConfirmed.balance!.balance).to.equal('0');
 
-      await fetchedRequest.declareReceivedPayment(
+      const declareReceivedPaymentResult = await fetchedRequest.declareReceivedPayment(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         'payment received',
         payeeIdentity,
       );
-      clock.tick(150);
-      expect((await fetchedRequest.refresh()).balance!.balance).to.equal(
+
+      dataConfirmed = await new Promise((resolve): any =>
+        declareReceivedPaymentResult.on('confirmed', resolve),
+      );
+      expect(dataConfirmed.balance!.balance).to.equal(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
-      sinon.restore();
     });
   });
 

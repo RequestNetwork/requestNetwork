@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 /** Data Access Layer */
 export interface IDataAccess {
   initialize: () => Promise<void>;
@@ -33,7 +35,7 @@ export interface ITimestampBoundaries {
 }
 
 /** return interface for PersistTransaction  */
-export interface IReturnPersistTransaction {
+export interface IReturnPersistTransaction extends EventEmitter {
   /** meta information */
   meta: {
     /** location of the persisted transaction */

@@ -1,5 +1,7 @@
 import 'mocha';
 
+import { EventEmitter } from 'events';
+
 import MultiFormat from '@requestnetwork/multi-format';
 import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -39,10 +41,10 @@ const requestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(acti
 
 const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-const fakeMetaTransactionManager = {
+const fakeMetaTransactionManager = Object.assign(new EventEmitter(), {
   meta: { storageDataId: 'fakeDataId' },
   result: { topics: [fakeTxHash] },
-};
+});
 let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
 /* tslint:disable:no-unused-expression */
@@ -52,7 +54,23 @@ describe('index', () => {
       getChannelsByMultipleTopics: chai.spy() as any,
       getChannelsByTopic: chai.spy() as any,
       getTransactionsByChannelId: chai.spy() as any,
-      persistTransaction: chai.spy.returns(fakeMetaTransactionManager) as any,
+      persistTransaction: chai.spy(() => {
+        setTimeout(() => {
+          fakeMetaTransactionManager.emit(
+            'confirmed',
+            {
+              meta: { storageDataId: 'fakeDataId' },
+              result: { topics: [fakeTxHash] },
+            },
+            // tslint:disable-next-line:no-magic-numbers
+            100,
+          );
+        });
+
+        return fakeMetaTransactionManager;
+      }) as any,
+
+      // chai.spy.returns(fakeMetaTransactionManager) as any,
     };
   });
 
@@ -99,6 +117,19 @@ describe('index', () => {
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
+
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+          result: {
+            requestId: '01847a35486b464e653f3b1fb6be27649b11b1cb171bfd2fade1292d5aeb706e59',
+          },
+        });
+      });
 
       expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
       expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
@@ -188,6 +219,20 @@ describe('index', () => {
         TestData.payeeRaw.identity,
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
+
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+          result: {
+            requestId: '01847a35486b464e653f3b1fb6be27649b11b1cb171bfd2fade1292d5aeb706e59',
+          },
+        });
+      });
+
       expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
       expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
@@ -296,6 +341,16 @@ describe('index', () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.acceptRequest(acceptParams, TestData.payerRaw.identity);
 
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
@@ -379,6 +434,17 @@ describe('index', () => {
       };
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.cancelRequest(cancelRequest, TestData.payeeRaw.identity);
+
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
@@ -467,6 +533,17 @@ describe('index', () => {
         increaseRequest,
         TestData.payerRaw.identity,
       );
+
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
@@ -560,6 +637,17 @@ describe('index', () => {
         reduceRequest,
         TestData.payeeRaw.identity,
       );
+
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
@@ -649,6 +737,17 @@ describe('index', () => {
         addExtRequest,
         TestData.payeeRaw.identity,
       );
+
+      ret.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
       expect(ret.result, 'ret.result is wrong').to.be.undefined;
       expect(ret.meta).to.be.deep.equal({
         transactionManagerMeta: fakeMetaTransactionManager.meta,

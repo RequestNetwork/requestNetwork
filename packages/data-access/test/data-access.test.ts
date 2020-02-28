@@ -85,6 +85,15 @@ const appendResult: StorageTypes.IAppendResult = Object.assign(new EventEmitter(
   },
 });
 
+const appendResultConfirmed = {
+  content: '',
+  id: dataIdBlock2tx,
+  meta: {
+    state: StorageTypes.ContentState.CONFIRMED,
+    timestamp: 1,
+  },
+};
+
 const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   entries: [],
   lastTimestamp: 0,
@@ -96,7 +105,18 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 
 const defaultFakeStorage: StorageTypes.IStorage = {
   _ipfsAdd: chai.spy(),
-  append: chai.spy.returns(appendResult),
+  append: chai.spy(
+    (): any => {
+      setTimeout(
+        () => {
+          appendResult.emit('confirmed', appendResultConfirmed);
+        },
+        // tslint:disable-next-line:no-magic-numbers
+        10,
+      );
+      return appendResult;
+    },
+  ),
   getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
   initialize: chai.spy(),
   read: (param: string): any => {
@@ -395,6 +415,21 @@ describe('data-access', () => {
         arbitraryTopic1,
       ]);
 
+      clock.tick(11);
+      result.on('confirmed', resultConfirmed1 => {
+        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+          meta: {
+            storageMeta: {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+            },
+            topics: [arbitraryTopic1],
+            transactionStorageLocation: dataIdBlock2tx,
+          },
+          result: {},
+        });
+      });
+
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
       expect(defaultFakeStorage.append).to.have.been.called.with(
@@ -415,17 +450,19 @@ describe('data-access', () => {
           ],
         }),
       );
-      expect(result, 'result wrong').to.deep.equal({
-        meta: {
-          storageMeta: {
-            state: DataAccessTypes.TransactionState.PENDING,
-            timestamp: 1,
-          },
-          topics: [arbitraryTopic1],
-          transactionStorageLocation: dataIdBlock2tx,
-        },
-        result: {},
-      });
+      // expect(result, 'result wrong').to.deep.equal(
+      //   Object.assign(new EventEmitter(), {
+      //     meta: {
+      //       storageMeta: {
+      //         state: DataAccessTypes.TransactionState.PENDING,
+      //         timestamp: 1,
+      //       },
+      //       topics: [arbitraryTopic1],
+      //       transactionStorageLocation: dataIdBlock2tx,
+      //     },
+      //     result: {},
+      //   }),
+      // );
     });
 
     it('cannot persistTransaction() if not initialized', async () => {

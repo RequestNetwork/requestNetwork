@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 import MultiFormat from '@requestnetwork/multi-format';
 import {
   AdvancedLogicTypes,
@@ -56,10 +58,24 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       requestId,
       hashedTopics,
     );
-    return {
+
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
       result: { requestId },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+          result: { requestId },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**
@@ -99,10 +115,24 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       hashedTopics,
       encryptionParams,
     );
-    return {
+
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
       result: { requestId },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+          result: { requestId },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**
@@ -146,7 +176,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
     validate: boolean = false,
-  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -165,9 +195,21 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       requestId,
     );
 
-    return {
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**
@@ -183,7 +225,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.ICancelParameters,
     signerIdentity: IdentityTypes.IIdentity,
     validate: boolean = false,
-  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -201,9 +243,22 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       JSON.stringify(action),
       requestId,
     );
-    return {
+
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**
@@ -219,7 +274,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.IIncreaseExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
     validate: boolean = false,
-  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -237,9 +292,22 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       JSON.stringify(action),
       requestId,
     );
-    return {
+
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**
@@ -255,7 +323,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.IReduceExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
     validate: boolean = false,
-  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -273,9 +341,22 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       JSON.stringify(action),
       requestId,
     );
-    return {
+
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**
@@ -291,7 +372,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.IAddExtensionsDataParameters,
     signerIdentity: IdentityTypes.IIdentity,
     validate: boolean = false,
-  ): Promise<RequestLogicTypes.IRequestLogicReturn> {
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -310,9 +391,22 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       JSON.stringify(action),
       requestId,
     );
-    return {
+
+    const result = Object.assign(new EventEmitter(), {
       meta: { transactionManagerMeta: resultPersistTx.meta },
-    };
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx.on(
+      'confirmed',
+      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      },
+    );
+
+    return result;
   }
 
   /**

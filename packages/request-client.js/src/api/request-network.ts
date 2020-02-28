@@ -62,12 +62,21 @@ export default class RequestNetwork {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
     );
-    const {
-      result: { requestId },
-    } = await this.requestLogic.createRequest(requestParameters, parameters.signer, topics);
+
+    const createResult = await this.requestLogic.createRequest(
+      requestParameters,
+      parameters.signer,
+      topics,
+    );
 
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+    const request = new Request(
+      this.requestLogic,
+      createResult.result.requestId,
+      paymentNetwork,
+      this.contentData,
+      createResult,
+    );
 
     // refresh the local request data
     await request.refresh();
@@ -90,9 +99,7 @@ export default class RequestNetwork {
       parameters,
     );
 
-    const {
-      result: { requestId },
-    } = await this.requestLogic.createEncryptedRequest(
+    const createResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,
       parameters.signer,
       encryptionParams,
@@ -100,7 +107,13 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+    const request = new Request(
+      this.requestLogic,
+      createResult.result.requestId,
+      paymentNetwork,
+      this.contentData,
+      createResult,
+    );
 
     // refresh the local request data
     await request.refresh();

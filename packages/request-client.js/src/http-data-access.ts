@@ -2,11 +2,19 @@ import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
+import { EventEmitter } from 'events';
+
 // Maximum number of retries to attempt when http requests to the Node fail
 const HTTP_REQUEST_MAX_RETRY = 3;
 
 // Delay between retry in ms
 const HTTP_REQUEST_RETRY_DELAY = 100;
+
+// Maximum number of retries to get the confirmation of a persistTransaction
+const GET_CONFIRMATION_MAX_RETRY = 500;
+
+// Delay between retry in ms to get the confirmation of a persistTransaction
+const GET_CONFIRMATION_RETRY_DELAY = 3000;
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -64,7 +72,46 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       },
       this.axiosConfig,
     );
-    return data;
+
+    const transactionHash: string = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
+
+    // Create the return result with EventEmitter
+    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+      new EventEmitter(),
+      data,
+    );
+
+    // Try to get the confirmation
+    Utils.retry(
+      async () => {
+        return axios.get(
+          '/getConfirmedTransaction',
+          Object.assign(this.axiosConfig, {
+            params: { transactionHash },
+          }),
+        );
+      },
+      {
+        maxRetries: GET_CONFIRMATION_MAX_RETRY,
+        retryDelay: GET_CONFIRMATION_RETRY_DELAY,
+      },
+    )()
+      .then((resultConfirmed: any) => {
+        // when found, emit the event 'confirmed'
+        result.emit('confirmed', resultConfirmed.data);
+      })
+      .catch((e: any) => {
+        // tslint:disable-next-line:no-magic-numbers
+        if (e.response.status === 404) {
+          throw new Error(
+            `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
+          );
+        } else {
+          throw new Error(e.message);
+        }
+      });
+
+    return result;
   }
 
   /**

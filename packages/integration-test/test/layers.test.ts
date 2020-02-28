@@ -436,7 +436,7 @@ describe('Request system', () => {
     assert.isNull(request.result.request);
     assert.exists(request.result.pending);
     assert.equal(request.result.pending!.expectedAmount, '12345678987654321');
-    assert.equal(request.result.pending!.state, 'created');
+    assert.equal(request.result.pending!.state, RequestLogicTypes.STATE.CREATED);
 
     // reduce the expected amount by payee
     const resultReduce = await requestLogic.reduceExpectedAmountRequest(
@@ -478,10 +478,10 @@ describe('Request system', () => {
       'ecies-aes256-cbc',
     );
     assert.exists(requestAfterAccept.result.request);
-    assert.equal(requestAfterAccept.result.request!.state, 'created');
+    assert.equal(requestAfterAccept.result.request!.state, RequestLogicTypes.STATE.CREATED);
 
     assert.exists(requestAfterAccept.result.pending);
-    assert.equal(requestAfterAccept.result.pending!.state, 'accepted');
+    assert.equal(requestAfterAccept.result.pending!.state, RequestLogicTypes.STATE.ACCEPTED);
 
     // increase amount of the request by payer
     const resultIncrease = await requestLogic.increaseExpectedAmountRequest(
@@ -524,10 +524,10 @@ describe('Request system', () => {
       'ecies-aes256-cbc',
     );
     assert.exists(requestAfterCancel.result.request);
-    assert.equal(requestAfterCancel.result.request!.state, 'accepted');
+    assert.equal(requestAfterCancel.result.request!.state, RequestLogicTypes.STATE.ACCEPTED);
 
     assert.exists(requestAfterCancel.result.pending);
-    assert.equal(requestAfterCancel.result.pending!.state, 'canceled');
+    assert.equal(requestAfterCancel.result.pending!.state, RequestLogicTypes.STATE.CANCELED);
 
     // check that the data are encrypted:
     const dataAccessData = await dataAccess.getTransactionsByChannelId(

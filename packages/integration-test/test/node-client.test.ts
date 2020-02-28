@@ -90,14 +90,21 @@ describe('Request client using a request node', () => {
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
 
+    requestData = await request.waitForConfirmation();
+    assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
+    assert.isNull(requestData.pending);
+
     // Reduce the amount and get the data
-    await request.reduceExpectedAmountRequest('200', payeeIdentity);
-    requestData = request.getData();
+    requestData = await request.reduceExpectedAmountRequest('200', payeeIdentity);
     assert.equal(requestData.expectedAmount, '1000');
     assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.expectedAmount, '800');
+
+    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    assert.equal(requestData.expectedAmount, '800');
+    assert.isNull(requestData.pending);
   });
 
   it('can create a request with declarative payment network and content data', async () => {
@@ -141,8 +148,15 @@ describe('Request client using a request node', () => {
     assert.equal(extension.events[0].name, 'create');
     assert.deepEqual(extension.events[0].parameters, paymentNetwork.parameters);
 
+    requestData = await request.waitForConfirmation();
+    assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
+    assert.isNull(requestData.pending);
+
     requestData = await request.declareSentPayment('100', 'bank transfer initiated', payerIdentity);
     assert.exists(requestData.balance);
+    assert.equal(requestData.balance!.balance, '0');
+
+    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
     assert.equal(requestData.balance!.balance, '0');
 
     requestData = await request.declareReceivedPayment(
@@ -151,8 +165,10 @@ describe('Request client using a request node', () => {
       payeeIdentity,
     );
     assert.exists(requestData.balance);
-    // TODO: until PROT-1131, the balance will remain 0 until the transaction is confirmed
     assert.equal(requestData.balance!.balance, '0');
+
+    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    assert.equal(requestData.balance!.balance, '100');
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
@@ -299,6 +315,8 @@ describe('Request client using a request node', () => {
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
     assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+
+    await new Promise((resolve): any => request.on('confirmed', resolve));
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -456,11 +474,15 @@ describe('ERC20 localhost request creation and detection test', () => {
     assert.exists(request.requestId);
 
     // Get the data
-    const requestData = request.getData();
+    let requestData = request.getData();
     assert.equal(requestData.expectedAmount, '10');
     assert.equal(requestData.state, Types.RequestLogic.STATE.PENDING);
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
+
+    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
+    assert.equal(requestData.state, Types.RequestLogic.STATE.CREATED);
+    assert.isNull(requestData.pending);
   });
 });
