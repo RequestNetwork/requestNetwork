@@ -57,9 +57,8 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
     signer: payeeIdentity,
   });
 
-  // wait a bit
-  // tslint:disable-next-line:no-magic-numbers
-  await new Promise((r: any): any => setTimeout(r, 150));
+  // wait the confirmation
+  await request.waitForConfirmation();
 
   // the payer can declare that he sent a payment
   await request.declareSentPayment('11000', 'payment initiated from the bank', payerIdentity);
@@ -77,16 +76,14 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
   await request.declareSentRefund('1000', 'refund initiated from the bank', payeeIdentity);
 
   // the payer can declare that he received a payment
-  await request.declareReceivedRefund('700', 'refund received', payerIdentity);
+  let requestData = await request.declareReceivedRefund('700', 'refund received', payerIdentity);
 
-  const requestData = request.getData();
+  requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
 
-  // Get the balance
   if (requestData.balance) {
     console.log('request balance: ', requestData.balance.balance);
     console.log('request balance events: ', requestData.balance.events);
   }
-
   // Get payment network information
   const paymentNetworkInformation = requestData.extensions['pn-any-declarative'];
   console.log('Payment network, values declared: ', paymentNetworkInformation.values);
