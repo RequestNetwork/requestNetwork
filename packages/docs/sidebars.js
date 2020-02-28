@@ -14,7 +14,8 @@ const docsPath = 'docs';
 module.exports = {
   docs: makeSidebar('protocol'),
   introSideBar: makeSidebar('guides'),
-  clientAPI: makeSidebar('client'),
+  //TODO: yarn start should probably generate the client folder?
+  //clientAPI: makeSidebar('client'),
 };
 console.dir(module.exports, { depth: null });
 
