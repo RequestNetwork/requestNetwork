@@ -40,7 +40,8 @@ await axios.post(`https://api.request.network/requests/`,{
     payer: {
       type: 'email',
       value: 'foo@bar.com'
-    }
+    },
+    encrypted: true
   },
   {
     headers: {
