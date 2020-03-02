@@ -67,6 +67,16 @@ requestNetwork
   .then(request => {
     console.log('clear request:');
     console.log(request);
+    request
+      .waitForConfirmation()
+      .then(confirmedRequest => {
+        console.log('clear confirmed request:');
+        console.log(confirmedRequest);
+      })
+      .catch(error => {
+        console.error(error.message || error);
+        process.exit(1);
+      });
   })
   .catch(error => {
     console.error(error.message || error);

@@ -88,6 +88,16 @@ requestNetwork
   .then(request => {
     console.log('clear request:');
     console.log(request.requestId);
+    request
+      .waitForConfirmation()
+      .then(confirmedRequest => {
+        console.log('clear confirmed request:');
+        console.log(confirmedRequest);
+      })
+      .catch(error => {
+        console.error(error.message || error);
+        process.exit(1);
+      });
   })
   .catch(error => {
     console.error(error.message || error);
@@ -99,6 +109,16 @@ requestNetwork
   .then(request => {
     console.log('encrypted request:');
     console.log(request.requestId);
+    request
+      .waitForConfirmation()
+      .then(confirmedRequest => {
+        console.log('encrypted confirmed request:');
+        console.log(confirmedRequest);
+      })
+      .catch(error => {
+        console.error(error.message || error);
+        process.exit(1);
+      });
   })
   .catch(error => {
     console.error(error.message || error);
