@@ -1,25 +1,50 @@
 {
-  "name": "docs",
-  "version": "0.0.0",
+  "name": "@requestnetwork/docs",
+  "version": "0.1.0",
   "private": true,
+  "description": "Request products technical documentation.",
+  "keywords": [
+    "requestnetwork",
+    "docs",
+    "documentation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/docs#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "license": "MIT",
   "scripts": {
     "start": "docusaurus start",
-    "prestart": "aurelius 'docs/**/*'",
+    "prestart": "yarn gen:code2md; yarn gen:client",
     "build": "docusaurus build",
     "prebuild": "aurelius 'docs/**/*'",
     "swizzle": "docusaurus swizzle",
     "preswizzle": "aurelius 'docs/**/*'",
     "deploy": "docusaurus deploy",
-    "predeploy": "aurelius 'docs/**/*'"
+    "predeploy": "aurelius 'docs/**/*'",
+    "gen:code2md": "aurelius 'docs/**/*'",
+    "gen:client": "typedoc --plugin typedoc-plugin-markdown --theme docusaurus2 --out docs/client/ --exclude '**/*test*' --resolveJsonModule --ignoreCompilerErrors --mode modules --skipSidebar --readme ../request-client.js/README.md ../request-client.js/; shx rm -rf website",
+    "clean": "shx rm -rf docs/client"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.0.0-alpha.40",
-    "@docusaurus/preset-classic": "^2.0.0-alpha.40",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.39",
-    "classnames": "^2.2.6",
-    "docusaurus": "^1.14.4",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "@docusaurus/core": "2.0.0-alpha.43",
+    "@docusaurus/preset-classic": "2.0.0-alpha.43",
+    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.43",
+    "@docusaurus/utils": "2.0.0-alpha.43",
+    "classnames": "2.2.6",
+    "core-js": "3.6.4",
+    "mobx": "5.15.4",
+    "react": "16.8.4",
+    "react-dom": "16.8.4",
+    "redoc": "2.0.0-rc.23",
+    "styled-components": "5.0.1"
   },
   "browserslist": {
     "production": [
@@ -34,6 +59,8 @@
     ]
   },
   "devDependencies": {
-    "aurelius": "^0.1.2"
+    "aurelius": "0.1.2",
+    "typedoc": "0.16.10",
+    "typedoc-plugin-markdown": "2.2.17"
   }
 }

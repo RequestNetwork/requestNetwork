@@ -8,30 +8,30 @@ import styles from './styles.module.css';
 
 const options = [
   {
-		title: <>Fully managed solution, over REST API</>,
+		title: "Fully managed solution, over REST API",
     imageUrl: 'img/ReQ-01.png',
     description: (
       <>
-	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure.
+	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure, and with a fast data access.
       </>
     ),
     details: (
       <>
 				<p>
-					Go to <Link to="https://portal.request.network">the Request Portal</Link> in order to get your API keys, and your are good to go. More details in the <Link to="https://api-docs.request.network">TODO-API Docs</Link> or <Link to="/docs/guides/3-API/0-portal-intro">follow the guide</Link>.
+					Go to <Link to="https://portal.request.network">the Request Portal</Link> in order to get your API keys, and your are good to go. This is the fastest option to integrate, and also the most performant to fetch requests because the Portal caches them for you. More details in the <Link to="https://api-docs.request.network">TODO-API Docs</Link> or <Link to="/docs/guides/3-API/0-portal-intro">follow the guide</Link>.
 				</p>
 
 				<p>
-					Keep in mind that when using the API, Request handles your identity's private key. Request empowers all economical actors to control their finance, and fully decentralized organizations may look for a more distributed option. 
+					Keep in mind that when using the Portal API, Request handles your identity's private key. Request empowers all economical actors to control their finance, and fully decentralized organizations may look for a more distributed option. 
 				</p>
 				<p>
-					The API is safe to be used in small and medium sized production environments. The identity is not used to move any fund, but it's better to <Link to="/TODO">understand the risks(TODO)</Link>
+					The Portal is safe to be used in small and medium sized production environments. Request Portal does not move any fund, but it's better to <Link to="/TODO">understand the risks(TODO)</Link>
 				</p>
       </>
     ),
   },
   {
-		title: <>Decentralized network usage, with managed hosting</>,
+		title: "Decentralized network usage, with managed hosting",
     imageUrl: 'img/REQ-07-hands-02.png',
     description: <>Manage identities, encryption and network interactions yourself but let us host the Request node.</>,
     details: (
@@ -50,7 +50,7 @@ const options = [
     ),
   },
   {
-    title: <>Fully decentralized with self-hosting</>,
+    title: "Fully decentralized with self-hosting",
     imageUrl: 'img/REQ-05-patterns-02.png',
     description: (
       <>
@@ -77,7 +77,18 @@ function IntegrationOption({ showDetails, imageUrl, title, description, details 
         </div>
       )}
 			<div className={classnames(styles.integrationOptionText)}>
-				<h3>{title}</h3>
+        {showDetails && (
+          <>
+            <a class="anchor" id={title.toString().toLowerCase().split(" ").join("-")} >
+            </a>
+            <h3>{title}</h3>
+          </>
+        )}
+        {!showDetails && (
+          <Link to={"/docs/others/integration-options#" + title.toString().toLowerCase().split(" ").join("-")} >
+            <h3>{title}</h3>
+          </Link>
+        )}
 				<div className={classnames(styles.integrationOptionDescription)}>{description}</div>
 				{showDetails && (
           <p>{details}</p>

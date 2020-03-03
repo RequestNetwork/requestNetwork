@@ -1,6 +1,6 @@
 ---
 title: Running fully locally
-keywords: Request node, test, ganache, local node
+keywords: [Request node, test, ganache, local node]
 
 ---
 

@@ -1,6 +1,7 @@
 ---
 title: Portal Introduction
-keywords: Request, REST, API, Tutorial, Portal
+sidebar_label: Portal Introduction
+keywords: [Request, REST, API, Tutorial, Portal]
 
 ---
 

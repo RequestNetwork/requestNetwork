@@ -1,3 +1,8 @@
 Dockerfile
 node_modules
 packages/**/node_modules
+.git
+.github
+.vscode
+*.md
+.circleci

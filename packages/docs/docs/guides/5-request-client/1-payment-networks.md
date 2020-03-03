@@ -1,7 +1,7 @@
 ---
 title: How payment networks work
 sidebar_label: Payment networks
-keywords: Request Client, Payment networks
+keywords: [Request Client, Payment networks]
 
 ---
 
@@ -24,7 +24,7 @@ Note that these characteristics are almost the same for every address-based paym
 For most payment networks, the payment method can be performed by the payer without any interaction with the Request protocol or the Request client.
 For all payment networks, the Request client can perform the payment detection method to determine the balance of a request.
 
-Currencies that are supported for automated payment detection are Bitcoin, Ether, and ERC20. If you miss your favorite blockchain, you can either get in touch with the team or **TODO learn how to do it yourself**
+Currencies that are supported for automated payment detection are Bitcoin, Ether, and ERC20. If you miss your favorite blockchain, you can either get in touch with the team or learn how to do it yourself.
 
 ## Bitcoin
 
@@ -56,3 +56,14 @@ This is the most convenient way for most use cases. This method is similar to us
 
 A request using the declarative payment network allows the payee and the payer to declare the payments and refunds they create and receive.
 In such a request the balance is computed only regarding the declaration made by these two stakeholders.
+
+## Other currencies 
+
+If you don't see a currency you would like to create request with, there is two options:
+- Create a declarative request (see [declarative request](TODO))
+- Contact us for your currency requirements: **Join the Request Hub** [**here**](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
+- Contribute to the protocol creating a dedicated payment network for this currency, by:
+  - Writing the specification (following the [advanced logic specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/advanced-logic-specs-0.1.0.md) and get inspired by the [others payment networks](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/specs))
+  - Developing the new payment network in the [advanced-logic package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/src/extensions/payment-network).
+  - Developing the payment detection in the payment [payment-detection package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/payment-detection).
+  - (OPTIONAL) Developing the payment processing in the [payment-processor package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/payment-detection)

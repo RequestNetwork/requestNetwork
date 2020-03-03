@@ -1,7 +1,7 @@
 ---
 title: Encryption with the API
 sidebar_label: Encryption with the API
-keywords: Request, encryption, API
+keywords: [Request, encryption, API]
 
 ---
 

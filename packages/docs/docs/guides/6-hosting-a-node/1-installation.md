@@ -1,6 +1,6 @@
 ---
 title: Installation of a node
-keywords: Request node, setup, installation, npm install
+keywords: [Request node, setup, installation, npm install]
 
 ---
 

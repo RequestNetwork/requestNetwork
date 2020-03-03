@@ -20,10 +20,10 @@ export default class ChannelParser {
    */
   public async decryptAndCleanChannel(
     channelId: string,
-    transactions: TransactionTypes.IConfirmedTransaction[],
+    transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
     encryptionMethod: string | undefined;
-    transactions: Array<TransactionTypes.IConfirmedTransaction | null>;
+    transactions: Array<TransactionTypes.ITimestampedTransaction | null>;
     ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null>;
   }> {
     let channelType: TransactionTypes.ChannelType = TransactionTypes.ChannelType.UNKNOWN;
@@ -31,7 +31,7 @@ export default class ChannelParser {
     let encryptionMethod: string | undefined;
 
     interface IValidAndIgnoredTransactions {
-      valid: TransactionTypes.IConfirmedTransaction | null;
+      valid: TransactionTypes.ITimestampedTransaction | null;
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
@@ -39,7 +39,7 @@ export default class ChannelParser {
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
       async (
         accumulatorPromise: Promise<IValidAndIgnoredTransactions[]>,
-        confirmedTransaction: TransactionTypes.IConfirmedTransaction,
+        timestampedTransaction: TransactionTypes.ITimestampedTransaction,
       ) => {
         const result = await accumulatorPromise;
 
@@ -47,7 +47,7 @@ export default class ChannelParser {
         try {
           // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
           parsedData = await this.transactionParser.parsePersistedTransaction(
-            confirmedTransaction.transaction,
+            timestampedTransaction.transaction,
             channelType,
             channelKey,
           );
@@ -56,7 +56,7 @@ export default class ChannelParser {
             {
               ignored: {
                 reason: error.message,
-                transaction: confirmedTransaction,
+                transaction: timestampedTransaction,
               },
               valid: null,
             },
@@ -72,7 +72,7 @@ export default class ChannelParser {
             {
               ignored: {
                 reason: error,
-                transaction: confirmedTransaction,
+                transaction: timestampedTransaction,
               },
               valid: null,
             },
@@ -88,7 +88,7 @@ export default class ChannelParser {
                 ignored: {
                   reason:
                     'as first transaction, the hash of the transaction do not match the channelId',
-                  transaction: confirmedTransaction,
+                  transaction: timestampedTransaction,
                 },
                 valid: null,
               },
@@ -111,7 +111,11 @@ export default class ChannelParser {
         return result.concat([
           {
             ignored: null,
-            valid: { transaction: { data }, timestamp: confirmedTransaction.timestamp },
+            valid: {
+              state: timestampedTransaction.state,
+              timestamp: timestampedTransaction.timestamp,
+              transaction: { data },
+            },
           },
         ]);
       },
@@ -122,7 +126,7 @@ export default class ChannelParser {
       (elem: any) => elem.ignored,
     );
 
-    const cleanTransactions: Array<TransactionTypes.IConfirmedTransaction | null> = validAndIgnoredTransactions.map(
+    const cleanTransactions: Array<TransactionTypes.ITimestampedTransaction | null> = validAndIgnoredTransactions.map(
       (elem: any) => elem.valid,
     );
 
@@ -143,7 +147,7 @@ export default class ChannelParser {
    */
   public async getChannelTypeAndChannelKey(
     channelId: string,
-    transactions: TransactionTypes.IConfirmedTransaction[],
+    transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
     channelType: TransactionTypes.ChannelType;
     channelKey: EncryptionTypes.IDecryptionParameters | undefined;
@@ -161,7 +165,7 @@ export default class ChannelParser {
           channelKey: EncryptionTypes.IDecryptionParameters | undefined;
           encryptionMethod: string | undefined;
         }>,
-        confirmedTransaction: TransactionTypes.IConfirmedTransaction,
+        timestampedTransaction: TransactionTypes.ITimestampedTransaction,
       ) => {
         const result = await accumulatorPromise;
 
@@ -174,7 +178,7 @@ export default class ChannelParser {
         try {
           // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
           parsedData = await this.transactionParser.parsePersistedTransaction(
-            confirmedTransaction.transaction,
+            timestampedTransaction.transaction,
             TransactionTypes.ChannelType.UNKNOWN,
           );
         } catch (error) {

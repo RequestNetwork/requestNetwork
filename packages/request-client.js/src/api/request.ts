@@ -1,9 +1,9 @@
-import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
+import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { currencyToString } from './currency';
-import PaymentNetworkDeclarative from './payment-network/declarative';
 import localUtils from './utils';
 
 /**
@@ -20,13 +20,18 @@ export default class Request {
   public readonly requestId: RequestLogicTypes.RequestId;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
-  private paymentNetwork: Types.IPaymentNetwork | null = null;
+  private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
 
   /**
    * Data of the request (see request-logic)
    */
   private requestData: RequestLogicTypes.IRequest | null = null;
+
+  /**
+   * Pending data of the request (see request-logic)
+   */
+  private pendingData: RequestLogicTypes.IPendingRequest | null = null;
 
   /**
    * Content data parsed from the extensions data
@@ -41,7 +46,7 @@ export default class Request {
   /**
    * Balance and payments/refund events
    */
-  private balance: Types.IBalanceWithEvents | null = null;
+  private balance: PaymentTypes.IBalanceWithEvents | null = null;
 
   /**
    * Creates an instance of Request
@@ -54,7 +59,7 @@ export default class Request {
   constructor(
     requestLogic: RequestLogicTypes.IRequestLogic,
     requestId: RequestLogicTypes.RequestId,
-    paymentNetwork?: Types.IPaymentNetwork | null,
+    paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
   ) {
     this.requestLogic = requestLogic;
@@ -153,6 +158,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.increaseExpectedAmountRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -219,6 +225,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -250,6 +257,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -291,6 +299,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -335,6 +344,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -379,6 +389,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -423,6 +434,7 @@ export default class Request {
       extensionsData,
       requestId: this.requestId,
     };
+
     await this.requestLogic.addExtensionsDataRequest(parameters, signerIdentity, true);
 
     // refresh the local request data and return it
@@ -435,46 +447,60 @@ export default class Request {
    * @returns The updated request data
    */
   public getData(): Types.IRequestData {
-    const requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
-    const result: Types.IRequestData = {
+    let requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
+
+    let pending = Utils.deepCopy(this.pendingData);
+    if (!requestData) {
+      requestData = pending;
+      requestData.state = RequestLogicTypes.STATE.PENDING;
+      pending = { state: this.pendingData!.state };
+    }
+
+    return {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
       currency: requestData.currency ? currencyToString(requestData.currency) : 'unknown',
       currencyInfo: requestData.currency,
       meta: this.requestMeta,
+      pending,
     };
-
-    return result;
   }
 
   /**
    * Refresh the request data and balance from the network (check if new events happened - e.g: accept, payments etc..) and return these data
    *
+   * @param requestAndMeta return from getRequestFromId to avoid asking twice
    * @returns Refreshed request data
    */
-  public async refresh(): Promise<Types.IRequestData> {
-    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
-      this.requestId,
-    );
+  public async refresh(
+    requestAndMeta?: RequestLogicTypes.IReturnGetRequestFromId,
+  ): Promise<Types.IRequestData> {
+    if (!requestAndMeta) {
+      requestAndMeta = await this.requestLogic.getRequestFromId(this.requestId);
+    }
 
-    if (!requestAndMeta.result.request) {
+    if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(
         `No request found for the id: ${this.requestId} - ${localUtils.formatGetRequestFromIdError(
           requestAndMeta,
         )}`,
       );
     }
-
-    if (this.paymentNetwork) {
+    if (this.paymentNetwork && requestAndMeta.result.request) {
+      // TODO: PROT-1131 - add a pending balance
       this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
     }
 
     if (this.contentDataExtension) {
-      this.contentData = await this.contentDataExtension.getContent(requestAndMeta.result.request);
+      // TODO: PROT-1131 - add a pending content
+      this.contentData = await this.contentDataExtension.getContent(
+        requestAndMeta.result.request || requestAndMeta.result.pending,
+      );
     }
 
     this.requestData = requestAndMeta.result.request;
+    this.pendingData = requestAndMeta.result.pending;
     this.requestMeta = requestAndMeta.meta;
 
     return this.getData();
