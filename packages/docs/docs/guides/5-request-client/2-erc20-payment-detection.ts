@@ -49,7 +49,7 @@ const payerIdentity = {
  */
 
 // The signature info requires the request creator private key.
-// Please be careful with how you store and handle your private key since it's a very sensitive piece of data.
+// For this demo purposes, we hardcoded the private key. Please be careful with how you store and handle your private key since it's a very sensitive piece of data.
 const payeeSignatureInfo = {
   method: RequestNetwork.Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
