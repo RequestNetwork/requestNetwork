@@ -23,33 +23,33 @@ There are currently three types of payment network.
 For this payment network, a request contains one payment address and eventually one refund address.
 The balance of the request is computed by reading all the inbound transfers to the payment address and inbound transfers to the refund address. To pay the request, the payer has to perform a normal transfer to the payment address.
 Outbound transfers are not taken into consideration to compute the request's balance.
-The addresses must be created exclusively for the request since every inbound transfers to the addresses are considered as payments or refunds. For example, if the a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC (considering there is no refund address) even though the payee haven't received any fund from the payer.
+The addresses must be created exclusively for the request since every inbound transfer to the addresses are considered as payments or refunds. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC (considering there is no refund address) even though the payee hasn't received any fund from the payer.
 
 ### Reference based
 
 For this payment network, a request contains one payment address and eventually one refund address. These addresses haven't to be exclusive to the request.
 The balance is computed by reading transfers to the payment and refund addresses containing a specific reference.
 The reference is a number defined by the request id and the payment address (to detect payments) or the refund address (to detect refunds).
-There can be different ways to document the reference through the transfer. We currently defines two methods that depend on the currency:
+There can be different ways to document the reference through the transfer. We currently define two methods that depend on the currency:
 * Through input data
 * Through a proxy smart contract
 
 **Input data:**
 
-In certain case, when transfering a currency amount, the user has the choice to add a additional data to the transaction. For example, Ethereum allows the user to add miscellaneous data named *input data* when performing a simple ether transfer.
+In certain cases, when transferring a currency amount, the user has the choice to add additional data to the transaction. For example, Ethereum allows the user to add miscellaneous data named *input data* when performing a simple ether transfer.
 In this case, the payment reference is documented here.
 
 **Proxy smart contract:**
 
 In this case, the reference is documented through a proxy smart contract.
-This is a smart contract that forwards a currency transfer and store a reference.
+This is a smart contract that forwards a currency transfer and stores a reference.
 The currency must be backed by a blockchain with smart contract capabilities.
 
 ### Declarative
 
 For this payment network, the request doesn't specify any additional data. This is the request's stakeholders that declare the payments and refunds.
 The payee declares the received payments and the payer declares the received refunds. The balance of the request is the sum of declared payments minus the sum of declared refunds.
-The payee can also declare the sent refunds and the payer the sent payments. These declarations are used only for documentation purpose and aren't taken into consideration to compute the request balance.
+The payee can also declare the sent refunds and the payer the sent payments. These declarations are used only for documentation purposes and aren't taken into consideration to compute the request balance.
 
 This payment network can be used with every currency.
 
