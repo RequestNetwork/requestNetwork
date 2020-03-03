@@ -16,7 +16,7 @@
  *
  * First we import the 2 packages we will need to create the request:
  */
-// The signature provider allow us to sign the request
+// The signature provider allows us to sign the request
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 // RequestNetwork is the interface we will use to interact with the Request network
 import * as RequestNetwork from '@requestnetwork/request-client.js';
