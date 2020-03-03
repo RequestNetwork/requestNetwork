@@ -5,7 +5,7 @@ keywords: [Request Client, Payment networks]
 
 ---
 
-When a user creates and sends a request, he can expect to receive the correct amount of money. But how does he keep track of the payments due and received? Request is blockchain agnostic, Request is, by itself, a ledger that documents request's information but it doesn't interact directly with any external blockchains.
+When a user creates and sends a request, he expects to receive the correct amount of money. But how does he keep track of the payments due and received? Request is a ledger that documents requests for payment but doesn't directly interact with any external blockchain, where the payment happens. 
 
 There are different methods available for the requester and payer to agree on the payment status, and that is when payment networks come into play. A payment network is a specific context on how to agree on the payment status of a specific request.
 
