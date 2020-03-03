@@ -184,7 +184,7 @@ import { utils } from '@requestnetwork/payment-processor';
 /**
  * ### Paying an erc20 proxy contract request with Request payment processor
  * 
- * Requests using ERC20 proxy contract payment network can be automatically paid with the Request payment processor
+ * Requests using ERC20 proxy contract payment network can be paid with the Request payment processor, in order to simplify interractions with the involved smart contracts
  */
 
  // Import necessary packages
