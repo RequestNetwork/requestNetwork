@@ -25,7 +25,7 @@ import * as RequestNetwork from '@requestnetwork/request-client.js';
  * ### Identity
  *
  * To create a request we need to declare the identities of the parties involved.
- * Identities are the unique identifier of a request user. They are not payment addresses, only unique addresses that identify a person/entity.
+ * Identities are the unique identifier of a request user. They are generally different from payment addresses, but can be the same. They identify an entity like a person or business.
  */
 
 // Here we declare the payee identity,  with the payee identity ethereum address
