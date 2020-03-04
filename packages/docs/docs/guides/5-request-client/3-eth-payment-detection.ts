@@ -1,14 +1,14 @@
 /**
- * # Creating a Request using an erc20 payment network
+ * # Creating a Request using the ether payment network
  *
- * This is an example of creating a request using an erc20 payment network
+ * This is an example of creating a request using the ether payment network
  * The request will be stored in memory and cleared as soon as the script is finished running.
  */
 
 /**
  * ## Basics
  * 
- * For both erc20 payment networks, Request Client must be initialized.
+ * Before creating a request, the Request Client must be initialized.
  */
 
 /**
@@ -71,44 +71,44 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
 
 // The main request info, with the currency, amount (in the smallest denominator), payee identity and payer identity
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
-  currency: 'REQ',
-  expectedAmount: '1000000000000000000', // 1 REQ
+  currency: 'ETH',
+  expectedAmount: '1000000000000000000', // The amount is in wei, this equals 1 Ether
   payee: payeeIdentity,
   payer: payerIdentity,
 };
 
 /**
- * ## Request creation with the proxy contract payment network
+ * ## Request creation
  *
- * To create a request using erc20 proxy contract payment network, we need to provide the payment network parameters to the request creation parameters.
- * Proxy contract payment network parameters are the same as the address based payment network: the payment and eventually the refund address.
+ * To create a request using ether payment network, we need to provide the payment network parameters to the request creation parameters.
+ * For the ether payment network, it's simply the payment address (and eventually the refund address).
  */
 
-const proxyContractPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+const ethInputDataPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },
 };
 
-const proxyContractCreateParams = {
-  proxyContractPaymentNetwork,
+const ethInputDataCreateParams = {
+  ethInputDataPaymentNetwork,
   requestInfo,
   signer: payeeIdentity,
 };
 
 // Finally create the request and print its id
 (async () => {
-  const request = await requestNetwork.createRequest(proxyContractCreateParams);
+  const request = await requestNetwork.createRequest(ethInputDataCreateParams);
 
-  console.log(`Request created with erc20 proxy contract payment network: ${request.requestId}`);
+  console.log(`Request created with ether payment network: ${request.requestId}`);
 })();
 
 /**
- * ### Paying an erc20 proxy contract request with Request payment processor
+ * ### Paying an ether request with Request payment processor
  * 
- * Requests using ERC20 proxy contract payment network can be paid with the Request payment processor, in order to simplify interactions with the involved smart contracts
+ * Requests using ether payment network can be paid with the Request payment processor
  */
 
  // Import necessary packages
@@ -119,7 +119,7 @@ const proxyContractCreateParams = {
  const wallet = Wallet.createRandom();
  
  (async () => {
-   const request = await requestNetwork.createRequest(proxyContractCreateParams);
+   const request = await requestNetwork.createRequest(ethInputDataCreateParams);
  
    // Check the payer has sufficient fund for the data
    const payerAddress = wallet.address;
@@ -133,38 +133,3 @@ const proxyContractCreateParams = {
    const tx = await payRequest(requestData, wallet);
    await tx.wait(1);
  })(); 
-
-/**
- * ## Request creation with address based payment network
- *
- * To create a request using the erc20 address based payment network, we need to provide the payment network parameters to the request creation parameters.
- */
-
-const addressBasedPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
-  parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
-    paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
-  },
-};
-
-const addressBasedCreateParams = {
-  addressBasedPaymentNetwork,
-  requestInfo,
-  signer: payeeIdentity,
-};
-
-// Finally create the request and print its id
-(async () => {
-  const request = await requestNetwork.createRequest(addressBasedCreateParams);
-
-  console.log('Request created with erc20 address based payment network:');
-  console.log(request.requestId);
-})();
-
-/**
- * ### Paying an erc20 address based request
- * 
- * Requests created with the address based payment network must be manually paid by sending an erc20 transfer to the payment address.
- * You can do this by calling `transfer(to, amount)` method of the erc20 token. `to` is the payment address and `amount` the amount the payer wants to pay.
- */

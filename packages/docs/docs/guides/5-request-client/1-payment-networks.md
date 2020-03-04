@@ -20,7 +20,7 @@ There are currently three types of payment network.
 
 ### Address based
 
-For this payment network, a request contains one payment address and eventually one refund address.
+For this payment network, a request contains one payment address and optionally one refund address.
 The balance of the request is computed by reading all the inbound transfers to the payment address and inbound transfers to the refund address. To pay the request, the payer has to perform a normal transfer to the payment address.
 Outbound transfers are not taken into consideration to compute the request's balance.
 The addresses must be created exclusively for the request since every inbound transfer to the addresses are considered as payments or refunds. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC (considering there is no refund address) even though the payee hasn't received any fund from the payer.
