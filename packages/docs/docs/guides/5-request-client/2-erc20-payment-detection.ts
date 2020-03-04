@@ -134,34 +134,6 @@ const proxyContractCreateParams = {
    await tx.wait(1);
  })(); 
 
-// eslint-disable-next-line spellcheck/spell-checker
-/**
- * ### Paying an erc20 proxy contract request manually
- * 
- * Payments for requests using ERC20 proxy contract payment network are documented in an Ethereum smart contract: *ERC20Proxy*. This smart contract is available on Ethereum [mainnet](https://etherscan.io/address/0x5f821c20947ff9be22e823edc5b3c709b33121b3) and Rinkeby [testnet](https://rinkeby.etherscan.io/address/0x162edb802fae75b9ee4288345735008ba51a4ec9).
- * 
- * To perform a payment, the payer has first to allow the smart contract to transfer funds from his address. You must call `approve(spender, amount)` method of the specific ERC20 token smart contract. `spender` is the address of the proxy smart contract (`0x5f821c20947ff9be22e823edc5b3c709b33121b3` on mainnet, `0x162edb802fae75b9ee4288345735008ba51a4ec9` on Rinkeby), `amount` is the maximum amount you want to allow the proxy contract to transfer funds.
- * The payer will possibly pay many requests, and the secure option would be to ask him for approval every time. If he wants to approve the proxy contract once and for all, the amount has to be `2**32 - 1` (maximum value of a uint32 in solidity ).
- * 
- * Then, payment can be performed by calling `transferFromWithReference(tokenAddress, to, amount, paymentReference)` method. `tokenAddress` is the address of the ERC20 token, to is the Ethereum address of the payee, `amount` is the amount of the payment. 
- * 
- * The user has to provide a payment reference to link the payments to the request. The payment reference is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`.
- * 
- * Any payments documented in the ERC20 proxy contract with the correct reference is considered as a payment for the request. The payments made with this method can be retrieved in the `TransferWithReference` event logs of the proxy smart contract.
- */
-
-// Functions are provided to get the payment reference and the payment address from the request
-import { utils } from '@requestnetwork/payment-processor';
-
-(async () => {
-  const request = await requestNetwork.createRequest(proxyContractCreateParams);
-
-  const { paymentReference, paymentAddress } = utils.getRequestPaymentValues(request);
-
-  console.log(`Payment reference of the request: ${paymentReference}`);
-  console.log(`Payment address of the request: ${paymentAddress}`);
-})();
-
 /**
  * ## Request creation with address based payment network
  *
