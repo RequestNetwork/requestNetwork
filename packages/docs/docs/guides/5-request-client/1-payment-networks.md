@@ -62,7 +62,7 @@ The currencies that are supported for automated payment detection are
 
 ### Bitcoin
 
-Request allows to create Bitcoin request with an address based payment network.
+A Bitcoin request requires an address based payment network.
 This payment network is sufficient for Bitcoin requests because generating a new address for every inbound BTC transfers is already part of the Bitcoin's good practices.
 
 ### Ether
