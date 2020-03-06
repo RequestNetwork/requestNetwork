@@ -47,7 +47,7 @@ The currency must be backed by a blockchain with smart contract capabilities.
 
 ### Declarative
 
-For this payment network, the request doesn't specify any additional data. This is the request's stakeholders that declare the payments and refunds.
+For this payment network, the request doesn't require any additional data. The request's stakeholders declare sending and receiving payments and refunds manually. Optionnally, the creator of the request can specify information to describe how the payment should occur, but this data will not be used to detect the payment. 
 The payee declares the received payments and the payer declares the received refunds. The balance of the request is the sum of declared payments minus the sum of declared refunds.
 The payee can also declare the sent refunds and the payer the sent payments. These declarations are used only for documentation purposes and aren't taken into consideration to compute the request balance.
 
