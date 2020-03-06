@@ -12,7 +12,7 @@ There are different methods available for the payee and payer to agree on the pa
 A payment network is defined by:
 * The information, defined at the request creation, necessary to be able to detect payments
 * A payment method, the method used to perform a detectable payment
-* A payment detection method, it's the process to determine the amount paid by the payer through the payment method
+* A payment detection method, the process to determine the amount paid by the payer through the payment method
 
 ## Types of payment network
 
