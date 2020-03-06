@@ -51,7 +51,7 @@ await axios.post(`https://api.request.network/requests/`,{
 ```
 
 ## Specify the stakeholders
-By default, you, as Payee and Creator of a request, will always be given Read access to the Request. 
+By default, you, as Payee and Creator of a request, will always be granted with Read access to the Request. 
 
 If you specify a Payer that is also using Request Portal API, they will be given access to the Request as well. 
 
