@@ -53,7 +53,7 @@ await axios.post(`https://api.request.network/requests/`,{
 ## Specify the stakeholders
 By default, you, as Payee and Creator of a request, will always be granted with Read access to the Request. 
 
-If you specify a Payer that is also using Request Portal API, they will be given access to the Request as well. 
+If you specify a Payer that is also using Request Portal API, they will be given access to the request as well. 
 
 For other cases (Payer not using the API, thirdparty access), you can specify as many Public key as you want to the `stakeholders` field. To know more about the public key format, please refer to [this page](/TODO)
 
