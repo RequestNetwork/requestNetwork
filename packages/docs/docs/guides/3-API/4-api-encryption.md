@@ -15,8 +15,8 @@ Request Portal API, however, **does not** offer end-to-end encryption, but **doe
 What it means is that your request would be stored encrypted on the Network (Ethereum + IPFS) but we, at Request, could have access to the request data.
 
 :::info
-Although we technically have access to your Request data, we would never use or share this data.
-We are planning to remove our own access to any encrypted data to provide end-to-end encryption with the API, while keeping the best possible experience for our builders.
+Although we technically have access to your request data, we would never use or share this data.
+We are planning to withdraw our own access to any encrypted data to provide end-to-end encryption with the API, while keeping the best possible experience for our builders.
 
 If end-to-end encryption is paramount for your usage, we recommend you use the [Request Client](http://localhost:3000/docs/guides/5-request-client/0-intro) instead of the Portal API.
 :::
@@ -55,7 +55,7 @@ By default, you, as Payee and Creator of a request, will always be granted with 
 
 If you specify a Payer that is also using Request Portal API, they will be given access to the request as well. 
 
-For other cases (Payer not using the API, thirdparty access), you can specify as many Public key as you want to the `stakeholders` field. To know more about the public key format, please refer to [this page](/TODO)
+For other cases (Payer not using the API, third party access), you can specify as many Public key as you want to the `stakeholders` field. To know more about the public key format, please refer to [this page](/TODO)
 
 
 ## Request decryption
