@@ -7,7 +7,7 @@ keywords: [Request, encryption, API]
 
 # About encryption
 
-By default, anything you store on Request is available by anyone. That might be what you are looking for, or not!
+By default, anything you store on Request can be read by anyone. That might be what you are looking for, or not!
 
 To give you control over this, the Request Protocol supports end-to-end encryption. It means that no one outside of a Request stakeholders (usually, its Payer and Payee) can read its information.
 
