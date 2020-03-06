@@ -16,6 +16,19 @@ Our API accepts JSON-encoded request bodies, returns JSON-encoded responses, and
 
 Aside the guide, you can also consult [the API documentation](https://api-docs.request.network/).
 
+
+# Authentication
+
+All API endpoints are authenticated.
+Two mechanisms are currently allowed:
+
+- API Key, explained below, to be used for scripting and test purposes
+- OAuth, explained in the [Apps](3-api-apps) section
+
+# Action
+
+## Request identity
+
 ## Portal outlook
 
 If you have not already done it, head towards [the Request dashboard](https://dashboard.request.network) and create your account.
@@ -28,7 +41,7 @@ Once your account is created, you are able to:
 - Access your API keys, by clicking on your account and then Settings.
 
 
-<img alt="Getthing the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
+<img alt="Getting the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
 
 
 You have two API keys, use the Test one to follow this guide.
@@ -86,6 +99,10 @@ function RequestsList() {
 const rootElement = document.getElementById("root");
 ReactDOM.render(<RequestsList />, rootElement);
 
+
+const result = await axios.get('https://api.request.network/requests/' + requestId, {
+  headers: { Authorization: API_KEY },
+});
 ```
 
 The expected result should but a list of requests with amounts and currencies. Depending on your currency, some amounts seem too big. We will see later how to display amounts properly.
