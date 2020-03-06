@@ -23,11 +23,7 @@ All API endpoints are authenticated.
 Two mechanisms are currently allowed:
 
 - API Key, explained below, to be used for scripting and test purposes
-- OAuth, explain in the [Apps](3-api-apps) section
-
-:::important
-API Keys don't enable the best security and UX for your users, we might drop their support in the future.
-:::
+- OAuth, explained in the [Apps](3-api-apps) section
 
 # Action
 
