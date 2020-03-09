@@ -27,7 +27,7 @@ The addresses must be created exclusively for the request since every inbound tr
 
 ### Reference based
 
-For this payment network, a request contains one payment address and eventually one refund address. These addresses haven't to be exclusive to the request.
+For this payment network, a request contains one payment address and eventually one refund address. These addresses don't have to be exclusive to the request.
 The balance is computed by reading transfers to the payment and refund addresses containing a specific reference.
 The reference is a number defined by the request id and the payment address (to detect payments) or the refund address (to detect refunds).
 There can be different ways to document the reference through the transfer. We currently define two methods that depend on the currency:
