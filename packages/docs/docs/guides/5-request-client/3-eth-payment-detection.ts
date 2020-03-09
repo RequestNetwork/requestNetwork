@@ -87,7 +87,6 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const ethInputDataPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },
 };

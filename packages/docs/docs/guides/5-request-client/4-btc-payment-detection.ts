@@ -89,7 +89,6 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const bitcoinAddressBasedPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '16uyvigo8mMAfE3Ctr5Rwgab1aWNDPDMZD',
   },
 };

@@ -89,7 +89,6 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const declarativePaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentInfo: { 
         IBAN: 'FR123456789123456789',
         BIC: 'CE123456789'

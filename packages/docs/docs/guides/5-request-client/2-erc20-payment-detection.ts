@@ -87,7 +87,6 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const proxyContractPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },
 };
@@ -143,7 +142,6 @@ const proxyContractCreateParams = {
 const addressBasedPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },
 };
