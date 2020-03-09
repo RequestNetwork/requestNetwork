@@ -159,6 +159,22 @@ describe('api/currency', () => {
     it('throws for an unsupported currency', () => {
       assert.throws(() => stringToCurrency('XXXXXXX'));
     });
+
+    it('does not persist state between calls', () => {
+      assert.deepEqual(stringToCurrency('ETH'), {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+      assert.deepEqual(stringToCurrency('ETH-rinkeby'), {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+      assert.deepEqual(stringToCurrency('ETH'), {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+    });
   });
 
   describe('currencyToString', () => {
