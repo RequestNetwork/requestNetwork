@@ -5,55 +5,90 @@ keywords: [Request Client, Payment networks]
 
 ---
 
-## Other currencies 
-_VRO: this should be modified/added at the end of this section_
+When a user creates and sends a request, he expects to receive the correct amount of money. But how does he keep track of the payments due and received? Request is a ledger that documents requests for payment but doesn't directly interact with any external blockchain where the payment happens. 
 
-If you don't see a currency you would like to create request with, there is two options:
-- Create a declarative request (see [declarative request](TODO))
+There are different methods available for the payee and payer to agree on the payment status, and that is when payment networks come into play. **A payment network is a predefined set of rules on how to agree on the payment status of a specific request.**
+
+A payment network is defined by:
+* The information, defined at the request creation, necessary to be able to detect payments
+* A payment method, the method used to perform a detectable payment
+* A payment detection method, the process to determine the amount paid by the payer through the payment method
+
+## Types of payment network
+
+There are currently three types of payment network.
+
+### Address based
+
+For this payment network, a request contains one payment address.
+The balance of the request is computed by reading all the inbound transfers to the payment address. To pay the request, the payer has to perform a normal transfer to the payment address.
+Outbound transfers are not taken into consideration to compute the request's balance.
+The address must be created exclusively for the request since every inbound transfer to the addresses are considered as payments. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC even though the payee hasn't received any fund from the payer.
+
+Similar to the payment address, in this payment network we can set a refund address that follows the same rules (it also need to be exclusive to the request). The final balance of the request will be substraced by the inbound transfers to the refund address.
+
+### Reference based
+
+For this payment network, a request contains one payment address. This address doesn't have to be exclusive to the request.
+The balance is computed by reading transfers to the payment address containing a specific reference.
+The reference is a number defined by the request id and the payment address.
+There can be different ways to document the reference through the transfer. We currently define two methods that depend on the currency:
+* Through input data
+* Through a proxy smart contract
+
+Similar to the payment address, in this payment network we can set a refund address that follows the same rules. The reference will be specific for the refunds.
+
+#### Input data:
+
+In certain cases, when transferring a currency amount, the user has the choice to add additional data to the transaction. For example, Ethereum allows the user to add miscellaneous data named *input data* when performing a simple ether transfer.
+In this case, the payment reference is documented here.
+
+#### Proxy smart contract:
+
+In this case, the reference is documented through a proxy smart contract.
+This is a smart contract that forwards a currency transfer and stores a reference.
+The currency must be backed by a blockchain with smart contract capabilities.
+
+### Declarative
+
+For this payment network, the request doesn't require any additional data. The request's stakeholders declare sending and receiving payments and refunds manually. Optionnally, the creator of the request can specify information to describe how the payment should occur, but this data will not be used to detect the payment. 
+The payee declares the received payments and the payer declares the received refunds. The balance of the request is the sum of declared payments minus the sum of declared refunds.
+The payee can also declare the sent refunds and the payer the sent payments. These declarations are used only for documentation purposes and aren't taken into consideration to compute the request balance.
+
+This payment network can be used with every currency.
+
+## Currencies
+
+The currencies that are supported for automated payment detection are
+* Bitcoin
+* Ether
+* ERC20
+
+### Bitcoin
+
+A Bitcoin request requires an address based payment network.
+This payment network is sufficient for Bitcoin requests because generating a new address for every inbound BTC transfers is already part of Bitcoin's good practices.
+
+### Ether
+
+Because one Ethereum address is generally used many times to receive and send transactions, we need a way to identify payments for a specific request without having to create a new address. Therefore, we use a reference based payment network for ether requests.
+*Input data* and *proxy contract* methods can be used to reference the ether transfer. 
+
+### ERC20
+
+ERC20 tokens are based on Ethereum and therefore also use Ethereum addresses.
+We allow the creation of ERC20 requests with *proxy contract* payment network. *Input data* can't be specified for ERC20 transfers.
+Note that the smart contract deployed for ERC20 tokens is different than the one deployed for ether.
+
+We also provide the address based payment network for ERC20 requests but using the proxy contract payment network is the most convenient way for most use cases.
+
+### Other currencies 
+
+If you would like to create a request with a currency we don't support, you have two options:
+- Create a declarative request
 - Contact us for your currency requirements: **Join the Request Hub** [**here**](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
 - Contribute to the protocol creating a dedicated payment network for this currency, by:
   - Writing the specification (following the [advanced logic specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/advanced-logic-specs-0.1.0.md) and get inspired by the [others payment networks](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/specs))
   - Developing the new payment network in the [advanced-logic package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/src/extensions/payment-network).
   - Developing the payment detection in the payment [payment-detection package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/payment-detection).
   - (OPTIONAL) Developing the payment processing in the [payment-processor package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/payment-detection)
-
-
-# TODO
-
-When a user creates and sends a request, he can expect to receive the correct amount of money. But how does he keep track of the payments due and received?
-
-There are different methods available for the requester and payer to agree on the payment status, and that is when Payment networks come into play.
-
-Payment networks allow developers to:
-* Detect blockchain-based payment automatically
-* Declare other kinds of payments completion
-
-Request is blockchain agnostic, payment methods that are suppored for automated payment dection are: Bitcoin, Ether and ERC20. If you miss your favorite blockchain, you can either get in touch with the team or **TODO learn how to do it yourself**
-
-## Ethereum and ERC20
-
-Because one Ethereum address is generally used many times to receive and send transactions, we need a way to identify each payment. Request provides two payment channels for ETH and ERC20:
-
-### Address-based payment detection
-The payment channel `pn-erc20-address-based` can be used for one-shot address that will only receives payments for a single request.
-
-Before using this payment channel, you then have to make sure you create two addresses: one for the payment (or payments if the request is paid in several parts), and one for the refund.
-
-### Proxy-contract
-This is the most convenient way for most use cases.
-
-If you opt for the `pn-erc20-proxy-contract` payment channel, the flow for your users will be:
-
-1. The user allows the smart contract to transfer funds from his address, up to a certain amount you choose.
-
-2. He creates the request
-
-3. Out of the request creation, you calculate the payment reference with `last8Bytes(hash(lowercase(requestId + salt + address)))`. **TODO: advise on what to do with the payment reference: store, share etc.**
-4. The payer sends a transaction to the proxy contract with the payment reference.
-5. The request balance is updated and if the amount is sufficient, its status turns to 'Paid'.
-
-# REMOVE: Reference from previous docs
-Detection made programatically:
-Types.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request. Every transaction hitting this address will be consider as a payment. Eventually, the payer can provide a BTC address for the refunds. Note that the addresses must be used for one and only one request otherwise one transaction will be considered as a payment for more than one request. (see Bitcoin)
-Types.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED ('pn-testnet-bitcoin-address-based'): Same as previous but for the bitcoin testnet. (for test purpose) (see Bitcoin)
-Types.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED ('pn-erc20-address-based'): handle ERC20 payments to an unique Ethereum address associated with the request. Every transaction hitting this address will be consider as a payment. Eventually, the payer can provide an unique Ethereum address for the refunds. Note that the addresses must be used for one and only one request otherwise one transaction will be considered as a payment for more than one request. (see ERC20)
