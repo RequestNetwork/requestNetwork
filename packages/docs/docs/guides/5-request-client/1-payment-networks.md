@@ -20,19 +20,23 @@ There are currently three types of payment network.
 
 ### Address based
 
-For this payment network, a request contains one payment address and optionally one refund address.
-The balance of the request is computed by reading all the inbound transfers to the payment address and inbound transfers to the refund address. To pay the request, the payer has to perform a normal transfer to the payment address.
+For this payment network, a request contains one payment address.
+The balance of the request is computed by reading all the inbound transfers to the payment address. To pay the request, the payer has to perform a normal transfer to the payment address.
 Outbound transfers are not taken into consideration to compute the request's balance.
-The addresses must be created exclusively for the request since every inbound transfer to the addresses are considered as payments or refunds. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC (considering there is no refund address) even though the payee hasn't received any fund from the payer.
+The address must be created exclusively for the request since every inbound transfer to the addresses are considered as payments. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC even though the payee hasn't received any fund from the payer.
+
+Similar to the payment address, in this payment network we can set a refund address that follows the same rules (it also need to be exclusive to the request). The final balance of the request will be substraced by the inbound transfers to the refund address.
 
 ### Reference based
 
-For this payment network, a request contains one payment address and eventually one refund address. These addresses don't have to be exclusive to the request.
-The balance is computed by reading transfers to the payment and refund addresses containing a specific reference.
-The reference is a number defined by the request id and the payment address (to detect payments) or the refund address (to detect refunds).
+For this payment network, a request contains one payment address. This address doesn't have to be exclusive to the request.
+The balance is computed by reading transfers to the payment address containing a specific reference.
+The reference is a number defined by the request id and the payment address.
 There can be different ways to document the reference through the transfer. We currently define two methods that depend on the currency:
 * Through input data
 * Through a proxy smart contract
+
+Similar to the payment address, in this payment network we can set a refund address that follows the same rules. The reference will be specific for the refunds.
 
 #### Input data:
 
