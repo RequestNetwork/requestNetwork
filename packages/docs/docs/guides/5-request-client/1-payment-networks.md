@@ -34,7 +34,7 @@ There can be different ways to document the reference through the transfer. We c
 * Through input data
 * Through a proxy smart contract
 
-**Input data:**
+#### Input data:
 
 In certain cases, when transferring a currency amount, the user has the choice to add additional data to the transaction. For example, Ethereum allows the user to add miscellaneous data named *input data* when performing a simple ether transfer.
 In this case, the payment reference is documented here.
