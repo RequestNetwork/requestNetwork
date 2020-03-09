@@ -80,7 +80,7 @@ We also provide the address based payment network for ERC20 requests but using t
 
 ### Other currencies 
 
-If you don't see a currency you would like to create request with, there is two options:
+If you would like to create a request with a currency we don't support, you have two options:
 - Create a declarative request
 - Contact us for your currency requirements: **Join the Request Hub** [**here**](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
 - Contribute to the protocol creating a dedicated payment network for this currency, by:
