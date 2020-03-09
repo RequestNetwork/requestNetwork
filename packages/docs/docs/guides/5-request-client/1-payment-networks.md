@@ -73,7 +73,7 @@ Because one Ethereum address is generally used many times to receive and send tr
 ### ERC20
 
 ERC20 tokens are based on Ethereum and therefore also use Ethereum addresses.
-We allows to create ERC20 requests with *proxy contract* payment network. *Input data* can't be specified for ERC20 transfers.
+We allow the creation of ERC20 requests with *proxy contract* payment network. *Input data* can't be specified for ERC20 transfers.
 Note that the smart contract deployed for ERC20 tokens is different than the one deployed for ether.
 
 We also provide the address based payment network for ERC20 requests but using the proxy contract payment network is the most convenient way for most use cases.
