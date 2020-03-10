@@ -15,10 +15,15 @@
   --ifm-color-primary-lightest: rgb(146, 224, 208);
   --ifm-code-font-size: 95%;
 
-	--ifm-navbar-background-color: #00261b;
-	--ifm-navbar-link-color: #ffffff;
+  --ifm-navbar-background-color: #00261b;
+  --ifm-navbar-link-color: #ffffff;
 
-	--ifm-container-width: 1280px;
+  --ifm-container-width: 1280px;
+}
+
+.admonition.admonition-info a {
+  /* TODO */
+  color: black;
 }
 
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
