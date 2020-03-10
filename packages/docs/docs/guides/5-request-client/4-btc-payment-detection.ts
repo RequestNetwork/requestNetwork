@@ -1,5 +1,5 @@
 /**
- * # Creating a Request using the Bitcoin payment network
+ * # Creating a request in BTC
  *
  * This is an example of creating a request using the Bitcoin payment network
  * The request will be stored in memory and cleared as soon as the script is finished running.

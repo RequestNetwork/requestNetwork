@@ -8,6 +8,10 @@
 .docusaurus
 .cache-loader
 docs/client/**
+docs/guides/5-request-client/2-erc20-payment-detection.md
+docs/guides/5-request-client/3-eth-payment-detection.md
+docs/guides/5-request-client/4-btc-payment-detection.md
+docs/guides/5-request-client/5-declarative-payment-network.md
 
 # Misc
 .DS_Store

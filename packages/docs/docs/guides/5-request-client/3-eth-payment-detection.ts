@@ -1,5 +1,5 @@
 /**
- * # Creating a Request using the ether payment network
+ * # Creating a request in ETH
  *
  * This is an example of creating a request using the ether payment network
  * The request will be stored in memory and cleared as soon as the script is finished running.
