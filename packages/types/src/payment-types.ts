@@ -48,8 +48,23 @@ export interface IBitcoinDetectionProvider {
 
 /** Interface for balances and the events link to the payments and refund */
 export interface IBalanceWithEvents<TEventParameters = any> {
-  balance: string;
+  balance: string | null;
   events: Array<IPaymentNetworkEvent<TEventParameters>>;
+  error?: IBalanceError;
+}
+
+/** Interface for error encounter when getting the balance */
+export interface IBalanceError {
+  message: string;
+  code: BALANCE_ERROR_CODE;
+}
+
+/** payment network event names */
+export enum BALANCE_ERROR_CODE {
+  UNKNOWN,
+  WRONG_EXTENSION,
+  NETWORK_NOT_SUPPORTED,
+  VERSION_NOT_SUPPORTED,
 }
 
 /** payment network event */

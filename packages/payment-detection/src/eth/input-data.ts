@@ -6,6 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 
 import EthInputDataInfoRetriever from './info-retriever';
@@ -99,75 +100,81 @@ export default class PaymentNetworkETHInputData
       request.currency.network = 'mainnet';
     }
     if (!supportedNetworks.includes(request.currency.network)) {
-      throw new Error(
+      return getBalanceErrorObject(
         `Payment network ${
           request.currency.network
-        } not supported by ETH payment detection. Supported networks: ${supportedNetworks.join(
+        } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
           ', ',
         )}`,
+        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
     }
     const paymentNetwork = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA];
 
     if (!paymentNetwork) {
-      throw new Error(
-        `The request does not have the extension: ${
+      return getBalanceErrorObject(
+        `The request do not have the extension : ̀${
           ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
         }`,
+        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
 
-    const paymentAddress = paymentNetwork.values.paymentAddress;
-    const refundAddress = paymentNetwork.values.refundAddress;
+    try {
+      const paymentAddress = paymentNetwork.values.paymentAddress;
+      const refundAddress = paymentNetwork.values.refundAddress;
 
-    let payments: PaymentTypes.ETHBalanceWithEvents = { balance: '0', events: [] };
-    if (paymentAddress) {
-      const paymentReferencePayment = PaymentReferenceCalculator.calculate(
-        request.requestId,
-        paymentNetwork.values.salt,
-        paymentAddress,
+      let payments: PaymentTypes.ETHBalanceWithEvents = { balance: '0', events: [] };
+      if (paymentAddress) {
+        const paymentReferencePayment = PaymentReferenceCalculator.calculate(
+          request.requestId,
+          paymentNetwork.values.salt,
+          paymentAddress,
+        );
+        payments = await this.extractBalanceAndEvents(
+          paymentAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          request.currency.network,
+          paymentReferencePayment,
+          paymentNetwork.version,
+        );
+      }
+
+      let refunds: PaymentTypes.ETHBalanceWithEvents = { balance: '0', events: [] };
+      if (refundAddress) {
+        const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
+          request.requestId,
+          paymentNetwork.values.salt,
+          refundAddress,
+        );
+        refunds = await this.extractBalanceAndEvents(
+          refundAddress,
+          PaymentTypes.EVENTS_NAMES.REFUND,
+          request.currency.network,
+          paymentReferenceRefund,
+          paymentNetwork.version,
+        );
+      }
+
+      const balance: string = new bigNumber(payments.balance || 0)
+        .sub(new bigNumber(refunds.balance || 0))
+        .toString();
+
+      const events: PaymentTypes.ETHPaymentNetworkEvent[] = [
+        ...payments.events,
+        ...refunds.events,
+      ].sort(
+        (a: PaymentTypes.ETHPaymentNetworkEvent, b: PaymentTypes.ETHPaymentNetworkEvent) =>
+          (a.timestamp || 0) - (b.timestamp || 0),
       );
-      payments = await this.extractBalanceAndEvents(
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        request.currency.network,
-        paymentReferencePayment,
-        paymentNetwork.version,
-      );
+
+      return {
+        balance,
+        events,
+      };
+    } catch (error) {
+      return getBalanceErrorObject(error.message);
     }
-
-    let refunds: PaymentTypes.ETHBalanceWithEvents = { balance: '0', events: [] };
-    if (refundAddress) {
-      const paymentReferenceRefund = PaymentReferenceCalculator.calculate(
-        request.requestId,
-        paymentNetwork.values.salt,
-        refundAddress,
-      );
-      refunds = await this.extractBalanceAndEvents(
-        refundAddress,
-        PaymentTypes.EVENTS_NAMES.REFUND,
-        request.currency.network,
-        paymentReferenceRefund,
-        paymentNetwork.version,
-      );
-    }
-
-    const balance: string = new bigNumber(payments.balance || 0)
-      .sub(new bigNumber(refunds.balance || 0))
-      .toString();
-
-    const events: PaymentTypes.ETHPaymentNetworkEvent[] = [
-      ...payments.events,
-      ...refunds.events,
-    ].sort(
-      (a: PaymentTypes.ETHPaymentNetworkEvent, b: PaymentTypes.ETHPaymentNetworkEvent) =>
-        (a.timestamp || 0) - (b.timestamp || 0),
-    );
-
-    return {
-      balance,
-      events,
-    };
   }
 
   /**
