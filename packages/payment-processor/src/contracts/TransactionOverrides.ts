@@ -1,8 +1,9 @@
 import { BigNumberish } from 'ethers/utils';
+/* eslint-disable spellcheck/spell-checker */
 
 /**
  * Overrides transaction parameters
- * https://docs.ethers.io/ethers.js/html/api-contract.html#overrides
+ * @url https://docs.ethers.io/ethers.js/html/api-contract.html#overrides
  */
 export interface ITransactionOverrides {
   nonce?: BigNumberish | Promise<BigNumberish>;
