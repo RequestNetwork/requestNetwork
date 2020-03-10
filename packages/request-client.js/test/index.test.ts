@@ -1240,7 +1240,7 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it.only('can get the balance of an ETH request', async function(): Promise<void> {
+    it('can get the balance of an ETH request', async function(): Promise<void> {
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
       // tslint:disable-next-line: no-invalid-this
