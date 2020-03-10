@@ -567,7 +567,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: 'publish'
-          command: '$(yarn bin)/lerna publish --conventional-commits --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --yes'
+          command: '$(yarn bin)/lerna publish --conventional-commits --conventional-prerelease --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --yes'
 
 workflows:
   version: 2
