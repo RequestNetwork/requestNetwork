@@ -122,4 +122,20 @@ describe('api/eth/input-data', () => {
     expect(balance.events[0].amount).to.be.equal('10');
     expect(balance.events[0].timestamp).to.be.a('number');
   });
+
+  it('should not throw when getBalance fail', async () => {
+    expect(
+      await ethInputData.getBalance({
+        currency: { network: 'wrong' },
+      } as RequestLogicTypes.IRequest),
+    ).to.deep.equal({
+      balance: null,
+      error: {
+        code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
+        message:
+          'Payment network wrong not supported by ETH payment detection. Supported networks: mainnet, rinkeby, private',
+      },
+      events: [],
+    });
+  });
 });

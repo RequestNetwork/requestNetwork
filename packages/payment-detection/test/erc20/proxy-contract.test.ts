@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ERC20ProxyContract from '../../src/erc20/proxy-contract';
 
 import * as chai from 'chai';
@@ -90,6 +90,19 @@ describe('api/erc20/proxy-contract', () => {
 
     expect(spy).to.have.been.called.with({
       refundAddress: 'ethereum address',
+    });
+  });
+
+  it('should not throw when getBalance fail', async () => {
+    expect(
+      await erc20ProxyContract.getBalance({ extensions: {} } as RequestLogicTypes.IRequest),
+    ).to.deep.equal({
+      balance: null,
+      error: {
+        code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        message: 'The request do not have the extension : pn-erc20-proxy-contract',
+      },
+      events: [],
     });
   });
 });

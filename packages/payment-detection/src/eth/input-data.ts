@@ -103,7 +103,7 @@ export default class PaymentNetworkETHInputData
       return getBalanceErrorObject(
         `Payment network ${
           request.currency.network
-        } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
+        } not supported by ETH payment detection. Supported networks: ${supportedNetworks.join(
           ', ',
         )}`,
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,

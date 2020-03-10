@@ -116,7 +116,7 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request do not have the extension : ̀${paymentNetworkId}`,
+        `The request do not have the extension : ${paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
