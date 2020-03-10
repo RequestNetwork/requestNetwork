@@ -99,7 +99,7 @@ export default class Request {
    *
    * @returns the request data
    */
-  public waitForConfirmation(): Promise<Types.IRequestData> {
+  public waitForConfirmation(): Promise<Types.IRequestDataWithEvents> {
     return new Promise((resolve): any => this.on('confirmed', resolve));
   }
 
@@ -113,7 +113,7 @@ export default class Request {
   public async accept(
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
@@ -150,7 +150,7 @@ export default class Request {
   public async cancel(
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
@@ -190,7 +190,7 @@ export default class Request {
     deltaAmount: RequestLogicTypes.Amount,
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
@@ -234,7 +234,7 @@ export default class Request {
     deltaAmount: RequestLogicTypes.Amount,
     signerIdentity: IdentityTypes.IIdentity,
     paymentInformation?: any,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
     if (paymentInformation) {
       if (!this.paymentNetwork) {
@@ -277,7 +277,7 @@ export default class Request {
   public async addPaymentInformation(
     paymentInformation: any,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
     if (!this.paymentNetwork) {
@@ -319,7 +319,7 @@ export default class Request {
   public async addRefundInformation(
     refundInformation: any,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
     if (!this.paymentNetwork) {
@@ -363,7 +363,7 @@ export default class Request {
     amount: string,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
     if (!this.paymentNetwork) {
@@ -415,7 +415,7 @@ export default class Request {
     amount: string,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
     if (!this.paymentNetwork) {
@@ -470,7 +470,7 @@ export default class Request {
     amount: string,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
     if (!this.paymentNetwork) {
@@ -525,7 +525,7 @@ export default class Request {
     amount: string,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
     if (!this.paymentNetwork) {
@@ -573,7 +573,7 @@ export default class Request {
    *
    * @returns The updated request data
    */
-  public getData(): Types.IRequestData {
+  public getData(): Types.IRequestDataWithEvents {
     let requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
 
     let pending = Utils.deepCopy(this.pendingData);
@@ -602,7 +602,7 @@ export default class Request {
    */
   public async refresh(
     requestAndMeta?: RequestLogicTypes.IReturnGetRequestFromId,
-  ): Promise<Types.IRequestData> {
+  ): Promise<Types.IRequestDataWithEvents> {
     if (!requestAndMeta) {
       requestAndMeta = await this.requestLogic.getRequestFromId(this.requestId);
     }

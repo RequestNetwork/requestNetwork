@@ -16,7 +16,10 @@ export interface IRequestData extends Omit<RequestLogic.IRequest, 'currency'> {
   contentData: any;
   currencyInfo: RequestLogic.ICurrency;
   pending: RequestLogic.IPendingRequest | null;
+}
 
+/** Interface request data with event emitter and subscriber */
+export interface IRequestDataWithEvents extends IRequestData {
   on: <K extends keyof IRequestEvents>(event: K, listener: IRequestEvents[K]) => this;
   emit: <K extends keyof IRequestEvents>(
     event: K,
@@ -46,5 +49,5 @@ export interface IRequestInfo {
 
 /** Events types risen by a request */
 export interface IRequestEvents {
-  confirmed: (requestData: IRequestData) => void;
+  confirmed: (requestData: IRequestDataWithEvents) => void;
 }
