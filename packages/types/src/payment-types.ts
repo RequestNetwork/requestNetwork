@@ -59,7 +59,7 @@ export interface IBalanceError {
   code: BALANCE_ERROR_CODE;
 }
 
-/** payment network event names */
+/** Balance error codes */
 export enum BALANCE_ERROR_CODE {
   UNKNOWN,
   WRONG_EXTENSION,

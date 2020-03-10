@@ -113,7 +113,7 @@ export default class PaymentNetworkETHInputData
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request do not have the extension : ̀${
+        `The request does not have the extension: ${
           ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
         }`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
