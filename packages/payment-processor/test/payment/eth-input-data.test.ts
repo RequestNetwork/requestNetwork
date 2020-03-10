@@ -5,6 +5,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
+import { EventEmitter } from 'events';
 
 import {
   ClientTypes,
@@ -30,7 +31,7 @@ const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
-const validRequest: ClientTypes.IRequestData = {
+const validRequest: ClientTypes.IRequestData = Object.assign(new EventEmitter(), {
   balance: {
     balance: '0',
     events: [],
@@ -73,7 +74,7 @@ const validRequest: ClientTypes.IRequestData = {
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
   version: '1.0',
-};
+});
 
 describe('getRequestPaymentValues', () => {
   it('handles ETH', () => {
@@ -120,6 +121,14 @@ describe('payEthInputDataRequest', () => {
     expect(
       balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
     );
+  });
+
+  it('supports overrides', async () => {
+    const tx = await payEthInputDataRequest(validRequest, wallet, undefined, {
+      gasLimit: 23000,
+    });
+    // tslint:disable-next-line: no-magic-numbers
+    expect(tx.gasLimit.toNumber()).to.eq(23000);
   });
 });
 

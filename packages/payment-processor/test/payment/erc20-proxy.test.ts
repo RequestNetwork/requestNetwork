@@ -5,6 +5,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
+import { EventEmitter } from 'events';
 
 import {
   ClientTypes,
@@ -38,7 +39,7 @@ const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
-const validRequest: ClientTypes.IRequestData = {
+const validRequest: ClientTypes.IRequestData = Object.assign(new EventEmitter(), {
   balance: {
     balance: '0',
     events: [],
@@ -81,7 +82,7 @@ const validRequest: ClientTypes.IRequestData = {
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
   version: '1.0',
-};
+});
 
 describe('getRequestPaymentValues', () => {
   it('handles ERC20', () => {
@@ -150,7 +151,9 @@ describe('payErc20ProxyRequest', () => {
 
   it('should pay an ERC20 request', async () => {
     // first approve the contract
-    const approvalTx = await approveErc20(validRequest, wallet);
+    const approvalTx = await approveErc20(validRequest, wallet, {
+      gasLimit: 40000,
+    });
     await approvalTx.wait(1);
 
     // get the balance to compare after payment
@@ -158,7 +161,9 @@ describe('payErc20ProxyRequest', () => {
     const balanceEthBefore = await wallet.getBalance();
     const balanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
 
-    const tx = await payErc20ProxyRequest(validRequest, wallet);
+    const tx = await payErc20ProxyRequest(validRequest, wallet, undefined, {
+      gasLimit: 60000,
+    });
     const confirmedTx = await tx.wait(1);
 
     const balanceEthAfter = await wallet.getBalance();
@@ -173,6 +178,10 @@ describe('payErc20ProxyRequest', () => {
     expect(balanceErc20Before.toString()).equal(
       balanceErc20After.add(validRequest.expectedAmount).toString(),
     );
+    // tslint:disable-next-line: no-magic-numbers
+    expect(approvalTx.gasLimit.toNumber()).to.eq(40000);
+    // tslint:disable-next-line: no-magic-numbers
+    expect(tx.gasLimit.toNumber()).to.eq(60000);
   });
 });
 

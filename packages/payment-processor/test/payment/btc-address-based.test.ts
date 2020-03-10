@@ -4,6 +4,7 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
 import { Wallet } from 'ethers';
+import { EventEmitter } from 'events';
 
 import {
   ClientTypes,
@@ -24,7 +25,7 @@ chai.use(spies);
 const wallet = Wallet.createRandom();
 const paymentAddress = '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX';
 
-const validRequest: ClientTypes.IRequestData = {
+const validRequest: ClientTypes.IRequestData = Object.assign(new EventEmitter(), {
   balance: {
     balance: '0',
     events: [],
@@ -68,7 +69,7 @@ const validRequest: ClientTypes.IRequestData = {
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
   version: '1.0',
-};
+});
 
 describe('getBtcPaymentUrl', () => {
   it('can get a BTC url', () => {
