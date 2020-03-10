@@ -5,7 +5,7 @@ keywords: [Request payment library]
 ---
 
 
-# Introduction
+## Introduction
 
 In the previous sections, you have learned how to create a request for payment. We will now explain you how to pay it. 
 
@@ -13,7 +13,7 @@ This section is useful if:
 * You plan to embed request payment features like a Pay button
 * You want to test the payment stage of requests you create
 
-The payment of a request depends on the payment network you chose: 
+The payment of a request depends on its payment network: 
 
 - Address-based payment networks (available for BTC and ERC20) don't have any specific requirement: any payment sent to the specify address will be considered a payment of this request. Never re-use an address!
 - Input data payment networks (ETH only) simply requires you to specify the [Payment Reference](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-eth-input-data-0.2.0.md#description) in the data of the transaction.
@@ -23,9 +23,9 @@ To simplify the payment procedures of the various payment networks, you can use 
 On top of calculating the Payment Reference and handling the transaction for you, it provides a few utilities to ensure the user meets all requirements to pay the request (enough funds for example)
 
 
-# About the payment-processor library
+## About the payment-processor library
 
-## Install
+### Install
 
 ```bash
 npm install @requestnetwork/payment-processor
@@ -34,9 +34,9 @@ yarn add @requestnetwork/payment-processor
 ```
 
 
-## Usage
+### Usage
 
-### ETH request
+#### ETH request
 
 ```typescript
 import { hasSufficientFunds, payRequest } from "@requestnetwork/payment-processor";
@@ -55,7 +55,7 @@ const tx = await payRequest(requestData);
 await tx.wait(1);
 ```
 
-### ERC20 request
+#### ERC20 request
 ```typescript
 import {
   approveErc20,
