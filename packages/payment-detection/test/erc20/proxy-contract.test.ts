@@ -100,7 +100,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        message: 'The request do not have the extension : pn-erc20-proxy-contract',
+        message: 'The request does not have the extension : pn-erc20-proxy-contract',
       },
       events: [],
     });
