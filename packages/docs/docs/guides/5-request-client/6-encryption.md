@@ -101,7 +101,7 @@ console.log(requestData);
 
 ## Accepting / cancelling an invoice information
 
-Like a clear request you will be able to update a request, if the provider is instanciated with a matching private key.
+Like a clear request, you will be able to update it if the decryption provider is instanciated with a matching private key.
 
 ```typescript
 //Accept
