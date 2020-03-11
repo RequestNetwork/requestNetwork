@@ -11,10 +11,14 @@ keywords: [Request, new currency, test network, missing currency, testnet]
 | ------------------------------------------------------------------------------------------------------------ |
 
 
-A request can be encrypted. To manipulate encrypted request you need a Decryption Provider, e.g:
+A request can be encrypted in order to make its details private to selected stakeholders. In this guide, we won't explain how encryption is managed under the hood (see details on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md)). We will mention encryption or decryption with payers' and payee's keys, whereas it's not exactly how that happens. The comparison is good enough if you only need the encryption to work. 
 
-- Ethereum Private Key Decryption Provider, using directly the private keys (_this provider is not securely optimal, please consider creating your own, see below_)
-- A Browser extension is under development
+The encryption is managed by the transaction layer, see more details on [TODO](/docs/guides/7-protocol/0-intro).
+
+To manipulate encrypted request you need a Decryption Provider, e.g:
+
+- Ethereum Private Key Decryption Provider (provided by Request for illustration), using directly the private keys. _This provider manipulates private keys in clear, which is not completely secure. Please consider creating your own, see below._
+- A more secure browser extension is under development
 
 You can also create your own decryption provider following the [specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/decryption-provider.md). Feel free to contact us for any help or any idea about it: **Join the Request Hub** [**here**](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
 
@@ -26,6 +30,7 @@ Ethereum Private Key Decryption Provider (see on [github](https://github.com/Req
 import EPKDecryptionProvider from '@requestnetwork/epk-decryption';
 
 const decryptionProvider = new EPKDecryptionProvider({
+  # Warning: private keys should never be stored in clear, this is a basic tutorial
   key: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 });
@@ -65,7 +70,9 @@ Note: You must give at least one encryption key you can decrypt with the decrypt
 
 ## Get invoice information from its request ID
 
-Like a clear request you will be able to get it from its request id a request. You just need to have a decryption provider that can decrypt the request.
+Let's step back for a second: the requester sent a request that he encrypted with the payer's public key, as well as with his own, in order to retrieve it later. This is a basic and typical example, but a request can be encrypted with many keys, in order to give access to its status and details.
+
+If the decription provider knows a private key matching one of the keys used at the creation, it can decrypt it. Like a clear request you will be able to get it from its request id a request.
 
 ```typescript
 const invoiceFromRequestID = await requestNetwork.fromRequestId(requestId);
@@ -94,7 +101,7 @@ console.log(requestData);
 
 ## Accepting / cancelling an invoice information
 
-Like a clear request you will be able to update a request. You just need to have a decryption provider that can decrypt the request.
+Like a clear request you will be able to update a request, if the provider is instanciated with a matching private key.
 
 ```typescript
 //Accept
