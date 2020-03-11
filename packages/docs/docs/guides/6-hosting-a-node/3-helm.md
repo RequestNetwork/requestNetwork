@@ -3,7 +3,7 @@ title: Deploying a node in Kubernetes with Helm
 keywords: [Request node, helm, kubernetes]
 ---
 
-Deploying a Request node on Kubernetes is straightforward using our [helm](https://helm.sh/) chart.
+Deploying a Request Node on Kubernetes is straightforward using our [helm](https://helm.sh/) chart.
 
 You can see our chart in our [git repository](https://github.com/RequestNetwork/request-helm-charts/tree/master/request-node).
 

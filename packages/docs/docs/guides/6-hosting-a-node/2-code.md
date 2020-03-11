@@ -53,8 +53,8 @@ cd packages/smart-contracts
 yarn ganache
 ```
 
-Now you have ganache running on your second console.
-We're still missing all the important smart-contracts request use. On a new console, run:
+Now you have ganache-cli running on your second console.
+We're still missing all the important smart-contracts that Request uses. On a new console, run:
 
 ```bash
 cd packages/smart-contracts
