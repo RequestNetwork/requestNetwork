@@ -1,24 +1,50 @@
 ---
+
 title: Introduction to Request Node hosting
 keywords: [Request node]
-
----
-
-# Introduction
+---# Introduction
 
 Now you should be comfortable with features of the Request network.
 
-In this guide we will guide through the installation of Request node.
+In this guide we will explain what is the Request Node and help you to run your own.
 
-## What is it?
+## What is the Request Node?
 
-Request Nodes are HTTP servers used to allow clients to communicate with the Request Protocol, these servers abstract the complexity of IPFS and Ethereum for the users. The clients can perform all actions on requets by sending messages to the Node via HTTP.
+Request Nodes are servers that run the lower layers of the Request protocol. They connect to the Ethereum and IPFS networks, to store and retrieve request transactions. Protocol users can interact with the Request Node through HTTP using the [request-client.js](../5-request-client/0-intro) library.
 
-## Why hosting your own node?
+## Why run your own Node?
 
-Hosting your node is the most decentralized setup possible. It allows you to:
-* Be technically independent in your usage of the network
-* Customize your broadcasting latency TODO:check with Vincent the wording for avoiding retention
-* Customize storage options
+Running the Node locally on your machine will allow you to test your code using the Request Client easilly.
 
-This option is for advanced developers who are already at ease with Ethereum, IPFS and Request.
+You may also want to host your Node in a server. Hosting your Node is the most decentralized setup possible. It allows you to:
+
+- Store your own data and make sure it is safelly backed up
+- Be technically independent: own your servers and control how you manage them
+- Use custom configuration settings
+- Customize storage options
+
+## How to run your Node?
+
+There are 3 currently supported ways to run the Request Node:
+
+- Run from [**Docker**](./1-docker). Probably the easiest way to run the Request Node.
+- Run the [**code**](./2-code) from the git repository. Especially useful if you are making changes to the protocol layers.
+- Use our kubernetes **helm** charts. The best solution if you want to host your node on a Kubernetes cluster.
+
+On the next pages, you can find out detailed steps on how to run each one of these.
+
+## Prerequisites
+
+Request uses IPFS and Ethereum as the storage for our protocol data. For this reason the Node needs connections to an Ethereum node and an IPFS node.
+
+### Ethereum node
+
+You can use any HTTP/S Ethereum node to run your Request Node.
+For local development, you can use ganache (explained in more details on the following pages).
+
+An easy way to get going with Ethereum Mainnet or Rinkeby is to use services like infura, that will expose an Ethereum Node API for you.
+
+### IPFS Node
+
+Request uses a dedicated IPFS network. This means that you need to have an IPFS Node with our network settings connected to your Request Node.
+The good news is it's easy to set up our IPFS and we will show it to you on our next steps.

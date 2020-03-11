@@ -1,0 +1,85 @@
+---
+title: Running from the code repository
+keywords: [Request node, test, ganache, local node]
+---
+
+If you can't use Docker or you want to run your node locally, from the source code, you can follow the steps in this document.
+Running the Node in this way is useful for debugging and developing the Node itself.
+
+# TODO Running fully locally
+
+To run a Request Node locally for tests, make sure you have the necessary IPFS and Ethereum nodes available.
+
+You can run the following steps to launch a fully local test Request Node.
+
+## Cloning the repository
+
+Let's clone the repository, install and build dependencies:
+
+```bash
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd requestNetwork
+yarn install
+yarn build
+```
+
+You are ready to run the local test node. You will need three different consoles for Ethereum, IPFS and Request.
+
+## Launching IPFS locally
+
+First, make sure you [installed IPFS](https://docs.ipfs.io/guides/guides/install/) locally.
+
+Now you need to configure your IPFS. We have a script to make it easy for you:
+
+```bash
+cd packages/request-node
+yarn init-ipfs
+```
+
+Now you can run IPFS with:
+
+```bash
+ipfs daemon
+```
+
+## Running a local Ethereum test network
+
+If you want to debug and test, you may be interested by using a local Ethereum network.
+Install and run [ganache-cli](https://github.com/trufflesuite/ganache-cli) using:
+
+```bash
+yarn global add ganache-cli
+cd packages/smart-contracts
+yarn ganache
+```
+
+Now you have ganache running on your second console.
+We're still missing all the important smart-contracts request use. On a new console, run:
+
+```bash
+cd packages/smart-contracts
+yarn deploy
+```
+
+Done! Your local Ethereum network is ready for testing.
+
+## Running the node
+
+Now it's time to run the node:
+
+```bash
+cd packages/request-node
+yarn start
+```
+
+Your node should be running! If you want to run it using a different Ethereum network, mnemonic, or a different IPFS server, you can check out the available options for the node [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node#options).
+
+### NPX
+
+If for some reason you want to run the Node without Docker, but don't need to make changes to the repository, you can also use npx to run it directly from npm:
+
+```bash
+npx @requestnetwork/request-node [OPTIONS]
+```
+
+If you got to this point you know what Node [options](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node#options) you should be using 🙂.
