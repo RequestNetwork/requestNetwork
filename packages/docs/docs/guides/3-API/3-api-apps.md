@@ -3,21 +3,24 @@ title: API Apps
 keywords: [Request, Apps, API]
 
 ---
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-# Introduction
+## Introduction
 
 Developers can build on top of Request API by creating Applications.
 
-With an application, you will be able to read, create, and perform actions on requests, on behalf of your users. 
+With an application, you will be able to read, create, and perform actions on requests, **on behalf of your users**. 
 
-# How it works
+## How it works
 
 An application built on top of Request API needs to authenticate with the OAuth2 mechanism.
 We recommend using [Auth0 SDKs](https://auth0.com/docs/libraries#sdks) to integrate it, but you are free to choose whatever you want.
 
-# Getting started
+## Getting started
 
-TODO: unlock the Apps feature for all users?? 
+Unlock this option by getting in touch with us on the [Request Hub](https://requesthub.slack.com).
+
+<img alt="Authenticate your app into the Request Portal" src={useBaseUrl('img/portal-api-app.gif')} />
 
 - First, make sure you have [signed up](https://dashboard.request.network/signup) to Request
 - Fork our [demo codesandbox](https://codesandbox.io/s/request-api-apps-zqt8o)
@@ -36,5 +39,6 @@ As an app developer, you will _not_ see your users' requests in your dashboard.
 :::
 
 
-# Get help
-TODO: Get in touch with us
+## Get help
+
+Do you have questions ? Or do you have troubles authenticating your app? Get in touch with us on the [Request Hub](https://requesthub.slack.com).
