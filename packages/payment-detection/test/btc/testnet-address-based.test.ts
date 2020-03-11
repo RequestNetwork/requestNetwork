@@ -84,7 +84,7 @@ describe('api/btc/testnet-address-based', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        message: 'The request does not have the extension : pn-testnet-bitcoin-address-based',
+        message: 'The request does not have the extension: pn-testnet-bitcoin-address-based',
       },
       events: [],
     });

@@ -81,7 +81,7 @@ export default class PaymentNetworkBTCAddressBased {
   ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     if (!request.extensions[paymentNetworkId]) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${paymentNetworkId}`,
+        `The request does not have the extension: ${paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }

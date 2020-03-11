@@ -3,8 +3,8 @@ import { PaymentTypes } from '@requestnetwork/types';
 /**
  * Creates the object IBalanceWithEvents from the error code and error message
  *
- * @param code error code
  * @param message error message
+ * @param code error code
  * @returns The object IBalanceWithEvents to return
  */
 export default function getBalanceErrorObject(
