@@ -11,14 +11,14 @@ keywords: [Request, new currency, test network, missing currency, testnet]
 | ------------------------------------------------------------------------------------------------------------ |
 
 
-A request can be encrypted in order to make its details private to selected stakeholders. In this guide, we won't explain how encryption is managed under the hood (see details on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md)). We will mention encryption or decryption with payers' and payee's keys, whereas it's not exactly how that happens. The comparison is good enough if you only need the encryption to work. 
+A request can be encrypted in order to make its details private to selected stakeholders. In this guide, we won't explain how encryption is managed under the hood. We will mention encryption or decryption of requests with payers' and payee's keys, where in the reality we use an intermediate symetric key. See more details on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md)
 
 The encryption is managed by the transaction layer, see more details on [TODO](/docs/guides/7-protocol/0-intro).
 
 To manipulate encrypted request you need a Decryption Provider, e.g:
 
 - Ethereum Private Key Decryption Provider (provided by Request for illustration), using directly the private keys. _This provider manipulates private keys in clear, which is not completely secure. Please consider creating your own, see below._
-- A more secure browser extension is under development
+- A browser extension is under development
 
 You can also create your own decryption provider following the [specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/decryption-provider.md). Feel free to contact us for any help or any idea about it: **Join the Request Hub** [**here**](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
 
