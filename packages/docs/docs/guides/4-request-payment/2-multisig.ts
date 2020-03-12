@@ -1,7 +1,7 @@
 /**
- * # Handle multisig payments
+ * # Handle multisig payments for ERC20
  *
- * ## Pay with a multisig
+ * ## Pay through a proxy-contract with a multisig
  * Imports
  */
 
