@@ -99,10 +99,12 @@ export default class DefaultBitcoinDetectionProvider
           },
           elem: PaymentTypes.BTCBalanceWithEvents,
         ) => {
-          if (!accumulator[elem.balance]) {
-            accumulator[elem.balance] = { count: 0, value: elem };
+          if (elem.balance !== null) {
+            if (!accumulator[elem.balance]) {
+              accumulator[elem.balance] = { count: 0, value: elem };
+            }
+            accumulator[elem.balance].count++;
           }
-          accumulator[elem.balance].count++;
           return accumulator;
         },
         {},

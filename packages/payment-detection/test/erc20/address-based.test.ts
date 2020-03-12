@@ -122,4 +122,20 @@ describe('api/erc20/address-based', () => {
     expect(balance.events[0].parameters!.block).to.be.a('number');
     expect(balance.events[0].parameters!.txHash).to.be.a('string');
   });
+
+  it('should not throw when getBalance fail', async () => {
+    expect(
+      await erc20AddressedBased.getBalance({
+        currency: { network: 'wrong' },
+      } as RequestLogicTypes.IRequest),
+    ).to.deep.equal({
+      balance: null,
+      error: {
+        code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
+        message:
+          'Payment network wrong not supported by ERC20 payment detection. Supported networks: mainnet, rinkeby, private',
+      },
+      events: [],
+    });
+  });
 });

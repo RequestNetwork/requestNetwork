@@ -78,7 +78,7 @@ export default class PaymentNetworkBTCAddressBased
   /**
    * Gets the balance and the payment/refund events
    *
-   * @param the request to check
+   * @param request request to check
    * @returns the balance and the payment/refund events
    */
   public async getBalance(
