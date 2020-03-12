@@ -132,7 +132,7 @@ const addressBasedCreateParams = {
 })();
 
 /**
- * ## Checking balance of an erc20 request
+ * ## Checking the balance of an erc20 request
  * 
  * The function getData() of a request provides its balance
  * This function is available independently of the payment network used
