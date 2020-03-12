@@ -30,6 +30,7 @@
 .homeIntegrationOptions {
   display: flex;
 	flex-direction: row;
+  align-items: baseline;
 }
 
 .integrationOption {
@@ -64,4 +65,5 @@
 
 .integrationOptionText {
 	flex: 3;
+  padding-left: 15px;
 }
