@@ -9,6 +9,11 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Get an outlook of the Request network in a matter of minutes with the API.
 
+:::info
+This is a very fast ramp to the Request network, using the Portal API, a centralized option.
+If you want to jump to the decentralized options, head towards the [Request Client section](docs/guides/5-request-client/0-intro).
+:::
+
 ## Request identity and API Key
 
 Head towards [the Request dashboard](https://dashboard.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
