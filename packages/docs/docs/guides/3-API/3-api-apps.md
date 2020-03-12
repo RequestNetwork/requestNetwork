@@ -41,4 +41,4 @@ As an app developer, you will _not_ see your users' requests in your dashboard.
 
 ## Get help
 
-Do you have questions ? Or do you have troubles authenticating your app? Get in touch with us on the [Request Hub](https://requesthub.slack.com).
+Do you have questions ? Or do you have troubles authenticating your app? Get in touch with us on the [Request Hub](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE).
