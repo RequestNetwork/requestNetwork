@@ -106,9 +106,28 @@ const bitcoinAddressBasedCreateParams = {
   console.log(`Request created with Bitcoin payment network: ${request.requestId}`);
 })();
 
-/**
- * ### Paying a Bitcoin request
+ /**
+ * ## Checking balance
  * 
- * The Request payment processor package doesn't support the payment of Bitcoin request.
- * The Bitcoin payment network is of type "Address Based", therefore, the payer can simply pay the request by sending the right amount of BTC to the payment address.
+ * The function getData() of a request provides its balance
  */
+
+// Import Big Number package
+const BN = require('bn.js')
+
+(async () => {
+  const request = await requestNetwork.createRequest(bitcoinAddressBasedCreateParams);
+
+  // Check the balance of the request
+  const requestData = request.getData();
+  const balance = requestData.balance;
+  console.log(`Balance of the bitcoin address based request: ${balance}`);
+  
+  // Check if the request has been paid
+  // Convert the balance to big number type for comparison
+  const expectedAmount = new BN(requestData.expectedAmount);
+  const balanceBigNumber = new BN(balance);
+
+  // Check if balanceBigNumber is greater or equal to expectedAmount
+  const paid = balanceBigNumber.gte(expectedAmount);
+})(); 

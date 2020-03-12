@@ -105,30 +105,27 @@ const ethInputDataCreateParams = {
 })();
 
 /**
- * ### Paying an ether request with Request payment processor
+ * ## Checking balance
  * 
- * Requests using ether payment network can be paid with the Request payment processor
+ * The function getData() of a request provides its balance
  */
 
- // Import necessary packages
- import { hasSufficientFunds, payRequest } from '@requestnetwork/payment-processor';
- import { Wallet } from 'ethers';
- 
- // Create a wallet for the payer for demo purpose
- const wallet = Wallet.createRandom();
- 
- (async () => {
-   const request = await requestNetwork.createRequest(ethInputDataCreateParams);
- 
-   // Check the payer has sufficient fund for the data
-   const payerAddress = wallet.address;
-   const requestData = request.getData();
-   if (!(await hasSufficientFunds(requestData, payerAddress))) {
-     throw new Error('You do not have enough funds to pay this request');
-   }
- 
-   // Pay the request
-   // The value provided for wallet can be a Web3Provider from 'ethers/providers' to be able to pay with Metamask
-   const tx = await payRequest(requestData, wallet);
-   await tx.wait(1);
- })(); 
+// Import Big Number package
+const BN = require('bn.js')
+
+(async () => {
+  const request = await requestNetwork.createRequest(ethInputDataCreateParams);
+
+  // Check the balance of the request
+  const requestData = request.getData();
+  const balance = requestData.balance;
+  console.log(`Balance of the ether input data request: ${balance}`);
+  
+  // Check if the request has been paid
+  // Convert the balance to big number type for comparison
+  const expectedAmount = new BN(requestData.expectedAmount);
+  const balanceBigNumber = new BN(balance);
+
+  // Check if balanceBigNumber is greater or equal to expectedAmount
+  const paid = balanceBigNumber.gte(expectedAmount);
+})(); 
