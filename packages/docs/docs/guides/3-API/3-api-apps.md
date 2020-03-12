@@ -18,7 +18,7 @@ We recommend using [Auth0 SDKs](https://auth0.com/docs/libraries#sdks) to integr
 
 ## Getting started
 
-Unlock this option by getting in touch with us on the [Request Hub](https://requesthub.slack.com).
+Unlock this option by getting in touch with us on the [Request Hub](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE).
 
 <img alt="Authenticate your app into the Request Portal" src={useBaseUrl('img/portal-api-app.gif')} />
 
