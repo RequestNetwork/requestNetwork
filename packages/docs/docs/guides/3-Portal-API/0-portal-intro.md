@@ -14,7 +14,7 @@ Request Portal simplifies the use of the Request protocol, abstracting all the b
 
 Our API accepts JSON-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes and Bearer authentication.
 
-Aside the guide, you can also consult [the API documentation](https://api-docs.request.network/).
+Aside the guide, you can also consult [the Portal API documentation](/portal).
 
 
 # Authentication

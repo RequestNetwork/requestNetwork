@@ -55,7 +55,7 @@ By default, you, as payee and creator of a request, will always be granted with 
 
 If you specify a Payer that is also using Request Portal API, they will be given access to the request as well. 
 
-For other cases (Payer not using the API, third party access), you can specify as many public keys as you want to the `stakeholders` field. To know more about the public key format, please refer to [this page](/TODO)
+For other cases (Payer not using the API, third party access), you can specify as many public keys as you want to the `stakeholders` field. To know more about the public key format, please refer to [this page](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md).
 
 
 ## Request decryption

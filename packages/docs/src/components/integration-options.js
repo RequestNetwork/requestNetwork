@@ -8,34 +8,40 @@ import styles from './styles.module.css';
 
 const options = [
   {
-		title: "Fully managed solution, over REST API",
+    title: "Option A: Portal API",
     imageUrl: 'img/ReQ-01.png',
     description: (
       <>
-	Easiest way to integrate Request without having to manage cryptographic keys or infrastructure, and with a fast data access.
+        Fully managed solution, over REST API
       </>
     ),
     details: (
       <>
+        <p>
+          Easiest way to integrate Request without having to manage cryptographic keys or infrastructure, and with a fast data access.
+				</p>
 				<p>
-					Go to <Link to="https://portal.request.network">the Request Portal</Link> in order to get your API keys, and your are good to go. This is the fastest option to integrate, and also the most performant to fetch requests because the Portal caches them for you. More details in the <Link to="https://api-docs.request.network">TODO-API Docs</Link> or <Link to="/docs/guides/3-API/0-portal-intro">follow the guide</Link>.
+					Go to <Link to="https://portal.request.network">the Request Portal</Link> in order to get your API keys, and your are good to go. This is the fastest option to integrate, and also the most performant to fetch requests because the Portal caches them for you. More details in the <Link to="/portal">Portal API Documentation</Link> or <Link to="/docs/guides/3-Portal-API/0-portal-intro">follow the guide</Link>.
 				</p>
 
 				<p>
 					Keep in mind that when using the Portal API, Request handles your identity's private key. Request empowers all economical actors to control their finance, and fully decentralized organizations may look for a more distributed option. 
 				</p>
 				<p>
-					The Portal is safe to be used in small and medium sized production environments. Request Portal does not move any fund, but it's better to <Link to="/TODO">understand the risks(TODO)</Link>
+					The Portal is safe to be used in small and medium sized production environments. Request Portal does not move any fund, but it's better to <Link to="/docs/guides/3-Portal-API/5-api-conclusion">understand the risks</Link>
 				</p>
       </>
     ),
   },
   {
-		title: "Decentralized network usage, with managed hosting",
+    title: "Option B: Network Client",
     imageUrl: 'img/REQ-07-hands-02.png',
-    description: <>Manage identities, encryption and network interactions yourself but let us host the Request node.</>,
+    description: <>Decentralized network usage, with managed hosting</>,
     details: (
       <>
+        <p>
+          Manage identities, encryption and network interactions yourself but let us host the Request node.
+        </p>
 				<p>
 					You can see the documentation on the <Link to="https://v2-docs-js-lib.request.network/index.html">TODO-Request JavaScript Client documentation</Link> or <Link to="/docs/guides/5-request-client/0-intro">follow the guide</Link>.
 				</p>
@@ -43,25 +49,26 @@ const options = [
 				<p>
 					The Request Client comes as a library installed with <Link to="https://www.npmjs.com/package/@requestnetwork/request-network.js">npm</Link>. It comes with all the features needed to create, fetch and updates payment requests, including encryption capabilities. This package also comes with a development mode relying on local storage. You manage identities and private keys, which means that no other party can sign Request transactions for you or your users.
 				</p>
-				<p>
-					TODO: Request runs a Rinkeby node that you can use for free. If you want to plug to a mainnet node hosted by Request, get in touch with us.
-				</p>
       </>
     ),
   },
   {
-    title: "Fully decentralized with self-hosting",
+    title: "Option C: Network Node",
     imageUrl: 'img/REQ-05-patterns-02.png',
     description: (
       <>
-				Hosting your own node gives you full power over the Request network connections and storage options. 
+        Fully decentralized with self-hosting
       </>
     ),
     details: (
       <>
-        You decide of how requests hashes are pushed to Ethereum and how to store and access details (encrypted or not).
-        Pros:
-        Cons:
+        <p>
+          Hosting your own node gives you full power over the Request network connections and storage options. 
+          You decide of how requests hashes are pushed to Ethereum and how to store and access details (encrypted or not).
+        </p>
+        <p>
+          You query the node with the same <Link to="https://www.npmjs.com/package/@requestnetwork/request-network.js">Network Client</Link>. For your test environment, you can setup a Rinkeby node or setup a connection with our hosted Rinkeby node (cf. Option B).
+        </p>
       </>
     ),
   },
