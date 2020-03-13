@@ -1,6 +1,7 @@
 ---
-title: Request Client introduction
-keywords: [Request Client, JS Library]
+title: Request Network Client introduction
+sidebar_label: Introduction
+keywords: [Request Network Client, JS Library]
 
 ---
 
