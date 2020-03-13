@@ -47,8 +47,6 @@ const validRequest: ClientTypes.IRequestData = {
     value: '',
   },
 
-  // tslint:disable-next-line:typedef
-  emit: () => true,
   events: [],
   expectedAmount: '1',
   extensions: {
@@ -67,7 +65,6 @@ const validRequest: ClientTypes.IRequestData = {
   meta: {
     transactionManagerMeta: {},
   },
-  on: () => null as any,
   pending: null,
   requestId: 'abcd',
   state: RequestLogicTypes.STATE.CREATED,

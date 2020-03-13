@@ -435,7 +435,7 @@ describe('index', () => {
     expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
 
-    const dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
       request.on('confirmed', resolve),
     );
     expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.CREATED);
@@ -471,7 +471,7 @@ describe('index', () => {
     expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
 
-    const dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
       request.on('confirmed', resolve),
     );
     expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.CREATED);
@@ -978,7 +978,7 @@ describe('index', () => {
       expect(acceptResult.state).to.equal(RequestLogicTypes.STATE.CREATED);
       expect(acceptResult.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
-      const dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+      const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
         acceptResult.on('confirmed', resolve),
       );
       expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
@@ -1090,7 +1090,7 @@ describe('index', () => {
 
       const acceptResult = await fetchedRequest.accept(payerIdentity);
 
-      let dataConfirmed: Types.IRequestData = await new Promise((resolve): any =>
+      let dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
         acceptResult.on('confirmed', resolve),
       );
       expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
