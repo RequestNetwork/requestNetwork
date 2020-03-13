@@ -5,13 +5,13 @@ sidebar_label: Request IPFS network
 
 ## Why Request uses IPFS?
 
-Request uses IPFS to store transactions data in a decentralized way. Transactions are actions done on a request, for example: create, accept, reject...
+Request uses IPFS to store transaction data in a decentralized way. Transactions are actions done on a request, for example: create, accept, reject...
 
 When files are stored in IPFS, they are kept locally on the IPFS node, and are accessible by any node connected to the network. To access this file IPFS [creates a unique hash](https://medium.com/textileio/whats-really-happening-when-you-add-a-file-to-ipfs-ae3b8b5e4b0f) that identifies the file. We store this hash on the Request smart contract to have a trustless list of transactions.
 
 ## Why Request uses a dedicated IPFS network?
 
-The main IPFS network has tens of thousands of nodes and a huge amount of files. All of the Request transactions are a tiny fraction of the IPFS network. To find a transaction file, the Request Node IPFS have to [traverse many nodes](https://medium.com/textileio/how-the-ipfs-dht-works-47af8bfd3c6a) on the network. Content retrieval is currently quite slow on IPFS.
+The main IPFS network has tens of thousands of nodes and a huge amount of files. All of the Request transactions are a tiny fraction of the IPFS network. To find a transaction file, the Request Node IPFS has to [traverse many nodes](https://medium.com/textileio/how-the-ipfs-dht-works-47af8bfd3c6a) on the network. Content retrieval is currently quite slow on IPFS.
 
 By creating a dedicated IPFS network for Request, our network is isolated from the rest of the IPFS network. This means that all the Request IPFS nodes will only communicate with other Request Nodes. By keeping the network small, we can make sure most nodes are connected between themselves and asking for files can be done directly to a node instead of through a traversal.
 
@@ -24,6 +24,15 @@ These are the main reason why we created the Request IPFS network.
 IPFS has a feature called **private network**. It allows IPFS nodes that share a private key to communicate only among themselves and keep their files private from the open IPFS network. We use this feature to create an IPFS network that is separate from the open one, but we keep this key public. This way, we have a public network that is separate from the open network.
 
 We also changed some default IPFS configurations on our network, to improve performance and responsiveness. The main change we did is disabling the DHT, so instead of traversing the network to find a file, the nodes will only ask to their neighbor nodes for those files. Since on our network every node is supposed to have every transaction file, those responses tend to be a lot faster \(on most of our test cases the response time went from seconds to a few hundred milliseconds\).
+
+## Run our IPFS node Docker image
+
+We distribute a Docker image of our configured IPFS node.
+To run it, you can use the command:
+
+```bash
+docker run -p 5001:5001 -p 4001:4001 requestnetwork/request-ipfs
+```
 
 ### Configure your IPFS node to use the Request IPFS network
 
