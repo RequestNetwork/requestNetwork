@@ -110,11 +110,14 @@ const declarativeCreateParams = {
 })();
 
 /**
- * ### Declaring sent and received payments
+ * ## Declaring sent and received payments and checking balance
  * 
  * The Declarative payment network doesn't provide payment detection method to determine the balance of the request
  * The balance of the request is defined by the declared payments by the payee and the declared refunds by the payer
  */
+
+ // Import Big Number package
+const BN = require('bn.js')
 
  (async () => {
   const request = await requestNetwork.createRequest(declarativeCreateParams);
@@ -133,5 +136,17 @@ const declarativeCreateParams = {
 
   // Declaring a sent refund, this amount is not taken into account for the request balance
   request.declareSentPayment('900', 'received too much', payeeIdentity);
-})(); 
 
+  // Check the balance of the request
+  const requestData = request.getData();
+  const balance = requestData.balance;
+  console.log(`Balance of the declarative request: ${balance}`);
+  
+  // Check if the request has been paid
+  // Convert the balance to big number type for comparison
+  const expectedAmount = new BN(requestData.expectedAmount);
+  const balanceBigNumber = new BN(balance);
+
+  // Check if balanceBigNumber is greater or equal to expectedAmount
+  const paid = balanceBigNumber.gte(expectedAmount);
+})(); 
