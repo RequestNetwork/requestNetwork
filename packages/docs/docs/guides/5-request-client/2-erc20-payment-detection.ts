@@ -105,35 +105,6 @@ const proxyContractCreateParams = {
 })();
 
 /**
- * ### Paying an erc20 proxy contract request with Request payment processor
- * 
- * Requests using ERC20 proxy contract payment network can be paid with the Request payment processor, in order to simplify interactions with the involved smart contracts
- */
-
- // Import necessary packages
- import { hasSufficientFunds, payRequest } from '@requestnetwork/payment-processor';
- import { Wallet } from 'ethers';
- 
- // Create a wallet for the payer for demo purpose
- const wallet = Wallet.createRandom();
- 
- (async () => {
-   const request = await requestNetwork.createRequest(proxyContractCreateParams);
- 
-   // Check the payer has sufficient fund for the data
-   const payerAddress = wallet.address;
-   const requestData = request.getData();
-   if (!(await hasSufficientFunds(requestData, payerAddress))) {
-     throw new Error('You do not have enough funds to pay this request');
-   }
- 
-   // Pay the request
-   // The value provided for wallet can be a Web3Provider from 'ethers/providers' to be able to pay with Metamask
-   const tx = await payRequest(requestData, wallet);
-   await tx.wait(1);
- })(); 
-
-/**
  * ## Request creation with address based payment network
  *
  * To create a request using the erc20 address based payment network, we need to provide the payment network parameters to the request creation parameters.
@@ -161,8 +132,29 @@ const addressBasedCreateParams = {
 })();
 
 /**
- * ### Paying an erc20 address based request
+ * ## Checking the balance of an erc20 request
  * 
- * Requests created with the address based payment network must be manually paid by sending an erc20 transfer to the payment address.
- * You can do this by calling `transfer(to, amount)` method of the erc20 token. `to` is the payment address and `amount` the amount the payer wants to pay.
+ * The function getData() of a request provides its balance
+ * This function is available independently of the payment network used
  */
+
+// Import Big Number package
+const BN = require('bn.js')
+
+(async () => {
+  // Use a proxy contract request for example
+  const request = await requestNetwork.createRequest(proxyContractCreateParams);
+
+  // Check the balance of the request
+  const requestData = request.getData();
+  const balance = requestData.balance;
+  console.log(`Balance of the erc20 proxy contract request: ${balance}`);
+  
+  // Check if the request has been paid
+  // Convert the balance to big number type for comparison
+  const expectedAmount = new BN(requestData.expectedAmount);
+  const balanceBigNumber = new BN(balance);
+
+  // Check if balanceBigNumber is greater or equal to expectedAmount
+  const paid = balanceBigNumber.gte(expectedAmount);
+})(); 
