@@ -7,7 +7,7 @@ Running a Request Node with Docker is easy. There are only a few requirements:
 
 - Docker installed on your system;
 - A web3 provider (we recommend using a service like [infura](infura.io));
-- An ethereum wallet with some funds for gas (if you plan on creating requests through this node);
+- An Ethereum wallet with some funds for gas (if you plan on creating requests through this node);
 
 ## Launching the IPFS node
 
@@ -32,10 +32,10 @@ The environment variables passed to the script are:
 - **MNEMONIC** should be the node wallet mnemonic seed.
 - **WEB3_PROVIDER_URL** should be the URL to your web3 provider.
 - **ETHEREUM_NETWORK_ID** should be either `1` for Mainnet or `4` for Rinkeby.
-- **IPFS_HOST** is the url of your IPFS node. Here we use the internal docker url.
+- **IPFS_HOST** is the URL of your IPFS node. Here we use the Docker host URL.
 
-That's it! Now your Node should be running and synching to the network.
-Give it some minutes to finish synching and it's API will be available on `http://localhost:3000`.
+That's it! Now your Node should be running and syncing to the network.
+Give it some minutes to finish synchronising and its API will be available on `http://localhost:3000`.
 
 If you want to know more about the available options you can pass to the node, you can [check them here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node#options).
 

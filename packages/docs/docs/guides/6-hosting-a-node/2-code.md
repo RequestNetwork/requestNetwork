@@ -6,7 +6,7 @@ keywords: [Request node, test, ganache, local node]
 If you can't use Docker or you want to run your node locally, from the source code, you can follow the steps in this document.
 Running the Node in this way is useful for debugging and developing the Node itself.
 
-# TODO Running fully locally
+# Running locally
 
 To run a Request Node locally for tests, make sure you have the necessary IPFS and Ethereum nodes available.
 
@@ -23,13 +23,13 @@ yarn install
 yarn build
 ```
 
-You are ready to run the local test node. You will need three different consoles for Ethereum, IPFS and Request.
+You are ready to run the local test Node. You will need three different consoles for Ethereum, IPFS, and Request.
 
 ## Launching IPFS locally
 
 First, make sure you [installed IPFS](https://docs.ipfs.io/guides/guides/install/) locally.
 
-Now you need to configure your IPFS. We have a script to make it easy for you:
+Now you need to configure your IPFS to connect to our [dedicated network](../7-protocol/1-request-ipfs-network). We have a script to make it easy for you:
 
 ```bash
 cd packages/request-node
@@ -42,9 +42,25 @@ Now you can run IPFS with:
 ipfs daemon
 ```
 
-## Running a local Ethereum test network
+## Running an Ethereum node
 
-If you want to debug and test, you may be interested by using a local Ethereum network.
+If you want to test using Ethereum mainnet and rinkeby, you can launch your Ethereum node or connect to a service like infura.
+
+If you want to debug and test, you may be interested in using a local Ethereum network.
+
+### Local network using docker
+
+The easiest way to run a local Ethereum network is by using our pre-configured ganache Docker image.
+If you have Docker you can just run:
+
+```
+docker run --name ganache -d -p 8545:8545 requestnetwork/ganache
+```
+
+### Local network using ganache-cli
+
+You can also run ganache-cli to set up a local network.
+
 Install and run [ganache-cli](https://github.com/trufflesuite/ganache-cli) using:
 
 ```bash
@@ -63,16 +79,16 @@ yarn deploy
 
 Done! Your local Ethereum network is ready for testing.
 
-## Running the node
+## Running the Request Node
 
-Now it's time to run the node:
+Now it's time to run the Node:
 
 ```bash
 cd packages/request-node
 yarn start
 ```
 
-Your node should be running! If you want to run it using a different Ethereum network, mnemonic, or a different IPFS server, you can check out the available options for the node [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node#options).
+Your Request Node should be running! If you want to run it using a different Ethereum network, mnemonic, or a different IPFS server, you can check out the available options for the node [here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node#options).
 
 ### NPX
 
