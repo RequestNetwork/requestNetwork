@@ -15,54 +15,17 @@ You will receive back an object that looks like this:
 ```jsx
 /*
 { 
-  ...
+  balance,
   state,
-  ...
+  expectedAmount,
 }
 */
 ```
 
-Attached to metadata is a field called `state` - the state will return the current payment status of the request, either ‘created’, ‘accepted’, ‘pending’ or ‘cancelled’.
+To get the payment status of a Request you can use the requestData object to check if the balance is greater than or equal to the expectedAmount. 
 
-You can also view the meta payments via the same call and looking at the meta field. This meta field will give you a full breakdown of each transaction that has been matched with the request. 
+If the balance >= expectedAmount - this means the request is paid.
+If the balance > 0 but < expectedAmount - this means the request is partially paid.
+If the balance == 0 - this means the request is unpaid.
 
-```jsx
-{
-  ...
-  meta: {
-    ignoredTransactions: [
-      {
-        reason // reason why the transaction has been ignored
-        transaction // the ignored transaction
-      }
-    ],
-    transactionManagerMeta: {
-      dataAccessMeta: {
-        storageMeta: [
-          {
-            ethereum: {
-              blockConfirmation // number of confirmation of the block from where the data comes from
-              blockNumber // the block number
-              blockTimestamp // the block timestamp
-              cost // total cost in wei paid to submit the block on ethereum
-              fee // request fees paid in wei
-              gasFee // ethereum gas fees paid in wei
-              networkName // ethereum network name
-              smartContractAddress // address of the smartcontract where the hash is stored
-              transactionHash // ethereum transaction hash that stored the hash
-            },
-            ipfs: {
-              size // size of the ipfs content of the block
-            },
-            storageType  // type of the storage (for now, always "ethereumIpfs")
-            timestamp: // timestamp of the data (for now, always equals to the ethereum.blockTimestamp)
-          }
-        ],
-        transactionsStorageLocation: [
-          // location of the data used to interpret the request
-        ]
-      }
-    }
-  }
-}
-```
+If the Request is unpaid, attached to metadata is a field called ‘state’ - the state will return the current payment status of the request, either ‘created’, ‘accepted’, ‘pending’ or ‘cancelled’.
