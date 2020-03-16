@@ -105,4 +105,4 @@ Multi-signature (multisig) addresses allow multiple parties to require more than
 
 ## Private Key
 
-A private key is a string of data that shows you have access to a specific wallet on a blockchain. Private keys can be thought of as a password; private keys must never be revealed to anyone but you, as they allow you to spend the funds from your wallet through a cryptographic signature.
+A private key is a large number that allows you to sign or decrypt messages. Private keys can be thought of as a password; private keys must never be revealed to anyone but you, as they allow you to spend the funds from your wallet through a cryptographic signature.
