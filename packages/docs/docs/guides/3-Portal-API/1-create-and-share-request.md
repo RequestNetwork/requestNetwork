@@ -27,6 +27,7 @@ And now, let's look at the code:
 import ReactDOM from "react-dom";
 import React, {useState} from "react";
 import axios from "axios";
+import { ethers } from "ethers";
 
 const API_KEY = "YOUR_API_KEY";
 
@@ -45,8 +46,7 @@ function CreateDAIRequest() {
         currency: "DAI",
 
         // Here we want to create a $49.99 request
-        // TODO Link to the docs for the number of digits
-        expectedAmount: (49.99 * 10**18).toString(),
+        expectedAmount: ethers.utils.parseUnits("49.99", 18).toString(),
         payment: {
 
           // Proxy contract: the payment will be detected automatically 
@@ -96,32 +96,12 @@ Remember that the Portal abstracts the blockchain access. By doing so, a request
 You can check the request status and details in the [dashboard](https://dashboard.request.network/)
 
 
-## Sharing the request
+## Sharing the request to get paid
 
-There are many ways to support a user in sharing his request.
+Once a user has created a request, you need to support him alerting the payer.
 
-A first way is to let the user share a payment URL with the payer. From a UX point of view, it forces him to switch context, but mobile apps often propose this solution. Keep in mind that for the recipient, it looks more secure to click on a link directly sent by a contact of him.
+A first way is to let the user share a payment URL with the payer. From a UX point of view, it forces him to switch context, but mobile apps often propose this solution. Keep in mind that for the recipient, it looks more secure to click on a link directly sent by a contact of him. The best payment page so far is the one we have made, check it out! You can find the link in front of each request in your dashboard. The URL is `https://pay.request.network/{requestId}`
 
-Another way is to handle the notification in your backend, either within your app or with an e-mail for example. It is **strongly advised** to provide the payer with a white-list feature, and to prevent him from clicking on requests sent by strangers.
+Another way is to handle the notification in your backend, either within your app (if the payer also uses it) or with an e-mail for example. For app-embedded payment requests, it is **strongly advised** to provide the payer with a white-list feature, and to prevent him from clicking on requests sent by strangers.
 
 Whatever the solution you pick, you should consider the UX / security tradeoff with great attention.
-
-
-## How is the request paid?
-
-Provide the payment page URL, ask to test.
-
-## Wrap-up: request a payment form
-
-```jsx
-function requestPaymentForm() {
-	return(
-		<div>
-			Picture a basic form here
-			Requester:  0x...
-			Payer:			0x...
-			Amount:			12.34	DAI
-		</div>
-	);
-}
-```

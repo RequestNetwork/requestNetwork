@@ -1,5 +1,5 @@
 /**
- * # Creating a Request using the Declarative payment network
+ * # Creating a request using the Declarative payment network
  *
  * This is an example of creating a request using the Declarative payment network
  * The request will be stored in memory and cleared as soon as the script is finished running.

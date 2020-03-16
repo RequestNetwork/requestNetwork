@@ -14,10 +14,8 @@ const docsPath = 'docs';
 module.exports = {
   docs: makeSidebar('protocol'),
   introSideBar: makeSidebar('guides'),
-  //TODO: yarn start should probably generate the client folder?
-  //clientAPI: makeSidebar('client'),
+  clientAPI: makeSidebar('client'),
 };
-console.dir(module.exports, { depth: null });
 
 function makeSidebar(dir) {
   const files = fs.readdirSync(path.join(docsPath, dir), { withFileTypes: true });

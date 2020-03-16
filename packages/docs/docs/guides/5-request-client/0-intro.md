@@ -1,6 +1,7 @@
 ---
-title: Request Client introduction
-keywords: [Request Client, JS Library]
+title: Request Network Client introduction
+sidebar_label: Introduction
+keywords: [Request Network Client, JS Library]
 
 ---
 
@@ -33,9 +34,17 @@ const RequestNetwork = require('@requestnetwork/request-client.js');
 ```jsx
 const requestNetwork = new RequestNetwork({
  // The Rinkeby Gateway is the node hosted by Request
- // Replace it with the URL of the node you want to use, instead
+ // You can use it on the Rinkeby network without limit, for testing and discovery of the library
  nodeConnectionConfig: { baseURL: 'https://gateway-rinkeby.request.network/' },
 });
 ```
 
-TODO: Explain how to access the mainnet gateway
+4. What node should you use?
+
+In order to follow this guide or test your integration, you should use `https://gateway-rinkeby.request.network`.
+
+For production, you have two options, [compared in the integrations section](/docs/others/integration-options):
+
+* If you want to host your own Request Node, [have a look at the next section](/docs/guides/6-hosting-a-node/0-intro)
+
+* If you prefer to use a node as a service, Request hosts one for you at this location: `https://gateway.request.network`. For the moment, it comes free of charges and fees. If you reach the limit or want to know more, [get in touch with us!](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)

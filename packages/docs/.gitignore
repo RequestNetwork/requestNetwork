@@ -8,7 +8,7 @@
 .docusaurus
 .cache-loader
 docs/client/**
-docs/guides/4-request-payment/2-multisig.md
+docs/guides/4-request-payment/1-multisig.md
 docs/guides/5-request-client/2-erc20-payment-detection.md
 docs/guides/5-request-client/3-eth-payment-detection.md
 docs/guides/5-request-client/4-btc-payment-detection.md
