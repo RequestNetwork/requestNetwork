@@ -24,13 +24,13 @@
     "start": "docusaurus start",
     "prestart": "yarn gen:code2md; yarn gen:client",
     "build": "docusaurus build",
-    "prebuild": "aurelius 'docs/**/*'",
+    "prebuild": "yarn gen:code2md; yarn gen:client",
     "swizzle": "docusaurus swizzle",
-    "preswizzle": "aurelius 'docs/**/*'",
+    "preswizzle": "yarn gen:code2md; yarn gen:client",
     "deploy": "docusaurus deploy",
-    "predeploy": "aurelius 'docs/**/*'",
+    "predeploy": "yarn gen:code2md; yarn gen:client",
     "gen:code2md": "aurelius 'docs/**/*'",
-    "gen:client": "typedoc --plugin typedoc-plugin-markdown --theme docusaurus2 --out docs/client/ --exclude '**/*test*' --resolveJsonModule --ignoreCompilerErrors --mode modules --skipSidebar --readme ../request-client.js/README.md ../request-client.js/; shx rm -rf website",
+    "gen:client": "typedoc --plugin typedoc-plugin-markdown --theme docusaurus2 --out docs/client/ --exclude '**/*test*' --resolveJsonModule --ignoreCompilerErrors --mode modules --skipSidebar --readme ../request-client.js/README.md ../request-client.js/src; shx rm -rf website",
     "clean": "shx rm -rf docs/client"
   },
   "dependencies": {
