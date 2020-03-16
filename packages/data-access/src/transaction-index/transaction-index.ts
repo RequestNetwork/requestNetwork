@@ -19,6 +19,8 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   // Will be used to get the data from timestamp boundaries
   private timestampByLocation: TimestampByLocation;
 
+  private indexedLocation: Set<string>;
+
   /**
    * Constructor of TransactionIndex
    * @param store a Keyv store to persist the index to
@@ -26,6 +28,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   constructor(store?: Keyv.Store<any>) {
     this.timestampByLocation = new TimestampByLocation(store);
     this.locationByTopic = new LocationByTopic(store);
+    this.indexedLocation = new Set<string>();
   }
 
   // tslint:disable-next-line: no-empty
@@ -58,6 +61,8 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
 
     // add the timestamp in the index
     await this.timestampByLocation.pushTimestampByLocation(dataId, timestamp);
+
+    this.indexedLocation.add(dataId);
   }
 
   /**
@@ -181,5 +186,19 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
     } else {
       return channelIds;
     }
+  }
+
+  /**
+   * the count of indexed location
+   */
+  public getIndexedLocationCount(): number {
+    return this.indexedLocation.size;
+  }
+
+  /**
+   * the list of indexed location
+   */
+  public getIndexedLocation(): Set<string> {
+    return this.indexedLocation;
   }
 }

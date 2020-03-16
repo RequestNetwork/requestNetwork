@@ -20,6 +20,8 @@ export interface IDataAccess {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
+  /** TODO: better typing */
+  _getInformation(): any;
 }
 
 /** Enum of state possible for an action */
@@ -142,6 +144,8 @@ export interface ITransactionIndex {
     topics: string[],
     timestampBoundaries?: ITimestampBoundaries,
   ): Promise<string[]>;
+  getIndexedLocation(): Set<string>;
+  getIndexedLocationCount(): number;
   getStorageLocationList(
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,

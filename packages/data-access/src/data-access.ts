@@ -6,6 +6,7 @@ import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 
 import Block from './block';
+import IgnoredLocation from './ignored-location';
 import IntervalTimer from './interval-timer';
 import TransactionIndex from './transaction-index';
 
@@ -31,6 +32,8 @@ export interface IDataAccessOptions {
    * Defaults to DEFAULT_INTERVAL_TIME.
    */
   synchronizationIntervalTime?: number;
+
+  ignoredLocation?: IgnoredLocation;
 }
 
 /**
@@ -40,10 +43,13 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
   // public for test purpose
   public transactionIndex: DataAccessTypes.ITransactionIndex;
+
   // boolean to store the initialization state
   protected isInitialized: boolean = false;
   // Storage layer
   private storage: StorageTypes.IStorage;
+
+  private ignoredLocation: IgnoredLocation;
 
   // The function used to synchronize with the storage should be called periodically
   // This object allows to handle the periodical call of the function
@@ -70,6 +76,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
     const defaultOptions: IDataAccessOptions = {
+      ignoredLocation: new IgnoredLocation(),
       logger: new Utils.SimpleLogger(),
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new TransactionIndex(),
@@ -87,6 +94,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       5,
     );
     this.transactionIndex = options.transactionIndex!;
+    this.ignoredLocation = options.ignoredLocation!;
 
     this.logger = options.logger!;
   }
@@ -435,6 +443,31 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
+   * TODO comment
+   */
+  public _getInformation(): any {
+    this.checkInitialized();
+
+    // last transaction timestamp retrieved
+    const lastLocationTimestamp = this.transactionIndex.getLastTransactionTimestamp();
+    const locationIndexedCount = this.transactionIndex.getIndexedLocationCount();
+    const listIndexedLocation = this.transactionIndex.getIndexedLocation();
+
+    return {
+      filesIgnored: {
+        // count: locationIndexedCount,
+        // list: listIndexedLocation,
+      },
+      filesRetrieved: {
+        count: locationIndexedCount,
+        lastTimestamp: lastLocationTimestamp,
+        list: listIndexedLocation,
+      },
+      lastSynchronizationTimestamp: this.lastSyncStorageTimestamp,
+    };
+  }
+
+  /**
    * Check the format of the data, extract the topics from it and push location indexed with the topics
    *
    * @private
@@ -462,6 +495,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         await this.transactionIndex.addTransaction(entry.id, block.header, entry.meta.timestamp);
       } catch (e) {
         parsingErrorCount++;
+        // Index ignored Location
+        await this.ignoredLocation.pushTimestampByLocation(entry.id, entry.meta.timestamp);
         this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
           'synchronization',
         ]);
