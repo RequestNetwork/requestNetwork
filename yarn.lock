@@ -3328,10 +3328,10 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aurelius@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/aurelius/-/aurelius-0.1.2.tgz#a727585f4041b0d8bfa74d892d0569b5523b8530"
-  integrity sha512-AQe1TO/c2xgmA9ybotjPRGK5bcF3qqU101S3czFwryTuxg58MDBQu+vuMAkQHdjl2jKYtGA+xYDPU8X4ff5KVQ==
+aurelius@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/aurelius/-/aurelius-0.1.3.tgz#36049644b2c12443c10b64c42a1808e2238a54ba"
+  integrity sha512-xFzrp6OH+ZOOUMNwM+Q4Rz/IxpBmpFMWW8u9Q0wfqHuttT9yq3VvAnkJZhJQ8uTfv2BAZetRUN24WdUgMG+FLw==
   dependencies:
     glob "^7.1.6"
     minimist "^1.2.0"
@@ -3644,9 +3644,9 @@ bn.js@4.11.8, bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.11.0, bn.js@^4.
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
   integrity sha512-ItfYfPLkWHUjckQCk8xC+LwxgK8NYcXywGigJgSwOP8Y2iyWT4f2vsZnoOXTTbo+o5yXmIUJ4gn5538SO5S3gA==
 
-bn.js@^5.1.1:
+bn.js@5.1.1:
   version "5.1.1"
-  resolved "http://localhost:4873/bn.js/-/bn.js-5.1.1.tgz#48efc4031a9c4041b9c99c6941d903463ab62eb5"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.1.tgz#48efc4031a9c4041b9c99c6941d903463ab62eb5"
   integrity sha512-IUTD/REb78Z2eodka1QZyyEk66pciRcP6Sroka0aI3tG/iwIdYLrBD62RsubR7vqdt3WyX8p4jxeatzmRSphtA==
 
 body-parser@1.19.0, body-parser@^1.16.0:
