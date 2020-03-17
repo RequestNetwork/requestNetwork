@@ -77,7 +77,7 @@ A signature provider is an abstraction of the identity management and action sig
 
 ## Stakeholder
 
-A request stakeholder is a party involved with the request. Stakeholders are generally the payer and the payee of the request and perform actions on it but for encrypted requests, stakeholders are any party that has an interest reading the request.
+A request stakeholder is a party involved with the request. Stakeholders are generally the payer and the payee of the request , or any other third-party allowed to perform actions on it. For encrypted requests, stakeholders are any party that has an interest reading the request content.
 
 ## Topic
 
