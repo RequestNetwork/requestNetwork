@@ -41,7 +41,9 @@ As long as the action hasn't been persisted and is not confirmed, the action is 
 
 ## Encryption provider
 
-An encryption provider is an object that allows to abstract the encryption of actions. It can be used to perform the action's encryption on a distant server.
+An encryption provider is an abstraction of the mechanism that handles encryption and decryption of a Request. Depending on use cases, it allows you to give your user full control, or handle some parts for them. 
+
+It is not used for clear requests.
 
 ## Extension
 
