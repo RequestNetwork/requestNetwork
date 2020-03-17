@@ -7,7 +7,7 @@ keywords:
 
 ## Request Portal API
 
-The Request Portal is a software built on top of the Request Protocol that allows third party software to easily integrate Request, all the private keys to create requests and perform actions to them are stored by Request and can be managed through OAuth. The Request Portal API is an API built on top of the Request Portal.
+Request Portal is an API built on top of the Request Protocol that allows third party software to easily integrate Request. It also provide extra features, not available through direct usage of the Request Protocol, like private key management, OAuth authentication, and better performance.
 
 ## Request Client
 
@@ -15,21 +15,21 @@ The Request Client is a Javascript library made to interact directly with the Re
 
 ## Request Node
 
-Request Nodes are HTTP servers exposing an API used to allow Request Client to communicate with the Request Protocol. These servers abstract the complexity of IPFS and Ethereum used by the current implementation of the Request Protocol.
+Request Nodes are HTTP servers exposing an API used to allow Request Client to communicate with the Request Protocol. These servers abstract the complexity of IPFS and Ethereum used by the Request Protocol.
 
 ## Request Protocol
 
-The Request Protocol is the underlying protocol to make Request work. The protocol stores all the request information and actions performed to them on a distributed ledger.
+The Request Protocol is the underlying protocol that powers Request. It defines how requests are stored on a distributed ledger and how to interprete actions performed on them.
 
 # Request Protocol
 
 ## Action
 
-An action is signed data added by a request's stakeholder into the Request Protocol that creates or updates the state of a request. The creation of a request is considered as an action and a request can be represented by a list of actions.
+An action is signed data added by a request's stakeholder into the Request Protocol that creates or updates the state of a request. A request can be represented by a list of actions. For example, the creation of a request is an action.
 
 ## Balance
 
-When using a payment network, the balance is the current amount paid for a request. This balance is not the current balance of a specific account but is determined by the payment detection method of the payment network used.
+When using a payment network, the balance is the current amount paid for a request. The balance is determined by the payment detection method of the payment network used.
 
 A request with no payment network provided doesn't have a balance.
 
@@ -71,17 +71,17 @@ The request Id is the number that uniquely identifies a request. This number is 
 
 ## Signature Provider
 
-A signature provider is an object that allows to abstract identity management and action signatures. It can be used to perform the action's signature on a distant server.
+A signature provider is an abstraction of the identity management and action signatures. Depending on use cases, it allows you to give your user full control, or handle some parts for them. 
 
 ## Stakeholder
 
-A request stakeholder is a party involved with the request. Stakeholders are generally the payer and the payee of the request and perform actions on it but for encrypted requests, stakeholders are any party that can read the request.
+A request stakeholder is a party involved with the request. Stakeholders are generally the payer and the payee of the request and perform actions on it but for encrypted requests, stakeholders are any party that has an interest reading the request.
 
 ## Topic
 
 A topic is a string that is used to index a request. This topic is used for request retrieval. Several requests can share the same topic.
 
-Every request has its request id and its payee identity as topics (and the payer identity if it is defined). Any custom topic can be appended for a request.
+Every request has its request id and its payee identity as topics (and the payer identity if it is defined). Any custom topic can be appended to a request.
 
 # Blockchain, Cryptography
 
@@ -91,17 +91,17 @@ Confirmation means that the blockchain transaction has been verified by the netw
 
 ## Ether
 
-Ether is the native token of the Ethereum blockchain which is used to pay for transaction fees, miner rewards, and other services on the network. Beware that Ether and Ethereum don't have the same meaning, Ether is the currency and Ethereum is the name of the network (unlike for Bitcoin where the name means the network and the currency).
+Ether is the native token of the Ethereum blockchain which is used to pay for transaction fees, miner rewards, and other services on the network.
 
 ## IPFS
 
-The Inter-Planetary File System (IPFS) is a protocol and peer-to-peer network for storing and sharing data in a distributed file system. IPFS uses content-addressing to uniquely identify each file in a global namespace connecting all computing devices.
+The Inter-Planetary File System (IPFS) is a protocol and a peer-to-peer network for storing and sharing data in a distributed file system. IPFS uses content-addressing to uniquely identify each file in a global namespace connecting all computing devices.
 
-IPFS is used by the Request Protocol to ensure data immutability.
+IPFS is used by the Request Protocol to ensure data accessibility.
 
 ## Multi-signature
 
-Multi-signature (multisig) addresses allow multiple parties to require more than one key to authorize a transaction. The needed number of signatures is agreed at the creation of the address. Multi-signature addresses have a much greater resistance to theft.
+Multi-signature (multisig) wallets allow multiple parties to require more than one key to authorize a transaction. The needed number of signatures is agreed at the creation of the wallet. Multi-signature addresses have a much greater resistance to theft.
 
 ## Private Key
 
