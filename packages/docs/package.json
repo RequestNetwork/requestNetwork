@@ -44,7 +44,7 @@
     "bn.js": "5.1.1",
     "classnames": "2.2.6",
     "core-js": "3.6.4",
-    "ethers": "^4.0.45",
+    "ethers": "4.0.45",
     "mobx": "5.15.4",
     "react": "16.8.4",
     "react-dom": "16.8.4",
