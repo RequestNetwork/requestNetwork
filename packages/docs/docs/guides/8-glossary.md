@@ -35,13 +35,13 @@ A request with no payment network provided doesn't have a balance.
 
 ## Confirmed/Pending action
 
-The Protocol relies on other blockchain technologies to ensure data immutability. Most blockchain doesn't offer transaction instant finality. This means that when performing an action on the request, this action can't directly be confirmed as effective.
+Request relies on other blockchain technologies to ensure data immutability. Most blockchain doesn't offer transaction instant finality. This means that when performing an action on the request, this action can't directly be confirmed as effective.
 
-As long as the action hasn't been persisted and is not confirmed, the action is marked as "pending".
+As long as the action hasn't been persisted and is not confirmed, the action is marked as "pending". The "pending" state is useful to have a fast response, and good user experience. Until the request is Confirmed, it should not be relied upon.
 
-## Encryption provider
+## Decryption provider
 
-An encryption provider is an abstraction of the mechanism that handles encryption and decryption of a Request. Depending on use cases, it allows you to give your user full control, or handle some parts for them. 
+A decryption provider is an abstraction of the mechanism that handles decryption of a request. Depending on use cases, it allows you to give your user full control, or handle some parts for them. 
 
 It is not used for clear requests.
 
