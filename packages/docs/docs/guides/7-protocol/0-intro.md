@@ -8,7 +8,7 @@ Request is an open and unique database for payment requests including invoices o
 
 The Request Protocol is the core of Request. It's the bottom layer that defines and handles the data of a request and persist them to a distributed ledger to make Request open, trustless, secure and resilient.
 
-This document is aimed to help you to understand how the protocol is structured, how it works and how it meets its requirements.
+This section is aimed at helping you understand how the protocol is structured, how it works and how it meets its requirements. It is particularly useful if you want to propose changes or implement it yourself.
 
 # Overview
 
