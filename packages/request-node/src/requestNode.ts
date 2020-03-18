@@ -154,7 +154,13 @@ class RequestNode {
     // Route for readiness check
     router.get('/readyz', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getInformation(clientRequest, serverResponse, this.dataAccess, this.logger);
+        return getInformation(
+          clientRequest,
+          serverResponse,
+          this.ethereumStorage,
+          this.dataAccess,
+          this.logger,
+        );
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }

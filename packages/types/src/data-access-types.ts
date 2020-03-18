@@ -144,8 +144,7 @@ export interface ITransactionIndex {
     topics: string[],
     timestampBoundaries?: ITimestampBoundaries,
   ): Promise<string[]>;
-  getIndexedLocation(): Set<string>;
-  getIndexedLocationCount(): number;
+  getIndexedLocation(): Promise<string[]>;
   getStorageLocationList(
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,

@@ -445,21 +445,21 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * TODO comment
    */
-  public _getInformation(): any {
+  public async _getInformation(): Promise<any> {
     this.checkInitialized();
 
     // last transaction timestamp retrieved
     const lastLocationTimestamp = this.transactionIndex.getLastTransactionTimestamp();
-    const locationIndexedCount = this.transactionIndex.getIndexedLocationCount();
-    const listIndexedLocation = this.transactionIndex.getIndexedLocation();
+    const listIndexedLocation = await this.transactionIndex.getIndexedLocation();
+    const listIgnoredLocation = await this.ignoredLocation.getIgnoredLocation();
 
     return {
       filesIgnored: {
-        // count: locationIndexedCount,
-        // list: listIndexedLocation,
+        count: Object.keys(listIgnoredLocation).length,
+        list: listIgnoredLocation,
       },
       filesRetrieved: {
-        count: locationIndexedCount,
+        count: listIndexedLocation.length,
         lastTimestamp: lastLocationTimestamp,
         list: listIndexedLocation,
       },
@@ -496,7 +496,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       } catch (e) {
         parsingErrorCount++;
         // Index ignored Location
-        await this.ignoredLocation.pushTimestampByLocation(entry.id, entry.meta.timestamp);
+        await this.ignoredLocation.pushReasonByLocation(entry.id, e.message);
         this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
           'synchronization',
         ]);
@@ -526,7 +526,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         const resultRead = await this.storage.read(location);
 
         return {
-          block: JSON.parse(resultRead.content),
+          block: Block.parseBlock(resultRead.content),
           location,
           meta: resultRead.meta,
         };

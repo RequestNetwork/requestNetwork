@@ -16,7 +16,7 @@ export default class EthereumMetadataCache {
    */
   public metadataCache: Keyv<StorageTypes.IEthereumMetadata>;
 
-  public listDataIds: Keyv<Set<string>>;
+  public listDataIds: Keyv<string[]>;
 
   /**
    * Manager for the storage smart contract
@@ -37,7 +37,7 @@ export default class EthereumMetadataCache {
       store,
     });
 
-    this.listDataIds = new Keyv<Set<string>>({
+    this.listDataIds = new Keyv<string[]>({
       namespace: 'listDataIds',
       store,
     });
@@ -86,12 +86,12 @@ export default class EthereumMetadataCache {
    *
    * @returns the list of data ids stored
    */
-  public async getListDataId(): Promise<Set<string>> {
-    const listDataId: Set<string> | undefined = await this.listDataIds.get('list');
-    if (!listDataId) {
-      throw Error('list must be defined');
+  public async getListDataIds(): Promise<string[]> {
+    const listDataIds: string[] | undefined = await this.listDataIds.get('list');
+    if (!listDataIds) {
+      throw Error(`listDataIds must be defined ${listDataIds}`);
     }
-    return listDataId;
+    return listDataIds;
   }
 
   /**
@@ -101,11 +101,11 @@ export default class EthereumMetadataCache {
    * @returns
    */
   private async updateListDataId(dataId: string): Promise<void> {
-    let listDataId: Set<string> | undefined = await this.listDataIds.get('list');
-    if (!listDataId) {
-      listDataId = new Set<string>();
+    let listDataIds: string[] | undefined = await this.listDataIds.get('list');
+    if (!listDataIds) {
+      listDataIds = [];
     }
-    listDataId!.add(dataId);
-    await this.listDataIds.set('list', listDataId);
+    listDataIds.push(dataId);
+    await this.listDataIds.set('list', listDataIds);
   }
 }

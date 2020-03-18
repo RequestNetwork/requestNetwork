@@ -19,7 +19,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   // Will be used to get the data from timestamp boundaries
   private timestampByLocation: TimestampByLocation;
 
-  private indexedLocation: Set<string>;
+  private indexedLocation: Keyv<string[]>;
 
   /**
    * Constructor of TransactionIndex
@@ -28,7 +28,11 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   constructor(store?: Keyv.Store<any>) {
     this.timestampByLocation = new TimestampByLocation(store);
     this.locationByTopic = new LocationByTopic(store);
-    this.indexedLocation = new Set<string>();
+
+    this.indexedLocation = new Keyv<string[]>({
+      namespace: 'indexedLocation',
+      store,
+    });
   }
 
   // tslint:disable-next-line: no-empty
@@ -62,7 +66,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
     // add the timestamp in the index
     await this.timestampByLocation.pushTimestampByLocation(dataId, timestamp);
 
-    this.indexedLocation.add(dataId);
+    await this.updateIndexedLocation(dataId);
   }
 
   /**
@@ -189,16 +193,29 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   }
 
   /**
-   * the count of indexed location
+   * the list of indexed location
    */
-  public getIndexedLocationCount(): number {
-    return this.indexedLocation.size;
+  public async getIndexedLocation(): Promise<string[]> {
+    const listDataIds: string[] | undefined = await this.indexedLocation.get('list');
+    return listDataIds || [];
   }
 
   /**
-   * the list of indexed location
+   * Update the list of data ids stored
+   *
+   * @param dataId data id to add to the list
+   * @returns
    */
-  public getIndexedLocation(): Set<string> {
-    return this.indexedLocation;
+  private async updateIndexedLocation(dataId: string): Promise<void> {
+    let listDataIds: string[] | undefined = await this.indexedLocation.get('list');
+    if (!listDataIds) {
+      listDataIds = [];
+    }
+
+    // push it if not already done
+    if (!listDataIds.includes(dataId)) {
+      listDataIds.push(dataId);
+      await this.indexedLocation.set('list', listDataIds);
+    }
   }
 }

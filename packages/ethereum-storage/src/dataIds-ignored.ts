@@ -12,7 +12,7 @@ export default class DataIdsIgnored {
    */
   public reasonsDataIdIgnored: Keyv<string>;
 
-  public listDataIdsIgnored: Keyv<Set<string>>;
+  public listDataIdsIgnored: Keyv<string[]>;
 
   /**
    * Constructor
@@ -24,7 +24,7 @@ export default class DataIdsIgnored {
       store,
     });
 
-    this.listDataIdsIgnored = new Keyv<Set<string>>({
+    this.listDataIdsIgnored = new Keyv<string[]>({
       namespace: 'listDataIdsIgnored',
       store,
     });
@@ -36,10 +36,8 @@ export default class DataIdsIgnored {
    * @param reason reason we ignored the dataId
    */
   public async saveReason(dataId: string, reason: string): Promise<void> {
-    if (!(await this.reasonsDataIdIgnored.get(dataId))) {
-      await this.reasonsDataIdIgnored.set(dataId, reason);
-      await this.updateListDataId(dataId);
-    }
+    await this.reasonsDataIdIgnored.set(dataId, reason);
+    await this.updateListDataId(dataId);
   }
 
   /**
@@ -58,12 +56,9 @@ export default class DataIdsIgnored {
    *
    * @returns the list of data ids stored
    */
-  public async getListDataId(): Promise<Set<string>> {
-    const listDataId: Set<string> | undefined = await this.listDataIdsIgnored.get('list');
-    if (!listDataId) {
-      throw Error('list must be defined');
-    }
-    return listDataId;
+  public async getListDataId(): Promise<string[]> {
+    const listDataId: string[] | undefined = await this.listDataIdsIgnored.get('list');
+    return listDataId || [];
   }
 
   /**
@@ -72,9 +67,10 @@ export default class DataIdsIgnored {
    * @returns the list of data ids stored
    */
   public async getListDataIdWithReason(): Promise<any> {
-    const listDataId: Set<string> | undefined = await this.listDataIdsIgnored.get('list');
+    const listDataId: string[] | undefined = await this.listDataIdsIgnored.get('list');
+
     if (!listDataId) {
-      throw Error('list must be defined');
+      return {};
     }
     const result: any = {};
 
@@ -92,11 +88,11 @@ export default class DataIdsIgnored {
    * @returns
    */
   private async updateListDataId(dataId: string): Promise<void> {
-    let listDataId: Set<string> | undefined = await this.listDataIdsIgnored.get('list');
-    if (!listDataId) {
-      listDataId = new Set<string>();
+    let listDataIds: string[] | undefined = await this.listDataIdsIgnored.get('list');
+    if (!listDataIds) {
+      listDataIds = [];
     }
-    listDataId!.add(dataId);
-    await this.listDataIdsIgnored.set('list', listDataId);
+    listDataIds.push(dataId);
+    await this.listDataIdsIgnored.set('list', listDataIds);
   }
 }

@@ -59,7 +59,7 @@ function parseBlock(data: string): DataAccessTypes.IBlock {
   }
 
   // check the transactions format
-  if (maybeBlock.transactions.some((tx: any) => !tx.data)) {
+  if (maybeBlock.transactions.some((tx: any) => !tx.data && !tx.encryptedData)) {
     throw new Error(`Transactions do not follow the block standard`);
   }
 

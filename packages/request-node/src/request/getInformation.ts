@@ -1,5 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
-import { LogTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 const GET_CHANNELS_TIMEOUT: number = 600000;
@@ -14,6 +14,7 @@ const GET_CHANNELS_TIMEOUT: number = 600000;
 export default async function getInformation(
   clientRequest: any,
   serverResponse: any,
+  ethereumStorage: StorageTypes.IStorage,
   dataAccess: DataAccess,
   logger: LogTypes.ILogger,
 ): Promise<void> {
@@ -32,7 +33,13 @@ export default async function getInformation(
   }
 
   try {
-    const information = await dataAccess._getInformation();
+    const dataAccessInformation = await dataAccess._getInformation();
+    const ethereumStorageInformation = await ethereumStorage._getInformation();
+
+    const information = {
+      dataAccessInformation,
+      ethereumStorageInformation,
+    };
 
     // Log the request time
     const requestEndTime = Date.now();
