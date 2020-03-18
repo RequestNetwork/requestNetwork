@@ -135,7 +135,7 @@ h2::before {
   position: relative;
   border-left: 4px solid;
   border-radius: 3px;
-  background-color: rgb(245, 247, 249);
+  background-color: rgb(200, 200, 200);
 }
 
 .hint.hint-info {
