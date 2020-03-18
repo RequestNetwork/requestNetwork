@@ -9,16 +9,13 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Developers can build on top of Request API by creating Applications.
 
-With an application, you will be able to read, create, and perform actions on requests, **on behalf of your users**. 
-
-## How it works
-
-An application built on top of Request API needs to authenticate with the OAuth2 mechanism.
-We recommend using [Auth0 SDKs](https://auth0.com/docs/libraries#sdks) to integrate it, but you are free to choose whatever you want.
+Your application will be able to read, create, and perform actions on requests, **on behalf of your users**, once they grant this permission.
 
 ## Getting started
 
+:::info
 Unlock this option by getting in touch with us on the [Request Hub](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE).
+:::
 
 <img alt="Authenticate your app into the Request Portal" src={useBaseUrl('img/portal-api-app.gif')} />
 
@@ -34,10 +31,19 @@ Unlock this option by getting in touch with us on the [Request Hub](https://join
 - Now, click the Login button on the generated example. You should be able to log in using your Request account. 
 
 :::info 
-You can log in with any account, not necessarily the account you used to create the app. 
+To properly test your integration, you should connect to the sample app using different credentials than those of your app. Typically, you should have a fake user that you use to perform end-to-end tests.
+
 As an app developer, you will _not_ see your users' requests in your dashboard. 
 :::
 
+## Authenticating users
+
+Users of an application built on top of Request Portal API need to authenticate with the OAuth2 mechanism.
+We recommend using [Auth0 SDKs](https://auth0.com/docs/libraries#sdks) to integrate it, but you are free to choose whatever you want.
+
+The authentication's domain is `auth.request.network`.
+
+In the codesandbox app above, you can check how onboarding looks like for first time users of Request.
 
 ## Get help
 
