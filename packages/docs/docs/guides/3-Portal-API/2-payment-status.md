@@ -28,4 +28,26 @@ If the balance >= expectedAmount - this means the request is paid.
 If the balance > 0 but < expectedAmount - this means the request is partially paid.
 If the balance == 0 - this means the request is unpaid.
 
-If the Request is unpaid, attached to metadata is a field called ‘state’ - the state will return the current payment status of the request, either ‘created’, ‘accepted’, ‘pending’ or ‘cancelled’.
+You can use the following snippet to see if the request has been paid. 
+
+```jsx
+// Import Big Number package
+const BN = require('bn.js')
+
+(async () => {
+  // Check the balance of the request
+  const requestData = request.getData();
+  const balance = requestData.balance;
+  console.log(`Balance of the request in ETH: ${balance}`);
+  
+  // Check if the request has been paid
+  // Convert the balance to big number type for comparison
+  const expectedAmount = new BN(requestData.expectedAmount);
+  const balanceBigNumber = new BN(balance);
+
+  // Check if balanceBigNumber is greater or equal to expectedAmount
+  const paid = balanceBigNumber.gte(expectedAmount);
+})(); 
+```
+
+If the Request is unpaid, it might be useful to use the metadata field called ‘state’ - the state will return the current payment status of the request, either ‘created’, ‘accepted’, ‘pending’ or ‘cancelled’.
