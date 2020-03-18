@@ -22,7 +22,7 @@ Within this guide, we naturally guide you through all options in order of comple
 
 <Hint style="info">
 
-If you are already familiar with basic concepts of Request, you can jump to the API, the Request Client or the Node setup guide.
+If you are already familiar with basic concepts of Request, you can jump to the [API](/docs/guides/3-Portal-API/0-portal-intro/), the [Request Client](/docs/guides/5-request-client/0-intro) or the [Node setup guide](/docs/guides/6-hosting-a-node/0-intro).
 
 </Hint>
 
