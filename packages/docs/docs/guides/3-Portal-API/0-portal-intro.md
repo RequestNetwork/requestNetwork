@@ -23,7 +23,7 @@ All API endpoints are authenticated.
 Two mechanisms are currently allowed:
 
 - API Key, explained below, to be used for scripting and test purposes
-- OAuth, explained in the [Apps](3-api-apps) section
+- OAuth, explained in the [Apps](./3-api-apps) section
 
 # Action
 
@@ -49,7 +49,7 @@ You have two API keys, use the Test one to follow this guide.
 ## Request identity
 
 Senders and recipients of money transfer requests need a way to trust each other. The identity is how we certify the debtor about the authenticity of the request sender, limiting frauds like SCAM for example.
-With decentralized integration options (cf. [the Request client](/docs/guides/5-Request-client/0-intro), end users manage their private keys, but the Portal simplifies their life.
+With decentralized integration options (cf. [the Request client](../5-Request-client/0-intro), end users manage their private keys, but the Portal simplifies their life.
 
 This simplification should be applied with great care, we do not recommend using the Request Portal API for critical cases where a lot of money or public reputation is at stake. If you want full control over the security of your finance, you should handle your keys, and the same applies to your users. Have a look at [the integration options](/docs/others/integration-options) to take the best decision.
 

@@ -18,11 +18,11 @@ There are different integration schema that are possible with Request. The aim o
 
 <IntegrationOptions />
 
-Within this guide, we naturally guide you through all options in order of complexity. For a detailed overview, [head to the integration options](/docs/others/integration-options)
+Within this guide, we naturally guide you through all options in order of complexity. For a detailed overview, [head to the integration options](../others/integration-options)
 
 <Hint style="info">
 
-If you are already familiar with basic concepts of Request, you can jump to the [API](/docs/guides/3-Portal-API/0-portal-intro/), the [Request Client](/docs/guides/5-request-client/0-intro) or the [Node setup guide](/docs/guides/6-hosting-a-node/0-intro).
+If you are already familiar with basic concepts of Request, you can jump to the [API](./3-Portal-API/0-portal-intro/), the [Request Client](./5-request-client/0-intro) or the [Node setup guide](./6-hosting-a-node/0-intro).
 
 </Hint>
 

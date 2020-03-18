@@ -9,7 +9,7 @@ Collecting payments on your project consists of using the Request Client to crea
 
 This package allows you to interact with the Request blockchain through the Request nodes. This client-side library uses Request nodes as servers, which are connected in HTTP. 
 
-You can view the documentation about the [Request Node here](/docs/guides/6-hosting-a-node/0-intro).
+You can view the documentation about the [Request Node here](../6-hosting-a-node/0-intro).
 
 It ships both as a commonjs and a UMD module. This means you can use it in node application and in web pages.
 Request uses this library, to track and handle all the states of the payment until it’s completed.
@@ -43,8 +43,8 @@ const requestNetwork = new RequestNetwork({
 
 In order to follow this guide or test your integration, you should use `https://gateway-rinkeby.request.network`.
 
-For production, you have two options, [compared in the integrations section](/docs/others/integration-options):
+For production, you have two options, [compared in the integrations section](../integration-options):
 
-* If you want to host your own Request Node, [have a look at the next section](/docs/guides/6-hosting-a-node/0-intro)
+* If you want to host your own Request Node, [have a look at the next section](../6-hosting-a-node/0-intro)
 
 * If you prefer to use a node as a service, Request hosts one for you at this location: `https://gateway.request.network`. For the moment, it comes free of charges and fees. If you reach the limit or want to know more, [get in touch with us!](https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LWNlYTlmODViMmE3MzY0MWFiMTUzYmNiMWEyZmNiNWZhMjM3MTEzN2JkZTMxN2FhN2NmODFkNmU5MDBmOTUwMjA)
