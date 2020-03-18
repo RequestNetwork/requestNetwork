@@ -491,7 +491,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         const resultRead = await this.storage.read(location);
 
         return {
-          block: JSON.parse(resultRead.content),
+          block: Block.parseBlock(resultRead.content),
           location,
           meta: resultRead.meta,
         };
