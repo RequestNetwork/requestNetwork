@@ -105,7 +105,9 @@ export default class EthereumMetadataCache {
     if (!listDataIds) {
       listDataIds = [];
     }
-    listDataIds.push(dataId);
-    await this.listDataIds.set('list', listDataIds);
+    if (!listDataIds.includes(dataId)) {
+      listDataIds.push(dataId);
+      await this.listDataIds.set('list', listDataIds);
+    }
   }
 }
