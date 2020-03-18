@@ -21,7 +21,7 @@ Head towards [the Request dashboard](https://dashboard.request.network) and crea
 
 <img alt="Getthing the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
 
-More info about the Request Portal [in the next section](/guides/3-API/0-portal-intro).
+More info about the Request Portal [in the next section](/docs/guides/3-Portal-API/0-portal-intro).
 
 ## Create your first request
 
