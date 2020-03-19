@@ -6,7 +6,7 @@ module.exports = {
   favicon: 'img/cropped-favicon-32x32.png',
   organizationName: 'requestNetwork', // Usually your GitHub org/user name.
   projectName: 'documentation', // Usually your repo name.
-	plugins: ['axios'],
+  plugins: ['axios'],
   themeConfig: {
     navbar: {
       title: 'Request docs',
@@ -17,9 +17,14 @@ module.exports = {
       links: [
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'docs/others/integration-options', label: 'Integration', position: 'left' },
-				{ to: 'docs/client/index', label: 'Request-client.js API', position: 'left' },
+        { to: 'docs/client/index', label: 'Request-client.js API', position: 'left' },
         { to: 'portal', label: 'Portal REST API', position: 'left' },
-        { href: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs', label: 'Protocol Specs', position: 'left' },
+        {
+          href:
+            'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs',
+          label: 'Protocol Specs',
+          position: 'left',
+        },
         {
           href: 'https://github.com/RequestNetwork',
           label: 'GitHub',
@@ -34,16 +39,16 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'TODO Portal API',
-              to: 'docs/0-introduction',
+              label: 'Portal API',
+              to: 'docs/guides/3-Portal-API/0-portal-intro',
             },
             {
-              label: 'TODO Request Client library',
-              to: 'docs/doc2',
+              label: 'Request Client library',
+              to: 'docs/guides/5-request-client/0-intro',
             },
             {
-              label: 'TODO Request Node',
-              to: 'docs/doc2',
+              label: 'Request Node',
+              to: 'docs/guides/6-hosting-a-node/0-intro',
             },
           ],
         },
