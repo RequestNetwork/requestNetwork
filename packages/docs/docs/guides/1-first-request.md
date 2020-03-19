@@ -16,7 +16,7 @@ If you want to jump to the decentralized options, head towards the [Request Clie
 
 ## Request identity and API Key
 
-Head towards [the Request dashboard](https://dashboard.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
+Head towards [the Request Portal dashboard](https://dashboard.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
 
 
 <img alt="Getthing the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
