@@ -29,7 +29,7 @@ You are ready to run the local test Node. You will need three different consoles
 
 First, make sure you [installed IPFS](https://docs.ipfs.io/guides/guides/install/) locally.
 
-Now you need to configure your IPFS to connect to our [dedicated network](../7-protocol/1-request-ipfs-network). We have a script to make it easy for you:
+Now you need to configure your IPFS to connect to our [dedicated network](../7-protocol/6-request-ipfs-network). We have a script to make it easy for you:
 
 ```bash
 cd packages/request-node

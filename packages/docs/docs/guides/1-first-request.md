@@ -11,7 +11,7 @@ Get an outlook of the Request network in a matter of minutes with the API.
 
 :::info
 This is a very fast ramp to the Request network, using the Portal API, a centralized option.
-If you want to jump to the decentralized options, head towards the [Request Client section](./guides/5-request-client/0-intro).
+If you want to jump to the decentralized options, head towards the [Request Client section](./5-request-client/0-intro).
 :::
 
 ## Request identity and API Key

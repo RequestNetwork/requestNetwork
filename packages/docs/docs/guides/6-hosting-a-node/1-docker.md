@@ -6,7 +6,7 @@ keywords: [Request node, setup, docker]
 Running a Request Node with Docker is easy. There are only a few requirements:
 
 - Docker installed on your system;
-- A web3 provider (we recommend using a service like [infura](infura.io));
+- A web3 provider (we recommend using a service like [infura](https://infura.io));
 - An Ethereum wallet with some funds for gas (if you plan on creating requests through this node);
 
 ## Launching the IPFS node

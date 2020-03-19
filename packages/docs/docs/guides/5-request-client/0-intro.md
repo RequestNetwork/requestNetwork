@@ -43,7 +43,7 @@ const requestNetwork = new RequestNetwork({
 
 In order to follow this guide or test your integration, you should use `https://gateway-rinkeby.request.network`.
 
-For production, you have two options, [compared in the integrations section](../integration-options):
+For production, you have two options, [compared in the integrations section](../../others/integration-options):
 
 * If you want to host your own Request Node, [have a look at the next section](../6-hosting-a-node/0-intro)
 
