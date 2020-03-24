@@ -11,7 +11,7 @@ Get an outlook of the Request network in a matter of minutes with the API.
 
 :::info
 This is a very fast ramp to the Request network, using the Portal API, a centralized option.
-If you want to jump to the decentralized options, head towards the [Request Client section](5-request-client/0-intro).
+If you want to jump to the decentralized options, head towards the [Request Client section](./5-request-client/0-intro.md).
 :::
 
 ## Request identity and API Key
@@ -21,7 +21,7 @@ Head towards [the Request Portal dashboard](https://dashboard.request.network) a
 
 <img alt="Getthing the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
 
-More info about the Request Portal [in the next section](3-Portal-API/0-portal-intro).
+More info about the Request Portal [in the next section](./3-Portal-API/0-portal-intro.md).
 
 ## Create your first request
 
@@ -55,7 +55,7 @@ You can check that the request was created by heading towards [the list of reque
 
 By clicking on the request row, you can see the details.
 
-You can see that the status is Pending: the request has not been paid yet. We will deal with payment detection [later](3-Portal-API/2-payment-status).
+You can see that the status is Pending: the request has not been paid yet. We will deal with payment detection [later](./3-Portal-API/2-payment-status).
 
 ## Wrap-up
 

@@ -3,8 +3,6 @@ title: Bug bounty
 sidebar_label: Bug bounty
 ---
 
-import Hint from '../../../src/components/hint.js';
-
 The Bug Bounty currently targets the smart contracts listed below. The branch to audit is **master.**
 
 - Bytes.sol
@@ -17,11 +15,9 @@ The Bug Bounty currently targets the smart contracts listed below. The branch to
 
 The smart contracts can be found in [their dedicated package on Github](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contracts/src/contracts) and the [burner contract in the v1 repository](https://github.com/RequestNetwork/requestNetwork-v1-archive/blob/development/packages/requestNetworkSmartContracts/contracts/core/Burner.sol).
 
-<Hint style="info">
-
+:::info
 Critical vulnerabilities will be rewarded up to $20 000, while major bugs will be rewarded up to $15 000.
-
-</Hint>
+:::
 
 ### Rules & Rewards
 

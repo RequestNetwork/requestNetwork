@@ -1,8 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 
@@ -92,7 +90,7 @@ function IntegrationOption({ showDetails, imageUrl, title, description, details 
           </>
         )}
         {!showDetails && (
-          <Link to={"/docs/others/integration-options#" + title.toString().toLowerCase().split(" ").join("-")} >
+          <Link to={"/integration-options#" + title.toString().toLowerCase().split(" ").join("-")} >
             <h3>{title}</h3>
           </Link>
         )}

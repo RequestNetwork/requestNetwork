@@ -17,7 +17,7 @@ Request API is an abstraction over the Request Network for easy, but centralized
 * Faster response time
 * Notifications on new requests and received payments
 * Send requests to other API users based on their email, instead of their ETH address.
-* Easy to build applications on top of Request (see [here](./3-api-apps))
+* Easy to build applications on top of Request (see [here](./3-api-apps.md))
 * Easy choice between fully public data or encrypted data on the network 
 
 ## Cons

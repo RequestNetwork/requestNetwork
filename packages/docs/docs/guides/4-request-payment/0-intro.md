@@ -13,7 +13,7 @@ This section is useful if:
 * You plan to embed request payment features like a Pay button
 * You want to test the payment stage of requests you create
 
-The payment of a request depends on its [payment network](../5-request-client/1-payment-networks#types-of-payment-network): 
+The payment of a request depends on its [payment network](../5-request-client/1-payment-networks.md#types-of-payment-network): 
 
 - Address-based payment networks (available for BTC and ERC20) don't have any specific requirement: any payment sent to the specify address will be considered a payment of this request. Never re-use an address!
 - Input data payment networks (ETH only) simply requires you to specify the [Payment Reference](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-eth-input-data-0.2.0.md#description) in the data of the transaction.

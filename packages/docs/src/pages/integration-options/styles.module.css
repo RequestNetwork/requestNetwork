@@ -1,0 +1,9 @@
+h1 {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+.container {
+  max-width: 960px;
+  margin: 3rem auto 4rem;
+}
