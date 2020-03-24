@@ -18,7 +18,7 @@ What it means is that your request would be stored encrypted on the Network (Eth
 Although we technically have access to your request data, we will never use or share this data.
 We are planning to withdraw our own access to any encrypted data to provide end-to-end encryption with the API, while keeping the best possible experience for our builders.
 
-If end-to-end encryption is paramount for your usage, we recommend you use the [Request Client](../5-request-client/0-intro) instead of the Portal API.
+If end-to-end encryption is paramount for your usage, we recommend you use the [Request Client](../5-request-client/0-intro.md) instead of the Portal API.
 :::
 
 

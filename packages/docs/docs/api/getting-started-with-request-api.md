@@ -7,8 +7,6 @@ description: >-
   do not recommend production usage yet.
 ---
 
-import Hint from '../../src/components/hint.js';
-
 # Getting Started
 
 ## Getting Started with the Request API
@@ -17,16 +15,15 @@ The Request API is a REST API that enables you to create requests, list requests
 
 Our API accepts [JSON-encoded](http://www.json.org/) request bodies, returns [JSON-encoded](http://www.json.org/) responses, and uses standard HTTP response codes and Bearer authentication.‌‌
 
-Before using the API you must create an account [here](https://dashboard.request.network/signup), and retrieve your **test** API Key \(which will run on the Rinkeby Ethereum Test network\).‌‌ If you would like to verify your code on Ethereum Mainnet, you may use the **live** API Key.
+Before using the API you must create an account [here](https://dashboard.request.network/signup), and retrieve your **test** API Key \(which will run on the Rinkeby Ethereum Test network\). If you would like to verify your code on Ethereum Mainnet, you may use the **live** API Key.
 
-<Hint style="info">
-
-Please note, if you would like to run a completely decentralized version of the Request network you can [deploy your own node](../request-protocol/getting-started-1/deploy-a-request-node.md) and interact with the network using the [Request Client.](../request-protocol/getting-started-1/)​‌
-</Hint>
+:::note Please note
+If you would like to run a completely decentralized version of the Request network you can [deploy your own node](../guides/6-hosting-a-node/0-intro.md) and interact with the network using the [Request Client](../guides/5-request-client/0-intro.md)​‌.
+:::
 
 ## API Specs and Structure
 
-You can view the full API spec [here](https://api-docs.request.network/).‌‌
+You can view the full API spec [here](/portal).
 
 ### API Requests
 
@@ -64,7 +61,7 @@ The Request API uses conventional HTTP response codes to indicate the success or
 
 ## **Pagination** <a id="pagination"></a>
 
-When fetching multiple Requests you will need to utilize cursor-based pagination via the `skip` and `take` parameters. Both parameters take an integer value and return a list of Requests ordered by the Request ID. The `skip` parameter bypasses a specified number of search results. The `take` parameter specifies the number of search results to return. Both of these parameters are optional, the defaults can be found [here](https://api-docs.request.network/).‌
+When fetching multiple Requests you will need to utilize cursor-based pagination via the `skip` and `take` parameters. Both parameters take an integer value and return a list of Requests ordered by the Request ID. The `skip` parameter bypasses a specified number of search results. The `take` parameter specifies the number of search results to return. Both of these parameters are optional, the defaults can be found [here](/portal).‌
 
 As an example, if you wanted to retrieve the first 50 Requests, `skip` would equal 0, and the `take`value would be 50. If you then wanted to retrieve the subsequent 50 Requests `skip` would equal 50, and `take`would equal 50.‌
 
@@ -102,13 +99,10 @@ The `data` object contains a `requestId` field that you can use for other API ca
 
 ### Fetching an Invoice <a id="fetching-a-request"></a>
 
-<Hint style="warning">
-
-**Heads up!**
+:::warning Heads up!
 
 If you are an early adopter of this API, please note the temporary `_id` field has been removed and replaced with `requestId`, which is the actual identifier of the Request on the Network. Use this field to fetch a Request, like in the example below.
-
-</Hint>
+:::
 
 All invoices have a unique ID, with this ID you can retrieve all the details of an invoice that has previously been created. By supplying the ID that was returned when creating the invoice you can query the endpoint as seen below, the API will then return the corresponding invoice information.‌
 

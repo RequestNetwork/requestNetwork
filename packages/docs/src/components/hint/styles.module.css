@@ -1,0 +1,25 @@
+.hint {
+  width: 100%;
+  margin: 32px 0px;
+  display: block;
+  padding: 24px 24px calc(0.1px) 50px;
+  position: relative;
+  border-left: 4px solid;
+  border-radius: 3px;
+  color: #000000;
+  background-color: rgb(245, 247, 249);
+}
+
+.hint.hint-info {
+  border-color: rgb(56, 132, 255);
+}
+
+.hint.hint-warning {
+  border-color: rgb(247, 125, 5);
+}
+
+.hint .content {
+  color: inherit;
+  margin: 0px 0px 24px;
+  position: relative;
+}

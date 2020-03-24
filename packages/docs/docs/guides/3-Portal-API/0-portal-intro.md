@@ -16,14 +16,13 @@ Our API accepts JSON-encoded request bodies, returns JSON-encoded responses, and
 
 Aside the guide, you can also consult [the Portal API documentation](/portal).
 
-
 # Authentication
 
 All API endpoints are authenticated.
 Two mechanisms are currently allowed:
 
 - API Key, explained below, to be used for scripting and test purposes
-- OAuth, explained in the [Apps](./3-api-apps) section
+- OAuth, explained in the [Apps](./3-api-apps.md) section
 
 # Action
 
@@ -40,9 +39,7 @@ Once your account is created, you are able to:
 - Know your Request identity (cf. below)
 - Access your API keys, by clicking on your account and then Settings.
 
-
 <img alt="Getting the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
-
 
 You have two API keys, use the Test one to follow this guide.
 
@@ -51,9 +48,10 @@ You have two API keys, use the Test one to follow this guide.
 Senders and recipients of money transfer requests need a way to trust each other. The identity is how we certify the debtor about the authenticity of the request sender, limiting frauds like SCAM for example.
 With decentralized integration options (cf. [the Request client](/docs/guides/5-Request-client/0-intro), end users manage their private keys, but the Portal simplifies their life.
 
-This simplification should be applied with great care, we do not recommend using the Request Portal API for critical cases where a lot of money or public reputation is at stake. If you want full control over the security of your finance, you should handle your keys, and the same applies to your users. Have a look at [the integration options](/docs/others/integration-options) to take the best decision.
+This simplification should be applied with great care, we do not recommend using the Request Portal API for critical cases where a lot of money or public reputation is at stake. If you want full control over the security of your finance, you should handle your keys, and the same applies to your users. Have a look at [the integration options](/integration-options) to take the best decision.
 
 # Action
+
 ## How to list the requests associated to your identity
 
 Head to the Portal to create a first manual request, and use the snipet below to fetch requests associated to your identity
@@ -86,8 +84,7 @@ function RequestsList() {
         {requests.map(request => {
           return (
             <li key={request.requestId}>
-              {request.requestInput.expectedAmount}{" "}
-              {request.requestInput.currency}
+              {request.requestInput.expectedAmount} {request.requestInput.currency}
             </li>
           );
         })}
@@ -107,4 +104,4 @@ const result = await axios.get('https://api.request.network/requests/' + request
 
 The expected result should but a list of requests with amounts and currencies. Depending on your currency, some amounts seem too big. We will see later how to display amounts properly.
 
-As you can see, manipulating requests with the Portal API is very straight-forward. What you can notice is the use of ```request.requestInput.expectedAmount``` and ```request.requestInput.currency```. We will detail in the next page how to manipulate different details of the request. You can also have more details on the [API Docs](https://api-docs.request.network/#/default/get_requests).
+As you can see, manipulating requests with the Portal API is very straight-forward. What you can notice is the use of `request.requestInput.expectedAmount` and `request.requestInput.currency`. We will detail in the next page how to manipulate different details of the request. You can also have more details on the [API Docs](/portal/#/paths/~1requests~1{id}/get).

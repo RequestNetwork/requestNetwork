@@ -5,16 +5,12 @@ sidebar_label: Currencies
 description: How currencies are represented on the Request Network.
 ---
 
-import Hint from '../../../src/components/hint.js';
-
-<Hint style="warning">
-
+:::important
 An important note about currencies mentioned in this page:
 The currencies referenced here can be used for the creation of a request, but they are **not** necessarilly supported by the automated payment detection methods.
 
 Read more about payment detection [here](2-payment-detection/1-introduction).
-
-</Hint>
+:::
 
 ## Currencies in Request
 
@@ -37,11 +33,9 @@ There are two ways to declare a currency at the request-client library.
 
 The simple way to declare a currency is using the string representation of that currency.
 
-<Hint style="info">
-
+:::info
 For the entire list of supported string representations, check the list at the bottom of this page.
-
-</Hint>
+:::
 
 Here is an example of a request declaration with a REQ ERC20 token as currency:
 
