@@ -40,15 +40,15 @@ module.exports = {
           items: [
             {
               label: 'Portal API',
-              to: 'docs/guides/3-Portal-API/0-portal-intro',
+              to: 'portal',
             },
             {
               label: 'Request Client library',
-              to: 'docs/guides/5-request-client/0-intro',
+              to: 'docs/client/index',
             },
             {
-              label: 'Request Node',
-              to: 'docs/guides/6-hosting-a-node/0-intro',
+              label: 'Request Protocol',
+              to: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs',
             },
           ],
         },
@@ -57,7 +57,7 @@ module.exports = {
           items: [
             {
               label: 'RequestHub on Slack',
-              href: 'https://requesthub.slack.com',
+              href: 'https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE',
             },
             {
               label: 'GitHub',
@@ -83,7 +83,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Request Network Stiftung. Built with Docusaurus.`,
     },
   },
   themes: ['@docusaurus/theme-live-codeblock'],
