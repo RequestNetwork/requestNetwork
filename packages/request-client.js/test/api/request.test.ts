@@ -120,12 +120,27 @@ describe('api/request', () => {
   it('exists', async () => {
     assert.exists(Request);
 
-    const requestNetwork = new Request(mockRequestLogic, '1');
-    assert.isFunction(requestNetwork.accept);
-    assert.isFunction(requestNetwork.cancel);
-    assert.isFunction(requestNetwork.increaseExpectedAmountRequest);
-    assert.isFunction(requestNetwork.reduceExpectedAmountRequest);
-    assert.isFunction(requestNetwork.getData);
+    const request = new Request(mockRequestLogic, '1');
+    assert.isFunction(request.accept);
+    assert.isFunction(request.cancel);
+    assert.isFunction(request.increaseExpectedAmountRequest);
+    assert.isFunction(request.reduceExpectedAmountRequest);
+    assert.isFunction(request.getData);
+  });
+
+  it('emits error at the creation', async () => {
+    const testingEmitter = new EventEmitter();
+    const request = new Request(mockRequestLogic, '1', undefined, undefined, testingEmitter as any);
+
+    // tslint:disable-next-line:typedef
+    const handleError = chai.spy((error: any) => {
+      assert(error, 'error for test purpose');
+    });
+    request.on('error', handleError);
+
+    testingEmitter.emit('error', 'error for test purpose');
+
+    expect(handleError, 'error must be emitted').to.have.called();
   });
 
   describe('accept', () => {

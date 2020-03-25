@@ -442,6 +442,32 @@ describe('index', () => {
     expect(dataConfirmed.pending).to.null;
   });
 
+  it('creates a request with error event', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const request = await requestNetwork.createRequest({
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+
+    const data = request.getData();
+    expect(data).to.exist;
+    expect(data.balance).to.null;
+    expect(data.meta).to.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+
+    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
+      request.on('confirmed', resolve),
+    );
+    expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(dataConfirmed.pending).to.null;
+  });
+
   it('works with mocked storage and mocked payment network', async () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider: fakeSignatureProvider,
