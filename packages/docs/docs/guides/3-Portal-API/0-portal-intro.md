@@ -104,4 +104,4 @@ const result = await axios.get('https://api.request.network/requests/' + request
 
 The expected result should but a list of requests with amounts and currencies. Depending on your currency, some amounts seem too big. We will see later how to display amounts properly.
 
-As you can see, manipulating requests with the Portal API is very straight-forward. What you can notice is the use of `request.requestInput.expectedAmount` and `request.requestInput.currency`. We will detail in the next page how to manipulate different details of the request. You can also have more details on the [API Docs](/portal/#/paths/~1requests~1{id}/get).
+As you can see, manipulating requests with the Portal API is very straight-forward. What you can notice is the use of `request.requestInput.expectedAmount` and `request.requestInput.currency`. We will detail in the next page how to manipulate different details of the request. You can also have more details on the [Portal API Docs](/portal).

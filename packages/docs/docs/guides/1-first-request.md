@@ -55,11 +55,11 @@ You can check that the request was created by heading towards [the list of reque
 
 By clicking on the request row, you can see the details.
 
-You can see that the status is Pending: the request has not been paid yet. We will deal with payment detection [later](./3-Portal-API/2-payment-status).
+You can see that the status is Pending: the request has not been paid yet. We will deal with payment detection [later](./3-Portal-API/2-payment-status.md).
 
 ## Wrap-up
 
-The request created is the proof that some money has been requested by an entity, and its pending status the proof that the money is still due.
+The request created is the proof that some money has been requested by a person or company, and its pending status the proof that the money is still due.
 
 In the next sections, you will also see how to transform such a basic creation into seamless financial workflows:
 

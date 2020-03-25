@@ -44,6 +44,6 @@ An easy way to get going with Ethereum Mainnet or Rinkeby is to use services lik
 
 ### IPFS node
 
-Request uses a dedicated IPFS network to store our data. This means that you will need an IPFS node configured to connect to our network. You can check [this page](../7-protocol/1-request-ipfs-network.md) if you want more details on our dedicated network.
+Request uses a dedicated IPFS network to store our data. This means that you will need an IPFS node configured to connect to our network. You can check [this page](../7-protocol/6-request-ipfs-network.md) if you want more details on our dedicated network.
 
 The good news is it's easy to set up our IPFS node and we will show it to you on our next steps.

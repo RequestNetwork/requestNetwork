@@ -17,7 +17,7 @@ module.exports = {
       links: [
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'integration-options', label: 'Integration', position: 'left' },
-        { to: 'docs/client/index', label: 'Request-client.js API', position: 'left' },
+        { to: 'docs/client/index', label: 'Request-client.js', position: 'left' },
         { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
           href:
