@@ -176,24 +176,28 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     });
 
     // Store the data to the real storage
-    resultAppend.on('confirmed', (resultAppendConfirmed: StorageTypes.IAppendResult) => {
-      // update the timestamp with the confirmed one
-      this.transactionIndex.updateTimestamp(
-        resultAppendConfirmed.id,
-        resultAppendConfirmed.meta.timestamp,
-      );
+    resultAppend
+      .on('confirmed', (resultAppendConfirmed: StorageTypes.IAppendResult) => {
+        // update the timestamp with the confirmed one
+        this.transactionIndex.updateTimestamp(
+          resultAppendConfirmed.id,
+          resultAppendConfirmed.meta.timestamp,
+        );
 
-      const resultAfterConfirmation = {
-        meta: {
-          storageMeta: resultAppendConfirmed.meta,
-          topics,
-          transactionStorageLocation: resultAppendConfirmed.id,
-        },
-        result: {},
-      };
+        const resultAfterConfirmation = {
+          meta: {
+            storageMeta: resultAppendConfirmed.meta,
+            topics,
+            transactionStorageLocation: resultAppendConfirmed.id,
+          },
+          result: {},
+        };
 
-      result.emit('confirmed', resultAfterConfirmation);
-    });
+        result.emit('confirmed', resultAfterConfirmation);
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     // adds this transaction to the index, to enable retrieving it later.
     await this.transactionIndex.addTransaction(
