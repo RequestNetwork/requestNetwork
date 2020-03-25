@@ -1,6 +1,7 @@
 ---
 title: Data-access
 keywords: [Request protocol, Data-access]
+description: Learn how to integrate Request network and its features.
 
 ---
 

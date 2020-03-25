@@ -2,6 +2,7 @@
 title: How payment networks work
 sidebar_label: Payment networks
 keywords: [Request Client, Payment networks]
+description: Learn how to integrate Request network and its features.
 
 ---
 

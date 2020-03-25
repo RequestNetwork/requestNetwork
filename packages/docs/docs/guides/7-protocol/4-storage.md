@@ -1,6 +1,7 @@
 ---
 title: Storage
 keywords: [Request protocol, Storage, IPFS, Ethereum]
+description: Learn how to integrate Request network and its features.
 
 ---
 

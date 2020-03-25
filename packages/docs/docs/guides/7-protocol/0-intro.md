@@ -1,6 +1,7 @@
 ---
 title: Introduction to the Request Protocol
 keywords: [Request protocol, IPFS, Ethereum]
+description: Learn how to integrate Request network and its features.
 
 ---
 

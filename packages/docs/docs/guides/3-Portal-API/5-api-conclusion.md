@@ -2,10 +2,7 @@
 title: Request through the REST API - wrap-up
 sidebar_label: REST API wrap-up
 keywords:
-
-description: >-
-  This API Is currently in Beta, its specification may change in the future. We
-  do not recommend production usage yet.
+description: Learn how to integrate Request network and its features.
 ---
 
 

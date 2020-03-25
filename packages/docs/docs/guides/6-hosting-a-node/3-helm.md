@@ -1,6 +1,7 @@
 ---
 title: Deploying a node in Kubernetes with Helm
 keywords: [Request node, helm, kubernetes]
+description: Learn how to integrate Request network and its features.
 ---
 
 Deploying a Request Node on Kubernetes is straightforward using our [helm](https://helm.sh/) chart.

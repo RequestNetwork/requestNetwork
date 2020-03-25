@@ -1,6 +1,7 @@
 ---
 title: Handling encryption with the JS library
 keywords: [Request, new currency, test network, missing currency, testnet]
+description: Learn how to integrate Request network and its features.
 ---
 
 | WARNING: The Request encryption mechanism is still under audit, use it at your own risk! |

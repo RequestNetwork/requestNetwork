@@ -2,6 +2,7 @@
 title: Encryption with the API
 sidebar_label: Encryption with the API
 keywords: [Request, encryption, API]
+description: Learn how to integrate Request network and its features.
 
 ---
 

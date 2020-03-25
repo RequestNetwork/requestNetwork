@@ -1,6 +1,7 @@
 ---
 title: Transaction
 keywords: [Request protocol, Transaction, Encryption]
+description: Learn how to integrate Request network and its features.
 
 ---
 

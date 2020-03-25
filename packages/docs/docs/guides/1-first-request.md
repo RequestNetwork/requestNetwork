@@ -2,6 +2,7 @@
 title: Create your first Request
 sidebar_label: First request creation
 keywords: [Request creation, API]
+description: Learn how to integrate Request network and its features.
 
 ---
 

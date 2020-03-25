@@ -2,6 +2,7 @@
 title: Portal Introduction
 sidebar_label: Portal Introduction
 keywords: [Request, REST, API, Tutorial, Portal]
+description: Learn how to integrate Request network and its features.
 
 ---
 

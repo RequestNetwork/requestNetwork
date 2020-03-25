@@ -1,6 +1,7 @@
 ---
 title: Running from the code repository
 keywords: [Request node, test, ganache, local node]
+description: Learn how to integrate Request network and its features.
 ---
 
 If you can't use Docker or you want to run your node locally, from the source code, you can follow the steps in this document.

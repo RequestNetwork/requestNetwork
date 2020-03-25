@@ -3,6 +3,10 @@ table td {
   border: none;
 }
 
+p, li, td, h5 {
+  color: var(--ifm-font-base-color);
+}
+
 h3 {
   font-size: 17px;
   margin: 17px 0;

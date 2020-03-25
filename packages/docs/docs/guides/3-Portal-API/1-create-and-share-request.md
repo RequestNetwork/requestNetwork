@@ -1,6 +1,7 @@
 ---
 title: Request API - Let's play
 keywords: [ERC20, DAI, Request, Portal, API]
+description: Learn how to integrate Request network and its features.
 
 ---
 

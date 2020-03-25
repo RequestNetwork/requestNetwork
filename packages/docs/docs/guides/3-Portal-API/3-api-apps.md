@@ -1,6 +1,7 @@
 ---
 title: API Apps
 keywords: [Request, Apps, API]
+description: Learn how to integrate Request network and its features.
 
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';

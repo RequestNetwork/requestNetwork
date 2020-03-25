@@ -1,6 +1,7 @@
 ---
 title: Running a node with Docker
 keywords: [Request node, setup, docker]
+description: Learn how to integrate Request network and its features.
 ---
 
 Running a Request Node with Docker is easy. There are only a few requirements:

@@ -1,6 +1,6 @@
 ---
 title: Glossary
-keywords:
+description: Learn how to integrate Request network and its features.
 ---
 
 # Ecosystem

@@ -2,6 +2,7 @@
 title: Request Network Client introduction
 sidebar_label: Introduction
 keywords: [Request Network Client, JS Library]
+description: Learn how to integrate Request network and its features.
 
 ---
 

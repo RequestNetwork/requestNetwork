@@ -1,6 +1,7 @@
 ---
 title: Pay a request
 keywords: [Request payment library]
+description: Learn how to integrate Request network and its features.
 
 ---
 

@@ -1,6 +1,7 @@
 ---
 title: Request Logic
 keywords: [Request protocol, Request Logic, Extension, Advanced Logic, Signature]
+description: Learn how to integrate Request network and its features.
 
 ---
 
