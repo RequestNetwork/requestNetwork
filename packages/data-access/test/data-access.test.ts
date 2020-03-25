@@ -21,7 +21,6 @@ import DataAccess from '../src/data-access';
 const flushCallStack = (): Promise<any> => {
   return new Promise(
     (resolve): any => {
-      console.log('flushCallStack');
       setTimeout(resolve, 0);
       clock.tick(1);
     },
@@ -144,9 +143,9 @@ describe.only('data-access', () => {
     clock = sinon.useFakeTimers();
   });
 
-  afterEach(async () => {
-    sinon.restore();
-  });
+  // afterEach(async () => {
+  //   sinon.restore();
+  // });
 
   describe('constructor', () => {
     it('cannot initialize with getData without result', async () => {
