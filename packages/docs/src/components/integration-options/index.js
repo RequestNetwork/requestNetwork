@@ -65,7 +65,7 @@ const options = [
           You decide of how requests hashes are pushed to Ethereum and how to store and access details (encrypted or not).
         </p>
         <p>
-          <Link to="docs/guides/6-hosting-a-node/0-intro.md">Follow the guide to setup your node</Link>.
+          <Link to="docs/guides/6-hosting-a-node/0-intro">Follow the guide to setup your node</Link>.
         </p>
         <p>
           You query the node with the same <Link to="https://www.npmjs.com/package/@requestnetwork/request-network.js">Network Client</Link>. For your test environment, you can setup a Rinkeby node or a connection with our hosted Rinkeby node (cf. Option B).
