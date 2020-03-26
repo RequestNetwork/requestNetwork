@@ -1,5 +1,5 @@
 /**
- * # Creating an ER20 request
+ * # Creating an ERC20 request
  *
  * This is an example of creating a request using an erc20 payment network
  * The request will be stored in memory and cleared as soon as the script is finished running.

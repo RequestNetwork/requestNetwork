@@ -4,8 +4,8 @@ module.exports = {
   url: 'https://docs.request.network',
   baseUrl: '/',
   favicon: 'img/cropped-favicon-32x32.png',
-  organizationName: 'requestNetwork', // Usually your GitHub org/user name.
-  projectName: 'documentation', // Usually your repo name.
+  organizationName: 'requestNetwork',
+  projectName: 'requestNetwork/packages/docs',
   plugins: ['axios'],
   themeConfig: {
     navbar: {
@@ -48,7 +48,8 @@ module.exports = {
             },
             {
               label: 'Request Protocol',
-              to: 'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs',
+              to:
+                'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs',
             },
           ],
         },
@@ -57,7 +58,8 @@ module.exports = {
           items: [
             {
               label: 'RequestHub on Slack',
-              href: 'https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE',
+              href:
+                'https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE',
             },
             {
               label: 'GitHub',
