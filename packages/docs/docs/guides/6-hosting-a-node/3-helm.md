@@ -10,7 +10,7 @@ You can see our chart in our [git repository](https://github.com/RequestNetwork/
 
 ## Adding the chart
 
-We host our chart on our helm repo, since we upgrade it frequently.
+We host our chart on our helm repository, since we upgrade it frequently.
 To add our chart you can run:
 
 ```bash

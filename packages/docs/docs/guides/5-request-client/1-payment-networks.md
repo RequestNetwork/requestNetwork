@@ -24,9 +24,9 @@ There are currently three types of payment network.
 For this payment network, a request contains one payment address.
 The balance of the request is computed by reading all the inbound transfers to the payment address. To pay the request, the payer has to perform a normal transfer to the payment address.
 Outbound transfers are not taken into consideration to compute the request's balance.
-The address must be created exclusively for the request since every inbound transfer to the addresses are considered as payments. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC even though the payee hasn't received any fund from the payer.
+The address must be created exclusively for the request since every inbound transfer to the addresses are considered as payments. For example, if a Bitcoin request is created with a payment address that has already received 1 BTC, the request balance will be 1 BTC even though the payee hasn't received any funds from the payer.
 
-Similar to the payment address, in this payment network we can set a refund address that follows the same rules (it also need to be exclusive to the request). The final balance of the request will be substraced by the inbound transfers to the refund address.
+Similar to the payment address, in this payment network, we can set a refund address that follows the same rules (it also needs to be exclusive to the request). The final balance of the request will be substracted by the inbound transfers to the refund address.
 
 ### Reference based
 
@@ -37,7 +37,7 @@ There can be different ways to document the reference through the transfer. We c
 * Through input data
 * Through a proxy smart contract
 
-Similar to the payment address, in this payment network we can set a refund address that follows the same rules. The reference will be specific for the refunds.
+Similar to the payment address, in this payment network, we can set a refund address that follows the same rules. The reference will be specific for the refunds.
 
 #### Input data:
 
@@ -52,7 +52,7 @@ The currency must be backed by a blockchain with smart contract capabilities.
 
 ### Declarative
 
-For this payment network, the request doesn't require any additional data. The request's stakeholders declare sending and receiving payments and refunds manually. Optionnally, the creator of the request can specify information to describe how the payment should occur, but this data will not be used to detect the payment. 
+For this payment network, the request doesn't require any additional data. The request's stakeholders declare sending and receiving payments and refunds manually. Optionally, the creator of the request can specify the information to describe how the payment should occur, but this data will not be used to detect the payment. 
 The payee declares the received payments and the payer declares the received refunds. The balance of the request is the sum of declared payments minus the sum of declared refunds.
 The payee can also declare the sent refunds and the payer the sent payments. These declarations are used only for documentation purposes and aren't taken into consideration to compute the request balance.
 
@@ -72,7 +72,7 @@ This payment network is sufficient for Bitcoin requests because generating a new
 
 ### Ether
 
-Because one Ethereum address is generally used many times to receive and send transactions, we need a way to identify payments for a specific request without having to create a new address. Therefore, we use a reference based payment network for ether requests.
+Because one Ethereum address is generally used many times to receive and send transactions, we need a way to identify payments for a specific request without having to create a new address. Therefore, we use a reference-based payment network for ether requests.
 *Input data* and *proxy contract* methods can be used to reference the ether transfer. 
 
 ### ERC20

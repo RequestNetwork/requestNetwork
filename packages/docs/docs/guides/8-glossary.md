@@ -7,7 +7,7 @@ description: Learn how to integrate Request network and its features.
 
 ## Request Portal API
 
-Request Portal is an API built on top of the Request Protocol that allows third party software to easily integrate Request. It also provide extra features, not available through direct usage of the Request Protocol, like private key management, OAuth authentication, and better performance.
+Request Portal is an API built on top of the Request Protocol that allows third party software to easily integrate Request. It also provides extra features, not available through direct usage of the Request Protocol, like private key management, OAuth authentication, and better performance.
 
 ## Request Client
 
@@ -19,7 +19,7 @@ Request Nodes are HTTP servers exposing an API used to allow Request Client to c
 
 ## Request Protocol
 
-The Request Protocol is the underlying protocol that powers Request. It defines how requests are stored on a distributed ledger and how to interprete actions performed on them.
+The Request Protocol is the underlying protocol that powers Request. It defines how requests are stored on a distributed ledger and how to interpret actions performed on them.
 
 # Request Protocol
 
@@ -37,11 +37,11 @@ A request with no payment network provided doesn't have a balance.
 
 Request relies on other blockchain technologies to ensure data immutability. Most blockchain doesn't offer transaction instant finality. This means that when performing an action on the request, this action can't directly be confirmed as effective.
 
-As long as the action hasn't been persisted and is not confirmed, the action is marked as "pending". The "pending" state is useful to have a fast response, and good user experience. Until the request is Confirmed, it should not be relied upon.
+As long as the action hasn't been persisted and is not confirmed, the action is marked as "pending". The "pending" state is useful to have a fast response and good user experience. Until the request is Confirmed, it should not be relied upon.
 
 ## Decryption provider
 
-A decryption provider is an abstraction of the mechanism that handles decryption of a request. Depending on use cases, it allows you to give your user full control, or handle some parts for them. 
+A decryption provider is an abstraction of the mechanism that handles the decryption of a request. Depending on use cases, it allows you to give your user full control, or handle some parts for them.
 
 It is not used for clear requests.
 
@@ -73,11 +73,11 @@ The request Id is the number that uniquely identifies a request. This number is 
 
 ## Signature Provider
 
-A signature provider is an abstraction of the identity management and action signatures. Depending on use cases, it allows you to give your user full control, or handle some parts for them. 
+A signature provider is an abstraction of identity management and action signatures. Depending on use cases, it allows you to give your user full control, or handle some parts for them.
 
 ## Stakeholder
 
-A request stakeholder is a party involved with the request. Stakeholders are generally the payer and the payee of the request , or any other third-party allowed to perform actions on it. For encrypted requests, stakeholders are any party that has an interest reading the request content.
+A request stakeholder is a party involved with the request. Stakeholders are generally the payer and the payee of the request, or any other third-party allowed to perform actions on it. For encrypted requests, stakeholders are any party that has an interest in reading the request content.
 
 ## Topic
 
@@ -89,7 +89,7 @@ Every request has its request id and its payee identity as topics (and the payer
 
 ## Confirmation
 
-Confirmation means that the blockchain transaction has been verified by the network. This happens through a process known as mining, in a proof-of-work system (e.g. Bitcoin). Once a transaction is confirmed, it cannot be reversed. 
+Confirmation means that the blockchain transaction has been verified by the network. This happens through a process known as mining, in a proof-of-work system (e.g. Bitcoin). Once a transaction is confirmed, it cannot be reversed.
 
 ## Ether
 
@@ -103,7 +103,7 @@ IPFS is used by the Request Protocol to ensure data accessibility.
 
 ## Multi-signature
 
-Multi-signature (multisig) wallets allow multiple parties to require more than one key to authorize a transaction. The needed number of signatures is agreed at the creation of the wallet. Multi-signature addresses have a much greater resistance to theft.
+Multi-signature (multisig) wallets allow multiple parties to require more than one key to authorize a transaction. The needed number of signatures is agreed upon at the creation of the wallet. Multi-signature addresses have a much greater resistance to theft.
 
 ## Private Key
 

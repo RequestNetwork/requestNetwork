@@ -36,7 +36,7 @@ The environment variables passed to the script are:
 - **IPFS_HOST** is the URL of your IPFS node. Here we use the Docker host URL.
 
 That's it! Now your Node should be running and syncing to the network.
-Give it some minutes to finish synchronising and its API will be available on `http://localhost:3000`.
+Give it some minutes to finish synchronizing and its API will be available on `http://localhost:3000`.
 
 If you want to know more about the available options you can pass to the node, you can [check them here](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node#options).
 

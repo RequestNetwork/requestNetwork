@@ -10,7 +10,7 @@ This layer is responsible for the business logic of Request. This is where we de
 This layer has three responsibilities:
 
 - It defines the properties of the requests and the actions performed to them.
-- It's responsible of the signature of the actions performed to ensure the request stakeholder identities.
+- It's responsible for the signature of the actions performed to ensure the request stakeholder identities.
 - It manages extensions that can be created to extend the features of the Request Protocol through the Advanced Logic package.
 
 [https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic)
@@ -30,7 +30,7 @@ Given the list of these actions, we can interpret the state of the request `0xaa
 
 Note that the request Id is determined by the hash of the `create` action. Therefore, this action doesn't specify the request Id since it doesn't exist yet. The update actions (`accept` and `increaseExpectedAmount`) specify the request Id in their data.
 
-There are two kind of action:
+There are two kinds of action:
 
 - Create: This action is not related to an existing request, it will create a new one
 - Update: All other actions, it will update the state of an existing request
@@ -56,7 +56,7 @@ Simplicity is one of the most important characteristics we want to achieve in th
 
 Advanced Logic is a package that allows the user to define extensions that can be added to the request. An extension is an isolated context inside the request that contains his own actions and his own state. For example, the extension `content-data` allows the user to add any metadata to a request (e.g. the additional data needed for an invoice). The Advanced Logic layer is also where the payment networks allowing payment detection are implemented.
 
-Similar to Request Logic, a specific extension can define different actions related to it. There is the create action of the extension and eventually different update actions. The extension is initialized at the same time as the request and any action of the Request Logic can add extension data. There is a specific action, `AddExtensionData`, in Request Logic, only intended to add extension data to the request with no other side-effect.
+Similar to Request Logic, a specific extension can define different actions related to it. There is the Create action of the extension and eventually different update actions. The extension is initialized at the same time as the request and any action of the Request Logic can add extension data. There is a specific action, `AddExtensionData`, in Request Logic, only intended to add extension data to the request with no other side-effect.
 
 ![](/img/RequestProtocol/2-AdvancedRequestPresentation.jpg)
 *Example of a request with extension data: the payee creates a request with content data and declarative payment information, the payer accepts the request and declares a sent payment in the same time, finally, the payee declares the received payment*

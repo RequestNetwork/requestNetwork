@@ -22,8 +22,8 @@
 }
 
 .admonition.admonition-info a {
-  /* TODO */
-  color: black;
+  color: white;
+  mix-blend-mode: difference;
 }
 
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');

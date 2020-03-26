@@ -60,7 +60,7 @@ You can see that the status is Pending: the request has not been paid yet. We wi
 
 ## Wrap-up
 
-The request created is the proof that some money has been requested by a person or company, and its pending status the proof that the money is still due.
+The request created is proof that some money has been requested by a person or company, and its pending status the proof that the money is still due.
 
 In the next sections, you will also see how to transform such a basic creation into seamless financial workflows:
 

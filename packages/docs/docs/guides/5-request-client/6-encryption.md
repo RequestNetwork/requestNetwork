@@ -8,11 +8,11 @@ description: Learn how to integrate Request network and its features.
 | ---------------------------------------------------------------------------------------- |
 
 
-| WARNING: Manipulate private keys must be done with care, losing them can lead to a lost of data and privacy! |
+| WARNING: Manipulate private keys must be done with care, losing them can lead to a loss of data and privacy! |
 | ------------------------------------------------------------------------------------------------------------ |
 
 
-A request can be encrypted in order to make its details private to selected stakeholders. In this guide, we won't explain how encryption is managed under the hood. We will mention encryption or decryption of requests with payers' and payee's keys, where in the reality we use an intermediate symetric key. See more details on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md)
+A request can be encrypted in order to make its details private to selected stakeholders. In this guide, we won't explain how encryption is managed under the hood. We will mention encryption or decryption of requests with payers' and payee's keys, wherein the reality we use an intermediate symmetric key. See more details on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md)
 
 The encryption is managed by the transaction layer, see more details on [the Request Protocol section](../7-protocol/2-transaction.md).
 
@@ -67,13 +67,13 @@ const invoice = await requestNetwork._createEncryptedRequest(
 );
 ```
 
-Note: You must give at least one encryption key you can decrypt with the decryption provider. Otherwise an error will be triggered after the creation.
+Note: You must give at least one encryption key you can decrypt with the decryption provider. Otherwise, an error will be triggered after the creation.
 
 ## Get invoice information from its request ID
 
 Let's step back for a second: the requester sent a request that he encrypted with the payer's public key, as well as with his own, in order to retrieve it later. This is a basic and typical example, but a request can be encrypted with many keys, in order to give access to its status and details.
 
-If the decription provider knows a private key matching one of the keys used at the creation, it can decrypt it. Like a clear request you will be able to get it from its request id a request.
+If the decryption provider knows a private key matching one of the keys used at the creation, it can decrypt it. Like a clear request you will be able to get it from its request id a request.
 
 ```typescript
 const invoiceFromRequestID = await requestNetwork.fromRequestId(requestId);
@@ -100,9 +100,9 @@ console.log(requestData);
 } */
 ```
 
-## Accepting / cancelling an invoice information
+## Accepting/cancelling an invoice information
 
-Like a clear request, you will be able to update it if the decryption provider is instanciated with a matching private key.
+Like a clear request, you will be able to update it if the decryption provider is instantiated with a matching private key.
 
 ```typescript
 //Accept

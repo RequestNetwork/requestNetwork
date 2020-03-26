@@ -5,9 +5,9 @@ description: Learn how to integrate Request network and its features.
 
 ---
 
-Request is an open and unique database for payment requests including invoices or individual payment requests. It is aimed to be universal and to power products used by different companies from startups to large organizations, from the private to public sector.
+Request is an open and unique database for payment requests including invoices or individual payment requests. It is aimed to be universal and to power products used by different companies from startups to large organizations, from the private to the public sector.
 
-The Request Protocol is the core of Request. It's the bottom layer that defines and handles the data of a request and persist them to a distributed ledger to make Request open, trustless, secure and resilient.
+The Request Protocol is the core of Request. It's the bottom layer that defines and handles the data of a request and persists them to a distributed ledger to make Request open, trustless, secure and resilient.
 
 This section is aimed at helping you understand how the protocol is structured, how it works and how it meets its requirements. It is particularly useful if you want to propose changes or implement it yourself.
 

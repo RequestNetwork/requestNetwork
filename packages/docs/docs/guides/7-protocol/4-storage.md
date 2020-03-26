@@ -25,8 +25,8 @@ One of the advantages of IPFS as a storage solution is that it is content addres
 
 ### Ethereum
 
-We use Ethereum to store IPFS hashes. The hashes are stored as event logs of a specific smart contract to stay with a minimal cost.
+We use Ethereum to store IPFS hashes. The hashes are stored as event logs of a specific smart contract to stay at a minimal cost.
 
 The Ethereum smart contracts are also used to enforce the fee cost of storing a block to Request. The user will store the size of the file being stored in addition to the hash. A fee, related to this hash, will be paid in Ether when storing the hash.
 
-For our solution, we use additional smart contracts for the fee verification. Using external smart contracts allows us to implement different fee rules in the future. More information, can be found in the ethereum-storage repository.
+For our solution, we use additional smart contracts for fee verification. Using external smart contracts allows us to implement different fee rules in the future. More information can be found in the ethereum-storage repository.

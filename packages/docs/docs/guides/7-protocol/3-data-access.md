@@ -11,7 +11,7 @@ Data-Access is the layer that organizes the data in the right format before havi
 
 ### Blocks
 
-Heavy communication with the Storage layer can be costly. For example, for solution using Ethereum, every Ethereum transactions cost some gas.
+Heavy communication with the Storage layer can be costly. For example, for a solution using Ethereum, every Ethereum transactions cost some gas.
 
 Data-Access layer will gather transactions and batch them into blocks. This solution allows for less communication with the Storage layer. In this case, it will allow consuming less gas for Ethereum transactions.
 

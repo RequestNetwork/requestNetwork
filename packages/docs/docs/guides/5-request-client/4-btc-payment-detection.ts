@@ -25,7 +25,7 @@ import * as RequestNetwork from '@requestnetwork/request-client.js';
  * ### Identity
  *
  * To create a request we need to declare the identities of the parties involved.
- * Identities are the unique identifier of a request user. They are generally different from payment addresses, but can be the same. They identify an entity like a person or business.
+ * Identities are the unique identifier of a request user. They are generally different from payment addresses but can be the same. They identify an entity like a person or business.
  */
 
 // Here we declare the payee identity, with the payee identity ethereum address
@@ -44,7 +44,7 @@ const payerIdentity = {
  * ### Signature Provider
  *
  * The Ethereum private key signature provider allows a user to pass in their private Ethereum key to sign a request. The signer is either the payee or the payer.
- * The signature is a proof of who created the request and of it's integrity (that no data changed after it was signed).
+ * The signature is proof of who created the request and of its integrity (that no data changed after it was signed).
  * This process is similar to the signature of an Ethereum transaction.
  */
 

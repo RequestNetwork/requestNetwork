@@ -7,11 +7,11 @@ description: Learn how to integrate Request network and its features.
 
 ## Create a request in DAI
 
-On this page you will learn to create requests in DAI or in any ERC20, whose payment will be automatically detected. 
+On this page, you will learn to create requests in DAI or in any ERC20, whose payment will be automatically detected. 
 
-DAI is one of the most frequently used currency on the Request network. As the most popular stablecoin, it allows merchants and e-commerce software builders to propose blockchain-powered payments, finance and accounting, without having to deal with the change risks.
+DAI is one of the most frequently used currencies on the Request network. As the most popular stablecoin, it allows merchants and e-commerce software builders to propose blockchain-powered payments, finance, and accounting, without having to deal with the change risks.
 
-The Portal can detect payments of requests in ETH, BTC and ERC20. After the example below, you will understand that smart invoices can open many use cases and that reconciliation processes between bank statements and accounting is already outdated.
+The Portal can detect payments of requests in ETH, BTC, and ERC20. After the example below, you will understand that smart invoices can open many use cases and that reconciliation processes between bank statements and accounting is already outdated.
 
 ### Prerequisites
 
@@ -101,7 +101,7 @@ You can check the request status and details in the [dashboard](https://dashboar
 
 Once a user has created a request, you need to support him alerting the payer.
 
-A first way is to let the user share a payment URL with the payer. From a UX point of view, it forces him to switch context, but mobile apps often propose this solution. Keep in mind that for the recipient, it looks more secure to click on a link directly sent by a contact of him. The best payment page so far is the one we have made, check it out! You can find the link in front of each request in your dashboard. The URL is `https://pay.request.network/{requestId}`
+The first way is to let the user share a payment URL with the payer. From a UX point of view, it forces him to switch context, but mobile apps often propose this solution. Keep in mind that for the recipient, it looks more secure to click on a link directly sent by a known contact. The best payment page so far is the one we have made, check it out! You can find the link in front of each request on your dashboard. The URL is `https://pay.request.network/{requestId}`
 
 Another way is to handle the notification in your backend, either within your app (if the payer also uses it) or with an e-mail for example. For app-embedded payment requests, it is **strongly advised** to provide the payer with a white-list feature, and to prevent him from clicking on requests sent by strangers.
 

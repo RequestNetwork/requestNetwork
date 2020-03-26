@@ -51,4 +51,4 @@ const BN = require('bn.js')
 })(); 
 ```
 
-If the Request is unpaid, it might be useful to use the metadata field called ‘state’ - the state will return the current payment status of the request, either ‘created’, ‘accepted’, ‘pending’ or ‘cancelled’.
+If the Request is unpaid, it might be useful to use the metadata field called ‘state’ - the state will return the current payment status of the request, either ‘created’, ‘accepted’, ‘pending’ or ‘canceled’.

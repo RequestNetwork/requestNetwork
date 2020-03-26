@@ -5,11 +5,11 @@ description: Learn how to integrate Request network and its features.
 
 ---
 
-This page presents flow of data that occurs when some actions are performed in the protocol.
+This page presents the flow of data that occurs when some actions are performed in the protocol.
 
 ## Creating and updating requests
 
-The next schemas show the data flow that happen when a user perform an `accept` action on a request.
+The next schemas show the data flow that happens when a user performs an `accept` action on a request.
 
 ### Request Logic
 
@@ -45,9 +45,9 @@ In this case the user call this function of Request Logic: `getRequestFromId(0xa
 
 ### Storage
 
-There is permanent data flow between Data Access and Storage layers.
+There is a permanent data flow between Data Access and Storage layers.
 
-For performance purpose, Data Access will periodically synchronize with the current state of Storage. When a new, not synchronized, block is detected, the block content will be dispatched into the Data Access cache.
+For performance purposes, Data Access will periodically synchronize with the current state of Storage. When a new, not synchronized block is detected, the block content will be dispatched into the Data Access cache.
 
 ![](/img/RequestProtocol/4-DataAccessAndStorageFlow.jpg)
 *Flow for Data Access synchronization*
@@ -65,7 +65,7 @@ For performance purpose, Data Access will periodically synchronize with the curr
 ### Request Logic
 
 ![](/img/RequestProtocol/4-RequestLogicFlow.jpg)
-*Request Logic flow. Request Logic will compute the state of the request based on the list of actions. In this case the increaseExpectedAmount action has been signed by the payer*
+*Request Logic flow. Request Logic will compute the state of the request based on the list of actions. In this case, the increaseExpectedAmount action has been signed by the payer*
 
 Some actions from the Transaction layer can be invalid, this is the role of Request Logic to filter them in order to give the consistent state of the request to the user.
 

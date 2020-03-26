@@ -15,7 +15,7 @@ Request Portal simplifies the use of the Request protocol, abstracting all the b
 
 Our API accepts JSON-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes and Bearer authentication.
 
-Aside the guide, you can also consult [the Portal API documentation](/portal).
+Aside from the guide, you can also consult [the Portal API documentation](/portal).
 
 # Authentication
 
@@ -53,9 +53,9 @@ This simplification should be applied with great care, we do not recommend using
 
 # Action
 
-## How to list the requests associated to your identity
+## How to list the requests associated with your identity
 
-Head to the Portal to create a first manual request, and use the snipet below to fetch requests associated to your identity
+Head to the Portal to create a first manual request, and use the snippet below to fetch requests associated with your identity
 
 ```jsx
 import ReactDOM from "react-dom";
@@ -105,4 +105,4 @@ const result = await axios.get('https://api.request.network/requests/' + request
 
 The expected result should but a list of requests with amounts and currencies. Depending on your currency, some amounts seem too big. We will see later how to display amounts properly.
 
-As you can see, manipulating requests with the Portal API is very straight-forward. What you can notice is the use of `request.requestInput.expectedAmount` and `request.requestInput.currency`. We will detail in the next page how to manipulate different details of the request. You can also have more details on the [Portal API Docs](/portal).
+As you can see, manipulating requests with the Portal API is very straight-forward. What you can notice is the use of `request.requestInput.expectedAmount` and `request.requestInput.currency`. We will detail on the next page how to manipulate different details of the request. You can also have more details on the [Portal API Docs](/portal).

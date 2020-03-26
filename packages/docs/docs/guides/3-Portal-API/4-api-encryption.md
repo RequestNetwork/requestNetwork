@@ -12,7 +12,7 @@ By default, anything you store on Request can be read by anyone. That might be w
 
 To give you control over this, the Request Protocol supports end-to-end encryption. It means that no one outside of a request stakeholder (usually, its payer and payee) can read its information.
 
-Request Portal API, however, **does not** offer end-to-end encryption, but **does** allow you to remove public access. 
+Request Portal API, however, **do not** offer end-to-end encryption, but **does** allow you to remove public access. 
 What it means is that your request would be stored encrypted on the Network (Ethereum + IPFS) but we, at Request, could have access to the request data.
 
 :::info

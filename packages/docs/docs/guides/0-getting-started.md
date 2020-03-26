@@ -10,9 +10,9 @@ Request enables a **global cooperative financial system**, where people and orga
 
 Users share payment requests securely thanks to a common network that keeps track of changes. Financial experiences become seamless with Request.
 
-# Integration options
+## Integration options
 
-There are different integration schema that are possible with Request. The aim of the tutorial is to discover the features of the network and at the same time to guide you through different options.
+Different integration schemas are possible with Request. This tutorial aims to discover the features of the network and at the same time to guide you through different options.
 
 <IntegrationOptions />
 

@@ -8,7 +8,7 @@ description: Learn how to integrate Request network and its features.
 
 ## Introduction
 
-In the previous sections, you have learned how to create a request for payment. We will now explain you how to pay it. 
+In the previous sections, you have learned how to create a request for payment. We will now explain to you how to pay it. 
 
 This section is useful if:
 * You plan to embed request payment features like a Pay button
@@ -16,7 +16,7 @@ This section is useful if:
 
 The payment of a request depends on its [payment network](../5-request-client/1-payment-networks.md#types-of-payment-network): 
 
-- Address-based payment networks (available for BTC and ERC20) don't have any specific requirement: any payment sent to the specify address will be considered a payment of this request. Never re-use an address!
+- Address-based payment networks (available for BTC and ERC20) don't have any specific requirement: any payment sent to the specified address will be considered a payment of this request. Never re-use an address!
 - Input data payment networks (ETH only) simply requires you to specify the [Payment Reference](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-eth-input-data-0.2.0.md#description) in the data of the transaction.
 - Proxy payment networks (ETH and ERC20) require you to call a smart contract method that forwards the payment.
 
