@@ -8,6 +8,8 @@ module.exports = {
   projectName: 'requestNetwork/packages/docs',
   plugins: ['axios'],
   themeConfig: {
+    disableDarkMode: true,
+    image: 'img/request_docs_thumbnail.png',
     navbar: {
       title: 'Request docs',
       logo: {
