@@ -8,14 +8,15 @@ import KeyvFile from 'keyv-file';
 
 import Utils from '@requestnetwork/utils';
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
+import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import getChannelsByTopic from './request/getChannelsByTopic';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import ipfsAdd from './request/ipfsAdd';
-import persistTransaction from './request/persistTransaction';
+import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
 const NOT_FOUND_MESSAGE =
-  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd';
+  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd\nGET getConfirmedTransaction';
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
 
@@ -34,7 +35,8 @@ class RequestNode {
   private express: any;
   private initialized: boolean;
   private logger: LogTypes.ILogger;
-
+  private persistTransaction: PersistTransaction;
+  private confirmedTransactionStore: ConfirmedTransactionStore;
   /**
    * Request Node constructor
    *
@@ -65,6 +67,9 @@ class RequestNode {
       logger: this.logger,
       transactionIndex,
     });
+
+    this.confirmedTransactionStore = new ConfirmedTransactionStore();
+    this.persistTransaction = new PersistTransaction(this.confirmedTransactionStore);
 
     this.express = express();
     this.mountRoutes();
@@ -166,7 +171,25 @@ class RequestNode {
     // Route for persistTransaction request
     router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return persistTransaction(clientRequest, serverResponse, this.dataAccess, this.logger);
+        return this.persistTransaction.persistTransaction(
+          clientRequest,
+          serverResponse,
+          this.dataAccess,
+          this.logger,
+        );
+      } else {
+        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      }
+    });
+
+    // Route for getConfirmedTransaction request
+    router.get('/getConfirmedTransaction', (clientRequest: any, serverResponse: any) => {
+      if (this.initialized) {
+        return this.confirmedTransactionStore.getConfirmedTransaction(
+          clientRequest,
+          serverResponse,
+          this.logger,
+        );
       } else {
         return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       }

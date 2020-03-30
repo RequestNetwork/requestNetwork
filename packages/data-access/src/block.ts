@@ -59,10 +59,9 @@ function parseBlock(data: string): DataAccessTypes.IBlock {
   }
 
   // check the transactions format
-  if (maybeBlock.transactions.some((tx: any) => !tx.data)) {
+  if (!maybeBlock.transactions.every((tx: any) => tx.data || (tx.encryptedData && tx.hash))) {
     throw new Error(`Transactions do not follow the block standard`);
   }
-
   // check if channelIds are well formatted
   // check that all the channel ids are hashes
   if (

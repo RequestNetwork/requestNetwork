@@ -45,11 +45,11 @@ export function getSigner(signerOrProvider?: Provider | Signer, address?: string
   if (!signerOrProvider) {
     signerOrProvider = getProvider();
   }
-  if (signerOrProvider instanceof Signer) {
+  if (Signer.isSigner(signerOrProvider)) {
     return signerOrProvider;
   }
-  if (signerOrProvider instanceof Web3Provider) {
-    return signerOrProvider.getSigner(address);
+  if (Web3Provider.isProvider(signerOrProvider) && (signerOrProvider as Web3Provider).getSigner) {
+    return (signerOrProvider as Web3Provider).getSigner(address);
   }
   throw new Error('cannot get signer');
 }

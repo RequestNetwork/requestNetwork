@@ -40,7 +40,6 @@ const validRequest: ClientTypes.IRequestData = {
     type: RequestLogicTypes.CURRENCY.BTC,
     value: '',
   },
-
   events: [],
   expectedAmount: '10000000',
   extensions: {

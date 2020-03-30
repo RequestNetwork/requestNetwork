@@ -4,6 +4,7 @@ import { DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
+import { EventEmitter } from 'events';
 import HttpDataAccess from './http-data-access';
 
 // Maximum number of retries to attempt when http requests to the Node fail
@@ -136,14 +137,40 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     }
     this.cache[channelId][ipfsHash] = { block, storageMeta };
 
-    return {
+    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
       meta: {
         storageMeta,
         topics: topics || [],
         transactionStorageLocation: ipfsHash,
       },
       result: {},
-    };
+    });
+
+    // When the ethereum transaction is mined, emit an event 'confirmed'
+    tx.wait().then((txConfirmed: any) => {
+      // create the storage meta from the transaction receipt
+      const storageMetaConfirmed = {
+        blockConfirmation: txConfirmed.confirmations,
+        blockNumber: txConfirmed.blockNumber,
+        blockTimestamp: ethBlock.timestamp,
+        fee,
+        networkName: this.networkName,
+        smartContractAddress: txConfirmed.to,
+        transactionHash: txConfirmed.hash,
+      };
+
+      // emit the event to tell the request transaction is confirmed
+      result.emit('confirmed', {
+        meta: {
+          storageMeta: storageMetaConfirmed,
+          topics: topics || [],
+          transactionStorageLocation: ipfsHash,
+        },
+        result: {},
+      });
+    });
+
+    return result;
   }
 
   /**

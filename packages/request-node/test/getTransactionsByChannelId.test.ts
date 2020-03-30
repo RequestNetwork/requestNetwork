@@ -5,9 +5,9 @@ import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
 
-const channelId = '0xchannelId1';
-const anotherChannelId = '0xanotherChannelId1';
-const nonExistentChannelId = 'NonExistentTopic';
+const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab';
+const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbc';
+const nonExistentChannelId = '01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccd';
 const transactionData = {
   data: 'this is sample data for a transaction to test getTransactionsByChannelId',
 };

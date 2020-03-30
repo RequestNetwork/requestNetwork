@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import * as Encryption from './encryption-types';
 
 /** Transaction Manager interface */
@@ -29,7 +30,7 @@ export interface ITimestampBoundaries {
 }
 
 /** return interface for PersistTransaction  */
-export interface IReturnPersistTransaction {
+export interface IReturnPersistTransaction extends EventEmitter {
   /** meta information */
   meta: {
     /** meta-data from the layer below */

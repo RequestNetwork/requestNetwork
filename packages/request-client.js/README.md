@@ -83,6 +83,14 @@ const request = await requestNetwork.createRequest({
   contentData,
   topics,
 });
+
+// wait the confirmation with a promise
+await request.waitForConfirmation();
+
+// or wait the confirmation with an event
+request.on('confirmed', confirmedRequest => {
+  // ...
+});
 ```
 
 - `requestInfo`: [IRequestInfo](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L42)
@@ -117,6 +125,14 @@ const request = await requestNetwork.createEncryptedRequest(
   },
   [encryptionParameters, encryptionParameters2],
 );
+
+// wait the confirmation with a promise
+await request.waitForConfirmation();
+
+// or wait the confirmation with an event
+request.on('confirmed', confirmedRequest => {
+  // ...
+});
 ```
 
 - `requestInfo`: [IRequestInfo](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/src/types.ts#L42)
@@ -209,7 +225,12 @@ npm install @requestnetwork/epk-decryption
 ### Accept a request
 
 ```javascript
-await request.accept(signerIdentity, refundInformation);
+const requestData = await request.accept(signerIdentity, refundInformation);
+
+// wait the confirmation with an event
+requestData.on('confirmed', confirmedRequestData => {
+  // ...
+});
 ```
 
 - `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
@@ -219,6 +240,11 @@ await request.accept(signerIdentity, refundInformation);
 
 ```javascript
 await request.cancel(signerIdentity, refundInformation);
+
+// wait the confirmation with an event
+requestData.on('confirmed', confirmedRequestData => {
+  // ...
+});
 ```
 
 - `signerIdentity`: [RequestNetwork.Types.Identity.IIdentity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/identity-types.ts#L2)
@@ -228,6 +254,11 @@ await request.cancel(signerIdentity, refundInformation);
 
 ```javascript
 await request.increaseExpectedAmountRequest(amount, signerIdentity, refundInformation);
+
+// wait the confirmation with an event
+requestData.on('confirmed', confirmedRequestData => {
+  // ...
+});
 ```
 
 - `amount`: string
@@ -238,6 +269,11 @@ await request.increaseExpectedAmountRequest(amount, signerIdentity, refundInform
 
 ```javascript
 await request.reduceExpectedAmountRequest(amount, signerIdentity, paymentInformation);
+
+// wait the confirmation with an event
+requestData.on('confirmed', confirmedRequestData => {
+  // ...
+});
 ```
 
 - `amount`: string

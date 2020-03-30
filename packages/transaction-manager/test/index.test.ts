@@ -3,6 +3,8 @@ import 'mocha';
 import MultiFormat from '@requestnetwork/multi-format';
 import Utils from '@requestnetwork/utils';
 
+import { EventEmitter } from 'events';
+
 const chai = require('chai');
 const spies = require('chai-spies');
 const chaiAsPromised = require('chai-as-promised');
@@ -41,10 +43,13 @@ const channelId = MultiFormat.serialize(dataHash);
 const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
-const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = {
-  meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-  result: { topics: [fakeTxHash] },
-};
+const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+  new EventEmitter(),
+  {
+    meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
+    result: { topics: [fakeTxHash] },
+  },
+);
 
 const fakeMetaDataAccessGetReturn: DataAccessTypes.IReturnGetTransactions = {
   meta: { transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'] },
@@ -65,7 +70,23 @@ describe('index', () => {
       getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
       getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturn),
       initialize: chai.spy(),
-      persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+      // persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+      persistTransaction: chai.spy(
+        (): any => {
+          setTimeout(() => {
+            fakeMetaDataAccessPersistReturn.emit(
+              'confirmed',
+              {
+                meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
+                result: { topics: [fakeTxHash] },
+              },
+              // tslint:disable-next-line:no-magic-numbers
+              100,
+            );
+          });
+          return fakeMetaDataAccessPersistReturn;
+        },
+      ),
     };
   });
   describe('persistTransaction', () => {
@@ -74,6 +95,16 @@ describe('index', () => {
         const transactionManager = new TransactionManager(fakeDataAccess);
 
         const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
+
+        ret.on('confirmed', resultConfirmed1 => {
+          expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+            meta: {
+              dataAccessMeta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
+              encryptionMethod: undefined,
+            },
+            result: {},
+          });
+        });
 
         expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
         expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({

@@ -7,24 +7,37 @@ import {
   getSupportedERC20Tokens,
 } from './currency/erc20';
 
-// List of our supported cryptocurrencies
-const currencyList = new Map([
-  [
-    'BTC',
-    {
+// Simple function to get the currency from the value alone
+const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.ICurrency => {
+  // Check if it's a supported cryptocurrency
+  if (currencyValue === 'BTC') {
+    return {
       type: RequestLogicTypes.CURRENCY.BTC,
       value: 'BTC',
-    },
-  ],
-
-  [
-    'ETH',
-    {
+    };
+  }
+  if (currencyValue === 'ETH') {
+    return {
       type: RequestLogicTypes.CURRENCY.ETH,
       value: 'ETH',
-    },
-  ],
-]);
+    };
+  }
+
+  // Check if it's an ERC20 token and return it if found
+  const erc20Currency = getErc20Currency(currencyValue, network);
+  if (erc20Currency) {
+    return erc20Currency;
+  }
+
+  // Check if it's one of ISO4217 currencies
+  if (isoCurrencyCodes.codes().includes(currencyValue)) {
+    return {
+      type: RequestLogicTypes.CURRENCY.ISO4217,
+      value: currencyValue,
+    };
+  }
+  throw new Error(`The currency ${currencyValue} is not supported`);
+};
 
 /**
  * Returns a Currency object from a user-friendly currency string.
@@ -43,30 +56,7 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
   // Split the currency string value and network (if available)
   const [value, network] = currencyString.split('-');
 
-  // Simple function to get the currency from the value alone
-  const getCurrency = (): RequestLogicTypes.ICurrency => {
-    // Check if it's it's a cryptocurrency
-    if (currencyList.has(value)) {
-      return currencyList.get(value)!;
-    }
-
-    // Check if it's an ERC20 token and return it if found
-    const erc20Currency = getErc20Currency(value, network);
-    if (erc20Currency) {
-      return erc20Currency;
-    }
-
-    // Check if it's one of ISO4217 currencies
-    if (isoCurrencyCodes.codes().includes(value)) {
-      return {
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value,
-      };
-    }
-    throw new Error(`The currency ${value} is not supported`);
-  };
-
-  const currency = getCurrency();
+  const currency = getCurrency(value, network);
 
   // If a network was declared, add it to the currency object
   if (network) {

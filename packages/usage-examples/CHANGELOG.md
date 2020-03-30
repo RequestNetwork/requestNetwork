@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.5.0...@requestnetwork/usage-examples@0.7.0) (2020-03-23)
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* buffered ethereum storage  ([#113](https://github.com/RequestNetwork/requestNetwork/issues/113)) ([fe4ece6](https://github.com/RequestNetwork/requestNetwork/commit/fe4ece6a1768155182be2d3ebb2908501f571912))
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+* payment-processor new package ([#130](https://github.com/RequestNetwork/requestNetwork/issues/130)) ([a2ce521](https://github.com/RequestNetwork/requestNetwork/commit/a2ce521736e0607d3116347b42ecbfc6ba52d1b4))
+* persist transaction with custom ethereum provider ([#106](https://github.com/RequestNetwork/requestNetwork/issues/106)) ([61b215f](https://github.com/RequestNetwork/requestNetwork/commit/61b215fb8335d01dfa069d7f7899dd5b33749692))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+### Bug Fixes
+
+* backward compatibility issue + removing test failing for external reason ([#93](https://github.com/RequestNetwork/requestNetwork/issues/93)) ([9a405dc](https://github.com/RequestNetwork/requestNetwork/commit/9a405dcc66b36a9a4a4b885dea2cd50abaad2725))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.5.0...@requestnetwork/usage-examples@0.6.0) (2020-02-20)
 
 

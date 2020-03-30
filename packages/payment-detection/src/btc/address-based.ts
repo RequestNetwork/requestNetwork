@@ -1,5 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
+import getBalanceErrorObject from '../balance-error';
 import DefaultBitcoinDetectionProvider from './default-bitcoin-detection-provider';
 const bigNumber: any = require('bn.js');
 
@@ -79,42 +80,49 @@ export default class PaymentNetworkBTCAddressBased {
     networkId: number,
   ): Promise<PaymentTypes.BTCBalanceWithEvents> {
     if (!request.extensions[paymentNetworkId]) {
-      throw new Error(`The request do not have the extension : ̀${paymentNetworkId}`);
+      return getBalanceErrorObject(
+        `The request does not have the extension: ${paymentNetworkId}`,
+        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+      );
     }
     const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
     const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
 
-    let payments: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
-    if (paymentAddress) {
-      payments = await this.extractBalanceAndEvents(
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        networkId,
-      );
+    try {
+      let payments: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
+      if (paymentAddress) {
+        payments = await this.extractBalanceAndEvents(
+          paymentAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          networkId,
+        );
+      }
+
+      let refunds: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
+      if (refundAddress) {
+        refunds = await this.extractBalanceAndEvents(
+          refundAddress,
+          PaymentTypes.EVENTS_NAMES.REFUND,
+          networkId,
+        );
+      }
+
+      const balance: string = new bigNumber(new bigNumber(payments.balance || 0))
+        .sub(new bigNumber(refunds.balance || 0))
+        .toString();
+
+      const events: PaymentTypes.BTCPaymentNetworkEvent[] = [
+        ...payments.events,
+        ...refunds.events,
+      ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+      return {
+        balance,
+        events,
+      };
+    } catch (error) {
+      return getBalanceErrorObject(error.message);
     }
-
-    let refunds: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
-    if (refundAddress) {
-      refunds = await this.extractBalanceAndEvents(
-        refundAddress,
-        PaymentTypes.EVENTS_NAMES.REFUND,
-        networkId,
-      );
-    }
-
-    const balance: string = new bigNumber(new bigNumber(payments.balance || 0))
-      .sub(new bigNumber(refunds.balance || 0))
-      .toString();
-
-    const events: PaymentTypes.BTCPaymentNetworkEvent[] = [
-      ...payments.events,
-      ...refunds.events,
-    ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-    return {
-      balance,
-      events,
-    };
   }
 
   /**
