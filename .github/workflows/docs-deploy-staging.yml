@@ -3,7 +3,7 @@ name: Deploy docs to staging
 on:
   push:
     branches:
-      - docs-with-sidebar
+      - master
 
 jobs:
   build-deploy-staging:
