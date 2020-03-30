@@ -27,8 +27,6 @@ Two mechanisms are currently allowed:
 
 # Action
 
-## Request identity
-
 ## Portal outlook
 
 If you have not already done it, head towards [the Request Portal dashboard](https://dashboard.request.network) and create your account.

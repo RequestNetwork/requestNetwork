@@ -21,9 +21,9 @@
   --ifm-container-width: 1280px;
 }
 
-.admonition.admonition-info a {
+.admonition a {
   color: white;
-  mix-blend-mode: difference;
+  text-decoration: underline;
 }
 
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
@@ -125,4 +125,12 @@ h2::before {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.625;
+}
+
+/* The following lines are a hack to fix long lines of code breaking the layout width */
+.prism-code {
+  background-color: rgb(41, 45, 62);
+}
+.prism-code code {
+  width: 0;
 }
