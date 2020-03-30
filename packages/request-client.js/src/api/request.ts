@@ -26,7 +26,10 @@ export default class Request {
   private contentDataExtension: ContentDataExtension | null;
   private emitter: EventEmitter;
 
-  private confirmationErrorOccurred: boolean = false;
+  /**
+   * true if the creation emitted an event 'error'
+   */
+  private confirmationErrorOccurredAtCreation: boolean = false;
 
   /**
    * Data of the request (see request-logic)
@@ -80,7 +83,7 @@ export default class Request {
           this.emitter.emit('confirmed', await this.refresh());
         })
         .on('error', error => {
-          this.confirmationErrorOccurred = true;
+          this.confirmationErrorOccurredAtCreation = true;
           this.emitter.emit('error', error);
         });
     }
@@ -624,7 +627,7 @@ export default class Request {
    * @returns The updated request data
    */
   public getData(): Types.IRequestDataWithEvents {
-    if (this.confirmationErrorOccurred) {
+    if (this.confirmationErrorOccurredAtCreation) {
       throw Error('request confirmation failed');
     }
 
@@ -657,7 +660,7 @@ export default class Request {
   public async refresh(
     requestAndMeta?: RequestLogicTypes.IReturnGetRequestFromId,
   ): Promise<Types.IRequestDataWithEvents> {
-    if (this.confirmationErrorOccurred) {
+    if (this.confirmationErrorOccurredAtCreation) {
       throw Error('request confirmation failed');
     }
     if (!requestAndMeta) {
