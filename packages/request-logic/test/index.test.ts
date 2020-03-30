@@ -1,5 +1,7 @@
 import 'mocha';
 
+import * as sinon from 'sinon';
+
 import { EventEmitter } from 'events';
 
 import MultiFormat from '@requestnetwork/multi-format';
@@ -41,10 +43,10 @@ const requestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(acti
 
 const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-const fakeMetaTransactionManager = Object.assign(new EventEmitter(), {
+const fakeMetaTransactionManager = {
   meta: { storageDataId: 'fakeDataId' },
   result: { topics: [fakeTxHash] },
-});
+};
 let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
 /* tslint:disable:no-unused-expression */
@@ -55,8 +57,12 @@ describe('index', () => {
       getChannelsByTopic: chai.spy() as any,
       getTransactionsByChannelId: chai.spy() as any,
       persistTransaction: chai.spy(() => {
+        const fakeMetaTransactionManagerWithEvent = Object.assign(
+          new EventEmitter(),
+          fakeMetaTransactionManager,
+        );
         setTimeout(() => {
-          fakeMetaTransactionManager.emit(
+          fakeMetaTransactionManagerWithEvent.emit(
             'confirmed',
             {
               meta: { storageDataId: 'fakeDataId' },
@@ -67,7 +73,7 @@ describe('index', () => {
           );
         });
 
-        return fakeMetaTransactionManager;
+        return fakeMetaTransactionManagerWithEvent;
       }) as any,
 
       // chai.spy.returns(fakeMetaTransactionManager) as any,
@@ -162,6 +168,51 @@ describe('index', () => {
           MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity)),
         ],
       );
+    });
+
+    it('can createRequest if persist emit error', async () => {
+      const clock = sinon.useFakeTimers();
+      const fakeTransactionManagerEmittingError = Object.assign({}, fakeTransactionManager);
+      fakeTransactionManagerEmittingError.persistTransaction = chai.spy(
+        (): any => {
+          const fakeTransactionManagerWithEvent = Object.assign(
+            new EventEmitter(),
+            fakeMetaTransactionManager,
+          );
+          setTimeout(() => {
+            // tslint:disable-next-line:no-magic-numbers
+            fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
+          });
+          return fakeTransactionManagerWithEvent;
+        },
+      );
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerEmittingError,
+        TestData.fakeSignatureProvider,
+      );
+      const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
+
+      // tslint:disable-next-line:typedef
+      const handleError = chai.spy((error: any) => {
+        expect(error, 'error wrong').to.deep.equal('error for test purpose');
+      });
+      ret.on('error', handleError);
+
+      clock.tick(11);
+
+      expect(handleError, 'error must be emitted').to.have.called();
+
+      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
+      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      expect(fakeTransactionManagerEmittingError.persistTransaction).to.have.been.called.with(
+        JSON.stringify(action),
+        requestId,
+      );
+      sinon.restore();
     });
   });
 
@@ -277,6 +328,55 @@ describe('index', () => {
       ).to.eventually.be.rejectedWith(
         'You must give at least one encryption parameter to create an encrypted request',
       );
+    });
+
+    it('can createEncryptedRequest if persist emit error', async () => {
+      const clock = sinon.useFakeTimers();
+      const fakeTransactionManagerEmittingError = Object.assign({}, fakeTransactionManager);
+      fakeTransactionManagerEmittingError.persistTransaction = chai.spy(
+        (): any => {
+          const fakeTransactionManagerWithEvent = Object.assign(
+            new EventEmitter(),
+            fakeMetaTransactionManager,
+          );
+          setTimeout(() => {
+            // tslint:disable-next-line:no-magic-numbers
+            fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
+          });
+          return fakeTransactionManagerWithEvent;
+        },
+      );
+
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerEmittingError,
+        TestData.fakeSignatureProvider,
+      );
+      const ret = await requestLogic.createEncryptedRequest(
+        createParams,
+        TestData.payeeRaw.identity,
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+      );
+
+      // tslint:disable-next-line:typedef
+      const handleError = chai.spy((error: any) => {
+        expect(error, 'error wrong').to.deep.equal('error for test purpose');
+      });
+      ret.on('error', handleError);
+
+      clock.tick(11);
+
+      expect(handleError, 'error must be emitted').to.have.called();
+
+      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
+      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      expect(fakeTransactionManagerEmittingError.persistTransaction).to.have.been.called.with(
+        JSON.stringify(action),
+        requestId,
+      );
+      sinon.restore();
     });
   });
 
