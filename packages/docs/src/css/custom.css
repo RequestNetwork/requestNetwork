@@ -56,11 +56,33 @@ h2::before {
   background-color: rgb(230, 236, 241);
 }
 
+.navbar-sidebar__items .menu__link {
+  color: var(--ifm-navbar-link-color);
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
+}
+
+.navbar__toggle {
+  color: var(--ifm-navbar-link-color);
+}
+
+/* The following lines are a hack to fix long lines of highlighted code breaking the page layout width */
+.prism-code {
+  background-color: rgb(41, 45, 62);
+}
+.prism-code code {
+  width: 0;
 }
 
 .menu__link--sublist {
@@ -77,60 +99,4 @@ h2::before {
 
 .navbar__items.navbar__items--right {
   flex: 1 0 0;
-}
-
-.page-ref {
-  border: 1px solid rgb(230, 236, 241);
-  margin: 32px 0px;
-  display: flex;
-  padding: 16px;
-  position: relative;
-  place-self: stretch;
-  box-shadow: rgba(116, 129, 141, 0.1) 0px 3px 8px 0px;
-  align-items: center;
-  border-radius: 3px;
-  flex-direction: row;
-  text-decoration: none;
-  -moz-box-align: center;
-  break-inside: avoid;
-  -moz-box-orient: horizontal;
-  transition: border 250ms ease 0s;
-  -moz-box-direction: normal;
-}
-
-.page-ref .arrow {
-  color: rgb(0, 204, 142);
-  font-size: 24px;
-}
-
-.page-ref .title {
-  flex: 1 1 0%;
-  margin: 0px;
-  display: block;
-  padding: 0 16px;
-  font-size: 16px;
-  font-family: Content-font, Roboto, sans-serif;
-  font-weight: 500;
-  line-height: 1.5;
-  color: rgb(0, 204, 142);
-}
-
-.page-ref .path {
-  flex: 0 0 auto;
-  margin: 0px;
-  display: block;
-  padding: 0;
-  max-width: 40%;
-  color: rgb(157, 170, 182);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.625;
-}
-
-/* The following lines are a hack to fix long lines of code breaking the layout width */
-.prism-code {
-  background-color: rgb(41, 45, 62);
-}
-.prism-code code {
-  width: 0;
 }
