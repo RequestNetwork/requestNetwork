@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Request docs',
+  title: 'Request Docs',
   tagline: 'Technical documentation',
   url: 'https://docs.request.network',
   baseUrl: '/',
@@ -11,7 +11,7 @@ module.exports = {
     disableDarkMode: true,
     image: 'img/request_docs_thumbnail.png',
     navbar: {
-      title: 'Request docs',
+      title: 'Request Docs',
       logo: {
         alt: 'Request Network',
         src: 'img/logo.svg',
@@ -23,7 +23,7 @@ module.exports = {
         { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
           href:
-            'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs',
+            'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
           label: 'Protocol Specs',
           position: 'left',
         },
@@ -51,7 +51,7 @@ module.exports = {
             {
               label: 'Request Protocol',
               to:
-                'https://github.com/RequestNetwork/requestNetwork/tree/development/packages/request-logic/specs',
+                'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
             },
           ],
         },
@@ -97,7 +97,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/RequestNetwork/requestNetwork/packages/docs',
+          editUrl: 'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/docs',
         },
         introSideBar: {
           sidebarPath: require.resolve('./sidebars.js'),

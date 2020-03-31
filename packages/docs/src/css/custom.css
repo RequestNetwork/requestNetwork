@@ -56,6 +56,10 @@ h2::before {
   background-color: rgb(230, 236, 241);
 }
 
+h1 .hash-link {
+  margin-left: -2rem;
+}
+
 .navbar-sidebar__items .menu__link {
   color: var(--ifm-navbar-link-color);
 }

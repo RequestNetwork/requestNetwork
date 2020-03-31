@@ -8,24 +8,19 @@ description: Learn how to integrate Request network and its features.
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-
-# Introduction
-
 Request Portal simplifies the use of the Request protocol, abstracting all the blockchain complexity. You can create requests and manage your users' requests through a REST API.
 
 Our API accepts JSON-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes and Bearer authentication.
 
 Aside from the guide, you can also consult [the Portal API documentation](/portal).
 
-# Authentication
+## Authentication
 
 All API endpoints are authenticated.
 Two mechanisms are currently allowed:
 
 - API Key, explained below, to be used for scripting and test purposes
 - OAuth, explained in the [Apps](./3-api-apps.md) section
-
-# Action
 
 ## Portal outlook
 
@@ -48,8 +43,6 @@ Senders and recipients of money transfer requests need a way to trust each other
 With decentralized integration options (cf. [the Request client](/docs/guides/5-Request-client/0-intro), end users manage their private keys, but the Portal simplifies their life.
 
 This simplification should be applied with great care, we do not recommend using the Request Portal API for critical cases where a lot of money or public reputation is at stake. If you want full control over the security of your finance, you should handle your keys, and the same applies to your users. Have a look at [the integration options](/integration-options) to take the best decision.
-
-# Action
 
 ## How to list the requests associated with your identity
 
