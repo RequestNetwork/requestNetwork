@@ -1,0 +1,51 @@
+.integrationOptions {
+  display: flex;
+	flex-direction: column;
+}
+
+.homeIntegrationOptions {
+  display: flex;
+	flex-direction: row;
+  align-items: baseline;
+}
+
+@media (max-width: 585px) {
+  .homeIntegrationOptions {
+    flex-direction: column;
+  }
+}
+
+.integrationOption {
+  display: flex;
+	flex-wrap: nowrap;
+  align-items: stretch;
+  padding: 2rem 1rem;
+  width: 100%;
+}
+
+.colOption {
+	flex-direction: column;
+}
+
+.rowOption:nth-child(odd) {
+	flex-direction: row;
+}
+.rowOption:nth-child(even) {
+	flex-direction: row-reverse;
+}
+
+.integrationOptionImage {
+	margin-bottom: 12px;
+	flex: 2;
+}
+
+.integrationOptionDescription {
+	padding-right: 24px;
+  margin-bottom: 24px;
+	color: #8c8c8c;
+}
+
+.integrationOptionText {
+	flex: 3;
+  padding-left: 15px;
+}
