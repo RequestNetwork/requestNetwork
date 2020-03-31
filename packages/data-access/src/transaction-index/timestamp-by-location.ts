@@ -40,6 +40,15 @@ export default class TimestampByLocationTransactionIndex {
   }
 
   /**
+   * Removes timestamp indexed by location
+   *
+   * @param dataId dataId of the block
+   */
+  public async removeIndexedDataId(dataId: string): Promise<void> {
+    await this.timestampByLocation.delete(dataId);
+  }
+
+  /**
    * Function to update timestamp indexed by location
    *
    * @param dataId dataId of the block
@@ -62,7 +71,7 @@ export default class TimestampByLocationTransactionIndex {
    */
   public async getTimestampFromLocation(dataId: string): Promise<number | null> {
     const timestamp = await this.timestampByLocation.get(dataId);
-    return timestamp ? timestamp : null;
+    return timestamp !== undefined ? timestamp : null;
   }
 
   /**

@@ -76,14 +76,14 @@ const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   lastTimestamp: 0,
 };
 
-const appendResult: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
+const appendResult: any = {
   content: '',
   id: dataIdBlock2tx,
   meta: {
     state: StorageTypes.ContentState.PENDING,
     timestamp: 1,
   },
-});
+};
 
 const appendResultConfirmed = {
   content: '',
@@ -107,14 +107,15 @@ const defaultFakeStorage: StorageTypes.IStorage = {
   _ipfsAdd: chai.spy(),
   append: chai.spy(
     (): any => {
+      const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
       setTimeout(
         () => {
-          appendResult.emit('confirmed', appendResultConfirmed);
+          appendResultWithEvent.emit('confirmed', appendResultConfirmed);
         },
         // tslint:disable-next-line:no-magic-numbers
         10,
       );
-      return appendResult;
+      return appendResultWithEvent;
     },
   ),
   getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
@@ -137,10 +138,14 @@ let clock: sinon.SinonFakeTimers;
 
 // tslint:disable:no-magic-numbers
 /* tslint:disable:no-unused-expression */
-describe('data-access', () => {
+describe.only('data-access', () => {
   beforeEach(async () => {
     clock = sinon.useFakeTimers();
   });
+
+  // afterEach(async () => {
+  //   sinon.restore();
+  // });
 
   describe('constructor', () => {
     it('cannot initialize with getData without result', async () => {
@@ -411,12 +416,11 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(defaultFakeStorage);
       await dataAccess.initialize();
 
+      const errFunction = chai.spy();
       const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
         arbitraryTopic1,
       ]);
-
-      clock.tick(11);
-      result.on('confirmed', resultConfirmed1 => {
+      result.on('error', errFunction).on('confirmed', resultConfirmed1 => {
         expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
           meta: {
             storageMeta: {
@@ -430,6 +434,9 @@ describe('data-access', () => {
         });
       });
 
+      clock.tick(11);
+
+      expect(errFunction).to.not.be.called();
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
       expect(defaultFakeStorage.append).to.have.been.called.with(
@@ -450,19 +457,14 @@ describe('data-access', () => {
           ],
         }),
       );
-      // expect(result, 'result wrong').to.deep.equal(
-      //   Object.assign(new EventEmitter(), {
-      //     meta: {
-      //       storageMeta: {
-      //         state: DataAccessTypes.TransactionState.PENDING,
-      //         timestamp: 1,
-      //       },
-      //       topics: [arbitraryTopic1],
-      //       transactionStorageLocation: dataIdBlock2tx,
-      //     },
-      //     result: {},
-      //   }),
-      // );
+      expect(result.meta, 'result wrong').to.deep.equal({
+        storageMeta: {
+          state: DataAccessTypes.TransactionState.PENDING,
+          timestamp: 1,
+        },
+        topics: [arbitraryTopic1],
+        transactionStorageLocation: dataIdBlock2tx,
+      });
     });
 
     it('cannot persistTransaction() if not initialized', async () => {
@@ -486,6 +488,59 @@ describe('data-access', () => {
       ).to.be.rejectedWith(
         `The following topics are not well formatted: ["This topic is not formatted"]`,
       );
+    });
+
+    it('cannot persistTransaction() and emit error if confirmation failed', async () => {
+      const mockStorageEmittingError: StorageTypes.IStorage = {
+        _ipfsAdd: chai.spy(),
+        append: chai.spy(
+          (): any => {
+            const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
+            setTimeout(
+              () => {
+                appendResultWithEvent.emit('error', 'error for test purpose');
+              },
+              // tslint:disable-next-line:no-magic-numbers
+              10,
+            );
+            return appendResultWithEvent;
+          },
+        ),
+        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
+        initialize: chai.spy(),
+        read: (param: string): any => {
+          const dataIdBlock2txFake: any = {
+            meta: {},
+          };
+          const resultRead: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return resultRead[param];
+        },
+        readMany(params: string[]): Promise<any[]> {
+          return Promise.all(params.map(this.read));
+        },
+      };
+
+      const dataAccess = new DataAccess(mockStorageEmittingError);
+      await dataAccess.initialize();
+
+      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+        arbitraryTopic1,
+      ]);
+      result.on('error', error => {
+        expect(error, 'result Confirmed wrong').to.equal('error for test purpose');
+      });
+      clock.tick(11);
+
+      expect(result.meta, 'result wrong').to.deep.equal({
+        storageMeta: {
+          state: DataAccessTypes.TransactionState.PENDING,
+          timestamp: 1,
+        },
+        topics: [arbitraryTopic1],
+        transactionStorageLocation: dataIdBlock2tx,
+      });
     });
   });
 
