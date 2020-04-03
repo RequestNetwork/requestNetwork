@@ -1,0 +1,30 @@
+table th,
+table td {
+  border: none;
+}
+
+.redoc h3 {
+  font-size: 17px;
+  margin: 17px 0;
+}
+
+.redoc .menu-content {
+  padding-top: 20px;
+}
+
+.redoc table {
+  display: table;
+}
+
+.redoc table tr:nth-child(2n) {
+  background-color: inherit;
+}
+
+.redoc pre {
+  background-color: inherit;
+}
+
+.redoc code {
+  background-color: inherit;
+  color: inherit;
+}

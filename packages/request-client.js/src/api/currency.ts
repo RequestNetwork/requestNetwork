@@ -41,7 +41,7 @@ const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.
 
 /**
  * Returns a Currency object from a user-friendly currency string.
- * The string format is: <CURRENCY_NAME>-<network>.
+ * The string format is: [CURRENCY_NAME]-[network].
  * The network is optional.
  * E.g: BTC, ETH, ETH-rinkeby, SAI, USD, EUR
  *
@@ -62,9 +62,7 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
   if (network) {
     if (currency.network && currency.network !== network) {
       throw new Error(
-        `You can't declare a network with currency ${value}. It's only available on the network: ${
-          currency.network
-        } `,
+        `You can't declare a network with currency ${value}. It's only available on the network: ${currency.network} `,
       );
     }
     currency.network = network;

@@ -61,6 +61,20 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   }
 
   /**
+   * Removes a transaction from the index
+   *
+   * @param dataId the dataId to remove
+   */
+  public async removeTransaction(dataId: string): Promise<void> {
+    if (!this.locationByTopic) {
+      throw new Error('TransactionIndex must be initialized');
+    }
+
+    // remove the timestamp in the index
+    await this.timestampByLocation.removeIndexedDataId(dataId);
+  }
+
+  /**
    * Update timestamp for a dataId
    *
    * @param dataId the dataId to index
@@ -93,12 +107,16 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
       channelId,
     );
 
-    // if boundaries are passed, only return locations of transaction within these boundaries
-    if (timestampBoundaries) {
-      storageLocationList = await Bluebird.filter(storageLocationList, (dataId: string) =>
-        this.timestampByLocation.isDataInBoundaries(dataId, timestampBoundaries),
-      );
-    }
+    storageLocationList = await Bluebird.filter(storageLocationList, async (dataId: string) => {
+      // if the dataId has not been suppressed
+      const exist: boolean =
+        (await this.timestampByLocation.getTimestampFromLocation(dataId)) !== null;
+      // if boundaries are passed, only return locations of transaction within these boundaries
+      const inTimeBoundaries: boolean =
+        !timestampBoundaries ||
+        (await this.timestampByLocation.isDataInBoundaries(dataId, timestampBoundaries));
+      return exist && inTimeBoundaries;
+    });
 
     return storageLocationList;
   }
