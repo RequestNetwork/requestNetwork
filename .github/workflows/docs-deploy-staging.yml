@@ -1,0 +1,27 @@
+name: Deploy docs to staging
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.15.3
+      - name: yarn install & build
+        run: |
+          yarn
+          yarn build
+      - uses: benjlevesque/s3-sync-action@master
+        env:
+          SOURCE_DIR: './packages/docs/build'
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets. AWS_S3_BUCKET_DOCS_STAGING }}

@@ -133,6 +133,41 @@ describe('index', () => {
         });
         expect(fakeDataAccess.persistTransaction).to.have.been.called.once();
       });
+
+      it('cannot persist a transaction if data access emit error', async () => {
+        const fakeDataAccessEmittingError = Object.assign({}, fakeDataAccess);
+        fakeDataAccessEmittingError.persistTransaction = chai.spy(
+          (): any => {
+            const persistWithEvent = Object.assign(
+              new EventEmitter(),
+              fakeMetaDataAccessPersistReturn,
+            );
+            setTimeout(() => {
+              // tslint:disable-next-line:no-magic-numbers
+              persistWithEvent.emit('error', 'error for test purpose', 100);
+            });
+            return persistWithEvent;
+          },
+        );
+
+        const transactionManager = new TransactionManager(fakeDataAccess);
+
+        const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
+
+        ret.on('error', error => {
+          expect(error, 'result Confirmed wrong').to.equal('error for test purpose');
+        });
+
+        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
+        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: undefined,
+        });
+        expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
+          await TransactionsFactory.createClearTransaction(data),
+          extraTopics.concat([channelId]),
+        );
+      });
     });
 
     describe('in an existing new channel', () => {

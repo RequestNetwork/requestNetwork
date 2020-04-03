@@ -50,4 +50,5 @@ export interface IRequestInfo {
 /** Events types risen by a request */
 export interface IRequestEvents {
   confirmed: (requestData: IRequestDataWithEvents) => void;
+  error: (error: string) => void;
 }

@@ -49,7 +49,10 @@ describe('mock-storage', () => {
     const { entries } = await storage.getData();
 
     assert.notEqual(id1, id2);
-    assert.deepEqual(entries.map(({ content }) => content), ['stuff1', 'stuff2']);
+    assert.deepEqual(
+      entries.map(({ content }) => content),
+      ['stuff1', 'stuff2'],
+    );
     assert.equal(entries.length, 2);
   });
 

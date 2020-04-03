@@ -442,6 +442,91 @@ describe('index', () => {
     expect(dataConfirmed.pending).to.null;
   });
 
+  it('works with mocked storage emitting error when append', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    // ask mock up storage to emit error next append call()
+    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+
+    const request = await requestNetwork.createRequest({
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+
+    const data = request.getData();
+    expect(data).to.exist;
+    expect(data.balance).to.null;
+    expect(data.meta).to.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+
+    const errorEmitted: string = await new Promise((resolve): any => request.on('error', resolve));
+    expect(errorEmitted).to.equal('forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
+
+    expect(() => request.getData()).to.throw('request confirmation failed');
+    await expect(request.refresh()).to.eventually.be.rejectedWith('request confirmation failed');
+  });
+
+  it('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    // ask mock up storage to emit error next append call()
+    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+
+    const request = await requestNetwork.createRequest({
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+
+    const data = request.getData();
+    expect(data).to.exist;
+    expect(data.balance).to.null;
+    expect(data.meta).to.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+
+    await expect(request.waitForConfirmation()).to.eventually.be.rejectedWith(
+      'forced error asked by _makeNextAppendFailInsteadOfConfirmed()',
+    );
+
+    expect(() => request.getData()).to.throw('request confirmation failed');
+    await expect(request.refresh()).to.eventually.be.rejectedWith('request confirmation failed');
+  });
+
+  it('creates a request with error event', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const request = await requestNetwork.createRequest({
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+
+    const data = request.getData();
+    expect(data).to.exist;
+    expect(data.balance).to.null;
+    expect(data.meta).to.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+
+    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
+      request.on('confirmed', resolve),
+    );
+    expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(dataConfirmed.pending).to.null;
+  });
+
   it('works with mocked storage and mocked payment network', async () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider: fakeSignatureProvider,
@@ -520,6 +605,42 @@ describe('index', () => {
 
     expect(axiosSpyGet).to.have.been.called.exactly(4);
     expect(axiosSpyPost).to.have.been.called.once;
+  });
+
+  it('works with mocked storage emitting error when append an accept', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const request = await requestNetwork.createRequest({
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+    await request.waitForConfirmation();
+
+    // ask mock up storage to emit error next append call()
+    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+    await request.accept(payerIdentity);
+
+    let data = request.getData();
+    expect(data).to.exist;
+    expect(data.balance).to.null;
+    expect(data.meta).to.exist;
+    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+    expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+
+    const errorEmitted: string = await new Promise((resolve): any => request.on('error', resolve));
+    expect(errorEmitted).to.equal('forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
+
+    data = request.getData();
+    expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+
+    data = await request.refresh();
+    expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
+    expect(data.pending).to.be.null;
   });
 
   it('allows to cancel a request', async () => {
@@ -1002,6 +1123,7 @@ describe('index', () => {
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+
       expect(fetchedRequest).to.deep.equal(request);
 
       const requestData = fetchedRequest.getData();

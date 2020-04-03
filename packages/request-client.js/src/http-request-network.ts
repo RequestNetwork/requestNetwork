@@ -14,6 +14,9 @@ import MockStorage from './mock-storage';
  * Exposes RequestNetwork module configured to use http-data-access.
  */
 export default class HttpRequestNetwork extends RequestNetwork {
+  /** Public for test purpose */
+  public _mockStorage: MockStorage | undefined;
+
   /**
    * Creates an instance of HttpRequestNetwork.
    *
@@ -47,9 +50,13 @@ export default class HttpRequestNetwork extends RequestNetwork {
       useMockStorage: false,
     },
   ) {
+    let _mockStorage: MockStorage | undefined;
+    if (useMockStorage) {
+      _mockStorage = new MockStorage();
+    }
     const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
       ? // useMockStorage === true => use mock data-access
-        new MockDataAccess(new MockStorage())
+        new MockDataAccess(_mockStorage!)
       : // useMockStorage === false
       useLocalEthereumBroadcast
       ? // useLocalEthereumBroadcast === true => use http-metamask-data-access
@@ -58,5 +65,8 @@ export default class HttpRequestNetwork extends RequestNetwork {
         new HttpDataAccess(nodeConnectionConfig);
 
     super(dataAccess, signatureProvider, decryptionProvider);
+
+    // store it for test purpose
+    this._mockStorage = _mockStorage;
   }
 }

@@ -1,0 +1,106 @@
+/* *
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: rgb(33, 175, 144);
+  --ifm-color-primary-darker: rgb(31, 165, 136);
+  --ifm-color-primary-darkest: rgb(26, 136, 112);
+  --ifm-color-primary-light: rgb(70, 203, 174);
+  --ifm-color-primary-lighter: rgb(102, 212, 189);
+  --ifm-color-primary-lightest: rgb(146, 224, 208);
+  --ifm-code-font-size: 95%;
+
+  --ifm-navbar-background-color: #00261b;
+  --ifm-navbar-link-color: #ffffff;
+
+  --ifm-container-width: 1280px;
+}
+
+.admonition a {
+  color: white;
+  text-decoration: underline;
+}
+
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  text-rendering: optimizelegibility;
+  -moz-osx-font-smoothing: grayscale;
+  outline-color: rgb(59, 69, 78);
+  outline-style: none;
+  outline-width: 0px;
+  overflow-wrap: break-word;
+}
+
+h2 {
+  position: relative;
+  margin: 73px 0px 24px;
+}
+
+h2::before {
+  top: -32px;
+  left: 0px;
+  width: 100%;
+  height: 1px;
+  content: ' ';
+  position: absolute;
+  background-color: rgb(230, 236, 241);
+}
+
+h1 .hash-link {
+  margin-left: -2rem;
+}
+
+.navbar-sidebar__items .menu__link {
+  color: var(--ifm-navbar-link-color);
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.docusaurus-highlight-code-line {
+  background-color: rgb(72, 77, 91);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+.navbar__toggle {
+  color: var(--ifm-navbar-link-color);
+}
+
+/* The following lines are a hack to fix long lines of highlighted code breaking the page layout width */
+.prism-code {
+  background-color: rgb(41, 45, 62);
+}
+.prism-code code {
+  width: 0;
+}
+
+.menu__link--sublist {
+  font-weight: 700;
+}
+
+.navbar__brand {
+  min-width: 150px;
+}
+
+.navbar .navbar__items {
+  flex: 4 0 0;
+}
+
+.navbar__items.navbar__items--right {
+  flex: 1 0 0;
+}
