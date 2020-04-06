@@ -5,6 +5,7 @@ import { IdentityTypes } from '@requestnetwork/types';
  */
 export default {
   areEqual,
+  hasError,
   normalizeIdentityValue,
 };
 
@@ -29,4 +30,20 @@ function areEqual(id1: IdentityTypes.IIdentity, id2: IdentityTypes.IIdentity): b
  */
 function normalizeIdentityValue(value: string): string {
   return value.toLowerCase();
+}
+
+/**
+ * Checks if the identity has an error
+ *
+ * @param id identity to check
+ * @returns the error or null if valid
+ */
+function hasError(id: IdentityTypes.IIdentity): string | null {
+  if (id.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+    return 'identity type not supported';
+  }
+  if (id.value.match(/^0x[a-fA-F0-9]{40}$/) === null) {
+    return 'identity value must be an ethereum address';
+  }
+  return null;
 }

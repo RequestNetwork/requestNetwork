@@ -563,10 +563,11 @@ describe('CreateAction', () => {
           type: 'not_ethereumAddress',
           value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
         },
+        payer: TestData.payerRaw.identity,
       };
       expect(() =>
-        CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
-      ).to.throw('payee.type not supported');
+        CreateAction.format(params, TestData.payerRaw.identity, TestData.fakeSignatureProvider),
+      ).to.throw('payee: identity type not supported');
     });
     it('does not support other identity type than "ethereumAddress" for Payer', () => {
       const params: any = {
@@ -575,6 +576,7 @@ describe('CreateAction', () => {
           value: 'ETH',
         },
         expectedAmount: '1000',
+        payee: TestData.payeeRaw.identity,
         payer: {
           type: 'not_ethereumAddress',
           value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
@@ -582,7 +584,41 @@ describe('CreateAction', () => {
       };
       expect(() =>
         CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
-      ).to.throw('payer.type not supported');
+      ).to.throw('payer: identity type not supported');
+    });
+
+    it('does not support other identity value not ethereum for Payee', () => {
+      const params: any = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: '1000',
+        payee: {
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          value: 'not valid ethereum',
+        },
+      };
+      expect(() =>
+        CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
+      ).to.throw('payee: identity value must be an ethereum address');
+    });
+
+    it('does not support other identity value not ethereum for Payer', () => {
+      const params: any = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: '1000',
+        payer: {
+          type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          value: 'not valid ethereum',
+        },
+      };
+      expect(() =>
+        CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
+      ).to.throw('payer: identity value must be an ethereum address');
     });
   });
 
@@ -1068,7 +1104,73 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
       expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'Signer must be the payee or the payer',
+        'payee: identity type not supported',
+      );
+    });
+
+    it('does not support other identity type than "ethereumAddress" for Payer', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payer: {
+              type: 'not_ethereumAddress',
+              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+            },
+          },
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
+        'payer: identity type not supported',
+      );
+    });
+
+    it('does not support identity value not being an "ethereumAddress" for Payee', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payee: {
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+              value: 'not an address',
+            },
+          },
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
+        'payee: identity value must be an ethereum address',
+      );
+    });
+
+    it('does not support identity value not being an "ethereumAddress" for Payer', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payer: {
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+              value: 'not an address',
+            },
+          },
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).to.throw(
+        'payer: identity value must be an ethereum address',
       );
     });
   });
