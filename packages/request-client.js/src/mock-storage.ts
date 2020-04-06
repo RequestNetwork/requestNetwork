@@ -107,4 +107,22 @@ export default class MockStorage implements StorageTypes.IStorage {
       lastTimestamp: nowTimestampInSec,
     };
   }
+
+  /**
+   * Gets information
+   *
+   * @param detailed det the list of files hash
+   */
+  public async _getInformation(detailed?: boolean): Promise<any> {
+    return {
+      dataIds: {
+        count: Object.entries(this.data).length,
+        values: detailed ? Object.entries(this.data) : undefined,
+      },
+      ignoredDataIds: {
+        count: 0,
+        values: detailed ? [] : undefined,
+      },
+    };
+  }
 }

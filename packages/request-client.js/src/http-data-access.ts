@@ -194,4 +194,27 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
 
     return data;
   }
+
+  /**
+   * Gets information
+   *
+   * @param detailed det the list of files hash
+   */
+  public async _getInformation(detailed?: boolean): Promise<any> {
+    const { data } = await Utils.retry(
+      async () =>
+        axios.get(
+          '/information',
+          Object.assign(this.axiosConfig, {
+            params: { detailed },
+          }),
+        ),
+      {
+        maxRetries: HTTP_REQUEST_MAX_RETRY,
+        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+      },
+    )();
+
+    return data;
+  }
 }

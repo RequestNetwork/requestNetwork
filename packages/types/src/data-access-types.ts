@@ -20,7 +20,6 @@ export interface IDataAccess {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
-  /** TODO: better typing */
   _getInformation(detailed?: boolean): any;
 }
 
