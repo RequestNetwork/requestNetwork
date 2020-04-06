@@ -457,7 +457,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     this.checkInitialized();
 
     // last transaction timestamp retrieved
-    const lastLocationTimestamp = this.transactionIndex.getLastTransactionTimestamp();
+    const lastLocationTimestamp = await this.transactionIndex.getLastTransactionTimestamp();
     const listIndexedLocation = await this.transactionIndex.getIndexedLocation();
     const listIgnoredLocation = await this.ignoredLocation.getIgnoredLocation();
 

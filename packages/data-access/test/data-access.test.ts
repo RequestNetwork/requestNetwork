@@ -139,7 +139,7 @@ let clock: sinon.SinonFakeTimers;
 
 // tslint:disable:no-magic-numbers
 /* tslint:disable:no-unused-expression */
-describe.only('data-access', () => {
+describe('data-access', () => {
   beforeEach(async () => {
     clock = sinon.useFakeTimers();
   });
@@ -542,6 +542,50 @@ describe.only('data-access', () => {
         },
         topics: [arbitraryTopic1],
         transactionStorageLocation: dataIdBlock2tx,
+      });
+    });
+  });
+
+  describe('_getInformation', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const fakeStorage = {
+        ...defaultFakeStorage,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can _getInformation()', async () => {
+      expect(await dataAccess._getInformation(), 'result with arbitraryTopic1 wrong').to.deep.equal(
+        {
+          filesIgnored: { count: 0, list: undefined },
+          filesRetrieved: { count: 1, lastTimestamp: 10, list: undefined },
+          lastSynchronizationTimestamp: 0,
+        },
+      );
+    });
+    it('can _getInformation() with details', async () => {
+      expect(
+        await dataAccess._getInformation(true),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        filesIgnored: { count: 0, list: {} },
+        filesRetrieved: { count: 1, lastTimestamp: 10, list: ['dataIdBlock2tx'] },
+        lastSynchronizationTimestamp: 0,
       });
     });
   });
