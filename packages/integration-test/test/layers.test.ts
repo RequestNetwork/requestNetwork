@@ -155,10 +155,7 @@ describe('Request system', () => {
       payer,
     };
 
-    const topics = [
-      Utils.crypto.normalizeKeccak256Hash(payeeIdentity),
-      Utils.crypto.normalizeKeccak256Hash(payer),
-    ];
+    const topics = [payeeIdentity, payer];
 
     const resultCreation = await requestLogic.createRequest(
       requestCreationHash,
@@ -223,10 +220,7 @@ describe('Request system', () => {
       payer,
     };
 
-    const topics = [
-      Utils.crypto.normalizeKeccak256Hash(payeeIdentity),
-      Utils.crypto.normalizeKeccak256Hash(payer),
-    ];
+    const topics = [payeeIdentity, payer];
 
     const resultCreation = await requestLogic.createRequest(
       requestCreationHash,
@@ -275,6 +269,7 @@ describe('Request system', () => {
 
     const requestCreationHash: RequestLogicTypes.ICreateParameters = {
       currency: {
+        network: 'testnet',
         type: RequestLogicTypes.CURRENCY.BTC,
         value: 'BTC',
       },
@@ -284,10 +279,7 @@ describe('Request system', () => {
       payer,
     };
 
-    const topics = [
-      Utils.crypto.normalizeKeccak256Hash(payeeIdentity),
-      Utils.crypto.normalizeKeccak256Hash(payer),
-    ];
+    const topics = [payeeIdentity, payer];
 
     const resultCreation = await requestLogic.createRequest(
       requestCreationHash,
@@ -322,7 +314,7 @@ describe('Request system', () => {
       timestamp: Utils.getCurrentTimestampInSecond(),
     };
     // create a unique topic just to not have collisions in tests
-    const topics1 = [Utils.crypto.normalizeKeccak256Hash(request1CreationHash)];
+    const topics1 = [request1CreationHash];
     const resultCreation1 = await requestLogic.createRequest(
       request1CreationHash,
       payeeIdentity,
@@ -411,10 +403,7 @@ describe('Request system', () => {
       payer: payerIdentity,
     };
 
-    const topics = [
-      Utils.crypto.normalizeKeccak256Hash(payeeIdentity),
-      Utils.crypto.normalizeKeccak256Hash(payerIdentity),
-    ];
+    const topics = [payeeIdentity, payerIdentity];
 
     const resultCreation = await requestLogic.createEncryptedRequest(
       requestCreationHash,
