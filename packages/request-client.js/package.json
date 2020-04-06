@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-client.js",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "publishConfig": {
     "access": "public"
   },
@@ -43,17 +43,17 @@
     "test:watch": "nyc mocha --watch --watch-extensions ts --require source-map-support/register --require amd-loader \"test/**/*.ts\""
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.11.0",
-    "@requestnetwork/data-access": "0.7.0",
-    "@requestnetwork/data-format": "0.4.10",
-    "@requestnetwork/epk-signature": "0.5.9",
-    "@requestnetwork/multi-format": "0.2.6",
-    "@requestnetwork/payment-detection": "0.14.0",
-    "@requestnetwork/request-logic": "0.10.0",
-    "@requestnetwork/smart-contracts": "0.5.0",
-    "@requestnetwork/transaction-manager": "0.10.0",
-    "@requestnetwork/types": "0.13.0",
-    "@requestnetwork/utils": "0.12.0",
+    "@requestnetwork/advanced-logic": "0.12.0",
+    "@requestnetwork/data-access": "0.8.0",
+    "@requestnetwork/data-format": "0.4.11",
+    "@requestnetwork/epk-signature": "0.5.10",
+    "@requestnetwork/multi-format": "0.2.7",
+    "@requestnetwork/payment-detection": "0.15.0",
+    "@requestnetwork/request-logic": "0.11.0",
+    "@requestnetwork/smart-contracts": "0.6.0",
+    "@requestnetwork/transaction-manager": "0.11.0",
+    "@requestnetwork/types": "0.14.0",
+    "@requestnetwork/utils": "0.13.0",
     "axios": "0.19.0",
     "bn.js": "4.11.8",
     "currency-codes": "1.5.1",
