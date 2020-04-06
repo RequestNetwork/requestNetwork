@@ -443,9 +443,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
-   * TODO comment
+   * Gets information of the data indexed
+   *
+   * @param detailed if true get the list of the files hash
    */
-  public async _getInformation(): Promise<any> {
+  public async _getInformation(detailed: boolean = false): Promise<any> {
     this.checkInitialized();
 
     // last transaction timestamp retrieved
@@ -456,12 +458,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     return {
       filesIgnored: {
         count: Object.keys(listIgnoredLocation).length,
-        list: listIgnoredLocation,
+        list: detailed ? listIgnoredLocation : undefined,
       },
       filesRetrieved: {
         count: listIndexedLocation.length,
         lastTimestamp: lastLocationTimestamp,
-        list: listIndexedLocation,
+        list: detailed ? listIndexedLocation : undefined,
       },
       lastSynchronizationTimestamp: this.lastSyncStorageTimestamp,
     };

@@ -17,7 +17,7 @@ import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
 const NOT_FOUND_MESSAGE =
-  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd\nGET getConfirmedTransaction';
+  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd\nGET getConfirmedTransaction\nGET information';
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
 
@@ -152,7 +152,15 @@ class RequestNode {
     });
 
     // Route for readiness check
-    router.get('/readyz', (clientRequest: any, serverResponse: any) => {
+    router.get('/readyz', (_, serverResponse: any) => {
+      if (this.initialized) {
+        return serverResponse.status(httpStatus.OK).send('OK');
+      }
+      return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+    });
+
+    // Route for information check
+    router.get('/information', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
         return getInformation(
           clientRequest,

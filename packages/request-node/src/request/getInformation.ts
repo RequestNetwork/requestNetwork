@@ -33,12 +33,15 @@ export default async function getInformation(
   }
 
   try {
-    const dataAccessInformation = await dataAccess._getInformation();
-    const ethereumStorageInformation = await ethereumStorage._getInformation();
+    const dataAccessInformation = await dataAccess._getInformation(clientRequest.query.detailed);
+    const ethereumStorageInformation = await ethereumStorage._getInformation(
+      clientRequest.query.detailed,
+    );
 
     const information = {
       dataAccessInformation,
       ethereumStorageInformation,
+      version: process.env.npm_package_version,
     };
 
     // Log the request time

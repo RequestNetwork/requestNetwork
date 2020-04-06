@@ -440,19 +440,20 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   /**
    * Get Information on the dataIds retrieved and ignored by the ethereum storage
    *
+   * @param detailed if true get the list of the files hash
    * @returns Promise resolving object with dataIds retrieved and ignored
    */
-  public async _getInformation(): Promise<any> {
+  public async _getInformation(detailed: boolean = false): Promise<any> {
     const dataIds = await this.ethereumMetadataCache.getListDataIds();
     const dataIdsWithReason = await this.dataIdsIgnored.getListDataIdWithReason();
     return {
       dataIds: {
         count: dataIds.length,
-        values: dataIds,
+        values: detailed ? dataIds : undefined,
       },
       ignoredDataIds: {
         count: Object.keys(dataIdsWithReason).length,
-        values: dataIdsWithReason,
+        values: detailed ? dataIdsWithReason : undefined,
       },
     };
   }
@@ -581,7 +582,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               hashAndSize.hash,
               Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
             );
-
             this.logger.debug(
               `[${successCount + currentIndex + 1}/${totalCount}] read ${
                 hashAndSize.hash
