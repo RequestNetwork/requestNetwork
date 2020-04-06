@@ -19,6 +19,10 @@ export default class MockStorage implements StorageTypes.IStorage {
     throw Error('will never be used');
   }
 
+  public async _getInformation(): Promise<never> {
+    throw Error('will never be used');
+  }
+
   public async append(content: string): Promise<StorageTypes.IAppendResult> {
     if (!content) {
       throw Error('Error: no content provided');
