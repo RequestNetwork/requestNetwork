@@ -7,9 +7,13 @@ import { EventEmitter } from 'events';
  * Storage layer implemented with in-memory hashmap, to be used for testing.
  */
 export default class MockStorage implements StorageTypes.IStorage {
-  private data: {
-    [key: string]: { state: StorageTypes.ContentState; content: string; timestamp: number };
-  } = {};
+  private data: Map<
+    string,
+    { state: StorageTypes.ContentState; content: string; timestamp: number }
+  > = new Map();
+
+  // For test purpose we can force the next append call to emit Error
+  private forceEmitError: boolean = false;
 
   public async initialize(): Promise<void> {
     return;
@@ -23,11 +27,11 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
-    this.data[hash] = {
+    this.data.set(hash, {
       content,
       state: StorageTypes.ContentState.PENDING,
       timestamp: nowTimestampInSec,
-    };
+    });
 
     return {
       ipfsHash: hash,
@@ -43,11 +47,13 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
 
-    this.data[hash] = {
+    const dataToStore = {
       content,
       state: StorageTypes.ContentState.PENDING,
       timestamp: nowTimestampInSec,
     };
+
+    this.data.set(hash, dataToStore);
 
     const resultData = {
       content,
@@ -60,10 +66,18 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
     const result = Object.assign(new EventEmitter(), resultData);
 
-    // emit confirmed
     setTimeout(() => {
-      this.data[hash].state = StorageTypes.ContentState.CONFIRMED;
-      result.emit('confirmed', resultData);
+      if (this.forceEmitError) {
+        // emit error
+        this.forceEmitError = false;
+        this.data.delete(hash);
+        result.emit('error', 'forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
+      } else {
+        // emit confirmed
+        dataToStore.state = StorageTypes.ContentState.CONFIRMED;
+        this.data.set(hash, dataToStore);
+        result.emit('confirmed', resultData);
+      }
       // tslint:disable-next-line:no-magic-numbers
     }, 100);
 
@@ -74,13 +88,17 @@ export default class MockStorage implements StorageTypes.IStorage {
     if (!id) {
       throw Error('No id provided');
     }
+    const data = this.data.get(id);
+    if (!data) {
+      throw Error('No content found from this id');
+    }
     return {
-      content: this.data[id].content,
+      content: data.content,
       id,
       meta: {
-        state: this.data[id].state,
+        state: data.state,
         storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        timestamp: this.data[id].timestamp,
+        timestamp: data.timestamp,
       },
     };
   }
@@ -90,7 +108,7 @@ export default class MockStorage implements StorageTypes.IStorage {
   }
 
   public async getData(): Promise<StorageTypes.IEntriesWithLastTimestamp> {
-    const entries = Object.entries(this.data).map(([id, { content, state, timestamp }]) => ({
+    const entries = Array.from(this.data.entries()).map(([id, { content, state, timestamp }]) => ({
       content,
       id,
       meta: {
@@ -124,5 +142,9 @@ export default class MockStorage implements StorageTypes.IStorage {
         values: detailed ? [] : undefined,
       },
     };
+  }
+
+  public _makeNextAppendFailInsteadOfConfirmed(): void {
+    this.forceEmitError = true;
   }
 }

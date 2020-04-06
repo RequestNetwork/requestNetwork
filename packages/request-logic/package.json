@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "publishConfig": {
     "access": "public"
   },
@@ -41,10 +41,10 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.10.0",
-    "@requestnetwork/multi-format": "0.2.5",
-    "@requestnetwork/types": "0.12.0",
-    "@requestnetwork/utils": "0.11.0",
+    "@requestnetwork/advanced-logic": "0.11.0",
+    "@requestnetwork/multi-format": "0.2.6",
+    "@requestnetwork/types": "0.13.0",
+    "@requestnetwork/utils": "0.12.0",
     "semver": "5.6.0"
   },
   "devDependencies": {
@@ -69,6 +69,7 @@
     "nyc": "15.0.0",
     "prettier": "1.16.4",
     "shx": "0.3.2",
+    "sinon": "9.0.1",
     "source-map-support": "0.5.13",
     "ts-node": "8.6.2",
     "tslint": "5.12.1",

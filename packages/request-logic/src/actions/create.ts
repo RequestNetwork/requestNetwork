@@ -36,18 +36,12 @@ function format(
     throw new Error('expectedAmount must be a positive integer');
   }
 
-  if (
-    requestParameters.payee &&
-    requestParameters.payee.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS
-  ) {
-    throw new Error('payee.type not supported');
+  if (requestParameters.payee && Utils.identity.hasError(requestParameters.payee)) {
+    throw new Error(`payee: ${Utils.identity.hasError(requestParameters.payee)}̀`);
   }
 
-  if (
-    requestParameters.payer &&
-    requestParameters.payer.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS
-  ) {
-    throw new Error('payer.type not supported');
+  if (requestParameters.payer && Utils.identity.hasError(requestParameters.payer)) {
+    throw new Error(`payer: ${Utils.identity.hasError(requestParameters.payer)}̀`);
   }
 
   if (!requestParameters.timestamp) {
@@ -89,6 +83,14 @@ function createRequest(
 ): RequestLogicTypes.IRequest {
   if (!action.data.parameters.payee && !action.data.parameters.payer) {
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
+  }
+
+  if (action.data.parameters.payee && Utils.identity.hasError(action.data.parameters.payee)) {
+    throw new Error(`payee: ${Utils.identity.hasError(action.data.parameters.payee)}̀`);
+  }
+
+  if (action.data.parameters.payer && Utils.identity.hasError(action.data.parameters.payer)) {
+    throw new Error(`payer: ${Utils.identity.hasError(action.data.parameters.payer)}̀`);
   }
 
   if (

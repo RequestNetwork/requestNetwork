@@ -123,9 +123,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     });
 
     // When receive the confirmation from data-access propagate to the higher layer
-    persistResult.on(
-      'confirmed',
-      (resultPersistTransaction: DataAccessTypes.IReturnPersistTransaction) => {
+    persistResult
+      .on('confirmed', (resultPersistTransaction: DataAccessTypes.IReturnPersistTransaction) => {
         const resultAfterConfirmation = {
           meta: {
             dataAccessMeta: resultPersistTransaction.meta,
@@ -136,8 +135,10 @@ export default class TransactionManager implements TransactionTypes.ITransaction
 
         // propagate the confirmation
         result.emit('confirmed', resultAfterConfirmation);
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }

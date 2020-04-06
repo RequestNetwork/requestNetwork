@@ -149,4 +149,5 @@ export interface ITransactionIndex {
     timestampBoundaries?: ITimestampBoundaries,
   ): Promise<string[]>;
   updateTimestamp(dataId: string, timestamp: number): Promise<void>;
+  removeTransaction(dataId: string): Promise<void>;
 }

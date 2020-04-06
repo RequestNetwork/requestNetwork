@@ -65,15 +65,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
           result: { requestId },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }
@@ -122,15 +123,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
           result: { requestId },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }
@@ -200,14 +202,15 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }
@@ -249,14 +252,15 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }
@@ -298,14 +302,15 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }
@@ -347,14 +352,15 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }
@@ -397,14 +403,15 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     });
 
     // When receive the confirmation from transaction manager propagate it
-    resultPersistTx.on(
-      'confirmed',
-      (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
-      },
-    );
+      })
+      .on('error', error => {
+        result.emit('error', error);
+      });
 
     return result;
   }

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.10](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/web3-signature@0.4.5...@requestnetwork/web3-signature@0.4.10) (2020-03-23)
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 ## [0.4.9](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/web3-signature@0.4.5...@requestnetwork/web3-signature@0.4.9) (2020-02-20)
 
 
