@@ -3,6 +3,51 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.6.0...@requestnetwork/advanced-logic@0.12.0) (2020-04-06)
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* merge eth-proxy-contract into eth-input-data  ([#139](https://github.com/RequestNetwork/requestNetwork/issues/139)) ([380bfb9](https://github.com/RequestNetwork/requestNetwork/commit/380bfb9d036b04c5bb63d7dfef5f360bc40af985))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+### Bug Fixes
+
+* use lowercase for payment reference ([#83](https://github.com/RequestNetwork/requestNetwork/issues/83)) ([6cbedeb](https://github.com/RequestNetwork/requestNetwork/commit/6cbedeb4d2e130d7ece1ba526cea9c17d6e545e0))
+
+
+### Features
+
+* **advanced-logic:** add ERC20 proxy contract payment network ([#74](https://github.com/RequestNetwork/requestNetwork/issues/74)) ([031a374](https://github.com/RequestNetwork/requestNetwork/commit/031a3742d2dddc0324e75b7853287d252bf43c6c))
+* deploy ERC20 proxy smart contract to mainnet ([#97](https://github.com/RequestNetwork/requestNetwork/issues/97)) ([84a7d2a](https://github.com/RequestNetwork/requestNetwork/commit/84a7d2ae9c06a3c6e457c8583e44e8df01676b2a))
+* deploy ERC20 proxy smart contract to Rinkeby ([#95](https://github.com/RequestNetwork/requestNetwork/issues/95)) ([39e6a6a](https://github.com/RequestNetwork/requestNetwork/commit/39e6a6a0ea62fd4ee9e6343d03770711638b698b))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Features
+
+* ETH payment detection in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([dc3b238](https://github.com/RequestNetwork/requestNetwork/commit/dc3b23827cff7d5466c27d5575515887c461c3b4))
+
+
+
+
+
 # [0.11.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.6.0...@requestnetwork/advanced-logic@0.11.0) (2020-03-23)
 
 
