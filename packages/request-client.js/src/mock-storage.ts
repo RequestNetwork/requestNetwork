@@ -129,7 +129,7 @@ export default class MockStorage implements StorageTypes.IStorage {
   /**
    * Gets information
    *
-   * @param detailed det the list of files hash
+   * @param detailed if true get the list of files hash
    */
   public async _getInformation(detailed?: boolean): Promise<any> {
     return {

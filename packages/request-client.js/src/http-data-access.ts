@@ -198,7 +198,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Gets information
    *
-   * @param detailed det the list of files hash
+   * @param detailed if true get the list of files hash
    */
   public async _getInformation(detailed?: boolean): Promise<any> {
     const { data } = await Utils.retry(

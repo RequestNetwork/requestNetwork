@@ -599,7 +599,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               ipfsConnectionErrorCount++;
               this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
               // store the reason for fail
-              this.dataIdsIgnored.saveReason(
+              await this.dataIdsIgnored.saveReason(
                 hashAndSize.hash,
                 `IPFS connection error : ${errorMessage}`,
               );
@@ -610,7 +610,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
               incorrectFileCount++;
               // store the reason for fail
-              this.dataIdsIgnored.saveReason(
+              await this.dataIdsIgnored.saveReason(
                 hashAndSize.hash,
                 `Incorrect file error: ${errorMessage}`,
               );
@@ -629,7 +629,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             this.logger.info(`Incorrect declared size for hash: ${hashAndSize.hash}`, ['ipfs']);
             wrongFeesCount++;
             // store the reason for fail
-            this.dataIdsIgnored.saveReason(hashAndSize.hash, `Incorrect declared size`);
+            await this.dataIdsIgnored.saveReason(hashAndSize.hash, `Incorrect declared size`);
 
             // No need to retry to find this hash
             return { entry: null, ethereumEntryToRetry: null };

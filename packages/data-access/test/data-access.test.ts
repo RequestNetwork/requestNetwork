@@ -104,6 +104,7 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
+  _getInformation: chai.spy(),
   _ipfsAdd: chai.spy(),
   append: chai.spy(
     (): any => {
@@ -492,6 +493,7 @@ describe.only('data-access', () => {
 
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
       const mockStorageEmittingError: StorageTypes.IStorage = {
+        _getInformation: chai.spy(),
         _ipfsAdd: chai.spy(),
         append: chai.spy(
           (): any => {
@@ -572,6 +574,7 @@ describe.only('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
+      _getInformation: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -693,6 +696,7 @@ describe.only('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy.returns(appendResult),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
+      _getInformation: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
