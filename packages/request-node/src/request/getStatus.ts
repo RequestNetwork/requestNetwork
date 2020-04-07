@@ -35,7 +35,7 @@ export default async function getStatus(
     const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
 
     const status = {
-      dataAccessStatus,
+      dataAccessStatus: dataAccess,
       version: process.env.npm_package_version,
     };
 
