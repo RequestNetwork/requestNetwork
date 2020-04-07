@@ -1,6 +1,7 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
+import * as config from '../config';
 
 const GET_CHANNELS_TIMEOUT: number = 600000;
 
@@ -36,7 +37,26 @@ export default async function getStatus(
 
     const status = {
       dataAccess: dataAccessStatus,
-      version: process.env.npm_package_version,
+      node: {
+        customHeaders: config.getCustomHeaders(),
+        ethereum: {
+          concurrency: config.getStorageConcurrency(),
+          lastBlockNumberDelay: config.getLastBlockNumberDelay(),
+          networkId: config.getStorageNetworkId(),
+          providerUrl: config.getStorageWeb3ProviderUrl(),
+          retryDelay: config.getEthereumRetryDelay(),
+        },
+        ipfs: {
+          host: config.getIpfsHost(),
+          port: config.getIpfsPort(),
+          protocol: config.getIpfsProtocol(),
+          timeout: config.getIpfsTimeout(),
+        },
+        persistTransactionTimeout: config.getPersistTransactionTimeout(),
+        port: config.getServerPort(),
+        serverExternalUrl: config.getServerExternalUrl(),
+        version: process.env.npm_package_version,
+      },
     };
 
     // Log the request time

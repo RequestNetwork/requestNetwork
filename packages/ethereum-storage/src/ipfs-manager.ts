@@ -550,10 +550,11 @@ export default class IpfsManager {
    *
    * @return the current configuration attributes
    */
-  public getConfig(): any {
+  public async getConfig(): Promise<any> {
     return {
       delayBetweenRetries: this.errorHandlingConfig.delayBetweenRetries,
       host: this.ipfsConnection.host,
+      id: JSON.parse(await this.getIpfsNodeId()),
       maxRetries: this.errorHandlingConfig.maxRetries,
       port: this.ipfsConnection.port,
       protocol: this.ipfsConnection.protocol,

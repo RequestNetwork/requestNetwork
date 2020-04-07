@@ -448,7 +448,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
 
     const ethereum = this.smartContractManager.getConfig();
-    const ipfs = this.ipfsManager.getConfig();
+    const ipfs = await this.ipfsManager.getConfig();
 
     return {
       dataIds: {
