@@ -6,7 +6,7 @@ import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 
 import Block from './block';
-import IgnoredLocation from './ignored-location';
+import IgnoredLocationIndex from './ignored-location';
 import IntervalTimer from './interval-timer';
 import TransactionIndex from './transaction-index';
 
@@ -33,7 +33,10 @@ export interface IDataAccessOptions {
    */
   synchronizationIntervalTime?: number;
 
-  ignoredLocation?: IgnoredLocation;
+  /**
+   * Index of the ignored location with the reason
+   */
+  ignoredLocationIndex?: IgnoredLocationIndex;
 }
 
 /**
@@ -49,7 +52,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // Storage layer
   private storage: StorageTypes.IStorage;
 
-  private ignoredLocation: IgnoredLocation;
+  private ignoredLocationIndex: IgnoredLocationIndex;
 
   // The function used to synchronize with the storage should be called periodically
   // This object allows to handle the periodical call of the function
@@ -76,7 +79,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
     const defaultOptions: IDataAccessOptions = {
-      ignoredLocation: new IgnoredLocation(),
+      ignoredLocationIndex: new IgnoredLocationIndex(),
       logger: new Utils.SimpleLogger(),
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new TransactionIndex(),
@@ -94,7 +97,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       5,
     );
     this.transactionIndex = options.transactionIndex!;
-    this.ignoredLocation = options.ignoredLocation!;
+    this.ignoredLocationIndex = options.ignoredLocationIndex!;
 
     this.logger = options.logger!;
   }
@@ -451,20 +454,20 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Gets information of the data indexed
    *
-   * @param detailed if true get the list of the files hash
+   * @param detailed if true get the list of the files hashes
    */
   public async _getInformation(detailed: boolean = false): Promise<any> {
     this.checkInitialized();
 
     // last transaction timestamp retrieved
     const lastLocationTimestamp = await this.transactionIndex.getLastTransactionTimestamp();
-    const listIndexedLocation = await this.transactionIndex.getIndexedLocation();
-    const listIgnoredLocation = await this.ignoredLocation.getIgnoredLocation();
+    const listIndexedLocation = await this.transactionIndex.getIndexedLocations();
+    const listIgnoredLocationIndex = await this.ignoredLocationIndex.getIgnoredLocations();
 
     return {
       filesIgnored: {
-        count: Object.keys(listIgnoredLocation).length,
-        list: detailed ? listIgnoredLocation : undefined,
+        count: Object.keys(listIgnoredLocationIndex).length,
+        list: detailed ? listIgnoredLocationIndex : undefined,
       },
       filesRetrieved: {
         count: listIndexedLocation.length,
@@ -504,7 +507,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       } catch (e) {
         parsingErrorCount++;
         // Index ignored Location
-        await this.ignoredLocation.pushReasonByLocation(entry.id, e.message);
+        await this.ignoredLocationIndex.pushReasonByLocation(entry.id, e.message);
         this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
           'synchronization',
         ]);

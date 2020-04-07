@@ -1,7 +1,13 @@
 import * as Keyv from 'keyv';
 
 /**
- * Class used to store the block's reason indexed by location
+ * Interface for reason from location
+ */
+export interface IReasonByIgnoredLocation {
+  [location: string]: string;
+}
+/**
+ * Class used to store the block's reason indexed by location of blocks
  */
 export default class ReasonsByIgnoredLocationIndex {
   /**
@@ -37,7 +43,7 @@ export default class ReasonsByIgnoredLocationIndex {
   public async pushReasonByLocation(dataId: string, reason: string): Promise<void> {
     if (!(await this.reasonsByIgnoredLocation.get(dataId))) {
       await this.reasonsByIgnoredLocation.set(dataId, reason);
-      await this.updateListDataId(dataId);
+      await this.updateDataId(dataId);
     }
   }
 
@@ -67,7 +73,7 @@ export default class ReasonsByIgnoredLocationIndex {
    *
    * @returns the list of data ids stored
    */
-  public async getIgnoredLocation(): Promise<any> {
+  public async getIgnoredLocations(): Promise<IReasonByIgnoredLocation> {
     const listDataId: string[] | undefined = await this.listIgnoredLocation.get('list');
 
     if (!listDataId) {
@@ -87,7 +93,7 @@ export default class ReasonsByIgnoredLocationIndex {
    * @param dataId data id to add to the list
    * @returns
    */
-  private async updateListDataId(dataId: string): Promise<void> {
+  private async updateDataId(dataId: string): Promise<void> {
     let listDataIds: string[] | undefined = await this.listIgnoredLocation.get('list');
     if (!listDataIds) {
       listDataIds = [];

@@ -444,8 +444,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Promise resolving object with dataIds retrieved and ignored
    */
   public async _getInformation(detailed: boolean = false): Promise<any> {
-    const dataIds = await this.ethereumMetadataCache.getListDataIds();
-    const dataIdsWithReason = await this.dataIdsIgnored.getListDataIdWithReason();
+    const dataIds = await this.ethereumMetadataCache.getDataIds();
+    const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
     return {
       dataIds: {
         count: dataIds.length,

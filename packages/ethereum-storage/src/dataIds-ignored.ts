@@ -1,10 +1,7 @@
 import * as Keyv from 'keyv';
 
 /**
- * Allows to save and retrieve ethereum metadata associated to a data id
- * Metadata represents general information about the Ethereum network used like network name and smart contract address
- * and specific information of the data id like number and timestamp of the block of the transaction of the data id
- * This module has been created to avoid multiple call of getPastEvents web3 function
+ * Allows to save and retrieve the dataIds ignored with the reason
  */
 export default class DataIdsIgnored {
   /**
@@ -37,15 +34,13 @@ export default class DataIdsIgnored {
    */
   public async saveReason(dataId: string, reason: string): Promise<void> {
     await this.reasonsDataIdIgnored.set(dataId, reason);
-    await this.updateListDataId(dataId);
+    await this.updateDataId(dataId);
   }
 
   /**
-   * Retrieve Ethereum metadata from cache
-   * If metadata of the specified dataId are not found in the cache
-   * we get them and save them in the cache
+   * Retrieve reason from cache
    * @param dataId dataId to get Ethereum metadata from
-   * @returns Ethereum metadata of the dataId
+   * @returns the reason or null
    */
   public async getReason(dataId: string): Promise<string | undefined> {
     return this.reasonsDataIdIgnored.get(dataId);
@@ -56,17 +51,17 @@ export default class DataIdsIgnored {
    *
    * @returns the list of data ids stored
    */
-  public async getListDataId(): Promise<string[]> {
+  public async getDataIds(): Promise<string[]> {
     const listDataId: string[] | undefined = await this.listDataIdsIgnored.get('list');
     return listDataId || [];
   }
 
   /**
-   * Get the list of data ids stored
+   * Get the list of data ids stored with reason
    *
-   * @returns the list of data ids stored
+   * @returns the list of data ids stored with reason
    */
-  public async getListDataIdWithReason(): Promise<any> {
+  public async getDataIdsWithReasons(): Promise<any> {
     const listDataId: string[] | undefined = await this.listDataIdsIgnored.get('list');
 
     if (!listDataId) {
@@ -82,12 +77,12 @@ export default class DataIdsIgnored {
   }
 
   /**
-   * Update the list of data ids stored
+   * Update the list of data ids stored with reason
    *
    * @param dataId data id to add to the list
    * @returns
    */
-  private async updateListDataId(dataId: string): Promise<void> {
+  private async updateDataId(dataId: string): Promise<void> {
     let listDataIds: string[] | undefined = await this.listDataIdsIgnored.get('list');
     if (!listDataIds) {
       listDataIds = [];

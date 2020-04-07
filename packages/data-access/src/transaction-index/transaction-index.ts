@@ -23,7 +23,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
 
   /**
    * Constructor of TransactionIndex
-   * @param store a Keyv store to persist the index to
+   * @param store a Keyv store to persist the index
    */
   constructor(store?: Keyv.Store<any>) {
     this.timestampByLocation = new TimestampByLocation(store);
@@ -211,9 +211,9 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   }
 
   /**
-   * the list of indexed location
+   * the list of indexed locations
    */
-  public async getIndexedLocation(): Promise<string[]> {
+  public async getIndexedLocations(): Promise<string[]> {
     const listDataIds: string[] | undefined = await this.indexedLocation.get('list');
     return listDataIds || [];
   }

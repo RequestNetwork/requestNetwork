@@ -56,7 +56,7 @@ export default class EthereumMetadataCache {
     // PROT-503: We should ensure the corresponding metadata is the metadata of the first occurrence of the dataId
     if (!(await this.metadataCache.get(dataId))) {
       await this.metadataCache.set(dataId, meta);
-      await this.updateListDataId(dataId);
+      await this.updateDataId(dataId);
     }
   }
 
@@ -75,7 +75,7 @@ export default class EthereumMetadataCache {
     if (!metadata) {
       metadata = await this.smartContractManager.getMetaFromEthereum(dataId);
       await this.metadataCache.set(dataId, metadata);
-      await this.updateListDataId(dataId);
+      await this.updateDataId(dataId);
     }
 
     return metadata;
@@ -86,7 +86,7 @@ export default class EthereumMetadataCache {
    *
    * @returns the list of data ids stored
    */
-  public async getListDataIds(): Promise<string[]> {
+  public async getDataIds(): Promise<string[]> {
     const listDataIds: string[] | undefined = await this.listDataIds.get('list');
     if (!listDataIds) {
       throw Error(`listDataIds must be defined ${listDataIds}`);
@@ -100,7 +100,7 @@ export default class EthereumMetadataCache {
    * @param dataId data id to add to the list
    * @returns
    */
-  private async updateListDataId(dataId: string): Promise<void> {
+  private async updateDataId(dataId: string): Promise<void> {
     let listDataIds: string[] | undefined = await this.listDataIds.get('list');
     if (!listDataIds) {
       listDataIds = [];
