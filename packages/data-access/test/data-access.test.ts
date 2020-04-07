@@ -104,7 +104,11 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
-  _getStatus: chai.spy(),
+  _getStatus: chai.spy(
+    (): any => ({
+      fake: 'status',
+    }),
+  ),
   _ipfsAdd: chai.spy(),
   append: chai.spy(
     (): any => {
@@ -574,6 +578,11 @@ describe('data-access', () => {
         filesIgnored: { count: 0, list: undefined },
         filesRetrieved: { count: 1, lastTimestamp: 10, list: undefined },
         lastSynchronizationTimestamp: 0,
+        storage: { fake: 'status' },
+        synchronizationConfig: {
+          intervalTime: 10000,
+          successiveFailureThreshold: 5,
+        },
       });
     });
     it('can _getStatus() with details', async () => {
@@ -581,6 +590,11 @@ describe('data-access', () => {
         filesIgnored: { count: 0, list: {} },
         filesRetrieved: { count: 1, lastTimestamp: 10, list: ['dataIdBlock2tx'] },
         lastSynchronizationTimestamp: 0,
+        storage: { fake: 'status' },
+        synchronizationConfig: {
+          intervalTime: 10000,
+          successiveFailureThreshold: 5,
+        },
       });
     });
   });

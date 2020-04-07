@@ -1,5 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 const GET_CHANNELS_TIMEOUT: number = 600000;
@@ -14,7 +14,6 @@ const GET_CHANNELS_TIMEOUT: number = 600000;
 export default async function getStatus(
   clientRequest: any,
   serverResponse: any,
-  ethereumStorage: StorageTypes.IStorage,
   dataAccess: DataAccess,
   logger: LogTypes.ILogger,
 ): Promise<void> {
@@ -34,11 +33,9 @@ export default async function getStatus(
 
   try {
     const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
-    const ethereumStorageStatus = await ethereumStorage._getStatus(clientRequest.query.detailed);
 
     const status = {
       dataAccessStatus,
-      ethereumStorageStatus,
       version: process.env.npm_package_version,
     };
 

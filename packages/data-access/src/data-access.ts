@@ -464,6 +464,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const listIndexedLocation = await this.transactionIndex.getIndexedLocations();
     const listIgnoredLocationIndex = await this.ignoredLocationIndex.getIgnoredLocations();
 
+    const synchronizationConfig = this.synchronizationTimer.getConfig();
+
     return {
       filesIgnored: {
         count: Object.keys(listIgnoredLocationIndex).length,
@@ -475,6 +477,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         list: detailed ? listIndexedLocation : undefined,
       },
       lastSynchronizationTimestamp: this.lastSyncStorageTimestamp,
+      storage: this.storage._getStatus(detailed),
+      synchronizationConfig,
     };
   }
 
