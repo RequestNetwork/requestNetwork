@@ -89,7 +89,7 @@ export default class EthereumMetadataCache {
   public async getDataIds(): Promise<string[]> {
     const listDataIds: string[] | undefined = await this.listDataIds.get('list');
     if (!listDataIds) {
-      throw Error(`listDataIds must be defined ${listDataIds}`);
+      return [];
     }
     return listDataIds;
   }

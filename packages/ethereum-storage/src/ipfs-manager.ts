@@ -546,6 +546,22 @@ export default class IpfsManager {
   }
 
   /**
+   * Gets current configuration
+   *
+   * @return the current configuration attributes
+   */
+  public getConfig(): any {
+    return {
+      delayBetweenRetries: this.errorHandlingConfig.delayBetweenRetries,
+      host: this.ipfsConnection.host,
+      maxRetries: this.errorHandlingConfig.maxRetries,
+      port: this.ipfsConnection.port,
+      protocol: this.ipfsConnection.protocol,
+      timeout: this.ipfsConnection.timeout,
+    };
+  }
+
+  /**
    * Get the javascript network module used to send request to ipfs
    * @param protocol Protocol used to send ipfs requests
    * @returns Network module

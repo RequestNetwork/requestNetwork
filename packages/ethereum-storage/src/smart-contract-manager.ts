@@ -433,6 +433,24 @@ export default class SmartContractManager {
   }
 
   /**
+   * Gets current configuration
+   *
+   * @return the current configuration attributes
+   */
+  public getConfig(): any {
+    return {
+      creationBlockNumberHashStorage: this.creationBlockNumberHashStorage,
+      currentProvider: this.eth.currentProvider.host,
+      hashStorageAddress: this.hashStorageAddress,
+      hashSubmitterAddress: this.hashSubmitterAddress,
+      maxConcurrency: this.maxConcurrency,
+      maxRetries: this.maxRetries,
+      networkName: this.networkName,
+      retryDelay: this.retryDelay,
+    };
+  }
+
+  /**
    * Get events inside storage smart contract for a specified block range
    * Some web3 providers, including Infura, send error if the past event number for a specific range is over 1000
    * In this case we divide the range and call the function recursively

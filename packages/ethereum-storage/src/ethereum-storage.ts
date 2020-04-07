@@ -446,15 +446,21 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public async _getStatus(detailed: boolean = false): Promise<any> {
     const dataIds = await this.ethereumMetadataCache.getDataIds();
     const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
+
+    const ethereum = this.smartContractManager.getConfig();
+    const ipfs = this.ipfsManager.getConfig();
+
     return {
       dataIds: {
         count: dataIds.length,
         values: detailed ? dataIds : undefined,
       },
+      ethereum,
       ignoredDataIds: {
         count: Object.keys(dataIdsWithReason).length,
         values: detailed ? dataIdsWithReason : undefined,
       },
+      ipfs,
     };
   }
 
