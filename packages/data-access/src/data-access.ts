@@ -477,7 +477,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         list: detailed ? listIndexedLocation : undefined,
       },
       lastSynchronizationTimestamp: this.lastSyncStorageTimestamp,
-      storage: this.storage._getStatus(detailed),
+      storage: await this.storage._getStatus(detailed),
       synchronizationConfig,
     };
   }
