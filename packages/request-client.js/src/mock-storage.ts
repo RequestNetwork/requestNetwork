@@ -131,7 +131,7 @@ export default class MockStorage implements StorageTypes.IStorage {
    *
    * @param detailed if true get the list of files hash
    */
-  public async _getInformation(detailed?: boolean): Promise<any> {
+  public async _getStatus(detailed?: boolean): Promise<any> {
     return {
       dataIds: {
         count: Object.entries(this.data).length,

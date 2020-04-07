@@ -23,29 +23,29 @@ describe('DataIds ignored', () => {
 
       expect(await dataIdsIgnored.getReason(hash)).to.be.equal(reason);
     });
-    describe('getListDataIdWithReason', () => {
-      it('can getListDataIdWithReason()', async () => {
+    describe('getDataIdsWithReasons', () => {
+      it('can getDataIdsWithReasons()', async () => {
         await dataIdsIgnored.saveReason(hash, reason);
         await dataIdsIgnored.saveReason(hash2, reason2);
 
-        expect(await dataIdsIgnored.getListDataIdWithReason()).to.be.deep.equal({
+        expect(await dataIdsIgnored.getDataIdsWithReasons()).to.be.deep.equal({
           [hash]: reason,
           [hash2]: reason2,
         });
       });
-      it('can getListDataIdWithReason() if empty', async () => {
-        expect(await dataIdsIgnored.getListDataIdWithReason()).to.be.deep.equal({});
+      it('can getDataIdsWithReasons() if empty', async () => {
+        expect(await dataIdsIgnored.getDataIdsWithReasons()).to.be.deep.equal({});
       });
     });
-    describe('getListDataId', () => {
-      it('can getListDataId()', async () => {
+    describe('getDataIds', () => {
+      it('can getDataIds()', async () => {
         await dataIdsIgnored.saveReason(hash, reason);
         await dataIdsIgnored.saveReason(hash2, reason2);
 
-        expect(await dataIdsIgnored.getListDataId()).to.be.deep.equal([hash, hash2]);
+        expect(await dataIdsIgnored.getDataIds()).to.be.deep.equal([hash, hash2]);
       });
-      it('can getListDataId() if empty', async () => {
-        expect(await dataIdsIgnored.getListDataId()).to.be.deep.equal([]);
+      it('can getDataIds() if empty', async () => {
+        expect(await dataIdsIgnored.getDataIds()).to.be.deep.equal([]);
       });
     });
   });

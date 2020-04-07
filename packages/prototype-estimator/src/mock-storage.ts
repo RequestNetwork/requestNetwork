@@ -19,7 +19,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     throw Error('will never be used');
   }
 
-  public async _getInformation(): Promise<never> {
+  public async _getStatus(): Promise<never> {
     throw Error('will never be used');
   }
 

@@ -10,14 +10,14 @@ import Utils from '@requestnetwork/utils';
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import getChannelsByTopic from './request/getChannelsByTopic';
-import getInformation from './request/getInformation';
+import getStatus from './request/getStatus';
 import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import ipfsAdd from './request/ipfsAdd';
 import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
 const NOT_FOUND_MESSAGE =
-  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd\nGET getConfirmedTransaction\nGET information';
+  'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd\nGET getConfirmedTransaction\nGET status';
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
 
@@ -159,10 +159,10 @@ class RequestNode {
       return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
     });
 
-    // Route for information check
-    router.get('/information', (clientRequest: any, serverResponse: any) => {
+    // Route for satus check
+    router.get('/status', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
-        return getInformation(
+        return getStatus(
           clientRequest,
           serverResponse,
           this.ethereumStorage,

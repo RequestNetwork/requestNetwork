@@ -39,21 +39,21 @@ describe('IgnoredLocation', () => {
     });
   });
 
-  describe('getIgnoredLocation', () => {
-    it('can getIgnoredLocation()', async () => {
+  describe('getIgnoredLocations', () => {
+    it('can getIgnoredLocations()', async () => {
       const ignoredLocation = new IgnoredLocation();
       await ignoredLocation.pushReasonByLocation(arbitraryDataId1, arbitraryReason);
       await ignoredLocation.pushReasonByLocation(arbitraryDataId2, arbitraryReason2);
 
-      expect(await ignoredLocation.getIgnoredLocation()).to.be.deep.equal({
+      expect(await ignoredLocation.getIgnoredLocations()).to.be.deep.equal({
         [arbitraryDataId1]: arbitraryReason,
         [arbitraryDataId2]: arbitraryReason2,
       });
     });
-    it('can getIgnoredLocation() if empty', async () => {
+    it('can getIgnoredLocations() if empty', async () => {
       const ignoredLocation = new IgnoredLocation();
 
-      expect(await ignoredLocation.getIgnoredLocation()).to.be.deep.equal({});
+      expect(await ignoredLocation.getIgnoredLocations()).to.be.deep.equal({});
     });
   });
 });

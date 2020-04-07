@@ -5,13 +5,13 @@ import * as httpStatus from 'http-status-codes';
 const GET_CHANNELS_TIMEOUT: number = 600000;
 
 /**
- * Handles getInformation of data-access layer.
+ * Handles getStatus of data-access layer.
  *
  * @param clientRequest http client request object
  * @param serverResponse http server response object
  * @param dataAccess data access layer
  */
-export default async function getInformation(
+export default async function getStatus(
   clientRequest: any,
   serverResponse: any,
   ethereumStorage: StorageTypes.IStorage,
@@ -26,34 +26,32 @@ export default async function getInformation(
   // PROT-187: Decrease or remove this value
   clientRequest.setTimeout(GET_CHANNELS_TIMEOUT);
 
-  if (!dataAccess._getInformation) {
+  if (!dataAccess._getStatus) {
     return serverResponse
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .send('The node do not support this feature');
   }
 
   try {
-    const dataAccessInformation = await dataAccess._getInformation(clientRequest.query.detailed);
-    const ethereumStorageInformation = await ethereumStorage._getInformation(
-      clientRequest.query.detailed,
-    );
+    const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
+    const ethereumStorageStatus = await ethereumStorage._getStatus(clientRequest.query.detailed);
 
-    const information = {
-      dataAccessInformation,
-      ethereumStorageInformation,
+    const status = {
+      dataAccessStatus,
+      ethereumStorageStatus,
       version: process.env.npm_package_version,
     };
 
     // Log the request time
     const requestEndTime = Date.now();
-    logger.debug(`getInformation latency: ${requestEndTime - requestStartTime}ms`, [
+    logger.debug(`getStatus latency: ${requestEndTime - requestStartTime}ms`, [
       'metric',
       'latency',
     ]);
 
-    serverResponse.status(httpStatus.OK).send(information);
+    serverResponse.status(httpStatus.OK).send(status);
   } catch (e) {
-    logger.error(`getInformation error: ${e}`);
+    logger.error(`getStatus error: ${e}`);
 
     serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
   }

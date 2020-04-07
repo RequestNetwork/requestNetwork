@@ -104,7 +104,7 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
-  _getInformation: chai.spy(),
+  _getStatus: chai.spy(),
   _ipfsAdd: chai.spy(),
   append: chai.spy(
     (): any => {
@@ -493,7 +493,7 @@ describe('data-access', () => {
 
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
       const mockStorageEmittingError: StorageTypes.IStorage = {
-        _getInformation: chai.spy(),
+        _getStatus: chai.spy(),
         _ipfsAdd: chai.spy(),
         append: chai.spy(
           (): any => {
@@ -546,7 +546,7 @@ describe('data-access', () => {
     });
   });
 
-  describe('_getInformation', () => {
+  describe('_getStatus', () => {
     let dataAccess: any;
 
     beforeEach(async () => {
@@ -569,20 +569,15 @@ describe('data-access', () => {
       await dataAccess.initialize();
     });
 
-    it('can _getInformation()', async () => {
-      expect(await dataAccess._getInformation(), 'result with arbitraryTopic1 wrong').to.deep.equal(
-        {
-          filesIgnored: { count: 0, list: undefined },
-          filesRetrieved: { count: 1, lastTimestamp: 10, list: undefined },
-          lastSynchronizationTimestamp: 0,
-        },
-      );
+    it('can _getStatus()', async () => {
+      expect(await dataAccess._getStatus(), 'result with arbitraryTopic1 wrong').to.deep.equal({
+        filesIgnored: { count: 0, list: undefined },
+        filesRetrieved: { count: 1, lastTimestamp: 10, list: undefined },
+        lastSynchronizationTimestamp: 0,
+      });
     });
-    it('can _getInformation() with details', async () => {
-      expect(
-        await dataAccess._getInformation(true),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
+    it('can _getStatus() with details', async () => {
+      expect(await dataAccess._getStatus(true), 'result with arbitraryTopic1 wrong').to.deep.equal({
         filesIgnored: { count: 0, list: {} },
         filesRetrieved: { count: 1, lastTimestamp: 10, list: ['dataIdBlock2tx'] },
         lastSynchronizationTimestamp: 0,
@@ -618,7 +613,7 @@ describe('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
-      _getInformation: chai.spy(),
+      _getStatus: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -740,7 +735,7 @@ describe('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy.returns(appendResult),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
-      _getInformation: chai.spy(),
+      _getStatus: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),

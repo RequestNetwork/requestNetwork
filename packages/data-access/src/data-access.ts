@@ -456,7 +456,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param detailed if true get the list of the files hashes
    */
-  public async _getInformation(detailed: boolean = false): Promise<any> {
+  public async _getStatus(detailed: boolean = false): Promise<any> {
     this.checkInitialized();
 
     // last transaction timestamp retrieved

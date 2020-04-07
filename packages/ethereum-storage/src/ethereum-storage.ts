@@ -443,7 +443,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param detailed if true get the list of the files hash
    * @returns Promise resolving object with dataIds retrieved and ignored
    */
-  public async _getInformation(detailed: boolean = false): Promise<any> {
+  public async _getStatus(detailed: boolean = false): Promise<any> {
     const dataIds = await this.ethereumMetadataCache.getDataIds();
     const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
     return {
