@@ -810,4 +810,29 @@ describe('EthereumStorage', () => {
       assert.isNumber(result.lastTimestamp);
     });
   });
+
+  describe('_getStatus()', () => {
+    it('can get status', async () => {
+      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      await ethereumStorage.initialize();
+      await ethereumStorage.append(content1);
+      await ethereumStorage.getData();
+
+      const status = await ethereumStorage._getStatus();
+      expect(status.dataIds.count, 'config wrong').to.gte(0);
+      expect(status.ignoredDataIds.count, 'config wrong').to.gte(0);
+      expect(status.ethereum, 'config wrong').to.deep.equal({
+        creationBlockNumberHashStorage: 0,
+        currentProvider: 'http://localhost:8545',
+        hashStorageAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+        hashSubmitterAddress: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+        maxConcurrency: 5,
+        maxRetries: undefined,
+        networkName: 'private',
+        retryDelay: undefined,
+      });
+      // tslint:disable-next-line:no-unused-expression
+      expect(status.ipfs, 'config wrong').to.exist;
+    });
+  });
 });

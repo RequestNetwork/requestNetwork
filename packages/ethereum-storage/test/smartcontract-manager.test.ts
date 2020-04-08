@@ -196,6 +196,19 @@ describe('SmartContractManager', () => {
     smartContractManager.ethereumBlocks.maxRetries = 0;
   });
 
+  it('can get config', async () => {
+    expect(smartContractManager.getConfig(), 'config wrong').to.deep.equal({
+      creationBlockNumberHashStorage: 0,
+      currentProvider: 'http://localhost:8545',
+      hashStorageAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+      hashSubmitterAddress: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+      maxConcurrency: Number.MAX_SAFE_INTEGER,
+      maxRetries: undefined,
+      networkName: 'private',
+      retryDelay: undefined,
+    });
+  });
+
   it('getMainAccount should return the main account', async () => {
     const accounts = await eth.getAccounts();
     const mainAccount = await smartContractManager.getMainAccount();
@@ -600,13 +613,13 @@ describe('SmartContractManager', () => {
     smartContractManager.eth.net.isListening = () =>
       new Promise(
         (resolve, _reject): void => {
-          setTimeout(() => resolve(true), 20000);
+          setTimeout(() => resolve(true), 300);
         },
       );
 
     // Timeout is lower to not reach the mocha test timeout
     await assert.isRejected(
-      smartContractManager.checkWeb3ProviderConnection(1000),
+      smartContractManager.checkWeb3ProviderConnection(100),
       Error,
       'The Web3 provider is not reachable, did you use the correct protocol (http/https)?',
     );

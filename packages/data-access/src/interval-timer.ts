@@ -89,4 +89,16 @@ export default class IntervalTimer {
     clearTimeout(this.timeoutObject);
     this.timeoutObject = null;
   }
+
+  /**
+   * Gets current configuration
+   *
+   * @return the current configuration attributes
+   */
+  public getConfig(): any {
+    return {
+      intervalTime: this.intervalTime,
+      successiveFailureThreshold: this.successiveFailureThreshold,
+    };
+  }
 }

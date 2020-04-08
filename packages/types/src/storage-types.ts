@@ -10,6 +10,7 @@ export interface IStorage {
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
   _ipfsAdd?: (data: string) => Promise<IIpfsMeta>;
+  _getStatus: (detailed?: boolean) => Promise<any>;
 }
 
 /** An extensible template that declares a generic meta */

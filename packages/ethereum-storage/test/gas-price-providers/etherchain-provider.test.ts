@@ -53,21 +53,15 @@ describe('EtherchainProvider', () => {
       // Test with each gas price type
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.SAFELOW),
-      ).to.eventually.eql(
-        new bigNumber(1000000000),
-      );
+      ).to.eventually.eql(new bigNumber(1000000000));
 
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.eventually.eql(
-        new bigNumber(3500000000),
-      );
+      ).to.eventually.eql(new bigNumber(3500000000));
 
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
-      ).to.eventually.eql(
-        new bigNumber(7000000000),
-      );
+      ).to.eventually.eql(new bigNumber(7000000000));
     });
 
     it('throws when API is not available', async () => {
