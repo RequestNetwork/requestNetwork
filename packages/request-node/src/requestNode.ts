@@ -15,10 +15,14 @@ import ipfsAdd from './request/ipfsAdd';
 import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
+const packageJson = require('../package.json');
+
 const NOT_FOUND_MESSAGE =
   'Not found\nAvailable endpoints:\n/POST persistTransaction\n/GET getTransactionsByChannelId\n/GET getChannelsByTopic\n/POST /ipfsAdd\nGET getConfirmedTransaction';
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
+
+const REQUEST_NODE_VERSION_HEADER = 'Request-Node-Version';
 
 /**
  * Main class for request node express server
@@ -37,6 +41,7 @@ class RequestNode {
   private logger: LogTypes.ILogger;
   private persistTransaction: PersistTransaction;
   private confirmedTransactionStore: ConfirmedTransactionStore;
+  private requestNodeVersion: string;
   /**
    * Request Node constructor
    *
@@ -73,6 +78,9 @@ class RequestNode {
 
     this.express = express();
     this.mountRoutes();
+
+    // Get the version of the Request Node for the request's response header
+    this.requestNodeVersion = packageJson.version;
   }
 
   /**
@@ -140,6 +148,12 @@ class RequestNode {
         next();
       });
     }
+
+    // Set the Request Node version to the header
+    this.express.use((_: any, res: any, next: any) => {
+      res.header(REQUEST_NODE_VERSION_HEADER, this.requestNodeVersion),
+      next();
+    });
 
     // Supported encodings
     this.express.use(express.json());

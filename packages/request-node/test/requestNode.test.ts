@@ -10,6 +10,9 @@ import requestNode from '../src/requestNode';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+const packageJson = require('../package.json');
+const requestNodeVersion = packageJson.version;
+
 const dataAccessInitializeFailureMock = async (): Promise<never> => {
   throw Error('This mock function always fails');
 };
@@ -97,6 +100,16 @@ describe('requestNode server', () => {
     await request(server)
       .post('/')
       .expect('x-custom-test-header', 'test-passed');
+  });
+
+  it('the response header contains the Request Node version', async () => {
+    // Import directly requestNode to create a server
+    requestNodeInstance = new requestNode();
+    server = requestNodeInstance.listen(3002, () => 0);
+
+    await request(server)
+      .post('/')
+      .expect('Request-Node-Version', requestNodeVersion);
   });
 
   it('must throw if no mnemonic given with rinkeby', async () => {
