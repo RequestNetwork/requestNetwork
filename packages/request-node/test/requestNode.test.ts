@@ -109,7 +109,7 @@ describe('requestNode server', () => {
 
     await request(server)
       .post('/')
-      .expect('Request-Node-Version', requestNodeVersion);
+      .expect('X-Request-Node-Version', requestNodeVersion);
   });
 
   it('must throw if no mnemonic given with rinkeby', async () => {

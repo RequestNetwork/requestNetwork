@@ -22,7 +22,7 @@ const NOT_FOUND_MESSAGE =
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
 
-const REQUEST_NODE_VERSION_HEADER = 'Request-Node-Version';
+const REQUEST_NODE_VERSION_HEADER = 'X-Request-Node-Version';
 
 /**
  * Main class for request node express server
