@@ -126,6 +126,24 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
+  /**
+   * Gets information
+   *
+   * @param detailed if true get the list of files hash
+   */
+  public async _getStatus(detailed?: boolean): Promise<any> {
+    return {
+      dataIds: {
+        count: Object.entries(this.data).length,
+        values: detailed ? Object.entries(this.data) : undefined,
+      },
+      ignoredDataIds: {
+        count: 0,
+        values: detailed ? [] : undefined,
+      },
+    };
+  }
+
   public _makeNextAppendFailInsteadOfConfirmed(): void {
     this.forceEmitError = true;
   }

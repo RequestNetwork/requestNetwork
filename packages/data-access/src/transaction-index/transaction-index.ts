@@ -19,13 +19,20 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
   // Will be used to get the data from timestamp boundaries
   private timestampByLocation: TimestampByLocation;
 
+  private indexedLocation: Keyv<string[]>;
+
   /**
    * Constructor of TransactionIndex
-   * @param store a Keyv store to persist the index to
+   * @param store a Keyv store to persist the index
    */
   constructor(store?: Keyv.Store<any>) {
     this.timestampByLocation = new TimestampByLocation(store);
     this.locationByTopic = new LocationByTopic(store);
+
+    this.indexedLocation = new Keyv<string[]>({
+      namespace: 'indexedLocation',
+      store,
+    });
   }
 
   // tslint:disable-next-line: no-empty
@@ -58,6 +65,8 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
 
     // add the timestamp in the index
     await this.timestampByLocation.pushTimestampByLocation(dataId, timestamp);
+
+    await this.updateIndexedLocation(dataId);
   }
 
   /**
@@ -198,6 +207,33 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
       return result;
     } else {
       return channelIds;
+    }
+  }
+
+  /**
+   * the list of indexed locations
+   */
+  public async getIndexedLocations(): Promise<string[]> {
+    const listDataIds: string[] | undefined = await this.indexedLocation.get('list');
+    return listDataIds || [];
+  }
+
+  /**
+   * Update the list of data ids stored
+   *
+   * @param dataId data id to add to the list
+   * @returns
+   */
+  private async updateIndexedLocation(dataId: string): Promise<void> {
+    let listDataIds: string[] | undefined = await this.indexedLocation.get('list');
+    if (!listDataIds) {
+      listDataIds = [];
+    }
+
+    // push it if not already done
+    if (!listDataIds.includes(dataId)) {
+      listDataIds.push(dataId);
+      await this.indexedLocation.set('list', listDataIds);
     }
   }
 }

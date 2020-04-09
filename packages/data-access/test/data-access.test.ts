@@ -104,6 +104,11 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
+  _getStatus: chai.spy(
+    (): any => ({
+      fake: 'status',
+    }),
+  ),
   _ipfsAdd: chai.spy(),
   append: chai.spy(
     (): any => {
@@ -138,7 +143,7 @@ let clock: sinon.SinonFakeTimers;
 
 // tslint:disable:no-magic-numbers
 /* tslint:disable:no-unused-expression */
-describe.only('data-access', () => {
+describe('data-access', () => {
   beforeEach(async () => {
     clock = sinon.useFakeTimers();
   });
@@ -492,6 +497,7 @@ describe.only('data-access', () => {
 
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
       const mockStorageEmittingError: StorageTypes.IStorage = {
+        _getStatus: chai.spy(),
         _ipfsAdd: chai.spy(),
         append: chai.spy(
           (): any => {
@@ -544,6 +550,55 @@ describe.only('data-access', () => {
     });
   });
 
+  describe('_getStatus', () => {
+    let dataAccess: any;
+
+    beforeEach(async () => {
+      const fakeStorage = {
+        ...defaultFakeStorage,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
+
+      dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+    });
+
+    it('can _getStatus()', async () => {
+      expect(await dataAccess._getStatus(), 'result with arbitraryTopic1 wrong').to.deep.equal({
+        filesIgnored: { count: 0, list: undefined },
+        filesRetrieved: { count: 1, lastTimestamp: 10, list: undefined },
+        lastSynchronizationTimestamp: 0,
+        storage: { fake: 'status' },
+        synchronizationConfig: {
+          intervalTime: 10000,
+          successiveFailureThreshold: 5,
+        },
+      });
+    });
+    it('can _getStatus() with details', async () => {
+      expect(await dataAccess._getStatus(true), 'result with arbitraryTopic1 wrong').to.deep.equal({
+        filesIgnored: { count: 0, list: {} },
+        filesRetrieved: { count: 1, lastTimestamp: 10, list: ['dataIdBlock2tx'] },
+        lastSynchronizationTimestamp: 0,
+        storage: { fake: 'status' },
+        synchronizationConfig: {
+          intervalTime: 10000,
+          successiveFailureThreshold: 5,
+        },
+      });
+    });
+  });
+
   it('synchronizeNewDataId() should throw an error if not initialized', async () => {
     const dataAccess = new DataAccess(defaultFakeStorage);
 
@@ -572,6 +627,7 @@ describe.only('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
+      _getStatus: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),
@@ -693,6 +749,7 @@ describe.only('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy.returns(appendResult),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
+      _getStatus: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
       readMany: chai.spy(),

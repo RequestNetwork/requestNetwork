@@ -9,6 +9,7 @@ import {
   getPinRequestConfig,
 } from './config';
 
+import DataIdsIgnored from './dataIds-ignored';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IpfsConnectionError from './ipfs-connection-error';
 import IpfsManager from './ipfs-manager';
@@ -46,6 +47,9 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Cache to store Ethereum metadata
    */
   public ethereumMetadataCache: EthereumMetadataCache;
+
+  /** Data ids ignored by the node */
+  public dataIdsIgnored: DataIdsIgnored;
 
   /**
    * Maximum number of concurrent calls
@@ -115,6 +119,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.smartContractManager,
       metadataStore,
     );
+    this.dataIdsIgnored = new DataIdsIgnored(metadataStore);
     this.buffer = {};
     this.externalBufferUrl = externalBufferUrl;
   }
@@ -433,6 +438,33 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   }
 
   /**
+   * Get Information on the dataIds retrieved and ignored by the ethereum storage
+   *
+   * @param detailed if true get the list of the files hash
+   * @returns Promise resolving object with dataIds retrieved and ignored
+   */
+  public async _getStatus(detailed: boolean = false): Promise<any> {
+    const dataIds = await this.ethereumMetadataCache.getDataIds();
+    const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
+
+    const ethereum = this.smartContractManager.getConfig();
+    const ipfs = await this.ipfsManager.getConfig();
+
+    return {
+      dataIds: {
+        count: dataIds.length,
+        values: detailed ? dataIds : undefined,
+      },
+      ethereum,
+      ignoredDataIds: {
+        count: Object.keys(dataIdsWithReason).length,
+        values: detailed ? dataIdsWithReason : undefined,
+      },
+      ipfs,
+    };
+  }
+
+  /**
    * Get all dataId and the contents stored on the storage
    *
    * @param options timestamp boundaries for the data id retrieval
@@ -556,7 +588,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               hashAndSize.hash,
               Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
             );
-
             this.logger.debug(
               `[${successCount + currentIndex + 1}/${totalCount}] read ${
                 hashAndSize.hash
@@ -573,12 +604,22 @@ export default class EthereumStorage implements StorageTypes.IStorage {
               ]);
               ipfsConnectionErrorCount++;
               this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
+              // store the reason for fail
+              await this.dataIdsIgnored.saveReason(
+                hashAndSize.hash,
+                `IPFS connection error : ${errorMessage}`,
+              );
 
               // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the hash
               return { entry: null, ethereumEntryToRetry: hashAndSize };
             } else {
               this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
               incorrectFileCount++;
+              // store the reason for fail
+              await this.dataIdsIgnored.saveReason(
+                hashAndSize.hash,
+                `Incorrect file error: ${errorMessage}`,
+              );
               this.logger.debug(`Incorrect file error: ${errorMessage}`, ['ipfs']);
 
               // No need to retry to find this hash
@@ -593,6 +634,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           if (!ipfsObject || ipfsObject.ipfsSize > contentSizeDeclared) {
             this.logger.info(`Incorrect declared size for hash: ${hashAndSize.hash}`, ['ipfs']);
             wrongFeesCount++;
+            // store the reason for fail
+            await this.dataIdsIgnored.saveReason(hashAndSize.hash, `Incorrect declared size`);
 
             // No need to retry to find this hash
             return { entry: null, ethereumEntryToRetry: null };

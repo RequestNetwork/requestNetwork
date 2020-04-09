@@ -16,6 +16,8 @@ export default class EthereumMetadataCache {
    */
   public metadataCache: Keyv<StorageTypes.IEthereumMetadata>;
 
+  public listDataIds: Keyv<string[]>;
+
   /**
    * Manager for the storage smart contract
    * This attribute  is used to get metadata in case they're not registered yet
@@ -34,6 +36,11 @@ export default class EthereumMetadataCache {
       namespace: 'ethereumMetadata',
       store,
     });
+
+    this.listDataIds = new Keyv<string[]>({
+      namespace: 'listDataIds',
+      store,
+    });
   }
 
   /**
@@ -49,6 +56,7 @@ export default class EthereumMetadataCache {
     // PROT-503: We should ensure the corresponding metadata is the metadata of the first occurrence of the dataId
     if (!(await this.metadataCache.get(dataId))) {
       await this.metadataCache.set(dataId, meta);
+      await this.updateDataId(dataId);
     }
   }
 
@@ -63,11 +71,43 @@ export default class EthereumMetadataCache {
     // If the metadata has not been saved in the cache yet
     // we get them with smartContractManager and save them
     let metadata: StorageTypes.IEthereumMetadata | undefined = await this.metadataCache.get(dataId);
+
     if (!metadata) {
       metadata = await this.smartContractManager.getMetaFromEthereum(dataId);
       await this.metadataCache.set(dataId, metadata);
+      await this.updateDataId(dataId);
     }
 
     return metadata;
+  }
+
+  /**
+   * Get the list of data ids stored
+   *
+   * @returns the list of data ids stored
+   */
+  public async getDataIds(): Promise<string[]> {
+    const listDataIds: string[] | undefined = await this.listDataIds.get('list');
+    if (!listDataIds) {
+      return [];
+    }
+    return listDataIds;
+  }
+
+  /**
+   * Update the list of data ids stored
+   *
+   * @param dataId data id to add to the list
+   * @returns
+   */
+  private async updateDataId(dataId: string): Promise<void> {
+    let listDataIds: string[] | undefined = await this.listDataIds.get('list');
+    if (!listDataIds) {
+      listDataIds = [];
+    }
+    if (!listDataIds.includes(dataId)) {
+      listDataIds.push(dataId);
+      await this.listDataIds.set('list', listDataIds);
+    }
   }
 }

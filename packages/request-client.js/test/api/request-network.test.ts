@@ -18,6 +18,9 @@ import Request from '../../src/api/request';
 import * as TestData from '../data-test';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
+  async _getStatus(): Promise<any> {
+    return;
+  },
   async getChannelsByTopic(): Promise<any> {
     return;
   },
@@ -48,6 +51,9 @@ describe('api/request-network', () => {
   describe('createRequest', () => {
     it('cannot createRequest() with extensionsData', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByTopic(): Promise<any> {
           return;
         },
@@ -79,6 +85,9 @@ describe('api/request-network', () => {
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByTopic(): Promise<any> {
           return;
         },
@@ -130,6 +139,9 @@ describe('api/request-network', () => {
       );
 
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByTopic(): Promise<any> {
           return;
         },
@@ -161,6 +173,9 @@ describe('api/request-network', () => {
   describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByTopic(topic: string): Promise<any> {
           expect(topic).to.equals(
             '01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76',
@@ -232,6 +247,9 @@ describe('api/request-network', () => {
   describe('fromTopic', () => {
     it('can get requests with payment network fromTopic', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByTopic(): Promise<any> {
           return {
             meta: {
@@ -285,6 +303,9 @@ describe('api/request-network', () => {
   describe('fromMultipleIdentities', () => {
     it('can get requests with payment network from multiple Identities', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByMultipleTopics(topics: [string]): Promise<any> {
           expect(topics).to.deep.equals([
             '01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76',
@@ -360,6 +381,9 @@ describe('api/request-network', () => {
   describe('fromMultipleTopics', () => {
     it('can get requests with payment network fromMultipleTopics', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
+        async _getStatus(): Promise<any> {
+          return;
+        },
         async getChannelsByMultipleTopics(): Promise<any> {
           return {
             meta: {
