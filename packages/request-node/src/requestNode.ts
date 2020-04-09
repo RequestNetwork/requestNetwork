@@ -22,7 +22,7 @@ const NOT_FOUND_MESSAGE =
 
 const NOT_INITIALIZED_MESSAGE = 'The node is not initialized';
 
-const REQUEST_NODE_VERSION_HEADER = 'X-Request-Node-Version';
+const REQUEST_NODE_VERSION_HEADER = 'X-Request-Network-Node-Version';
 
 /**
  * Main class for request node express server
@@ -151,7 +151,7 @@ class RequestNode {
 
     // Set the Request Node version to the header
     this.express.use((_: any, res: any, next: any) => {
-      res.header(REQUEST_NODE_VERSION_HEADER, this.requestNodeVersion),
+      res.header(REQUEST_NODE_VERSION_HEADER, this.requestNodeVersion);
       next();
     });
 

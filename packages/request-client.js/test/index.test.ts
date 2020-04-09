@@ -22,7 +22,7 @@ import * as TestDataRealBTC from './data-test-real-btc';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
 const packageJson = require('../package.json');
-const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Client-Version';
+const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
 
 const chai = require('chai');
 const spies = require('chai-spies');

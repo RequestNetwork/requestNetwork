@@ -5,7 +5,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { EventEmitter } from 'events';
 
 const packageJson = require('../package.json');
-const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Client-Version';
+
+const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
 
 // Maximum number of retries to attempt when http requests to the Node fail
 const HTTP_REQUEST_MAX_RETRY = 3;
