@@ -43,7 +43,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         baseURL: 'http://localhost:3000',
         headers: {
           [REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
-        }
+        },
       },
       nodeConnectionConfig,
     );

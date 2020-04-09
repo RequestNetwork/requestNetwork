@@ -105,7 +105,7 @@ describe('requestNode server', () => {
   it('the response header contains the Request Node version', async () => {
     // Import directly requestNode to create a server
     requestNodeInstance = new requestNode();
-    server = requestNodeInstance.listen(3002, () => 0);
+    server = requestNodeInstance.listen(3003, () => 0);
     
     await request(server)
       .post('/')
