@@ -35,6 +35,15 @@ export default async function getStatus(
   try {
     const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
 
+    let providerUrl: string = config.getStorageWeb3ProviderUrl();
+    // if infura provider
+    if (providerUrl.includes('infura')) {
+      // hide the infura token
+      providerUrl = providerUrl
+        .split('/')
+        .slice(0, -1)
+        .join('/');
+    }
     const status = {
       dataAccess: dataAccessStatus,
       node: {
@@ -43,7 +52,7 @@ export default async function getStatus(
           concurrency: config.getStorageConcurrency(),
           lastBlockNumberDelay: config.getLastBlockNumberDelay(),
           networkId: config.getStorageNetworkId(),
-          providerUrl: config.getStorageWeb3ProviderUrl(),
+          providerUrl,
           retryDelay: config.getEthereumRetryDelay(),
         },
         ipfs: {
