@@ -38,7 +38,7 @@ For ETH, we can tag and detect the payment reference directly in the transaction
 When we cannot use `input data` or equivalent, typically for ERC20, we use a *proxy smart contract* to document the payment reference.
 The smart contract forwards a currency transfer and stores a reference.
 
-If you need the proxy smart contract addresses, we list the most relevant ones below, together with Github links to find more details and up-to-date information.
+If you need the proxy smart contract addresses, we list the most relevant ones below.
 
 [Proxy smart contracts for ERC20](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/ERC20Proxy/artifacts.json):
 ```json
