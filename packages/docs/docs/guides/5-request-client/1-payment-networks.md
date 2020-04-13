@@ -88,7 +88,7 @@ Because one Ethereum address is generally used many times to receive and send tr
 
 ### ERC20
 
-Request is compatible with every ERC20 currency, but some of them have to be detailed manually. We use the package `eth-contract-metadata` to automatically fetch smart contracts and currency code of main currencies, whose the list is maintained by Metamask.
+Request is compatible with every ERC20 currency, but some of them have to be detailed manually. We use Metamask's package [`eth-contract-metadata`](https://github.com/MetaMask/eth-contract-metadata) to automatically fetch smart contracts and currency codes of main currencies.
 
 Adding an additional ERC20 currency is very easy:
 ```typescript
