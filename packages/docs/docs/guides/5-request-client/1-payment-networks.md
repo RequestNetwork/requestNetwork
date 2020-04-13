@@ -90,7 +90,22 @@ Because one Ethereum address is generally used many times to receive and send tr
 
 Request is compatible with every ERC20 currency, but some of them have to be detailed manually. We use Metamask's package [`eth-contract-metadata`](https://github.com/MetaMask/eth-contract-metadata) to automatically fetch smart contracts and currency codes of main currencies.
 
-Adding an additional ERC20 currency is very easy:
+For listed ERC20 currencies, you can use the code directly.
+```typescript
+// New request for most common currencies, such as DAI or BAT:
+const request = await requestNetwork.createRequest({
+  paymentNetwork,
+  requestInfo: {
+    currency: 'DAI',
+    expectedAmount: '1000000000000000000',
+    payee: payeeIdentity,
+    payer: payerIdentity,
+  },
+  signer: payeeIdentity,
+});
+```
+
+For additional ERC20 tokens, or specific neworks, you have to mention the contract address and network identifier.
 ```typescript
 const request = await requestNetwork.createRequest({
   paymentNetwork,
