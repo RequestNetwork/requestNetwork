@@ -49,7 +49,7 @@ If you need the proxy smart contract addresses, we list the most relevant ones b
 	"address": "0x162edb802fae75b9ee4288345735008ba51a4ec9",
 }
 ```
-[Proxy smart contracts for ETH](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/EthereumProxy/artifacts.json):
+[Proxy smart contracts for ETH when input data cannot be used](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/EthereumProxy/artifacts.json):
 ```json
 "mainnet": {
 	"address": "0x37a8f5f64f2a84f2377481537f04d2a59c9f59b6",
