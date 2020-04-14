@@ -7,6 +7,7 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
 import { Erc20ProxyContract } from '../contracts/Erc20ProxyContract';
+import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
   getNetworkProvider,
@@ -21,11 +22,13 @@ import {
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param overrides optionnally, override default transaction values, like gas.
  */
 export async function payErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
+  overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodePayErc20Request(request, signerOrProvider, amount);
   const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
@@ -34,6 +37,7 @@ export async function payErc20ProxyRequest(
     data: encodedTx,
     to: proxyAddress,
     value: 0,
+    ...overrides,
   });
   return tx;
 }
@@ -92,10 +96,12 @@ export async function hasErc20Approval(
  * @param request request to pay
  * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionnally, override default transaction values, like gas.
  */
 export async function approveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodeApproveErc20(request, signerOrProvider);
   const signer = getSigner(signerOrProvider);
@@ -104,6 +110,7 @@ export async function approveErc20(
     data: encodedTx,
     to: tokenAddress,
     value: 0,
+    ...overrides,
   });
   return tx;
 }

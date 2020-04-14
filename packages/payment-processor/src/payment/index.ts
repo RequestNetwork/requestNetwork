@@ -7,6 +7,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getErc20Balance, payErc20ProxyRequest } from './erc20-proxy';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
+import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
@@ -31,19 +32,21 @@ export class UnsupportedNetworkError extends Error {
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param overrides optionnally, override default transaction values, like gas.
  */
 export async function payRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
+  overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return payErc20ProxyRequest(request, signer, amount);
+      return payErc20ProxyRequest(request, signer, amount, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      return payEthInputDataRequest(request, signer, amount);
+      return payEthInputDataRequest(request, signer, amount, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
