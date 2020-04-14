@@ -34,16 +34,16 @@ export default async function getStatus(
 
   try {
     const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
+    let providerUrl: string = '';
 
-    let providerUrl: string = config.getStorageWeb3ProviderUrl();
-    // if infura provider
-    if (providerUrl.includes('infura')) {
-      // hide the infura token
-      providerUrl = providerUrl
-        .split('/')
-        .slice(0, -1)
-        .join('/');
+    // let's extract only the hostname to hide any token or sensible key
+    try {
+      const providerUrlObject: URL = new URL(config.getStorageWeb3ProviderUrl());
+      providerUrl = providerUrlObject.hostname;
+    } catch (e) {
+      providerUrl = 'Error: not an URL format';
     }
+
     const status = {
       dataAccess: dataAccessStatus,
       node: {
