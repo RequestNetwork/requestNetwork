@@ -18,7 +18,7 @@ import {
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param overrides optionnally, override default transaction values, like gas.
+ * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payEthInputDataRequest(
   request: ClientTypes.IRequestData,
