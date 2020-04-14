@@ -3,6 +3,8 @@ import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 import * as config from '../config';
 
+const packageJson = require('../package.json');
+
 const GET_CHANNELS_TIMEOUT: number = 600000;
 
 /**
@@ -64,7 +66,7 @@ export default async function getStatus(
         persistTransactionTimeout: config.getPersistTransactionTimeout(),
         port: config.getServerPort(),
         serverExternalUrl: config.getServerExternalUrl(),
-        version: process.env.npm_package_version,
+        version: packageJson.version,
       },
     };
 
