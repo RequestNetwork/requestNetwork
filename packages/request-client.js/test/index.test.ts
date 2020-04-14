@@ -21,6 +21,9 @@ import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
+const packageJson = require('../package.json');
+const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
+
 const chai = require('chai');
 const spies = require('chai-spies');
 const chaiAsPromised = require('chai-as-promised');
@@ -142,6 +145,38 @@ const mockBTCProvider = {
 describe('index', () => {
   afterEach(() => {
     sandbox.restore();
+  });
+
+  it('specify the Request Client version in the header', async () => {
+    const mock = new mockAdapter(axios);
+
+    const callback = (config: any): any => {
+      expect(config.headers[REQUEST_CLIENT_VERSION_HEADER]).to.equal(packageJson.version);
+      return [200, {}];
+    };
+    const spy = chai.spy(callback);
+    mock.onPost('/persistTransaction').reply(spy);
+    mock
+      .onGet('/getTransactionsByChannelId')
+      .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+
+    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
+
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+    expect(spy).to.have.been.called.once;
+
+    await request.waitForConfirmation();
   });
 
   it('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
@@ -1362,7 +1397,7 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it('can get the balance of an ETH request', async function(): Promise<void> {
+    it('can get the balance of an ETH request', async function (): Promise<void> {
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
       // tslint:disable-next-line: no-invalid-this
