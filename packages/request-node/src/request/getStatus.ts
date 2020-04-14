@@ -3,7 +3,7 @@ import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 import * as config from '../config';
 
-const packageJson = require('../package.json');
+const packageJson = require('../../package.json');
 
 const GET_CHANNELS_TIMEOUT: number = 600000;
 
