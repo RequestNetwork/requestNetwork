@@ -4,6 +4,10 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
 
+const packageJson = require('../package.json');
+
+const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
+
 // Maximum number of retries to attempt when http requests to the Node fail
 const HTTP_REQUEST_MAX_RETRY = 3;
 
@@ -31,9 +35,15 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
   constructor(nodeConnectionConfig: AxiosRequestConfig = {}) {
+    // Get Request Client version to set it in the header
+    const requestClientVersion = packageJson.version;
+
     this.axiosConfig = Object.assign(
       {
         baseURL: 'http://localhost:3000',
+        headers: {
+          [REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
+        },
       },
       nodeConnectionConfig,
     );
