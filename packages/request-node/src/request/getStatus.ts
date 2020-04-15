@@ -3,6 +3,8 @@ import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 import * as config from '../config';
 
+const packageJson = require('../../package.json');
+
 const GET_CHANNELS_TIMEOUT: number = 600000;
 
 /**
@@ -34,6 +36,15 @@ export default async function getStatus(
 
   try {
     const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
+    let providerUrl: string = '';
+
+    // let's extract only the hostname to hide any token or sensible key
+    try {
+      const providerUrlObject: URL = new URL(config.getStorageWeb3ProviderUrl());
+      providerUrl = providerUrlObject.hostname;
+    } catch (e) {
+      providerUrl = 'Error: not an URL format';
+    }
 
     const status = {
       dataAccess: dataAccessStatus,
@@ -43,7 +54,7 @@ export default async function getStatus(
           concurrency: config.getStorageConcurrency(),
           lastBlockNumberDelay: config.getLastBlockNumberDelay(),
           networkId: config.getStorageNetworkId(),
-          providerUrl: config.getStorageWeb3ProviderUrl(),
+          providerUrl,
           retryDelay: config.getEthereumRetryDelay(),
         },
         ipfs: {
@@ -55,7 +66,7 @@ export default async function getStatus(
         persistTransactionTimeout: config.getPersistTransactionTimeout(),
         port: config.getServerPort(),
         serverExternalUrl: config.getServerExternalUrl(),
-        version: process.env.npm_package_version,
+        version: packageJson.version,
       },
     };
 
