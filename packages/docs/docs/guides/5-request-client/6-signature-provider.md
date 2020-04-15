@@ -1,6 +1,6 @@
 ---
 title: Use your own signature mechanism
-keywords: [Request, test network, signature, signatureProvider]
+keywords: [Request, signature, signatureProvider]
 description: Learn how to integrate Request network and its features.
 ---
 
