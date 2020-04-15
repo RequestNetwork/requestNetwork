@@ -17,6 +17,7 @@ import Utils from '@requestnetwork/utils';
 
 import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
 import { getRequestPaymentValues } from '../../src/payment/utils';
+import { BigNumber } from 'ethers/utils';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
@@ -24,6 +25,7 @@ import { getRequestPaymentValues } from '../../src/payment/utils';
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 chai.use(spies);
+const sandbox = chai.spy.sandbox();
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -104,6 +106,20 @@ describe('payEthInputDataRequest', () => {
     await expect(payEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
+  });
+
+  it('should consider override parameters', async () => {
+    const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+    await payEthInputDataRequest(validRequest, wallet, undefined, {
+      gasPrice: '20000000001',
+    });
+    expect(spy).to.have.been.called.with({
+      data: '0x86dfbccad783599a',
+      gasPrice: '20000000001',
+      to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+      value: new BigNumber(1),
+    });
+    sandbox.restore();
   });
 
   it('processes a payment for a pn-eth-input-data request', async () => {

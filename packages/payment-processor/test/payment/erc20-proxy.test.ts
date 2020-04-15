@@ -30,6 +30,7 @@ import { getRequestPaymentValues } from '../../src/payment/utils';
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 chai.use(spies);
+const sandbox = chai.spy.sandbox();
 
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
@@ -96,6 +97,20 @@ describe('getErc20Balance', () => {
 });
 
 describe('hasErc20Approval & approveErc20', () => {
+  it('should consider override parameters', async () => {
+    const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+    await approveErc20(validRequest, wallet, {
+      gasPrice: '20000000000',
+    });
+    expect(spy).to.have.been.called.with({
+      data:
+        '0x095ea7b30000000000000000000000002c2b9c9a4a25e24b174f26114e8926a9f2128fe4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+      gasPrice: '20000000000',
+      to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+      value: 0,
+    });
+    sandbox.restore();
+  });
   it('can check and approve', async () => {
     // use another address so it doesn't mess with other tests.
     const otherWallet = new Wallet(
@@ -143,6 +158,21 @@ describe('payErc20ProxyRequest', () => {
     await expect(payErc20ProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
       'request cannot be processed, or is not an pn-erc20-proxy-contract request',
     );
+  });
+
+  it('should consider override parameters', async () => {
+    const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+    await payErc20ProxyRequest(validRequest, wallet, undefined, {
+      gasPrice: '20000000000',
+    });
+    expect(spy).to.have.been.called.with({
+      data:
+        '0x0784bca30000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+      gasPrice: '20000000000',
+      to: '0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4',
+      value: 0,
+    });
+    sandbox.restore();
   });
 
   it('should pay an ERC20 request', async () => {
