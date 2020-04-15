@@ -1,7 +1,7 @@
 ---
 title: Use your own signature mechanism
 keywords: [Request, signature, signatureProvider]
-description: Learn how to integrate Request network and its features.
+description: Learn how to build your own signature provider.
 ---
 
 In a previous chapter, we used the signature provider `@requestnetwork/web3-signature`. But, if you are not using web3, you need to inject your own signature mechanism to the request client.
@@ -18,7 +18,7 @@ export interface ISignatureProvider {
 
 ## Example 1
 
-You have your own package to make signatures:
+You have your own package to sign:
 
 ```typescript
 class mySignaturePackage {
@@ -83,7 +83,7 @@ export default class MySignatureProvider implements SignatureProviderTypes.ISign
 }
 ```
 
-Now you can inject it to the request client:
+Now you can inject it into the request client:
 
 ```typescript
 import MySignatureProvider from 'mySignatureProvider';
@@ -92,13 +92,13 @@ const mySignatureProvider = new MySignatureProvider();
 
 // We can initialize the RequestNetwork class with the signature provider
 const requestNetwork = new RequestNetwork.RequestNetwork({
-  mySignatureProvider,
+  signatureProvider:  mySignatureProvider,
 });
 ```
 
 ## Example 2
 
-You have your own package to make signatures:
+You have your own package to sign:
 
 ```typescript
 class mySignaturePackage {
@@ -135,7 +135,7 @@ export default class MySignatureProvider
   /** list of supported identity types */
   public supportedIdentityTypes: IdentityTypes.TYPE[] = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
 
-  /** Dictionary containing all the private key indexed by address */
+  /** Dictionary containing all the private keys indexed by address */
   private walletIdDictionary: IWalletIdDictionary;
 
   constructor(identity?: IdentityTypes.IIdentity?, walletId?: number) {
@@ -150,7 +150,7 @@ export default class MySignatureProvider
    * Signs data
    *
    * @param string data the data to sign
-   * @returns IIdentity the identity to sign with if not given, the default signer will be used
+   * @returns IIdentity the identity to sign with. If not given, the default signer will be used
    *
    * @returns string the signature
    */
@@ -205,7 +205,7 @@ export default class MySignatureProvider
 }
 ```
 
-Now you can inject it to the request client:
+Now you can inject it into the request client:
 
 ```typescript
 import MySignatureProvider from 'mySignatureProvider';
@@ -214,9 +214,9 @@ const mySignatureProvider = new MySignatureProvider(anIdentity, aWalletId);
 
 // We can initialize the RequestNetwork class with the signature provider
 const requestNetwork = new RequestNetwork.RequestNetwork({
-  mySignatureProvider,
+  signatureProvider: mySignatureProvider,
 });
 
-// later on, you can even add more identity supported
+// later on, you can even add more supported identities
 mySignatureProvider.addIdentity(anotherIdentity, anotherWalletId);
 ```
