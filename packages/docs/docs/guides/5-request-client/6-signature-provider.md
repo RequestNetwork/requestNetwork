@@ -4,7 +4,7 @@ keywords: [Request, signature, signatureProvider]
 description: Learn how to build your own signature provider.
 ---
 
-In a previous chapter, we used the signature provider `@requestnetwork/web3-signature`. But, if you are not using web3, you need to inject your own signature mechanism to the request client.
+In a previous chapter, we used the signature providers `@requestnetwork/web3-signature` and `@requestnetwork/epk-signature` (this one is made for test purpose). But, if you are not using web3, you need to inject your own signature mechanism to the request client.
 This is fairly simple, you need to implement a class following this interface: (see on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/signature-provider-types.ts))
 
 ```typescript
@@ -67,6 +67,7 @@ export default class MySignatureProvider implements SignatureProviderTypes.ISign
       throw Error(`Identity type not supported ${signer.type}`);
     }
 
+    // Hash the normalized data (e.g. avoid case sensitivity)
     const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
 
     // use your signature package
@@ -92,7 +93,7 @@ const mySignatureProvider = new MySignatureProvider();
 
 // We can initialize the RequestNetwork class with the signature provider
 const requestNetwork = new RequestNetwork.RequestNetwork({
-  signatureProvider:  mySignatureProvider,
+  signatureProvider: mySignatureProvider,
 });
 ```
 
@@ -169,6 +170,7 @@ export default class MySignatureProvider
       throw Error(`Identity unknown: ${signer.type}, ${signer.value}`);
     }
 
+    // Hash the normalized data (e.g. avoid case sensitivity)
     const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
 
     // convert the hash from a string '0x...' to a Buffer
