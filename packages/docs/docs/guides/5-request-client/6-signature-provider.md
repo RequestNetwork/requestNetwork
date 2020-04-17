@@ -18,7 +18,7 @@ export interface ISignatureProvider {
 
 ## Example 1
 
-You have your own package to sign:
+For example, your own package to sign need an ethereum address and return the signature as a hexadecimal string:
 
 ```typescript
 class mySignaturePackage {
@@ -99,7 +99,7 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
 
 ## Example 2
 
-You have your own package to sign:
+For example, your own package to sign need an internal identifier and return the signature as a Buffer:
 
 ```typescript
 class mySignaturePackage {
