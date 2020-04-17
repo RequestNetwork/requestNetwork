@@ -1490,10 +1490,10 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
-        skipPaymentDetection: true,
       });
 
       clock.tick(150);
