@@ -34,6 +34,7 @@ export interface ICreateRequestParameters {
   paymentNetwork?: Payment.IPaymentNetworkCreateParameters;
   topics?: string[];
   contentData?: any;
+  disablePaymentDetection?: boolean;
 }
 
 /** Parameters to create a request. ICreateParameters with a more flexible currency */

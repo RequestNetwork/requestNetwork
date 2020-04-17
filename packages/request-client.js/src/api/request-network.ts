@@ -76,6 +76,7 @@ export default class RequestNetwork {
       paymentNetwork,
       this.contentData,
       createResult,
+      parameters.disablePaymentDetection,
     );
 
     // refresh the local request data
@@ -113,6 +114,7 @@ export default class RequestNetwork {
       paymentNetwork,
       this.contentData,
       createResult,
+      parameters.disablePaymentDetection,
     );
 
     // refresh the local request data
@@ -138,9 +140,13 @@ export default class RequestNetwork {
    * Create a Request instance from an existing Request's ID
    *
    * @param requestId The ID of the Request
+   * @param disablePaymentDetection if true, skip the payment detection
    * @returns the Request
    */
-  public async fromRequestId(requestId: RequestLogicTypes.RequestId): Promise<Request> {
+  public async fromRequestId(
+    requestId: RequestLogicTypes.RequestId,
+    disablePaymentDetection: boolean = false,
+  ): Promise<Request> {
     const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
       requestId,
     );
@@ -163,7 +169,14 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+    const request = new Request(
+      this.requestLogic,
+      requestId,
+      paymentNetwork,
+      this.contentData,
+      undefined,
+      disablePaymentDetection,
+    );
 
     // refresh the local request data
     await request.refresh(requestAndMeta);
@@ -176,16 +189,18 @@ export default class RequestNetwork {
    *
    * @param identity
    * @param updatedBetween filter the requests with time boundaries
+   * @param disablePaymentDetection if true, skip the payment detection
    * @returns the Requests
    */
   public async fromIdentity(
     identity: IdentityTypes.IIdentity,
     updatedBetween?: Types.ITimestampBoundaries,
+    disablePaymentDetection: boolean = false,
   ): Promise<Request[]> {
     if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
       throw new Error(`${identity.type} is not supported`);
     }
-    return this.fromTopic(identity, updatedBetween);
+    return this.fromTopic(identity, updatedBetween, disablePaymentDetection);
   }
 
   /**
@@ -193,11 +208,13 @@ export default class RequestNetwork {
    *
    * @param identities
    * @param updatedBetween filter the requests with time boundaries
+   * @param disablePaymentDetection if true, skip the payment detection
    * @returns the requests
    */
   public async fromMultipleIdentities(
     identities: IdentityTypes.IIdentity[],
     updatedBetween?: Types.ITimestampBoundaries,
+    disablePaymentDetection: boolean = false,
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
       identity => identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -207,7 +224,7 @@ export default class RequestNetwork {
       throw new Error(`${identityNotSupported.type} is not supported`);
     }
 
-    return this.fromMultipleTopics(identities, updatedBetween);
+    return this.fromMultipleTopics(identities, updatedBetween, disablePaymentDetection);
   }
 
   /**
@@ -215,11 +232,13 @@ export default class RequestNetwork {
    *
    * @param topic
    * @param updatedBetween filter the requests with time boundaries
+   * @param disablePaymentDetection if true, skip the payment detection
    * @returns the Requests
    */
   public async fromTopic(
     topic: any,
     updatedBetween?: Types.ITimestampBoundaries,
+    disablePaymentDetection: boolean = false,
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
@@ -251,6 +270,8 @@ export default class RequestNetwork {
           requestState.requestId,
           paymentNetwork,
           this.contentData,
+          undefined,
+          disablePaymentDetection,
         );
 
         // refresh the local request data
@@ -268,11 +289,13 @@ export default class RequestNetwork {
    *
    * @param topics
    * @param updatedBetween filter the requests with time boundaries
+   * @param disablePaymentDetection if true, skip the payment detection
    * @returns the Requests
    */
   public async fromMultipleTopics(
     topics: any[],
     updatedBetween?: Types.ITimestampBoundaries,
+    disablePaymentDetection: boolean = false,
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
@@ -305,6 +328,8 @@ export default class RequestNetwork {
           requestState.requestId,
           paymentNetwork,
           this.contentData,
+          undefined,
+          disablePaymentDetection,
         );
 
         // refresh the local request data

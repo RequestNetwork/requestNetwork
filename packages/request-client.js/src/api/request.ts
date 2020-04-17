@@ -57,6 +57,11 @@ export default class Request {
   private balance: PaymentTypes.IBalanceWithEvents | null = null;
 
   /**
+   * if true, skip the payment detection
+   */
+  private skipPaymentDetection: boolean = false;
+
+  /**
    * Creates an instance of Request
    *
    * @param requestLogic Instance of the request-logic layer
@@ -70,12 +75,14 @@ export default class Request {
     paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
     requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest,
+    skipPaymentDetection: boolean = false,
   ) {
     this.requestLogic = requestLogic;
     this.requestId = requestId;
     this.contentDataExtension = contentDataExtension || null;
     this.paymentNetwork = paymentNetwork || null;
     this.emitter = new EventEmitter();
+    this.skipPaymentDetection = skipPaymentDetection;
 
     if (requestLogicCreateResult) {
       requestLogicCreateResult
@@ -674,7 +681,9 @@ export default class Request {
         )}`,
       );
     }
-    if (this.paymentNetwork && requestAndMeta.result.request) {
+    if (this.skipPaymentDetection) {
+      this.balance = null;
+    } else if (this.paymentNetwork && requestAndMeta.result.request) {
       // TODO: PROT-1131 - add a pending balance
       this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
     }
@@ -691,5 +700,19 @@ export default class Request {
     this.requestMeta = requestAndMeta.meta;
 
     return this.getData();
+  }
+
+  /**
+   * Enables the payment detection
+   */
+  public enablePaymentDetection(): void {
+    this.skipPaymentDetection = false;
+  }
+
+  /**
+   * Disables the payment detection
+   */
+  public disablePaymentDetection(): void {
+    this.skipPaymentDetection = true;
   }
 }
