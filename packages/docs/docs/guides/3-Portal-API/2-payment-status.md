@@ -41,7 +41,7 @@ const BN = require('bn.js');
   const result = await axios.get(`https://api.request.network/requests/${requestId}`);
   const request = result.data.request;
 
-  const balanceObject = requestData.balance;
+  const balanceObject = request.balance;
 
   if (!balanceObject) {
     console.error('balance no set');
