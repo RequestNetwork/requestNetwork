@@ -84,7 +84,7 @@ export default class Request {
     this.contentDataExtension = contentDataExtension || null;
     this.paymentNetwork = paymentNetwork || null;
     this.emitter = new EventEmitter();
-    this.skipPaymentDetection = options.skipPaymentDetection || false;
+    this.skipPaymentDetection = options?.skipPaymentDetection || false;
 
     if (requestLogicCreateResult) {
       requestLogicCreateResult
