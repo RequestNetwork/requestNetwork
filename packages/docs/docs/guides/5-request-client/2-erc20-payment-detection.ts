@@ -7,7 +7,7 @@
 
 /**
  * ## Basics
- * 
+ *
  * For both erc20 payment networks, Request Client must be initialized.
  */
 
@@ -133,13 +133,13 @@ const addressBasedCreateParams = {
 
 /**
  * ## Checking the balance of an erc20 request
- * 
+ *
  * The function getData() of a request provides its balance
  * This function is available independently of the payment network used
  */
 
 // Import Big Number package
-const BN = require('bn.js')
+const BN = require('bn.js');
 
 (async () => {
   // Use a proxy contract request for example
@@ -147,14 +147,25 @@ const BN = require('bn.js')
 
   // Check the balance of the request
   const requestData = request.getData();
-  const balance = requestData.balance;
-  console.log(`Balance of the erc20 proxy contract request: ${balance}`);
-  
+  const balanceObject = requestData.balance;
+
+  if (!balanceObject) {
+    console.error('balance no set');
+    return;
+  }
+
+  if (balanceObject.error) {
+    console.error(balanceObject.error.message);
+    return;
+  }
+
+  console.log(`Balance of the erc20 proxy contract request: ${balanceObject.balance}`);
+
   // Check if the request has been paid
   // Convert the balance to big number type for comparison
   const expectedAmount = new BN(requestData.expectedAmount);
-  const balanceBigNumber = new BN(balance);
+  const balanceBigNumber = new BN(balanceObject.balance);
 
   // Check if balanceBigNumber is greater or equal to expectedAmount
   const paid = balanceBigNumber.gte(expectedAmount);
-})(); 
+})();
