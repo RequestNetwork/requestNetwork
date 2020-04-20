@@ -120,14 +120,20 @@ const BN = require('bn.js')
 
   // Check the balance of the request
   const requestData = request.getData();
-  const balance = requestData.balance;
-  console.log(`Balance of the bitcoin address based request: ${balance}`);
-  
+  const balanceObject = requestData.balance;
+
+  if (balanceObject?.error) {
+    console.error(balanceObject.error.message);
+    return;
+  }
+
+  console.log(`Balance of the bitcoin address based request: ${balanceObject?.balance}`);
+
   // Check if the request has been paid
   // Convert the balance to big number type for comparison
   const expectedAmount = new BN(requestData.expectedAmount);
-  const balanceBigNumber = new BN(balance);
+  const balanceBigNumber = new BN(balanceObject?.balance);
 
   // Check if balanceBigNumber is greater or equal to expectedAmount
   const paid = balanceBigNumber.gte(expectedAmount);
-})(); 
+})();
