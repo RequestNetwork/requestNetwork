@@ -683,12 +683,6 @@ export default class Request {
         )}`,
       );
     }
-    if (this.skipPaymentDetection) {
-      this.balance = null;
-    } else if (this.paymentNetwork && requestAndMeta.result.request) {
-      // TODO: PROT-1131 - add a pending balance
-      this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
-    }
 
     if (this.contentDataExtension) {
       // TODO: PROT-1131 - add a pending content
@@ -701,7 +695,27 @@ export default class Request {
     this.pendingData = requestAndMeta.result.pending;
     this.requestMeta = requestAndMeta.meta;
 
+    if (!this.skipPaymentDetection) {
+      // let's refresh the balance
+      await this.refreshBalance();
+    }
+
     return this.getData();
+  }
+
+  /**
+   * Refresh only the balance of the request and return it
+   *
+   * @returns return the balance
+   */
+  public async refreshBalance(): Promise<Types.Payment.IBalanceWithEvents<any> | null> {
+    // TODO: PROT-1131 - add a pending balance
+    this.balance =
+      this.paymentNetwork && this.requestData
+        ? await this.paymentNetwork.getBalance(this.requestData)
+        : this.balance;
+
+    return this.balance;
   }
 
   /**
