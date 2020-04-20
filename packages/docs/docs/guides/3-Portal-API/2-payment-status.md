@@ -5,10 +5,11 @@ keywords:
 description: Learn how to integrate Request network and its features.
 ---
 
-After creation, each request has a payment status, you can view the metadata of a request which contains the payment status via:
+After creation, each request has a payment status, you can view the data of a request which contains the payment status via:
 
 ```jsx
-const requestData = request.getData();
+const result = await axios.get(`https://api.request.network/requests/${requestId}`);
+const request = result.data.request;
 ```
 
 You will receive back an object that looks like this:
@@ -19,6 +20,7 @@ You will receive back an object that looks like this:
   balance,
   state,
   expectedAmount,
+  ...
 }
 */
 ```
