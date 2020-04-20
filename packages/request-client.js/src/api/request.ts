@@ -72,22 +72,24 @@ export default class Request {
    * @param options options
    */
   constructor(
-    requestLogic: RequestLogicTypes.IRequestLogic,
     requestId: RequestLogicTypes.RequestId,
-    paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
-    contentDataExtension?: ContentDataExtension | null,
-    requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest,
-    options?: { skipPaymentDetection?: boolean },
+    requestLogic: RequestLogicTypes.IRequestLogic,
+    options?: {
+      paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
+      contentDataExtension?: ContentDataExtension | null;
+      requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
+      skipPaymentDetection?: boolean;
+    },
   ) {
     this.requestLogic = requestLogic;
     this.requestId = requestId;
-    this.contentDataExtension = contentDataExtension || null;
-    this.paymentNetwork = paymentNetwork || null;
+    this.contentDataExtension = options?.contentDataExtension || null;
+    this.paymentNetwork = options?.paymentNetwork || null;
     this.emitter = new EventEmitter();
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
 
-    if (requestLogicCreateResult) {
-      requestLogicCreateResult
+    if (options && options.requestLogicCreateResult) {
+      options.requestLogicCreateResult
         .on('confirmed', async () => {
           this.emitter.emit('confirmed', await this.refresh());
         })

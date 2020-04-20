@@ -63,21 +63,19 @@ export default class RequestNetwork {
       parameters,
     );
 
-    const createResult = await this.requestLogic.createRequest(
+    const requestLogicCreateResult = await this.requestLogic.createRequest(
       requestParameters,
       parameters.signer,
       topics,
     );
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      createResult.result.requestId,
+    const request = new Request(requestLogicCreateResult.result.requestId, this.requestLogic, {
+      contentDataExtension: this.contentData,
       paymentNetwork,
-      this.contentData,
-      createResult,
-      { skipPaymentDetection: parameters.disablePaymentDetection },
-    );
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+    });
 
     // refresh the local request data
     await request.refresh();
@@ -100,7 +98,7 @@ export default class RequestNetwork {
       parameters,
     );
 
-    const createResult = await this.requestLogic.createEncryptedRequest(
+    const requestLogicCreateResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,
       parameters.signer,
       encryptionParams,
@@ -108,14 +106,12 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      createResult.result.requestId,
+    const request = new Request(requestLogicCreateResult.result.requestId, this.requestLogic, {
+      contentDataExtension: this.contentData,
       paymentNetwork,
-      this.contentData,
-      createResult,
-      { skipPaymentDetection: parameters.disablePaymentDetection },
-    );
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+    });
 
     // refresh the local request data
     await request.refresh();
@@ -169,14 +165,11 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      requestId,
+    const request = new Request(requestId, this.requestLogic, {
+      contentDataExtension: this.contentData,
       paymentNetwork,
-      this.contentData,
-      undefined,
-      { skipPaymentDetection: options?.disablePaymentDetection },
-    );
+      skipPaymentDetection: options?.disablePaymentDetection,
+    });
 
     // refresh the local request data
     await request.refresh(requestAndMeta);
@@ -265,14 +258,11 @@ export default class RequestNetwork {
         );
 
         // create the request object
-        const request = new Request(
-          this.requestLogic,
-          requestState.requestId,
+        const request = new Request(requestState.requestId, this.requestLogic, {
+          contentDataExtension: this.contentData,
           paymentNetwork,
-          this.contentData,
-          undefined,
-          { skipPaymentDetection: options?.disablePaymentDetection },
-        );
+          skipPaymentDetection: options?.disablePaymentDetection,
+        });
 
         // refresh the local request data
         await request.refresh();
@@ -323,14 +313,11 @@ export default class RequestNetwork {
         );
 
         // create the request object
-        const request = new Request(
-          this.requestLogic,
-          requestState.requestId,
+        const request = new Request(requestState.requestId, this.requestLogic, {
+          contentDataExtension: this.contentData,
           paymentNetwork,
-          this.contentData,
-          undefined,
-          { skipPaymentDetection: options?.disablePaymentDetection },
-        );
+          skipPaymentDetection: options?.disablePaymentDetection,
+        });
 
         // refresh the local request data
         await request.refresh();
