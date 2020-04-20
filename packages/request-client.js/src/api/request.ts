@@ -68,6 +68,8 @@ export default class Request {
    * @param requestId ID of the Request
    * @param paymentNetwork Instance of a payment network to manage the request
    * @param contentDataManager Instance of content data manager
+   * @param requestLogicCreateResult return from the first request creation (optimization)
+   * @param options options
    */
   constructor(
     requestLogic: RequestLogicTypes.IRequestLogic,
@@ -75,14 +77,14 @@ export default class Request {
     paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
     contentDataExtension?: ContentDataExtension | null,
     requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest,
-    skipPaymentDetection: boolean = false,
+    options?: { skipPaymentDetection?: boolean },
   ) {
     this.requestLogic = requestLogic;
     this.requestId = requestId;
     this.contentDataExtension = contentDataExtension || null;
     this.paymentNetwork = paymentNetwork || null;
     this.emitter = new EventEmitter();
-    this.skipPaymentDetection = skipPaymentDetection;
+    this.skipPaymentDetection = options.skipPaymentDetection || false;
 
     if (requestLogicCreateResult) {
       requestLogicCreateResult
