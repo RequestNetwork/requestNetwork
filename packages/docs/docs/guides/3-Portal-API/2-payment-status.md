@@ -38,20 +38,26 @@ You can use the following snippet to see if the request has been paid.
 const BN = require('bn.js');
 (async () => {
   // Check the balance of the request
-  const requestData = request.getData();
+  const result = await axios.get(`https://api.request.network/requests/${requestId}`);
+  const request = result.data.request;
+
   const balanceObject = requestData.balance;
 
-  if (balanceObject?.error) {
+  if (!balanceObject) {
+    console.error('balance no set');
+    return;
+  }
+  if (balanceObject.error) {
     console.error(balanceObject.error.message);
     return;
   }
 
-  console.log(`Balance of the request in ETH: ${balanceObject?.balance}`);
+  console.log(`Balance of the request in ETH: ${balanceObject.balance}`);
 
   // Check if the request has been paid
   // Convert the balance to big number type for comparison
   const expectedAmount = new BN(requestData.expectedAmount);
-  const balanceBigNumber = new BN(balanceObject?.balance);
+  const balanceBigNumber = new BN(balanceObject.balance);
 
   // Check if balanceBigNumber is greater or equal to expectedAmount
   const paid = balanceBigNumber.gte(expectedAmount);

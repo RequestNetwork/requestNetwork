@@ -7,7 +7,7 @@
 
 /**
  * ## Basics
- * 
+ *
  * Before creating a request, the Request Client must be initialized.
  */
 
@@ -106,33 +106,35 @@ const bitcoinAddressBasedCreateParams = {
   console.log(`Request created with Bitcoin payment network: ${request.requestId}`);
 })();
 
- /**
+/**
  * ## Checking balance
- * 
+ *
  * The function getData() of a request provides its balance
  */
 
 // Import Big Number package
-const BN = require('bn.js')
-
-(async () => {
+const BN = require('bn.js')(async () => {
   const request = await requestNetwork.createRequest(bitcoinAddressBasedCreateParams);
 
   // Check the balance of the request
   const requestData = request.getData();
   const balanceObject = requestData.balance;
 
-  if (balanceObject?.error) {
+  if (!balanceObject) {
+    console.error('balance no set');
+    return;
+  }
+  if (balanceObject.error) {
     console.error(balanceObject.error.message);
     return;
   }
 
-  console.log(`Balance of the bitcoin address based request: ${balanceObject?.balance}`);
+  console.log(`Balance of the bitcoin address based request: ${balanceObject.balance}`);
 
   // Check if the request has been paid
   // Convert the balance to big number type for comparison
   const expectedAmount = new BN(requestData.expectedAmount);
-  const balanceBigNumber = new BN(balanceObject?.balance);
+  const balanceBigNumber = new BN(balanceObject.balance);
 
   // Check if balanceBigNumber is greater or equal to expectedAmount
   const paid = balanceBigNumber.gte(expectedAmount);
