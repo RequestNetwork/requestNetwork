@@ -7,7 +7,7 @@
 
 /**
  * ## Basics
- * 
+ *
  * Before creating a request, the Request Client must be initialized.
  */
 
@@ -71,8 +71,8 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
 
 // The main request info, with the currency, amount (in the smallest denominator), payee identity and payer identity
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
-  currency: 'EUR',          // The Declarative payment network is currency agnostic, we can use any currency supported by Request
-  expectedAmount: '100',    // This equals 1 EUR
+  currency: 'EUR', // The Declarative payment network is currency agnostic, we can use any currency supported by Request
+  expectedAmount: '100', // This equals 1 EUR
   payee: payeeIdentity,
   payer: payerIdentity,
 };
@@ -89,9 +89,9 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const declarativePaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
-    paymentInfo: { 
-        IBAN: 'FR123456789123456789',
-        BIC: 'CE123456789'
+    paymentInfo: {
+      IBAN: 'FR123456789123456789',
+      BIC: 'CE123456789',
     },
   },
 };
@@ -111,17 +111,15 @@ const declarativeCreateParams = {
 
 /**
  * ## Declaring sent and received payments and checking balance
- * 
+ *
  * The Declarative payment network doesn't provide payment detection method to determine the balance of the request
  * The balance of the request is defined by the declared payments by the payee and the declared refunds by the payer
  */
 
- // Import Big Number package
-const BN = require('bn.js')
-
- (async () => {
+// Import Big Number package
+const BN = require('bn.js')(async () => {
   const request = await requestNetwork.createRequest(declarativeCreateParams);
- 
+
   // Declare received payments
   // The payee can declare the amount received, this amount will be added to the balance of the request
   request.declareReceivedPayment('1000', 'payment received', payeeIdentity);
@@ -139,14 +137,24 @@ const BN = require('bn.js')
 
   // Check the balance of the request
   const requestData = request.getData();
-  const balance = requestData.balance;
-  console.log(`Balance of the declarative request: ${balance}`);
-  
+  const balanceObject = requestData.balance;
+
+  if (!balanceObject) {
+    console.error('balance no set');
+    return;
+  }
+  if (balanceObject.error) {
+    console.error(balanceObject.error.message);
+    return;
+  }
+
+  console.log(`Balance of the declarative request: ${balanceObject.balance}`);
+
   // Check if the request has been paid
   // Convert the balance to big number type for comparison
   const expectedAmount = new BN(requestData.expectedAmount);
-  const balanceBigNumber = new BN(balance);
+  const balanceBigNumber = new BN(balanceObject.balance);
 
   // Check if balanceBigNumber is greater or equal to expectedAmount
   const paid = balanceBigNumber.gte(expectedAmount);
-})(); 
+})();
