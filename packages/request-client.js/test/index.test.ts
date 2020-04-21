@@ -1397,7 +1397,7 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it('can get the balance of an ETH request', async function (): Promise<void> {
+    it('can get the balance of an ETH request', async function(): Promise<void> {
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
       // tslint:disable-next-line: no-invalid-this
@@ -1459,6 +1459,183 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
         '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
       );
+      sinon.restore();
+    });
+
+    it('can skip the get the balance of a request', async function(): Promise<void> {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
+      // tslint:disable-next-line: no-invalid-this
+      this.timeout(20000);
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt: 'a1a2a3a4a5a6a7a8',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      clock.tick(150);
+      const data = await request.refresh();
+
+      // Payment reference should be fixed
+      expect(
+        PaymentReferenceCalculator.calculate(
+          data.requestId,
+          data.extensionsData[0].parameters.salt,
+          data.extensionsData[0].parameters.paymentAddress,
+        ),
+      ).to.equal('2c69812e6bf5b1e3');
+
+      clock.tick(150);
+      let dataAfterRefresh = await request.refresh();
+      expect(dataAfterRefresh.balance).to.be.null;
+
+      request.enablePaymentDetection();
+      clock.tick(150);
+      dataAfterRefresh = await request.refresh();
+
+      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+
+      expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+      );
+
+      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+      );
+
+      request.disablePaymentDetection();
+      clock.tick(150);
+      dataAfterRefresh = await request.refresh();
+
+      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+
+      expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+      );
+
+      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+      );
+      sinon.restore();
+    });
+
+    it('can get the balance on a skipped payment detection request', async function(): Promise<
+      void
+    > {
+      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+
+      // tslint:disable-next-line: no-invalid-this
+      this.timeout(20000);
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt: 'a1a2a3a4a5a6a7a8',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
+        paymentNetwork,
+        requestInfo,
+        signer: payeeIdentity,
+      });
+
+      clock.tick(150);
+      const data = await request.refresh();
+
+      // Payment reference should be fixed
+      expect(
+        PaymentReferenceCalculator.calculate(
+          data.requestId,
+          data.extensionsData[0].parameters.salt,
+          data.extensionsData[0].parameters.paymentAddress,
+        ),
+      ).to.equal('2c69812e6bf5b1e3');
+
+      clock.tick(150);
+      let dataAfterRefresh = await request.refresh();
+      expect(dataAfterRefresh.balance).to.be.null;
+
+      const balance = await request.refreshBalance();
+      expect(balance?.balance).to.equal('12345600000');
+      expect(balance?.events.length).to.equal(2);
+
+      expect(balance?.events[0].name).to.equal('payment');
+      expect(balance?.events[0].amount).to.equal('12300000000');
+      expect(balance?.events[0].parameters!.txHash).to.equal(
+        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+      );
+
+      expect(balance?.events[1].name).to.equal('payment');
+      expect(balance?.events[1].amount).to.equal('45600000');
+      expect(balance?.events[1].parameters!.txHash).to.equal(
+        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+      );
+      dataAfterRefresh = await request.getData();
+
+      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+
+      expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
+      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+      );
+
+      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+      );
+
       sinon.restore();
     });
   });

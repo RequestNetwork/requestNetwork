@@ -63,20 +63,19 @@ export default class RequestNetwork {
       parameters,
     );
 
-    const createResult = await this.requestLogic.createRequest(
+    const requestLogicCreateResult = await this.requestLogic.createRequest(
       requestParameters,
       parameters.signer,
       topics,
     );
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      createResult.result.requestId,
+    const request = new Request(requestLogicCreateResult.result.requestId, this.requestLogic, {
+      contentDataExtension: this.contentData,
       paymentNetwork,
-      this.contentData,
-      createResult,
-    );
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+    });
 
     // refresh the local request data
     await request.refresh();
@@ -99,7 +98,7 @@ export default class RequestNetwork {
       parameters,
     );
 
-    const createResult = await this.requestLogic.createEncryptedRequest(
+    const requestLogicCreateResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,
       parameters.signer,
       encryptionParams,
@@ -107,13 +106,12 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(
-      this.requestLogic,
-      createResult.result.requestId,
+    const request = new Request(requestLogicCreateResult.result.requestId, this.requestLogic, {
+      contentDataExtension: this.contentData,
       paymentNetwork,
-      this.contentData,
-      createResult,
-    );
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+    });
 
     // refresh the local request data
     await request.refresh();
@@ -138,9 +136,13 @@ export default class RequestNetwork {
    * Create a Request instance from an existing Request's ID
    *
    * @param requestId The ID of the Request
+   * @param options options
    * @returns the Request
    */
-  public async fromRequestId(requestId: RequestLogicTypes.RequestId): Promise<Request> {
+  public async fromRequestId(
+    requestId: RequestLogicTypes.RequestId,
+    options?: { disablePaymentDetection: boolean },
+  ): Promise<Request> {
     const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
       requestId,
     );
@@ -163,7 +165,11 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(this.requestLogic, requestId, paymentNetwork, this.contentData);
+    const request = new Request(requestId, this.requestLogic, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      skipPaymentDetection: options?.disablePaymentDetection,
+    });
 
     // refresh the local request data
     await request.refresh(requestAndMeta);
@@ -176,16 +182,18 @@ export default class RequestNetwork {
    *
    * @param identity
    * @param updatedBetween filter the requests with time boundaries
+   * @param options options
    * @returns the Requests
    */
   public async fromIdentity(
     identity: IdentityTypes.IIdentity,
     updatedBetween?: Types.ITimestampBoundaries,
+    options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
       throw new Error(`${identity.type} is not supported`);
     }
-    return this.fromTopic(identity, updatedBetween);
+    return this.fromTopic(identity, updatedBetween, options);
   }
 
   /**
@@ -193,11 +201,13 @@ export default class RequestNetwork {
    *
    * @param identities
    * @param updatedBetween filter the requests with time boundaries
+   * @param disablePaymentDetection if true, skip the payment detection
    * @returns the requests
    */
   public async fromMultipleIdentities(
     identities: IdentityTypes.IIdentity[],
     updatedBetween?: Types.ITimestampBoundaries,
+    options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
       identity => identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -207,7 +217,7 @@ export default class RequestNetwork {
       throw new Error(`${identityNotSupported.type} is not supported`);
     }
 
-    return this.fromMultipleTopics(identities, updatedBetween);
+    return this.fromMultipleTopics(identities, updatedBetween, options);
   }
 
   /**
@@ -215,11 +225,13 @@ export default class RequestNetwork {
    *
    * @param topic
    * @param updatedBetween filter the requests with time boundaries
+   * @param options options
    * @returns the Requests
    */
   public async fromTopic(
     topic: any,
     updatedBetween?: Types.ITimestampBoundaries,
+    options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
@@ -246,12 +258,11 @@ export default class RequestNetwork {
         );
 
         // create the request object
-        const request = new Request(
-          this.requestLogic,
-          requestState.requestId,
+        const request = new Request(requestState.requestId, this.requestLogic, {
+          contentDataExtension: this.contentData,
           paymentNetwork,
-          this.contentData,
-        );
+          skipPaymentDetection: options?.disablePaymentDetection,
+        });
 
         // refresh the local request data
         await request.refresh();
@@ -268,11 +279,13 @@ export default class RequestNetwork {
    *
    * @param topics
    * @param updatedBetween filter the requests with time boundaries
+   * @param options options
    * @returns the Requests
    */
   public async fromMultipleTopics(
     topics: any[],
     updatedBetween?: Types.ITimestampBoundaries,
+    options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
@@ -300,12 +313,11 @@ export default class RequestNetwork {
         );
 
         // create the request object
-        const request = new Request(
-          this.requestLogic,
-          requestState.requestId,
+        const request = new Request(requestState.requestId, this.requestLogic, {
+          contentDataExtension: this.contentData,
           paymentNetwork,
-          this.contentData,
-        );
+          skipPaymentDetection: options?.disablePaymentDetection,
+        });
 
         // refresh the local request data
         await request.refresh();

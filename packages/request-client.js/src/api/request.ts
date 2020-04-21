@@ -57,28 +57,39 @@ export default class Request {
   private balance: PaymentTypes.IBalanceWithEvents | null = null;
 
   /**
+   * if true, skip the payment detection
+   */
+  private skipPaymentDetection: boolean = false;
+
+  /**
    * Creates an instance of Request
    *
    * @param requestLogic Instance of the request-logic layer
    * @param requestId ID of the Request
    * @param paymentNetwork Instance of a payment network to manage the request
    * @param contentDataManager Instance of content data manager
+   * @param requestLogicCreateResult return from the first request creation (optimization)
+   * @param options options
    */
   constructor(
-    requestLogic: RequestLogicTypes.IRequestLogic,
     requestId: RequestLogicTypes.RequestId,
-    paymentNetwork?: PaymentTypes.IPaymentNetwork | null,
-    contentDataExtension?: ContentDataExtension | null,
-    requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest,
+    requestLogic: RequestLogicTypes.IRequestLogic,
+    options?: {
+      paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
+      contentDataExtension?: ContentDataExtension | null;
+      requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
+      skipPaymentDetection?: boolean;
+    },
   ) {
     this.requestLogic = requestLogic;
     this.requestId = requestId;
-    this.contentDataExtension = contentDataExtension || null;
-    this.paymentNetwork = paymentNetwork || null;
+    this.contentDataExtension = options?.contentDataExtension || null;
+    this.paymentNetwork = options?.paymentNetwork || null;
     this.emitter = new EventEmitter();
+    this.skipPaymentDetection = options?.skipPaymentDetection || false;
 
-    if (requestLogicCreateResult) {
-      requestLogicCreateResult
+    if (options && options.requestLogicCreateResult) {
+      options.requestLogicCreateResult
         .on('confirmed', async () => {
           this.emitter.emit('confirmed', await this.refresh());
         })
@@ -674,10 +685,6 @@ export default class Request {
         )}`,
       );
     }
-    if (this.paymentNetwork && requestAndMeta.result.request) {
-      // TODO: PROT-1131 - add a pending balance
-      this.balance = await this.paymentNetwork.getBalance(requestAndMeta.result.request);
-    }
 
     if (this.contentDataExtension) {
       // TODO: PROT-1131 - add a pending content
@@ -690,6 +697,40 @@ export default class Request {
     this.pendingData = requestAndMeta.result.pending;
     this.requestMeta = requestAndMeta.meta;
 
+    if (!this.skipPaymentDetection) {
+      // let's refresh the balance
+      await this.refreshBalance();
+    }
+
     return this.getData();
+  }
+
+  /**
+   * Refresh only the balance of the request and return it
+   *
+   * @returns return the balance
+   */
+  public async refreshBalance(): Promise<Types.Payment.IBalanceWithEvents<any> | null> {
+    // TODO: PROT-1131 - add a pending balance
+    this.balance =
+      this.paymentNetwork && this.requestData
+        ? await this.paymentNetwork.getBalance(this.requestData)
+        : this.balance;
+
+    return this.balance;
+  }
+
+  /**
+   * Enables the payment detection
+   */
+  public enablePaymentDetection(): void {
+    this.skipPaymentDetection = false;
+  }
+
+  /**
+   * Disables the payment detection
+   */
+  public disablePaymentDetection(): void {
+    this.skipPaymentDetection = true;
   }
 }
