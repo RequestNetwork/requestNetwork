@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.14.0) (2020-04-21)
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+### Bug Fixes
+
+* check payee and payer identity format at the creation ([#187](https://github.com/RequestNetwork/requestNetwork/issues/187)) ([4a19b24](https://github.com/RequestNetwork/requestNetwork/commit/4a19b241fb057d153ac7693e85a7e1d3bb6cb9e0))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Features
+
+* add ETH paymentNetwork to request-client  ([#617](https://github.com/RequestNetwork/requestNetwork/issues/617)) ([84ed64e](https://github.com/RequestNetwork/requestNetwork/commit/84ed64ebf96a296155dc2d4d5e6c538344fb881b))
+
+
+
+
+
 # [0.13.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.13.0) (2020-04-06)
 
 
