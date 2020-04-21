@@ -3,6 +3,7 @@ import 'mocha';
 import DataIdsIgnored from '../src/dataIds-ignored';
 
 import { expect } from 'chai';
+import * as sinon from 'sinon';
 
 const hash = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const reason = 'this is a little test !';
@@ -25,13 +26,26 @@ describe('DataIds ignored', () => {
     });
     describe('getDataIdsWithReasons', () => {
       it('can getDataIdsWithReasons()', async () => {
+        sinon.useFakeTimers();
+
         await dataIdsIgnored.save(hash, reason, true);
-        await dataIdsIgnored.save(hash2, reason2, true);
+        await dataIdsIgnored.save(hash2, reason2, false);
 
         expect(await dataIdsIgnored.getDataIdsWithReasons()).to.be.deep.equal({
-          [hash]: reason,
-          [hash2]: reason2,
+          [hash]: {
+            iteration: 1,
+            reason,
+            timeoutLastTry: 0,
+            toRetry: true,
+          },
+          [hash2]: {
+            iteration: 1,
+            reason: reason2,
+            timeoutLastTry: 0,
+            toRetry: false,
+          },
         });
+        sinon.restore();
       });
       it('can getDataIdsWithReasons() if empty', async () => {
         expect(await dataIdsIgnored.getDataIdsWithReasons()).to.be.deep.equal({});

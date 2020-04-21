@@ -41,6 +41,7 @@ export default class DataIdsIgnored {
     toRetry: boolean,
   ): Promise<void> {
     const previous = await this.dataIdsIgnored.get(dataId);
+
     if (!previous) {
       // add the dataId id if new in the store
       await this.dataIdsIgnored.set(dataId, {
@@ -73,6 +74,8 @@ export default class DataIdsIgnored {
     dataId: string,
   ): Promise<void> {
     await this.dataIdsIgnored.delete(dataId);
+    // update the list
+    await this.deleteFromDataIdsList(dataId);
   }
 
   /**
@@ -108,7 +111,7 @@ export default class DataIdsIgnored {
     const result: any = {};
 
     for (const dataId of Array.from(listDataId)) {
-      result[dataId] = (await this.dataIdsIgnored.get(dataId))?.reason;
+      result[dataId] = await this.dataIdsIgnored.get(dataId);
     }
 
     return result;
@@ -130,5 +133,20 @@ export default class DataIdsIgnored {
       listDataIds.push(dataId);
       await this.listDataIdsIgnored.set('list', listDataIds);
     }
+  }
+
+  /**
+   * Update the list of data ids stored with reason
+   *
+   * @param dataId data id to add to the list
+   * @returns
+   */
+  private async deleteFromDataIdsList(dataId: string): Promise<void> {
+    let listDataIds: string[] | undefined = await this.listDataIdsIgnored.get('list');
+    if (!listDataIds) {
+      return;
+    }
+    listDataIds = listDataIds.filter(e => e !== dataId);
+    await this.listDataIdsIgnored.set('list', listDataIds);
   }
 }
