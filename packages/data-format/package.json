@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "publishConfig": {
     "access": "public"
   },

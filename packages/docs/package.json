@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/docs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Request products technical documentation.",
   "keywords": [
@@ -38,10 +38,10 @@
     "@docusaurus/preset-classic": "2.0.0-alpha.49",
     "@docusaurus/theme-live-codeblock": "2.0.0-alpha.49",
     "@docusaurus/utils": "2.0.0-alpha.49",
-    "@requestnetwork/payment-processor": "0.15.0",
-    "@requestnetwork/request-client.js": "0.15.0",
-    "@requestnetwork/smart-contracts": "0.6.0",
-    "@requestnetwork/types": "0.14.0",
+    "@requestnetwork/payment-processor": "0.16.0",
+    "@requestnetwork/request-client.js": "0.16.0",
+    "@requestnetwork/smart-contracts": "0.7.0",
+    "@requestnetwork/types": "0.15.0",
     "bn.js": "5.1.1",
     "classnames": "2.2.6",
     "core-js": "3.6.4",
