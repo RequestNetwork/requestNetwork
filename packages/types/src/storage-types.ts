@@ -73,6 +73,15 @@ export interface IEthereumEntry extends IWithMeta<IEthereumMetadata> {
   hash: string;
   /** parameters used to compute fees */
   feesParameters: IFeesParameters;
+  /** error encounter */
+  error?: { type: ErrorEntries; message: string };
+}
+
+/** Enum of state possible for data */
+export enum ErrorEntries {
+  ipfsConnectionError,
+  incorrectFile,
+  wrongFees,
 }
 
 /** A list of ethereum entries with the last block timestamp these entries were fetched from */
@@ -174,6 +183,14 @@ export interface IPinRequestConfiguration {
   delayBetweenCalls: number;
   maxSize: number;
   timeout: number;
+}
+
+/** Configuration for the pinRequest method */
+export interface IDataIdIgnored {
+  reason: string;
+  timeoutLastTry: number;
+  iteration: number;
+  toRetry: boolean;
 }
 
 /** Gas price type */

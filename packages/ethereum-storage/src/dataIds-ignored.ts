@@ -1,5 +1,7 @@
 import * as Keyv from 'keyv';
 
+import { StorageTypes } from '@requestnetwork/types';
+
 /**
  * Allows to save and retrieve the dataIds ignored with the reason
  */
@@ -7,7 +9,7 @@ export default class DataIdsIgnored {
   /**
    * Store the reason we ignored data ids in a dictionary
    */
-  public reasonsDataIdIgnored: Keyv<string>;
+  public dataIdsIgnored: Keyv<StorageTypes.IDataIdIgnored>;
 
   public listDataIdsIgnored: Keyv<string[]>;
 
@@ -16,8 +18,8 @@ export default class DataIdsIgnored {
    * @param store a Keyv store to persist the metadata
    */
   public constructor(store?: Keyv.Store<any>) {
-    this.reasonsDataIdIgnored = new Keyv<string>({
-      namespace: 'reasonsDataIdIgnored',
+    this.dataIdsIgnored = new Keyv<StorageTypes.IDataIdIgnored>({
+      namespace: 'dataIdIgnored',
       store,
     });
 
@@ -31,10 +33,46 @@ export default class DataIdsIgnored {
    * Saves in the cache the reason to ignore the dataId
    * @param dataId dataId
    * @param reason reason we ignored the dataId
+   * @param toRetry will be retry later if true
    */
-  public async saveReason(dataId: string, reason: string): Promise<void> {
-    await this.reasonsDataIdIgnored.set(dataId, reason);
-    await this.updateDataId(dataId);
+  public async save(
+    dataId: string,
+    reason: string,
+    toRetry: boolean,
+  ): Promise<void> {
+    const previous = await this.dataIdsIgnored.get(dataId);
+    if (!previous) {
+      // add the dataId id if new in the store
+      await this.dataIdsIgnored.set(dataId, {
+        iteration: 1,
+        reason,
+        timeoutLastTry: Date.now(),
+        toRetry,
+      });
+      // update the list
+      await this.addToDataIdsList(dataId);
+    } else {
+      // if already in the store
+      if (previous.toRetry) {
+        // update it only if it was mean to be retry
+        await this.dataIdsIgnored.set(dataId, {
+          iteration: previous.iteration + 1,
+          reason,
+          timeoutLastTry: Date.now(),
+          toRetry,
+        });
+      }
+    }
+  }
+
+  /**
+   * Removes in the cache the ignored dataId
+   * @param dataId dataId
+   */
+  public async delete(
+    dataId: string,
+  ): Promise<void> {
+    await this.dataIdsIgnored.delete(dataId);
   }
 
   /**
@@ -43,7 +81,7 @@ export default class DataIdsIgnored {
    * @returns the reason or null
    */
   public async getReason(dataId: string): Promise<string | undefined> {
-    return this.reasonsDataIdIgnored.get(dataId);
+    return (await this.dataIdsIgnored.get(dataId))?.reason;
   }
 
   /**
@@ -70,7 +108,7 @@ export default class DataIdsIgnored {
     const result: any = {};
 
     for (const dataId of Array.from(listDataId)) {
-      result[dataId] = await this.reasonsDataIdIgnored.get(dataId);
+      result[dataId] = (await this.dataIdsIgnored.get(dataId))?.reason;
     }
 
     return result;
@@ -82,12 +120,15 @@ export default class DataIdsIgnored {
    * @param dataId data id to add to the list
    * @returns
    */
-  private async updateDataId(dataId: string): Promise<void> {
+  private async addToDataIdsList(dataId: string): Promise<void> {
     let listDataIds: string[] | undefined = await this.listDataIdsIgnored.get('list');
     if (!listDataIds) {
       listDataIds = [];
     }
-    listDataIds.push(dataId);
-    await this.listDataIdsIgnored.set('list', listDataIds);
+    // update the list only if the dataId is not already stored
+    if (!listDataIds.includes(dataId)) {
+      listDataIds.push(dataId);
+      await this.listDataIdsIgnored.set('list', listDataIds);
+    }
   }
 }

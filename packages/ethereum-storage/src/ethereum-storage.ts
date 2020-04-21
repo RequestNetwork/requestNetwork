@@ -522,9 +522,9 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Filtered list of dataId with metadata
    */
   private async EthereumEntriesToEntries(
-    ethereumEntries: StorageTypes.IEthereumEntry[],
+    ethereumEntriesToProcess: StorageTypes.IEthereumEntry[],
   ): Promise<StorageTypes.IEntry[]> {
-    const totalCount: number = ethereumEntries.length;
+    const totalCount: number = ethereumEntriesToProcess.length;
     let successCount: number = 0;
     let successCountOnFirstTry: number = 0;
     let ipfsConnectionErrorCount: number = 0;
@@ -533,16 +533,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // Contains results from readHashOnIPFS function
     // We store hashAndSize in this array in order to know which hashes have not been found on IPFS
-    let entriesAndEthereumEntriesToRetry: Array<{
-      entry: StorageTypes.IEntry | null;
-      ethereumEntryToRetry: StorageTypes.IEthereumEntry | null;
+    let allIpfsContentOrErrors: Array<{
+      ipfsContent: StorageTypes.IEntry | null;
+      entryWithError: StorageTypes.IEthereumEntry | null;
     }>;
 
-    // Contains hashes we retry to read on IPFS
-    let ethereumEntriesToRetry: StorageTypes.IEthereumEntry[] = [];
-
-    // Final array of dataIds and meta
-    const entries: StorageTypes.IEntry[] = [];
+    // Final array of dataIds, content and meta
+    const finalIpfsContents: StorageTypes.IEntry[] = [];
 
     // Try to read the hashes on IPFS
     // The operation is done at least once and retried depending on the readOnIPFSRetry config
@@ -554,136 +551,79 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         this.logger.debug(`Retrying to read hashes on IPFS`, ['ipfs']);
       }
 
-      entriesAndEthereumEntriesToRetry = await Bluebird.map(
-        ethereumEntries,
+      allIpfsContentOrErrors = await Bluebird.map(
+        ethereumEntriesToProcess,
         // Read hash on IPFS and retrieve content corresponding to the hash
         // Reject on error when no file is found on IPFS
         // or when the declared size doesn't correspond to the size of the content stored on ipfs
-        async (hashAndSize: StorageTypes.IEthereumEntry, currentIndex: number) => {
-          // Check if the event log is incorrect
-          if (
-            typeof hashAndSize.hash === 'undefined' ||
-            typeof hashAndSize.feesParameters === 'undefined'
-          ) {
-            throw Error('The event log has no hash or feesParameters');
-          }
-          if (typeof hashAndSize.meta === 'undefined') {
-            throw Error('The event log has no metadata');
-          }
-
-          // Get content from ipfs and verify provided size is correct
-          let ipfsObject;
-
-          const startTime = Date.now();
-
-          // To limit the read response size, calculate a reasonable margin for the IPFS headers compared to the size stored on ethereum
-          const ipfsHeaderMargin = Math.max(
-            hashAndSize.feesParameters.contentSize * SAFE_RATE_HEADER_SIZE,
-            SAFE_MAX_HEADER_SIZE,
-          );
-
-          try {
-            // Send ipfs request
-            ipfsObject = await this.ipfsManager.read(
-              hashAndSize.hash,
-              Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
-            );
-            this.logger.debug(
-              `[${successCount + currentIndex + 1}/${totalCount}] read ${
-                hashAndSize.hash
-              }, try; ${tryIndex + 1}. Took ${Date.now() - startTime} ms`,
-              ['ipfs'],
-            );
-          } catch (error) {
-            const errorMessage = error.message || error;
-
-            // Check the type of the error
-            if (error instanceof IpfsConnectionError) {
-              this.logger.info(`IPFS connection error when trying to fetch: ${hashAndSize.hash}`, [
-                'ipfs',
-              ]);
-              ipfsConnectionErrorCount++;
-              this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
-              // store the reason for fail
-              await this.dataIdsIgnored.saveReason(
-                hashAndSize.hash,
-                `IPFS connection error : ${errorMessage}`,
-              );
-
-              // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the hash
-              return { entry: null, ethereumEntryToRetry: hashAndSize };
-            } else {
-              this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
-              incorrectFileCount++;
-              // store the reason for fail
-              await this.dataIdsIgnored.saveReason(
-                hashAndSize.hash,
-                `Incorrect file error: ${errorMessage}`,
-              );
-              this.logger.debug(`Incorrect file error: ${errorMessage}`, ['ipfs']);
-
-              // No need to retry to find this hash
-              return { entry: null, ethereumEntryToRetry: null };
-            }
-          }
-
-          const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
-
-          // Check if the declared size is higher or equal to the size of the actual file
-          // If the declared size is higher, it's not considered as a problem since it means the hash submitter has paid a bigger fee than he had to
-          if (!ipfsObject || ipfsObject.ipfsSize > contentSizeDeclared) {
-            this.logger.info(`Incorrect declared size for hash: ${hashAndSize.hash}`, ['ipfs']);
-            wrongFeesCount++;
-            // store the reason for fail
-            await this.dataIdsIgnored.saveReason(hashAndSize.hash, `Incorrect declared size`);
-
-            // No need to retry to find this hash
-            return { entry: null, ethereumEntryToRetry: null };
-          }
-
-          // Get meta data from ethereum
-          const ethereumMetadata = hashAndSize.meta;
-
-          const entry = {
-            content: ipfsObject.content,
-            id: hashAndSize.hash,
-            meta: {
-              ethereum: ethereumMetadata,
-              ipfs: { size: ipfsObject.ipfsSize },
-              state: StorageTypes.ContentState.CONFIRMED,
-              storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-              timestamp: ethereumMetadata.blockTimestamp,
-            },
-          };
-          return { entry, ethereumEntryToRetry: null };
+        async (ethereumEntry: StorageTypes.IEthereumEntry) => {
+          return this.getIpfsContent(ethereumEntry);
         },
         {
           concurrency: this.maxConcurrency,
         },
       );
 
+      // flush the list of entries to process
+      ethereumEntriesToProcess = [];
+
       // Store found hashes in entries
       // The hashes to retry to read are the hashes where readHashOnIPFS returned null
-      entriesAndEthereumEntriesToRetry.forEach(({ entry, ethereumEntryToRetry }) => {
-        if (entry) {
-          entries.push(entry);
-        } else if (ethereumEntryToRetry) {
-          ethereumEntriesToRetry.push(ethereumEntryToRetry);
+      await Promise.all(allIpfsContentOrErrors.map(async ({ ipfsContent, entryWithError }) => {
+        if (ipfsContent) {
+          // content found and not error
+          finalIpfsContents.push(ipfsContent);
+        } else if (entryWithError) {
+          const errorType = entryWithError.error!.type;
+          if (errorType === StorageTypes.ErrorEntries.incorrectFile) {
+            incorrectFileCount++;
+            // no retry needed, just store it
+            await this.dataIdsIgnored.save(
+              entryWithError.hash,
+              entryWithError.error!.message,
+              false,
+            );
+          } else if (errorType === StorageTypes.ErrorEntries.wrongFees) {
+            wrongFeesCount++;
+            // no retry needed, just store it
+            await this.dataIdsIgnored.save(
+              entryWithError.hash,
+              entryWithError.error!.message,
+              false,
+            );
+          } else if (errorType === StorageTypes.ErrorEntries.ipfsConnectionError) {
+            ipfsConnectionErrorCount++;
+            // push it for a retry
+            ethereumEntriesToProcess.push(entryWithError);
+          } else {
+            throw new Error(`Unexpected Error for the hash: ${entryWithError.hash}, ${entryWithError.error?.type}, ${entryWithError.error?.message}`);
+          }
         }
-      });
+      }));
 
-      // Put the remaining hashes to retrieved in the queue for the next retry
-      ethereumEntries = ethereumEntriesToRetry;
-      ethereumEntriesToRetry = [];
+      successCount = finalIpfsContents.length;
 
-      successCount = entries.length;
-
-      this.logger.debug(`${successCount} retrieved dataIds after try ${tryIndex + 1}`, ['ipfs']);
+      this.logger.debug(`${successCount}/${totalCount} retrieved dataIds after try ${tryIndex + 1}`, ['ipfs']);
 
       if (tryIndex === 0) {
         successCountOnFirstTry = successCount;
       }
     }
+
+    // Save the entries not successfully retrieved after the retries
+    await Promise.all(ethereumEntriesToProcess.map(async (entryRemaining) => {
+      // store the ipfs ignored after the retried
+      return this.dataIdsIgnored.save(
+        entryRemaining.hash,
+        entryRemaining.error!.message,
+        true,
+      );
+    }));
+    // Clean the ignored dataIds
+    await Promise.all(finalIpfsContents.map(async (ipfsContent) => {
+      // store the id successfully retrieved from the ignored ones
+      return this.dataIdsIgnored.delete(ipfsContent.id);
+    }));
 
     this.logger.info(
       `getData on ${totalCount} events, ${successCount} retrieved (${successCount -
@@ -691,7 +631,99 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       ['metric', 'successfullyRetrieved'],
     );
 
-    return entries;
+    return finalIpfsContents;
+  }
+
+  /**
+   * Tries to get the ipfs content or return the error
+   * @param ethereumEntry entry information to get the ipfs from
+   * @returns the ipfsContent and meta or the entry with the error
+   */
+  private async getIpfsContent(
+    ethereumEntry: StorageTypes.IEthereumEntry,
+  ): Promise<{
+    ipfsContent: StorageTypes.IEntry | null;
+    entryWithError: StorageTypes.IEthereumEntry | null;
+  }> {
+    // Check if the event log is incorrect
+    if (
+      typeof ethereumEntry.hash === 'undefined' ||
+      typeof ethereumEntry.feesParameters === 'undefined'
+    ) {
+      throw Error('The event log has no hash or feesParameters');
+    }
+    if (typeof ethereumEntry.meta === 'undefined') {
+      throw Error('The event log has no metadata');
+    }
+
+    // Get content from ipfs and verify provided size is correct
+    let ipfsObject;
+
+    // To limit the read response size, calculate a reasonable margin for the IPFS headers compared to the size stored on ethereum
+    const ipfsHeaderMargin = Math.max(
+      ethereumEntry.feesParameters.contentSize * SAFE_RATE_HEADER_SIZE,
+      SAFE_MAX_HEADER_SIZE,
+    );
+
+    try {
+      // Send ipfs request
+      ipfsObject = await this.ipfsManager.read(
+        ethereumEntry.hash,
+        Number(ethereumEntry.feesParameters.contentSize) + ipfsHeaderMargin,
+      );
+    } catch (error) {
+      const errorMessage = error.message || error;
+
+      // Check the type of the error
+      if (error instanceof IpfsConnectionError) {
+        this.logger.info(`IPFS connection error when trying to fetch: ${ethereumEntry.hash}`, [
+          'ipfs',
+        ]);
+        this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
+        // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the has
+        return {
+          entryWithError: { ...ethereumEntry, error: {message: errorMessage, type: StorageTypes.ErrorEntries.ipfsConnectionError}},
+          ipfsContent: null,
+        };
+      } else {
+        this.logger.info(`Incorrect file for hash: ${ethereumEntry.hash}`, ['ipfs']);
+        // No need to retry to find this hash
+        return {
+          entryWithError: { ...ethereumEntry, error: {message: errorMessage, type: StorageTypes.ErrorEntries.incorrectFile} },
+          ipfsContent: null,
+        };
+      }
+    }
+
+    const contentSizeDeclared = ethereumEntry.feesParameters.contentSize;
+
+    // Check if the declared size is higher or equal to the size of the actual file
+    // If the declared size is higher, it's not considered as a problem since it means the hash submitter has paid a bigger fee than he had to
+    if (!ipfsObject || ipfsObject.ipfsSize > contentSizeDeclared) {
+      this.logger.info(`Incorrect declared size for hash: ${ethereumEntry.hash}`, ['ipfs']);
+
+      // No need to retry to find this hash
+      return {
+        entryWithError: { ...ethereumEntry, error: {message: `Incorrect declared size`, type: StorageTypes.ErrorEntries.wrongFees} },
+        ipfsContent: null,
+      };
+    }
+
+    // Get meta data from ethereum
+    const ethereumMetadata = ethereumEntry.meta;
+
+    const ipfsContent = {
+      content: ipfsObject.content,
+      id: ethereumEntry.hash,
+      meta: {
+        ethereum: ethereumMetadata,
+        ipfs: { size: ipfsObject.ipfsSize },
+        state: StorageTypes.ContentState.CONFIRMED,
+        storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+        timestamp: ethereumMetadata.blockTimestamp,
+      },
+    };
+    return { ipfsContent, entryWithError: null };
   }
 
   /**

@@ -17,16 +17,16 @@ describe('DataIds ignored', () => {
     dataIdsIgnored = new DataIdsIgnored();
   });
 
-  describe('saveReason', () => {
-    it('can saveReason()', async () => {
-      await dataIdsIgnored.saveReason(hash, reason);
+  describe('save', () => {
+    it('can save()', async () => {
+      await dataIdsIgnored.save(hash, reason, true);
 
       expect(await dataIdsIgnored.getReason(hash)).to.be.equal(reason);
     });
     describe('getDataIdsWithReasons', () => {
       it('can getDataIdsWithReasons()', async () => {
-        await dataIdsIgnored.saveReason(hash, reason);
-        await dataIdsIgnored.saveReason(hash2, reason2);
+        await dataIdsIgnored.save(hash, reason, true);
+        await dataIdsIgnored.save(hash2, reason2, true);
 
         expect(await dataIdsIgnored.getDataIdsWithReasons()).to.be.deep.equal({
           [hash]: reason,
@@ -39,8 +39,8 @@ describe('DataIds ignored', () => {
     });
     describe('getDataIds', () => {
       it('can getDataIds()', async () => {
-        await dataIdsIgnored.saveReason(hash, reason);
-        await dataIdsIgnored.saveReason(hash2, reason2);
+        await dataIdsIgnored.save(hash, reason, true);
+        await dataIdsIgnored.save(hash2, reason2, true);
 
         expect(await dataIdsIgnored.getDataIds()).to.be.deep.equal([hash, hash2]);
       });
