@@ -3,10 +3,12 @@ import 'mocha';
 import * as sinon from 'sinon';
 
 import { StorageTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import EthereumStorage from '../src/ethereum-storage';
+import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-content';
+import IgnoredDataIndex from '../src/ignored-dataIds';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
 // tslint:disable:no-magic-numbers
@@ -18,29 +20,14 @@ const expect = chai.expect;
 import spies = require('chai-spies');
 chai.use(spies);
 
-const web3HttpProvider = require('web3-providers-http');
-
-const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'localhost',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
-};
-
-const provider = new web3HttpProvider('http://localhost:8545');
-const web3Connection: StorageTypes.IWeb3Connection = {
-  networkId: StorageTypes.EthereumNetwork.PRIVATE,
-  timeout: 1000,
-  web3Provider: provider,
-};
-
-let ethereumStorage: EthereumStorage;
+let ignoredDataIndex: IgnoredDataIndex;
+let ipfsManager: any;
 
 // tslint:disable:no-unused-expression
-describe('_ethereumEntriesToEntries', () => {
+describe('ethereum-entries-to-ipfs-content', () => {
   beforeEach(async () => {
-    ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
-    await ethereumStorage.initialize();
+    ignoredDataIndex = new IgnoredDataIndex();
+    ipfsManager = {};
   });
 
   it('can retry the right hashes', async () => {
@@ -63,7 +50,7 @@ describe('_ethereumEntriesToEntries', () => {
       ipfsSize: 2,
     }));
 
-    ethereumStorage.ipfsManager.read = chai.spy(
+    ipfsManager.read = chai.spy(
       async (hash: string): Promise<StorageTypes.IIpfsObject> => {
         if (hash === 'hConnectionError') {
           return connectionErrorSpy();
@@ -83,13 +70,19 @@ describe('_ethereumEntriesToEntries', () => {
       { hash: 'hBiggerFile', feesParameters: { contentSize: 3 }, meta: {} as any },
       { hash: 'hOk', feesParameters: { contentSize: 3 }, meta: {} as any },
     ];
-    const result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    const result = await ethereumEntriesToIpfsContent(
+      ethereumEntriesToProcess,
+      ipfsManager,
+      ignoredDataIndex,
+      new Utils.SimpleLogger(),
+      5,
+    );
 
     expect(result.length).to.equal(1);
     expect(result[0]!.content).to.equal('ok');
     expect(result[0]!.id).to.equal('hOk');
 
-    const ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
+    const ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hBiggerFile: {
@@ -112,7 +105,7 @@ describe('_ethereumEntriesToEntries', () => {
       },
     });
 
-    expect(ethereumStorage.ipfsManager.read).to.have.been.called.exactly(5);
+    expect(ipfsManager.read).to.have.been.called.exactly(5);
     expect(connectionErrorSpy).to.have.been.called.twice;
     expect(incorrectErrorSpy).to.have.been.called.once;
     expect(biggerErrorSpy).to.have.been.called.once;
@@ -142,7 +135,7 @@ describe('_ethereumEntriesToEntries', () => {
     }));
 
     let tryCount = 0;
-    ethereumStorage.ipfsManager.read = chai.spy(
+    ipfsManager.read = chai.spy(
       async (hash: string): Promise<StorageTypes.IIpfsObject> => {
         if (hash === 'hConnectionError' && tryCount === 0) {
           tryCount++;
@@ -163,7 +156,13 @@ describe('_ethereumEntriesToEntries', () => {
       { hash: 'hBiggerFile', feesParameters: { contentSize: 3 }, meta: {} as any },
       { hash: 'hOk', feesParameters: { contentSize: 3 }, meta: {} as any },
     ];
-    const result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    const result = await ethereumEntriesToIpfsContent(
+      ethereumEntriesToProcess,
+      ipfsManager,
+      ignoredDataIndex,
+      new Utils.SimpleLogger(),
+      5,
+    );
 
     expect(result.length).to.equal(2);
     expect(result[0]!.content).to.equal('ok');
@@ -171,7 +170,7 @@ describe('_ethereumEntriesToEntries', () => {
     expect(result[1]!.content).to.equal('ok');
     expect(result[1]!.id).to.equal('hConnectionError');
 
-    const ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
+    const ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hBiggerFile: {
@@ -188,7 +187,7 @@ describe('_ethereumEntriesToEntries', () => {
       },
     });
 
-    expect(ethereumStorage.ipfsManager.read).to.have.been.called.exactly(5);
+    expect(ipfsManager.read).to.have.been.called.exactly(5);
     expect(connectionErrorSpy).to.have.been.called.once;
     expect(incorrectErrorSpy).to.have.been.called.once;
     expect(biggerErrorSpy).to.have.been.called.once;
@@ -200,18 +199,24 @@ describe('_ethereumEntriesToEntries', () => {
   it('can store hash as ignored then remove it', async () => {
     sinon.useFakeTimers();
 
-    ethereumStorage.ipfsManager.read = chai.spy(() => {
+    ipfsManager.read = chai.spy(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
     });
 
     const ethereumEntriesToProcess: StorageTypes.IEthereumEntry[] = [
       { hash: 'hConnectionError', feesParameters: { contentSize: 3 }, meta: {} as any },
     ];
-    let result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    let result = await ethereumEntriesToIpfsContent(
+      ethereumEntriesToProcess,
+      ipfsManager,
+      ignoredDataIndex,
+      new Utils.SimpleLogger(),
+      5,
+    );
 
     expect(result.length).to.equal(0);
 
-    let ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
+    let ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
@@ -222,22 +227,28 @@ describe('_ethereumEntriesToEntries', () => {
       },
     });
 
-    expect(ethereumStorage.ipfsManager.read).to.have.been.called.twice;
+    expect(ipfsManager.read).to.have.been.called.twice;
 
     // Then we find it:
-    ethereumStorage.ipfsManager.read = chai.spy(
+    ipfsManager.read = chai.spy(
       async (_hash: string): Promise<StorageTypes.IIpfsObject> => ({
         content: 'ok',
         ipfsLinks: [],
         ipfsSize: 2,
       }),
     );
-    result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    result = await ethereumEntriesToIpfsContent(
+      ethereumEntriesToProcess,
+      ipfsManager,
+      ignoredDataIndex,
+      new Utils.SimpleLogger(),
+      5,
+    );
     expect(result.length).to.equal(1);
     expect(result[0]!.content).to.equal('ok');
     expect(result[0]!.id).to.equal('hConnectionError');
 
-    ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
+    ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({});
 
@@ -247,17 +258,23 @@ describe('_ethereumEntriesToEntries', () => {
   it('can store hash as ignored it twice', async () => {
     const clock = sinon.useFakeTimers();
 
-    ethereumStorage.ipfsManager.read = chai.spy(() => {
+    ipfsManager.read = chai.spy(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
     });
 
     const ethereumEntriesToProcess: StorageTypes.IEthereumEntry[] = [
       { hash: 'hConnectionError', feesParameters: { contentSize: 3 }, meta: {} as any },
     ];
-    let result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    let result = await ethereumEntriesToIpfsContent(
+      ethereumEntriesToProcess,
+      ipfsManager,
+      ignoredDataIndex,
+      new Utils.SimpleLogger(),
+      5,
+    );
     expect(result.length).to.equal(0);
 
-    let ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
+    let ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
@@ -268,13 +285,19 @@ describe('_ethereumEntriesToEntries', () => {
       },
     });
 
-    expect(ethereumStorage.ipfsManager.read).to.have.been.called.twice;
+    expect(ipfsManager.read).to.have.been.called.twice;
 
     clock.tick(100);
-    result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    result = await ethereumEntriesToIpfsContent(
+      ethereumEntriesToProcess,
+      ipfsManager,
+      ignoredDataIndex,
+      new Utils.SimpleLogger(),
+      5,
+    );
     expect(result.length).to.equal(0);
 
-    ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
+    ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {

@@ -9,7 +9,7 @@ export default class IgnoredDataIds {
   /**
    * Store the reason we ignored data ids in a dictionary
    */
-  public ignoredDataIds: Keyv<StorageTypes.IDataIdIgnored>;
+  public ignoredDataIds: Keyv<StorageTypes.IIgnoredDataId>;
 
   public listIgnoredDataIds: Keyv<string[]>;
 
@@ -18,7 +18,7 @@ export default class IgnoredDataIds {
    * @param store a Keyv store to persist the metadata
    */
   public constructor(store?: Keyv.Store<any>) {
-    this.ignoredDataIds = new Keyv<StorageTypes.IDataIdIgnored>({
+    this.ignoredDataIds = new Keyv<StorageTypes.IIgnoredDataId>({
       namespace: 'dataIdIgnored',
       store,
     });

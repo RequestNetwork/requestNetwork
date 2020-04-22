@@ -186,7 +186,7 @@ export interface IPinRequestConfiguration {
 }
 
 /** Configuration for the pinRequest method */
-export interface IDataIdIgnored {
+export interface IIgnoredDataId {
   reason: string;
   lastTryTimestamp: number;
   iteration: number;
