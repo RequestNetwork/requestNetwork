@@ -37,7 +37,7 @@ const web3Connection: StorageTypes.IWeb3Connection = {
 let ethereumStorage: EthereumStorage;
 
 // tslint:disable:no-unused-expression
-describe('EthereumStorage synchronization', () => {
+describe('_ethereumEntriesToEntries', () => {
   beforeEach(async () => {
     ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
     await ethereumStorage.initialize();
@@ -89,25 +89,25 @@ describe('EthereumStorage synchronization', () => {
     expect(result[0]!.content).to.equal('ok');
     expect(result[0]!.id).to.equal('hOk');
 
-    const ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+    const ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hBiggerFile: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Incorrect declared size',
-        timeoutLastTry: 0,
         toRetry: false,
       },
       hConnectionError: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Ipfs read request response error: test purpose',
-        timeoutLastTry: 0,
         toRetry: true,
       },
       hIncorrectFile: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Incorrect file test',
-        timeoutLastTry: 0,
         toRetry: false,
       },
     });
@@ -171,19 +171,19 @@ describe('EthereumStorage synchronization', () => {
     expect(result[1]!.content).to.equal('ok');
     expect(result[1]!.id).to.equal('hConnectionError');
 
-    const ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+    const ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hBiggerFile: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Incorrect declared size',
-        timeoutLastTry: 0,
         toRetry: false,
       },
       hIncorrectFile: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Incorrect file test',
-        timeoutLastTry: 0,
         toRetry: false,
       },
     });
@@ -211,13 +211,13 @@ describe('EthereumStorage synchronization', () => {
 
     expect(result.length).to.equal(0);
 
-    let ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+    let ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Ipfs read request response error: test purpose',
-        timeoutLastTry: 0,
         toRetry: true,
       },
     });
@@ -237,7 +237,7 @@ describe('EthereumStorage synchronization', () => {
     expect(result[0]!.content).to.equal('ok');
     expect(result[0]!.id).to.equal('hConnectionError');
 
-    ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+    ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({});
 
@@ -257,13 +257,13 @@ describe('EthereumStorage synchronization', () => {
     let result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
     expect(result.length).to.equal(0);
 
-    let ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+    let ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
         iteration: 1,
+        lastTryTimestamp: 0,
         reason: 'Ipfs read request response error: test purpose',
-        timeoutLastTry: 0,
         toRetry: true,
       },
     });
@@ -274,13 +274,13 @@ describe('EthereumStorage synchronization', () => {
     result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
     expect(result.length).to.equal(0);
 
-    ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+    ignoredData = await ethereumStorage.ignoredDataIds.getDataIdsWithReasons();
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
         iteration: 2,
+        lastTryTimestamp: 100,
         reason: 'Ipfs read request response error: test purpose',
-        timeoutLastTry: 100,
         toRetry: true,
       },
     });

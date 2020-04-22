@@ -9,8 +9,8 @@ import {
   getPinRequestConfig,
 } from './config';
 
-import DataIdsIgnored from './dataIds-ignored';
 import EthereumMetadataCache from './ethereum-metadata-cache';
+import IgnoredDataIds from './ignored-dataIds';
 import IpfsConnectionError from './ipfs-connection-error';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
@@ -49,7 +49,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public ethereumMetadataCache: EthereumMetadataCache;
 
   /** Data ids ignored by the node */
-  public dataIdsIgnored: DataIdsIgnored;
+  public ignoredDataIds: IgnoredDataIds;
 
   /**
    * Maximum number of concurrent calls
@@ -119,7 +119,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.smartContractManager,
       metadataStore,
     );
-    this.dataIdsIgnored = new DataIdsIgnored(metadataStore);
+    this.ignoredDataIds = new IgnoredDataIds(metadataStore);
     this.buffer = {};
     this.externalBufferUrl = externalBufferUrl;
   }
@@ -445,7 +445,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async _getStatus(detailed: boolean = false): Promise<any> {
     const dataIds = await this.ethereumMetadataCache.getDataIds();
-    const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
+    const dataIdsWithReason = await this.ignoredDataIds.getDataIdsWithReasons();
 
     const ethereum = this.smartContractManager.getConfig();
     const ipfs = await this.ipfsManager.getConfig();
@@ -526,23 +526,23 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           finalIpfsContents.push(ipfsContent);
         } else if (entryWithError) {
           const errorType = entryWithError.error!.type;
-          if (errorType === StorageTypes.ErrorEntries.incorrectFile) {
+          if (errorType === StorageTypes.ErrorEntries.INCORRECT_FILE) {
             incorrectFileCount++;
             // no retry needed, just store it
-            await this.dataIdsIgnored.save(
+            await this.ignoredDataIds.save(
               entryWithError.hash,
               entryWithError.error!.message,
               false,
             );
-          } else if (errorType === StorageTypes.ErrorEntries.wrongFees) {
+          } else if (errorType === StorageTypes.ErrorEntries.WRONG_FEES) {
             wrongFeesCount++;
             // no retry needed, just store it
-            await this.dataIdsIgnored.save(
+            await this.ignoredDataIds.save(
               entryWithError.hash,
               entryWithError.error!.message,
               false,
             );
-          } else if (errorType === StorageTypes.ErrorEntries.ipfsConnectionError) {
+          } else if (errorType === StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR) {
             ipfsConnectionErrorCount++;
             // push it for a retry
             ethereumEntriesToProcess.push(entryWithError);
@@ -564,7 +564,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // Save the entries not successfully retrieved after the retries
     for (const entryRemaining of ethereumEntriesToProcess) {
       // store the ipfs ignored after the retried
-      await this.dataIdsIgnored.save(
+      await this.ignoredDataIds.save(
         entryRemaining.hash,
         entryRemaining.error!.message,
         true,
@@ -574,7 +574,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // Clean the ignored dataIds
     for (const ipfsContent of finalIpfsContents) {
       // store the id successfully retrieved from the ignored ones
-      await this.dataIdsIgnored.delete(ipfsContent.id);
+      await this.ignoredDataIds.delete(ipfsContent.id);
     }
 
     this.logger.info(
@@ -693,7 +693,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         return {
           entryWithError: {
             ...ethereumEntry,
-            error: { message: errorMessage, type: StorageTypes.ErrorEntries.ipfsConnectionError },
+            error: { message: errorMessage, type: StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR },
           },
           ipfsContent: null,
         };
@@ -704,7 +704,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         return {
           entryWithError: {
             ...ethereumEntry,
-            error: { message: errorMessage, type: StorageTypes.ErrorEntries.incorrectFile },
+            error: { message: errorMessage, type: StorageTypes.ErrorEntries.INCORRECT_FILE },
           },
           ipfsContent: null,
         };
@@ -722,7 +722,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       return {
         entryWithError: {
           ...ethereumEntry,
-          error: { message: `Incorrect declared size`, type: StorageTypes.ErrorEntries.wrongFees },
+          error: { message: `Incorrect declared size`, type: StorageTypes.ErrorEntries.WRONG_FEES },
         },
         ipfsContent: null,
       };
