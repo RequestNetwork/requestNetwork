@@ -243,4 +243,48 @@ describe('EthereumStorage synchronization', () => {
 
     sinon.restore();
   });
+
+  it('can store hash as ignored it twice', async () => {
+    const clock = sinon.useFakeTimers();
+
+    ethereumStorage.ipfsManager.read = chai.spy(() => {
+      throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
+    });
+
+    const ethereumEntriesToProcess: StorageTypes.IEthereumEntry[] = [
+      { hash: 'hConnectionError', feesParameters: { contentSize: 3 }, meta: {} as any },
+    ];
+    let result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    expect(result.length).to.equal(0);
+
+    let ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+
+    expect(ignoredData).to.deep.equal({
+      hConnectionError: {
+        iteration: 1,
+        reason: 'Ipfs read request response error: test purpose',
+        timeoutLastTry: 0,
+        toRetry: true,
+      },
+    });
+
+    expect(ethereumStorage.ipfsManager.read).to.have.been.called.twice;
+
+    clock.tick(100);
+    result = await ethereumStorage._ethereumEntriesToEntries(ethereumEntriesToProcess);
+    expect(result.length).to.equal(0);
+
+    ignoredData = await ethereumStorage.dataIdsIgnored.getDataIdsWithReasons();
+
+    expect(ignoredData).to.deep.equal({
+      hConnectionError: {
+        iteration: 2,
+        reason: 'Ipfs read request response error: test purpose',
+        timeoutLastTry: 100,
+        toRetry: true,
+      },
+    });
+
+    sinon.restore();
+  });
 });
