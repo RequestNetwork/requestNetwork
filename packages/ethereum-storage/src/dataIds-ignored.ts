@@ -57,7 +57,7 @@ export default class DataIdsIgnored {
       if (previous.toRetry) {
         // update it only if it was mean to be retry
         await this.dataIdsIgnored.set(dataId, {
-          iteration: previous.iteration + 1,
+          iteration: previous.iteration as number + 1,
           reason,
           timeoutLastTry: Date.now(),
           toRetry,

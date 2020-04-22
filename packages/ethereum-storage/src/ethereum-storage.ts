@@ -520,8 +520,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
       // Store found hashes in entries
       // The hashes to retry to read are the hashes where readHashOnIPFS returned null
-      // await Promise.all(allIpfsContentOrErrors.map(async ({ ipfsContent, entryWithError }) => {
-      for await (const { ipfsContent, entryWithError } of allIpfsContentOrErrors) {
+      for (const { ipfsContent, entryWithError } of allIpfsContentOrErrors) {
         if (ipfsContent) {
           // content found and not error
           finalIpfsContents.push(ipfsContent);
@@ -563,7 +562,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // Save the entries not successfully retrieved after the retries
-    for await (const entryRemaining of ethereumEntriesToProcess) {
+    for (const entryRemaining of ethereumEntriesToProcess) {
       // store the ipfs ignored after the retried
       await this.dataIdsIgnored.save(
         entryRemaining.hash,
@@ -573,7 +572,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // Clean the ignored dataIds
-    for await (const ipfsContent of finalIpfsContents) {
+    for (const ipfsContent of finalIpfsContents) {
       // store the id successfully retrieved from the ignored ones
       await this.dataIdsIgnored.delete(ipfsContent.id);
     }
