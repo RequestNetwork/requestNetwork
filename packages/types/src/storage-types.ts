@@ -187,8 +187,8 @@ export interface IPinRequestConfiguration {
 
 /** Configuration for the pinRequest method */
 export interface IDataIdIgnored {
-  reason: string;
-  timeoutLastTry: number;
+  entry: IEthereumEntry;
+  lastTryTimestamp: number;
   iteration: number;
   toRetry: boolean;
 }

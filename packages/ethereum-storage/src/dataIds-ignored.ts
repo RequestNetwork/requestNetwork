@@ -3,6 +3,11 @@ import * as Keyv from 'keyv';
 import { StorageTypes } from '@requestnetwork/types';
 
 /**
+ * Interval time between iteration for the retry
+ */
+const INTERVAL_RETRY_MS = 60000; // every minute
+
+/**
  * Allows to save and retrieve the dataIds ignored with the reason
  */
 export default class DataIdsIgnored {
@@ -36,31 +41,29 @@ export default class DataIdsIgnored {
    * @param toRetry will be retry later if true
    */
   public async save(
-    dataId: string,
-    reason: string,
-    toRetry: boolean,
+    entry: StorageTypes.IEthereumEntry,
   ): Promise<void> {
-    const previous = await this.dataIdsIgnored.get(dataId);
+    const previous = await this.dataIdsIgnored.get(entry.hash);
 
     if (!previous) {
       // add the dataId id if new in the store
-      await this.dataIdsIgnored.set(dataId, {
+      await this.dataIdsIgnored.set(entry.hash, {
+        entry,
         iteration: 1,
-        reason,
-        timeoutLastTry: Date.now(),
-        toRetry,
+        lastTryTimestamp: Date.now(),
+        toRetry: entry.error?.type === StorageTypes.ErrorEntries.ipfsConnectionError,
       });
       // update the list
-      await this.addToDataIdsList(dataId);
+      await this.addToDataIdsList(entry.hash);
     } else {
       // if already in the store
       if (previous.toRetry) {
         // update it only if it was mean to be retry
-        await this.dataIdsIgnored.set(dataId, {
+        await this.dataIdsIgnored.set(entry.hash, {
+          entry,
           iteration: previous.iteration as number + 1,
-          reason,
-          timeoutLastTry: Date.now(),
-          toRetry,
+          lastTryTimestamp: Date.now(),
+          toRetry: entry.error?.type === StorageTypes.ErrorEntries.ipfsConnectionError,
         });
       }
     }
@@ -84,7 +87,7 @@ export default class DataIdsIgnored {
    * @returns the reason or null
    */
   public async getReason(dataId: string): Promise<string | undefined> {
-    return (await this.dataIdsIgnored.get(dataId))?.reason;
+    return (await this.dataIdsIgnored.get(dataId))?.entry.error?.message;
   }
 
   /**
@@ -95,6 +98,27 @@ export default class DataIdsIgnored {
   public async getDataIds(): Promise<string[]> {
     const listDataId: string[] | undefined = await this.listDataIdsIgnored.get('list');
     return listDataId || [];
+  }
+  /**
+   * Get the list of data ids that should be retry
+   *
+   * @returns the list of data ids
+   */
+  public async getDataIdsToRetry(): Promise<StorageTypes.IEthereumEntry[]> {
+    const listDataId: string[] | undefined = await this.listDataIdsIgnored.get('list');
+
+    const result: StorageTypes.IEthereumEntry[] = [];
+
+    if (listDataId) {
+      for (const dataId of Array.from(listDataId)) {
+        const data: StorageTypes.IDataIdIgnored | undefined = await this.dataIdsIgnored.get(dataId);
+        if (data && this.shouldBeRetry(data)) {
+          result.push(data.entry);
+        }
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -115,6 +139,17 @@ export default class DataIdsIgnored {
     }
 
     return result;
+  }
+
+  /**
+   * Check if it is the time to retry the entry
+   * @param entry to check
+   * @returns true if it is time to retry
+   */
+  private shouldBeRetry(
+    entry: StorageTypes.IDataIdIgnored,
+  ): boolean {
+    return entry.toRetry && (entry.lastTryTimestamp + Math.pow(entry.iteration, 2) * INTERVAL_RETRY_MS) <= Date.now();
   }
 
   /**

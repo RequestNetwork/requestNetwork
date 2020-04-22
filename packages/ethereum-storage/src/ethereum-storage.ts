@@ -409,6 +409,47 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   }
 
   /**
+   * Try to get some previous ignored data
+   *
+   * @param options timestamp boundaries for the data retrieval
+   * @returns Promise resolving stored data
+   */
+  public async getIgnoredData(): Promise<StorageTypes.IEntry[]> {
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
+    this.logger.info('Getting some previous ignored dataIds', ['ethereum']);
+
+    const ethereumEntries: StorageTypes.IEthereumEntry[] = await this.dataIdsIgnored.getDataIdsToRetry();
+
+    // If no hash was found on ethereum, we return an empty list
+    if (!ethereumEntries.length) {
+      this.logger.info('No new data found.', ['ethereum']);
+      return [];
+    }
+
+    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
+
+    const entries = await this._ethereumEntriesToEntries(ethereumEntries);
+
+    const ids = entries.map(entry => entry.id) || [];
+    // Pin data asynchronously
+    // tslint:disable-next-line:no-floating-promises
+    this.pinDataToIPFS(ids);
+
+    // Save existing ethereum metadata to the ethereum metadata cache
+    for (const entry of entries) {
+      const ethereumMetadata = entry.meta.ethereum;
+      if (ethereumMetadata) {
+        // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
+        await this.ethereumMetadataCache.saveDataIdMeta(entry.id, ethereumMetadata);
+      }
+    }
+
+    return entries;
+  }
+
+  /**
    * Pin an array of IPFS hashes
    *
    * @param hashes An array of IPFS hashes to pin
@@ -529,19 +570,11 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           if (errorType === StorageTypes.ErrorEntries.incorrectFile) {
             incorrectFileCount++;
             // no retry needed, just store it
-            await this.dataIdsIgnored.save(
-              entryWithError.hash,
-              entryWithError.error!.message,
-              false,
-            );
+            await this.dataIdsIgnored.save(entryWithError);
           } else if (errorType === StorageTypes.ErrorEntries.wrongFees) {
             wrongFeesCount++;
             // no retry needed, just store it
-            await this.dataIdsIgnored.save(
-              entryWithError.hash,
-              entryWithError.error!.message,
-              false,
-            );
+            await this.dataIdsIgnored.save(entryWithError);
           } else if (errorType === StorageTypes.ErrorEntries.ipfsConnectionError) {
             ipfsConnectionErrorCount++;
             // push it for a retry
@@ -564,11 +597,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     // Save the entries not successfully retrieved after the retries
     for (const entryRemaining of ethereumEntriesToProcess) {
       // store the ipfs ignored after the retried
-      await this.dataIdsIgnored.save(
-        entryRemaining.hash,
-        entryRemaining.error!.message,
-        true,
-      );
+      await this.dataIdsIgnored.save(entryRemaining);
     }
 
     // Clean the ignored dataIds
