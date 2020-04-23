@@ -71,7 +71,7 @@ export default class IgnoredDataIds {
   }
 
   /**
-   * Removes in the cache the ignored dataId
+   * Removes the ignored dataId from the cache
    * @param dataId dataId
    */
   public async delete(
