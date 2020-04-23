@@ -154,7 +154,7 @@ export default class IgnoredDataIds {
   private shouldBeRetry(
     entry: StorageTypes.IIgnoredDataId,
   ): boolean {
-    return entry.toRetry && (entry.lastTryTimestamp + Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS) <= Date.now();
+    return entry.toRetry && (entry.lastTryTimestamp as number + Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS) <= Date.now();
   }
 
   /**
