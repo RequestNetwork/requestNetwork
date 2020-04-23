@@ -79,9 +79,9 @@ export interface IEthereumEntry extends IWithMeta<IEthereumMetadata> {
 
 /** Enum of state possible for data */
 export enum ErrorEntries {
-  ipfsConnectionError,
-  incorrectFile,
-  wrongFees,
+  IPFS_CONNECTION_ERROR,
+  INCORRECT_FILE,
+  WRONG_FEES,
 }
 
 /** A list of ethereum entries with the last block timestamp these entries were fetched from */
@@ -186,7 +186,8 @@ export interface IPinRequestConfiguration {
 }
 
 /** Configuration for the pinRequest method */
-export interface IDataIdIgnored {
+
+export interface IIgnoredDataId {
   entry: IEthereumEntry;
   lastTryTimestamp: number;
   iteration: number;
