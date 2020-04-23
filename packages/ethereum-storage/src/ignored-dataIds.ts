@@ -11,6 +11,10 @@ export default class IgnoredDataIds {
    */
   public ignoredDataIds: Keyv<StorageTypes.IIgnoredDataId>;
 
+  /**
+   * as KeyV don't allow to get the list of the keys, we need to store it manually
+   * TODO (PROT-1189): replace KeyV by a database service
+   */
   public listIgnoredDataIds: Keyv<string[]>;
 
   /**
