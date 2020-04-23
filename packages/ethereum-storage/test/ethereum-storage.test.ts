@@ -737,8 +737,6 @@ describe('EthereumStorage', () => {
       // Store how many time we tried to read a specific hash
       const hashTryCount: any = {};
 
-      ethereumStorage.maxIpfsReadRetry = 4;
-
       // This mock simulates ipfsManager.read() when we try to read the hash on IPFS differente times
       ethereumStorage.ipfsManager.read = async (hash: string) => {
         hashTryCount[hash] ? hashTryCount[hash]++ : (hashTryCount[hash] = 1);
@@ -798,8 +796,8 @@ describe('EthereumStorage', () => {
         '0x2': 1,
         '0x3': 1,
         '0x4': 2,
-        '0x5': 3,
-        '0x6': 5,
+        '0x5': 2,
+        '0x6': 2,
       });
     });
 

@@ -2,26 +2,15 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
-import {
-  getIpfsExpectedBootstrapNodes,
-  getMaxConcurrency,
-  getMaxIpfsReadRetry,
-  getPinRequestConfig,
-} from './config';
+import { getIpfsExpectedBootstrapNodes, getMaxConcurrency, getPinRequestConfig } from './config';
 
-import DataIdsIgnored from './dataIds-ignored';
+import ethereumEntriesToIpfsContent from './ethereum-entries-to-ipfs-content';
 import EthereumMetadataCache from './ethereum-metadata-cache';
-import IpfsConnectionError from './ipfs-connection-error';
+import IgnoredDataIds from './ignored-dataIds';
 import IpfsManager from './ipfs-manager';
 import SmartContractManager from './smart-contract-manager';
 
 import * as Keyv from 'keyv';
-
-// rate of the size of the Header of a ipfs file regarding its content size
-// used to estimate the size of a ipfs file from the content size
-const SAFE_RATE_HEADER_SIZE: number = 0.3;
-// max ipfs header size
-const SAFE_MAX_HEADER_SIZE: number = 500;
 
 // time to wait before considering the web3 provider is not reachable
 const WEB3_PROVIDER_TIMEOUT: number = 10000;
@@ -49,18 +38,12 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public ethereumMetadataCache: EthereumMetadataCache;
 
   /** Data ids ignored by the node */
-  public dataIdsIgnored: DataIdsIgnored;
+  public ignoredDataIds: IgnoredDataIds;
 
   /**
    * Maximum number of concurrent calls
    */
   public maxConcurrency: number;
-
-  /**
-   * Number of times we retry to read hashes on IPFS
-   * Left public for testing purpose
-   */
-  public maxIpfsReadRetry: number = getMaxIpfsReadRetry();
 
   /**
    * Timestamp of the dataId not mined on ethereum yet
@@ -119,7 +102,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.smartContractManager,
       metadataStore,
     );
-    this.dataIdsIgnored = new DataIdsIgnored(metadataStore);
+    this.ignoredDataIds = new IgnoredDataIds(metadataStore);
     this.buffer = {};
     this.externalBufferUrl = externalBufferUrl;
   }
@@ -445,7 +428,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public async _getStatus(detailed: boolean = false): Promise<any> {
     const dataIds = await this.ethereumMetadataCache.getDataIds();
-    const dataIdsWithReason = await this.dataIdsIgnored.getDataIdsWithReasons();
+    const dataIdsWithReason = await this.ignoredDataIds.getDataIdsWithReasons();
 
     const ethereum = this.smartContractManager.getConfig();
     const ipfs = await this.ipfsManager.getConfig();
@@ -493,7 +476,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
 
-    const entries = await this.EthereumEntriesToEntries(ethereumEntries);
+    const entries = await ethereumEntriesToIpfsContent(
+      ethereumEntries,
+      this.ipfsManager,
+      this.ignoredDataIds,
+      this.logger,
+      this.maxConcurrency,
+    );
 
     const ids = entries.map(entry => entry.id) || [];
     // Pin data asynchronously
@@ -513,185 +502,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       entries,
       lastTimestamp,
     };
-  }
-
-  /**
-   * Verify the hashes are present on IPFS for the corresponding ethereum entry
-   * Filtered incorrect hashes
-   * @param ethereumEntries Ethereum entries from the smart contract
-   * @returns Filtered list of dataId with metadata
-   */
-  private async EthereumEntriesToEntries(
-    ethereumEntries: StorageTypes.IEthereumEntry[],
-  ): Promise<StorageTypes.IEntry[]> {
-    const totalCount: number = ethereumEntries.length;
-    let successCount: number = 0;
-    let successCountOnFirstTry: number = 0;
-    let ipfsConnectionErrorCount: number = 0;
-    let wrongFeesCount: number = 0;
-    let incorrectFileCount: number = 0;
-
-    // Contains results from readHashOnIPFS function
-    // We store hashAndSize in this array in order to know which hashes have not been found on IPFS
-    let entriesAndEthereumEntriesToRetry: Array<{
-      entry: StorageTypes.IEntry | null;
-      ethereumEntryToRetry: StorageTypes.IEthereumEntry | null;
-    }>;
-
-    // Contains hashes we retry to read on IPFS
-    let ethereumEntriesToRetry: StorageTypes.IEthereumEntry[] = [];
-
-    // Final array of dataIds and meta
-    const entries: StorageTypes.IEntry[] = [];
-
-    // Try to read the hashes on IPFS
-    // The operation is done at least once and retried depending on the readOnIPFSRetry config
-    for (let tryIndex = 0; tryIndex < 1 + this.maxIpfsReadRetry; tryIndex++) {
-      // Reset for each retry
-      ipfsConnectionErrorCount = 0;
-
-      if (tryIndex > 0) {
-        this.logger.debug(`Retrying to read hashes on IPFS`, ['ipfs']);
-      }
-
-      entriesAndEthereumEntriesToRetry = await Bluebird.map(
-        ethereumEntries,
-        // Read hash on IPFS and retrieve content corresponding to the hash
-        // Reject on error when no file is found on IPFS
-        // or when the declared size doesn't correspond to the size of the content stored on ipfs
-        async (hashAndSize: StorageTypes.IEthereumEntry, currentIndex: number) => {
-          // Check if the event log is incorrect
-          if (
-            typeof hashAndSize.hash === 'undefined' ||
-            typeof hashAndSize.feesParameters === 'undefined'
-          ) {
-            throw Error('The event log has no hash or feesParameters');
-          }
-          if (typeof hashAndSize.meta === 'undefined') {
-            throw Error('The event log has no metadata');
-          }
-
-          // Get content from ipfs and verify provided size is correct
-          let ipfsObject;
-
-          const startTime = Date.now();
-
-          // To limit the read response size, calculate a reasonable margin for the IPFS headers compared to the size stored on ethereum
-          const ipfsHeaderMargin = Math.max(
-            hashAndSize.feesParameters.contentSize * SAFE_RATE_HEADER_SIZE,
-            SAFE_MAX_HEADER_SIZE,
-          );
-
-          try {
-            // Send ipfs request
-            ipfsObject = await this.ipfsManager.read(
-              hashAndSize.hash,
-              Number(hashAndSize.feesParameters.contentSize) + ipfsHeaderMargin,
-            );
-            this.logger.debug(
-              `[${successCount + currentIndex + 1}/${totalCount}] read ${
-                hashAndSize.hash
-              }, try; ${tryIndex + 1}. Took ${Date.now() - startTime} ms`,
-              ['ipfs'],
-            );
-          } catch (error) {
-            const errorMessage = error.message || error;
-
-            // Check the type of the error
-            if (error instanceof IpfsConnectionError) {
-              this.logger.info(`IPFS connection error when trying to fetch: ${hashAndSize.hash}`, [
-                'ipfs',
-              ]);
-              ipfsConnectionErrorCount++;
-              this.logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
-              // store the reason for fail
-              await this.dataIdsIgnored.saveReason(
-                hashAndSize.hash,
-                `IPFS connection error : ${errorMessage}`,
-              );
-
-              // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the hash
-              return { entry: null, ethereumEntryToRetry: hashAndSize };
-            } else {
-              this.logger.info(`Incorrect file for hash: ${hashAndSize.hash}`, ['ipfs']);
-              incorrectFileCount++;
-              // store the reason for fail
-              await this.dataIdsIgnored.saveReason(
-                hashAndSize.hash,
-                `Incorrect file error: ${errorMessage}`,
-              );
-              this.logger.debug(`Incorrect file error: ${errorMessage}`, ['ipfs']);
-
-              // No need to retry to find this hash
-              return { entry: null, ethereumEntryToRetry: null };
-            }
-          }
-
-          const contentSizeDeclared = hashAndSize.feesParameters.contentSize;
-
-          // Check if the declared size is higher or equal to the size of the actual file
-          // If the declared size is higher, it's not considered as a problem since it means the hash submitter has paid a bigger fee than he had to
-          if (!ipfsObject || ipfsObject.ipfsSize > contentSizeDeclared) {
-            this.logger.info(`Incorrect declared size for hash: ${hashAndSize.hash}`, ['ipfs']);
-            wrongFeesCount++;
-            // store the reason for fail
-            await this.dataIdsIgnored.saveReason(hashAndSize.hash, `Incorrect declared size`);
-
-            // No need to retry to find this hash
-            return { entry: null, ethereumEntryToRetry: null };
-          }
-
-          // Get meta data from ethereum
-          const ethereumMetadata = hashAndSize.meta;
-
-          const entry = {
-            content: ipfsObject.content,
-            id: hashAndSize.hash,
-            meta: {
-              ethereum: ethereumMetadata,
-              ipfs: { size: ipfsObject.ipfsSize },
-              state: StorageTypes.ContentState.CONFIRMED,
-              storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-              timestamp: ethereumMetadata.blockTimestamp,
-            },
-          };
-          return { entry, ethereumEntryToRetry: null };
-        },
-        {
-          concurrency: this.maxConcurrency,
-        },
-      );
-
-      // Store found hashes in entries
-      // The hashes to retry to read are the hashes where readHashOnIPFS returned null
-      entriesAndEthereumEntriesToRetry.forEach(({ entry, ethereumEntryToRetry }) => {
-        if (entry) {
-          entries.push(entry);
-        } else if (ethereumEntryToRetry) {
-          ethereumEntriesToRetry.push(ethereumEntryToRetry);
-        }
-      });
-
-      // Put the remaining hashes to retrieved in the queue for the next retry
-      ethereumEntries = ethereumEntriesToRetry;
-      ethereumEntriesToRetry = [];
-
-      successCount = entries.length;
-
-      this.logger.debug(`${successCount} retrieved dataIds after try ${tryIndex + 1}`, ['ipfs']);
-
-      if (tryIndex === 0) {
-        successCountOnFirstTry = successCount;
-      }
-    }
-
-    this.logger.info(
-      `getData on ${totalCount} events, ${successCount} retrieved (${successCount -
-        successCountOnFirstTry} after retries), ${ipfsConnectionErrorCount} not found, ${incorrectFileCount} incorrect files, ${wrongFeesCount} with wrong fees`,
-      ['metric', 'successfullyRetrieved'],
-    );
-
-    return entries;
   }
 
   /**
