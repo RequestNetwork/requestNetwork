@@ -126,6 +126,10 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
+  public async getIgnoredData(): Promise<StorageTypes.IEntry[]> {
+    return [];
+  }
+
   /**
    * Gets information
    *

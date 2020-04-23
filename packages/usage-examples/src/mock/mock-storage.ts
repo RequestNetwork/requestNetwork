@@ -95,4 +95,8 @@ export default class MockStorage implements StorageTypes.IStorage {
       lastTimestamp: nowTimestampInSec,
     };
   }
+
+  public async getIgnoredData(): Promise<StorageTypes.IEntry[]> {
+    return [];
+  }
 }
