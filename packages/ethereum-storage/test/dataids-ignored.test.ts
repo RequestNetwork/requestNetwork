@@ -120,7 +120,7 @@ describe('Ignored DataIds', () => {
       await ignoredDataIds.save(entry);
       expect(await ignoredDataIds.getDataIdsToRetry()).to.be.deep.equal([]);
 
-      clock.tick(60001);
+      clock.tick(120001);
       expect(await ignoredDataIds.getDataIdsToRetry()).to.be.deep.equal([entry]);
 
       sinon.restore();
