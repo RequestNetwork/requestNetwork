@@ -846,7 +846,7 @@ describe('EthereumStorage', () => {
 
       const entries = await ethereumStorage.getIgnoredData();
       expect(entries.length, 'config wrong').to.equal(1);
-      expect(entries[0], 'config wrong').to.be.deep.equal({
+      expect(entries[0], 'config wrong').to.deep.equal({
         content: 'ok',
         id: 'hConnectionError',
         meta: {
