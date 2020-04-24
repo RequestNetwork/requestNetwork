@@ -151,7 +151,7 @@ export default class IgnoredDataIds {
    * @param entry to check
    * @returns true if it is time to retry
    */
-  private shouldBeRetry(
+  private shouldRetry(
     entry: StorageTypes.IIgnoredDataId,
   ): boolean {
     return entry.toRetry && (entry.lastTryTimestamp as number + Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS) <= Date.now();
