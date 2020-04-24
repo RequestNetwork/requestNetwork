@@ -117,7 +117,7 @@ export default class IgnoredDataIds {
     if (listDataId) {
       for (const dataId of Array.from(listDataId)) {
         const data: StorageTypes.IIgnoredDataId | undefined = await this.ignoredDataIds.get(dataId);
-        if (data && this.shouldBeRetry(data)) {
+        if (data && this.shouldRetry(data)) {
           result.push(data.entry);
         }
       }
@@ -154,6 +154,8 @@ export default class IgnoredDataIds {
   private shouldRetry(
     entry: StorageTypes.IIgnoredDataId,
   ): boolean {
+    // The entry should be retry periodically in an exponential interval of time
+    // Every time we retry to exponentially increase the time of the next try
     return entry.toRetry && (entry.lastTryTimestamp as number + Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS) <= Date.now();
   }
 

@@ -21,7 +21,7 @@ const SAFE_MAX_HEADER_SIZE: number = 500;
  * @param ethereumEntries Ethereum entries from the smart contract
  * @returns Filtered list of dataId with metadata
  */
-export default async function œ(
+export default async function EthereumEntriesToIpfsContent(
     ethereumEntries: StorageTypes.IEthereumEntry[],
     ipfsManager: IpfsManager,
     ignoredDataIdsIndex: IgnoredDataIds,
