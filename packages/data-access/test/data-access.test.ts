@@ -124,6 +124,7 @@ const defaultFakeStorage: StorageTypes.IStorage = {
     },
   ),
   getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
+  getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
   initialize: chai.spy(),
   read: (param: string): any => {
     const dataIdBlock2txFake: any = {
@@ -513,6 +514,7 @@ describe('data-access', () => {
           },
         ),
         getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
+        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
         initialize: chai.spy(),
         read: (param: string): any => {
           const dataIdBlock2txFake: any = {
@@ -627,6 +629,7 @@ describe('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
+      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
       _getStatus: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),
@@ -749,6 +752,7 @@ describe('data-access', () => {
       _ipfsAdd: chai.spy(),
       append: chai.spy.returns(appendResult),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
+      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
       _getStatus: chai.spy(),
       initialize: chai.spy(),
       read: chai.spy(),

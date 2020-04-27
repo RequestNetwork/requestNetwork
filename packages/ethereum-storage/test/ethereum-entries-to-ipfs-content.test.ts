@@ -86,21 +86,51 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ignoredData).to.deep.equal({
       hBiggerFile: {
+        entry: {
+          error: {
+            message: 'Incorrect declared size',
+            type: StorageTypes.ErrorEntries.WRONG_FEES,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hBiggerFile',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Incorrect declared size',
         toRetry: false,
       },
       hConnectionError: {
+        entry: {
+          error: {
+            message: 'Ipfs read request response error: test purpose',
+            type: StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hConnectionError',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Ipfs read request response error: test purpose',
         toRetry: true,
       },
       hIncorrectFile: {
+        entry: {
+          error: {
+            message: 'Incorrect file test',
+            type: StorageTypes.ErrorEntries.INCORRECT_FILE,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hIncorrectFile',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Incorrect file test',
         toRetry: false,
       },
     });
@@ -174,15 +204,35 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ignoredData).to.deep.equal({
       hBiggerFile: {
+        entry: {
+          error: {
+            message: 'Incorrect declared size',
+            type: StorageTypes.ErrorEntries.WRONG_FEES,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hBiggerFile',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Incorrect declared size',
         toRetry: false,
       },
       hIncorrectFile: {
+        entry: {
+          error: {
+            message: 'Incorrect file test',
+            type: StorageTypes.ErrorEntries.INCORRECT_FILE,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hIncorrectFile',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Incorrect file test',
         toRetry: false,
       },
     });
@@ -220,9 +270,19 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
+        entry: {
+          error: {
+            message: 'Ipfs read request response error: test purpose',
+            type: StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hConnectionError',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Ipfs read request response error: test purpose',
         toRetry: true,
       },
     });
@@ -278,9 +338,19 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
+        entry: {
+          error: {
+            message: 'Ipfs read request response error: test purpose',
+            type: StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hConnectionError',
+          meta: {},
+        },
         iteration: 1,
         lastTryTimestamp: 0,
-        reason: 'Ipfs read request response error: test purpose',
         toRetry: true,
       },
     });
@@ -301,9 +371,19 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ignoredData).to.deep.equal({
       hConnectionError: {
+        entry: {
+          error: {
+            message: 'Ipfs read request response error: test purpose',
+            type: StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hConnectionError',
+          meta: {},
+        },
         iteration: 2,
         lastTryTimestamp: 100,
-        reason: 'Ipfs read request response error: test purpose',
         toRetry: true,
       },
     });

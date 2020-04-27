@@ -809,6 +809,68 @@ describe('EthereumStorage', () => {
     });
   });
 
+  describe('getIgnoredData', () => {
+    it('cannot get ignored data if not initialized', async () => {
+      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      await expect(ethereumStorage.getIgnoredData()).to.eventually.rejectedWith(
+        'Ethereum storage must be initialized',
+      );
+    });
+    it('can get ignored data', async () => {
+      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      await ethereumStorage.initialize();
+
+      ethereumStorage.ignoredDataIds.getDataIdsToRetry = async (): Promise<
+        StorageTypes.IEthereumEntry[]
+      > => [
+        {
+          error: {
+            message: 'Ipfs read request response error: test purpose',
+            type: StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+          },
+          feesParameters: {
+            contentSize: 3,
+          },
+          hash: 'hConnectionError',
+          meta: { blockTimestamp: 123 } as any,
+        },
+      ];
+
+      ethereumStorage.ipfsManager.read = chai.spy(
+        async (_hash: string): Promise<StorageTypes.IIpfsObject> => ({
+          content: 'ok',
+          ipfsLinks: [],
+          ipfsSize: 2,
+        }),
+      );
+
+      const entries = await ethereumStorage.getIgnoredData();
+      expect(entries.length, 'config wrong').to.equal(1);
+      expect(entries[0], 'config wrong').to.deep.equal({
+        content: 'ok',
+        id: 'hConnectionError',
+        meta: {
+          ethereum: {
+            blockTimestamp: 123,
+          },
+          ipfs: {
+            size: 2,
+          },
+          state: 'confirmed',
+          storageType: 'ethereumIpfs',
+          timestamp: 123,
+        },
+      });
+    });
+    it('can get ignored data even if empty', async () => {
+      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      await ethereumStorage.initialize();
+
+      const entries = await ethereumStorage.getIgnoredData();
+      expect(entries.length, 'config wrong').to.be.equal(0);
+    });
+  });
+
   describe('_getStatus()', () => {
     it('can get status', async () => {
       ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);

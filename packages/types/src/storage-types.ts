@@ -9,6 +9,7 @@ export interface IStorage {
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
+  getIgnoredData: () => Promise<IEntry[]>;
   _ipfsAdd?: (data: string) => Promise<IIpfsMeta>;
   _getStatus: (detailed?: boolean) => Promise<any>;
 }
@@ -186,8 +187,9 @@ export interface IPinRequestConfiguration {
 }
 
 /** Configuration for the pinRequest method */
+
 export interface IIgnoredDataId {
-  reason: string;
+  entry: IEthereumEntry;
   lastTryTimestamp: number;
   iteration: number;
   toRetry: boolean;

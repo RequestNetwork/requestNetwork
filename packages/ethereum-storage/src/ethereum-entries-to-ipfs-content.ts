@@ -21,7 +21,7 @@ const SAFE_MAX_HEADER_SIZE: number = 500;
  * @param ethereumEntries Ethereum entries from the smart contract
  * @returns Filtered list of dataId with metadata
  */
-export default async function ethereumEntriesToEntries(
+export default async function EthereumEntriesToIpfsContent(
     ethereumEntries: StorageTypes.IEthereumEntry[],
     ipfsManager: IpfsManager,
     ignoredDataIdsIndex: IgnoredDataIds,
@@ -83,19 +83,11 @@ export default async function ethereumEntriesToEntries(
         if (errorType === StorageTypes.ErrorEntries.INCORRECT_FILE) {
           incorrectFileCount++;
           // no retry needed, just store it
-          await ignoredDataIdsIndex.save(
-            entryWithError.hash,
-            entryWithError.error!.message,
-            false,
-          );
+          await ignoredDataIdsIndex.save(entryWithError);
         } else if (errorType === StorageTypes.ErrorEntries.WRONG_FEES) {
           wrongFeesCount++;
           // no retry needed, just store it
-          await ignoredDataIdsIndex.save(
-            entryWithError.hash,
-            entryWithError.error!.message,
-            false,
-          );
+          await ignoredDataIdsIndex.save(entryWithError);
         } else if (errorType === StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR) {
           ipfsConnectionErrorCount++;
           // push it for a retry
@@ -116,13 +108,9 @@ export default async function ethereumEntriesToEntries(
   }
 
   // Save the entries not successfully retrieved after the retries
-  for (const entryRemaining of ethereumEntriesToProcess) {
+  for (const remainingEntry of ethereumEntriesToProcess) {
     // store the ipfs ignored after the retried
-    await ignoredDataIdsIndex.save(
-      entryRemaining.hash,
-      entryRemaining.error!.message,
-      true,
-    );
+    await ignoredDataIdsIndex.save(remainingEntry);
   }
 
   // Clean the ignored dataIds
