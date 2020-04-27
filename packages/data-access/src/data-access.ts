@@ -427,9 +427,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       to: synchronizationTo,
     });
 
+    // Try to get some data previously ignored
+    const oldEntriesWithMeta = await this.storage.getIgnoredData();
+
     // check if the data returned by getNewDataId are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopics(newDataWithMeta.entries);
+    await this.pushLocationsWithTopics(newDataWithMeta.entries.concat(oldEntriesWithMeta));
 
     // The last synced timestamp is the latest one returned by storage
     this.lastSyncStorageTimestamp = newDataWithMeta.lastTimestamp;
