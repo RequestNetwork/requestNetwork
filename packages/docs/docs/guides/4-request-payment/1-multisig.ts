@@ -3,8 +3,6 @@
  *
  * ## Pay through a proxy-contract with a multisig
  *
- * It is planned to embedded the payment through mutlisig contracts in the payment-processor package. But, for now, it needs to be done manually.
- *
  * The imports you will need:
  */
 
