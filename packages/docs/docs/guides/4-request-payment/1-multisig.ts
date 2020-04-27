@@ -7,7 +7,6 @@
 
 import { Contract, ContractTransaction, Signer } from 'ethers';
 
-// TODO export this from @requestnetwork/payment-processor
 import {
   encodeApproveErc20,
   encodePayErc20Request,
