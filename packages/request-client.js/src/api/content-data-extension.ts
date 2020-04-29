@@ -52,7 +52,11 @@ export default class ContentDataExtension {
   ): any {
     if (request && request.extensions && request.extensions[CONTENT_DATA_ID]) {
       const rawContent = request.extensions[CONTENT_DATA_ID].values.content;
-      return JSON.parse(decodeURIComponent(rawContent));
+
+      if (typeof rawContent === 'string') {
+        return JSON.parse(decodeURIComponent(rawContent));
+      }
+      return rawContent;
     }
     return null;
   }
