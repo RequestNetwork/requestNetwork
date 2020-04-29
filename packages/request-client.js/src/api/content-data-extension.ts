@@ -36,7 +36,9 @@ export default class ContentDataExtension {
       }
     }
 
-    return this.extension.createCreationAction({ content });
+    return this.extension.createCreationAction({
+      content: encodeURIComponent(JSON.stringify(content)),
+    });
   }
 
   /**
@@ -49,7 +51,8 @@ export default class ContentDataExtension {
     request: RequestLogicTypes.IRequest | RequestLogicTypes.IPendingRequest | null,
   ): any {
     if (request && request.extensions && request.extensions[CONTENT_DATA_ID]) {
-      return request.extensions[CONTENT_DATA_ID].values.content;
+      const rawContent = request.extensions[CONTENT_DATA_ID].values.content;
+      return JSON.parse(decodeURIComponent(rawContent));
     }
     return null;
   }
