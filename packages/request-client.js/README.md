@@ -42,11 +42,11 @@ A global `RequestNetwork` is exposed:
 </script>
 ```
 
-Full examples are available in `packages\request-client.js\test\`:
+Full examples are available in `packages\request-client.js\browser-tests\`:
 
-- Simple example of request creation (see [index.html](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/test/index.html))
-- Example with signature with metamask (see [index-metamask.html](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/test/index-metamask.html))
-- Example with encrypted request (see [index-encryption.html](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-client.js/test/index-encryption.html))
+- Simple example of request creation (see [basic.test.js](./browser-tests/basic.test.js))
+- Example with signature with metamask (see [index-metamask.html](./browser-tests/metamask.test.js))
+- Example with encrypted request (see [index-encryption.html](./browser-tests/encryption.test.js))
 
 ### Configure which Request node to use
 
