@@ -45,8 +45,8 @@ A global `RequestNetwork` is exposed:
 Full examples are available in `packages\request-client.js\browser-tests\`:
 
 - Simple example of request creation (see [basic.test.js](./browser-tests/basic.test.js))
-- Example with signature with metamask (see [index-metamask.html](./browser-tests/metamask.test.js))
-- Example with encrypted request (see [index-encryption.html](./browser-tests/encryption.test.js))
+- Example with signature with metamask (see [metamask.test.js](./browser-tests/metamask.test.js))
+- Example with encrypted request (see [encryption.test.js](./browser-tests/encryption.test.js))
 
 ### Configure which Request node to use
 
