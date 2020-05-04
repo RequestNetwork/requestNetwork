@@ -159,15 +159,18 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
         transactionHash: txConfirmed.hash,
       };
 
-      // emit the event to tell the request transaction is confirmed
-      result.emit('confirmed', {
-        meta: {
-          storageMeta: storageMetaConfirmed,
-          topics: topics || [],
-          transactionStorageLocation: ipfsHash,
-        },
-        result: {},
-      });
+      // wait 15sec that the node cat retrieve the data
+      setTimeout(() => {
+        // emit the event to tell the request transaction is confirmed
+        result.emit('confirmed', {
+          meta: {
+            storageMeta: storageMetaConfirmed,
+            topics: topics || [],
+            transactionStorageLocation: ipfsHash,
+          },
+          result: {},
+        });
+      }, 15000);
     });
 
     return result;
