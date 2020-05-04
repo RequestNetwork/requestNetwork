@@ -36,7 +36,7 @@ export default async function ipfsAdd(
   } else {
     try {
       // check that the data are actually a data-access block
-      Block.parseBlock(clientRequest.body.data);
+      Block.parseBlock(JSON.stringify(clientRequest.body.data));
     } catch (error) {
       return serverResponse.status(httpStatus.BAD_REQUEST).send('data must be a block');
     }
