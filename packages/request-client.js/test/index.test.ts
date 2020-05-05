@@ -48,6 +48,10 @@ const payerIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
 };
+const payerSmarcontractIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+  value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
+};
 
 const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any, signer: IdentityTypes.IIdentity): any => {

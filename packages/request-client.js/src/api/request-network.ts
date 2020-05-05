@@ -190,7 +190,10 @@ export default class RequestNetwork {
     updatedBetween?: Types.ITimestampBoundaries,
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
-    if (identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+    if (
+      identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS &&
+      identity.type !== IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT
+    ) {
       throw new Error(`${identity.type} is not supported`);
     }
     return this.fromTopic(identity, updatedBetween, options);
@@ -210,7 +213,9 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
-      identity => identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      identity =>
+        identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS &&
+        identity.type !== IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
     );
 
     if (identityNotSupported) {
@@ -344,7 +349,7 @@ export default class RequestNetwork {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
-    const topics = parameters.topics || [];
+    const topics = parameters.topics?.slice() || [];
 
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');

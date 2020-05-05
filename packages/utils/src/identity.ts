@@ -39,7 +39,10 @@ function normalizeIdentityValue(value: string): string {
  * @returns the error or null if valid
  */
 function hasError(id: IdentityTypes.IIdentity): string | null {
-  if (id.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+  if (
+    id.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS &&
+    id.type !== IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT
+  ) {
     return 'identity type not supported';
   }
   if (id.value.match(/^0x[a-fA-F0-9]{40}$/) === null) {

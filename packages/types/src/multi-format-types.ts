@@ -15,6 +15,8 @@ export enum prefix {
 
   /** Identity Ethereum address */
   IDENTITY_ETHEREUM_ADDRESS = '20',
+  /** Identity Smartcontract address */
+  IDENTITY_SMARTCONTRACT_ADDRESS = '21',
 }
 
 /** Interface of all the deserialized multi-format object */
@@ -23,6 +25,8 @@ export interface IMultiFormatDeserialized {
   type: any;
   // the data itself
   value: string;
+  // extra information
+  extra?: any;
 }
 
 /** type of the serialized multi-format object */

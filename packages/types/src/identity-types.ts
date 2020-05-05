@@ -4,7 +4,15 @@ export interface IIdentity {
   type: TYPE;
   // the identification itself
   value: string;
-  // used only for the type ETHEREUM_SMART_CONTRACT
+  // extra information
+  extra?: IExtraInfoIdentity;
+}
+
+export interface IExtraInfoIdentity {
+  /**
+   * The smartcontract network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox')
+   * Used only for the type ETHEREUM_SMART_CONTRACT
+   */
   network?: string;
 }
 
