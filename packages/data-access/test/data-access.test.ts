@@ -35,12 +35,19 @@ const transactionDataMock2String = JSON.stringify({
   attribut1: 'foo',
   attribut2: 'bar',
 });
+const transactionDataMock3String = JSON.stringify({
+  attribut1: 'jean',
+  attribut2: 'bon',
+});
 
 const transactionMock1: DataAccessTypes.ITransaction = {
   data: transactionDataMock1String,
 };
 const transactionMock2: DataAccessTypes.ITransaction = {
   data: transactionDataMock2String,
+};
+const transactionMock3: DataAccessTypes.ITransaction = {
+  data: transactionDataMock3String,
 };
 
 const arbitraryId1 = '011111111111111111111111111111111111111111111111111111111111111111';
@@ -63,6 +70,13 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(
   [arbitraryTopic2],
 );
 
+const blockWith1txBis = RequestDataAccessBlock.pushTransaction(
+  emptyblock,
+  transactionMock3,
+  arbitraryId1,
+  [arbitraryTopic1],
+);
+
 const dataIdBlock2tx = 'dataIdBlock2tx';
 
 const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
@@ -75,6 +89,15 @@ const getDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   ],
   lastTimestamp: 0,
 };
+
+const dataIdBlock1txBis = 'dataIdBlock1txBis';
+const getIgnoredDataResult: StorageTypes.IEntry[] = [
+  {
+    content: JSON.stringify(blockWith1txBis),
+    id: dataIdBlock1txBis,
+    meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+  },
+];
 
 const appendResult: any = {
   content: '',
@@ -646,19 +669,16 @@ describe('data-access', () => {
   });
 
   it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    const testData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
-      getDataResult,
-    );
-
     // We create a fakeStorage where getData() called at initialization returns empty structure
     const fakeStorage = {
       ...defaultFakeStorage,
-      getData: (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
+      getData: async (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
         if (!options) {
           return Promise.resolve(emptyDataResult);
         }
-        return testData;
+        return getDataResult;
       },
+      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => getIgnoredDataResult,
       read: (param: string): any => {
         const dataIdBlock2txFake: StorageTypes.IEntry = {
           content: JSON.stringify(blockWith2tx),
@@ -667,6 +687,7 @@ describe('data-access', () => {
         };
         const result: any = {
           dataIdBlock2tx: dataIdBlock2txFake,
+          dataIdBlock1txBis: getIgnoredDataResult[0],
         };
         return result[param];
       },
@@ -686,7 +707,7 @@ describe('data-access', () => {
       result: { transactions: {} },
     });
 
-    // Transactions should be available avec synchronization
+    // Transactions should be available after synchronization
     await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
 
     expect(
@@ -695,9 +716,12 @@ describe('data-access', () => {
     ).to.deep.equal({
       meta: {
         storageMeta: {
-          [arbitraryId1]: [{ state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 }],
+          [arbitraryId1]: [
+            { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+            { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+          ],
         },
-        transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx] },
+        transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis] },
       },
       result: {
         transactions: {
@@ -707,22 +731,29 @@ describe('data-access', () => {
               transaction: transactionMock1,
               timestamp: 1,
             },
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock3,
+              timestamp: 1,
+            },
           ],
         },
       },
     });
-
     expect(
       await dataAccess.getChannelsByTopic(arbitraryTopic2),
       'result with arbitraryTopic2 wrong',
     ).to.deep.equal({
       meta: {
         storageMeta: {
-          [arbitraryId1]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
+          [arbitraryId1]: [
+            { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
+            { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
+          ],
           [arbitraryId2]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
         },
         transactionsStorageLocation: {
-          [arbitraryId1]: [dataIdBlock2tx],
+          [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis],
           [arbitraryId2]: [dataIdBlock2tx],
         },
       },
@@ -732,6 +763,11 @@ describe('data-access', () => {
             {
               state: DataAccessTypes.TransactionState.CONFIRMED,
               transaction: transactionMock1,
+              timestamp: 1,
+            },
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock3,
               timestamp: 1,
             },
           ],
