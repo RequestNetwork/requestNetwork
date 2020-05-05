@@ -1,13 +1,13 @@
 /**
- * # Multisig payments for ERC20
+ * # Pay a request with a Multisig
  *
  * ## Pay through a proxy-contract with a multisig
- * Imports
+ *
+ * The imports you will need:
  */
 
 import { Contract, ContractTransaction, Signer } from 'ethers';
 
-// TODO export this from @requestnetwork/payment-processor
 import {
   encodeApproveErc20,
   encodePayErc20Request,
@@ -16,7 +16,7 @@ import { getRequestPaymentValues } from '@requestnetwork/payment-processor/dist/
 import { ClientTypes } from '@requestnetwork/types';
 
 /**
- * [Gnosis multisig](https://github.com/gnosis/MultiSigWallet/blob/master/contracts/MultiSigWallet.sol) partial abi
+ * In this example, we will use the [Gnosis multisig](https://github.com/gnosis/MultiSigWallet/blob/master/contracts/MultiSigWallet.sol). here its partial abi:
  */
 const multisigAbi = [
   'function submitTransaction(address _destination, uint _value, bytes _data) returns (uint)',
@@ -37,7 +37,8 @@ export const payEthWithMultisig = async (
 };
 
 /**
- * ### Approve ERC20 spending
+ * ### Pay ERC20 request
+ * #### Approve ERC20 spending
  */
 export const approveErc20WithMultisig = async (
   request: ClientTypes.IRequestData,
@@ -50,7 +51,7 @@ export const approveErc20WithMultisig = async (
   return multisigContract.submitTransaction(tokenAddress, 0, encodeApproveErc20(request, signer));
 };
 /**
- * ### Pay ERC20 request
+ * #### Pay ERC20 request
  */
 export const payErc20WithMultisig = async (
   request: ClientTypes.IRequestData,

@@ -45,7 +45,6 @@ export async function payErc20ProxyRequest(
 /**
  * Encodes the call to pay a request through the ERC20 proxy contract, can be used with a Multisig contract.
  * @param request request to pay
- * @param multisigAddress multisig contract used to pay the request.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
@@ -94,7 +93,6 @@ export async function hasErc20Approval(
 /**
  * Processes the approval transaction of the targeted ERC20.
  * @param request request to pay
- * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
  */
@@ -118,7 +116,6 @@ export async function approveErc20(
 /**
  * Encodes the approval call, can be used with a Multisig contract.
  * @param request the request to pay
- * @param multisigAddress multisig contract for which to approve the ERC20
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
 export function encodeApproveErc20(
