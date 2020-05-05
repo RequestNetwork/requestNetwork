@@ -244,7 +244,7 @@ describe('Request client using a request node', () => {
     assert.equal(requestData1.expectedAmount, '90000000');
   });
 
-  it('can create requests and get them fromIdentity with smartcontract identity', async () => {
+  it('can create requests and get them fromIdentity with smart contract identity', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const payerSmartContract = {

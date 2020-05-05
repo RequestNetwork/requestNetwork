@@ -7,7 +7,7 @@ const ethereumSmartContractSerializedRegex = /^21[0-9a-fA-F]{40}(\-[a-zA-Z]+)?$/
 /**
  * Class to serialize and deserialize multi-format identity ethereum address
  */
-export default class EthereumSmartcontractMultiFormat extends HexadecimalSerializableMultiFormat {
+export default class EthereumSmartContractMultiFormat extends HexadecimalSerializableMultiFormat {
   constructor() {
     super(
       MultiFormatTypes.prefix.IDENTITY_SMARTCONTRACT_ADDRESS,

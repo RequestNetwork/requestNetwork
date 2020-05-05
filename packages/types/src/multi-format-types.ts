@@ -15,7 +15,7 @@ export enum prefix {
 
   /** Identity Ethereum address */
   IDENTITY_ETHEREUM_ADDRESS = '20',
-  /** Identity Smartcontract address */
+  /** Identity smart contract address */
   IDENTITY_SMARTCONTRACT_ADDRESS = '21',
 }
 
