@@ -1396,7 +1396,7 @@ describe('index', () => {
       sinon.restore();
     });
 
-    // This test checks that 2 payments with reference `fb8cc0abeed87cb8` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
+    // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async function(): Promise<void> {
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
@@ -1440,7 +1440,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).to.equal('2c69812e6bf5b1e3');
+      ).to.equal('c19da4923539c37f');
 
       clock.tick(150);
       const dataAfterRefresh = await request.refresh();
@@ -1451,13 +1451,13 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       sinon.restore();
     });
@@ -1506,7 +1506,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).to.equal('2c69812e6bf5b1e3');
+      ).to.equal('c19da4923539c37f');
 
       clock.tick(150);
       let dataAfterRefresh = await request.refresh();
@@ -1522,13 +1522,13 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
 
       request.disablePaymentDetection();
@@ -1541,13 +1541,13 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       sinon.restore();
     });
@@ -1598,7 +1598,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).to.equal('2c69812e6bf5b1e3');
+      ).to.equal('c19da4923539c37f');
 
       clock.tick(150);
       let dataAfterRefresh = await request.refresh();
@@ -1611,13 +1611,13 @@ describe('index', () => {
       expect(balance?.events[0].name).to.equal('payment');
       expect(balance?.events[0].amount).to.equal('12300000000');
       expect(balance?.events[0].parameters!.txHash).to.equal(
-        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
 
       expect(balance?.events[1].name).to.equal('payment');
       expect(balance?.events[1].amount).to.equal('45600000');
       expect(balance?.events[1].parameters!.txHash).to.equal(
-        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       dataAfterRefresh = await request.getData();
 
@@ -1627,13 +1627,13 @@ describe('index', () => {
       expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0xf5e5da940074ea141abda967fc710b1895008334ef773f2be76d66a6e9c8f46d',
+        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
 
       expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
       expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
       expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x0b91c7f8dea9449e5a66d67282f051091b3dacb80b60f5deab6843b0720b336e',
+        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
 
       sinon.restore();
