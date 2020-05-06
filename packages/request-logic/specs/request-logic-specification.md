@@ -1,4 +1,4 @@
-# Request logic Specification v2.0.2
+# Request logic Specification v2.0.3
 
 You can be interested in this document if:
 
@@ -9,9 +9,17 @@ You don't need to read this document if:
 
 - You want to develop an app using the request protocol (see the API library instead [here](/packages/request-client.js))
 
+## Previous version
+
+| version | link                                                                                                                                       |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2.0.0   | see [8382917](https://github.com/RequestNetwork/requestNetwork/tree/83829178faf717f23f9554fd7266e7cc787e7106/packages/request-logic/specs) |
+| 2.0.1   | see [8382917](https://github.com/RequestNetwork/requestNetwork/tree/83829178faf717f23f9554fd7266e7cc787e7106/packages/request-logic/specs) |
+| 2.0.2   | see [8382917](https://github.com/RequestNetwork/requestNetwork/tree/83829178faf717f23f9554fd7266e7cc787e7106/packages/request-logic/specs) |
+
 ## Content table
 
-- [Request logic Specification v2.0.2](#request-logic-specification-v200)
+- [Request logic Specification v2.0.3](#request-logic-specification-v200)
   - [Content table](#content-table)
   - [Request](#request)
     - [Properties](#properties)
@@ -80,7 +88,7 @@ A request is the JSON object which`properties` returned from a list of `actions`
 | **state**          | Enum('created', 'accepted', 'canceled') | State of the request                                                                                                                                                                              |
 | **events**         | Array                                   | List of the actions performed                                                                                                                                                                     |
 | **extensionsData** | Array                                   | List of data used by the above layer                                                                                                                                                              |
-| **version**        | String                                  | Specification version by the request _(2.0.2' here)_                                                                                                                                              |
+| **version**        | String                                  | Specification version by the request _(2.0.3' here)_                                                                                                                                              |
 |  **timestamp**     | Number                                  | - Timestamp of the request creation in seconds <br> - this timestamp is given by the creator. It is not trustless. <br> - This timestamp is also used to differentiate between identical requests |
 |  **nonce**         | Number                                  | Number to differentiate several identical requests with the same timestamp                                                                                                                        |
 
@@ -129,7 +137,7 @@ Example
    "requestId":"011c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8",
    "state":"created",
    "timestamp": 1545224094,
-   "version":"2.0.2"
+   "version":"2.0.3"
 }
 ```
 
@@ -234,7 +242,7 @@ Example of creation action:
       },
       "timestamp": 1545224094,
   },
-  "version":"2.0.2",
+  "version":"2.0.3",
   "signature":{
     "method":"ecdsa",
     "value":"0x143f0965cb8628c93e6f59f39a7c86163a7de01df42c923e65e109bab336710d7b534615025ed0c285e8dcbba2f4e136afa497af792a63519c486b16f3ccabb41c"
@@ -820,9 +828,10 @@ List of the Signature methods supported in this version:
 
 List of the Identity types supported in this version:
 
-| Type                | Identity Value                         | Signature Method                                      |
-| ------------------- | -------------------------------------- | ----------------------------------------------------- |
-| **ethereumAddress** | hexadecimal string (e.g.: "0xe649f..") | **ecdsa** _(see "Signature methods supported" above)_ |
+| Type                      | Identity Value                         | extra value                                                                    | Signature Method                                      |
+| ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| **ethereumAddress**       | hexadecimal string (e.g.: "0xe649f..") | _none_                                                                         | **ecdsa** _(see "Signature methods supported" above)_ |
+| **ethereumSmartContract** | hexadecimal string (e.g.: "0xe649f..") | optional: network ('mainnet', 'rinkeby', 'private'... ) 'mainnet' if not given |  *none*                                               |
 
 ### How to sign a JSON object
 
@@ -834,7 +843,7 @@ The signature of an JSON object is made on the `keccak256` hash of the object:
 
 ## Note on Version and Backward compatibility
 
-The versions of the Request logic specifications follow the semver 2.0.2.
+The versions of the Request logic specifications follow the semver 2.0.3.
 Every request is create with one and only one version of the specification.
 
 By default, an implementation of the specifications will be able to handle only the requests following the specification versions with:
@@ -909,7 +918,7 @@ The action to create the request from Bob to Alice from Bob (signed by Bob):
          },
          "timestamp":1544426030
       },
-      "version":"2.0.2"
+      "version":"2.0.3"
    },
    "signature":{
       "method":"ecdsa",
@@ -938,7 +947,7 @@ The request state after interpreting the action above:
    },
    "timestamp":1544426030,
    "requestId":"01d251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905",
-   "version":"2.0.2",
+   "version":"2.0.3",
    "events":[
       {
          "actionSigner":{
@@ -973,7 +982,7 @@ The action to make a discount (signed by Bob);
          "deltaAmount":"100000000000000000",
          "requestId":"01d251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"
       },
-      "version":"2.0.2"
+      "version":"2.0.3"
    },
    "signature":{
       "method":"ecdsa",
@@ -1002,7 +1011,7 @@ The request state after interpreting the new action with the previous state:
    },
    "timestamp":1544426030,
    "requestId":"01d251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905",
-   "version":"2.0.2",
+   "version":"2.0.3",
    "events":[
       {
          "actionSigner":{
@@ -1047,7 +1056,7 @@ The action to accept the request (signed by Alice):
       "parameters":{
          "requestId":"01d251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905"
       },
-      "version":"2.0.2"
+      "version":"2.0.3"
    },
    "signature":{
       "method":"ecdsa",
@@ -1076,7 +1085,7 @@ The request state after interpreting the new action with the previous state:
    },
    "timestamp":1544426030,
    "requestId":"01d251224337a268cc4c6d73e02f883827a35789f6da15050655435348452d8905",
-   "version":"2.0.2",
+   "version":"2.0.3",
    "events":[
       {
          "actionSigner":{
