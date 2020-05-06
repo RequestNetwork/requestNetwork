@@ -140,7 +140,10 @@ describe('Request system', () => {
     });
 
     const payer = {
-      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      extra: {
+        network: 'private',
+      },
+      type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
       value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
     };
 
