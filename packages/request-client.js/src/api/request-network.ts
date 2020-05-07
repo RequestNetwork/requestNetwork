@@ -191,7 +191,7 @@ export default class RequestNetwork {
     updatedBetween?: Types.ITimestampBoundaries,
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
-    if (!this.supportedIdentity.includes(identity.type)) {
+    if (!this.supportedIdentities.includes(identity.type)) {
       throw new Error(`${identity.type} is not supported`);
     }
     return this.fromTopic(identity, updatedBetween, options);
@@ -211,7 +211,7 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
-      identity => !this.supportedIdentity.includes(identity.type),
+      identity => !this.supportedIdentities.includes(identity.type),
     );
 
     if (identityNotSupported) {
