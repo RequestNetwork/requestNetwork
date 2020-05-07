@@ -4,16 +4,11 @@ export interface IIdentity {
   type: TYPE;
   // the identification itself
   value: string;
-  // extra information
-  extra?: IExtraInfoIdentity;
 }
 
-/** Extra information specific to identity types */
-export interface IExtraInfoIdentity {
-  /**
-   * The smart contract network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox')
-   * Used only for the type ETHEREUM_SMART_CONTRACT
-   */
+/** Identity for Ethereum Smart contract */
+export interface ISmartContractIdentity extends IIdentity {
+  // The smart contract network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox')
   network?: string;
 }
 

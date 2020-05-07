@@ -302,9 +302,10 @@ describe('CreateAction', () => {
             value: TestData.payeeRaw.address,
           },
           payer: {
+            network: 'private',
             type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
             value: TestData.payerRaw.address,
-          },
+          } as IdentityTypes.ISmartContractIdentity,
           timestamp: TestData.arbitraryTimestamp,
         },
         TestData.payeeRaw.identity,
@@ -343,6 +344,10 @@ describe('CreateAction', () => {
         actionCreation.data.parameters.payer.value,
         'actionCreation.data.parameters.payer.value is wrong',
       ).to.equal(TestData.payerRaw.address);
+      expect(
+        actionCreation.data.parameters.payer.network,
+        'actionCreation.data.parameters.payer.network is wrong',
+      ).to.equal('private');
 
       expect(
         actionCreation.data.parameters,
@@ -368,10 +373,10 @@ describe('CreateAction', () => {
             },
             expectedAmount: TestData.arbitraryExpectedAmount,
             payee: {
-              extra: { network: 'rinkeby' },
+              network: 'rinkeby',
               type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
               value: TestData.payeeRaw.address,
-            },
+            } as IdentityTypes.ISmartContractIdentity,
             timestamp: TestData.arbitraryTimestamp,
           },
           TestData.payeeRaw.identity,
