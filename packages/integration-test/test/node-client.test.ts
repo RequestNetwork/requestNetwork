@@ -271,7 +271,7 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
 
-    // create request 2 to be sure it is not found when search with smartcontract identity
+    // create request 2 to be sure it is not found when search with smart contract identity
     await requestNetwork.createRequest({
       requestInfo: {
         currency: 'BTC',

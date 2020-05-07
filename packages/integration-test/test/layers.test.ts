@@ -174,7 +174,7 @@ describe('Request system', () => {
     assert.exists(request);
   });
 
-  it('can create a request with smartcontract as payer', async () => {
+  it('can create a request with smart contract as payer', async () => {
     const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
