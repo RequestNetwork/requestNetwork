@@ -344,7 +344,7 @@ export default class RequestNetwork {
     const requestParameters = parameters.requestInfo;
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
-    const topics = parameters.topics || [];
+    const topics = parameters.topics?.slice() || [];
 
     if (requestParameters.extensionsData) {
       throw new Error('extensionsData in request parameters must be empty');
