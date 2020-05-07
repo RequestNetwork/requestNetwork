@@ -26,7 +26,7 @@ import localUtils from './utils';
  */
 export default class RequestNetwork {
   public bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-  public supportedIdentity: IdentityTypes.TYPE[] = Utils.identity.supportedIdentity;
+  public supportedIdentities: IdentityTypes.TYPE[] = Utils.identity.supportedIdentities;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;

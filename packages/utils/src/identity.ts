@@ -1,6 +1,6 @@
 import { IdentityTypes } from '@requestnetwork/types';
 
-const supportedIdentity: IdentityTypes.TYPE[] = [
+const supportedIdentities: IdentityTypes.TYPE[] = [
   IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
 ];
@@ -12,7 +12,7 @@ export default {
   areEqual,
   hasError,
   normalizeIdentityValue,
-  supportedIdentity,
+  supportedIdentities,
 };
 
 /**
@@ -45,7 +45,7 @@ function normalizeIdentityValue(value: string): string {
  * @returns the error or null if valid
  */
 function hasError(id: IdentityTypes.IIdentity): string | null {
-  if (!supportedIdentity.includes(id.type)) {
+  if (!supportedIdentities.includes(id.type)) {
     return 'identity type not supported';
   }
   if (id.value.match(/^0x[a-fA-F0-9]{40}$/) === null) {
