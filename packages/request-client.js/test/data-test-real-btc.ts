@@ -47,7 +47,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
 export const data = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters,
-  version: '2.0.2',
+  version: '2.0.3',
 };
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(data, payee.signatureParams);

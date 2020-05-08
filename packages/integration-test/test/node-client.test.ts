@@ -244,6 +244,59 @@ describe('Request client using a request node', () => {
     assert.equal(requestData1.expectedAmount, '90000000');
   });
 
+  it('can create requests and get them fromIdentity with smart contract identity', async () => {
+    const requestNetwork = new RequestNetwork({ signatureProvider });
+
+    const payerSmartContract = {
+      network: 'private',
+      type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+      value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
+    };
+
+    const timestampCreation = Utils.getCurrentTimestampInSecond();
+
+    // create request 1
+    const topicsRequest1and2: string[] = [
+      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(timestampCreation)),
+    ];
+    const request1: Request = await requestNetwork.createRequest({
+      requestInfo: {
+        currency: 'BTC',
+        expectedAmount: '100000000',
+        payee: payeeIdentity,
+        payer: payerSmartContract,
+        timestamp: Utils.getCurrentTimestampInSecond(),
+      },
+      signer: payeeIdentity,
+      topics: topicsRequest1and2,
+    });
+
+    // create request 2 to be sure it is not found when search with smart contract identity
+    await requestNetwork.createRequest({
+      requestInfo: {
+        currency: 'BTC',
+        expectedAmount: '1000',
+        payee: payeeIdentity,
+        payer: payerIdentity,
+        timestamp: Utils.getCurrentTimestampInSecond(),
+      },
+      signer: payeeIdentity,
+      topics: topicsRequest1and2,
+    });
+
+    // wait 1,5 sec and store the timestamp
+    // tslint:disable:no-magic-numbers
+    // tslint:disable-next-line:typedef
+    await new Promise(r => setTimeout(r, 1500));
+
+    // get requests with boundaries
+    const requests = await requestNetwork.fromIdentity(payerSmartContract, {
+      from: timestampCreation,
+    });
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].requestId, request1.requestId);
+  });
+
   it('can create an encrypted request and get it back unencrypted', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
     const timestamp = Date.now();
