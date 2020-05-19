@@ -26,6 +26,7 @@ import localUtils from './utils';
  */
 export default class RequestNetwork {
   public bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
+  public supportedIdentities: IdentityTypes.TYPE[] = Utils.identity.supportedIdentities;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
@@ -190,10 +191,7 @@ export default class RequestNetwork {
     updatedBetween?: Types.ITimestampBoundaries,
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
-    if (
-      identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS &&
-      identity.type !== IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT
-    ) {
+    if (!this.supportedIdentities.includes(identity.type)) {
       throw new Error(`${identity.type} is not supported`);
     }
     return this.fromTopic(identity, updatedBetween, options);
@@ -213,9 +211,7 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
-      identity =>
-        identity.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS &&
-        identity.type !== IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+      identity => !this.supportedIdentities.includes(identity.type),
     );
 
     if (identityNotSupported) {

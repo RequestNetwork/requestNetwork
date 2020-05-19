@@ -248,6 +248,7 @@ describe('Request client using a request node', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const payerSmartContract = {
+      network: 'private',
       type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
       value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
     };
@@ -255,35 +256,30 @@ describe('Request client using a request node', () => {
     const timestampCreation = Utils.getCurrentTimestampInSecond();
 
     // create request 1
-    const requestCreationHash1: Types.IRequestInfo = {
-      currency: 'BTC',
-      expectedAmount: '100000000',
-      payee: payeeIdentity,
-      payer: payerSmartContract,
-      timestamp: Utils.getCurrentTimestampInSecond(),
-    };
     const topicsRequest1and2: string[] = [
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(timestampCreation)),
     ];
-
     const request1: Request = await requestNetwork.createRequest({
-      requestInfo: requestCreationHash1,
+      requestInfo: {
+        currency: 'BTC',
+        expectedAmount: '100000000',
+        payee: payeeIdentity,
+        payer: payerSmartContract,
+        timestamp: Utils.getCurrentTimestampInSecond(),
+      },
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
 
-    // create request 2
-    const requestCreationHash2: Types.IRequestInfo = {
-      currency: 'BTC',
-      expectedAmount: '1000',
-      payee: payeeIdentity,
-      payer: payerIdentity,
-      timestamp: Utils.getCurrentTimestampInSecond(),
-    };
-
-    // Should not be found
+    // create request 2 to be sure it is not found when search with smart contract identity
     await requestNetwork.createRequest({
-      requestInfo: requestCreationHash2,
+      requestInfo: {
+        currency: 'BTC',
+        expectedAmount: '1000',
+        payee: payeeIdentity,
+        payer: payerIdentity,
+        timestamp: Utils.getCurrentTimestampInSecond(),
+      },
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
