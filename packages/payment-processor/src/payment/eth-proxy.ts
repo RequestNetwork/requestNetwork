@@ -24,13 +24,13 @@ import {
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function payWithProxyEthInputDataRequest(
+export async function payEthProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodePayWithProxyEthRequest(request, signerOrProvider);
+  const encodedTx = encodePayEthProxyRequest(request, signerOrProvider);
   const proxyAddress = ethereumProxyArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
   const amountToPay = getAmountToPay(request, amount);
@@ -49,7 +49,7 @@ export async function payWithProxyEthInputDataRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function encodePayWithProxyEthRequest(
+export function encodePayEthProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
 ): string {

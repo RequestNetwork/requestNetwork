@@ -16,11 +16,7 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import { bigNumberify } from 'ethers/utils';
-import {
-  // TODO !
-  // encodePayWithProxyEthRequest,
-  payWithProxyEthInputDataRequest,
-} from '../../src/payment/eth-proxy';
+import { encodePayEthProxyRequest, payEthProxyRequest } from '../../src/payment/eth-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
 // tslint:disable: no-unused-expression
@@ -86,12 +82,12 @@ describe('getRequestPaymentValues', () => {
   });
 });
 
-describe('payWithProxyEthInputDataRequest', () => {
+describe('payEthProxyRequest', () => {
   it('should throw an error if the request is not erc20', async () => {
     const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
-    await expect(payWithProxyEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
@@ -99,7 +95,7 @@ describe('payWithProxyEthInputDataRequest', () => {
   it('should throw an error if currencyInfo has no network', async () => {
     const request = Utils.deepCopy(validRequest);
     request.currencyInfo.network = '';
-    await expect(payWithProxyEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
@@ -108,14 +104,14 @@ describe('payWithProxyEthInputDataRequest', () => {
     const request = Utils.deepCopy(validRequest);
     request.extensions = [] as any;
 
-    await expect(payWithProxyEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
   it('should consider override parameters', async () => {
     const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
-    await payWithProxyEthInputDataRequest(validRequest, wallet, undefined, {
+    await payEthProxyRequest(validRequest, wallet, undefined, {
       gasPrice: '20000000000',
     });
     expect(spy).to.have.been.called.with({
@@ -132,7 +128,7 @@ describe('payWithProxyEthInputDataRequest', () => {
     // get the balance to compare after payment
     const balanceEthBefore = await wallet.getBalance();
 
-    const tx = await payWithProxyEthInputDataRequest(validRequest, wallet);
+    const tx = await payEthProxyRequest(validRequest, wallet);
     const confirmedTx = await tx.wait(1);
 
     const balanceEthAfter = await wallet.getBalance();
@@ -147,6 +143,14 @@ describe('payWithProxyEthInputDataRequest', () => {
         .add(validRequest.expectedAmount)
         .add(confirmedTx.gasUsed!.mul(tx.gasPrice))
         .toString(),
+    );
+  });
+});
+
+describe('encodePayEthProxyRequest', () => {
+  it('should encode pay for an ETH request', async () => {
+    expect(await encodePayEthProxyRequest(validRequest, wallet)).equal(
+      '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
     );
   });
 });
