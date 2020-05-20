@@ -32,7 +32,7 @@ export interface ICreateRequestParameters {
   requestInfo: RequestLogic.ICreateParameters | IRequestInfo;
   signer: Identity.IIdentity;
   paymentNetwork?: Payment.IPaymentNetworkCreateParameters;
-  topics?: string[];
+  topics?: any[];
   contentData?: any;
   disablePaymentDetection?: boolean;
 }
