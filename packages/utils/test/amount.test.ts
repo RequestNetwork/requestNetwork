@@ -3,7 +3,6 @@ import 'mocha';
 const bigNumber: any = require('bn.js');
 
 import Amount from '../src/amount';
-// import * as TestData from '../../request-logic/test/unit/utils/test-data-generator';
 
 const magicIntegerSmall = 10000;
 const magicIntegerBig = 1000000000000000000000000000000;
@@ -26,9 +25,9 @@ describe('Amount', () => {
     it('cannot valid amount as big integer', () => {
       expect(Amount.isValid(magicIntegerBig), 'Big integer should not be valid').to.be.false;
     });
-    it('can valid amount as bn', () => {
-      expect(Amount.isValid(new bigNumber('1000000000000000000000000')), 'BN should be valid').to.be
-        .true;
+    it('cannot valid amount as bn', () => {
+      expect(Amount.isValid(new bigNumber('1000000000000000000000000')), 'BN should not be valid')
+        .to.be.false;
     });
     it('can valid amount as string representing integer', () => {
       expect(Amount.isValid('10000'), 'integer as string should be valid').to.be.true;

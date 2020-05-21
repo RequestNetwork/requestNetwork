@@ -53,7 +53,7 @@ function createDeclareSentPaymentAction(
     action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
-      amount: parameters.amount,
+      amount: parameters.amount.toString(),
       note: parameters.note,
     },
   };
@@ -73,7 +73,7 @@ function createDeclareSentRefundAction(
     action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
-      amount: parameters.amount,
+      amount: parameters.amount.toString(),
       note: parameters.note,
     },
   };
@@ -93,7 +93,7 @@ function createDeclareReceivedPaymentAction(
     action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
-      amount: parameters.amount,
+      amount: parameters.amount.toString(),
       note: parameters.note,
     },
   };
@@ -113,7 +113,7 @@ function createDeclareReceivedRefundAction(
     action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     parameters: {
-      amount: parameters.amount,
+      amount: parameters.amount.toString(),
       note: parameters.note,
     },
   };

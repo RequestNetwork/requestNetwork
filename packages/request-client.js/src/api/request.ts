@@ -408,7 +408,7 @@ export default class Request {
    * @returns The updated request
    */
   public async declareSentPayment(
-    amount: string,
+    amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
@@ -464,7 +464,7 @@ export default class Request {
    * @returns The updated request
    */
   public async declareSentRefund(
-    amount: string,
+    amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
@@ -523,7 +523,7 @@ export default class Request {
    * @returns The updated request
    */
   public async declareReceivedPayment(
-    amount: string,
+    amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
@@ -582,7 +582,7 @@ export default class Request {
    * @returns The updated request
    */
   public async declareReceivedRefund(
-    amount: string,
+    amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {

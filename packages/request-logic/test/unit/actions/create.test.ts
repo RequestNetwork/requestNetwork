@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import 'mocha';
-const bigNumber: any = require('bn.js');
 
 import MultiFormat from '@requestnetwork/multi-format';
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -571,7 +570,7 @@ describe('CreateAction', () => {
       ).to.throw('Signer must be the payee or the payer');
     });
 
-    it('can create with amount as integer, bigNumber or zero', async () => {
+    it('can create with amount as integer or zero', async () => {
       let actionCreation = await CreateAction.format(
         {
           currency: {
@@ -589,25 +588,6 @@ describe('CreateAction', () => {
       );
       expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
         '10000',
-      );
-
-      actionCreation = await CreateAction.format(
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-          },
-          expectedAmount: new bigNumber(TestData.arbitraryExpectedAmount),
-          payee: {
-            type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-            value: TestData.payeeRaw.address,
-          },
-        },
-        TestData.payeeRaw.identity,
-        TestData.fakeSignatureProvider,
-      );
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
       );
 
       actionCreation = await CreateAction.format(
