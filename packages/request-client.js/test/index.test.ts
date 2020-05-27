@@ -20,6 +20,7 @@ import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
+import { BigNumber } from 'ethers/utils';
 
 const packageJson = require('../package.json');
 const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
@@ -1207,11 +1208,11 @@ describe('index', () => {
 
       clock.tick(150);
       expect((await fetchedRequest.refresh()).expectedAmount).to.equal(
-        String(TestData.parametersWithoutExtensionsData.expectedAmount * 2),
+        String(new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
       );
 
       await fetchedRequest.reduceExpectedAmountRequest(
-        TestData.parametersWithoutExtensionsData.expectedAmount * 2,
+        new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
         payeeIdentity,
       );
 
@@ -1263,7 +1264,7 @@ describe('index', () => {
       expect(dataConfirmed.balance!.balance).to.equal('0');
 
       const declareReceivedPaymentResult = await fetchedRequest.declareReceivedPayment(
-        TestData.parametersWithoutExtensionsData.expectedAmount,
+        TestData.parametersWithoutExtensionsData.expectedAmount as string,
         'payment received',
         payeeIdentity,
       );

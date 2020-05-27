@@ -5,8 +5,6 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 
-const bigNumber: any = require('bn.js');
-
 /** Request Logic layer */
 export interface IRequestLogic {
   createRequest: (
@@ -158,7 +156,7 @@ export interface IExtensionStates {
 }
 
 /** Amounts in request logic */
-export type Amount = number | string | typeof bigNumber;
+export type Amount = number | string;
 
 /** RequestId */
 export type RequestId = string;

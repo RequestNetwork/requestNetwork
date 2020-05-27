@@ -1,4 +1,5 @@
 import * as Extension from '../extension-types';
+import * as RequestLogicTypes from '../request-logic-types';
 
 /** Manager of the extension */
 export interface IAnyDeclarative extends Extension.IExtension {
@@ -29,13 +30,13 @@ export interface ICreationParameters {
 
 /** Parameters of declareSentPayment and declareSentRefund action */
 export interface ISentParameters {
-  amount: string;
+  amount: RequestLogicTypes.Amount;
   note: any;
 }
 
 /** Parameters of declareReceivedPayment and declareReceivedRefund action */
 export interface IReceivedParameters {
-  amount: string;
+  amount: RequestLogicTypes.Amount;
   note: any;
 }
 
