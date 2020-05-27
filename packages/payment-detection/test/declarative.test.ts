@@ -62,7 +62,7 @@ const requestMock: RequestLogicTypes.IRequest = {
     value: 'ETH',
   },
   events: [],
-  expectedAmount: {},
+  expectedAmount: '',
   extensions: {},
   extensionsData: [],
   requestId: '',
