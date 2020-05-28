@@ -23,8 +23,7 @@ const regexInteger = RegExp(/^[\d]+$/);
  */
 function isValid(amount: RequestLogicTypes.Amount): boolean {
   return (
-    (bigNumber.isBN(amount) && !amount.isNeg()) ||
-    (Utils.isString(amount) && regexInteger.test(amount)) ||
+    (Utils.isString(amount) && regexInteger.test(amount as string)) ||
     (typeof amount === 'number' && (Number.isSafeInteger(Number(amount)) && Number(amount) >= 0))
   );
 }
@@ -45,9 +44,9 @@ function add(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount):
     throw Error('delta must represent a positive integer');
   }
 
-  amount = new bigNumber(amount);
-  delta = new bigNumber(delta);
-  return amount.add(delta).toString();
+  const amountBN: typeof bigNumber = new bigNumber(amount);
+  const deltaBN: typeof bigNumber = new bigNumber(delta);
+  return amountBN.add(deltaBN).toString();
 }
 
 /**
@@ -68,9 +67,9 @@ function reduce(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amoun
     throw Error('delta must represent a positive integer');
   }
 
-  amount = new bigNumber(amount);
-  delta = new bigNumber(delta);
-  const newAmount = amount.sub(delta).toString();
+  const amountBN: typeof bigNumber = new bigNumber(amount);
+  const deltaBN: typeof bigNumber = new bigNumber(delta);
+  const newAmount = amountBN.sub(deltaBN).toString();
 
   // Check if the new amount is valid (basically it is not negative)
   if (!isValid(newAmount)) {
