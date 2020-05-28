@@ -5,6 +5,7 @@ keywords: [Request Client, Payment networks]
 description: Learn how to integrate Request network and its features.
 
 ---
+import SupportedErc20 from '../../../src/components/supported-erc20';
 
 When a user creates and sends a request, he expects to receive the correct amount of money. But how does he keep track of the payments due and received? Request is a ledger that documents requests for payment and how to agree on their completion.
 
@@ -89,6 +90,10 @@ Because one Ethereum address is generally used many times to receive and send tr
 ### ERC20
 
 Request is compatible with every ERC20 currency, but some of them have to be detailed manually. We use Metamask's package [`eth-contract-metadata`](https://github.com/MetaMask/eth-contract-metadata) to automatically fetch smart contracts and currency codes of main currencies.
+
+#### Listed ERC-20:
+
+<SupportedErc20 />
 
 For listed ERC20 currencies, you can use the code directly.
 ```typescript
