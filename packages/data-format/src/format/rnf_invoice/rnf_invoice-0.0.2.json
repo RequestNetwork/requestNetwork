@@ -97,6 +97,9 @@
         "taxRegistration": {
           "type": "string"
         },
+        "companyRegistration": {
+          "type": "string"
+        },
         "miscellaneous": {
           "type": "object"
         }
