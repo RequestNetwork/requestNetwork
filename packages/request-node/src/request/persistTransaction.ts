@@ -72,6 +72,22 @@ export default class PersistTransaction {
           );
         });
 
+        // when the transaction fails, log an error
+        dataAccessResponse.on('error', async e => {
+          const logData = [
+            'transactionHash',
+            transactionHash.value,
+            'channelId',
+            clientRequest.body.channelId,
+            'topics',
+            clientRequest.body.topics,
+            'transactionData',
+            clientRequest.body.transactionData,
+          ].join('\n');
+
+          logger.error(`persistTransaction error: ${e}. \n${logData}`);
+        });
+
         // Log the request time
         const requestEndTime = Date.now();
         logger.debug(`persistTransaction latency: ${requestEndTime - requestStartTime}ms`, [
