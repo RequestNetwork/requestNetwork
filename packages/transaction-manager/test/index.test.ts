@@ -601,7 +601,6 @@ describe('index', () => {
         data2,
         [TestData.idRaw3.encryptionParams],
       );
-      encryptedTxFakeHash.hash = channelId;
 
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
@@ -652,7 +651,8 @@ describe('index', () => {
           encryptionMethod: 'ecies-aes256-cbc',
           ignoredTransactions: [
             {
-              reason: 'The given hash does not match the hash of the decrypted data',
+              reason:
+                'as first transaction, the hash of the transaction do not match the channelId',
               transaction: {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 1,

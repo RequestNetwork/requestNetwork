@@ -24,14 +24,14 @@ const encryptedData =
 describe('encryption-transaction', () => {
   describe('getData', () => {
     it('can getData()', async () => {
-      const tx = new EncryptedTransaction(encryptedData, hash, channelKey);
+      const tx = new EncryptedTransaction(encryptedData, channelKey);
       expect(await tx.getData(), 'transaction not right').to.deep.equal(data);
     });
   });
 
   describe('getHash', () => {
     it('can get hash of the data', async () => {
-      const tx = new EncryptedTransaction(encryptedData, hash, channelKey);
+      const tx = new EncryptedTransaction(encryptedData, channelKey);
 
       expect(await tx.getHash(), 'hash not right').to.deep.equal(hash);
     });
@@ -43,14 +43,14 @@ describe('encryption-transaction', () => {
         await Utils.encryption.encrypt('Not parsable', channelKey),
       );
 
-      const tx = new EncryptedTransaction(encryptedDataNotParsable, hash, channelKey);
+      const tx = new EncryptedTransaction(encryptedDataNotParsable, channelKey);
 
       expect(await tx.getError(), 'error not right').to.deep.equal(
         'Impossible to JSON parse the decrypted transaction data',
       );
     });
     it('can get error of a transaction impossible to decrypt', async () => {
-      const tx = new EncryptedTransaction(encryptedData, hash, {
+      const tx = new EncryptedTransaction(encryptedData, {
         key: 'Corrupted',
         method: EncryptionTypes.METHOD.AES256_CBC,
       });
@@ -59,16 +59,8 @@ describe('encryption-transaction', () => {
         'Impossible to decrypt the transaction',
       );
     });
-    it('can get error of a transaction with hash given not matching real hash', async () => {
-      const tx = new EncryptedTransaction(encryptedData, 'wrong hash', channelKey);
-
-      expect(await tx.getError(), 'error not right').to.deep.equal(
-        'The given hash does not match the hash of the decrypted data',
-      );
-    });
     it('can get error of a transaction if no error', async () => {
-      const tx = new EncryptedTransaction(encryptedData, hash, channelKey);
-
+      const tx = new EncryptedTransaction(encryptedData, channelKey);
       expect(await tx.getError(), 'error not right').to.deep.equal('');
     });
   });

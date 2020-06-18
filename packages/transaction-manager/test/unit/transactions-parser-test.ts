@@ -24,7 +24,7 @@ describe('transaction-parser', () => {
     it('cannot parse transaction not well formatted', async () => {
       await expect(
         transactionParser.parsePersistedTransaction(
-          { hash: 'hash', encryptionMethod: 'encryptionMethod' },
+          { encryptionMethod: 'encryptionMethod' },
           TransactionTypes.ChannelType.UNKNOWN,
         ),
         'must reject',
@@ -57,16 +57,6 @@ describe('transaction-parser', () => {
         await expect(
           transactionParser.parsePersistedTransaction(
             { data: 'data', encryptionMethod: 'encMethod' },
-            TransactionTypes.ChannelType.UNKNOWN,
-          ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
-          'only the property "data" is allowed for clear transaction',
-        );
-
-        await expect(
-          transactionParser.parsePersistedTransaction(
-            { data: 'data', hash: 'hash' },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
           'must reject',
@@ -154,7 +144,6 @@ describe('transaction-parser', () => {
             {
               encryptedData: 'encryptedData',
               encryptionMethod: 'encryptionMethod',
-              hash: 'hash',
               keys: {},
             },
             TransactionTypes.ChannelType.UNKNOWN,
@@ -177,21 +166,10 @@ describe('transaction-parser', () => {
           'must reject',
         ).to.eventually.be.rejectedWith('Encrypted transactions are not allowed in clear channel');
       });
-      it('cannot parse encrypted transaction without hash', async () => {
-        await expect(
-          transactionParser.parsePersistedTransaction(
-            { encryptedData: 'encryptedData' },
-            TransactionTypes.ChannelType.UNKNOWN,
-          ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
-          'the property "hash" is missing for the encrypted transaction',
-        );
-      });
       it('cannot parse encrypted transaction without channelKey with no encryptionMethod or keys', async () => {
         await expect(
           transactionParser.parsePersistedTransaction(
-            { encryptedData: 'encryptedData', hash: 'hash', encryptionMethod: 'encryptionMethod' },
+            { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
           'must reject',
@@ -203,7 +181,6 @@ describe('transaction-parser', () => {
           transactionParser.parsePersistedTransaction(
             {
               encryptedData: 'encryptedData',
-              hash: 'hash',
               keys: {},
             },
             TransactionTypes.ChannelType.UNKNOWN,
@@ -216,7 +193,7 @@ describe('transaction-parser', () => {
       it('cannot parse encrypted transaction with channelKey AND with encryptionMethod or keys', async () => {
         await expect(
           transactionParser.parsePersistedTransaction(
-            { encryptedData: 'encryptedData', hash: 'hash', encryptionMethod: 'encryptionMethod' },
+            { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
             { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_CBC },
           ),
@@ -229,7 +206,6 @@ describe('transaction-parser', () => {
           transactionParser.parsePersistedTransaction(
             {
               encryptedData: 'encryptedData',
-              hash: 'hash',
               keys: {},
             },
             TransactionTypes.ChannelType.UNKNOWN,

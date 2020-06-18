@@ -15,26 +15,20 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
   /** Persisted data */
   private persistedData: TransactionTypes.ITransactionData;
 
-  /** hash given by the persisted transaction */
-  private hashFromPersistedTransaction: string;
-
   /** channel key to decrypt the encrypted data */
   private channelKey: EncryptionTypes.IDecryptionParameters;
 
   /**
    * Creates an instance of EncryptedTransaction.
    * @param persistedData the encrypted data of the transaction
-   * @param hashFromPersistedTransaction the hash of the decrypted data (not checked)
    * @param channelKey decryption parameters to decrypted the encrypted data
    */
   constructor(
     persistedData: TransactionTypes.ITransactionData,
-    hashFromPersistedTransaction: string,
     channelKey: EncryptionTypes.IDecryptionParameters,
   ) {
     this.persistedData = persistedData;
     this.channelKey = channelKey;
-    this.hashFromPersistedTransaction = hashFromPersistedTransaction;
   }
 
   /**
@@ -78,13 +72,17 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
    * @returns a promise resolving a string of the error if any, otherwise an empty string
    */
   public async getError(): Promise<string> {
+    let data = '';
     try {
-      if ((await this.getHash()) !== this.hashFromPersistedTransaction) {
-        throw Error('The given hash does not match the hash of the decrypted data');
-      }
-      return '';
-    } catch (error) {
-      return error.message;
+      data = await this.getData();
+    } catch (e) {
+      return e.message;
     }
+    try {
+      JSON.parse(data);
+    } catch (e) {
+      return 'Impossible to JSON parse the decrypted transaction data';
+    }
+    return '';
   }
 }
