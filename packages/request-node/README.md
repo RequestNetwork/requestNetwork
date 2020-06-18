@@ -365,6 +365,11 @@ cd ../packages/request-node
 yarn start
 ```
 
+#### 8. Test
+
+Open a browser and navigate towards: http://localhost:3000/status
+You can see the details of your local Request & IPFS nodes.
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
