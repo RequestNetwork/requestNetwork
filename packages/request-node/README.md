@@ -331,7 +331,8 @@ yarn install
 yarn build
 ```
 
-#### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/install/)
+#### 3. On a new terminal, launch a local IPFS node
+Note: only IPFS v0.4.* supported, from the [IPFS Installation docs](https://docs.ipfs.io/install/), replace the binary URL with the good one from the following list: https://github.com/ipfs/go-ipfs/releases/tag/v0.4.23
 
 ```bash
 ipfs daemon
