@@ -568,7 +568,6 @@ describe('Request system', () => {
 
     assert.exists(dataAccessData.result.transactions[0].transaction.encryptedData);
     assert.exists(dataAccessData.result.transactions[0].transaction.encryptionMethod);
-    assert.exists(dataAccessData.result.transactions[0].transaction.hash);
     assert.exists(dataAccessData.result.transactions[0].transaction.keys);
     assert.exists(
       dataAccessData.result.transactions[0].transaction.keys![
@@ -583,19 +582,15 @@ describe('Request system', () => {
     assert.isUndefined(dataAccessData.result.transactions[0].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[1].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[1].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[1].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[2].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[2].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[2].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[3].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[3].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[3].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[4].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[4].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[4].transaction.data);
   });
 });
