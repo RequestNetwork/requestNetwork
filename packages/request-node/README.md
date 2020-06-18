@@ -331,7 +331,7 @@ yarn install
 yarn build
 ```
 
-#### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/introduction/install/)
+#### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/install/)
 
 ```bash
 ipfs daemon
