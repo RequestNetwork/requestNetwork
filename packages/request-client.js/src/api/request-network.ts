@@ -381,7 +381,7 @@ export default class RequestNetwork {
       if (paymentNetwork) {
         // create the extensions data for the payment network
         copiedRequestParameters.extensionsData.push(
-          paymentNetwork.createExtensionsDataForCreation(
+          await paymentNetwork.createExtensionsDataForCreation(
             paymentNetworkCreationParameters.parameters,
           ),
         );
