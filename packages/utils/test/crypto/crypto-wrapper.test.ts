@@ -55,4 +55,34 @@ describe('Utils.cryptoWrapper', () => {
       );
     });
   });
+
+  describe('encryptWithAes256gcm', () => {
+    it('can encrypt with the aes256-gcm algorithm', async () => {
+      const encrypted = await CryptoWrapper.encryptWithAes256gcm(
+        Buffer.from(anyData, 'utf8'),
+        Buffer.from(arbitraryKey, 'utf8'),
+      );
+      expect(Buffer.isBuffer(encrypted), 'encryptWithAes256gcm() error').to.be.true;
+      expect(encrypted.length, 'encryptWithAes256gcm() error').to.be.equal(49);
+      expect(
+        await CryptoWrapper.decryptWithAes256gcm(encrypted, Buffer.from(arbitraryKey, 'utf8')),
+        'decrypt() error',
+      ).to.be.deep.equal(Buffer.from(anyData, 'utf8'));
+    });
+  });
+  describe('decryptWithAes256gcm', () => {
+    it('can decrypt a message encrypted with the aes256-gcm algorithm', async () => {
+      const decrypted = await CryptoWrapper.decryptWithAes256gcm(
+        Buffer.from(
+          'TTu/6w1cLS6ToK68ILt56eJ/dJGGbo+z/IwGLEg0WfD/naOONpInlrzQ2Zv1vYL+Vg==',
+          'base64',
+        ),
+        Buffer.from(arbitraryKey, 'utf8'),
+      );
+      expect(Buffer.isBuffer(decrypted), 'decryptWithAes256gcm() error').to.be.true;
+      expect(decrypted, 'decryptWithAes256gcm() error').to.be.deep.equal(
+        Buffer.from(anyData, 'utf8'),
+      );
+    });
+  });
 });
