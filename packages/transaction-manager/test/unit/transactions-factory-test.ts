@@ -40,16 +40,16 @@ describe('transaction-factory', () => {
 
       if (encryptedTx.encryptedData) {
         // tslint:disable-next-line:no-magic-numbers
-        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(110);
+        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(126);
         expect(encryptedTx.encryptedData.slice(0, 2), 'encryptedData not right').to.deep.equal(
-          MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED,
+          MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
         );
       } else {
         expect.fail('encryptedData should not be undefined');
       }
 
       expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.deep.equal(
-        `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`,
+        `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
       );
 
       expect(encryptedTx.hash, 'hash not right').to.deep.equal(
@@ -103,16 +103,16 @@ describe('transaction-factory', () => {
     it('can create encrypted transaction', async () => {
       const channelKey = {
         key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
-        method: EncryptionTypes.METHOD.AES256_CBC,
+        method: EncryptionTypes.METHOD.AES256_GCM,
       };
       const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, channelKey);
       // tslint:disable-next-line:no-magic-numbers
 
       if (encryptedTx.encryptedData) {
         // tslint:disable-next-line:no-magic-numbers
-        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(110);
+        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(126);
         expect(encryptedTx.encryptedData.slice(0, 2), 'encryptedData not right').to.deep.equal(
-          MultiFormatTypes.prefix.AES256_CBC_ENCRYPTED,
+          MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
         );
       } else {
         expect.fail('encryptedData should not be undefined');
@@ -142,7 +142,7 @@ describe('transaction-factory', () => {
     it('cannot create encrypted transaction with not parsable data', async () => {
       const channelKey = {
         key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
-        method: EncryptionTypes.METHOD.AES256_CBC,
+        method: EncryptionTypes.METHOD.AES256_GCM,
       };
       await expect(
         TransactionsFactory.createEncryptedTransaction('Not parsable', channelKey),

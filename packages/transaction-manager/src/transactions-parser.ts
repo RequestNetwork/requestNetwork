@@ -110,10 +110,17 @@ export default class TransactionsParser {
       throw new Error(`No decryption provider given`);
     }
 
+    let channelKeyMethod: EncryptionTypes.METHOD;
     // Check the encryption method
     if (
-      encryptionMethod !== `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`
+      encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`
     ) {
+      channelKeyMethod = EncryptionTypes.METHOD.AES256_CBC;
+    } else if (
+      encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`
+    ) {
+      channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
+    } else {
       throw new Error(`Encryption method not supported: ${encryptionMethod}`);
     }
 
@@ -157,7 +164,7 @@ export default class TransactionsParser {
     }
     return {
       key: channelKey,
-      method: EncryptionTypes.METHOD.AES256_CBC,
+      method: channelKeyMethod,
     };
   }
 }

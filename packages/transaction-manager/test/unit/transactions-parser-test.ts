@@ -106,6 +106,7 @@ describe('transaction-parser', () => {
             TestData.idRaw3.encryptionParams,
           ],
         );
+
         const ret = await transactionParser.parsePersistedTransaction(
           encryptedParsedTx,
           TransactionTypes.ChannelType.UNKNOWN,
@@ -218,7 +219,7 @@ describe('transaction-parser', () => {
           transactionParser.parsePersistedTransaction(
             { encryptedData: 'encryptedData', hash: 'hash', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
-            { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_CBC },
+            { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
           ),
           'must reject',
         ).to.eventually.be.rejectedWith(
@@ -233,7 +234,7 @@ describe('transaction-parser', () => {
               keys: {},
             },
             TransactionTypes.ChannelType.UNKNOWN,
-            { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_CBC },
+            { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
           ),
           'must reject',
         ).to.eventually.be.rejectedWith(
