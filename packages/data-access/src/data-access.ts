@@ -188,9 +188,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // Store the data to the real storage
     resultAppend
-      .on('confirmed', (resultAppendConfirmed: StorageTypes.IAppendResult) => {
+      .on('confirmed', async (resultAppendConfirmed: StorageTypes.IAppendResult) => {
         // update the timestamp with the confirmed one
-        this.transactionIndex.updateTimestamp(
+        await this.transactionIndex.updateTimestamp(
           resultAppendConfirmed.id,
           resultAppendConfirmed.meta.timestamp,
         );
