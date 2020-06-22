@@ -1,5 +1,5 @@
 import MultiFormat from '@requestnetwork/multi-format';
-import { EncryptionTypes, MultiFormatTypes, TransactionTypes } from '@requestnetwork/types';
+import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 /**
@@ -47,10 +47,8 @@ export default class TransactionsFactory {
       method: EncryptionTypes.METHOD.AES256_GCM,
     });
 
-    // Compute the hash of the data
-    let hash: MultiFormatTypes.HashTypes.IHash;
     try {
-      hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+      JSON.parse(data);
     } catch (error) {
       throw new Error('Data not parsable');
     }
@@ -105,9 +103,8 @@ export default class TransactionsFactory {
     );
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
-    const hashSerialized: string = MultiFormat.serialize(hash);
 
-    return { encryptedData: encryptedDataSerialized, keys, hash: hashSerialized, encryptionMethod };
+    return { encryptedData: encryptedDataSerialized, keys, encryptionMethod };
   }
 
   /**
@@ -132,17 +129,14 @@ export default class TransactionsFactory {
       channelKey,
     );
 
-    // Compute the hash of the data
-    let hash: MultiFormatTypes.HashTypes.IHash;
     try {
-      hash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+      JSON.parse(data);
     } catch (error) {
       throw new Error('Data not parsable');
     }
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
-    const hashSerialized: string = MultiFormat.serialize(hash);
 
-    return { encryptedData: encryptedDataSerialized, hash: hashSerialized };
+    return { encryptedData: encryptedDataSerialized };
   }
 }

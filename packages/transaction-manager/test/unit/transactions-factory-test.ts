@@ -7,7 +7,6 @@ const expect = chai.expect;
 
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import TransactionsFactory from '../../src/transactions-factory';
 import * as TestData from './utils/test-data';
 
@@ -50,10 +49,6 @@ describe('transaction-factory', () => {
 
       expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.deep.equal(
         `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
-      );
-
-      expect(encryptedTx.hash, 'hash not right').to.deep.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
       );
 
       expect(Object.keys(encryptedTx.keys || {}).length, 'keys not right').to.deep.equal(3);
@@ -119,10 +114,6 @@ describe('transaction-factory', () => {
       }
 
       expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.be.undefined;
-
-      expect(encryptedTx.hash, 'hash not right').to.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
-      );
 
       expect(encryptedTx.keys, 'keys not right').to.be.undefined;
     });

@@ -76,8 +76,6 @@ export interface IReturnGetTransactionsByChannels {
 export interface IPersistedTransaction {
   data?: ITransactionData;
   encryptedData?: ITransactionData;
-  /** Hash of the data before encryption */
-  hash?: string;
   /** Symmetric key encrypted with asymmetric key from the parties keys, indexed by the hash of their identities */
   keys?: IKeysDictionary;
   /** Encryption method */
