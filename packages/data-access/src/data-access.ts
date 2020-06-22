@@ -207,7 +207,6 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         result.emit('confirmed', resultAfterConfirmation);
       })
       .on('error', async error => {
-        await this.transactionIndex.removeTransaction(resultAppend.id);
         result.emit('error', error);
       });
 
