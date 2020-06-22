@@ -46,11 +46,12 @@ export default class PaymentNetworkETHInputData
    * @param paymentNetworkCreationParameters Parameters to create the extension
    * @returns The extensionData object
    */
-  public createExtensionsDataForCreation(
+  public async createExtensionsDataForCreation(
     paymentNetworkCreationParameters: PaymentTypes.IReferenceBasedCreationParameters,
-  ): ExtensionTypes.IAction {
+  ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
-    const salt = paymentNetworkCreationParameters.salt || Utils.crypto.generate8randomBytes();
+    const salt =
+      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,

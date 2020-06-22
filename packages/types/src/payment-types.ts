@@ -31,7 +31,7 @@ export interface IReferenceBasedCreationParameters {
 
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
-  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => any;
+  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
   getBalance(request: RequestLogic.IRequest): Promise<IBalanceWithEvents<TEventParameters>>;

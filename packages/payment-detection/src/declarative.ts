@@ -26,9 +26,9 @@ export default class PaymentNetworkDeclarative
    * @param paymentNetworkCreationParameters Parameters to create the extension
    * @returns The extensionData object
    */
-  public createExtensionsDataForCreation(
+  public async createExtensionsDataForCreation(
     paymentNetworkCreationParameters: ExtensionTypes.PnAnyDeclarative.ICreationParameters,
-  ): ExtensionTypes.IAction {
+  ): Promise<ExtensionTypes.IAction> {
     return this.extension.createCreationAction({
       paymentInfo: paymentNetworkCreationParameters.paymentInfo,
       refundInfo: paymentNetworkCreationParameters.refundInfo,
