@@ -43,7 +43,7 @@ describe('api/btc/mainnet-address-based', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.addressBasedBtc, 'createCreationAction');
 
-    btcAddressedBased.createExtensionsDataForCreation({ paymentAddress: 'address bitcoin' });
+    await btcAddressedBased.createExtensionsDataForCreation({ paymentAddress: 'address bitcoin' });
 
     expect(spy).to.have.been.called.once;
   });

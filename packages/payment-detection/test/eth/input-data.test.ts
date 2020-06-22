@@ -47,7 +47,7 @@ describe('api/eth/input-data', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
 
-    ethInputData.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
+    await ethInputData.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
 
     expect(spy).to.have.been.called.once;
   });

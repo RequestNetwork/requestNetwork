@@ -43,9 +43,9 @@ export default class PaymentNetworkBTCAddressBased
    *
    * @returns the extensions data object
    */
-  public createExtensionsDataForCreation(
+  public async createExtensionsDataForCreation(
     paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
-  ): ExtensionTypes.IAction {
+  ): Promise<ExtensionTypes.IAction> {
     return this.btcAddressBased.createExtensionsDataForCreation(paymentNetworkCreationParameters);
   }
 
