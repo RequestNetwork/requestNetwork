@@ -19,6 +19,23 @@ A "normalized Keccak256 hash" of a JSON object is Keccak256 hash of an object wh
 - the properties have been sorted alphabetically
 - all the values and properties have been lowercased
 
+## Note on multiformatted identities
+
+In this layer, we refer to identities as the encryption key pairs, which can be different from the payer or payee identities (from the RequestLogic).
+
+Formatted identities allow typed identities such as:
+```
+{
+	Type: “EthereumAddress”,
+	Value: “0x123”
+}
+```
+to be serialized. The value is prefixed with 2 digits representing the identity type. We use this to lighten the storage.
+The example above becomes: `20123`.
+
+Cf. https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/multi-format-types.ts
+
+
 ## Requirement
 
 The implementation must use a cryptographically strong random number generator method.
