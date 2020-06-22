@@ -2,6 +2,7 @@ import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
 import * as Keyv from 'keyv';
+import KeyvFile from 'keyv-file';
 
 /**
  * Class for storing confirmed transactions information
@@ -14,8 +15,11 @@ export default class ConfirmedTransactionStore {
   /**
    * Confirmed transactions store constructor
    */
-  constructor() {
-    this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction>();
+  constructor(store?: KeyvFile) {
+    this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction>({
+      namespace: 'ConfirmedTransactions',
+      store,
+    });
   }
 
   /**
