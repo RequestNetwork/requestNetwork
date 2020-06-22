@@ -74,7 +74,7 @@ class RequestNode {
       transactionIndex,
     });
 
-    this.confirmedTransactionStore = new ConfirmedTransactionStore();
+    this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
     this.persistTransaction = new PersistTransaction(this.confirmedTransactionStore);
 
     this.express = express();
