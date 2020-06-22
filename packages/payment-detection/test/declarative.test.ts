@@ -82,7 +82,7 @@ describe('api/declarative', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.declarative, 'createCreationAction');
 
-    declarative.createExtensionsDataForCreation({
+    await declarative.createExtensionsDataForCreation({
       paymentInfo: 'payment instruction',
       refundInfo: 'refund instruction',
     });

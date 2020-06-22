@@ -111,26 +111,26 @@ describe('Utils.crypto', () => {
   /* tslint:disable:no-unused-expression */
   /* tslint:disable:no-magic-numbers */
   describe('generate8randomBytes', () => {
-    it('generates a 16 charaters long string', () => {
+    it('generates a 16 characters long string', async () => {
       // Do it 20 times because it's random. It's ok, it takes a few milliseconds
       for (let i = 0; i < 100; i++) {
-        expect(crypto.generate8randomBytes().length).to.be.equal(16);
+        expect((await crypto.generate8randomBytes()).length).to.be.equal(16);
       }
     });
 
-    it('generates a 16 charater of hexademical number', () => {
+    it('generates a 16 character of hexademical number', async () => {
       // Regex for "at least 16 hexadecimal numbers". Used to validate the salt
       const eightHexRegex = /[0-9a-f]{16}/;
 
       // Do it 20 times because it's random. It's ok, it takes a few milliseconds
       for (let i = 0; i < 100; i++) {
-        expect(eightHexRegex.test(crypto.generate8randomBytes())).to.be.true;
+        expect(eightHexRegex.test(await crypto.generate8randomBytes())).to.be.true;
       }
     });
 
-    it('generates unique strings', () => {
-      const first = crypto.generate8randomBytes();
-      const second = crypto.generate8randomBytes();
+    it('generates unique strings', async () => {
+      const first = await crypto.generate8randomBytes();
+      const second = await crypto.generate8randomBytes();
       expect(first).to.not.equal(second);
     });
   });

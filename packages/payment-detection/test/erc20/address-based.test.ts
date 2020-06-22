@@ -47,7 +47,9 @@ describe('api/erc20/address-based', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.addressBasedErc20, 'createCreationAction');
 
-    erc20AddressedBased.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
+    await erc20AddressedBased.createExtensionsDataForCreation({
+      paymentAddress: 'ethereum address',
+    });
 
     expect(spy).to.have.been.called.once;
   });

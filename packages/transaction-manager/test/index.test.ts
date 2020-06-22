@@ -130,7 +130,7 @@ describe('index', () => {
         expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
         expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: 'ecies-aes256-cbc',
+          encryptionMethod: 'ecies-aes256-gcm',
         });
         expect(fakeDataAccess.persistTransaction).to.have.been.called.once();
       });
@@ -229,7 +229,7 @@ describe('index', () => {
         expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
         expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: 'ecies-aes256-cbc',
+          encryptionMethod: 'ecies-aes256-gcm',
         });
 
         expect(fakeDataAccess.persistTransaction).to.have.been.called.to.have.been.called.with(
@@ -453,7 +453,7 @@ describe('index', () => {
       expect(ret, 'return is wrong').to.be.deep.equal({
         meta: {
           dataAccessMeta: { transactionsStorageLocation: ['fakeDataId1'] },
-          encryptionMethod: 'ecies-aes256-cbc',
+          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [null],
         },
         result: {
@@ -569,7 +569,7 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
-          encryptionMethod: 'ecies-aes256-cbc',
+          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [
             null,
             {
@@ -648,7 +648,7 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
-          encryptionMethod: 'ecies-aes256-cbc',
+          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [
             {
               reason:
@@ -722,7 +722,7 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
-          encryptionMethod: 'ecies-aes256-cbc',
+          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [
             null,
             {

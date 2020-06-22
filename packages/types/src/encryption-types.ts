@@ -26,4 +26,5 @@ export interface IEncryptedData {
 export enum METHOD {
   ECIES = 'ecies',
   AES256_CBC = 'aes256-cbc',
+  AES256_GCM = 'aes256-gcm',
 }

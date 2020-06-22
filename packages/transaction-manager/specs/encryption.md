@@ -37,7 +37,7 @@ Parties can be added on an encrypted channel by any other parties.
 The encryption uses:
 
 - asymmetric Elliptic Curve Integrated Encryption Scheme (ECIES)
-- symmetric AES-256-CBC encryption.
+- symmetric AES-256-GCM encryption.
 
 The data are first encrypted by AES-256 with a generated key.
 This key is then encrypted for every other party with ECIES from their public key.
@@ -51,8 +51,12 @@ The encrypted data, the encrypted keys and the encrypted method of the data are 
 | Property             | Type   | Description                                                                                                                      |
 | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
 | **encryptedData**    | String | First encrypted data of the channel in base64                                                                                    |
+<<<<<<< HEAD
+=======
+| **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                       |
+>>>>>>> master
 | **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their multi-formatted identities |
-| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                    |
+| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256-GCM' here)_                                                                |
 
 The data are encrypted with the algorithm AES-256 from the channel key generated for this channel.
 The channel key generation must be cryptographically strong.
@@ -68,15 +72,22 @@ Example:
       "20af083f77f1ffd54218d91491afd06c9296eac3ce": "aYOGYgtlt0JkBoKjxkMpoQJbE7GXtTT6JrjA+NF0Bd6BxDLyn5+hFIDvHltMkGS7rpzR3RyEnDl+SncDJ+cCxLo9Od7ntqGNVdin6n7EJqilmY0AmxJpAIAOnCwK5C46zH4RE0g7vBv/+3Gx2uFKw2Dfhpy7olQ5NL6Krsb2qEnmW32R3wmv85uCE88uxmcDlo/OrS36X+jzOye+/ZR+kOE=",
       "20740fc87bd3f41d07d23a01dec90623ebc5fed9d6": "AKJaJONWml2moKwTGZCuXQMxBt014+6Sxo2rzXYBbgKV8peBo3RM6KrxvhIdnCtTwxu3CrlFrkfUm6VYoMsKPu5WhZMU1Wk2R+vYl7roJFCQsTqTN1Qkx0skBLhaSKwynzZY3BWyTZ5rf1+JPmi7g6fGB9VOUpv6EDlp9k1p2RZnsVc+fMYKMAWhMnSZ3gJQUVbHY2Jx0CiQX/N+PtpnTWM=",
     },
-  "encryptionMethod": "ECIES-AES256-CBC"
+  "encryptionMethod": "ECIES-AES256-GCM"
 }
 ```
 
 ### Add encrypted data
 
+<<<<<<< HEAD
 | Property          | Type   | Description              |
 | ----------------- | ------ | ------------------------ |
 | **encryptedData** | String | Encrypted data in base64 |
+=======
+| Property          | Type   | Description                                                |
+| ----------------- | ------ | ---------------------------------------------------------- |
+| **encryptedData** | String | Encrypted data in base64                                   |
+| **hash**          | String | Normalized Keccak256 hash of the message before encryption |
+>>>>>>> master
 
 Example:
 

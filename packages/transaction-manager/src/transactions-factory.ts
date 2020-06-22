@@ -36,15 +36,15 @@ export default class TransactionsFactory {
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // format encryption method property
-    const encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`;
+    const encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
 
     // Generate a key for the AES encryption
     const symmetricKey: string = await Utils.crypto.generate32BufferKey();
 
-    // Encrypt the data with the key and the AES256-CBC algorithm
+    // Encrypt the data with the key and the AES256-GCM algorithm
     const encryptedData: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(data, {
       key: symmetricKey,
-      method: EncryptionTypes.METHOD.AES256_CBC,
+      method: EncryptionTypes.METHOD.AES256_GCM,
     });
 
     try {
@@ -119,11 +119,11 @@ export default class TransactionsFactory {
     channelKey: EncryptionTypes.IEncryptionParameters,
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // check if the encryption method is the good one
-    if (channelKey.method !== EncryptionTypes.METHOD.AES256_CBC) {
+    if (channelKey.method !== EncryptionTypes.METHOD.AES256_GCM) {
       throw new Error(`encryption method not supported for the channel key: ${channelKey.method}`);
     }
 
-    // Encrypt the data with the key and the AES256-CBC algorithm
+    // Encrypt the data with the key and the AES256-GCM algorithm
     const encryptedData: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(
       data,
       channelKey,
