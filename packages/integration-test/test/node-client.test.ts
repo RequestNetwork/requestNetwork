@@ -325,7 +325,7 @@ describe('Request client using a request node', () => {
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
-    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -337,7 +337,7 @@ describe('Request client using a request node', () => {
     assert.equal(requestData.expectedAmount, fetchedRequestData.expectedAmount);
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
-    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
   });
 
   it('can create an encrypted request, modify it and get it back unencrypted', async () => {
@@ -367,7 +367,7 @@ describe('Request client using a request node', () => {
     assert.isNull(requestData.balance);
     assert.exists(requestData.meta);
     assert.equal(requestData.pending!.state, Types.RequestLogic.STATE.CREATED);
-    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(requestData.meta!.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
 
     await new Promise((resolve): any => request.on('confirmed', resolve));
 
@@ -385,7 +385,7 @@ describe('Request client using a request node', () => {
     assert.exists(fetchedRequestData.meta);
     assert.equal(
       fetchedRequestData.meta!.transactionManagerMeta.encryptionMethod,
-      'ecies-aes256-cbc',
+      'ecies-aes256-gcm',
     );
     assert.equal(fetchedRequestData.state, Types.RequestLogic.STATE.CREATED);
 
@@ -449,7 +449,7 @@ describe('Request client using a request node', () => {
 
     assert.equal(
       plainRequestData.meta!.transactionManagerMeta!.encryptionMethod,
-      'ecies-aes256-cbc',
+      'ecies-aes256-gcm',
     );
     assert.isNull(plainRequestData.meta!.transactionManagerMeta.ignoredTransactions![0]);
     assert.equal(
