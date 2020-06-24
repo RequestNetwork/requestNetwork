@@ -40,7 +40,7 @@ describe('api/erc20/proxy-contract', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.proxyContractErc20, 'createCreationAction');
 
-    erc20ProxyContract.createExtensionsDataForCreation({
+    await erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
@@ -55,7 +55,7 @@ describe('api/erc20/proxy-contract', () => {
   it('can createExtensionsDataForCreation without salt', async () => {
     const spy = sandbox.on(mockAdvancedLogic.extensions.proxyContractErc20, 'createCreationAction');
 
-    erc20ProxyContract.createExtensionsDataForCreation({
+    await erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
     });
 

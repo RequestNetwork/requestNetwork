@@ -985,7 +985,7 @@ describe('index', () => {
       const requestData = requestFromId.getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
     });
 
@@ -1032,7 +1032,7 @@ describe('index', () => {
       const requestData = requestsFromTopic[0].getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
     });
 
@@ -1076,7 +1076,7 @@ describe('index', () => {
         const requestData = req.getData();
         expect(requestData.meta).to.not.be.null;
         expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-          'ecies-aes256-cbc',
+          'ecies-aes256-gcm',
         );
       });
     });
@@ -1104,7 +1104,7 @@ describe('index', () => {
       const requestData = requestFromIdentity[0].getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
     });
 
@@ -1129,7 +1129,7 @@ describe('index', () => {
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
 
       await new Promise((resolve): any => setTimeout(resolve, 150));
@@ -1167,7 +1167,7 @@ describe('index', () => {
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
 
       clock.tick(150);
@@ -1199,7 +1199,7 @@ describe('index', () => {
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
 
       clock.tick(150);
@@ -1245,7 +1245,7 @@ describe('index', () => {
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).to.not.be.null;
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-cbc',
+        'ecies-aes256-gcm',
       );
 
       const acceptResult = await fetchedRequest.accept(payerIdentity);

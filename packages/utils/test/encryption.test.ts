@@ -36,6 +36,11 @@ const arbitraryAES256cbcEncryptionParams: EncryptionTypes.IEncryptionParameters 
   method: EncryptionTypes.METHOD.AES256_CBC,
 };
 
+const arbitraryAES256gcmEncryptionParams: EncryptionTypes.IEncryptionParameters = {
+  key: '+wqzz0nClfG9MNjEziGDfMPcxo7WwXQ/m/0ESEpmkCs=',
+  method: EncryptionTypes.METHOD.AES256_GCM,
+};
+
 const data = {
   attribut1: 'VALUE',
   attribut2: 'Value',
@@ -85,6 +90,19 @@ describe('Encryption', () => {
       expect(encryptedData.type, 'encrypt() error').to.be.equal(EncryptionTypes.METHOD.AES256_CBC);
       expect(
         await Encryption.decrypt(encryptedData, arbitraryAES256cbcEncryptionParams),
+        'decrypt() error',
+      ).to.be.deep.equal(JSON.stringify(data));
+    });
+
+    it('can encrypt with AES256-gcm', async () => {
+      const encryptedData = await Encryption.encrypt(
+        JSON.stringify(data),
+        arbitraryAES256gcmEncryptionParams,
+      );
+      expect(encryptedData.value.length, 'encrypt() error').to.be.equal(100);
+      expect(encryptedData.type, 'encrypt() error').to.be.equal(EncryptionTypes.METHOD.AES256_GCM);
+      expect(
+        await Encryption.decrypt(encryptedData, arbitraryAES256gcmEncryptionParams),
         'decrypt() error',
       ).to.be.deep.equal(JSON.stringify(data));
     });
@@ -147,6 +165,16 @@ describe('Encryption', () => {
           otherIdRaw.decryptionParams,
         ),
       ).to.eventually.rejectedWith('decryptionParams.method should be aes256-cbc');
+
+      await expect(
+        Encryption.decrypt(
+          {
+            type: EncryptionTypes.METHOD.AES256_GCM,
+            value: 'c9a9',
+          },
+          arbitraryAES256cbcEncryptionParams,
+        ),
+      ).to.eventually.rejectedWith('decryptionParams.method should be aes256-gcm');
     });
   });
 });

@@ -29,9 +29,9 @@ export default class PaymentNetworkERC20AddressBased
    * @param paymentNetworkCreationParameters Parameters to create the extension
    * @returns The extensionData object
    */
-  public createExtensionsDataForCreation(
+  public async createExtensionsDataForCreation(
     paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
-  ): ExtensionTypes.IAction {
+  ): Promise<ExtensionTypes.IAction> {
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,

@@ -44,7 +44,6 @@ export default class TransactionsParser {
       if (
         persistedTransaction.encryptedData ||
         persistedTransaction.encryptionMethod ||
-        persistedTransaction.hash ||
         persistedTransaction.keys
       ) {
         throw new Error('only the property "data" is allowed for clear transaction');
@@ -56,9 +55,6 @@ export default class TransactionsParser {
     if (persistedTransaction.encryptedData) {
       if (channelType === TransactionTypes.ChannelType.CLEAR) {
         throw new Error('Encrypted transactions are not allowed in clear channel');
-      }
-      if (!persistedTransaction.hash) {
-        throw new Error('the property "hash" is missing for the encrypted transaction');
       }
 
       // if we don't have the channel key we need to decrypt it
@@ -83,11 +79,7 @@ export default class TransactionsParser {
       return {
         channelKey,
         encryptionMethod: persistedTransaction.encryptionMethod,
-        transaction: new EncryptedTransaction(
-          persistedTransaction.encryptedData,
-          persistedTransaction.hash,
-          channelKey,
-        ),
+        transaction: new EncryptedTransaction(persistedTransaction.encryptedData, channelKey),
       };
     }
 
@@ -110,10 +102,17 @@ export default class TransactionsParser {
       throw new Error(`No decryption provider given`);
     }
 
+    let channelKeyMethod: EncryptionTypes.METHOD;
     // Check the encryption method
     if (
-      encryptionMethod !== `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`
+      encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`
     ) {
+      channelKeyMethod = EncryptionTypes.METHOD.AES256_CBC;
+    } else if (
+      encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`
+    ) {
+      channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
+    } else {
       throw new Error(`Encryption method not supported: ${encryptionMethod}`);
     }
 
@@ -157,7 +156,7 @@ export default class TransactionsParser {
     }
     return {
       key: channelKey,
-      method: EncryptionTypes.METHOD.AES256_CBC,
+      method: channelKeyMethod,
     };
   }
 }
