@@ -77,19 +77,7 @@ async function generate32BufferKey(): Promise<string> {
  *
  * @returns a string of 8 random bytes
  */
-function generate8randomBytes(): string {
-  const base16 = 16;
-
-  const generate4randomBytes = (): string => {
-    // A 4 byte random integer
-    const randomInteger = Math.floor(Math.random() * Math.pow(2, 4 * 8));
-
-    // Convert to hexadecimal and padded with 0
-    return randomInteger.toString(base16).padStart(8, '0');
-  };
-
-  // Do it in 2 passes because an integer doesn't have enough bits
-  const high = generate4randomBytes();
-  const low = generate4randomBytes();
-  return high + low;
+async function generate8randomBytes(): Promise<string> {
+  const random32Bytes = await CryptoWrapper.random32Bytes();
+  return random32Bytes.slice(0, 8).toString('hex');
 }

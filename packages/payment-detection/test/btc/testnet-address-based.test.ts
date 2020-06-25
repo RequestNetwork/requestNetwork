@@ -46,7 +46,7 @@ describe('api/btc/testnet-address-based', () => {
       'createCreationAction',
     );
 
-    btcAddressedBased.createExtensionsDataForCreation({ paymentAddress: 'address bitcoin' });
+    await btcAddressedBased.createExtensionsDataForCreation({ paymentAddress: 'address bitcoin' });
 
     expect(spy).to.have.been.called.once;
   });

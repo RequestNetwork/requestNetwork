@@ -54,12 +54,12 @@ Parties can be added on an encrypted channel by any other parties.
 The encryption uses:
 
 - asymmetric Elliptic Curve Integrated Encryption Scheme (ECIES)
-- symmetric AES-256-CBC encryption.
+- symmetric AES-256-GCM encryption.
 
 The data are first encrypted by AES-256 with a generated key.
 This key is then encrypted for every other party with ECIES from their public key.
 To not expose the public keys, the encrypted keys are indexed by the addresses.
-The encrypted data, the encrypted keys and a hash of the data are pushed on chain.
+The encrypted data, the encrypted keys and the encrypted method of the data are pushed on chain.
 
 ## Functions
 
@@ -67,10 +67,13 @@ The encrypted data, the encrypted keys and a hash of the data are pushed on chai
 
 | Property             | Type   | Description                                                                                                                      |
 | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| **encryptedData**             | String | First encrypted data of the channel in base64                                                                                    |
+| **encryptedData**    | String | First encrypted data of the channel in base64                                                                                    |
+<<<<<<< HEAD
+=======
 | **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                       |
+>>>>>>> master
 | **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their multi-formatted identities |
-| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256' here)_                                                                    |
+| **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256-GCM' here)_                                                                |
 
 The data are encrypted with the algorithm AES-256 from the channel key generated for this channel.
 The channel key generation must be cryptographically strong.
@@ -81,29 +84,33 @@ Example:
 ```JSON
 {
   "encryptedData": "JOz9aOV1aYatMSAx+3CD9EyjNI/FwLp6DeA+AYk5ERnTDwwaETY7zz2NemubnGW7GGDATjSVsnCVWXuM58cihq1Bhkon2aiPHhQdpteEugkrM2Zx/kWrVlvRY8kyseB30hU7NhyiDUSLGOJ/Pmq3PjANbBi2svgADLFZ6SdYgwFkjxaO1XkvW/qvjuraFqW55/4wCd53yjWcjMcLzMgLYcTLmSns642xAjx0hAvwVPQmTVI5xOFf6PjbEN9qfRPfdQkaOuuGG2AYsVhOkSK73BULdIvx6PArfqICCtL23xmt4kCeFgd6HYQvSzSFqszqAWT1kJdiRj3sZXRtf6xcpeXDelBacHN+xD2mzdZlroVhlsjZi5s0mhemBd+C",
-  "hash": "01865ea95812388a93162b560e01c5680f12966492dfbad8a9a104e1e79f6665fc",
   "keys":
    {
       "20af083f77f1ffd54218d91491afd06c9296eac3ce": "aYOGYgtlt0JkBoKjxkMpoQJbE7GXtTT6JrjA+NF0Bd6BxDLyn5+hFIDvHltMkGS7rpzR3RyEnDl+SncDJ+cCxLo9Od7ntqGNVdin6n7EJqilmY0AmxJpAIAOnCwK5C46zH4RE0g7vBv/+3Gx2uFKw2Dfhpy7olQ5NL6Krsb2qEnmW32R3wmv85uCE88uxmcDlo/OrS36X+jzOye+/ZR+kOE=",
       "20740fc87bd3f41d07d23a01dec90623ebc5fed9d6": "AKJaJONWml2moKwTGZCuXQMxBt014+6Sxo2rzXYBbgKV8peBo3RM6KrxvhIdnCtTwxu3CrlFrkfUm6VYoMsKPu5WhZMU1Wk2R+vYl7roJFCQsTqTN1Qkx0skBLhaSKwynzZY3BWyTZ5rf1+JPmi7g6fGB9VOUpv6EDlp9k1p2RZnsVc+fMYKMAWhMnSZ3gJQUVbHY2Jx0CiQX/N+PtpnTWM=",
     },
-  "encryptionMethod": "ECIES-AES256-CBC"
+  "encryptionMethod": "ECIES-AES256-GCM"
 }
 ```
 
 ### Add encrypted data
 
-| Property | Type   | Description                                                |
-| -------- | ------ | ---------------------------------------------------------- |
+<<<<<<< HEAD
+| Property          | Type   | Description              |
+| ----------------- | ------ | ------------------------ |
+| **encryptedData** | String | Encrypted data in base64 |
+=======
+| Property          | Type   | Description                                                |
+| ----------------- | ------ | ---------------------------------------------------------- |
 | **encryptedData** | String | Encrypted data in base64                                   |
-| **hash** | String | Normalized Keccak256 hash of the message before encryption |
+| **hash**          | String | Normalized Keccak256 hash of the message before encryption |
+>>>>>>> master
 
 Example:
 
 ```JSON
 {
     "encryptedData": "mBVy2ENb0Edkego5c9QXcFxszKxe7iQVE22wUPHMbrC7bBm99S238BAyACa1TBDlI4SajbrWM+/MG8CkBoph4FLTvh4PsUjhnfazFI9BnMtIMhdqDAoxXUSHsvnwbEFhllqwhFCWn6pslLNu7X7UJSDgj7nQ0t1IHegBSV7ZRqdOYw3UoxAEAyVOoUwMhr/sitF2AlgMSvKas5YCD47YIm6rDNmzyBn9Ed/fAxNojMXcg386khrPs37P6Q==",
-    "hash": "018f94ee7e96fa65a761e8df9792af3f72fcf936f186fbb86881630f7d5333c8bb",
 }
 ```
 
