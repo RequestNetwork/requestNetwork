@@ -33,7 +33,7 @@ Formatted identities allow typed identities such as:
 to be serialized. The value is prefixed with 2 digits representing the identity type. We use this to lighten the storage.
 The example above becomes: `20123`.
 
-Cf. https://github.com/RequestNetwork/requestNetwork/blob/master/packages/types/src/multi-format-types.ts
+Cf. [multi-format-types.ts](./packages/types/src/multi-format-types.ts)
 
 
 ## Requirement
