@@ -292,7 +292,7 @@ export default class SmartContractManager {
         // Keep the transaction hash for future needs
         let transactionHash: string = '';
 
-        const txEvent = this.requestHashSubmitter.methods
+        this.requestHashSubmitter.methods
           .submitHash(contentHash, feesParametersAsBytes)
           .send({
             from: account,
@@ -300,13 +300,12 @@ export default class SmartContractManager {
             gasPrice: gasPriceToUse,
             nonce,
             value: fee,
-          });
-        txEvent
-          .once('transactionHash', (hash: any) => {
+          })
+          .on('transactionHash', (hash: any) => {
             // Store the transaction hash in case we need it in the future
             transactionHash = hash;
           })
-          .once('error', async (transactionError: string) => {
+          .on('error', async (transactionError: string) => {
             // If failed because of polling timeout, try to resubmit the transaction with more gas
             if (
               transactionError.toString().includes(TRANSACTION_POLLING_TIMEOUT) &&
@@ -367,12 +366,10 @@ export default class SmartContractManager {
               )
                 .then((ethereumMetadata: StorageTypes.IEthereumMetadata) => {
                   ethereumMetadataCreated = true;
-                  txEvent.removeAllListeners('confirmation');
                   resolve(ethereumMetadata);
                 })
                 .catch(e => {
                   if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
-                    txEvent.removeAllListeners('confirmation');
                     reject(Error(`Maximum number of confirmation reached: ${e}`));
                   }
                 });
