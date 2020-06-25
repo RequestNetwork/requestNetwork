@@ -26,8 +26,8 @@ In this layer, we refer to identities as the encryption key pairs, which can be 
 Formatted identities allow typed identities such as:
 ```
 {
-	Type: “EthereumAddress”,
-	Value: “0x123”
+	type: "EthereumAddress",
+	value: "0x123"
 }
 ```
 to be serialized. The value is prefixed with 2 digits representing the identity type. We use this to lighten the storage.
