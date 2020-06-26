@@ -22,6 +22,9 @@ const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp(
   'query returned more than [1-9][0-9]* results',
 );
 
+// String to match if the Web3 API throws "Transaction was not mined within XXX seconds" error
+const TRANSACTION_POLLING_TIMEOUT: string = 'Transaction was not mined within';
+
 const LENGTH_BYTES32_STRING = 64;
 
 /**
@@ -110,6 +113,9 @@ export default class SmartContractManager {
     } catch (error) {
       throw Error(`Can't initialize web3-eth ${error}`);
     }
+
+    // Set the default transaction polling timeout to the value in our config
+    this.eth.transactionPollingTimeout = config.getTransactionPollingTimeout();
 
     // Checks if networkId is defined
     // If not defined we use default value from config
@@ -244,6 +250,7 @@ export default class SmartContractManager {
     contentHash: string,
     feesParameters: StorageTypes.IFeesParameters,
     gasPrice?: number,
+    nonce?: number,
   ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the account for the transaction
     const account = await this.getMainAccount();
@@ -282,16 +289,63 @@ export default class SmartContractManager {
         // When set to true, we use it to ignore next confirmation event function call
         let ethereumMetadataCreated: boolean = false;
 
+        // Keep the transaction hash for future needs
+        let transactionHash: string = '';
+
         this.requestHashSubmitter.methods
           .submitHash(contentHash, feesParametersAsBytes)
           .send({
             from: account,
             gas: '100000',
             gasPrice: gasPriceToUse,
+            nonce,
             value: fee,
           })
-          .on('error', (transactionError: string) => {
-            reject(Error(`Ethereum transaction error:  ${transactionError}`));
+          .on('transactionHash', (hash: any) => {
+            // Store the transaction hash in case we need it in the future
+            transactionHash = hash;
+          })
+          .on('error', async (transactionError: string) => {
+            // If failed because of polling timeout, try to resubmit the transaction with more gas
+            if (
+              transactionError.toString().includes(TRANSACTION_POLLING_TIMEOUT) &&
+              transactionHash
+            ) {
+              // If we didn't set the nonce, find the current transaction nonce
+              if (!nonce) {
+                const tx = await this.eth.getTransaction(transactionHash);
+                nonce = tx.nonce;
+              }
+
+              // Get the new gas price for the transaction
+              const newGasPrice = new bigNumber(
+                await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName),
+              );
+
+              // If the new gas price is higher than the previous, resubmit the transaction
+              if (newGasPrice.gt(new bigNumber(gasPriceToUse))) {
+                // Retry transaction with the new gas price and propagate back the result
+                try {
+                  resolve(
+                    await this.addHashAndSizeToEthereum(
+                      contentHash,
+                      feesParameters,
+                      newGasPrice,
+                      nonce,
+                    ),
+                  );
+                } catch (error) {
+                  reject(error);
+                }
+              } else {
+                // The transaction is stuck, but it doesn't seem to be a gas issue. Nothing better to do than to wait...
+                this.logger.warn(
+                  `Transaction ${transactionHash} hasn't been mined for more than ${config.getTransactionPollingTimeout()} seconds. It may be stuck.`,
+                );
+              }
+            } else {
+              reject(Error(`Ethereum transaction error:  ${transactionError}`));
+            }
           })
           .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
             if (!ethereumMetadataCreated) {

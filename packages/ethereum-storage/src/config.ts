@@ -15,6 +15,7 @@ const config: any = {
     },
     retryDelay: 0,
     safeGasPriceLimit: '200000000000',
+    transactionPollingTimeout: 300,
   },
   ipfs: {
     defaultNode: {
@@ -158,4 +159,11 @@ export function getIpfsExpectedBootstrapNodes(): string[] {
  */
 export function getMaxIpfsReadRetry(): number {
   return config.ipfs.maxIpfsReadRetry;
+}
+
+/**
+ * Retrieve from config the amount of time to wait before a transaction is considered failed
+ */
+export function getTransactionPollingTimeout(): number {
+  return config.ethereum.transactionPollingTimeout;
 }
