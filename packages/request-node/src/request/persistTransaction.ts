@@ -70,6 +70,7 @@ export default class PersistTransaction {
             transactionHash.value,
             dataAccessConfirmedResponse,
           );
+          logger.info(`Transaction confirmed: ${transactionHash.value}`, ['metric', 'successRate']);
         });
 
         // when the transaction fails, log an error

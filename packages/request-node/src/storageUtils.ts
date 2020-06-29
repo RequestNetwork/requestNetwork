@@ -2,6 +2,7 @@ import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
+import * as Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
 
 const hdWalletProvider = require('@truffle/hdwallet-provider');
@@ -34,6 +35,11 @@ export function getEthereumStorage(
     web3Provider: provider,
   };
 
+  const store = new Keyv<string[]>({
+    namespace: 'EthereumStorage',
+    store: metadataStore,
+  });
+
   return new EthereumStorage(
     config.getServerExternalUrl(),
     ipfsGatewayConnection,
@@ -44,6 +50,6 @@ export function getEthereumStorage(
       maxConcurrency: config.getStorageConcurrency(),
       retryDelay: config.getEthereumRetryDelay(),
     },
-    metadataStore,
+    store,
   );
 }
