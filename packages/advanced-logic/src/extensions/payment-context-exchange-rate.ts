@@ -23,7 +23,6 @@ const CURRENT_VERSION = '0.1.0';
 function createCreationAction(
   creationParameters: ExtensionTypes.PcExchangeRate.ICreationParameters,
 ): ExtensionTypes.IAction {
-  throw Error('TODO Payment Context: Exchange rate');
 
   return {
     action: ExtensionTypes.PcExchangeRate.ACTION.CREATE,
@@ -34,8 +33,9 @@ function createCreationAction(
 }
 
 /**
- * Applies the extension action to the request
- * Is called to interpret the extensions data when applying the transaction
+ * Interprets a an extensionAction, based on a the state of all other extensions,
+ * extensionsState, and on the requestState, in order to return a new state of
+ * all extensions.
  *
  * @param extensionsState IExtensionStates previous state of the extensions
  * @param extensionAction IAction action to apply
@@ -46,13 +46,19 @@ function createCreationAction(
 function applyActionToExtension(
   extensionsState: RequestLogicTypes.IExtensionStates,
   extensionAction: ExtensionTypes.IAction,
-  //requestState: RequestLogicTypes.IRequest,
+  requestState: RequestLogicTypes.IRequest,
 ): RequestLogicTypes.IExtensionStates {
   if (extensionAction.action !== ExtensionTypes.PcExchangeRate.ACTION.CREATE) {
     throw Error(`Unknown action: ${extensionAction.action}`);
   }
 
-  throw Error('TODO Payment Context: Exchange rate');
+  if (!extensionAction.parameters.oracle || !extensionAction.parameters.timeframe || !extensionAction.parameters.currency) {
+    throw Error('Extension payment-context-exchange-rate expects 3 parameters: oracle, timeframe, currency');
+  }
+
+  if (requestState.currency == extensionAction.parameters.currency) {
+    throw Error('Extension payment-context-exchange-rate can only be used to exchange currencies that are different');
+  }
 
   // Deep copy to not mutate the input parameter
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
@@ -66,9 +72,9 @@ function applyActionToExtension(
     id: ExtensionTypes.ID.PAYMENT_CONTEXT_EXCHANGE_RATE,
     type: ExtensionTypes.TYPE.PAYMENT_CONTEXT,
     values: { 
-      /*
-      * TODO
-      */
+      oracle: extensionAction.parameters.oracle,
+      timeframe: extensionAction.parameters.timeframe,
+      currency: extensionAction.parameters.currency,
      },
     version: CURRENT_VERSION,
   };

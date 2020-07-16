@@ -1,7 +1,7 @@
 # Payment Context: Exchange rates
 
-You can be interested in this document if you want to understand or implement how the network deals with payments in a different
-currency than the request currency.
+You can be interested in this document if you want to understand or implement how the network deals with payments 
+in a different currency than the request currency.
 
 Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md))
 
@@ -23,15 +23,15 @@ compute a balance that is very close to the one payers and payee expect.
 
 ## Properties
 
-| Property             | Type     | Description                         | Requirement   |
-|----------------------|----------|-------------------------------------|---------------|
-| **id**               | String   | constant value: "pc-exchange-rate"  | **Mandatory** |
-| **type**             | String   | constant value: "paymentContext"    | **Mandatory** |
-| **version**          | String   | constant value: "0.1.0"             | **Mandatory** |
-| **values**           | Object   |                                     |               |
-| **values.oracle**    | String   | TODO:should be fixed for the moment | **Mandatory** |
-| **values.timeframe** | Integer  | Exchange rate timespan              | **Mandatory** |
-| **values.currency**  | Currency | Currency of the expected amount     | **Mandatory** |
+| Property             | Type     | Description                               | Requirement   |
+|----------------------|----------|-------------------------------------------|---------------|
+| **id**               | String   | constant value: "pc-exchange-rate"        | **Mandatory** |
+| **type**             | String   | constant value: "paymentContext"          | **Mandatory** |
+| **version**          | String   | constant value: "0.1.0"                   | **Mandatory** |
+| **values**           | Object   |                                           |               |
+| **values.oracle**    | String   | TODO:how can that be identified properly? | **Mandatory** |
+| **values.timeframe** | Integer  | Exchange rate timespan                    | **Mandatory** |
+| **values.currency**  | Currency | Currency of the expected amount           | **Mandatory** |
 
 ---
 
