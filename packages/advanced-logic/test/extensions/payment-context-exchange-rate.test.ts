@@ -19,31 +19,48 @@ describe('extensions/payment-context-exchange-rate', () => {
       const previousState = {};
       const newExtensionState = exchangeRate.applyActionToExtension(
         previousState,
-        TestData.createPcExchangeRateExtensionData,
+        TestData.createPcExchangeRateUSDC,
         requestCreatedNoExtensionBefore,
         TestData.otherIdRaw.identity,
         TestData.arbitraryTimestamp,
       );
 
       expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        TestData.expectedCreatedExchangeRateState,
+        TestData.exchangeRateUsdcState,
       );
     });
-    
-    it('cannot createCreationAction with unsupported oracle-pair', () => {
-      assert.fail("TODO");
-    });
-    
-    it('cannot createCreationAction for an oracle-pair already described', () => {
-      assert.fail("TODO");
+        
+    it('cannot createCreationAction for an oracle-currency already described', () => {
+      const newExtensionState = exchangeRate.applyActionToExtension(
+        // There already is a USDC-EUR payment context with the same oracle-currency duet
+        TestData.pnpcUsdcState,
+        TestData.createPcExchangeRateUSDC,
+        TestData.requestUsdcEur,
+        TestData.otherIdRaw.identity,
+        TestData.arbitraryTimestamp,
+      );
+      assert.fail(() => {
+        exchangeRate.applyActionToExtension(
+          newExtensionState,
+          TestData.createPcExchangeRateUSDC,
+          TestData.requestUsdcEur,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        )
+      });
     });
 
     it('cannot createCreationAction for the same currency as the request', () => {
       assert.fail("TODO");
     });
 
+    it('cannot createCreationAction by the payer', () => {
+      assert.fail("TODO");
+    });
+    
     it('cannot createCreationAction for an accepted request', () => {
       assert.fail("TODO");
     });
+
   });
 });

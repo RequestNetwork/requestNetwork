@@ -6,18 +6,21 @@ export interface IExchangeRate extends Extension.IExtension {
   createCreationAction: (creationParameters: ICreationParameters) => Extension.IAction;
 }
 
-/** Extension values of content data */
-export interface IValues {
+/** Payment context option */
+export interface IPaymentContextOption {
   oracle: string;
   timeframe: number;
   currency: ICurrency;
 }
 
+/** Extension values of content data */
+export interface IValues {
+  pcOptions: IPaymentContextOption[];
+}
+
 /** Parameters of creation action */
 export interface ICreationParameters {
-    oracle: string;
-    timeframe: number;
-    currency: ICurrency;
+  pcOptions: IPaymentContextOption[];
 }
 
 /** Actions possible */

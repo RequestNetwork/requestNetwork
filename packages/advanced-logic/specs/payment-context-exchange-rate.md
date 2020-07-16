@@ -14,12 +14,12 @@ The request denomination currency is used to compute the amount in another curre
 
 The typical scenario is a request denominated in fiat and paid in ERC20.
 
-Many Exchange rates extensions can be associated with one request, together they describe:
+As a payment context, many triplets of oracle, currency and timeframe can be provided in order to describe:
 * Before payment: what are the possible payment currencies and how to compute corresponding amounts
 * After payment: how to compare payments in one currency with a balance in another currency
 
-The version 0.1.0 is not designed to handle properly multiple payments, although it will detect them and
-compute a balance that is very close to the one payers and payee expect.
+The version 0.1.0 is not designed to handle properly multiple payments, although it allows their detection
+and to compute a balance that is very close to the one payers and payee expect.
 
 ## Properties
 
@@ -28,7 +28,13 @@ compute a balance that is very close to the one payers and payee expect.
 | **id**               | String   | constant value: "pc-exchange-rate"        | **Mandatory** |
 | **type**             | String   | constant value: "paymentContext"          | **Mandatory** |
 | **version**          | String   | constant value: "0.1.0"                   | **Mandatory** |
-| **values**           | Object   |                                           |               |
+| **events**                       | Array  | List of the actions performed by the extension | **Mandatory** |
+| **values**           | Object   | List of payment context options                                          |               |
+| **values.paymentContextOption**           | Array   | List of payment context options                                          |               |
+
+### paymentContextOption
+
+| Property             | Type     | Description                               | Requirement   |
 | **values.oracle**    | String   | TODO:how can that be identified properly? | **Mandatory** |
 | **values.timeframe** | Integer  | Exchange rate timespan                    | **Mandatory** |
 | **values.currency**  | Currency | Currency of the expected amount           | **Mandatory** |
