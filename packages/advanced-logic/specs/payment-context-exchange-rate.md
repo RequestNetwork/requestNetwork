@@ -43,7 +43,7 @@ extensions currencies.
 ### To initiate a payment
 
 The first step for payment initation is to pick one `values.currency` and its related exchange rate extension.
-There should be a payment network for this currency bound to the request.
+There should be a payment network for this currency bound to the request, to get required details.
 
 For the selected currency, the payment processor should look at the exchange rate given by the `values.oracle`.
 Once the exchange rate is fetched, the payment processor has a maximum `values.timeframe`to execute the payment, 
