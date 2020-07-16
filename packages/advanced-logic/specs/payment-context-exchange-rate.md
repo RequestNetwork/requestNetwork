@@ -15,8 +15,8 @@ The request denomination currency is used to compute the amount in another curre
 The typical scenario is a request denominated in fiat and paid in ERC20.
 
 Many Exchange rates extensions can be associated with one request, together they describe:
-* To the payment processor what are the possible payment currencies and how to compute corresponding amounts
-* To the payment detection how to compare payments in one currency with a balance in another currency
+* Before payment: what are the possible payment currencies and how to compute corresponding amounts
+* After payment: how to compare payments in one currency with a balance in another currency
 
 The version 0.1.0 is not designed to handle properly multiple payments, although it will detect them and
 compute a balance that is very close to the one payers and payee expect.
