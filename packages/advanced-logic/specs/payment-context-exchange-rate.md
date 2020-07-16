@@ -51,7 +51,7 @@ extensions currencies.
 The first step for payment initation is to pick one `values.currency` and its related exchange rate extension.
 There should be a payment network for this currency bound to the request, to get required details.
 
-For the selected currency, the payment processor should look at the exchange rate given by the `values.oracle`.
+For the selected currency, the payment processor should look at the exchange rate given by `values.oracle`.
 Once the exchange rate is fetched, the payment processor has a maximum `values.timeframe`to execute the payment, 
 in seconds. The timeframe will be computed based on the payment transaction datetime, so the payment processor 
 should anticipate network delays by adding a time margin.
@@ -124,5 +124,4 @@ A extension state is created with the following properties:
 ### Updates
 
 None.
-
 
