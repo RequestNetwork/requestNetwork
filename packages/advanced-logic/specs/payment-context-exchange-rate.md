@@ -23,14 +23,14 @@ and to compute a balance that is very close to the one payers and payee expect.
 
 ## Properties
 
-| Property             | Type     | Description                               | Requirement   |
-|----------------------|----------|-------------------------------------------|---------------|
-| **id**               | String   | constant value: "pc-exchange-rate"        | **Mandatory** |
-| **type**             | String   | constant value: "paymentContext"          | **Mandatory** |
-| **version**          | String   | constant value: "0.1.0"                   | **Mandatory** |
-| **events**                       | Array  | List of the actions performed by the extension | **Mandatory** |
-| **values**           | Object   | List of payment context options                                          |               |
-| **values.paymentContextOption**           | Array   | List of payment context options                                          |               |
+| Property                        | Type   | Description                                    | Requirement   |
+|---------------------------------|--------|------------------------------------------------|---------------|
+| **id**                          | String | constant value: "pc-exchange-rate"             | **Mandatory** |
+| **type**                        | String | constant value: "paymentContext"               | **Mandatory** |
+| **version**                     | String | constant value: "0.1.0"                        | **Mandatory** |
+| **events**                      | Array  | List of the actions performed by the extension | **Mandatory** |
+| **values**                      | Object |                                                |               |
+| **values.paymentContextOption** | Array  | List of payment context options                | **Mandatory** |
 
 ### paymentContextOption
 
@@ -51,7 +51,7 @@ extensions currencies.
 The first step for payment initation is to pick one `values.currency` and its related exchange rate extension.
 There should be a payment network for this currency bound to the request, to get required details.
 
-For the selected currency, the payment processor should look at the exchange rate given by `values.oracle`.
+For the selected currency, the payment processor should look at the exchange rate given by the `values.oracle`.
 Once the exchange rate is fetched, the payment processor has a maximum `values.timeframe`to execute the payment, 
 in seconds. The timeframe will be computed based on the payment transaction datetime, so the payment processor 
 should anticipate network delays by adding a time margin.
@@ -124,4 +124,5 @@ A extension state is created with the following properties:
 ### Updates
 
 None.
+
 
