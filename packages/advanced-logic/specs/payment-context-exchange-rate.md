@@ -7,64 +7,76 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 
 ## Description
 
-This extension describes how a request denominated in one currency should be paid in another currency.
-
-When this extension exists, its currency overrides the request currency from a payment point of view.
-The request denomination currency is used to compute the amount in another currency at the payment.
+This extension describes how to compute the due amount for a request denominated in one currency that should
+be paid in another currency. The extension can be used to describe the exchange mechanisms for many possible 
+currencies.
 
 The typical scenario is a request denominated in fiat and paid in ERC20.
+
+When this extension exists, it defines the **currencies that are accepted as a way to settle the request, 
+overriding the request currency from that perspective.**
+
+The exchange rate is expected to be calculated upon payment. The exchange rate is expected to fluctuate 
+during the payment settlement, so the extension documents a rate timeframe validity.
 
 As a payment context, many triplets of oracle, currency and timeframe can be provided in order to describe:
 * Before payment: what are the possible payment currencies and how to compute corresponding amounts
 * After payment: how to compare payments in one currency with a balance in another currency
 
-The version 0.1.0 is not designed to handle properly multiple payments, although it allows their detection
-and to compute a balance that is very close to the one payers and payee expect.
+The version 0.1.0 is not designed to properly support multiple payments, although it allows to compute a 
+balance that is very close to the one payer and payee expect.
 
 ## Properties
 
-| Property                        | Type   | Description                                    | Requirement   |
-|---------------------------------|--------|------------------------------------------------|---------------|
-| **id**                          | String | constant value: "pc-exchange-rate"             | **Mandatory** |
-| **type**                        | String | constant value: "paymentContext"               | **Mandatory** |
-| **version**                     | String | constant value: "0.1.0"                        | **Mandatory** |
-| **events**                      | Array  | List of the actions performed by the extension | **Mandatory** |
-| **values**                      | Object |                                                |               |
-| **values.paymentContextOption** | Array  | List of payment context options                | **Mandatory** |
+| Property                         | Type   | Description                                    | Requirement   |
+|----------------------------------|--------|------------------------------------------------|---------------|
+| **id**                           | String | constant value: "pc-exchange-rate"             | **Mandatory** |
+| **type**                         | String | constant value: "paymentContext"               | **Mandatory** |
+| **version**                      | String | constant value: "0.1.0"                        | **Mandatory** |
+| **values**                       | Object |                                                |               |
+| **values.paymentContextOptions** | Array  | List of payment context options                | **Mandatory** |
 
 ### paymentContextOption
 
-| Property             | Type     | Description                               | Requirement   |
-| **values.oracle**    | String   | TODO:how can that be identified properly? | **Mandatory** |
-| **values.timeframe** | Integer  | Exchange rate timespan                    | **Mandatory** |
-| **values.currency**  | Currency | Currency of the expected amount           | **Mandatory** |
+Each payment context option describes the timeframe and oracle that should be used to compute the exchange 
+rate between the request currency and the option currency.
+
+| Property      | Type      | Description                                    | Requirement   |
+|---------------|-----------|------------------------------------------------|---------------|
+| **oracle**    | String    | Precise identifier, such as the oracle API URL | **Mandatory** |
+| **timeframe** | Integer   | Exchange rate timespan in seconds              | **Mandatory** |
+| **currency**  | ICurrency | Currency of the expected amount                | **Mandatory** |
 
 ---
 
 ## Interpretation
 
-When this extension is present at least once, the request payment should be made in one of the exchange rate
-extensions currencies.
+When this extension is present, payments in the request payment should be ignored.
 
 ### To initiate a payment
 
-The first step for payment initation is to pick one `values.currency` and its related exchange rate extension.
-There should be a payment network for this currency bound to the request, to get required details.
+The first step for payment initation is to pick one `values.paymentContextOptions.currency`, and its related
+`oracle` and `timeframe`.
+There should be a payment network for this `currency` bound to the request, describing the payment details.
 
-For the selected currency, the payment processor should look at the exchange rate given by the `values.oracle`.
-Once the exchange rate is fetched, the payment processor has a maximum `values.timeframe`to execute the payment, 
-in seconds. The timeframe will be computed based on the payment transaction datetime, so the payment processor 
-should anticipate network delays by adding a time margin.
+For the selected `currency`, a payment processor should look at the exchange rate given by the `oracle`.
+Once the exchange rate is fetched, the payment processor has a maximum `timeframe`to execute the payment, 
+in seconds. The timeframe will determine the exchange rate and payment validity based on the payment transaction 
+datetime, so payment processors should anticipate network delays by adding a time margin.
 
 ### To detect payments
 
 #### Standard case: one payment
 
-The first step is to detect the payment as described in the payment network extensions.
+The first step is to detect the payment as described in the payment network extension.
 
-If one payment is detected, we can compute an observed exchange rate, that we can compare to the oracle rate.
-The observed rate should be between the minimum and maximum oracle exchange rate of the period:
+If one payment is detected, we can compute an *observed exchange rate*, that we can compare to the oracle rate.
+The *observed rate* should be between the minimum and maximum oracle exchange rate of the period:
 `[paymentDateTime - values.timeframe, paymentDateTime]`.
+
+If the *observed exchange rate* is outside of the oracle exchange rate range, and if that lets the request 
+under-paid, payment processors should compute the due payment by considering the exchange rate given by the 
+`oracle` at the exact payment date and time.
 
 #### Edge case: many payments
 
@@ -74,15 +86,13 @@ If several payments are detected, it is not possible to compute timeframe-based 
 value of the partial amount in request currency is unknown. If N payments are detected, the timeframe method can 
 only be applied to the Nth payment.
 
-For the (N-1) first payments, the only way is to compute the intermediate balances with the rate given by the oracle at
-the exact payment moment.
+For the (N-1) first payments, the only way is to compute the intermediate balances with the rate given by the oracle 
+at the exact payment moment.
 
-If several payments are detected and the balance is less than the expected amount, the outstanding amount should
-be calculated without the timeframe method. 
+After a partial payment, or if many partial payments do not add up to the expected amount, the outstanding amount 
+should be calculated without the timeframe method.
 
 ---
-
-<!-- WIP TODO starting from here everything comes from content-data -->
 
 ## Actions
 
@@ -90,34 +100,34 @@ be calculated without the timeframe method.
 
 #### Parameters
 
-|                            | Type   | Description                         | Requirement   |
-| -------------------------- | ------ | ----------------------------------- | ------------- |
-| **id**                     | String | constant value: "content-data"      | **Mandatory** |
-| **type**                   | String | constant value: "contentData"       | **Mandatory** |
-| **version**                | String | constant value: "0.1.0"             | **Mandatory** |
-| **parameters**             | Object |                                     |               |
-| **parameters.contentData** | Object | Content data to link to the request | **Mandatory** |
+| Property                             | Type   | Description                        | Requirement   |
+|--------------------------------------|--------|------------------------------------|---------------|
+| **id**                               | String | constant value: "pc-exchange-rate" | **Mandatory** |
+| **type**                             | String | constant value: "paymentContext"   | **Mandatory** |
+| **version**                          | String | constant value: "0.1.0"            | **Mandatory** |
+| **parameters**                       | Object |                                    |               |
+| **parameters.paymentContextOptions** | Array  | List of payment context options    | **Mandatory** |
 
 #### Conditions
 
-None.
+There should be only one way to convert a currency into the request currency, so one cannot add a second payment context
+option for a currency exchange already described. Only conflicting exchange options are ignored from the extension.
 
 #### Warnings
 
 None.
-TODO: somewhere define that you cannot link 2 pc for the same currency and the same request.
 
 #### Results
 
-A extension state is created with the following properties:
+The interpretation of a Creation action should create this extension state:
 
-|  Property              |  Value                        |
-| ---------------------- | ----------------------------- |
-| **id**                 | "content-data"                |
-| **type**               | "contentData"                 |
-| **version**            | "0.1.0"                       |
-| **values**             |                               |
-| **values.contentData** | `contentData` from parameters |
+|| Property                         | Value                                                                 |
+|----------------------------------|-----------------------------------------------------------------------|
+| **id**                           | "pc-exchange-rate"                                                    |
+| **type**                         | "paymentContext"                                                      |
+| **version**                      | "0.1.0"                                                               |
+| **values**                       |                                                                       |
+| **values.paymentContextOptions** | `paymentContextOptions` from parameters if given and under conditions |
 
 ---
 
