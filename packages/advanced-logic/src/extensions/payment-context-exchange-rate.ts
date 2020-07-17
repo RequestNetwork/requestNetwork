@@ -1,6 +1,7 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes, IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
+import { IPaymentContextOption } from '@requestnetwork/types/dist/extensions/pc-exchange-rate';
 
 /**
  * Implementation of the exchange rate extension
@@ -47,17 +48,37 @@ function applyActionToExtension(
   extensionsState: RequestLogicTypes.IExtensionStates,
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
+  actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
   // Only allowed actions are valid
   if (extensionAction.action !== ExtensionTypes.PcExchangeRate.ACTION.CREATE) {
     throw Error(`Unknown action: ${extensionAction.action}`);
   }
-
-  // The extension should be created with 3 parameters: oracle, timeframe and currency 
-  if (!extensionAction.parameters.oracle || !extensionAction.parameters.timeframe || !extensionAction.parameters.currency) {
-    throw Error('Extension payment-context-exchange-rate expects 3 parameters: oracle, timeframe, currency');
+  
+  if (requestState.state != RequestLogicTypes.STATE.CREATED) {
+    throw Error(`The request must not be accepted or declined`);
   }
+  if (!requestState.payee) {
+    throw Error(`The request must have a payee`);
+  }
+  if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
+    throw Error(`The signer must be the payee`);
+  }
+
+  extensionAction.parameters.paymentContextOptions.forEach((exchangeOption: IPaymentContextOption) => {
+    // The extension does not work with an exchange rate for the same currency
+    if (exchangeOption.currency == requestState.currency) {
+      throw Error('Extension payment-context-exchange-rate can only be used to exchange currencies that are different');
+
+    // The extension should be created with 3 parameters: oracle, timeframe and currency 
+    if (!exchangeOption.oracle || !exchangeOption.timeframe || !exchangeOption.currency) {
+      throw Error('Extension payment-context-exchange-rate expects 3 parameters: oracle, timeframe, currency');
+  }
+  }
+    
+  });
+
 
   // The extension is invalid if another pc-exchange-rate extension exists for the same oracle and currency
   /* TODO
@@ -65,11 +86,6 @@ function applyActionToExtension(
     throw Error('Extension payment-context-exchange-rate can only be used to exchange currencies that are different');
   }
   */
-  
-  // The extension does not work with an exchange rate for the same currency
-  if (requestState.currency == extensionAction.parameters.currency) {
-    throw Error('Extension payment-context-exchange-rate can only be used to exchange currencies that are different');
-  }
 
   // Deep copy to not mutate the input parameter
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);

@@ -4,7 +4,7 @@ import {
   RequestLogicTypes,
   SignatureTypes,
 } from '@requestnetwork/types';
-import { CURRENCY, ICurrency } from '@requestnetwork/types/dist/request-logic-types';
+import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 import { IValues, ICreationParameters } from '@requestnetwork/types/src/extensions/pc-exchange-rate';
 
 // payee id

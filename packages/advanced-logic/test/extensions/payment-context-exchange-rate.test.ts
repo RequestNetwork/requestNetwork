@@ -30,7 +30,8 @@ describe('extensions/payment-context-exchange-rate', () => {
       );
     });
         
-    it('cannot createCreationAction for an oracle-currency already described', () => {
+    it('cannot createCreationAction for an currency already described', () => {
+      // Actually the transaction should just be ignored
       const newExtensionState = exchangeRate.applyActionToExtension(
         // There already is a USDC-EUR payment context with the same oracle-currency duet
         TestData.pnpcUsdcState,
