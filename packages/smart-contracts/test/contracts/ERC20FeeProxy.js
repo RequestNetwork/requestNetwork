@@ -4,7 +4,7 @@ const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 
-contract.only('ERC20FeeProxy', function(accounts) {
+contract('ERC20FeeProxy', function(accounts) {
   const from = accounts[0];
   const to = accounts[1];
   const otherGuy = accounts[2];
