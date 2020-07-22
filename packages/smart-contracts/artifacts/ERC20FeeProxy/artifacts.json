@@ -1,0 +1,12 @@
+{
+  "lastVersion": "0.1.0",
+  "0.1.0": {
+    "artifact": "0.1.0.json",
+    "deployment": {
+      "private": {
+        "address": "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+        "creationBlockNumber": 0
+      }
+    }
+  }
+}
