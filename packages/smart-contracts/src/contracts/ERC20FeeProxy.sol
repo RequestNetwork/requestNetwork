@@ -43,10 +43,12 @@ contract ERC20FeeProxy {
     {
     ERC20 erc20 = ERC20(_tokenAddress);
     require(erc20.transferFrom(msg.sender, _to, _amount), "payment transferFrom() failed");
-    require(
-      erc20.transferFrom(msg.sender, _feeAddress, _feeAmount),
-      "fee transferFrom() failed"
-    );
+    if (_feeAmount > 0) {
+      require(
+        erc20.transferFrom(msg.sender, _feeAddress, _feeAmount),
+        "fee transferFrom() failed"
+      );
+    }
     emit TransferWithReferenceAndFee(
       _tokenAddress,
       _to,

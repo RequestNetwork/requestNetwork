@@ -45,11 +45,11 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 TODO: [See smart contract source]()
 
-| Network | Contract Address |
-| ------- | ---------------- |
-| Mainnet | TODO             |
-| Rinkeby | TODO             |
-| Local   | TODO             |
+| Network | Contract Address                           |
+| ------- | ------------------------------------------ |
+| Mainnet | TODO                                       |
+| Rinkeby | TODO                                       |
+| Local   | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
 
 ## Properties
 
@@ -278,15 +278,11 @@ This action is valid, if:
 
 - The extension state with the id "pn-erc20-fee-proxy-contract" exists
 - The signer is the `payee`
-- The extension property `feeAmount` is undefined
+- The extension property `feeAmount` is undefined or represents an integer greater than zero
 
 ##### Warnings
 
-This action must trigger the warnings:
-
-| Warning                  | Condition                                  |
-| ------------------------ | ------------------------------------------ |
-| "feeAmount is negative"  | If `feeAmount` value is a negative integer |
+None.
 
 ##### Results
 
