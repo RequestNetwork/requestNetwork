@@ -152,7 +152,7 @@ contract('ERC20FeeProxy', function(accounts) {
     );
   });
 
-  it.only('no fee transfer if amount is 0', async function() {
+  it('no fee transfer if amount is 0', async function() {
     await testERC20.approve(erc20FeeProxy.address, '100', { from });
     const fromOldBalance = await testERC20.balanceOf(from);
     const toOldBalance = await testERC20.balanceOf(to);

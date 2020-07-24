@@ -230,7 +230,8 @@ function applyActionToExtension(
   }
 
   if (extensionAction.action === ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS) {
-    copiedExtensionState[extensionAction.id] = applyAddPaymentAddress(
+    copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddPaymentAddress(
+      isValidAddress,
       copiedExtensionState[extensionAction.id],
       extensionAction,
       requestState,
@@ -242,7 +243,8 @@ function applyActionToExtension(
   }
 
   if (extensionAction.action === ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS) {
-    copiedExtensionState[extensionAction.id] = applyAddRefundAddress(
+    copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddRefundAddress(
+      isValidAddress,
       copiedExtensionState[extensionAction.id],
       extensionAction,
       requestState,
@@ -347,102 +349,6 @@ function applyCreation(
     },
     version: extensionAction.version,
   };
-}
-
-/**
- * Applies an add payment address extension action
- *
- * @param extensionState previous state of the extension
- * @param extensionAction action to apply
- * @param requestState request state read-only
- * @param actionSigner identity of the signer
- * @param timestamp action timestamp
- *
- * @returns state of the extension updated
- */
-function applyAddPaymentAddress(
-  extensionState: ExtensionTypes.IState,
-  extensionAction: ExtensionTypes.IAction,
-  requestState: RequestLogicTypes.IRequest,
-  actionSigner: IdentityTypes.IIdentity,
-  timestamp: number,
-): ExtensionTypes.IState {
-  if (
-    extensionAction.parameters.paymentAddress &&
-    !isValidAddress(extensionAction.parameters.paymentAddress)
-  ) {
-    throw Error('paymentAddress is not a valid address');
-  }
-  if (extensionState.values.paymentAddress) {
-    throw Error(`Payment address already given`);
-  }
-  if (!requestState.payee) {
-    throw Error(`The request must have a payee`);
-  }
-  if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-    throw Error(`The signer must be the payee`);
-  }
-
-  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
-
-  // update payment address
-  copiedExtensionState.values.paymentAddress = extensionAction.parameters.paymentAddress;
-  // update events
-  copiedExtensionState.events.push({
-    name: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-    parameters: { paymentAddress: extensionAction.parameters.paymentAddress },
-    timestamp,
-  });
-
-  return copiedExtensionState;
-}
-
-/**
- * Applies an add refund address extension action
- *
- * @param extensionState previous state of the extension
- * @param extensionAction action to apply
- * @param requestState request state read-only
- * @param actionSigner identity of the signer
- * @param timestamp action timestamp
- *
- * @returns state of the extension updated
- */
-function applyAddRefundAddress(
-  extensionState: ExtensionTypes.IState,
-  extensionAction: ExtensionTypes.IAction,
-  requestState: RequestLogicTypes.IRequest,
-  actionSigner: IdentityTypes.IIdentity,
-  timestamp: number,
-): ExtensionTypes.IState {
-  if (
-    extensionAction.parameters.refundAddress &&
-    !isValidAddress(extensionAction.parameters.refundAddress)
-  ) {
-    throw Error('refundAddress is not a valid address');
-  }
-  if (extensionState.values.refundAddress) {
-    throw Error(`Refund address already given`);
-  }
-  if (!requestState.payer) {
-    throw Error(`The request must have a payer`);
-  }
-  if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-    throw Error(`The signer must be the payer`);
-  }
-
-  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
-
-  // update refund address
-  copiedExtensionState.values.refundAddress = extensionAction.parameters.refundAddress;
-  // update events
-  copiedExtensionState.events.push({
-    name: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-    parameters: { refundAddress: extensionAction.parameters.refundAddress },
-    timestamp,
-  });
-
-  return copiedExtensionState;
 }
 
 /**

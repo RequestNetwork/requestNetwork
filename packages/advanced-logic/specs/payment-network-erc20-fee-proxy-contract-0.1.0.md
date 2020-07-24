@@ -49,7 +49,7 @@ TODO: [See smart contract source]()
 | ------- | ------------------------------------------ |
 | Mainnet | TODO                                       |
 | Rinkeby | TODO                                       |
-| Local   | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
+| Private | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
 
 ## Properties
 
@@ -278,7 +278,7 @@ This action is valid, if:
 
 - The extension state with the id "pn-erc20-fee-proxy-contract" exists
 - The signer is the `payee`
-- The extension property `feeAmount` is undefined or represents an integer greater than zero
+- The extension property `feeAmount` is undefined or represents an integer greater or equal than zero
 
 ##### Warnings
 
