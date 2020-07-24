@@ -69,10 +69,6 @@ contract('ERC20FeeProxy', function(accounts) {
     const toNewBalance = await testERC20.balanceOf(to);
     const feeNewBalance = await testERC20.balanceOf(feeAddress);
 
-    console.log(`fromBalance ${fromOldBalance.toNumber()} -> ${fromNewBalance.toNumber()}`);
-    console.log(`toBalance ${toOldBalance.toNumber()} -> ${toNewBalance.toNumber()}`);
-    console.log(`feeBalance ${feeOldBalance.toNumber()} -> ${feeNewBalance.toNumber()}`);
-
     // Check balance changes
     expect(fromNewBalance.toNumber()).to.equals(fromOldBalance.toNumber() - 102);
     expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber() + 100);
@@ -150,5 +146,43 @@ contract('ERC20FeeProxy', function(accounts) {
         },
       ),
     );
+  });
+
+  it('no fee transfer if amount is 0', async function() {
+    await testERC20.approve(erc20FeeProxy.address, '100', { from });
+    const fromOldBalance = await testERC20.balanceOf(from);
+    const toOldBalance = await testERC20.balanceOf(to);
+    const feeOldBalance = await testERC20.balanceOf(feeAddress);
+
+    let { logs } = await erc20FeeProxy.transferFromWithReferenceAndFee(
+      testERC20.address,
+      to,
+      '100',
+      referenceExample,
+      '0',
+      feeAddress,
+      {
+        from,
+      },
+    );
+
+    const fromNewBalance = await testERC20.balanceOf(from);
+    const toNewBalance = await testERC20.balanceOf(to);
+    const feeNewBalance = await testERC20.balanceOf(feeAddress);
+
+    // Check balance changes
+    expect(fromNewBalance.toNumber()).to.equals(fromOldBalance.toNumber() - 100);
+    expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber() + 100);
+    expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber());
+
+    // transferReference indexes the event log, therefore the keccak256 is stored
+    expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
+      tokenAddress: testERC20.address,
+      to,
+      amount: '100',
+      paymentReference: ethers.utils.keccak256(referenceExample),
+      feeAmount: '0',
+      feeAddress,
+    });
   });
 });

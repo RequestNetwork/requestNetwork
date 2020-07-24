@@ -7,6 +7,8 @@ import Utils from '@requestnetwork/utils';
  */
 export default {
   applyActionToExtension,
+  applyAddPaymentAddress,
+  applyAddRefundAddress,
   createAddPaymentAddressAction,
   createAddRefundAddressAction,
   createCreationAction,

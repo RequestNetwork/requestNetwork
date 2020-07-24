@@ -45,11 +45,11 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 TODO: [See smart contract source]()
 
-| Network | Contract Address |
-| ------- | ---------------- |
-| Mainnet | TODO             |
-| Rinkeby | TODO             |
-| Local   | TODO             |
+| Network | Contract Address                           |
+| ------- | ------------------------------------------ |
+| Mainnet | TODO                                       |
+| Rinkeby | TODO                                       |
+| Private | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
 
 ## Properties
 
@@ -221,7 +221,7 @@ The 'addRefundAddress' event:
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
 
-#### addFeeAddress
+#### addFee
 
 ##### Parameters
 
@@ -231,6 +231,7 @@ The 'addRefundAddress' event:
 | **action**                | String | Constant value: "addFeeAddress"               | **Mandatory** |
 | **parameters**            | Object |                                               |               |
 | **parameters.feeAddress** | String | Ethereum address for the fee payment          | **Mandatory** |
+| **parameters.feeAmount**  | String | The fee amount                                | **Mandatory** |
 
 ##### Conditions
 
@@ -239,6 +240,7 @@ This action is valid, if:
 - The extension state with the id "pn-erc20-fee-proxy-contract" exists
 - The signer is the `payee`
 - The extension property `feeAddress` is undefined
+- The extension property `feeAmount` is undefined or represents an integer greater or equal than zero
 
 ##### Warnings
 
@@ -248,62 +250,20 @@ None.
 
 An extension state is updated with the following properties:
 
-|  Property             |  Value                                          |
-| --------------------- | ----------------------------------------------- |
-| **values.feeAddress** | `feeAddress` from parameters                    |
-| **events**            | Add a 'feeAddress' event (see below) at its end |
+|  Property             |  Value                                   |
+| --------------------- | ---------------------------------------- |
+| **values.feeAddress** | `feeAddress` from parameters             |
+| **values.feeAmount**  | `feeAmount` from parameters              |
+| **events**            | Add a 'fee' event (see below) at its end |
 
-the 'addFeeAddress' event:
+the 'addFee' event:
 
 |  Property                 |  Value                          |
 | ------------------------- | ------------------------------- |
 | **name**                  | Constant value: "addFeeAddress" |
 | **parameters**            |                                 |
 | **parameters.feeAddress** | `feeAddress` from parameters    |
-
-#### addFeeAmount
-
-##### Parameters
-
-|                          | Type   | Description                                   | Requirement   |
-| ------------------------ | ------ | --------------------------------------------- | ------------- |
-| **id**                   | String | Constant value: "pn-erc20-fee-proxy-contract" | **Mandatory** |
-| **action**               | String | Constant value: "addFeeAmount"                | **Mandatory** |
-| **parameters**           | Object |                                               |               |
-| **parameters.feeAmount** | String | The fee amount                                | **Mandatory** |
-
-##### Conditions
-
-This action is valid, if:
-
-- The extension state with the id "pn-erc20-fee-proxy-contract" exists
-- The signer is the `payee`
-- The extension property `feeAmount` is undefined
-
-##### Warnings
-
-This action must trigger the warnings:
-
-| Warning                  | Condition                                  |
-| ------------------------ | ------------------------------------------ |
-| "feeAmount is negative"  | If `feeAmount` value is a negative integer |
-
-##### Results
-
-An extension state is updated with the following properties:
-
-|  Property            |  Value                                         |
-| -------------------- | ---------------------------------------------- |
-| **values.feeAmount** | `feeAmount` from parameters                    |
-| **events**           | Add a 'feeAmount' event (see below) at its end |
-
-the 'addFeeAmount' event:
-
-|  Property                |  Value                         |
-| ------------------------ | ------------------------------ |
-| **name**                 | Constant value: "addFeeAmount" |
-| **parameters**           |                                |
-| **parameters.feeAmount** | `feeAmount` from parameters    |
+| **parameters.feeAmount**  | `feeAmount` from parameters     |
 
 ---
 
