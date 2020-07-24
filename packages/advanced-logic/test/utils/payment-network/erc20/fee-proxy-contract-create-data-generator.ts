@@ -42,18 +42,11 @@ export const actionCreationOnlyRefund = {
   },
   version: '0.1.0',
 };
-export const actionCreationOnlyFeeAddress = {
+export const actionCreationOnlyFee = {
   action: 'create',
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     feeAddress,
-  },
-  version: '0.1.0',
-};
-export const actionCreationOnlyFeeAmount = {
-  action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-  parameters: {
     feeAmount,
   },
   version: '0.1.0',

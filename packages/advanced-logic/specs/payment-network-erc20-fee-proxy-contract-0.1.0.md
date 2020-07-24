@@ -221,7 +221,7 @@ The 'addRefundAddress' event:
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
 
-#### addFeeAddress
+#### addFee
 
 ##### Parameters
 
@@ -231,6 +231,7 @@ The 'addRefundAddress' event:
 | **action**                | String | Constant value: "addFeeAddress"               | **Mandatory** |
 | **parameters**            | Object |                                               |               |
 | **parameters.feeAddress** | String | Ethereum address for the fee payment          | **Mandatory** |
+| **parameters.feeAmount**  | String | The fee amount                                | **Mandatory** |
 
 ##### Conditions
 
@@ -239,45 +240,6 @@ This action is valid, if:
 - The extension state with the id "pn-erc20-fee-proxy-contract" exists
 - The signer is the `payee`
 - The extension property `feeAddress` is undefined
-
-##### Warnings
-
-None.
-
-##### Results
-
-An extension state is updated with the following properties:
-
-|  Property             |  Value                                          |
-| --------------------- | ----------------------------------------------- |
-| **values.feeAddress** | `feeAddress` from parameters                    |
-| **events**            | Add a 'feeAddress' event (see below) at its end |
-
-the 'addFeeAddress' event:
-
-|  Property                 |  Value                          |
-| ------------------------- | ------------------------------- |
-| **name**                  | Constant value: "addFeeAddress" |
-| **parameters**            |                                 |
-| **parameters.feeAddress** | `feeAddress` from parameters    |
-
-#### addFeeAmount
-
-##### Parameters
-
-|                          | Type   | Description                                   | Requirement   |
-| ------------------------ | ------ | --------------------------------------------- | ------------- |
-| **id**                   | String | Constant value: "pn-erc20-fee-proxy-contract" | **Mandatory** |
-| **action**               | String | Constant value: "addFeeAmount"                | **Mandatory** |
-| **parameters**           | Object |                                               |               |
-| **parameters.feeAmount** | String | The fee amount                                | **Mandatory** |
-
-##### Conditions
-
-This action is valid, if:
-
-- The extension state with the id "pn-erc20-fee-proxy-contract" exists
-- The signer is the `payee`
 - The extension property `feeAmount` is undefined or represents an integer greater or equal than zero
 
 ##### Warnings
@@ -288,18 +250,20 @@ None.
 
 An extension state is updated with the following properties:
 
-|  Property            |  Value                                         |
-| -------------------- | ---------------------------------------------- |
-| **values.feeAmount** | `feeAmount` from parameters                    |
-| **events**           | Add a 'feeAmount' event (see below) at its end |
+|  Property             |  Value                                   |
+| --------------------- | ---------------------------------------- |
+| **values.feeAddress** | `feeAddress` from parameters             |
+| **values.feeAmount**  | `feeAmount` from parameters              |
+| **events**            | Add a 'fee' event (see below) at its end |
 
-the 'addFeeAmount' event:
+the 'addFee' event:
 
-|  Property                |  Value                         |
-| ------------------------ | ------------------------------ |
-| **name**                 | Constant value: "addFeeAmount" |
-| **parameters**           |                                |
-| **parameters.feeAmount** | `feeAmount` from parameters    |
+|  Property                 |  Value                          |
+| ------------------------- | ------------------------------- |
+| **name**                  | Constant value: "addFeeAddress" |
+| **parameters**            |                                 |
+| **parameters.feeAddress** | `feeAddress` from parameters    |
+| **parameters.feeAmount**  | `feeAmount` from parameters     |
 
 ---
 

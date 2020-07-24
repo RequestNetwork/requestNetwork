@@ -39,11 +39,11 @@ contract ERC20FeeProxy {
     bytes calldata _paymentReference,
     uint256 _feeAmount,
     address _feeAddress
-    ) external 
+    ) external
     {
     ERC20 erc20 = ERC20(_tokenAddress);
     require(erc20.transferFrom(msg.sender, _to, _amount), "payment transferFrom() failed");
-    if (_feeAmount > 0) {
+    if (_feeAmount > 0 && _feeAddress != address(0)) {
       require(
         erc20.transferFrom(msg.sender, _feeAddress, _feeAmount),
         "fee transferFrom() failed"

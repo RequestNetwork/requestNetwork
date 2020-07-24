@@ -32,17 +32,11 @@ export const actionAddRefundAddress = {
     refundAddress,
   },
 };
-export const actionAddFeeAddress = {
-  action: FEE_ACTIONS.ADD_FEE_ADDRESS,
+export const actionAddFee = {
+  action: FEE_ACTIONS.ADD_FEE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     feeAddress,
-  },
-};
-export const actionAddFeeAmount = {
-  action: FEE_ACTIONS.ADD_FEE_AMOUNT,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-  parameters: {
     feeAmount,
   },
 };
@@ -99,7 +93,7 @@ export const extensionStateWithRefundAfterCreation = {
   },
 };
 
-export const extensionStateWithFeeAddressAfterCreation = {
+export const extensionStateWithFeeAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
@@ -108,33 +102,9 @@ export const extensionStateWithFeeAddressAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
       {
-        name: FEE_ACTIONS.ADD_FEE_ADDRESS,
+        name: FEE_ACTIONS.ADD_FEE,
         parameters: {
           feeAddress,
-        },
-        timestamp: arbitraryTimestamp,
-      },
-    ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {
-      feeAddress,
-    },
-    version: '0.1.0',
-  },
-};
-
-export const extensionStateWithFeeAmountAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT as string]: {
-    events: [
-      {
-        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
-        parameters: {},
-        timestamp: arbitraryTimestamp,
-      },
-      {
-        name: FEE_ACTIONS.ADD_FEE_AMOUNT,
-        parameters: {
           feeAmount,
         },
         timestamp: arbitraryTimestamp,
@@ -143,6 +113,7 @@ export const extensionStateWithFeeAmountAfterCreation = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
+      feeAddress,
       feeAmount,
     },
     version: '0.1.0',
@@ -193,7 +164,7 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyThenAddFeeAddress: RequestLogicTypes.IRequest = {
+export const requestStateCreatedEmptyThenAddFee: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
@@ -219,50 +190,8 @@ export const requestStateCreatedEmptyThenAddFeeAddress: RequestLogicTypes.IReque
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateWithFeeAddressAfterCreation,
-  extensionsData: [TestDataCreate.actionCreationEmpty, actionAddFeeAddress],
-  payee: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payeeRaw.address,
-  },
-  payer: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payerRaw.address,
-  },
-  requestId: TestData.requestIdMock,
-  state: RequestLogicTypes.STATE.CREATED,
-  timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
-};
-
-export const requestStateCreatedEmptyThenAddFeeAmount: RequestLogicTypes.IRequest = {
-  creator: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payeeRaw.address,
-  },
-  currency: {
-    network: 'mainnet',
-    type: RequestLogicTypes.CURRENCY.ERC20,
-    value: '0x6b175474e89094c44da98b954eedeac495271d0f', // DAI
-  },
-  events: [
-    {
-      actionSigner: {
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: TestData.payeeRaw.address,
-      },
-      name: RequestLogicTypes.ACTION_NAME.CREATE,
-      parameters: {
-        expectedAmount: '123400000000000000',
-        extensionsDataLength: 2,
-        isSignedRequest: false,
-      },
-      timestamp: arbitraryTimestamp,
-    },
-  ],
-  expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateWithFeeAmountAfterCreation,
-  extensionsData: [TestDataCreate.actionCreationEmpty, actionAddFeeAmount],
+  extensions: extensionStateWithFeeAfterCreation,
+  extensionsData: [TestDataCreate.actionCreationEmpty, actionAddFee],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,

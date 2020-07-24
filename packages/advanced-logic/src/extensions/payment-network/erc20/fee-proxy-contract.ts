@@ -15,10 +15,7 @@ interface IFeeReferenceBased extends ExtensionTypes.IExtension {
   createAddRefundAddressAction: (
     creationParameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ) => ExtensionTypes.IAction;
-  createAddFeeAddressAction: (
-    creationParameters: IAddFeeAddressParameters,
-  ) => ExtensionTypes.IAction;
-  createAddFeeAmountAction: (creationParameters: IAddFeeAmountParameters) => ExtensionTypes.IAction;
+  createAddFeeAction: (creationParameters: IAddFeeParameters) => ExtensionTypes.IAction;
   isValidAddress: (address: string) => boolean;
 }
 
@@ -28,20 +25,15 @@ interface ICreationParameters extends ExtensionTypes.PnReferenceBased.ICreationP
   feeAmount?: string;
 }
 
-/** Parameters for the addFeeAddress action */
-interface IAddFeeAddressParameters {
+/** Parameters for the addFee action */
+interface IAddFeeParameters {
   feeAddress: string;
-}
-
-/** Parameters for the addFeeAmount action */
-interface IAddFeeAmountParameters {
   feeAmount: string;
 }
 
 /** Actions specific to the fee payment networks */
 export enum FEE_ACTIONS {
-  ADD_FEE_ADDRESS = 'addFeeAddress',
-  ADD_FEE_AMOUNT = 'addFeeAmount',
+  ADD_FEE = 'addFee',
 }
 
 /**
@@ -54,8 +46,7 @@ export enum FEE_ACTIONS {
  */
 const erc20FeeProxyContract: IFeeReferenceBased = {
   applyActionToExtension,
-  createAddFeeAddressAction,
-  createAddFeeAmountAction,
+  createAddFeeAction,
   createAddPaymentAddressAction,
   createAddRefundAddressAction,
   createCreationAction,
@@ -86,6 +77,13 @@ function createCreationAction(creationParameters: ICreationParameters): Extensio
 
   if (creationParameters.feeAmount && !Utils.amount.isValid(creationParameters.feeAmount)) {
     throw Error('feeAmount is not a valid amount');
+  }
+
+  if (!creationParameters.feeAmount && creationParameters.feeAddress) {
+    throw Error('feeAmount requires feeAddress');
+  }
+  if (creationParameters.feeAmount && !creationParameters.feeAddress) {
+    throw Error('feeAddress requires feeAmount');
   }
 
   return ReferenceBased.createCreationAction(
@@ -144,45 +142,32 @@ function createAddRefundAddressAction(
 /**
  * Creates the extensionsData to add a fee address
  *
- * @param addFeeAddressParameters extensions parameters to create
+ * @param addFeeParameters extensions parameters to create
  *
  * @returns IAction the extensionsData to be stored in the request
  */
-function createAddFeeAddressAction(
-  addFeeAddressParameters: IAddFeeAddressParameters,
-): ExtensionTypes.IAction {
-  if (addFeeAddressParameters.feeAddress && !isValidAddress(addFeeAddressParameters.feeAddress)) {
+function createAddFeeAction(addFeeParameters: IAddFeeParameters): ExtensionTypes.IAction {
+  if (addFeeParameters.feeAddress && !isValidAddress(addFeeParameters.feeAddress)) {
     throw Error('feeAddress is not a valid ethereum address');
   }
 
-  return {
-    action: FEE_ACTIONS.ADD_FEE_ADDRESS,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-    parameters: addFeeAddressParameters,
-  };
-}
-
-/**
- * Creates the extensionsData to add a fee amount
- *
- * @param addFeeAddressParameters extensions parameters to create
- *
- * @returns IAction the extensionsData to be stored in the request
- */
-function createAddFeeAmountAction(
-  addFeeAmountParameters: IAddFeeAmountParameters,
-): ExtensionTypes.IAction {
-  if (addFeeAmountParameters.feeAmount && !Utils.amount.isValid(addFeeAmountParameters.feeAmount)) {
+  if (addFeeParameters.feeAmount && !Utils.amount.isValid(addFeeParameters.feeAmount)) {
     throw Error('feeAmount is not a valid amount');
   }
 
+  if (!addFeeParameters.feeAmount && addFeeParameters.feeAddress) {
+    throw Error('feeAmount requires feeAddress');
+  }
+  if (addFeeParameters.feeAmount && !addFeeParameters.feeAddress) {
+    throw Error('feeAddress requires feeAmount');
+  }
+
   return {
-    action: FEE_ACTIONS.ADD_FEE_AMOUNT,
+    action: FEE_ACTIONS.ADD_FEE,
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-    parameters: addFeeAmountParameters,
+    parameters: addFeeParameters,
   };
 }
-
 /**
  * Applies the extension action to the request
  * Is called to interpret the extensions data when applying the transaction
@@ -255,20 +240,8 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === FEE_ACTIONS.ADD_FEE_ADDRESS) {
-    copiedExtensionState[extensionAction.id] = applyAddFeeAddress(
-      copiedExtensionState[extensionAction.id],
-      extensionAction,
-      requestState,
-      actionSigner,
-      timestamp,
-    );
-
-    return copiedExtensionState;
-  }
-
-  if (extensionAction.action === FEE_ACTIONS.ADD_FEE_AMOUNT) {
-    copiedExtensionState[extensionAction.id] = applyAddFeeAmount(
+  if (extensionAction.action === FEE_ACTIONS.ADD_FEE) {
+    copiedExtensionState[extensionAction.id] = applyAddFee(
       copiedExtensionState[extensionAction.id],
       extensionAction,
       requestState,
@@ -352,7 +325,7 @@ function applyCreation(
 }
 
 /**
- * Applies an add fee address extension action
+ * Applies an add fee address and amount extension action
  *
  * @param extensionState previous state of the extension
  * @param extensionAction action to apply
@@ -362,7 +335,7 @@ function applyCreation(
  *
  * @returns state of the extension updated
  */
-function applyAddFeeAddress(
+function applyAddFee(
   extensionState: ExtensionTypes.IState,
   extensionAction: ExtensionTypes.IAction,
   requestState: RequestLogicTypes.IRequest,
@@ -378,45 +351,6 @@ function applyAddFeeAddress(
   if (extensionState.values.feeAddress) {
     throw Error(`Fee address already given`);
   }
-  if (!requestState.payee) {
-    throw Error(`The request must have a payee`);
-  }
-  if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-    throw Error(`The signer must be the payee`);
-  }
-
-  const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
-
-  // update fee address
-  copiedExtensionState.values.feeAddress = extensionAction.parameters.feeAddress;
-  // update events
-  copiedExtensionState.events.push({
-    name: FEE_ACTIONS.ADD_FEE_ADDRESS,
-    parameters: { feeAddress: extensionAction.parameters.feeAddress },
-    timestamp,
-  });
-
-  return copiedExtensionState;
-}
-
-/**
- * Applies an add fee amount extension action
- *
- * @param extensionState previous state of the extension
- * @param extensionAction action to apply
- * @param requestState request state read-only
- * @param actionSigner identity of the signer
- * @param timestamp action timestamp
- *
- * @returns state of the extension updated
- */
-function applyAddFeeAmount(
-  extensionState: ExtensionTypes.IState,
-  extensionAction: ExtensionTypes.IAction,
-  requestState: RequestLogicTypes.IRequest,
-  actionSigner: IdentityTypes.IIdentity,
-  timestamp: number,
-): ExtensionTypes.IState {
   if (
     extensionAction.parameters.feeAmount &&
     !Utils.amount.isValid(extensionAction.parameters.feeAmount)
@@ -435,12 +369,17 @@ function applyAddFeeAmount(
 
   const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
-  // update fee amount
+  // update fee address and amount
+  copiedExtensionState.values.feeAddress = extensionAction.parameters.feeAddress;
   copiedExtensionState.values.feeAmount = extensionAction.parameters.feeAmount;
+
   // update events
   copiedExtensionState.events.push({
-    name: FEE_ACTIONS.ADD_FEE_AMOUNT,
-    parameters: { feeAmount: extensionAction.parameters.feeAmount },
+    name: FEE_ACTIONS.ADD_FEE,
+    parameters: {
+      feeAddress: extensionAction.parameters.feeAddress,
+      feeAmount: extensionAction.parameters.feeAmount,
+    },
     timestamp,
   });
 
