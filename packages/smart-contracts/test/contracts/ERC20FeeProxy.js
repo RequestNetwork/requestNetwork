@@ -69,10 +69,6 @@ contract('ERC20FeeProxy', function(accounts) {
     const toNewBalance = await testERC20.balanceOf(to);
     const feeNewBalance = await testERC20.balanceOf(feeAddress);
 
-    console.log(`fromBalance ${fromOldBalance.toNumber()} -> ${fromNewBalance.toNumber()}`);
-    console.log(`toBalance ${toOldBalance.toNumber()} -> ${toNewBalance.toNumber()}`);
-    console.log(`feeBalance ${feeOldBalance.toNumber()} -> ${feeNewBalance.toNumber()}`);
-
     // Check balance changes
     expect(fromNewBalance.toNumber()).to.equals(fromOldBalance.toNumber() - 102);
     expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber() + 100);
