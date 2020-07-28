@@ -4,8 +4,6 @@ import * as TestData from '../../test-data-generator';
 
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { FEE_ACTIONS } from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
-
 export const arbitraryTimestamp = 1544426030;
 
 // ---------------------------------------------------------------------
@@ -19,21 +17,21 @@ export const invalidAddress = '0x not and address';
 export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
-  action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
+  action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
-  action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
+  action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     refundAddress,
   },
 };
 export const actionAddFee = {
-  action: FEE_ACTIONS.ADD_FEE,
+  action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     feeAddress,
@@ -47,12 +45,12 @@ export const extensionStateWithPaymentAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         parameters: {
           paymentAddress,
         },
@@ -72,12 +70,12 @@ export const extensionStateWithRefundAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         parameters: {
           refundAddress,
         },
@@ -97,12 +95,12 @@ export const extensionStateWithFeeAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
-        name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: FEE_ACTIONS.ADD_FEE,
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
         parameters: {
           feeAddress,
           feeAmount,

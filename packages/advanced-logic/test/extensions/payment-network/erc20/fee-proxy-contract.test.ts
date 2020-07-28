@@ -2,9 +2,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import 'mocha';
 
-import erc20FeeProxyContract, {
-  FEE_ACTIONS,
-} from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
+import erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
 
 import { expect } from 'chai';
 
@@ -175,7 +173,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
         'extension data is wrong',
       ).to.deep.equal({
-        action: FEE_ACTIONS.ADD_FEE,
+        action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
