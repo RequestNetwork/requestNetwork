@@ -6,36 +6,6 @@ const CURRENT_VERSION = '0.1.0';
 
 const walletAddressValidator = require('wallet-address-validator');
 
-/** Fee reference-based payment network extension interface */
-interface IFeeReferenceBased extends ExtensionTypes.IExtension {
-  createCreationAction: (creationParameters: ICreationParameters) => ExtensionTypes.IAction;
-  createAddPaymentAddressAction: (
-    creationParameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
-  ) => ExtensionTypes.IAction;
-  createAddRefundAddressAction: (
-    creationParameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
-  ) => ExtensionTypes.IAction;
-  createAddFeeAction: (creationParameters: IAddFeeParameters) => ExtensionTypes.IAction;
-  isValidAddress: (address: string) => boolean;
-}
-
-/** Parameters for the creation action */
-interface ICreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters {
-  feeAddress?: string;
-  feeAmount?: string;
-}
-
-/** Parameters for the addFee action */
-interface IAddFeeParameters {
-  feeAddress: string;
-  feeAmount: string;
-}
-
-/** Actions specific to the fee payment networks */
-export enum FEE_ACTIONS {
-  ADD_FEE = 'addFee',
-}
-
 /**
  * Implementation of the payment network to pay in ERC20, including third-party fees payment, based on a reference provided to a proxy contract.
  * With this extension, one request can have three Ethereum addresses (one for payment, one for fees payment, and one for refund)
@@ -44,7 +14,7 @@ export enum FEE_ACTIONS {
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-const erc20FeeProxyContract: IFeeReferenceBased = {
+const erc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = {
   applyActionToExtension,
   createAddFeeAction,
   createAddPaymentAddressAction,
@@ -62,7 +32,9 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  *
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
-function createCreationAction(creationParameters: ICreationParameters): ExtensionTypes.IAction {
+function createCreationAction(
+  creationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
+): ExtensionTypes.IAction {
   if (creationParameters.paymentAddress && !isValidAddress(creationParameters.paymentAddress)) {
     throw Error('paymentAddress is not a valid ethereum address');
   }
@@ -146,7 +118,9 @@ function createAddRefundAddressAction(
  *
  * @returns IAction the extensionsData to be stored in the request
  */
-function createAddFeeAction(addFeeParameters: IAddFeeParameters): ExtensionTypes.IAction {
+function createAddFeeAction(
+  addFeeParameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
+): ExtensionTypes.IAction {
   if (addFeeParameters.feeAddress && !isValidAddress(addFeeParameters.feeAddress)) {
     throw Error('feeAddress is not a valid ethereum address');
   }
@@ -163,7 +137,7 @@ function createAddFeeAction(addFeeParameters: IAddFeeParameters): ExtensionTypes
   }
 
   return {
-    action: FEE_ACTIONS.ADD_FEE,
+    action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
     parameters: addFeeParameters,
   };
@@ -199,7 +173,7 @@ function applyActionToExtension(
 
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
-  if (extensionAction.action === ExtensionTypes.PnReferenceBased.ACTION.CREATE) {
+  if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
     if (requestState.extensions[extensionAction.id]) {
       throw Error(`This extension has already been created`);
     }
@@ -214,7 +188,7 @@ function applyActionToExtension(
     throw Error(`The extension should be created before receiving any other action`);
   }
 
-  if (extensionAction.action === ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS) {
+  if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS) {
     copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddPaymentAddress(
       isValidAddress,
       copiedExtensionState[extensionAction.id],
@@ -227,7 +201,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS) {
+  if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS) {
     copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddRefundAddress(
       isValidAddress,
       copiedExtensionState[extensionAction.id],
@@ -240,7 +214,7 @@ function applyActionToExtension(
     return copiedExtensionState;
   }
 
-  if (extensionAction.action === FEE_ACTIONS.ADD_FEE) {
+  if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE) {
     copiedExtensionState[extensionAction.id] = applyAddFee(
       copiedExtensionState[extensionAction.id],
       extensionAction,
@@ -375,7 +349,7 @@ function applyAddFee(
 
   // update events
   copiedExtensionState.events.push({
-    name: FEE_ACTIONS.ADD_FEE,
+    name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
     parameters: {
       feeAddress: extensionAction.parameters.feeAddress,
       feeAmount: extensionAction.parameters.feeAmount,
