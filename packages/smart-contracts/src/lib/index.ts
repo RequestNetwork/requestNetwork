@@ -7,6 +7,7 @@ import * as requestHashSubmitterArtifact from './requestHashSubmitterArtifact';
 export {
   erc20FeeProxyArtifact,
   ethereumProxyArtifact,
+  erc20FeeProxyArtifact,
   erc20ProxyArtifact,
   requestHashStorageArtifact,
   requestHashSubmitterArtifact,

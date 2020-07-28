@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
   'event TransferWithReference(address tokenAddress,address to,uint256 amount,bytes indexed paymentReference)',
+  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress);',
 ];
 
 /**
@@ -63,6 +64,21 @@ export default class ProxyERC20InfoRetriever
     // Get the event logs
     const logs = await this.provider.getLogs(filter);
 
+    // Create a filter to find all the Fee Transfer logs for the toAddress
+    const feeFilter = this.contractProxy.filters.TransferWithReferenceAndFee(
+      null,
+      null,
+      null,
+      '0x' + this.paymentReference,
+      null,
+      null,
+    ) as ethers.providers.Filter;
+    filter.fromBlock = this.proxyCreationBlockNumber;
+    filter.toBlock = 'latest';
+
+    // Get the event logs
+    logs.concat(await this.provider.getLogs(feeFilter));
+
     // Parses, filters and creates the events from the logs of the proxy contract
     const eventPromises = logs
       // Parses the logs
@@ -83,6 +99,8 @@ export default class ProxyERC20InfoRetriever
         name: this.eventName,
         parameters: {
           block: t.log.blockNumber,
+          feeAddress: t.parsedLog.values.feeAddress,
+          feeAmount: t.parsedLog.values.feeAmount,
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },

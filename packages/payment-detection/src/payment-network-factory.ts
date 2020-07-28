@@ -8,6 +8,7 @@ import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
 import ERC20AddressBased from './erc20/address-based';
+import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
 
@@ -29,6 +30,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
     private: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyContract,
     },
     rinkeby: {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
