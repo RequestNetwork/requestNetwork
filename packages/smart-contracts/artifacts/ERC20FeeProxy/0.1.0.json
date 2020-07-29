@@ -82,7 +82,7 @@
           "type": "address"
         }
       ],
-      "name": "TransferFromWithReferenceAndFee",
+      "name": "transferFromWithReferenceAndFee",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
