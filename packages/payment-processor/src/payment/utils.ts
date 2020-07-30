@@ -68,28 +68,33 @@ export function getPaymentNetworkExtension(
 }
 
 /**
- * Utility to access the payment address and reference of a Request.
+ * Utility to access the payment address, reference, and optional feeAmount and feeAddress of a Request.
  * @param request
  */
 export function getRequestPaymentValues(
   request: ClientTypes.IRequestData,
-): { paymentAddress: string; paymentReference: string } {
+): { paymentAddress: string; paymentReference: string; feeAmount?: string; feeAddress?: string } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const { paymentAddress, salt } = extension.values;
+  const { paymentAddress, salt, feeAmount, feeAddress } = extension.values;
   const paymentReference = PaymentReferenceCalculator.calculate(
     request.requestId,
     salt,
     paymentAddress,
   );
-  return { paymentAddress, paymentReference };
+  return { paymentAddress, paymentReference, feeAmount, feeAddress };
 }
 
-const { ERC20_PROXY_CONTRACT, ETH_INPUT_DATA } = PaymentTypes.PAYMENT_NETWORK_ID;
+const {
+  ERC20_PROXY_CONTRACT,
+  ETH_INPUT_DATA,
+  ERC20_FEE_PROXY_CONTRACT,
+} = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
+  [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
 };
 
@@ -111,7 +116,10 @@ export function validateRequest(
     !extension ||
     !extension.values.salt ||
     !extension.values.paymentAddress ||
-    (paymentNetworkId === ERC20_PROXY_CONTRACT && !request.currencyInfo.value)
+    (paymentNetworkId === ERC20_PROXY_CONTRACT && !request.currencyInfo.value) ||
+    (paymentNetworkId === ERC20_FEE_PROXY_CONTRACT && !request.currencyInfo.value) ||
+    (paymentNetworkId === ERC20_FEE_PROXY_CONTRACT &&
+      !!extension.values.feeAddress !== !!extension.values.feeAmount)
   ) {
     throw new Error(`request cannot be processed, or is not an ${paymentNetworkId} request`);
   }
