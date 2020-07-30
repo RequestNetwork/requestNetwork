@@ -95,13 +95,23 @@ export async function hasErc20Approval(
  * @param request request to pay
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
+ * @param paymentNetworkId the payment network id
+ * @param proxyContractAddress the address of the proxy contract to set the approval.
  */
 export async function approveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
+  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
+    .ERC20_PROXY_CONTRACT,
+  proxyContractAddress: string = erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeApproveErc20(request, signerOrProvider);
+  const encodedTx = encodeApproveErc20(
+    request,
+    signerOrProvider,
+    paymentNetworkId,
+    proxyContractAddress,
+  );
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
   const tx = await signer.sendTransaction({
@@ -117,18 +127,22 @@ export async function approveErc20(
  * Encodes the approval call, can be used with a Multisig contract.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param paymentNetworkId the payment network id
+ * @param proxyContractAddress the address of the proxy contract to set the approval.
  */
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+  proxyContractAddress: string,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, paymentNetworkId);
   const signer = getSigner(signerOrProvider);
 
   const tokenAddress = request.currencyInfo.value;
   const erc20interface = ERC20Contract.connect(tokenAddress, signer).interface;
   const encodedApproveCall = erc20interface.functions.approve.encode([
-    erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
+    proxyContractAddress,
     utils
       .bigNumberify(2)
       // tslint:disable-next-line: no-magic-numbers

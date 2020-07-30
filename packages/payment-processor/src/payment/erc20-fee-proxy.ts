@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, utils } from 'ethers';
+import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
@@ -7,7 +7,10 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
 import { Erc20FeeProxyContract } from '../contracts/Erc20FeeProxyContract';
-import { getErc20Balance as getProxyErc20Balance } from './erc20-proxy';
+import {
+  approveErc20 as proxyApproveErc20,
+  getErc20Balance as getProxyErc20Balance,
+} from './erc20-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -23,6 +26,7 @@ import {
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payErc20FeeProxyRequest(
@@ -50,6 +54,7 @@ export async function payErc20FeeProxyRequest(
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 export function encodePayErc20FeeRequest(
   request: ClientTypes.IRequestData,
@@ -117,41 +122,13 @@ export async function approveErc20(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeApproveErc20(request, signerOrProvider);
-  const signer = getSigner(signerOrProvider);
-  const tokenAddress = request.currencyInfo.value;
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: tokenAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
-}
-
-/**
- * Encodes the approval call, can be used with a Multisig contract.
- * @param request the request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- */
-export function encodeApproveErc20(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
-): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-  const signer = getSigner(signerOrProvider);
-
-  const tokenAddress = request.currencyInfo.value;
-  const erc20interface = ERC20Contract.connect(tokenAddress, signer).interface;
-  const encodedApproveCall = erc20interface.functions.approve.encode([
+  return proxyApproveErc20(
+    request,
+    signerOrProvider,
+    overrides,
+    PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
     erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!),
-    utils
-      .bigNumberify(2)
-      // tslint:disable-next-line: no-magic-numbers
-      .pow(256)
-      .sub(1),
-  ]);
-  return encodedApproveCall;
+  );
 }
 
 // Reexports the proxy contract getErc20Balance
@@ -163,6 +140,7 @@ export const getErc20Balance = getProxyErc20Balance;
  *
  * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 export function _getErc20PaymentUrl(
   request: ClientTypes.IRequestData,

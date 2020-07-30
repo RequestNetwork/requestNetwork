@@ -24,6 +24,7 @@ import {
 } from '../../src/payment/erc20-fee-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
+// tslint:disable: no-magic-numbers
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
 
@@ -84,7 +85,7 @@ const validRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-describe.only('erc20-fee-proxy', () => {
+describe('erc20-fee-proxy', () => {
   describe('getRequestPaymentValues', () => {
     it('handles ERC20', () => {
       const values = getRequestPaymentValues(validRequest);
