@@ -42,7 +42,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.proxyContractFeeErc20;
+    this.extension = advancedLogic.extensions.feeProxyContractErc20;
   }
 
   /**
@@ -53,7 +53,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @returns The extensionData object
    */
   public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
+    paymentNetworkCreationParameters: PaymentTypes.IFeeReferenceBasedCreationParameters,
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     const salt =
@@ -158,6 +158,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
         );
       }
 
+      // TODO: Add fees information to the request
       // const fees = [...payments.events, ...refunds.events].reduce(
       //   (
       //     fee: { [address: string]: PaymentTypes.IBalanceWithEvents },
