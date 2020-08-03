@@ -18,21 +18,6 @@ class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
-interface IProxyContractByVersionByNetwork {
-  [version: string]: {
-    [network: string]: { address: string; creationBlockNumber: number };
-  };
-}
-
-const FEE_PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK: IProxyContractByVersionByNetwork = {
-  ['0.1.0']: {
-    private: {
-      address: erc20FeeProxyArtifact.getAddress('private'),
-      creationBlockNumber: erc20FeeProxyArtifact.getCreationBlockNumber('private'),
-    },
-  },
-};
-
 /**
  * Handle payment networks with ERC20 fee proxy contract extension
  */
@@ -229,17 +214,19 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
     }
 
-    if (!FEE_PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion]) {
+    const deploymentInformation = erc20FeeProxyArtifact.getDeploymentInformation(
+      network,
+      paymentNetworkVersion,
+    );
+
+    if (!deploymentInformation) {
       throw new VersionNotSupported(
         `Payment network version not supported: ${paymentNetworkVersion}`,
       );
     }
 
-    const proxyContractAddress: string | undefined =
-      FEE_PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network].address;
-    const proxyCreationBlockNumber: number =
-      FEE_PROXY_CONTRACT_ADDRESS_BY_VERSION_BY_NETWORK[paymentNetworkVersion][network]
-        .creationBlockNumber;
+    const proxyContractAddress: string | undefined = deploymentInformation.address;
+    const proxyCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
 
     if (!proxyContractAddress) {
       throw new NetworkNotSupported(
