@@ -29,6 +29,12 @@ export interface IReferenceBasedCreationParameters {
   salt?: string;
 }
 
+/** Parameters to create a request with fees in reference based payment network */
+export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCreationParameters {
+  feeAddress?: string;
+  feeAmount?: string;
+}
+
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
@@ -107,8 +113,16 @@ export interface IERC20PaymentEventParameters {
   txHash?: string;
 }
 
+/** Parameters for events of ERC20 payments with fees */
+export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParameters {
+  feeAddress?: string;
+  feeAmount?: string;
+}
+
 /** ERC20 Payment Network Event */
-export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<IERC20PaymentEventParameters>;
+export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
+  IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
+>;
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 
