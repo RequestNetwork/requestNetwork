@@ -119,6 +119,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
     try {
       const paymentAddress = paymentNetwork.values.paymentAddress;
       const refundAddress = paymentNetwork.values.refundAddress;
+      const feeAddress = paymentNetwork.values.feeAddress;
       const salt = paymentNetwork.values.salt;
 
       let payments: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
@@ -143,28 +144,11 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
         );
       }
 
-      // TODO: Add fees information to the request
-      // const fees = [...payments.events, ...refunds.events].reduce(
-      //   (
-      //     fee: { [address: string]: PaymentTypes.IBalanceWithEvents },
-      //     event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
-      //   ): { [address: string]: PaymentTypes.IBalanceWithEvents } => {
-      //     if (!event.parameters || !event.parameters.feeAddress || !event.parameters.feeAmount) {
-      //       return fee;
-      //     }
-      //     if (!fee[event.parameters.feeAddress]) {
-      //       fee[event.parameters.feeAddress] = {
-      //         balance: event.parameters.feeAmount,
-      //         events: [event],
-      //       };
-      //     } else {
-      //       fee[event.parameters.feeAddress].balance += event.parameters.feeAmount;
-      //       fee[event.parameters.feeAddress].events.push(event);
-      //     }
-      //     return fee;
-      //   },
-      //   {},
-      // );
+      const fees = this.extractFeeAndEvents(feeAddress, [...payments.events, ...refunds.events]);
+      // TODO (PROT-1219): this is not ideal, since we're directly changing the request extension
+      // once the fees feature and similar payment extensions are more well established, we should define
+      // a better place to retrieve them from the request object them.
+      paymentNetwork.values.feeBalance = fees;
 
       const balance: string = new bigNumber(payments.balance || 0)
         .sub(new bigNumber(refunds.balance || 0))
@@ -201,7 +185,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @param tokenContractAddress the address of the token contract
    * @returns The balance and events
    */
-  private async extractBalanceAndEvents(
+  public async extractBalanceAndEvents(
     request: RequestLogicTypes.IRequest,
     salt: string,
     toAddress: string,
@@ -260,5 +244,45 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       balance,
       events,
     };
+  }
+
+  /**
+   * Extract the fee balance from a list of payment events
+   *
+   * @param feeAddress The fee address the extracted fees will be paid to
+   * @param paymentEvents The payment events to extract fees from
+   */
+  public extractFeeAndEvents(feeAddress: string, paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[]): PaymentTypes.IBalanceWithEvents {
+    if (!feeAddress) {
+      return {
+        balance: '0',
+        events: [],
+      };
+    }
+
+    return paymentEvents.reduce(
+      (
+        feeBalance: PaymentTypes.IBalanceWithEvents,
+        event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
+      ): PaymentTypes.IBalanceWithEvents => {
+
+        // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
+        if (
+          !event.parameters?.feeAddress ||
+          !event.parameters?.feeAmount ||
+          event.parameters.feeAddress !== feeAddress
+        ) {
+          return feeBalance;
+        }
+
+        feeBalance = {
+          balance: new bigNumber(feeBalance.balance).add(new bigNumber(event.parameters.feeAmount)).toString(),
+          events: [... feeBalance.events, event],
+        };
+
+        return feeBalance;
+      },
+      { balance: '0', events: []},
+    );
   }
 }
