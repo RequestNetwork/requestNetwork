@@ -50,7 +50,7 @@
     "keyv": "3.1.0",
     "node-fetch": "2.6.0",
     "shelljs": "0.8.3",
-    "web3-eth": "1.2.0",
+    "web3-eth": "1.2.1",
     "web3-utils": "1.2.1",
     "yargs": "12.0.5"
   },

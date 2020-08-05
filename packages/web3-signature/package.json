@@ -43,7 +43,7 @@
   "dependencies": {
     "@requestnetwork/types": "0.17.0",
     "@requestnetwork/utils": "0.16.0",
-    "web3-eth": "1.0.0-beta.37"
+    "web3-eth": "1.2.1"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
