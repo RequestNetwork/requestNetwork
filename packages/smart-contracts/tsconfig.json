@@ -11,10 +11,11 @@
     "./artifacts/ERC20Proxy/0.1.0.json",
     "./artifacts/RequestHashStorage/artifacts.json",
     "./artifacts/RequestHashStorage/0.1.0.json",
-    "./artifacts/RequestHashStorage/artifacts.json",
     "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",
     "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json",
     "./artifacts/EthereumProxy/artifacts.json",
-    "./artifacts/EthereumProxy/0.1.0.json"
+    "./artifacts/EthereumProxy/0.1.0.json",
+    "./artifacts/ERC20FeeProxy/artifacts.json",
+    "./artifacts/ERC20FeeProxy/0.1.0.json"
   ]
 }

@@ -174,6 +174,47 @@ describe('Request system', () => {
     assert.exists(request);
   });
 
+  it('can create a request with smart contract as payer', async () => {
+    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+      content: { this: 'could', be: 'an', invoice: true },
+    });
+
+    const payer = {
+      network: 'private',
+      type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+      value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    };
+
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      expectedAmount: '100000000000',
+      extensionsData: [contentDataExtensionData],
+      payee: payeeIdentity,
+      payer,
+    };
+
+    const topics = [payeeIdentity, payer];
+
+    const resultCreation = await requestLogic.createRequest(
+      requestCreationHash,
+      payeeIdentity,
+      topics,
+    );
+
+    assert.exists(resultCreation);
+
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    assert.equal(resultCreation.result.requestId.length, requestIdLength);
+
+    const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
+
+    assert.exists(request);
+  });
+
   it('can create a request with cache', async () => {
     const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
       host: 'localhost',
@@ -421,7 +462,7 @@ describe('Request system', () => {
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
     assert.exists(request.result);
-    assert.equal(request.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(request.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
     assert.isNull(request.result.request);
     assert.exists(request.result.pending);
     assert.equal(request.result.pending!.expectedAmount, '12345678987654321');
@@ -433,7 +474,7 @@ describe('Request system', () => {
       payeeIdentity,
     );
 
-    assert.equal(resultReduce.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(resultReduce.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
     assert.isUndefined(resultReduce.result);
 
     const requestAfterReduce = await requestLogic.getRequestFromId(resultCreation.result.requestId);
@@ -441,7 +482,7 @@ describe('Request system', () => {
     assert.exists(requestAfterReduce.result);
     assert.equal(
       requestAfterReduce.meta.transactionManagerMeta.encryptionMethod,
-      'ecies-aes256-cbc',
+      'ecies-aes256-gcm',
     );
     assert.exists(requestAfterReduce.result.request);
     assert.equal(requestAfterReduce.result.request!.expectedAmount, '12345678987654321');
@@ -456,7 +497,7 @@ describe('Request system', () => {
       payerIdentity,
     );
 
-    assert.equal(resultAccept.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(resultAccept.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
     assert.isUndefined(resultAccept.result);
 
     const requestAfterAccept = await requestLogic.getRequestFromId(resultCreation.result.requestId);
@@ -464,7 +505,7 @@ describe('Request system', () => {
     assert.exists(requestAfterAccept.result);
     assert.equal(
       requestAfterAccept.meta.transactionManagerMeta.encryptionMethod,
-      'ecies-aes256-cbc',
+      'ecies-aes256-gcm',
     );
     assert.exists(requestAfterAccept.result.request);
     assert.equal(requestAfterAccept.result.request!.state, RequestLogicTypes.STATE.CREATED);
@@ -478,7 +519,7 @@ describe('Request system', () => {
       payerIdentity,
     );
 
-    assert.equal(resultIncrease.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(resultIncrease.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
     assert.isUndefined(resultIncrease.result);
 
     const requestAfterIncrease = await requestLogic.getRequestFromId(
@@ -488,7 +529,7 @@ describe('Request system', () => {
     assert.exists(requestAfterIncrease.result);
     assert.equal(
       requestAfterIncrease.meta.transactionManagerMeta.encryptionMethod,
-      'ecies-aes256-cbc',
+      'ecies-aes256-gcm',
     );
     assert.exists(requestAfterIncrease.result.request);
     assert.equal(requestAfterIncrease.result.request!.expectedAmount, '12345678000000000');
@@ -502,7 +543,7 @@ describe('Request system', () => {
       payeeIdentity,
     );
 
-    assert.equal(resultCancel.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-cbc');
+    assert.equal(resultCancel.meta.transactionManagerMeta.encryptionMethod, 'ecies-aes256-gcm');
     assert.isUndefined(resultCancel.result);
 
     const requestAfterCancel = await requestLogic.getRequestFromId(resultCreation.result.requestId);
@@ -510,7 +551,7 @@ describe('Request system', () => {
     assert.exists(requestAfterCancel.result);
     assert.equal(
       requestAfterCancel.meta.transactionManagerMeta.encryptionMethod,
-      'ecies-aes256-cbc',
+      'ecies-aes256-gcm',
     );
     assert.exists(requestAfterCancel.result.request);
     assert.equal(requestAfterCancel.result.request!.state, RequestLogicTypes.STATE.ACCEPTED);
@@ -527,7 +568,6 @@ describe('Request system', () => {
 
     assert.exists(dataAccessData.result.transactions[0].transaction.encryptedData);
     assert.exists(dataAccessData.result.transactions[0].transaction.encryptionMethod);
-    assert.exists(dataAccessData.result.transactions[0].transaction.hash);
     assert.exists(dataAccessData.result.transactions[0].transaction.keys);
     assert.exists(
       dataAccessData.result.transactions[0].transaction.keys![
@@ -542,19 +582,15 @@ describe('Request system', () => {
     assert.isUndefined(dataAccessData.result.transactions[0].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[1].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[1].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[1].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[2].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[2].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[2].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[3].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[3].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[3].transaction.data);
 
     assert.exists(dataAccessData.result.transactions[4].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[4].transaction.hash);
     assert.isUndefined(dataAccessData.result.transactions[4].transaction.data);
   });
 });

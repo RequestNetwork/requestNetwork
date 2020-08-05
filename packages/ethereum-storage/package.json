@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,9 +40,9 @@
     "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/smart-contracts": "0.8.0",
-    "@requestnetwork/types": "0.16.0",
-    "@requestnetwork/utils": "0.15.0",
+    "@requestnetwork/smart-contracts": "0.9.0",
+    "@requestnetwork/types": "0.17.0",
+    "@requestnetwork/utils": "0.16.0",
     "bluebird": "3.5.3",
     "bn.js": "4.11.8",
     "form-data": "2.3.3",
@@ -50,9 +50,9 @@
     "keyv": "3.1.0",
     "node-fetch": "2.6.0",
     "shelljs": "0.8.3",
-    "web3-eth": "1.0.0-beta.37",
+    "web3-eth": "1.2.1",
     "web3-utils": "1.2.1",
-    "yargs": "12.0.5"
+    "yargs": "15.4.1"
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "1.0.18",

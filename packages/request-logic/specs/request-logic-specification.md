@@ -86,7 +86,7 @@ A request is the JSON object which`properties` returned from a list of `actions`
 | **expectedAmount** | Amount                                  | Amount expected to be paid                                                                                                                                                                        |
 | **currency**       | Currency                                | Currency of the expected amount                                                                                                                                                                   |
 | **state**          | Enum('created', 'accepted', 'canceled') | State of the request                                                                                                                                                                              |
-| **events**         | Array                                   | List of the actions performed                                                                                                                                                                     |
+| **events**         | Array                                   | History of the actions performed on the request                                                                                                                                                   |
 | **extensionsData** | Array                                   | List of data used by the above layer                                                                                                                                                              |
 | **version**        | String                                  | Specification version by the request _(2.0.3' here)_                                                                                                                                              |
 |  **timestamp**     | Number                                  | - Timestamp of the request creation in seconds <br> - this timestamp is given by the creator. It is not trustless. <br> - This timestamp is also used to differentiate between identical requests |
@@ -740,17 +740,17 @@ To manage low level identity in the request logic we use three different types o
 - `recover()`: get the `Identity` from data and its `Signature`
 
 ```
-                                          +----------------+
-              +---------------------+     |  Signed data   |
-              |/SignatureParameters/|     |                |
-              +-----------+---------+     |   +--------+   |
-                          |               |   |  Data  |   |
-+--------+         Sign() |               |   +--------+   |     Recover()       +----------+
-|  Data  +------------------------------->+                +------------------->+/Identity/|
-+--------+                                |  +-----------+ |                    +----------+
-                                          |  |/Signature/| |
-                                          |  +-----------+ |
-                                          +----------------+
+                        +----------------+
+                        |  Signed data   |
+                        |                |
+                        |   +--------+   |
+                        |   |  Data  |   |
++--------+    Sign()    |   +--------+   |    Recover()    +----------+
+|  Data  +------------->+                +---------------->+/Identity/|
++--------+              |  +-----------+ |                 +----------+
+                        |  |/Signature/| |
+                        |  +-----------+ |
+                        +----------------+
 ```
 
 ### Identity
@@ -796,22 +796,6 @@ Example
 {
     "method": "ecdsa",
     "value": "0xe649fdfe25c3ee33061a8159be9b941141121c5bed8d07664cb67b7912819b4539841a206636c190178ac58978926dad1fe3637a10b656705b71bda5e187510c1b"
-}
-```
-
-### SignatureParameters
-
-this is a json object with two properties:
-
-- `method`: the method to sign _(e.g.: 'ecdsa' for an Elliptic Curve Signature)_
-- `privateKey`: the private key to sign with
-
-Example
-
-```JSON
-{
-    "method": "ecdsa",
-    "privateKey": "0x3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266"
 }
 ```
 

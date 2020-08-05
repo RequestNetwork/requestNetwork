@@ -59,7 +59,7 @@ function parseBlock(data: string): DataAccessTypes.IBlock {
   }
 
   // check the transactions format
-  if (!maybeBlock.transactions.every((tx: any) => tx.data || (tx.encryptedData && tx.hash))) {
+  if (!maybeBlock.transactions.every((tx: any) => tx.data || tx.encryptedData)) {
     throw new Error(`Transactions do not follow the block standard`);
   }
   // check if channelIds are well formatted
@@ -121,10 +121,8 @@ function pushTransaction(
   channelId: string,
   topics: string[] = [],
 ): DataAccessTypes.IBlock {
-  if (transaction.data === undefined && !(transaction.encryptedData && transaction.hash)) {
-    throw new Error(
-      'The transaction is missing the data property or encryptedData and hash property',
-    );
+  if (transaction.data === undefined && !transaction.encryptedData) {
+    throw new Error('The transaction is missing the data property or encryptedData property');
   }
   // we don't want to modify the original block state
   const copiedBlock: DataAccessTypes.IBlock = Utils.deepCopy(block);

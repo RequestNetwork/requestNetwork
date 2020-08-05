@@ -1,11 +1,12 @@
 import * as ContentData from './extensions/content-data-types';
 import * as PnAddressBased from './extensions/pn-any-address-based-types';
 import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
+import * as PnFeeReferenceBased from './extensions/pn-any-fee-reference-based-types';
 import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
-export { ContentData, PnAnyDeclarative, PnAddressBased, PnReferenceBased };
+export { ContentData, PnAnyDeclarative, PnAddressBased, PnFeeReferenceBased, PnReferenceBased };
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {
@@ -49,6 +50,7 @@ export enum ID {
   PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
   PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
   PAYMENT_NETWORK_ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
+  PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
   PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
 }

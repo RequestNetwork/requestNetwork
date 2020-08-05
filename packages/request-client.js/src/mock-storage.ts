@@ -70,7 +70,6 @@ export default class MockStorage implements StorageTypes.IStorage {
       if (this.forceEmitError) {
         // emit error
         this.forceEmitError = false;
-        this.data.delete(hash);
         result.emit('error', 'forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
       } else {
         // emit confirmed

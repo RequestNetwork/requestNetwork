@@ -331,7 +331,8 @@ yarn install
 yarn build
 ```
 
-#### 3. On a new terminal, launch a local [IPFS node](https://docs.ipfs.io/introduction/install/)
+#### 3. On a new terminal, launch a local IPFS node
+Note: only IPFS v0.4.* supported, from the [IPFS Installation docs](https://docs.ipfs.io/install/), replace the binary URL with the good one from the following list: https://github.com/ipfs/go-ipfs/releases/tag/v0.4.23
 
 ```bash
 ipfs daemon
@@ -353,7 +354,7 @@ ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey 
 #### 6. Deploy the smart contracts on ganache
 
 ```bash
-cd packages/ethereum-storage
+cd packages/smart-contracts
 yarn deploy
 ```
 
@@ -363,6 +364,11 @@ yarn deploy
 cd ../packages/request-node
 yarn start
 ```
+
+#### 8. Test
+
+Open a browser and navigate towards: http://localhost:3000/status
+You can see the details of your local Request & IPFS nodes.
 
 ## Contributing
 

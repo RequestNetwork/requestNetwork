@@ -56,7 +56,18 @@ async function encrypt(
     );
     return {
       type: EncryptionTypes.METHOD.AES256_CBC,
-      value: encryptedDataBuffer.toString('Base64'),
+      value: encryptedDataBuffer.toString('base64'),
+    };
+  }
+
+  if (encryptionParams.method === EncryptionTypes.METHOD.AES256_GCM) {
+    const encryptedDataBuffer = await Crypto.CryptoWrapper.encryptWithAes256gcm(
+      Buffer.from(data, 'utf-8'),
+      Buffer.from(encryptionParams.key, 'base64'),
+    );
+    return {
+      type: EncryptionTypes.METHOD.AES256_GCM,
+      value: encryptedDataBuffer.toString('base64'),
     };
   }
 
@@ -88,6 +99,19 @@ async function decrypt(
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.AES256_CBC}`);
     }
     const dataBuffer = await Crypto.CryptoWrapper.decryptWithAes256cbc(
+      // remove the multi-format padding and decode from the base64 to a buffer
+      Buffer.from(encryptedData.value, 'base64'),
+      Buffer.from(decryptionParams.key, 'base64'),
+    );
+    return dataBuffer.toString();
+  }
+
+  if (encryptedData.type === EncryptionTypes.METHOD.AES256_GCM) {
+    if (decryptionParams.method !== EncryptionTypes.METHOD.AES256_GCM) {
+      throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.AES256_GCM}`);
+    }
+
+    const dataBuffer = await Crypto.CryptoWrapper.decryptWithAes256gcm(
       // remove the multi-format padding and decode from the base64 to a buffer
       Buffer.from(encryptedData.value, 'base64'),
       Buffer.from(decryptionParams.key, 'base64'),

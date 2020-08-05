@@ -29,9 +29,15 @@ export interface IReferenceBasedCreationParameters {
   salt?: string;
 }
 
+/** Parameters to create a request with fees in reference based payment network */
+export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCreationParameters {
+  feeAddress?: string;
+  feeAmount?: string;
+}
+
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
-  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => any;
+  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
   getBalance(request: RequestLogic.IRequest): Promise<IBalanceWithEvents<TEventParameters>>;
@@ -87,6 +93,7 @@ export enum PAYMENT_NETWORK_ID {
   TESTNET_BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
   ERC20_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
   ERC20_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+  ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
 }
@@ -106,8 +113,16 @@ export interface IERC20PaymentEventParameters {
   txHash?: string;
 }
 
+/** Parameters for events of ERC20 payments with fees */
+export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParameters {
+  feeAddress?: string;
+  feeAmount?: string;
+}
+
 /** ERC20 Payment Network Event */
-export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<IERC20PaymentEventParameters>;
+export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
+  IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
+>;
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 
