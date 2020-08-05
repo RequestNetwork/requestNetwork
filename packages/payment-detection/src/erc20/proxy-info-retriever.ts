@@ -64,7 +64,7 @@ export default class ProxyERC20InfoRetriever
     // Get the event logs
     const logs = await this.provider.getLogs(filter);
 
-    // Create a filter to find all the Fee Transfer logs for the toAddress
+    // Create a filter to find all the Fee Transfer logs with the payment reference
     const feeFilter = this.contractProxy.filters.TransferWithReferenceAndFee(
       null,
       null,
@@ -79,7 +79,7 @@ export default class ProxyERC20InfoRetriever
     // Get the event logs
     logs.concat(await this.provider.getLogs(feeFilter));
 
-    // Parses, filters and creates the events from the logs of the proxy contract
+    // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = logs
       // Parses the logs
       .map(log => {
