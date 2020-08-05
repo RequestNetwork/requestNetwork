@@ -56,7 +56,7 @@ async function encrypt(
     );
     return {
       type: EncryptionTypes.METHOD.AES256_CBC,
-      value: encryptedDataBuffer.toString('Base64'),
+      value: encryptedDataBuffer.toString('base64'),
     };
   }
 
@@ -67,7 +67,7 @@ async function encrypt(
     );
     return {
       type: EncryptionTypes.METHOD.AES256_GCM,
-      value: encryptedDataBuffer.toString('Base64'),
+      value: encryptedDataBuffer.toString('base64'),
     };
   }
 
