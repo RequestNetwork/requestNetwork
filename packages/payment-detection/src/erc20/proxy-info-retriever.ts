@@ -102,8 +102,8 @@ export default class ProxyERC20InfoRetriever
         name: this.eventName,
         parameters: {
           block: t.log.blockNumber,
-          feeAddress: t.parsedLog.values.feeAddress,
-          feeAmount: t.parsedLog.values.feeAmount.toString(),
+          feeAddress: t.parsedLog.values.feeAddress || undefined,
+          feeAmount: t.parsedLog.values.feeAmount?.toString() || undefined,
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },
