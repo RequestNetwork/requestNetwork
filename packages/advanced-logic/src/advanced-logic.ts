@@ -27,6 +27,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     contentData,
     declarative,
     ethereumInputData,
+    feeProxyContractErc20,
     proxyContractErc20,
   };
 

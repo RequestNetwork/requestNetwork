@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
+import { constants, ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
@@ -7,10 +7,7 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
 import { Erc20FeeProxyContract } from '../contracts/Erc20FeeProxyContract';
-import {
-  approveErc20 as proxyApproveErc20,
-  getErc20Balance as getProxyErc20Balance,
-} from './erc20-proxy';
+import { approveErc20 as proxyApproveErc20 } from './erc20-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -40,6 +37,7 @@ export async function payErc20FeeProxyRequest(
 
   const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
+
   const tx = await signer.sendTransaction({
     data: encodedTx,
     to: proxyAddress,
@@ -73,11 +71,15 @@ export function encodePayErc20FeeRequest(
   );
 
   if (!!feeAmount !== !!feeAddress) {
-    throw new Error('Fee amount or not undefined');
+    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
   }
 
   const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = feeAmountOverride || bigNumberify(feeAmount || 0);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
+  }
 
   const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
 
@@ -87,7 +89,7 @@ export function encodePayErc20FeeRequest(
     amountToPay,
     `0x${paymentReference}`,
     feeToPay,
-    feeAddress || '',
+    feeAddress || constants.AddressZero,
   ]);
 }
 
@@ -97,7 +99,7 @@ export function encodePayErc20FeeRequest(
  * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.
  */
-export async function hasErc20Approval(
+export async function hasErc20FeeProxyApproval(
   request: ClientTypes.IRequestData,
   account: string,
   provider: Provider = getNetworkProvider(request),
@@ -117,7 +119,7 @@ export async function hasErc20Approval(
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function approveErc20(
+export async function approveErc20FeeProxy(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
@@ -126,13 +128,9 @@ export async function approveErc20(
     request,
     signerOrProvider,
     overrides,
-    PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
     erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!),
   );
 }
-
-// Reexports the proxy contract getErc20Balance
-export const getErc20Balance = getProxyErc20Balance;
 
 /**
  * Return the EIP-681 format URL with the transaction to pay an ERC20
@@ -142,7 +140,7 @@ export const getErc20Balance = getProxyErc20Balance;
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export function _getErc20PaymentUrl(
+export function _getErc20FeePaymentUrl(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
