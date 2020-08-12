@@ -61,8 +61,8 @@ export default class ProxyERC20InfoRetriever
     filter.fromBlock = this.proxyCreationBlockNumber;
     filter.toBlock = 'latest';
 
-    // Get the event logs
-    const logs = await this.provider.getLogs(filter);
+    // Get the proxy contract event logs
+    const proxyLogs = await this.provider.getLogs(filter);
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
     const feeFilter = this.contractProxy.filters.TransferWithReferenceAndFee(
@@ -76,8 +76,11 @@ export default class ProxyERC20InfoRetriever
     filter.fromBlock = this.proxyCreationBlockNumber;
     filter.toBlock = 'latest';
 
-    // Get the event logs
-    logs.concat(await this.provider.getLogs(feeFilter));
+    // Get the fee proxy contract event logs
+    const feeProxyLogs = await this.provider.getLogs(feeFilter);
+
+    // Merge both events
+    const logs = [...proxyLogs, ...feeProxyLogs];
 
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = logs
@@ -100,7 +103,7 @@ export default class ProxyERC20InfoRetriever
         parameters: {
           block: t.log.blockNumber,
           feeAddress: t.parsedLog.values.feeAddress,
-          feeAmount: t.parsedLog.values.feeAmount,
+          feeAmount: t.parsedLog.values.feeAmount.toString(),
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },

@@ -71,11 +71,15 @@ export function encodePayErc20FeeRequest(
   );
 
   if (!!feeAmount !== !!feeAddress) {
-    throw new Error('Fee amount or not undefined');
+    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
   }
 
   const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = feeAmountOverride || bigNumberify(feeAmount || 0);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
+  }
 
   const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
 
