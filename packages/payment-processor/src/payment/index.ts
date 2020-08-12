@@ -5,6 +5,7 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
+import { _getErc20FeePaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
 import { _getErc20PaymentUrl, getErc20Balance, payErc20ProxyRequest } from './erc20-proxy';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -26,7 +27,7 @@ export class UnsupportedNetworkError extends Error {
 
 /**
  * Processes a transaction to pay a Request.
- * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
+ * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
  *
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to pay.
@@ -47,6 +48,8 @@ export async function payRequest(
       return payErc20ProxyRequest(request, signer, amount, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return payEthInputDataRequest(request, signer, amount, overrides);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+      return payErc20FeeProxyRequest(request, signer, amount, undefined, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
@@ -70,7 +73,7 @@ export async function hasSufficientFunds(
 
   let ethBalance;
   switch (paymentNetwork) {
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT: {
       if (!provider) {
         provider = getNetworkProvider(request);
       }
@@ -78,12 +81,28 @@ export async function hasSufficientFunds(
       const balance = await getErc20Balance(request, address, provider);
       // check ETH for gas, and token for funds transfer
       return ethBalance.gt(0) && balance.gt(bigNumberify(request.expectedAmount || 0));
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
+    }
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT: {
+      if (!provider) {
+        provider = getNetworkProvider(request);
+      }
+      ethBalance = await provider.getBalance(address);
+      const balance = await getErc20Balance(request, address, provider);
+      const feeAmount =
+        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
+          .feeAmount || 0;
+      // check ETH for gas, and token for funds transfer
+      return (
+        ethBalance.gt(0) && balance.gt(bigNumberify(request.expectedAmount || 0).add(feeAmount))
+      );
+    }
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA: {
       if (!provider) {
         provider = getNetworkProvider(request);
       }
       ethBalance = await provider.getBalance(address);
       return ethBalance.gt(bigNumberify(request.expectedAmount || 0));
+    }
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
@@ -108,6 +127,8 @@ export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNu
     case ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED:
     case ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED:
       return getBtcPaymentUrl(request, amount);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+      return _getErc20FeePaymentUrl(request, amount);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
