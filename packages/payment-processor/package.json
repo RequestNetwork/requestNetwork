@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/payment-processor",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,10 +39,10 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/payment-detection": "0.18.0",
-    "@requestnetwork/smart-contracts": "0.9.0",
-    "@requestnetwork/types": "0.17.0",
-    "@requestnetwork/utils": "0.16.0",
+    "@requestnetwork/payment-detection": "0.19.0",
+    "@requestnetwork/smart-contracts": "0.10.0",
+    "@requestnetwork/types": "0.18.0",
+    "@requestnetwork/utils": "0.17.0",
     "ethers": "4.0.45"
   },
   "devDependencies": {
