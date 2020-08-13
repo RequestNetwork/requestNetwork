@@ -364,7 +364,7 @@ This action is valid, if:
 
 **And if**:
 
-The `balance` is 0. (see [here](../../advanced-logic/specs/payment-networks-0.1.0.md))
+The `balance` is 0 at the time of the cancellation. (see [here](../../advanced-logic/specs/payment-networks-0.1.0.md))
 
 ##### Result
 
