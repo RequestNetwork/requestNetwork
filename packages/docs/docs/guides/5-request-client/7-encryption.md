@@ -5,7 +5,7 @@ description: Learn how to integrate Request network and its features.
 ---
 
 :::caution
-Manipulate private keys must be done with care, losing them can lead to a loss of data and privacy!
+Manipulating private keys must be done with care, losing them can lead to a loss of data and privacy!
 :::
 
 A request can be encrypted in order to make its details private to selected stakeholders. In this guide, we won't explain how encryption is managed under the hood. We will mention encryption or decryption of requests with payers' and payee's keys, wherein the reality we use an intermediate symmetric key. See more details on [github](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/encryption.md)
