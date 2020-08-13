@@ -41,25 +41,6 @@ body {
   overflow-wrap: break-word;
 }
 
-h2 {
-  position: relative;
-  margin: 73px 0px 24px;
-}
-
-h2::before {
-  top: -32px;
-  left: 0px;
-  width: 100%;
-  height: 1px;
-  content: ' ';
-  position: absolute;
-  background-color: rgb(230, 236, 241);
-}
-
-h1 .hash-link {
-  margin-left: -2rem;
-}
-
 .navbar-sidebar__items .menu__link {
   color: var(--ifm-navbar-link-color);
 }
@@ -82,10 +63,8 @@ h1 .hash-link {
 }
 
 /* The following lines are a hack to fix long lines of highlighted code breaking the page layout width */
-.prism-code {
-  background-color: rgb(41, 45, 62);
-}
-.prism-code code {
+.prism-code code,
+.codeBlockLines__-_-node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock- {
   width: 0;
 }
 
