@@ -1,11 +1,6 @@
 # Payment Network - ERC20 - proxy contract
 
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
+Prerequisite: Having read the payment network specifications (see [here](./payment-networks-0.1.0.md)).
 
 ## Description
 
@@ -20,9 +15,6 @@ This `paymentReference` consists of the last 8 bytes of a salted hash of the req
 - `lowercase()` transforms all characters to lowercase
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
-
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
 
 ## Contract
 
@@ -57,6 +49,24 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 
 
 Note: to use the Rinkeby testnet, create a request with `currency.network` as `rinkeby`.
+
+## Interpretation
+
+The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
+
+### Payments
+
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
+- `tokenAddress` `===` `request.currency.value`
+- `to` `===` `paymentAddress`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+
+### Refunds
+
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
+- `tokenAddress` `===` `request.currency.value`
+- `to` `===` `refundAddress`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
 
 ---
 
@@ -203,21 +213,3 @@ The 'addRefundAddress' event:
 | **name**                     | 'addRefundAddress'              |
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
-
----
-
-## Interpretation
-
-The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
-
-Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
-- `tokenAddress` `===` `request.currency.value`
-- `to` `===` `paymentAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
-
-Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
-- `tokenAddress` `===` `request.currency.value`
-- `to` `===` `refundAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
-
-The sum of payment amounts minus the sum of refund amounts is considered the balance.

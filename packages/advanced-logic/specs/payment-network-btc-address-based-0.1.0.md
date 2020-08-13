@@ -1,19 +1,11 @@
 # Payment Network - Bitcoin - Address based
 
-You can be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
+Prerequisite: Having read the payment network specifications (see [here](./payment-networks-0.1.0.md)).
 
 ## Description
 
 This extension allows the payments and the refunds to be made on the Bitcoin blockchain.
 One address for the payment and one for the refund must be created and used exclusively for **one and only one** request.
-
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
 
 ## Properties
 
@@ -28,6 +20,12 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.refundAddress**  | String | Bitcoin address for the refund                 | Optional      |
 
 Note: to use the bitcoin testnet just replace the id by "pn-testnet-bitcoin-address-based"
+
+## Interpretation
+
+Any bitcoin transaction reaching the address `addPaymentAddress` is considered as payment.
+Any bitcoin transaction reaching the address `addRefundAddress` is considered as a refund.
+
 
 ---
 
@@ -169,11 +167,3 @@ The 'addRefundAddress' event:
 | **name**                     | 'addRefundAddress'              |
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
-
----
-
-## Interpretation
-
-The `balance` starts from `0`.
-Any bitcoin transaction reaching the address `addPaymentAddress` is considered as payment. The `balance` is increased by the amount of the transaction.
-Any bitcoin transaction reaching the address `addRefundAddress` is considered as a refund. The `balance` is reduced by the amount of the transaction.

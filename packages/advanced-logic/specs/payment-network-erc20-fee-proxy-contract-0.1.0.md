@@ -1,11 +1,6 @@
 # Payment Network - ERC20 with Fee
 
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
+Prerequisite: Having read the payment network specifications (see [here](./payment-networks-0.1.0.md)).
 
 ## Description
 
@@ -27,9 +22,6 @@ The contract also ensures that the `feeAmount` amount of the ERC20 transfer will
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
 
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
-
 ## Contract
 
 The contract contains one function called `transferFromWithReferenceAndFee` which takes 6 arguments:
@@ -43,6 +35,7 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 
 The `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains the same 6 arguments as the `transferFromWithReferenceAndFee` function.
 
+TODO: don't merge without fixing this TODO
 TODO: [See smart contract source]()
 
 | Network | Contract Address                           |
@@ -67,6 +60,29 @@ TODO: [See smart contract source]()
 | **values.feeAmount**      | String | The fee amount in the request `currency`       | Optional      |
 
 Note: to use the Rinkeby testnet, create a request with `currency.network` as `rinkeby`.
+
+## Interpretation
+
+The fee proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
+
+### Payments
+
+Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
+
+- `tokenAddress` `===` `request.currency.value`
+- `to` `===` `paymentAddress`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+
+### Refunds
+
+Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
+
+- `tokenAddress` `===` `request.currency.value`
+- `to` `===` `refundAddress`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
+
+
+The fees amount can be be inferred from the `TransferWithReferenceAndFee` events emitted from the proxy contract.
 
 ---
 
@@ -265,24 +281,3 @@ the 'addFee' event:
 | **parameters.feeAddress** | `feeAddress` from parameters    |
 | **parameters.feeAmount**  | `feeAmount` from parameters     |
 
----
-
-## Interpretation
-
-The fee proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
-
-Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
-
-- `tokenAddress` `===` `request.currency.value`
-- `to` `===` `paymentAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
-
-Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
-
-- `tokenAddress` `===` `request.currency.value`
-- `to` `===` `refundAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
-
-The sum of payment amounts minus the sum of refund amounts is considered the balance.
-
-The fees amount can be be infered from the `TransferWithReferenceAndFee` events emitted from the proxy contract.

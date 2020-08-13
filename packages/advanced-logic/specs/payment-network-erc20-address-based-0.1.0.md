@@ -1,19 +1,11 @@
 # Payment Network - ERC-20 - Address based
 
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
+Prerequisite: Having read the payment network specifications (see [here](./payment-networks-0.1.0.md)).
 
 ## Description
 
 This extension allows the payments and the refunds to be made on ERC-20 tokens on the Ethereum blockchain.
 One new address for the payment and one for the refund must be created and used exclusively for **one and only one** request.
-
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
 
 ## Properties
 
@@ -28,6 +20,11 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
 
 Note: to use the Rinkeby testnet just replace the id by "pn-rinkeby-erc20-address-based"
+
+## Interpretation
+
+Any transaction from the request `currency` ERC-20 contract destined to the `addPaymentAddress` is considered as a payment.
+Any ERC-20 transaction reaching the address `addRefundAddress` is considered as a refund. 
 
 ---
 
@@ -170,10 +167,3 @@ The 'addRefundAddress' event:
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
 
----
-
-## Interpretation
-
-The `balance` starts from `0`.
-Any transaction from the request `currency` ERC-20 contract destined to the `addPaymentAddress` is considered as a payment. The `balance` is increased by the sum of the amounts of the transactions.
-Any ERC-20 transaction reaching the address `addRefundAddress` is considered as a refund. The `balance` is reduced by the sum of the amounts of the transactions.

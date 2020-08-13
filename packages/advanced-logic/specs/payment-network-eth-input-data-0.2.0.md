@@ -1,11 +1,6 @@
 # Payment Network - ETH - input data
 
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
+Prerequisite: Having read the payment network specifications (see [here](./payment-networks-0.1.0.md)).
 
 ## Description
 
@@ -24,9 +19,6 @@ The payment reference is the last 8 bytes of a salted hash of the requestId: `la
 - `address` is the payment address for payments, the refund address for refunds
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
-
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
 
 ## Contract
 
@@ -58,6 +50,26 @@ The `TransferWithReference` event is emitted when the Ether is transfered. This 
 | **values.salt**           | String | Salt for the request                           | **Mandatory** |
 
 Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
+
+## Interpretation
+
+The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
+
+### Payments
+
+Any ETH transaction to `paymentAddress` with exactly `last8Bytes(hash(requestId + salt + payment address))` in input data is considered as a payment. 
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
+
+- `to` `===` `paymentAddress`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+
+### Refunds
+
+Any ETH transaction to `refundAddress` with exactly `last8Bytes(hash(requestId + salt + refund address))` in input data is considered as a refund.
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
+
+- `to` `===` `refundAddress`
+- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
 
 ---
 
@@ -191,7 +203,7 @@ None.
 
 ##### Results
 
-A extension state is updated with the following properties:
+An extension state is updated with the following properties:
 
 |  Property                |  Value                                                 |
 | ------------------------ | ------------------------------------------------------ |
@@ -206,22 +218,3 @@ The 'addRefundAddress' event:
 | **name**                     | 'addRefundAddress'              |
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
-
----
-
-## Interpretation
-
-The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
-
-The `balance` starts from `0`.
-Any ETH transaction to `paymentAddress` with exactly `last8Bytes(hash(requestId + salt + payment address))` in input data is considered as a payment. The `balance` is increased by the sum of the amounts of the transactions.
-Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
-
-- `to` `===` `paymentAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
-
-Any ETH transaction to `refundAddress` with exactly `last8Bytes(hash(requestId + salt + refund address))` in input data is considered as a refund. The `balance` is reduced by the sum of the amounts of the transactions.
-Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
-
-- `to` `===` `refundAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`

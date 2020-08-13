@@ -362,6 +362,10 @@ This action is valid, if:
 - the Role of the action **signer is the payee**
 - the request state is **NOT** `canceled`
 
+**And if**:
+
+The `balance` is 0. (see [here](../../advanced-logic/specs/payment-networks-0.1.0.md))
+
 ##### Result
 
 Modify the following properties of the request:
