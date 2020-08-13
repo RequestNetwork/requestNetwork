@@ -84,7 +84,7 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
  * For the ether payment network, it's simply the payment address (and eventually the refund address).
  */
 
-const ethInputDataPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
+const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
@@ -92,7 +92,7 @@ const ethInputDataPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCr
 };
 
 const ethInputDataCreateParams = {
-  ethInputDataPaymentNetwork,
+  paymentNetwork,
   requestInfo,
   signer: payeeIdentity,
 };

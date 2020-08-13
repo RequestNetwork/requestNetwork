@@ -34,10 +34,10 @@
     "clean": "shx rm -rf docs/client"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.49",
-    "@docusaurus/preset-classic": "2.0.0-alpha.49",
-    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.49",
-    "@docusaurus/utils": "2.0.0-alpha.49",
+    "@docusaurus/core": "2.0.0-alpha.61",
+    "@docusaurus/preset-classic": "2.0.0-alpha.61",
+    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.61",
+    "@docusaurus/utils": "2.0.0-alpha.61",
     "@requestnetwork/payment-processor": "0.18.0",
     "@requestnetwork/request-client.js": "0.18.0",
     "@requestnetwork/smart-contracts": "0.9.0",
