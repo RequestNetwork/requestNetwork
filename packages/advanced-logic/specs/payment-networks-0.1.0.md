@@ -43,6 +43,12 @@ When we can detect payments and/or refunds the `balance` is computed with these 
 The payment status is `paid` if `balance >= expectedAmount`
 The payment status is `pending` otherwise.
 
+## Conditions
+
+We have to add a new condition to the [cancellation event from the Request logic](../../request-logic/specs/request-logic-specification.md#Cancel)
+
+The cancellation is only valid if the `balance` is 0 at the time of the cancellation. (see [here](../../advanced-logic/specs/payment-networks-0.1.0.md))
+
 ## Warnings
 
 | Warning                     | Condition                                                                                         |
@@ -50,5 +56,3 @@ The payment status is `pending` otherwise.
 | "Paid a cancelled request"  | if the payer pays after he declined of after the issuer cancelled                                 |
 | "Overpaid a request"        | if the payer paid too much                                                                        |
 | "Payment network conflicts" | if one tries to add a payment network having overlapping criteria with an exiting payment network |
-
-Cf. also the related warning on cancellation in the [request logic](../../request-logic/specs/request-logic-specification.md#Cancel)
