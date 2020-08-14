@@ -1,8 +1,3 @@
-# TODOs
-
-* Overpayment status?
-* currencies do not have to be the request ones but by default it is
-
 # Payment Networks
 
 You may be interested in this document if:
@@ -24,8 +19,6 @@ Payment networks can document different payment completion consensuses:
 - Automatic: the issuer describes the detection criteria (e.g. funds received on a specific address or transaction with an identifier)
 
 For automatic payment networks, the status is never stored. Request network clients should compute the payment status every time.
-
-TODO: nothing prevents a request to have several payment networks
 
 # Balance computation
 
