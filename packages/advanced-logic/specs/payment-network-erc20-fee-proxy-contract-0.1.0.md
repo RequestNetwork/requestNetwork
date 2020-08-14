@@ -36,7 +36,7 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 The `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains the same 6 arguments as the `transferFromWithReferenceAndFee` function.
 
 TODO: don't merge without fixing this TODO
-TODO: [See smart contract source]()
+[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
 
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |
@@ -280,4 +280,3 @@ the 'addFee' event:
 | **parameters**            |                                 |
 | **parameters.feeAddress** | `feeAddress` from parameters    |
 | **parameters.feeAmount**  | `feeAmount` from parameters     |
-
