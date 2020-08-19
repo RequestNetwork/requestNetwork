@@ -148,13 +148,13 @@ contract ERC20ProxyFromETH {
     external 
     payable
   {
-    IERC20 erc20 = IERC20(0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa);
+    IERC20 erc20 = IERC20(multiDaiKovan);
     convertEthToDai(_amount);
     require(erc20.transfer(_to, _amount), "transfer() failed");
     //require(erc20.transferFrom(msg.sender, _to, _amount), "transferFrom() failed");
     
     emit TransferWithReference(
-      0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa,
+      multiDaiKovan,
       _to,
       _amount,
       _paymentReference
